@@ -1,13 +1,5 @@
 package io.openems.edge.ess.kostal.piko;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.service.component.ComponentContext;
@@ -201,7 +193,6 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 				.option(5, "Running")//
 		), //
 		INVERTER_TYPE_NAME(new Doc().type(OpenemsType.STRING)), //
-
 		NUMBER_OF_STRING(new Doc().type(OpenemsType.INTEGER)), //
 		NUMBER_OF_PHASES(new Doc().type(OpenemsType.INTEGER)), //
 		POWER_ID(new Doc().type(OpenemsType.INTEGER)), //

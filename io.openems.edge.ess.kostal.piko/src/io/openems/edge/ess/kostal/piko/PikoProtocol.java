@@ -26,43 +26,57 @@ public class PikoProtocol {
 		this.deviceId = deviceId;
 	}
 
-	private Socket _socket = null;
-	
-	private Socket getOpenSocket() {
+	private static Socket _socket = null;
+	private static OutputStream out = null;
+	private static InputStream in = null;
+	private final static boolean DEBUG_MODE = false;
+
+	private Socket getOpenSocket() throws Exception {
 		// TODO: Check if Socket is opened. If not -> open it
-		return this._socket;
-	}
-	
-	public void execute(List<ReadTask> nextReadTasks) {
-		Socket socket = this.getOpenSocket();
-		
-		for (ReadTask task : nextReadTasks) {
-			try {
-				Channel<?> channel = this.parent.channel(task.getChannelId());
-				switch (task.getFieldType()) {
-				case STRING:
-					channel.setNextValue(getStringValue(task.getAddress()));
-					break;
-				case INTEGER:
-					channel.setNextValue(getIntegerValue(task.getAddress()));
-					break;
-				case BOOLEAN:
-					channel.setNextValue(getBooleanValue(task.getAddress()));
-					break;
-				case INTEGER_UNSIGNED_BYTE:
-					channel.setNextValue(getIntegerFromUnsignedByte(task.getAddress()));
-					break;
-				case FLOAT:
-					channel.setNextValue(getFloatValue(task.getAddress()));
-					break;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+		try {
+			_socket = new Socket(this.ip, port);
+			if (!_socket.isConnected()) {
+				throw new Exception("Socket Could not Opened");
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		return PikoProtocol._socket;
 	}
 
-	private final static boolean DEBUG_MODE = false;
+	public void execute(List<ReadTask> nextReadTasks) {
+		try {
+			Socket socket = this.getOpenSocket();
+			PikoProtocol.out = socket.getOutputStream();
+			PikoProtocol.in = socket.getInputStream();
+			for (ReadTask task : nextReadTasks) {
+				try {
+					Channel<?> channel = this.parent.channel(task.getChannelId());
+					switch (task.getFieldType()) {
+					case STRING:
+						channel.setNextValue(getStringValue(task.getAddress()));
+						break;
+					case INTEGER:
+						channel.setNextValue(getIntegerValue(task.getAddress()));
+						break;
+					case BOOLEAN:
+						channel.setNextValue(getBooleanValue(task.getAddress()));
+						break;
+					case INTEGER_UNSIGNED_BYTE:
+						channel.setNextValue(getIntegerFromUnsignedByte(task.getAddress()));
+						break;
+					case FLOAT:
+						channel.setNextValue(getFloatValue(task.getAddress()));
+						break;
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	protected boolean getBooleanValue(int address) throws Exception {
 		byte[] bytes = sendAndReceive(address);
@@ -114,104 +128,67 @@ public class PikoProtocol {
 		return result;
 	}
 
-	private static byte[] sendAndReceive(int address) throws Exception {
+	private static byte[] sendAndReceive(int address)
+			throws Exception {
 		/*
 		 * convert address to byte array
 		 */
 		byte[] result = addressWithByteBuffer(address);
-		Socket socket = null;
-		OutputStream out = null;
-		InputStream in = null;
-		try {
-			/*
-			 * Open socket and streams
-			 */
-			// TODO receive Socket as a parameter; don't open it everytime here
-			socket = new Socket("localhost", 81);
-			out = socket.getOutputStream();
-			in = socket.getInputStream();
-			/*
-			 * Calculate Checksum
-			 */
-			byte checksum = calculateChecksumFromAddress(result);
-			/*
-			 * Build Request
-			 */
-			byte[] request = new byte[] { 0x62, (byte) 0Xff, 0x03, (byte) 0xff, 0x00, (byte) 0xf0,
-					Array.getByte(result, 0), Array.getByte(result, 1), Array.getByte(result, 2),
-					Array.getByte(result, 3), checksum, 0x00 };
-			/*
-			 * Send
-			 */
-			if (DEBUG_MODE) {
-				for (byte b : request) {
-					System.out.print(Integer.toHexString(b));
-				}
-				System.out.println();
-			}
-			out.write(request);
-			out.flush();
-			Thread.sleep(100);
-			/*
-			 * Receive
-			 */
-			List<Byte> datasList = new ArrayList<>();
-			while (in.available() > 0) {
-				byte data = (byte) in.read();
-				datasList.add(data);
-			}
-			if (datasList.isEmpty()) {
-				throw new Exception("Could not receive any data");
-			}
-			byte[] datas = new byte[datasList.size()];
-			for (int i = 0; i < datasList.size(); i++) {
-				datas[i] = datasList.get(i);
-			}
-			/*
-			 * Verify Checksum of Reply
-			 */
-			boolean isChecksumOk = verifyChecksumOfReply(datas);
-			if (!isChecksumOk) {
-				throw new Exception("Checksum cannot be verified");
-			}
-			/*
-			 * Extract value
-			 */
-			byte[] results = new byte[datas.length - 7];
-			for (int i = 5; i < datas.length - 2; i++) {
-				results[i - 5] = datas[i];
-			}
-			/*
-			 * Return value
-			 */
-			return results;
 
-		} finally {
-			/*
-			 * Close socket and streams
-			 */
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (socket != null) {
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		// TODO receive Socket as a parameter; don't open it everytime here
+		/*
+		 * Calculate Checksum
+		 */
+		byte checksum = calculateChecksumFromAddress(result);
+		/*
+		 * Build Request
+		 */
+		byte[] request = new byte[] { 0x62, (byte) 0Xff, 0x03, (byte) 0xff, 0x00, (byte) 0xf0, Array.getByte(result, 0),
+				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3), checksum, 0x00 };
+		/*
+		 * Send
+		 */
+		if (DEBUG_MODE) {
+			for (byte b : request) {
+				System.out.print(Integer.toHexString(b));
 			}
 		}
+		out.write(request);
+		out.flush();
+		Thread.sleep(100);
+		/*
+		 * Receive
+		 */
+		List<Byte> datasList = new ArrayList<>();
+		while (in.available() > 0) {
+			byte data = (byte) in.read();
+			datasList.add(data);
+		}
+		if (datasList.isEmpty()) {
+			throw new Exception("Could not receive any data");
+		}
+		byte[] datas = new byte[datasList.size()];
+		for (int i = 0; i < datasList.size(); i++) {
+			datas[i] = datasList.get(i);
+		}
+		/*
+		 * Verify Checksum of Reply
+		 */
+		boolean isChecksumOk = verifyChecksumOfReply(datas);
+		if (!isChecksumOk) {
+			throw new Exception("Checksum cannot be verified");
+		}
+		/*
+		 * Extract value
+		 */
+		byte[] results = new byte[datas.length - 7];
+		for (int i = 5; i < datas.length - 2; i++) {
+			results[i - 5] = datas[i];
+		}
+		/*
+		 * Return value
+		 */
+		return results;
 	}
 
 	private static byte calculateChecksumFromAddress(byte[] result) {
@@ -232,8 +209,30 @@ public class PikoProtocol {
 		return checksum == 0x00;
 	}
 
+	/**
+	 * Closing the socket, streams and Deactivate the Component
+	 */
 	public void deactivate() {
-		// TODO: close the Socket
+		if (in != null) {
+			try {
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (out != null) {
+			try {
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (PikoProtocol._socket != null) {
+			try {
+				PikoProtocol._socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
-
 }
