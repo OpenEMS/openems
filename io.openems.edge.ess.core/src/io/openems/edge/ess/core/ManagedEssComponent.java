@@ -24,8 +24,6 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		})
 public class ManagedEssComponent implements EventHandler {
 
-//	private final Logger log = LoggerFactory.getLogger(ManagedEssComponent.class);
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private volatile List<ManagedSymmetricEss> components = new CopyOnWriteArrayList<>();
 

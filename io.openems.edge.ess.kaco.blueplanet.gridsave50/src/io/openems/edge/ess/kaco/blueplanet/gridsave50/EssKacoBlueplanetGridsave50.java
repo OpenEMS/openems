@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -53,6 +54,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private Battery battery;
+
 	public EssKacoBlueplanetGridsave50() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 		/*
@@ -70,6 +74,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		// update filter for 'battery'
+				if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery",
+						config.battery_id())) {
+					return;
+				}
+				
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 	}
@@ -396,10 +406,18 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			int activePowerPct = activePower / 52;
 
 			try {
-				disMinV.setNextWriteValue(696);
-				disMaxA.setNextWriteValue(3);
-				chaMaxV.setNextWriteValue(854);
-				chaMaxA.setNextWriteValue(3);
+				if (battery.getDischargeMinVoltage().value().get() != null) { // TODO if value is not present do nothing?! set zero?
+					disMinV.setNextWriteValue(battery.getDischargeMinVoltage().value().get());
+				}
+				if (battery.getDischargeMaxCurrent().value().get() != null) {
+					disMaxA.setNextWriteValue(battery.getDischargeMaxCurrent().value().get());
+				}
+				if (battery.getChargeMaxVoltage().value().get() != null) {
+					chaMaxV.setNextWriteValue(battery.getChargeMaxVoltage().value().get());	
+				}
+				if (battery.getChargeMaxCurrent().value().get() != null) {
+					chaMaxA.setNextWriteValue(battery.getChargeMaxCurrent().value().get());
+				}
 				enLimit.setNextWriteValue(1);
 				wSetEna.setNextWriteValue(1 /* TODO use enum */);
 				wSetPct.setNextWriteValue(activePowerPct);
