@@ -6,7 +6,7 @@ Private-Package: \
 	io.openems.edge.core.meta,\
 	io.openems.edge.core.sum,\
 	io.openems.edge.core.sum.internal,\
-	io.openems.edge.cycle
+	io.openems.edge.core.cycle
 	
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\

@@ -1,4 +1,4 @@
-package io.openems.edge.cycle;
+package io.openems.edge.core.cycle;
 
 import java.util.HashMap;
 import java.util.List;
