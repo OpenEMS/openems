@@ -91,7 +91,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	}
 
 	/**
-	 * Sets the multiplier value. The original value is getting multiplied by this: value = value * multiplier - delta
+	 * Sets the multiplier value. The original value is getting multiplied by 10 ^ this: value = value * 10 ^ multiplier
+	 * - delta
 	 *
 	 * @param delta
 	 * @return
