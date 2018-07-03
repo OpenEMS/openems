@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,7 +29,7 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 public abstract class AbstractPower {
 
-	// private final Logger log = LoggerFactory.getLogger(AbstractPower.class);
+//	private final Logger log = LoggerFactory.getLogger(AbstractPower.class);
 
 	/**
 	 * Holds all ManagedSymmetricEss objects covered by this Power object
@@ -81,6 +82,14 @@ public abstract class AbstractPower {
 	 * the applyPower()-method.
 	 */
 	private final List<AbstractConstraint> cycleConstraints = new ArrayList<>();
+
+	/**
+	 * Whether this Power class is enabled or disabled. If it is disabled,
+	 * applyPower() is never calling the callbacks at ManagedSymmetricEss. This is
+	 * useful if Power calculation is handled by another Power object - e.g. by
+	 * EssCluster
+	 */
+	private final AtomicBoolean isEnabled = new AtomicBoolean(true);
 
 	public AbstractPower(ManagedSymmetricEss... esss) {
 		this.esss = esss;
@@ -194,6 +203,10 @@ public abstract class AbstractPower {
 		// TODO add constraint to keep every coefficient < Integer.MAX
 	}
 
+	public void setDisabled() {
+		this.isEnabled.set(false);
+	}
+
 	/**
 	 * Merges Static and Cycle Constraints
 	 * 
@@ -267,8 +280,7 @@ public abstract class AbstractPower {
 	 * @param type
 	 * @param constraint
 	 * @return the original constraint
-	 * @throws PowerException
-	 *             if solving fails
+	 * @throws PowerException if solving fails
 	 */
 	protected synchronized <T extends AbstractConstraint> T addConstraintAndSolve(ConstraintType type, T constraint)
 			throws PowerException {
@@ -426,10 +438,16 @@ public abstract class AbstractPower {
 	 * </ul>
 	 */
 	public synchronized void applyPower() {
-		// log.debug("ApplyPower [" + Arrays.stream(this.esss).map(ess ->
+		// log.info("ApplyPower [" + Arrays.stream(this.esss).map(ess ->
 		// ess.id()).collect(Collectors.joining(", "))
 		// + "], Static [" + this.staticConstraints.size() + "], Cycle [" +
-		// this.cycleConstraints.size() + "]");
+		// this.cycleConstraints.size()
+		// + "], Enabled [" + this.isEnabled.get() + "]");
+
+		if (!this.isEnabled.get()) {
+			return;
+		}
+
 		//
 		// log.debug("Static Constraints");
 		// for (AbstractConstraint c : this.staticConstraints) {
@@ -455,7 +473,7 @@ public abstract class AbstractPower {
 				 * ManagedAsymmetricEss
 				 */
 				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
-				
+
 				// Active Power
 				int activePowerL1 = this.roundToInverterPrecision(e,
 						solution[i + Pwr.ACTIVE.getOffset() + Phase.L1.getOffset()]);
@@ -566,6 +584,15 @@ public abstract class AbstractPower {
 		}
 
 		return IntUtils.roundToPrecision((float) value, round, precision);
+	}
+
+	/**
+	 * Gets the internal number of coefficients
+	 * 
+	 * @return
+	 */
+	public int getNoOfCoefficients() {
+		return noOfCoefficients;
 	}
 
 	@Override

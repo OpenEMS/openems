@@ -152,5 +152,4 @@ public interface Ess extends OpenemsComponent {
 	default Channel<Integer> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
 	}
-
 }
