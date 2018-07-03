@@ -44,6 +44,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 
 	private final AverageInteger<Ess> soc;
 	private final SumInteger<Ess> activePower;
+	private final SumInteger<Ess> maxActivePower;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -58,6 +59,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 		 */
 		this.soc = new AverageInteger<Ess>(this, Ess.ChannelId.SOC, Ess.ChannelId.SOC);
 		this.activePower = new SumInteger<Ess>(this, Ess.ChannelId.ACTIVE_POWER, Ess.ChannelId.ACTIVE_POWER);
+		this.maxActivePower = new SumInteger<Ess>(this, Ess.ChannelId.MAX_ACTIVE_POWER, Ess.ChannelId.MAX_ACTIVE_POWER);
 	}
 
 	@Activate
@@ -111,6 +113,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 		for (Ess ess : this.esss) {
 			this.soc.addComponent(ess);
 			this.activePower.addComponent(ess);
+			this.maxActivePower.addComponent(ess);
 		}
 	}
 
@@ -123,6 +126,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 		for (Ess ess : this.esss) {
 			this.soc.removeComponent(ess);
 			this.activePower.removeComponent(ess);
+			this.maxActivePower.removeComponent(ess);
 		}
 	}
 
