@@ -115,6 +115,8 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 			this.activePower.addComponent(ess);
 			this.maxActivePower.addComponent(ess);
 		}
+		
+		super.activate(context, config.service_pid(), config.id(), config.enabled());
 	}
 
 	@Deactivate
