@@ -1,4 +1,4 @@
-package io.openems.edge.core.sum.internal;
+package io.openems.edge.common.channel.merger;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -12,7 +12,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.core.sum.Sum;
 
 public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 
@@ -24,15 +23,9 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 
 	protected final Map<String, Value<T>> valueMap = new ConcurrentHashMap<>();
 
-	public ChannelsFunction(Sum parent, io.openems.edge.core.sum.Sum.ChannelId targetChannelId,
-			ChannelId sourceChannelId) {
+	public ChannelsFunction(OpenemsComponent parent, ChannelId targetChannelId, ChannelId sourceChannelId) {
 		this.targetChannel = parent.channel(targetChannelId);
 		this.sourceChannelId = sourceChannelId;
-	}
-	
-	public ChannelsFunction(OpenemsComponent parent, ChannelId target, ChannelId source) {
-		this.targetChannel = parent.channel(target);
-		this.sourceChannelId = source;
 	}
 
 	public void addComponent(C component) {

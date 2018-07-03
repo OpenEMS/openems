@@ -1,15 +1,13 @@
-package io.openems.edge.core.sum.internal;
+package io.openems.edge.common.channel.merger;
 
 import java.util.NoSuchElementException;
 
+import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.core.sum.Sum;
-import io.openems.edge.core.sum.Sum.ChannelId;
 
 public class SumInteger<C extends OpenemsComponent> extends ChannelsFunction<C, Integer> {
 
-	public SumInteger(Sum parent, ChannelId targetChannelId,
-			io.openems.edge.common.channel.doc.ChannelId sourceChannelId) {
+	public SumInteger(OpenemsComponent parent, ChannelId targetChannelId, ChannelId sourceChannelId) {
 		super(parent, targetChannelId, sourceChannelId);
 	}
 

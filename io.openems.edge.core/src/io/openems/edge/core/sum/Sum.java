@@ -18,12 +18,12 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.merger.AverageInteger;
 import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
+import io.openems.edge.common.channel.merger.SumInteger;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.core.sum.internal.AverageInteger;
-import io.openems.edge.core.sum.internal.SumInteger;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
@@ -246,6 +246,10 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
+		if(!ess.addToSum()) {
+			// ignore this Ess
+			return;
+		}
 		this.esss.add(ess);
 		this.essSoc.addComponent(ess);
 		this.essActivePower.addComponent(ess);
@@ -335,7 +339,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		this.essSoc = new AverageInteger<Ess>(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
 		this.essActivePower = new SumInteger<Ess>(this, ChannelId.ESS_ACTIVE_POWER, Ess.ChannelId.ACTIVE_POWER);
 		/*
-		 * Grid
+//		 * Grid
 		 */
 		this.gridActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.GRID_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.ACTIVE_POWER);

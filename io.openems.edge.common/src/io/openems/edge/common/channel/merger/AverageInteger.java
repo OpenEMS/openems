@@ -1,4 +1,4 @@
-package io.openems.edge.core.sum.internal;
+package io.openems.edge.common.channel.merger;
 
 import java.util.NoSuchElementException;
 
