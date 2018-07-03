@@ -35,6 +35,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
+import io.openems.impl.protocol.modbus.internal.WordOrder;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
@@ -183,6 +184,9 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 	/*
 	 * This Channels
 	 */
+	public ModbusReadLongChannel apparentPowerL1;
+	public ModbusReadLongChannel apparentPowerL2;
+	public ModbusReadLongChannel apparentPowerL3;
 	public ModbusReadLongChannel activeNegativeEnergy;
 	public ModbusReadLongChannel activePositiveEnergy;
 	public ModbusReadLongChannel reactiveNegativeEnergy;
@@ -193,62 +197,84 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+		final int OFFSET = 300000 + 1;
+		/**
+		 * See Modbus defintion: https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
+		 */
 		return new ModbusProtocol( //
-				new ModbusInputRegisterRange(1, //
-
-						new SignedDoublewordElement(1, //
-								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(2)),
-						new SignedDoublewordElement(3, //
-								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(2)),
-						new SignedDoublewordElement(5, //
-								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(2))),
-				new ModbusInputRegisterRange(13, new SignedDoublewordElement(13, //
-						currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
-						new SignedDoublewordElement(15, //
-								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
-						new SignedDoublewordElement(17, //
-								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA")),
-						new SignedDoublewordElement(19, //
+				new ModbusInputRegisterRange(300001 - OFFSET, //
+						new SignedDoublewordElement(300001 - OFFSET, //
+								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(2))
+						.wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300003 - OFFSET, //
+								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(2))
+						.wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300005 - OFFSET, //
+								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(2))
+						.wordorder(WordOrder.LSWMSW)),
+				new ModbusInputRegisterRange(300013 - OFFSET, //
+						new SignedDoublewordElement(300013 - OFFSET, //
+								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA"))
+						.wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300015 - OFFSET, //
+								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA"))
+						.wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300017 - OFFSET, //
+								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA"))
+						.wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300019 - OFFSET, //
 								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-								.multiplier(-1)),
-						new SignedDoublewordElement(21, //
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300021 - OFFSET, //
 								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-								.multiplier(-1)),
-						new SignedDoublewordElement(23, //
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300023 - OFFSET, //
 								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-								.multiplier(-1)),
-						new SignedDoublewordElement(25, //
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300025 - OFFSET, //
+								apparentPowerL1 = new ModbusReadLongChannel("ApparentPowerL1", this).unit("VA")
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300027 - OFFSET, //
+								apparentPowerL2 = new ModbusReadLongChannel("ApparentPowerL2", this).unit("VA")
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300029 - OFFSET, //
+								apparentPowerL3 = new ModbusReadLongChannel("ApparentPowerL3", this).unit("VA")
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300031 - OFFSET, //
 								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this).unit("var")
-								.multiplier(-1)),
-						new SignedDoublewordElement(27, //
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300033 - OFFSET, //
 								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this).unit("var")
-								.multiplier(-1)),
-						new SignedDoublewordElement(29, //
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300035 - OFFSET, //
 								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this)
-								.unit("var").multiplier(-1)),
-						new DummyElement(31, 40), new SignedDoublewordElement(41, //
-								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(-1)),
-						new SignedDoublewordElement(43, //
+								.unit("var").multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new DummyElement(300037 - OFFSET, 300040 - OFFSET), //
+						new SignedDoublewordElement(300041 - OFFSET, //
+								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(-1))
+						.wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300043 - OFFSET, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")
-								.multiplier(-1)),
-						new SignedDoublewordElement(45, //
-								reactivePower = new ModbusReadLongChannel("ReactivePower", this)
-								.unit("var").multiplier(-1))),
-				new ModbusInputRegisterRange(52, new SignedWordElement(52, //
-						frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ").multiplier(2)),
-						new UnsignedDoublewordElement(53, //
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW),
+						new SignedDoublewordElement(300045 - OFFSET, //
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var")
+								.multiplier(-1)).wordorder(WordOrder.LSWMSW)),
+				new ModbusInputRegisterRange(300052 - OFFSET, //
+						new SignedWordElement(300052 - OFFSET, //
+								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ").multiplier(2)),
+						new UnsignedDoublewordElement(300053 - OFFSET, //
 								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
-								.unit("kWh").multiplier(1)),
-						new UnsignedDoublewordElement(55, //
+								.unit("kWh").multiplier(1)).wordOrder(WordOrder.LSWMSW),
+						new UnsignedDoublewordElement(300055 - OFFSET, //
 								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
-								.unit("kvarh").multiplier(-1))),
-				new ModbusRegisterRange(79, //
-						new UnsignedDoublewordElement(79, //
-								activeNegativeEnergy = new ModbusReadLongChannel(
-										"ActiveNegativeEnergy", this).unit("kWh").multiplier(-1)),
-						new UnsignedDoublewordElement(81, //
+								.unit("kvarh").multiplier(-1)).wordOrder(WordOrder.LSWMSW)),
+				new ModbusRegisterRange(300079 - OFFSET, //
+						new UnsignedDoublewordElement(300079 - OFFSET, //
+								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
+								.unit("kWh").multiplier(-1)).wordOrder(WordOrder.LSWMSW),
+						new UnsignedDoublewordElement(300081 - OFFSET, //
 								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
-								.unit("kvarh").multiplier(-1))));
+								.unit("kvarh").multiplier(-1)).wordOrder(WordOrder.LSWMSW)));
 	}
 
 	@Override
