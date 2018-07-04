@@ -29,6 +29,7 @@ CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
 			"FENECON Mini" "" \
 			"FENECON DESS" "" \
 			"FENECON Pro" "" \
+			"FENECON Pro mit Gavazzi" ""\
 			"FENECON Pro AC-Insel" "" \
 			"FENECON Pro Heizstab" "" \
 			"FENECON Pro Wärmepumpe" "" \
@@ -41,10 +42,11 @@ CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
 			case $CHOICE in
 					"FENECON Mini")             	echo "Es wurde Mini gewählt";;
 					"FENECON DESS")                 echo "Es wurde Pro Hybrid gewählt";;
-					"FENECON Pro")             		echo "Es wurde Pro 9-12 gewählt";;
+					"FENECON Pro")        		echo "Es wurde Pro 9-12 gewählt";;
+					"FENECON Pro mit Gavazzi")	echo "Es würde Pro mit Gavazzi";;
 					"FENECON Pro AC-Insel")         echo "Es wurde AC-Insel gewählt";;
-					"FENECON Pro Heizstab")			echo "Es wurde Heizstab gewählt";;
-					"FENECON Pro Waermepumpe")       echo "Es wurde Wärmepumpe gewählt";;
+					"FENECON Pro Heizstab")		echo "Es wurde Heizstab gewählt";;
+					"FENECON Pro Waermepumpe")      echo "Es wurde Wärmepumpe gewählt";;
 					"FENECON Commercial AC")        echo "Es wurde Commercial AC gewählt";;
 					"FENECON Commercial DC")        echo "Es wurde Commercial DC gewählt";;
 					"FENECON Commercial Hybrid")    echo "Es wurde Comemrcial Hybrid gewählt";;
