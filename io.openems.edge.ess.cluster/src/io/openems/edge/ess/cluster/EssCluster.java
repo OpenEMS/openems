@@ -25,6 +25,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.LinearConstraintWrapper;
 import io.openems.edge.ess.power.api.Phase;
@@ -38,7 +39,7 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
-public class EssCluster extends AbstractOpenemsComponent implements ManagedSymmetricEss, Ess, OpenemsComponent {
+public class EssCluster extends AbstractOpenemsComponent implements ManagedSymmetricEss, Ess, MetaEss, OpenemsComponent {
 
 	private Power power = new Power(); // initialize empty power
 
@@ -130,11 +131,6 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 			this.activePower.removeComponent(ess);
 			this.maxActivePower.removeComponent(ess);
 		}
-	}
-
-	@Override
-	public boolean addToSum() {
-		return false;
 	}
 
 	@Override

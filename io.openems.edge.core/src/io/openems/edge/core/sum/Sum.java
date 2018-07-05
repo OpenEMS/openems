@@ -25,6 +25,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.Meter;
@@ -246,7 +247,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
-		if(!ess.addToSum()) {
+		if(ess instanceof MetaEss) {
 			// ignore this Ess
 			return;
 		}
@@ -257,6 +258,10 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	protected void removeEss(Ess ess) {
+		if(ess instanceof MetaEss) {
+			// ignore this Ess
+			return;
+		}
 		this.esss.remove(ess);
 		this.essSoc.removeComponent(ess);
 		this.essActivePower.removeComponent(ess);

@@ -97,16 +97,6 @@ public interface Ess extends OpenemsComponent {
 	}
 
 	/**
-	 * Whether this Ess should be considered by the Core.Sum component. This is true
-	 * for every single Ess, but should be false e.g. for a EssCluster
-	 * 
-	 * @return
-	 */
-	default boolean addToSum() {
-		return true;
-	}
-
-	/**
 	 * Gets the State of Charge in [%], range 0..100 %
 	 * 
 	 * @return
