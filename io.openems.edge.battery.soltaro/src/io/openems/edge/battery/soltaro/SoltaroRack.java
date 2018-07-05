@@ -1,6 +1,7 @@
 package io.openems.edge.battery.soltaro;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,7 +20,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -31,10 +31,11 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -45,22 +46,23 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class SoltaroRack extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler {
+public class SoltaroRack extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
 	protected final static int UNIT_ID = 0x1;
+	protected final static int SYSTEM_ON = 1;
+	protected final static int SYSTEM_OFF = 0;
 
 	private String modbusBridgeId;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	public SoltaroRack() {
 		log.info("initializing channels");
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		
+
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -84,107 +86,143 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 		return modbusBridgeId;
 	}
 
-	public enum ChargeIndication {
-		
-		STANDING(0),
-		DISCHARGING(1),
-		CHARGING(2);
-		
-		int value;
+	public enum ChargeIndication implements OptionsEnum {
 
-		private ChargeIndication(int value) {
+		STANDING(0, "Standing"), DISCHARGING(1, "Discharging"), CHARGING(2, "Charging");
+
+		private int value;
+		private String option;
+
+		private ChargeIndication(int value, String option) {
 			this.value = value;
+			this.option = option;
 		}
-	}
-	
-public enum ContactorControl {
-		
-	CUT_OFF(0),
-	CONNECTION_INITIATING(1),
-	ON_GRID(3);
-		
-		int value;
 
-		private ContactorControl(int value) {
-			this.value = value;
+		@Override
+		public int getValue() {
+			return value;
+		}
+
+		@Override
+		public String getOption() {
+			return option;
 		}
 	}
 
-public enum ClusterRunState {
-	
-	NORMAL(0),
-	STOP_CHARGING(1),
-	STOP_DISCHARGE(2),
-	STANDBY(3);
-		
-		int value;
+	public enum ContactorControl implements OptionsEnum {
 
-		private ClusterRunState(int value) {
+		CUT_OFF(0, "Cut off"), CONNECTION_INITIATING(1, "Connection initiating"), ON_GRID(3, "On grid");
+
+		int value;
+		String option;
+
+		private ContactorControl(int value, String option) {
 			this.value = value;
+			this.option = option;
+		}
+
+		@Override
+		public int getValue() {
+			return value;
+		}
+
+		@Override
+		public String getOption() {
+			return option;
 		}
 	}
-	
 
-// TODO Temperature units are in 0.1°C, this is not done correctly yet!
+	public enum ClusterRunState implements OptionsEnum {
+
+		NORMAL(0, "Normal"), STOP_CHARGING(1, "Stop charging"), STOP_DISCHARGE(2, "Stop discharging"),
+		STANDBY(3, "Standby");
+
+		private int value;
+		private String option;
+
+		private ClusterRunState(int value, String option) {
+			this.value = value;
+			this.option = option;
+		}
+
+		@Override
+		public int getValue() {
+			return value;
+		}
+
+		@Override
+		public String getOption() {
+			return option;
+		}
+	}
+
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		BMS_CONTACTOR_CONTROL(new Doc() //
-				.option(ContactorControl.CUT_OFF.value, ContactorControl.CUT_OFF) //
-				.option(ContactorControl.CONNECTION_INITIATING.value, ContactorControl.CONNECTION_INITIATING) //
-				.option(ContactorControl.ON_GRID.value, ContactorControl.ON_GRID) //
-		), //
+		BMS_CONTACTOR_CONTROL(new Doc().options(ContactorControl.values())), //
 		SYSTEM_OVER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
 		SYSTEM_UNDER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		CLUSTER_1_CHARGE_INDICATION(new Doc() //
-				.option(ChargeIndication.STANDING.value, ChargeIndication.STANDING) //
-				.option(ChargeIndication.DISCHARGING.value, ChargeIndication.DISCHARGING) //
-				.option(ChargeIndication.CHARGING.value, ChargeIndication.CHARGING) //
-		), //
+		CLUSTER_1_CHARGE_INDICATION(new Doc().options(ChargeIndication.values())), //
 		CLUSTER_1_SOH(new Doc().unit(Unit.PERCENT)), //
 		CLUSTER_1_MAX_CELL_VOLTAGE_ID(new Doc().unit(Unit.NONE)), //
 		CLUSTER_1_MAX_CELL_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_MIN_CELL_VOLTAGE_ID(new Doc().unit(Unit.NONE)), //
 		CLUSTER_1_MIN_CELL_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_MAX_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
-		CLUSTER_1_MAX_CELL_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		CLUSTER_1_MAX_CELL_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 		CLUSTER_1_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
-		CLUSTER_1_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		CLUSTER_1_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 		SYSTEM_INSULATION(new Doc().unit(Unit.KILOOHM)), //
 		SYSTEM_ACCEPT_MAX_CHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 2")), //
+		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
+		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 2")), //
 		ALARM_LEVEL_2_INSULATION_LOW(new Doc().level(Level.WARNING).text("Cluster1Insulation Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(new Doc().level(Level.WARNING).text("Cluster1 Cell Charge Temperature Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(new Doc().level(Level.WARNING).text("Cluster1 Cell Charge Temperature High Alarm Level 2")), //
-		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Discharge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage Low Alarm Level 2")), //
+		ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(
+				new Doc().level(Level.WARNING).text("Cluster1 Cell Charge Temperature Low Alarm Level 2")), //
+		ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster1 Cell Charge Temperature High Alarm Level 2")), //
+		ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Discharge Current High Alarm Level 2")), //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(
+				new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage Low Alarm Level 2")), //
 		ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage Low Alarm Level 2")), //
-		ALARM_LEVEL_2_CHA_CURRENT_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Charge Current High Alarm Level 2")), //
-		ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage High Alarm Level 2")), //
-		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage High Alarm Level 2")), //
-		ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 1")), //
-		ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH(new Doc().level(Level.WARNING).text("Cluster1 Total Voltage Diff High Alarm Level 1")), //
+		ALARM_LEVEL_2_CHA_CURRENT_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Charge Current High Alarm Level 2")), //
+		ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage High Alarm Level 2")), //
+		ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage High Alarm Level 2")), //
+		ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 1")), //
+		ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 1")), //
+		ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster1 Total Voltage Diff High Alarm Level 1")), //
 		ALARM_LEVEL_1_INSULATION_LOW(new Doc().level(Level.WARNING).text("Cluster1 Insulation Low Alarm Level1")), //
-		ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage Diff High Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH(new Doc().level(Level.WARNING).text("Cluster X Cell temperature Diff High Alarm Level 1")), //
+		ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage Diff High Alarm Level 1")), //
+		ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster X Cell temperature Diff High Alarm Level 1")), //
 		ALARM_LEVEL_1_SOC_LOW(new Doc().level(Level.WARNING).text("Cluster 1 SOC Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_CHA_TEMP_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Charge Temperature Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Charge Temperature High Alarm Level 1")), //
-		ALARM_LEVEL_1_DISCHA_CURRENT_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Discharge Current High Alarm Level 1")), //
-		ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage Low Alarm Level 1")), //
+		ALARM_LEVEL_1_CELL_CHA_TEMP_LOW(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Charge Temperature Low Alarm Level 1")), //
+		ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Charge Temperature High Alarm Level 1")), //
+		ALARM_LEVEL_1_DISCHA_CURRENT_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Discharge Current High Alarm Level 1")), //
+		ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW(
+				new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage Low Alarm Level 1")), //
 		ALARM_LEVEL_1_CELL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage Low Alarm Level 1")), //
-		ALARM_LEVEL_1_CHA_CURRENT_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Charge Current High Alarm Level 1")), //
-		ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage High Alarm Level 1")), //
-		ALARM_LEVEL_1_CELL_VOLTAGE_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage High Alarm Level 1")), //
-		CLUSTER_RUN_STATE(new Doc() //
-				.option(ClusterRunState.NORMAL.value, ClusterRunState.NORMAL) //
-				.option(ClusterRunState.STOP_CHARGING.value, ClusterRunState.STOP_CHARGING) //
-				.option(ClusterRunState.STOP_DISCHARGE.value, ClusterRunState.STOP_DISCHARGE)
-				.option(ClusterRunState.STANDBY.value, ClusterRunState.STANDBY) //
-		), //
+		ALARM_LEVEL_1_CHA_CURRENT_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Charge Current High Alarm Level 1")), //
+		ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage High Alarm Level 1")), //
+		ALARM_LEVEL_1_CELL_VOLTAGE_HIGH(
+				new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage High Alarm Level 1")), //
+		CLUSTER_RUN_STATE(new Doc().options(ClusterRunState.values())), //
 		FAILURE_INITIALIZATION(new Doc().level(Level.FAULT).text("Initialization failure")), //
 		FAILURE_EEPROM(new Doc().level(Level.FAULT).text("EEPROM fault")), //
 		FAILURE_INTRANET_COMMUNICATION(new Doc().level(Level.FAULT).text("Intranet communication fault")), //
@@ -196,7 +234,7 @@ public enum ClusterRunState {
 		FAILURE_LTC6803(new Doc().level(Level.FAULT).text("LTC6803 fault")), //
 		FAILURE_CONNECTOR_WIRE(new Doc().level(Level.FAULT).text("connector wire fault")), //
 		FAILURE_SAMPLING_WIRE(new Doc().level(Level.FAULT).text("sampling wire fault")), //
-		
+
 		CLUSTER_1_BATTERY_000_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_BATTERY_001_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_BATTERY_002_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
@@ -438,54 +476,54 @@ public enum ClusterRunState {
 		CLUSTER_1_BATTERY_238_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_BATTERY_239_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 
-		CLUSTER_1_BATTERY_00_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_01_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_02_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_03_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_04_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_05_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_06_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_07_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_08_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_09_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_10_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_11_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_12_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_13_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_14_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_15_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_16_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_17_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_18_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_19_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_20_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_21_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_22_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_23_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_24_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_25_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_26_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_27_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_28_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_29_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_30_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_31_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_32_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_33_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_34_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_35_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_36_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_37_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_38_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_39_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_40_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_41_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_42_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_43_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_44_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_45_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_46_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		CLUSTER_1_BATTERY_47_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_00_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_01_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_02_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_03_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_04_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_05_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_06_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_07_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_08_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_09_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_10_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_11_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_12_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_13_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_14_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_15_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_16_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_17_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_18_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_19_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_20_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_21_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_22_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_23_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_24_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_25_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_26_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_27_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_28_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_29_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_30_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_31_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_32_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_33_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_34_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_35_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_36_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_37_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_38_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_39_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_40_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_41_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_42_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_43_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_44_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_45_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_46_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+		CLUSTER_1_BATTERY_47_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 		;
 		private final Doc doc;
 
@@ -500,19 +538,23 @@ public enum ClusterRunState {
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {		
-		return 
-			new ModbusProtocol(unitId, //
-				new FC6WriteRegisterTask(0x2010, new UnsignedWordElement(0x2010)), //
-				new FC3ReadRegistersTask(0x2042 , Priority.HIGH, //
-						m(SoltaroRack.ChannelId.SYSTEM_OVER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2042), ElementToChannelConverter.SCALE_FACTOR_2) //
+	protected ModbusProtocol defineModbusProtocol(int unitId) {
+		return new ModbusProtocol(unitId, //
+				new FC6WriteRegisterTask(0x2010, //
+						m(SoltaroRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010))), //
+				new FC3ReadRegistersTask(0x2042, Priority.HIGH, //
+						m(SoltaroRack.ChannelId.SYSTEM_OVER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2042), //
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
-				new FC3ReadRegistersTask(0x2048 , Priority.HIGH, //
-						m(SoltaroRack.ChannelId.SYSTEM_UNDER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2048), ElementToChannelConverter.SCALE_FACTOR_2) //
+				new FC3ReadRegistersTask(0x2048, Priority.HIGH, //
+						m(SoltaroRack.ChannelId.SYSTEM_UNDER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2048), //
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
-				new FC3ReadRegistersTask(0x2100 , Priority.HIGH,
-						m(SoltaroRack.ChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SoltaroRack.ChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101), ElementToChannelConverter.SCALE_FACTOR_2), //
+				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
+						m(SoltaroRack.ChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SoltaroRack.ChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_SOH, new UnsignedWordElement(0x2104)), //
@@ -527,9 +569,11 @@ public enum ClusterRunState {
 						new DummyRegisterElement(0x210D, 0x2115), //
 						m(SoltaroRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
-				new FC3ReadRegistersTask(0x2160 , Priority.HIGH, //
-						m(SoltaroRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SoltaroRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161), ElementToChannelConverter.SCALE_FACTOR_2) //
+				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
+						m(SoltaroRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SoltaroRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161), //
+								ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						bm(new UnsignedWordElement(0x2140)) //
@@ -543,7 +587,7 @@ public enum ClusterRunState {
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, 7) //
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_2_INSULATION_LOW, 12) //
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(SoltaroRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, 15) //								
+								.m(SoltaroRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, 15) //
 								.build(), //
 						bm(new UnsignedWordElement(0x2141)) //
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH, 0) //
@@ -560,26 +604,26 @@ public enum ClusterRunState {
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_1_INSULATION_LOW, 12) //
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH, 13) //
 								.m(SoltaroRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(SoltaroRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, 15) //								
+								.m(SoltaroRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, 15) //
 								.build(), //
 						m(SoltaroRack.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2142)) //
 				), //
 				new FC3ReadRegistersTask(0x2185, Priority.LOW, //
 						bm(new UnsignedWordElement(0x2185)) //
-								.m(SoltaroRack.ChannelId.FAILURE_SAMPLING_WIRE , 0)//
-								.m(SoltaroRack.ChannelId.FAILURE_CONNECTOR_WIRE , 1)//
-								.m(SoltaroRack.ChannelId.FAILURE_LTC6803 , 2)//
-								.m(SoltaroRack.ChannelId.FAILURE_VOLTAGE_SAMPLING , 3)//
-								.m(SoltaroRack.ChannelId.FAILURE_TEMP_SAMPLING , 4)//
-								.m(SoltaroRack.ChannelId.FAILURE_TEMP_SENSOR , 5)//
-								.m(SoltaroRack.ChannelId.FAILURE_BALANCING_MODULE , 8)//
-								.m(SoltaroRack.ChannelId.FAILURE_TEMP_SAMPLING_LINE , 9)//
-								.m(SoltaroRack.ChannelId.FAILURE_INTRANET_COMMUNICATION , 10)//
-								.m(SoltaroRack.ChannelId.FAILURE_EEPROM , 11)//
-								.m(SoltaroRack.ChannelId.FAILURE_INITIALIZATION , 12)//
+								.m(SoltaroRack.ChannelId.FAILURE_SAMPLING_WIRE, 0)//
+								.m(SoltaroRack.ChannelId.FAILURE_CONNECTOR_WIRE, 1)//
+								.m(SoltaroRack.ChannelId.FAILURE_LTC6803, 2)//
+								.m(SoltaroRack.ChannelId.FAILURE_VOLTAGE_SAMPLING, 3)//
+								.m(SoltaroRack.ChannelId.FAILURE_TEMP_SAMPLING, 4)//
+								.m(SoltaroRack.ChannelId.FAILURE_TEMP_SENSOR, 5)//
+								.m(SoltaroRack.ChannelId.FAILURE_BALANCING_MODULE, 8)//
+								.m(SoltaroRack.ChannelId.FAILURE_TEMP_SAMPLING_LINE, 9)//
+								.m(SoltaroRack.ChannelId.FAILURE_INTRANET_COMMUNICATION, 10)//
+								.m(SoltaroRack.ChannelId.FAILURE_EEPROM, 11)//
+								.m(SoltaroRack.ChannelId.FAILURE_INITIALIZATION, 12)//
 								.build() //
 				), //
-				new FC3ReadRegistersTask(0x2800 , Priority.LOW, //
+				new FC3ReadRegistersTask(0x2800, Priority.LOW, //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_000_VOLTAGE, new UnsignedWordElement(0x2800)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_001_VOLTAGE, new UnsignedWordElement(0x2801)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_002_VOLTAGE, new UnsignedWordElement(0x2802)), //
@@ -701,8 +745,8 @@ public enum ClusterRunState {
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_118_VOLTAGE, new UnsignedWordElement(0x2876)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_119_VOLTAGE, new UnsignedWordElement(0x2877)) //
 
-	), //
-				new FC3ReadRegistersTask(0x2878 , Priority.LOW, //
+				), //
+				new FC3ReadRegistersTask(0x2878, Priority.LOW, //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_120_VOLTAGE, new UnsignedWordElement(0x2878)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_121_VOLTAGE, new UnsignedWordElement(0x2879)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_122_VOLTAGE, new UnsignedWordElement(0x287A)), //
@@ -825,7 +869,7 @@ public enum ClusterRunState {
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_239_VOLTAGE, new UnsignedWordElement(0x28EF)) //
 
 				), //
-				new FC3ReadRegistersTask(0x2C00  , Priority.LOW, //
+				new FC3ReadRegistersTask(0x2C00, Priority.LOW, //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_00_TEMPERATURE, new UnsignedWordElement(0x2C00)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_01_TEMPERATURE, new UnsignedWordElement(0x2C01)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_02_TEMPERATURE, new UnsignedWordElement(0x2C02)), //
@@ -874,8 +918,8 @@ public enum ClusterRunState {
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_45_TEMPERATURE, new UnsignedWordElement(0x2C2D)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_46_TEMPERATURE, new UnsignedWordElement(0x2C2E)), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
-					)//
-			); //
+				)//
+		); //
 	}
 
 	@Override
@@ -883,14 +927,13 @@ public enum ClusterRunState {
 		return "SoC:" + this.getSoc().value().asString();
 	}
 
-
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;
 		}
 		switch (event.getTopic()) {
-	
+
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			checkSystemState();
 			break;
@@ -898,52 +941,134 @@ public enum ClusterRunState {
 	}
 
 	private void checkSystemState() {
-		Integer SYSTEM_ON = 1;
-		
-		IntegerReadChannel contactorControl = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-		Value<Integer> value = contactorControl.value();
-		
-		if(!value.asOptional().isPresent()) {
+		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+
+		Optional<Enum<?>> ccOpt = contactorControlChannel.value().asEnumOptional();
+		if (!ccOpt.isPresent()) {
 			return;
 		}
-			try {
-	
-			if(contactorControl.value().asEnum() == ContactorControl.CONNECTION_INITIATING);
-			Optional<Integer> state = contactorControl.value() .asOptional();
-			
-			if (state.isPresent() && state   .get() == ContactorControl.CUT_OFF.value) {
-				contactorControl.setNextValue(SYSTEM_ON);
-				return;
-			}
-			if (state.isPresent() && state.get() == ContactorControl.CONNECTION_INITIATING.value) { 
-				// do nothing and wait until system is in normal operating mode
-				return;
-			}
-			if (state.isPresent() && state.get() == ContactorControl.ON_GRID.value) { 
-				if (checkForFault()) {
-					handleFaults();
-				} else {
-					doNormalProcessing();
-				}
-			}	
-			
-		} catch (InvalidValueException e) {
-			log.error(e.getMessage());
+		ContactorControl cc = (ContactorControl) ccOpt.get();
+
+		if (cc == ContactorControl.CONNECTION_INITIATING) {
+			// do nothing and wait until system is in normal operating mode
+			return;
 		}
-		
-		
+		if (cc == ContactorControl.CUT_OFF) {
+			contactorControlChannel.setNextValue(SYSTEM_ON);
+			return;
+		}
+
+		if (cc == ContactorControl.ON_GRID) {
+			if (checkForFault()) {
+				handleFaults();
+			} else {
+				doNormalProcessing();
+			}
+		}
+	}
+	
+	private void doNormalProcessing() {
+		// Try to react on possible errors
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)) {
+			handleCellVoltageHigh();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)) {
+			handleTotalVoltageHigh();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)) {
+			handleChargeCurrentHigh();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)) {
+			handleCellVoltageLow();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)) {
+			handleTotalVoltageLow();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)) {
+			handleDischargeCurrentHigh();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)) {
+			handleCellChargeTemperatureHigh();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)) {
+			handleCellChargeTemperatureLow();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)) {
+			handleInsulationLow();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)) {
+			handleCellDischargeTemperatureHigh();
+		}
+		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)) {
+			handleCellDischargeTemperatureLow();
+		}
 	}
 
 	private void handleFaults() {
-		// TODO switch off and on?!
+		Optional<Integer> state = getState().getNextValue().asOptional();
+		if (!state.isPresent()) {
+			return;
+		}
+		switch (state.get()) {
+			case 0: // SAMPLING_WIRE
+			case 1:// CONNECTOR_WIRE
+			case 2:// LTC6803
+			case 3:// VOLTAGE_SAMPLING
+			case 4:// TEMP_SAMPLING
+			case 5:// TEMP_SENSOR
+			case 8:// BALANCING_MODULE
+			case 9:// TEMP_SAMPLING_LINE
+			case 10:// INTRANET_COMMUNICATION
+			case 11:// EEPROM
+			case 12:// INITIALIZATION
+				// Turn off the system
+				IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+				contactorControlChannel.setNextValue(SYSTEM_OFF);
+				break;
+		}
 	}
 
 	private boolean checkForFault() {
 		Optional<Integer> state = getState().getNextValue().asOptional();
-		return ( state.isPresent() && state.get() != 0 );
+		return (state.isPresent() && state.get() != 0);
+	}
+	
+	private boolean isStateValueInChannelSet(ChannelId channelId) {
+		StateChannel channel = this.channel(channelId);
+		Optional<Boolean> valueOpt = channel.value().asOptional();
+		return valueOpt.isPresent() && valueOpt.get();
+	}
+	
+	private void handleCellDischargeTemperatureLow() {
 	}
 
-	private void doNormalProcessing() {
-		System.out.println("Hello, i am working in normal mode!");
+	private void handleCellDischargeTemperatureHigh() {
+	}
+
+	private void handleInsulationLow() {
+	}
+
+	private void handleCellChargeTemperatureLow() {
+	}
+
+	private void handleCellChargeTemperatureHigh() {
+	}
+
+	private void handleDischargeCurrentHigh() {
+	}
+
+	private void handleTotalVoltageLow() {
+	}
+
+	private void handleCellVoltageLow() {
+	}
+
+	private void handleChargeCurrentHigh() {
+	}
+
+	private void handleTotalVoltageHigh() {
+	}
+
+	private void handleCellVoltageHigh() {
 	}
 }

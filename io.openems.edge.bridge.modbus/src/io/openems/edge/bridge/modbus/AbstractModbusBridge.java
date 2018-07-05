@@ -71,6 +71,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	/**
 	 * Remember defective devices (Unit IDs)?
 	 */
+	@SuppressWarnings("unused")
 	private final Set<Integer> defectiveUnitIds = new ConcurrentSkipListSet<Integer>();
 
 	/**

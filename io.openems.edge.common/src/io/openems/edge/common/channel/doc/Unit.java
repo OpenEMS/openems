@@ -95,6 +95,10 @@ public enum Unit {
 	 * Unit of Temperature [°C]
 	 */
 	DEGREE_CELSIUS("°C"),
+	/**
+	 * Unit of Temperature [d°C]
+	 */
+	DEZIDEGREE_CELSIUS("d°C", DEGREE_CELSIUS, -1),
 
 	/*
 	 * Time
@@ -112,7 +116,7 @@ public enum Unit {
 	 */
 	OHM("Ohm"),
 	/**
-	 * Unit of Resistance [mOhm]
+	 * Unit of Resistance [kOhm]
 	 */
 	KILOOHM("kO", OHM, 3);
 	
