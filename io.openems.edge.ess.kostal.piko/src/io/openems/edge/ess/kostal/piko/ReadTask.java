@@ -1,6 +1,5 @@
 package io.openems.edge.ess.kostal.piko;
 
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.ChannelId;
 
 public class ReadTask {

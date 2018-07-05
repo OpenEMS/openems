@@ -71,4 +71,5 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
-	io.openems.edge.ess.core;version=snapshot
+	io.openems.edge.ess.core;version=snapshot,\
+	org.osgi.compendium;version='[4.1.0,4.1.1)'

@@ -1,64 +1,37 @@
 package io.openems.edge.ess.kostal.piko;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.common.channel.Channel;
 
 public class PikoProtocol {
 
+	private final Logger log = LoggerFactory.getLogger(PikoProtocol.class);
+	
 	private final EssKostalPiko parent;
-	private final String ip;
-	private final int port;
 	// private final short deviceId;
-	private Socket _socket = null;
-	private static OutputStream out = null;
-	private static InputStream in = null;
+	private final SocketConnection socketConnection;
+
 	private final static boolean DEBUG_MODE = false;
 
 	// , short deviceId
-	public PikoProtocol(EssKostalPiko parent, String ip, int port) {
+	public PikoProtocol(EssKostalPiko parent, String host, int port) {
 		this.parent = parent;
-		this.ip = ip;
-		this.port = port;
 		// this.deviceId = deviceId;
-	}
-
-	private Socket getOpenSocket() throws Exception {
-		if (!_socket.isConnected()) {
-			_socket = new Socket(ip, port);
-		}
-		return this._socket;
-	}
-
-	private OutputStream getOut() throws IOException {
-		if (out == null) {
-			return _socket.getOutputStream();
-		}
-		return out;
-	}
-
-	private InputStream getIn() throws IOException {
-		if (in == null) {
-			return _socket.getInputStream();
-		}
-		return in;
+		this.socketConnection = new SocketConnection(host, port);
 	}
 
 	public void execute(List<ReadTask> nextReadTasks) {
 		try {
-
-			this.getOpenSocket();
-			this.getOut();
-			this.getIn();
 			for (ReadTask task : nextReadTasks) {
+				this.socketConnection.open();
 				try {
 					Channel<?> channel = this.parent.channel(task.getChannelId());
 					switch (task.getFieldType()) {
@@ -137,7 +110,7 @@ public class PikoProtocol {
 		return result;
 	}
 
-	private static byte[] sendAndReceive(int address) throws Exception {
+	private byte[] sendAndReceive(int address) throws Exception {
 		/*
 		 * convert address to byte array
 		 */
@@ -161,15 +134,15 @@ public class PikoProtocol {
 			}
 		}
 
-		out.write(request);
-		out.flush();
+		this.socketConnection.getOut().write(request);
+		this.socketConnection.getOut().flush();
 		Thread.sleep(100);
 		/*
 		 * Receive
 		 */
 		List<Byte> datasList = new ArrayList<>();
-		while (in.available() > 0) {
-			byte data = (byte) in.read();
+		while (this.socketConnection.getIn().available() > 0) {
+			byte data = (byte) this.socketConnection.getIn().read();
 			datasList.add(data);
 		}
 		if (datasList.isEmpty()) {
@@ -221,26 +194,6 @@ public class PikoProtocol {
 	 * Closing the socket, streams and Deactivate the Component
 	 */
 	public void deactivate() {
-		if (in != null) {
-			try {
-				in.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if (out != null) {
-			try {
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if (this._socket != null) {
-			try {
-				_socket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		this.socketConnection.close();
 	}
 }

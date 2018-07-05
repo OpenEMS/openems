@@ -16,6 +16,7 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.ess.api.Ess;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Unit;
@@ -34,7 +35,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.pikoProtocol = new PikoProtocol(this, "192.168.178.28", 81, (short) 0xff);
+		this.pikoProtocol = new PikoProtocol(this, "192.168.178.28", 81);
 		this.readTasksManager = new ReadTasksManager(//
 				// ONCE
 				new ReadTask(ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
@@ -185,13 +186,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 		KOMBOARD_VERSION(new Doc().type(OpenemsType.STRING)), //
 		PARAMETER_VERSION(new Doc().type(OpenemsType.STRING)), //
 		COUNTRY_NAME(new Doc().type(OpenemsType.STRING)), //
-		INVERTER_OPERATING_STATUS(new Doc().type(OpenemsType.STRING).option(0, "OFF")//
-				.option(1, "Idle")//
-				.option(2, "Starting")//
-				.option(3, "Running-MPP")//
-				.option(4, "Running-Regulated")//
-				.option(5, "Running")//
-		), //
+		INVERTER_OPERATING_STATUS(new Doc().type(OpenemsType.STRING)), //
 		INVERTER_TYPE_NAME(new Doc().type(OpenemsType.STRING)), //
 		NUMBER_OF_STRING(new Doc().type(OpenemsType.INTEGER)), //
 		NUMBER_OF_PHASES(new Doc().type(OpenemsType.INTEGER)), //
@@ -314,4 +309,5 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 			break;
 		}
 	}
+
 }
