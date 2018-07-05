@@ -4,18 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test"/>
-	<classpathentry kind="lib" path="/io.openems.edge.battery.api/generated/io.openems.edge.battery.api.jar" sourcepath="/io.openems.edge.battery.api/generated/io.openems.edge.battery.api.jar">
-		<attributes>
-			<attribute name="bsn" value="io.openems.edge.battery.api.jar"/>
-			<attribute name="type" value="PROJECT"/>
-			<attribute name="project" value="io.openems.edge.battery.api"/>
-			<attribute name="version" value="latest"/>
-			<attribute name="index_location" value="platform:/plugin/bndtools.builder/org/bndtools/builder/classpath/empty.index"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="io/openems/edge/battery/api/*"/>
-			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

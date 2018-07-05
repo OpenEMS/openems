@@ -9,7 +9,6 @@ Private-Package: \
 	io.openems.edge.simulator.datasource.standardloadprofile,\
 	io.openems.edge.simulator.ess,\
 	io.openems.edge.simulator.ess.symmetric.reacting,\
-	io.openems.edge.simulator.battery
 Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
