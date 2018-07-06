@@ -13,4 +13,8 @@ public class PikoWorker extends AbstractWorker {
 		return 1000;
 	}
 
+	public void test() {
+
+	}
+
 }
