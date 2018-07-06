@@ -11,6 +11,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String id() default "bms0";
 
 	boolean enabled() default true;
+	
+	int capacity_kWh() default 10;
 
 	String webconsole_configurationFactory_nameHint() default "BMS Simulated [{id}]";
 }
