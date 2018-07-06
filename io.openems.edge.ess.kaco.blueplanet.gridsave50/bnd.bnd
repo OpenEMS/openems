@@ -16,7 +16,9 @@ Export-Package: \
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.battery.api;version=latest,\
+	io.openems.edge.battery.soltaro;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

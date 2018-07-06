@@ -24,6 +24,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -80,11 +81,23 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
 
 		this.channel(ChannelId.W_MAX).onUpdate(value -> {
+			// TODO unchecked cast
+			@SuppressWarnings("unchecked")
+			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
+			if (!valueOpt.isPresent()) {
+				return;
+			}
 			maxApparentPowerUnscaled = TypeUtils.getAsType(OpenemsType.INTEGER, value);
 			maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 			refreshPower();
 		});
 		this.channel(ChannelId.W_MAX_SF).onUpdate(value -> {
+//			TODO unchecked cast
+			@SuppressWarnings("unchecked")
+			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
+			if (!valueOpt.isPresent()) {
+				return;
+			}
 			maxApparentPowerScaleFactor = TypeUtils.getAsType(OpenemsType.INTEGER, value);
 			maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 			refreshPower();
@@ -321,7 +334,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		/*
 		 * SUNSPEC_121
 		 */
-		W_MAX(new Doc().unit(Unit.WATT)), W_MAX_SF(new Doc().unit(Unit.NONE)),
+		W_MAX(new Doc().unit(Unit.WATT)), //
+		W_MAX_SF(new Doc().unit(Unit.NONE)), //
 		/*
 		 * SUNSPEC_64201
 		 */
@@ -337,12 +351,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		 */
 		V_SF(new Doc().unit(Unit.NONE)), //
 		A_SF(new Doc().unit(Unit.NONE)), //
-		DIS_MIN_V(new Doc().text("min. discharge voltage")), // TODO scale factor
-		DIS_MAX_A(new Doc().text("max. discharge current")), // TODO scale factor
-		DIS_CUTOFF_A(new Doc().text("Disconnect if discharge current lower than DisCutoffA")), // TODO scale factor
-		CHA_MAX_V(new Doc().text("max. charge voltage")), // TODO scale factor
-		CHA_MAX_A(new Doc().text("max. charge current")), // TODO scale factor
-		CHA_CUTOFF_A(new Doc().text("Disconnect if charge current lower than ChaCuttoffA")), // TODO scale factor
+		DIS_MIN_V(new Doc().unit(Unit.MILLIVOLT)), //
+		DIS_MAX_A(new Doc().unit(Unit.MILLIAMPERE)), //
+//		DIS_CUTOFF_A(new Doc().text("Disconnect if discharge current lower than DisCutoffA")), // TODO scale factor
+		CHA_MAX_V(new Doc().unit(Unit.MILLIVOLT)), //
+		CHA_MAX_A(new Doc().unit(Unit.MILLIAMPERE)), //
+//		CHA_CUTOFF_A(new Doc().text("Disconnect if charge current lower than ChaCuttoffA")), // TODO scale factor
 		EN_LIMIT(new Doc().text("new battery limits are activated when EnLimit is 1")), //
 
 		/*
@@ -407,18 +421,22 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 						m(EssKacoBlueplanetGridsave50.ChannelId.V_SF, new SignedWordElement(SUNSPEC_64202 + 6)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.A_SF, new SignedWordElement(SUNSPEC_64202 + 7))),
 				new FC16WriteRegistersTask(SUNSPEC_64202 + 8,
-						m(EssKacoBlueplanetGridsave50.ChannelId.DIS_MIN_V, new UnsignedWordElement(SUNSPEC_64202 + 8)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.DIS_MAX_A, new UnsignedWordElement(SUNSPEC_64202 + 9)),
+						m(EssKacoBlueplanetGridsave50.ChannelId.DIS_MIN_V, new UnsignedWordElement(SUNSPEC_64202 + 8),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(EssKacoBlueplanetGridsave50.ChannelId.DIS_MAX_A, new UnsignedWordElement(SUNSPEC_64202 + 9),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 						new DummyRegisterElement(SUNSPEC_64202 + 10),
-						m(EssKacoBlueplanetGridsave50.ChannelId.CHA_MAX_V, new UnsignedWordElement(SUNSPEC_64202 + 11)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.CHA_MAX_A, new UnsignedWordElement(SUNSPEC_64202 + 12)),
+						m(EssKacoBlueplanetGridsave50.ChannelId.CHA_MAX_V, new UnsignedWordElement(SUNSPEC_64202 + 11),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(EssKacoBlueplanetGridsave50.ChannelId.CHA_MAX_A, new UnsignedWordElement(SUNSPEC_64202 + 12),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 						new DummyRegisterElement(SUNSPEC_64202 + 13, SUNSPEC_64202 + 14),
 						m(EssKacoBlueplanetGridsave50.ChannelId.EN_LIMIT, new UnsignedWordElement(SUNSPEC_64202 + 15))),
 				new FC3ReadRegistersTask(SUNSPEC_64203 + 5, Priority.LOW,
 						m(EssKacoBlueplanetGridsave50.ChannelId.SOC_SF, new SignedWordElement(SUNSPEC_64203 + 5)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.SOH_SF, new SignedWordElement(SUNSPEC_64203 + 6)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.TEMP_SF, new SignedWordElement(SUNSPEC_64203 + 7))),
-				new FC16WriteRegistersTask(SUNSPEC_64203 + 5,
+				new FC16WriteRegistersTask(SUNSPEC_64203 + 16,
 						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOC_, new UnsignedWordElement(SUNSPEC_64203 + 16)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOH, new UnsignedWordElement(SUNSPEC_64203 + 17)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_TEMP, new SignedWordElement(SUNSPEC_64203 + 18))),
@@ -454,34 +472,81 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		IntegerWriteChannel disMinV = this.channel(ChannelId.DIS_MIN_V);
-		IntegerWriteChannel disMaxA = this.channel(ChannelId.DIS_MAX_A);
-		IntegerWriteChannel chaMaxV = this.channel(ChannelId.CHA_MAX_V);
-		IntegerWriteChannel chaMaxA = this.channel(ChannelId.CHA_MAX_A);
-		IntegerWriteChannel enLimit = this.channel(ChannelId.EN_LIMIT);
-		IntegerWriteChannel wSetPct = this.channel(ChannelId.W_SET_PCT);
-		IntegerReadChannel wSetPct_SF = this.channel(ChannelId.W_SET_PCT_SF);
+		IntegerWriteChannel disMinVChannel = this.channel(ChannelId.DIS_MIN_V);
+		IntegerWriteChannel disMaxAChannel = this.channel(ChannelId.DIS_MAX_A);
+		IntegerWriteChannel chaMaxVChannel = this.channel(ChannelId.CHA_MAX_V);
+		IntegerWriteChannel chaMaxAChannel = this.channel(ChannelId.CHA_MAX_A);
+		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
+		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
+		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
 
 		try {
 			// TODO according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be
 			// zero
 			// what happens if battery is null?
+
 			if (battery != null) {
-				disMinV.setNextWriteValue(battery.getDischargeMinVoltage().value().orElse(0));
-				disMaxA.setNextWriteValue(battery.getDischargeMaxCurrent().value().orElse(0));
-				chaMaxV.setNextWriteValue(battery.getChargeMaxVoltage().value().orElse(0));
-				chaMaxA.setNextWriteValue(battery.getChargeMaxCurrent().value().orElse(0));
-				enLimit.setNextWriteValue(1);
+				int disMinV = battery.getDischargeMinVoltage().value().orElse(0); // TODO scalefactor!!
+				int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
+				int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
+				int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
+
+				// Currently soltaro battery rack provides values in milliVolt, but from where
+				// do we know this?
+				// --> Working with channel ids defined from api, then we need other scale
+				// factors...
+				// in case for soltraro this would be -2, TODO
+				//
+
+				// Set fixed ranges for the first
+
+				int voltageScaleFactor = 10; //
+				@SuppressWarnings("unchecked") //TODO why is it unsafe?
+				Optional<Integer> vSFOpt = (Optional<Integer>) this.channel(ChannelId.V_SF).value().asOptional();
+				if (vSFOpt.isPresent()) {
+					voltageScaleFactor = (int) (1 / Math.pow(10, vSFOpt.get()));
+				}
+
+				int currentScaleFactor = 10; //
+				@SuppressWarnings("unchecked") //TODO why is it unsafe?
+				Optional<Integer> aSFOpt = (Optional<Integer>) this.channel(ChannelId.A_SF).value().asOptional();
+				if (aSFOpt.isPresent()) {
+					currentScaleFactor = (int) (1 / Math.pow(10, aSFOpt.get()));
+				}
+				int channelscale = 100;
+				//TODO
+				// channels are defined in millivolt/milliampere with scalefactor 2 what do we
+				// need to write? --> we need to write millivolt/ampere e.g. 696.000 
+				disMinV = 696 * voltageScaleFactor * channelscale;
+				chaMaxV = 854 * voltageScaleFactor * channelscale;
+				disMaxA = 13 * currentScaleFactor * channelscale;
+				chaMaxA = 13 * currentScaleFactor * channelscale;
+
+				if (disMinV != 0) {
+					disMinVChannel.setNextWriteValue(disMinV);
+				}
+
+				if (chaMaxV != 0) {
+					chaMaxVChannel.setNextWriteValue(chaMaxV);
+				}
+				disMaxAChannel.setNextWriteValue(disMaxA);
+				chaMaxAChannel.setNextWriteValue(chaMaxA);
+
+				enLimitChannel.setNextWriteValue(1);
 			}
 			// according to manual active power has to be set in % of maximum active power
 			// with scale factor see page 10
 			// WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled * 10^W_Max_SF * 10^WSetPct_SF
 			// )
 
-			int scalefactor = wSetPct_SF.getNextValue().get();
-			int WSetPct = (int) ((activePower * 100) / (MAX_APPARENT_POWER * Math.pow(10, scalefactor)));
+			Optional<Integer> wSetPctOpt = wSetPct_SFChannel.value().asOptional();
+			if (wSetPctOpt.isPresent()) {
 
-			wSetPct.setNextWriteValue(WSetPct);
+				int scalefactor = wSetPctOpt.get();
+				int WSetPct = (int) ((activePower * 100) / (MAX_APPARENT_POWER * Math.pow(10, scalefactor)));
+
+				wSetPctChannel.setNextWriteValue(WSetPct);
+			}
 		} catch (OpenemsException e) {
 			log.error("problem occurred while trying so set active power" + e.getMessage());
 		}
@@ -571,9 +636,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 		case GRID_CONNECTED:
 			break;
-
-		case NO_ERROR_PENDING:
 		case PRECHARGE:
+		case NO_ERROR_PENDING:
 		case SHUTTING_DOWN:
 		case STARTING:
 		case THROTTLED:

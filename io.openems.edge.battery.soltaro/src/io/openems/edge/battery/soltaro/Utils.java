@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -39,6 +38,7 @@ public class Utils {
 					switch (channelId) {
 					case BMS_CONTACTOR_CONTROL:
 						return new IntegerWriteChannel(s, channelId);
+						
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH:
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_LOW:
 					case ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH:
@@ -393,9 +393,5 @@ public class Utils {
 					return null;
 				}) //
 		).flatMap(channel -> channel);
-	}
-
-	public static ModbusProtocol createModbusProtocol(int unitId) {
-		return null;
 	}
 }
