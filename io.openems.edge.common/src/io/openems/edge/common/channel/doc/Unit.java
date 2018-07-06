@@ -153,6 +153,7 @@ public enum Unit {
 			return value.toString();
 		case AMPERE:
 		case DEGREE_CELSIUS:
+		case DEZIDEGREE_CELSIUS:
 		case HERTZ:
 		case MILLIAMPERE:
 		case MILLIHERTZ:
@@ -163,6 +164,8 @@ public enum Unit {
 		case VOLT_AMPERE_REACTIVE:
 		case WATT:
 		case WATT_HOURS:
+		case OHM:
+		case KILOOHM:
 		case SECONDS:
 			return value + " " + this.symbol;
 		case ON_OFF:
