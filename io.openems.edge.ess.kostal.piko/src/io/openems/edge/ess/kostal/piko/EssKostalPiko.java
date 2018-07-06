@@ -16,7 +16,6 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.ess.api.Ess;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Unit;

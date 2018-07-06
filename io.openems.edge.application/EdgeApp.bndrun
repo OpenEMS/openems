@@ -28,8 +28,7 @@ JPM-Command:				openems-edge
 	bnd.identity;id='io.openems.edge.ess.kostal.piko',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
-	bnd.identity;id='io.openems.edge.core',\
-	bnd.identity;id='io.openems.edge.ess.core'
+	bnd.identity;id='io.openems.edge.core'
 
 -resolve: auto
 -runbundles: \
@@ -71,5 +70,4 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
-	io.openems.edge.ess.core;version=snapshot,\
 	org.osgi.compendium;version='[4.1.0,4.1.1)'

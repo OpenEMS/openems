@@ -6,15 +6,10 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.edge.common.channel.Channel;
 
 public class PikoProtocol {
 
-	private final Logger log = LoggerFactory.getLogger(PikoProtocol.class);
-	
 	private final EssKostalPiko parent;
 	// private final short deviceId;
 	private final SocketConnection socketConnection;
@@ -26,6 +21,8 @@ public class PikoProtocol {
 		this.parent = parent;
 		// this.deviceId = deviceId;
 		this.socketConnection = new SocketConnection(host, port);
+		
+		
 	}
 
 	public void execute(List<ReadTask> nextReadTasks) {
