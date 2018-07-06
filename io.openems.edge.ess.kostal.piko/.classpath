@@ -4,5 +4,31 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test"/>
+	<classpathentry kind="lib" path="C:/Users/hueseyin.sahutoglu/.m2/repository/com/google/guava/guava/25.1-jre/guava-25.1-jre.jar">
+		<attributes>
+			<attribute name="bsn" value="com.google.guava"/>
+			<attribute name="type" value="REPO"/>
+			<attribute name="project" value="io.openems.backend.application"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/google/common/annotations/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/base/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/cache/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/collect/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/escape/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/eventbus/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/graph/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/hash/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/html/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/io/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/math/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/net/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/primitives/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/reflect/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/util/concurrent/*"/>
+			<accessrule kind="accessible" pattern="com/google/common/xml/*"/>
+			<accessrule ignoreifbetter="true" kind="discouraged" pattern="**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

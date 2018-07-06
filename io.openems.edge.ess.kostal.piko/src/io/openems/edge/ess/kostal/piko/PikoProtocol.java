@@ -21,8 +21,7 @@ public class PikoProtocol {
 		this.parent = parent;
 		// this.deviceId = deviceId;
 		this.socketConnection = new SocketConnection(host, port);
-		
-		
+
 	}
 
 	public void execute(List<ReadTask> nextReadTasks) {
