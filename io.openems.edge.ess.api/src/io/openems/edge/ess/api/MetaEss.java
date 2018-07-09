@@ -5,6 +5,8 @@ package io.openems.edge.ess.api;
  * physical Ess itself. This is used to distinguish e.g. an EssCluster from an
  * actual Ess.
  */
-public interface MetaEss extends Ess {
+public interface MetaEss extends SymmetricEss {
+
+	public ManagedSymmetricEss[] getEsss();
 
 }

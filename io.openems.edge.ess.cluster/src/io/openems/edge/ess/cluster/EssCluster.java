@@ -1,10 +1,9 @@
 package io.openems.edge.ess.cluster;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.math3.optim.linear.LinearConstraint;
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,13 +23,12 @@ import io.openems.edge.common.channel.merger.SumInteger;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.LinearConstraintWrapper;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -39,28 +37,33 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
-public class EssCluster extends AbstractOpenemsComponent implements ManagedSymmetricEss, Ess, MetaEss, OpenemsComponent {
+public class EssCluster extends AbstractOpenemsComponent
+		implements ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, MetaEss, OpenemsComponent {
 
 	private Power power = new Power(); // initialize empty power
 
-	private final AverageInteger<Ess> soc;
-	private final SumInteger<Ess> activePower;
-	private final SumInteger<Ess> maxActivePower;
+	private final AverageInteger<SymmetricEss> soc;
+	private final SumInteger<SymmetricEss> activePower;
+	private final SumInteger<SymmetricEss> maxActivePower;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private List<Ess> esss = new CopyOnWriteArrayList<>();
+	private List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
+
+	private ManagedSymmetricEss[] managedEsss = new ManagedSymmetricEss[0];
 
 	public EssCluster() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 		/*
 		 * Define Channel Mergers
 		 */
-		this.soc = new AverageInteger<Ess>(this, Ess.ChannelId.SOC, Ess.ChannelId.SOC);
-		this.activePower = new SumInteger<Ess>(this, Ess.ChannelId.ACTIVE_POWER, Ess.ChannelId.ACTIVE_POWER);
-		this.maxActivePower = new SumInteger<Ess>(this, Ess.ChannelId.MAX_ACTIVE_POWER, Ess.ChannelId.MAX_ACTIVE_POWER);
+		this.soc = new AverageInteger<SymmetricEss>(this, SymmetricEss.ChannelId.SOC, SymmetricEss.ChannelId.SOC);
+		this.activePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_POWER,
+				SymmetricEss.ChannelId.ACTIVE_POWER);
+		this.maxActivePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.MAX_ACTIVE_POWER,
+				SymmetricEss.ChannelId.MAX_ACTIVE_POWER);
 	}
 
 	@Activate
@@ -73,50 +76,27 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 		/*
 		 * Add all ManagedSymmetricEss devices to Power object
 		 */
-		int noOfManagedEss = 0;
-		for (Ess ess : this.esss) {
+		List<ManagedSymmetricEss> managedSymmetricEsssList = new ArrayList<>();
+		for (SymmetricEss ess : this.esss) {
 			if (ess instanceof ManagedSymmetricEss) {
-				noOfManagedEss++;
-				// Disable individual Power objects
-				((ManagedSymmetricEss) ess).getPower().setDisabled();
+				managedSymmetricEsssList.add((ManagedSymmetricEss) ess);
 			}
 		}
-		ManagedSymmetricEss[] managedEsss = new ManagedSymmetricEss[noOfManagedEss];
-		int i = 0;
-		for (Ess ess : this.esss) {
-			if (ess instanceof ManagedSymmetricEss) {
-				managedEsss[i++] = (ManagedSymmetricEss) ess;
-			}
+		this.managedEsss = new ManagedSymmetricEss[managedSymmetricEsssList.size()];
+		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
+			managedEsss[i] = managedSymmetricEsssList.get(i);
 		}
 		this.power = new Power(managedEsss);
 
 		/*
-		 * ManagedSymmetricEss: Add Constraints to keep Ess1 L1 == Ess2 L1 == Ess3 L1
-		 * and Ess1 L2 == Ess2 L2 == Ess3 L2,...
-		 */
-		// FIXME: should distribute power smarter.
-		// of Ess!
-		for (Phase phase : Phase.values()) {
-			for (i = 1; i < managedEsss.length; i++) {
-				double[] coefficients = new double[this.power.getNoOfCoefficients()];
-				int firstIndex = (i - 1) * 6 + phase.getOffset();
-				int secondIndex = i * 6 + phase.getOffset();
-				coefficients[firstIndex] = 1;
-				coefficients[secondIndex] = -1;
-				this.power.addConstraint(ConstraintType.STATIC, new LinearConstraintWrapper(
-						new LinearConstraint(coefficients, Relationship.EQ, 0), "All Ess equal"));
-			}
-		}
-
-		/*
 		 * Initialize Channel-Mergers
 		 */
-		for (Ess ess : this.esss) {
+		for (SymmetricEss ess : this.esss) {
 			this.soc.addComponent(ess);
 			this.activePower.addComponent(ess);
 			this.maxActivePower.addComponent(ess);
 		}
-		
+
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 	}
 
@@ -126,7 +106,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 		/*
 		 * Clear Channel-Mergers
 		 */
-		for (Ess ess : this.esss) {
+		for (SymmetricEss ess : this.esss) {
 			this.soc.removeComponent(ess);
 			this.activePower.removeComponent(ess);
 			this.maxActivePower.removeComponent(ess);
@@ -140,14 +120,24 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedSymme
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		// ignore: this will never be called. 'Power' calls the callbacks of the child
-		// Ess devices.
+		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
+	}
+
+	@Override
+	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) {
+		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 	@Override
 	public int getPowerPrecision() {
 		// TODO kleinstes gemeinsames Vielfaches von PowerPrecision
 		return 0;
+	}
+
+	@Override
+	public synchronized ManagedSymmetricEss[] getEsss() {
+		return this.managedEsss;
 	}
 
 }

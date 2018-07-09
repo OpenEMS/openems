@@ -24,10 +24,10 @@ import io.openems.edge.common.channel.merger.SumInteger;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.Meter;
 import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 
@@ -226,9 +226,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	/*
 	 * Ess
 	 */
-	private final List<Ess> esss = new CopyOnWriteArrayList<>();
-	private final AverageInteger<Ess> essSoc;
-	private final SumInteger<Ess> essActivePower;
+	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
+	private final AverageInteger<SymmetricEss> essSoc;
+	private final SumInteger<SymmetricEss> essActivePower;
 
 	/*
 	 * Grid
@@ -246,7 +246,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	private final SumInteger<EssDcCharger> productionMaxDcActualPower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private void addEss(Ess ess) {
+	private void addEss(SymmetricEss ess) {
 		if(ess instanceof MetaEss) {
 			// ignore this Ess
 			return;
@@ -257,7 +257,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		this.calculateMaxConsumption.accept(null /* ignored */);
 	}
 
-	protected void removeEss(Ess ess) {
+	protected void removeEss(SymmetricEss ess) {
 		if(ess instanceof MetaEss) {
 			// ignore this Ess
 			return;
@@ -269,7 +269,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	private final Consumer<Value<Integer>> calculateMaxConsumption = ignoreValue -> {
 		int ess = 0;
-		for (Ess e : this.esss) {
+		for (SymmetricEss e : this.esss) {
 			ess += e.getMaxActivePower().getNextValue().orElse(0);
 		}
 		int grid = this.getGridMaxActivePower().getNextValue().orElse(0);
@@ -341,8 +341,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		/*
 		 * Ess
 		 */
-		this.essSoc = new AverageInteger<Ess>(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
-		this.essActivePower = new SumInteger<Ess>(this, ChannelId.ESS_ACTIVE_POWER, Ess.ChannelId.ACTIVE_POWER);
+		this.essSoc = new AverageInteger<SymmetricEss>(this, ChannelId.ESS_SOC, SymmetricEss.ChannelId.SOC);
+		this.essActivePower = new SumInteger<SymmetricEss>(this, ChannelId.ESS_ACTIVE_POWER, SymmetricEss.ChannelId.ACTIVE_POWER);
 		/*
 //		 * Grid
 		 */

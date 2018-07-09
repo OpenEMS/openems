@@ -1,13 +1,43 @@
 package io.openems.edge.ess.power.api;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
+import io.openems.common.utils.IntUtils;
+import io.openems.common.utils.IntUtils.Round;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+
 public class Utils {
+
+	/**
+	 * Round values to accuracy of inverter; following this logic:
+	 *
+	 * On Discharge (Power > 0)
+	 *
+	 * <ul>
+	 * <li>if SoC > 50 %: round up (more discharge)
+	 * <li>if SoC < 50 %: round down (less discharge)
+	 * </ul>
+	 *
+	 * On Charge (Power < 0)
+	 *
+	 * <ul>
+	 * <li>if SoC > 50 %: round down (less charge)
+	 * <li>if SoC < 50 %: round up (more discharge)
+	 * </ul>
+	 */
+	public static int roundToInverterPrecision(ManagedSymmetricEss ess, double value) {
+		Round round = Round.DOWN;
+		int precision = ess.getPowerPrecision();
+		int soc = ess.getSoc().value().orElse(0);
+
+		if (value > 0 && soc > 50 || value < 0 && soc < 50) {
+			round = Round.UP;
+		}
+
+		return IntUtils.roundToPrecision((float) value, round, precision);
+	}
 
 	private static String coefficientsToString(double[] coefficients) {
 		StringBuilder b = new StringBuilder();
@@ -68,8 +98,4 @@ public class Utils {
 		return b.toString();
 	}
 
-	public static String abstractConstraintToString(AbstractConstraint ac) {
-		return Arrays.stream(ac.getConstraints()).map(c -> Utils.linearConstraintToString(c, ""))
-				.collect(Collectors.joining(",")).trim();
-	}
 }

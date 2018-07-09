@@ -1,14 +1,13 @@
-package io.openems.edge.ess.asymmetric.api;
+package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @ProviderType
-public interface ManagedAsymmetricEss extends ManagedSymmetricEss {
+public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**

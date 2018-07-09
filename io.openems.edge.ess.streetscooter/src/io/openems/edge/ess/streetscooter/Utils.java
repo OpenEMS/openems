@@ -11,8 +11,8 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
 	static Stream<Channel<?>> initializeChannels(AbstractEssStreetscooter c) {
@@ -23,7 +23,7 @@ public class Utils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
 					case ACTIVE_POWER:
@@ -32,7 +32,7 @@ public class Utils {
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, AbstractEssStreetscooter.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, Ess.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {

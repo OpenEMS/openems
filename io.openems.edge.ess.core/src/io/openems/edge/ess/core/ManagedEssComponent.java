@@ -13,8 +13,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Component( //
 		immediate = true, //

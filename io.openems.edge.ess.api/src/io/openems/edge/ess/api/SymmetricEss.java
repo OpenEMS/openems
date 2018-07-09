@@ -9,7 +9,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
-public interface Ess extends OpenemsComponent {
+public interface SymmetricEss extends OpenemsComponent {
 
 	public final static String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
 

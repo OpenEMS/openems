@@ -1,6 +1,8 @@
 package io.openems.edge.ess.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -9,11 +11,12 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.power.api.Power;
 
-public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss {
+public class EssClusterDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss, MetaEss {
 
 	private final Power power;
+	private final ManagedSymmetricEss[] managedEsss;
 
-	public ManagedAsymmetricEssDummy() {
+	public EssClusterDummy(SymmetricEss... esss) {
 		Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
@@ -62,7 +65,21 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
-		this.power = new Power(this);
+
+		/*
+		 * Add all ManagedSymmetricEss devices to Power object
+		 */
+		List<ManagedSymmetricEss> managedSymmetricEsssList = new ArrayList<>();
+		for (SymmetricEss ess : esss) {
+			if (ess instanceof ManagedSymmetricEss) {
+				managedSymmetricEsssList.add((ManagedSymmetricEss) ess);
+			}
+		}
+		this.managedEsss = new ManagedSymmetricEss[managedSymmetricEsssList.size()];
+		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
+			managedEsss[i] = managedSymmetricEsssList.get(i);
+		}
+		this.power = new Power(managedEsss);
 	}
 
 	@Override
@@ -88,6 +105,17 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	@Override
+	public ManagedSymmetricEss[] getEsss() {
+		return this.managedEsss;
+	}
+
+	@Override
+	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) {
+		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 }

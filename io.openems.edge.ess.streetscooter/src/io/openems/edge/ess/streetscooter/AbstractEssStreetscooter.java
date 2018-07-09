@@ -21,14 +21,17 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.api.CoefficientOneConstraint;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.CircleConstraint;
+import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Pwr;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, Ess, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	protected static final int UNIT_ID = 100;
 
@@ -62,18 +65,18 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		 */
 		this.power = new Power(this);
 		this.powerHandler = new PowerHandler(this, this.log);
-		this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
+		// max Apparent
+		new CircleConstraint(this, MAX_APPARENT_POWER);
 		// Allowed Charge
-		CoefficientOneConstraint allowedChargeConstraint = this.power.setActivePower(ConstraintType.STATIC,
+		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.GEQ, 0);
-		// TODO onChange?
-		this.channel(ChannelId.BATTERY_BMS_PWR_CHRG_MAX).onUpdate(value -> {
+		this.channel(ChannelId.BATTERY_BMS_PWR_CHRG_MAX).onChange(value -> {
 			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
-		CoefficientOneConstraint allowedDischargeConstraint = this.power.setActivePower(ConstraintType.STATIC,
+		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.LEQ, 0);
-		this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onUpdate(value -> {
+		this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
 			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 	}
@@ -120,7 +123,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(batteryInfoStartAddress + 6).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_PWR_RGN_MAX,
 								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW)),
-						m(Ess.ChannelId.SOC,
+						m(SymmetricEss.ChannelId.SOC,
 								new FloatDoublewordElement(batteryInfoStartAddress + 10).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_SOH,
 								new FloatDoublewordElement(batteryInfoStartAddress + 12).wordOrder(WordOrder.LSWMSW)),
@@ -169,7 +172,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(inverterInfoStartAddress + 30).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_GV3_FAULT_VALUE,
 								new FloatDoublewordElement(inverterInfoStartAddress + 32).wordOrder(WordOrder.LSWMSW)),
-						m(Ess.ChannelId.ACTIVE_POWER,
+						m(SymmetricEss.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(inverterInfoStartAddress + 34).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_P_AC_1,
 								new FloatDoublewordElement(inverterInfoStartAddress + 36).wordOrder(WordOrder.LSWMSW)),

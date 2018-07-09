@@ -30,9 +30,10 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -41,7 +42,7 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, Ess, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
@@ -60,7 +61,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		 */
 		this.power = new Power(this);
 		// Max Apparent
-		this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
+		// TODO adjust apparent power from modbus element
+		new CircleConstraint(this, MAX_APPARENT_POWER);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Private-Package: \
 	io.openems.edge.core.meta,\
 	io.openems.edge.core.sum,\
-	io.openems.edge.core.sum.internal,\
 	io.openems.edge.core.cycle
 	
 -buildpath: \
