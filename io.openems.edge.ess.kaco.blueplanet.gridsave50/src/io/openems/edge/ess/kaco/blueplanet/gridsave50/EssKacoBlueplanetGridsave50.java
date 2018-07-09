@@ -41,9 +41,10 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -53,12 +54,13 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 ) //
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, Ess, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
 	private final static int UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
+	private final CircleConstraint maxApparentPowerConstraint;
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
 	private int maxApparentPowerScaleFactor = 0;
@@ -78,8 +80,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		 */
 		this.power = new Power(this);
 
-		this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
-
+		// Max Apparent
+		// TODO adjust apparent power from modbus element
+		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+		
 		this.channel(ChannelId.W_MAX).onUpdate(value -> {
 			// TODO unchecked cast
 			@SuppressWarnings("unchecked")
@@ -106,7 +110,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private void refreshPower() {
 		if (maxApparentPower > 0) {
-			this.power.setMaxApparentPower(this, maxApparentPower);
+			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
 		}
 	}
 
@@ -501,22 +505,22 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				// Set fixed ranges for the first
 
 				int voltageScaleFactor = 10; //
-				@SuppressWarnings("unchecked") //TODO why is it unsafe?
+				@SuppressWarnings("unchecked") // TODO why is it unsafe?
 				Optional<Integer> vSFOpt = (Optional<Integer>) this.channel(ChannelId.V_SF).value().asOptional();
 				if (vSFOpt.isPresent()) {
 					voltageScaleFactor = (int) (1 / Math.pow(10, vSFOpt.get()));
 				}
 
 				int currentScaleFactor = 10; //
-				@SuppressWarnings("unchecked") //TODO why is it unsafe?
+				@SuppressWarnings("unchecked") // TODO why is it unsafe?
 				Optional<Integer> aSFOpt = (Optional<Integer>) this.channel(ChannelId.A_SF).value().asOptional();
 				if (aSFOpt.isPresent()) {
 					currentScaleFactor = (int) (1 / Math.pow(10, aSFOpt.get()));
 				}
 				int channelscale = 100;
-				//TODO
+				// TODO
 				// channels are defined in millivolt/milliampere with scalefactor 2 what do we
-				// need to write? --> we need to write millivolt/ampere e.g. 696.000 
+				// need to write? --> we need to write millivolt/ampere e.g. 696.000
 				disMinV = 696 * voltageScaleFactor * channelscale;
 				chaMaxV = 854 * voltageScaleFactor * channelscale;
 				disMaxA = 13 * currentScaleFactor * channelscale;

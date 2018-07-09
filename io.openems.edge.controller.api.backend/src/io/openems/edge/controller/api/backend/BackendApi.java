@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.apicontrollerutils.ApiController;
-import io.openems.edge.controller.api.apicontrollerutils.ApiWorker;
+import io.openems.edge.controller.api.core.ApiController;
+import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)

@@ -19,11 +19,13 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -77,7 +79,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 * Check that we are On-Grid
 			 */
 			Enum<?> gridMode = this.ess.getGridMode().value().asEnum();
-			if (gridMode != Ess.GridMode.ON_GRID) {
+			if (gridMode != SymmetricEss.GridMode.ON_GRID) {
 				return;
 			}
 
@@ -117,7 +119,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * set result
 		 */
 		try {
-			power.setActivePowerAndSolve(ConstraintType.CYCLE, Relationship.EQ, requiredPower);
+			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
+					requiredPower);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
 		}

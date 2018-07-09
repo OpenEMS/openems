@@ -18,7 +18,7 @@ import io.openems.edge.common.channel.Channel;
  * 
  * Possible meta information:
  * <ul>
- * <li>read-only/writable flag {@link Doc#isWritable()}
+ * <li>read-only/writable flag {@link Doc#setWritable()}
  * <li>expected OpenemsType via {@link Doc#getType()}
  * <li>descriptive text via {@link Doc#getText()}
  * <li>a Unit via {@link Doc#getUnit()}
@@ -43,7 +43,7 @@ public class Doc {
 	 * 
 	 * @return
 	 */
-	public Doc isWritable() {
+	public Doc setWritable() {
 		this.isWritable = true;
 		return this;
 	}

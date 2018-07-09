@@ -1,8 +1,3 @@
-#
-#  RUN SPECIFICATION
-#
-
-
 Bundle-Version:				1.0.0.${tstamp}
 Bundle-SymbolicName:		io.openems.edge.application.launch
 JPM-Command:				openems-edge
@@ -21,23 +16,31 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.application)',\
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-api)',\
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-service)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.common)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.common)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.battery.soltaro)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.core)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.cluster)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.core)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.kaco.blueplanet.gridsave50)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.carlo.gavazzi.em300)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.allalphabetically)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
-	bnd.identity;id='io.openems.edge.core',\
-	bnd.identity;id='io.openems.edge.ess.core',\
-	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
-	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
-	bnd.identity;id='io.openems.edge.battery.soltaro'
-
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)'
 
 -runbundles: \
 	com.google.gson;version='[2.8.2,2.8.3)',\
@@ -48,16 +51,22 @@ JPM-Command:				openems-edge
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
-	io.openems.edge.controller.api;version=snapshot,\
+	io.openems.edge.controller.api.backend;version=snapshot,\
+	io.openems.edge.controller.api.core;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
+	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
+	io.openems.edge.ess.streetscooter;version=snapshot,\
+	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
+	io.openems.edge.io.kmtronic;version=snapshot,\
+	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
@@ -87,10 +96,10 @@ JPM-Command:				openems-edge
 	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.8.3,1.8.4)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.8.3,1.8.4)',\
-	org.osgi.compendium;version='[4.1.0,4.1.1)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
+	org.osgi.compendium;version='[4.1.0,4.1.1)'

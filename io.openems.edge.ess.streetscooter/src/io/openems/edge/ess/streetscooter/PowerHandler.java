@@ -1,5 +1,6 @@
 package io.openems.edge.ess.streetscooter;
 
+import java.time.LocalDateTime;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
@@ -9,35 +10,83 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
 
 public class PowerHandler implements BiConsumer<Integer, Integer> {
 
-	private OpenemsComponent component;
+	private static final int MINUTES_TO_WAIT_FOR_2ND_TRY = 30;
+	private OpenemsComponent parent;
 	private Logger log;
+	private LocalDateTime lastRestartAfterFault;
+	private int attempsToRestart;
 
-	public PowerHandler(OpenemsComponent component, Logger log) {
-		this.component = component;
+	public PowerHandler(OpenemsComponent parent, Logger log) {
+		this.parent = parent;
 		this.log = log;
 	}
 
 	@Override
 	public void accept(Integer activePower, Integer reactivePower) {
-		if ( !isRunning() ) { 
-			setRunning();					
+
+		checkForResettingFault();
+
+		if (isInverterInFaultMode()) {
+			doErrorHandling();
 		}
-		if ( isRunning() && !isEnabled() ) { 
+
+		if (isErrorHandling()) {
+			return;
+		}
+
+		// System is in normal mode
+		if (!isRunning()) {
+			setRunning();
+		}
+		if (isRunning() && !isEnabled()) {
 			setEnabled();
 		}
-		if ( isRunning() && isEnabled() && isInverterInNormalMode()) { 
+		if (isRunning() && isEnabled() && isInverterInNormalMode()) {
 			writeActivePower(activePower);
 		}
 	}
-	
+
+	private boolean isErrorHandling() {
+		return lastRestartAfterFault != null;
+	}
+
+	private void checkForResettingFault() {
+		if (isInverterInNormalMode() && isWaitingPeriodAfterFaultRestartPassed()) {
+			lastRestartAfterFault = null;
+			attempsToRestart = 0;
+		}
+	}
+
+	private void doErrorHandling() {
+		if (lastRestartAfterFault == null && attempsToRestart == 0) {
+			lastRestartAfterFault = LocalDateTime.now();
+			attempsToRestart = 1;
+			setRunning();
+			setEnabled();
+			log.info("Try to restart the system for the first time after detecting fault");
+		} else {
+			if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart == 1) {
+				attempsToRestart++;
+				setRunning();
+				setEnabled();
+				log.info("Try to restart the system for the second time after detecting fault");
+			} else if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart > 1) {
+				// Do nothing, let system in fault mode
+				StringWriteChannel errorChannel = parent.channel(ChannelId.SYSTEM_STATE_INFORMATION);
+				errorChannel.setNextValue("System could not be started after waiting period and two start attempts");
+			}
+		}
+	}
+
 	private void writeActivePower(Integer activePower) {
-		try {			
-			IntegerWriteChannel setActivePowerChannel = component.channel(ChannelId.INVERTER_SET_ACTIVE_POWER);
+		try {
+			IntegerWriteChannel setActivePowerChannel = parent.channel(ChannelId.INVERTER_SET_ACTIVE_POWER);
 			setActivePowerChannel.setNextWriteValue(activePower);
 		} catch (OpenemsException e) {
 			log.error("Unable to set ActivePower: " + e.getMessage());
@@ -45,22 +94,27 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 	}
 
 	private boolean isInverterInNormalMode() {
-		IntegerReadChannel inverterModeChannel = component.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().get().equals(ChannelId.INVERTER_MODE_NORMAL);
+		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
+		return inverterModeChannel.value().orElse(AbstractEssStreetscooter.INVERTER_MODE_UNDEFINED).equals(AbstractEssStreetscooter.INVERTER_MODE_NORMAL);
+	}
+
+	private boolean isInverterInFaultMode() {
+		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
+		return inverterModeChannel.value().orElse(AbstractEssStreetscooter.INVERTER_MODE_UNDEFINED).equals(AbstractEssStreetscooter.INVERTER_MODE_FAULT);
 	}
 
 	private void setEnabled() {
 		try {
-			BooleanWriteChannel channel = component.channel(ChannelId.ICU_ENABLED);
-			channel.setNextWriteValue(true);			
+			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_ENABLED);
+			channel.setNextWriteValue(true);
 		} catch (Exception e) {
 			log.error("Unable to set icu enabled: " + e.getMessage());
 		}
 	}
 
 	private void setRunning() {
-		try {			
-			BooleanWriteChannel channel = component.channel(ChannelId.ICU_RUN);
+		try {
+			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_RUN);
 			channel.setNextWriteValue(true);
 		} catch (Exception e) {
 			log.error("Unable to set icu run: " + e.getMessage());
@@ -68,14 +122,19 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 	}
 
 	private boolean isEnabled() {
-		BooleanReadChannel icuEnabled = component.channel(ChannelId.ICU_ENABLED);
+		BooleanReadChannel icuEnabled = parent.channel(ChannelId.ICU_ENABLED);
 		boolean value = icuEnabled.value().orElse(false);
 		return value;
 	}
 
 	private boolean isRunning() {
-		BooleanReadChannel icuRunChannel = component.channel(ChannelId.ICU_RUN);
+		BooleanReadChannel icuRunChannel = parent.channel(ChannelId.ICU_RUN);
 		boolean value = icuRunChannel.value().orElse(false);
 		return value;
+	}
+
+	private boolean isWaitingPeriodAfterFaultRestartPassed() {
+		return lastRestartAfterFault != null
+				&& lastRestartAfterFault.plusMinutes(MINUTES_TO_WAIT_FOR_2ND_TRY).isAfter(LocalDateTime.now());
 	}
 }

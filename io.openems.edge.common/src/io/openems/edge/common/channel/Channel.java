@@ -127,8 +127,14 @@ public interface Channel<T> {
 	Value<T> value();
 
 	/**
-	 * Add an onUpdate callback. It is called, after a new ActiveValue was set via
+	 * Add an onUpdate callback. It is called, after the active value was updated by
 	 * nextProcessImage().
 	 */
 	public void onUpdate(Consumer<Value<T>> callback);
+
+	/**
+	 * Add an onChange callback. It is called, after the active value was changed by
+	 * nextProcessImage().
+	 */
+	public void onChange(Consumer<Value<T>> callback);
 }

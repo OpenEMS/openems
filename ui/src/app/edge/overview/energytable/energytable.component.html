@@ -110,86 +110,88 @@
       </mat-card-content>
     </mat-card>
 
-    <ng-container *ngIf="config.storageThings.length > 1">
-      <!-- Show details for more than one ESS -->
-      <ng-container *ngFor="let thing of config.storageThings">
-        <mat-card class="single_leftright" fxFlex="100%">
-          <mat-card-header>
-            <mat-card-subtitle>{{ config.things[thing].alias }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content *ngIf="currentData.data[thing] as data">
-            <table class="full_width">
-              <tr class="underline">
-                <td style="width:50%" translate>General.Soc</td>
-                <td style="width:15%"></td>
-                <td style="width:25%" class="align_right">{{ data.Soc }}</td>
-                <td style="width:10%">%</td>
-              </tr>
-              <!-- Symmetric ESS -->
-              <ng-container *ngIf="data.ActivePower != null">
-                <tr>
-                  <td translate>General.ChargePower</td>
-                  <td></td>
-                  <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
-                  <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td translate>General.DischargePower</td>
-                  <td></td>
-                  <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
-                  <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
-                  <td>W</td>
-                </tr>
-              </ng-container>
-              <!-- Asymmetric ESS -->
-              <ng-container *ngIf="data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
-                <tr>
-                  <td translate>General.ChargePower</td>
-                  <td>L1</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign }}</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL1 >= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L2</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL2 < 0">{{ data.ActivePowerL2 | sign }}</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL2 >= 0">0</td>
-                  <td>W</td>
-                </tr>
+    <ng-container *ngIf="!edge.isVersionAtLeast('2018.8')">
+      <ng-container *ngIf="config.storageThings.length > 1">
+        <!-- Show details for more than one ESS -->
+        <ng-container *ngFor="let thing of config.storageThings">
+          <mat-card class="single_leftright" fxFlex="100%">
+            <mat-card-header>
+              <mat-card-subtitle>{{ config.components[thing]["service.pid"] }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content *ngIf="currentData.data[thing] as data">
+              <table class="full_width">
                 <tr class="underline">
-                  <td></td>
-                  <td>L3</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL3 < 0">{{ data.ActivePowerL3 | sign }}</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL3 >= 0">0</td>
-                  <td>W</td>
+                  <td style="width:50%" translate>General.Soc</td>
+                  <td style="width:15%"></td>
+                  <td style="width:25%" class="align_right">{{ data.Soc }}</td>
+                  <td style="width:10%">%</td>
                 </tr>
-                <tr>
-                  <td translate>General.DischargePower</td>
-                  <td>L1</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 }}</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL1 <= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L2</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL2 > 0">{{ data.ActivePowerL2 }}</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL2 <= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L3</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL3 > 0">{{ data.ActivePowerL3 }}</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL3 <= 0">0</td>
-                  <td>W</td>
-                </tr>
-              </ng-container>
-            </table>
-          </mat-card-content>
-        </mat-card>
+                <!-- Symmetric ESS -->
+                <ng-container *ngIf="data.ActivePower != null">
+                  <tr>
+                    <td translate>General.ChargePower</td>
+                    <td></td>
+                    <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
+                    <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                  <tr>
+                    <td translate>General.DischargePower</td>
+                    <td></td>
+                    <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
+                    <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                </ng-container>
+                <!-- Asymmetric ESS -->
+                <ng-container *ngIf="data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
+                  <tr>
+                    <td translate>General.ChargePower</td>
+                    <td>L1</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign }}</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL1 >= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>L2</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL2 < 0">{{ data.ActivePowerL2 | sign }}</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL2 >= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                  <tr class="underline">
+                    <td></td>
+                    <td>L3</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL3 < 0">{{ data.ActivePowerL3 | sign }}</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL3 >= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                  <tr>
+                    <td translate>General.DischargePower</td>
+                    <td>L1</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 }}</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL1 <= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>L2</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL2 > 0">{{ data.ActivePowerL2 }}</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL2 <= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>L3</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL3 > 0">{{ data.ActivePowerL3 }}</td>
+                    <td class="align_right" *ngIf="data.ActivePowerL3 <= 0">0</td>
+                    <td>W</td>
+                  </tr>
+                </ng-container>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </ng-container>
       </ng-container>
     </ng-container>
 
@@ -384,116 +386,5 @@
       </ng-container>
     </ng-container>
 
-    <!-- Consumption -->
-    <ng-container *ngIf="currentData.summary.consumption as data">
-      <mat-card class="single_leftright" fxFlex="100%">
-        <mat-card-header>
-          <img src="assets/img/consumption.png" mat-card-avatar/>
-          <mat-card-title translate>General.Consumption</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <table class="full_width">
-            <ng-container *ngIf="data.activePower != null">
-              <tr>
-                <td style="width:50%" translate>General.Power</td>
-                <td style="width:15%"></td>
-                <td style="width:25%" class="align_right">{{ data.activePower }}</td>
-                <td style="width:10%">W</td>
-              </tr>
-            </ng-container>
-          </table>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
-
-    <ng-container *ngIf="config.consumptionMeters.length > 0">
-      <!-- Show details for more than one Meter -->
-      <ng-container *ngFor="let thing of config.consumptionMeters">
-        <mat-card class="single_leftright" fxFlex="100%">
-          <mat-card-header>
-            <mat-card-title>{{ config.things[thing].alias }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content *ngIf="currentData.data[thing] as data">
-            <table class="full_width">
-              <ng-container *ngIf="data.ActivePower != null">
-                <tr>
-                  <td style="width:50%" translate>General.Consumption</td>
-                  <td style="width:15%"></td>
-                  <td style="width:25%" class="align_right">{{ data.ActivePower }}</td>
-                  <td style="width:10%">W</td>
-                </tr>
-              </ng-container>
-              <ng-container *ngIf="data.ActivePower == null && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
-                <tr>
-                  <td style="width:50%" translate>General.Consumption</td>
-                  <td style="width:15%">L1</td>
-                  <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
-                  <td style="width:10%">W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L2</td>
-                  <td class="align_right">{{ data.ActivePowerL2 }}</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L3</td>
-                  <td class="align_right">{{ data.ActivePowerL3 }}</td>
-                  <td>W</td>
-                </tr>
-              </ng-container>
-            </table>
-          </mat-card-content>
-        </mat-card>
-      </ng-container>
-    </ng-container>
-
-    <!-- Other Meters -->
-    <ng-container *ngIf="config.otherMeters.length > 0">
-      <mat-card class="single_leftright" fxFlex="100%">
-        <mat-card-header>
-          <img src="assets/img/blue.png" mat-card-avatar/>
-          <mat-card-title>Andere</mat-card-title>
-          <!-- TODO translate -->
-        </mat-card-header>
-        <mat-card-content>
-          <table class="full_width">
-            <ng-container *ngFor="let thing of config.otherMeters">
-              <ng-container *ngIf="currentData.data[thing] as data">
-                <ng-container *ngIf="data.ActivePower != null">
-                  <tr>
-                    <td style="width:50%" translate>{{ config.things[thing].alias }}</td>
-                    <td style="width:15%"></td>
-                    <td style="width:25%" class="align_right">{{ data.ActivePower }}</td>
-                    <td style="width:10%">W</td>
-                  </tr>
-                </ng-container>
-                <ng-container *ngIf="data.ActivePower == null && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
-                  <tr>
-                    <td style="width:50%" translate>{{ config.things[thing].alias }}</td>
-                    <td style="width:15%">L1</td>
-                    <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
-                    <td style="width:10%">W</td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>L2</td>
-                    <td class="align_right">{{ data.ActivePowerL2 }}</td>
-                    <td>W</td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>L3</td>
-                    <td class="align_right">{{ data.ActivePowerL3 }}</td>
-                    <td>W</td>
-                  </tr>
-                </ng-container>
-              </ng-container>
-            </ng-container>
-          </table>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
   </ng-container>
 </div>

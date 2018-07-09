@@ -7,10 +7,10 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.api.Ess.GridMode;
-import io.openems.edge.ess.asymmetric.api.ManagedAsymmetricEss;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss.GridMode;
 
 public class EssUtils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(OpenemsComponent c) {
@@ -21,7 +21,7 @@ public class EssUtils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
 					case MAX_ACTIVE_POWER:
