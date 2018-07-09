@@ -63,9 +63,11 @@
 				"meter": "meter0"
 			},
 			{
+				"class": "io.openems.impl.controller.symmetric.commercialworkstate.AlwaysOnController",
 				"priority": 0,
-				"class": "io.openems.impl.controller.symmetric.commercialenergysaver.EnergysavingController",
-				"esss": "ess0"
+				"esss": [
+					"ess0"
+				]
 			}
 		]
 	},
