@@ -74,7 +74,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 
 	@Override
 	public void nextProcessImage() {
-		boolean valueHasChanged = Objects.equals(this.activeValue, this.nextValue);
+		boolean valueHasChanged = !Objects.equals(this.activeValue, this.nextValue);
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 		if (valueHasChanged) {
