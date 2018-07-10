@@ -86,19 +86,19 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.LEQ, MAX_REACTIVE_POWER);
 		// Allowed Apparent
 		CircleConstraint allowedApparentConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-		this.channel(ChannelId.ALLOWED_APPARENT).onUpdate(value -> {
+		this.channel(ChannelId.ALLOWED_APPARENT).onChange(value -> {
 			allowedApparentConstraint.setRadius(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Charge
 		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.GEQ, 0);
-		this.channel(ChannelId.ALLOWED_CHARGE).onUpdate(value -> {
+		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
 			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
 		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.LEQ, 0);
-		this.channel(ChannelId.ALLOWED_DISCHARGE).onUpdate(value -> {
+		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
 			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 	}

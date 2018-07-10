@@ -308,12 +308,12 @@ public interface SymmetricMeter extends Meter {
 		this.getMinActivePower().setNextValue(minActivePowerConfig);
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
 
-		this.getMinActivePower().onUpdate(value -> {
+		this.getMinActivePower().onChange(value -> {
 			if (value.get() != minActivePowerConfig) {
 				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", value.get());
 			}
 		});
-		this.getMaxActivePower().onUpdate(value -> {
+		this.getMaxActivePower().onChange(value -> {
 			if (value.get() != maxActivePowerConfig) {
 				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", value.get());
 			}

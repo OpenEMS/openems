@@ -84,7 +84,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// TODO adjust apparent power from modbus element
 		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 		
-		this.channel(ChannelId.W_MAX).onUpdate(value -> {
+		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
 			@SuppressWarnings("unchecked")
 			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
@@ -95,7 +95,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 			refreshPower();
 		});
-		this.channel(ChannelId.W_MAX_SF).onUpdate(value -> {
+		this.channel(ChannelId.W_MAX_SF).onChange(value -> {
 //			TODO unchecked cast
 			@SuppressWarnings("unchecked")
 			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();

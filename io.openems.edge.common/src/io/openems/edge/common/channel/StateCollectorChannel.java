@@ -37,7 +37,7 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 	public void addChannel(StateChannel channel) {
 		this.channels.put(channel.channelId(), channel);
 		
-		channel.onUpdate(value -> {
+		channel.onChange(value -> {
 			/*
 			 * update activeStates
 			 */
