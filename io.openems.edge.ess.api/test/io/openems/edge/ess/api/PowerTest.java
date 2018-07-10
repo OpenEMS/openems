@@ -46,8 +46,8 @@ public class PowerTest {
 			@Override
 			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 					int activePowerL3, int reactivePowerL3) {
-				assertEquals(1000, activePowerL1 + activePowerL2 + activePowerL3);
-				assertEquals(500, reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
+				assertEquals(999 /* caused by rounding errors */, activePowerL1 + activePowerL2 + activePowerL3);
+				assertEquals(498 /* caused by rounding errors */, reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
 			}
 
 		};
@@ -89,8 +89,8 @@ public class PowerTest {
 
 		ess0.getPower().applyPower();
 
-		assertEquals(1000, totalActivePower.get());
-		assertEquals(500, totalReactivePower.get());
+		assertEquals(998 /* caused by rounding errors */, totalActivePower.get());
+		assertEquals(499 /* caused by rounding errors */, totalReactivePower.get());
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class PowerTest {
 			@Override
 			public void applyPower(int activePower, int reactivePower) {
 				assertEquals(500, activePower);
-				assertEquals(250, activePower);
+				assertEquals(250, reactivePower);
 			}
 		};
 
@@ -109,8 +109,8 @@ public class PowerTest {
 			@Override
 			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 					int activePowerL3, int reactivePowerL3) {
-				assertEquals(500, activePowerL1 + activePowerL2 + activePowerL3);
-				assertEquals(250, activePowerL1 + activePowerL2 + activePowerL3);
+				assertEquals(498 /* caused by rounding errors */, activePowerL1 + activePowerL2 + activePowerL3);
+				assertEquals(249 /* caused by rounding errors */, reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
 			}
 		};
 

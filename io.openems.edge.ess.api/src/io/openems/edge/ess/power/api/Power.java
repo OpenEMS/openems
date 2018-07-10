@@ -46,7 +46,7 @@ public class Power {
 
 	/**
 	 * Holds all ManagedSymmetricEss objects that represent physical ESS (i.e. no
-	 * MetaEss). It is filled by LinearSolver constructor.
+	 * MetaEss). It is filled by constructor.
 	 */
 	protected final BiMap<ManagedSymmetricEss, Integer> realEsss = HashBiMap.create();
 
@@ -56,14 +56,14 @@ public class Power {
 	private final Set<ManagedSymmetricEss> allEsss = new HashSet<>();
 
 	/**
-	 * Holds the indices of coefficents for Active Power (P)
+	 * Holds the indices of coefficients for Active Power (P)
 	 */
-	private final List<Integer> pIndices = new ArrayList<>();
+	private final int[] pIndices;
 
 	/**
-	 * Holds the indices of coefficents for Reactive Power (P)
+	 * Holds the indices of coefficients for Reactive Power (P)
 	 */
-	private final List<Integer> qIndices = new ArrayList<>();
+	private final int[] qIndices;
 
 	/**
 	 * Holds the Objective Function for the solver
@@ -92,8 +92,6 @@ public class Power {
 	 */
 	private final LinearConstraint[] coefficientsInQuadrantIII;
 
-	private final static double ONE_THIRD = 1 / 3d;
-
 	public Power(ManagedSymmetricEss... esss) {
 		int coefficientIndex = 0;
 		for (ManagedSymmetricEss ess : esss) {
@@ -107,6 +105,14 @@ public class Power {
 			c[i] = 1;
 		}
 		this.objectiveFunction = new LinearObjectiveFunction(c, 0);
+
+		// store p and q indices
+		this.pIndices = new int[this.totalCoefficients / 2];
+		this.qIndices = new int[this.totalCoefficients / 2];
+		for (int i = 0; i < this.totalCoefficients / 2; i++) {
+			this.pIndices[i] = i * 2;
+			this.qIndices[i] = i * 2 + 1;
+		}
 
 		// create helper constraints
 		this.coefficientsInQuadrantI = new LinearConstraint[this.totalCoefficients];
@@ -129,18 +135,37 @@ public class Power {
 			if (!(this.realEsss.containsKey(ess))) {
 				this.realEsss.put(ess, coefficientIndex);
 				if (ess instanceof ManagedAsymmetricEss) {
-					this.pIndices.add(coefficientIndex + Phase.L1.offset + Pwr.ACTIVE.getOffset());
-					this.qIndices.add(coefficientIndex + Phase.L1.offset + Pwr.REACTIVE.getOffset());
-					this.pIndices.add(coefficientIndex + Phase.L2.offset + Pwr.ACTIVE.getOffset());
-					this.qIndices.add(coefficientIndex + Phase.L2.offset + Pwr.REACTIVE.getOffset());
-					this.pIndices.add(coefficientIndex + Phase.L3.offset + Pwr.ACTIVE.getOffset());
-					this.qIndices.add(coefficientIndex + Phase.L3.offset + Pwr.REACTIVE.getOffset());
-					coefficientIndex += 6;
+					// nothing
 				} else {
-					this.pIndices.add(coefficientIndex + Pwr.ACTIVE.getOffset());
-					this.qIndices.add(coefficientIndex + Pwr.REACTIVE.getOffset());
-					coefficientIndex += 2;
+					/*
+					 * ManagedSymmetricEss: all phases need to be equal
+					 */
+					this.addConstraint(new Constraint( //
+							ConstraintType.STATIC, //
+							new Coefficient[] { //
+									new Coefficient(ess, Phase.L1, Pwr.ACTIVE, 1), //
+									new Coefficient(ess, Phase.L2, Pwr.ACTIVE, -1), //
+							}, Relationship.EQ, 0));
+					this.addConstraint(new Constraint( //
+							ConstraintType.STATIC, //
+							new Coefficient[] { //
+									new Coefficient(ess, Phase.L1, Pwr.ACTIVE, 1), //
+									new Coefficient(ess, Phase.L3, Pwr.ACTIVE, -1), //
+							}, Relationship.EQ, 0));
+					this.addConstraint(new Constraint( //
+							ConstraintType.STATIC, //
+							new Coefficient[] { //
+									new Coefficient(ess, Phase.L1, Pwr.REACTIVE, 1), //
+									new Coefficient(ess, Phase.L2, Pwr.REACTIVE, -1), //
+							}, Relationship.EQ, 0));
+					this.addConstraint(new Constraint( //
+							ConstraintType.STATIC, //
+							new Coefficient[] { //
+									new Coefficient(ess, Phase.L1, Pwr.REACTIVE, 1), //
+									new Coefficient(ess, Phase.L3, Pwr.REACTIVE, -1), //
+							}, Relationship.EQ, 0));
 				}
+				coefficientIndex += 6;
 			}
 		}
 		return coefficientIndex;
@@ -165,36 +190,17 @@ public class Power {
 		}
 		int essIndex = this.realEsss.get(ess);
 		int pwrOffset = pwr.getOffset();
-		if (ess instanceof ManagedAsymmetricEss) {
-			/*
-			 * Asymmetric Ess
-			 */
-			switch (phase) {
-			case ALL:
-				coefficients[essIndex + Phase.L1.getOffset() + pwrOffset] = value;
-				coefficients[essIndex + Phase.L2.getOffset() + pwrOffset] = value;
-				coefficients[essIndex + Phase.L3.getOffset() + pwrOffset] = value;
-				break;
-			case L1:
-			case L2:
-			case L3:
-				coefficients[essIndex + phase.getOffset() + pwrOffset] = value;
-				break;
-			}
-		} else {
-			/*
-			 * Symmetric Ess
-			 */
-			switch (phase) {
-			case ALL:
-				coefficients[essIndex + pwrOffset] = value;
-				break;
-			case L1:
-			case L2:
-			case L3:
-				coefficients[essIndex + pwrOffset] = value * ONE_THIRD;
-				break;
-			}
+		switch (phase) {
+		case ALL:
+			coefficients[essIndex + Phase.L1.getOffset() + pwrOffset] = value;
+			coefficients[essIndex + Phase.L2.getOffset() + pwrOffset] = value;
+			coefficients[essIndex + Phase.L3.getOffset() + pwrOffset] = value;
+			break;
+		case L1:
+		case L2:
+		case L3:
+			coefficients[essIndex + phase.getOffset() + pwrOffset] = value;
+			break;
 		}
 	}
 
@@ -395,6 +401,7 @@ public class Power {
 
 		// copy to array (let space for 'additionalConstraints')
 		List<LinearConstraint> constraints = this.getAllLinearConstraints();
+		Arrays.stream(additionalConstraints).forEach(c -> constraints.add(c));
 		LinearConstraint[] c = copyToArray(constraints);
 
 		// solve + return result or throw Exception
@@ -429,9 +436,26 @@ public class Power {
 		}
 
 		/*
-		 * TODO Try to solve with Constraints to keep Ess1 L1 == Ess2 L1 == Ess3 L1 and
-		 * Ess1 L2 == Ess2 L2 == Ess3 L2,...
+		 * Try to solve with Constraints to keep Ess1 == Ess2 == Ess3
 		 */
+		try {
+			List<LinearConstraint> constraints = new ArrayList<>();
+			for (int i = 2; i < this.totalCoefficients; i += 2) {
+				// Active Power
+				double[] coefficients = new double[this.totalCoefficients];
+				coefficients[0] = 1;
+				coefficients[i] = -1;
+				constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+				// Reactive Power
+				coefficients = new double[this.totalCoefficients];
+				coefficients[1] = 1;
+				coefficients[i + 1] = -1;
+				constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+			}
+			return this.solve(this.objectiveFunction, GoalType.MINIMIZE, constraints);
+		} catch (PowerException e) {
+			// Error -> next try
+		}
 
 		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
 			/**
@@ -444,13 +468,13 @@ public class Power {
 				double[] coefficients = new double[this.totalCoefficients];
 
 				// solve function that finds extremal for p
-				this.pIndices.forEach(i -> coefficients[i] = 1);
+				Arrays.stream(this.pIndices).forEach(i -> coefficients[i] = 1);
 				final double[] solution = this.solve(new LinearObjectiveFunction(coefficients, 0), goalType,
 						this.coefficientsInQuadrantI);
 
 				// set result as fixed values for p and try to solve q.
 				final List<LinearConstraint> pConstraints = new ArrayList<>();
-				this.pIndices.forEach(i -> {
+				Arrays.stream(this.pIndices).forEach(i -> {
 					double[] cs = new double[this.totalCoefficients];
 					cs[i] = 1;
 					pConstraints.add(new LinearConstraint(cs, Relationship.EQ, solution[i]));
@@ -468,9 +492,6 @@ public class Power {
 			 * <li>Try to MINIMIZE without additional constraints
 			 * <li>Fails? try to MAXIMIZE without additional constraints
 			 * </ul>
-			 */
-			/*
-			 * 
 			 */
 			try {
 				return this.solve(this.objectiveFunction, goalType);
@@ -509,11 +530,11 @@ public class Power {
 
 	private int getActivePowerExtrema(GoalType goalType) {
 		double[] coefficients = new double[this.totalCoefficients];
-		this.pIndices.forEach(i -> coefficients[i] = 1);
+		Arrays.stream(this.pIndices).forEach(i -> coefficients[i] = 1);
 		double[] solution;
 		try {
 			solution = this.solve(new LinearObjectiveFunction(coefficients, 0), goalType);
-			return (int) (this.pIndices.stream().mapToDouble(i -> solution[i]).sum());
+			return (int) (Arrays.stream(this.pIndices).mapToDouble(i -> solution[i]).sum());
 		} catch (PowerException e) {
 			log.warn("Unable to " + goalType.name() + " Active Power. Setting it to zero.");
 			return 0;
@@ -578,9 +599,13 @@ public class Power {
 
 				// Active Power
 				int activePower = Utils.roundToInverterPrecision(e, //
-						solution[i + Pwr.ACTIVE.getOffset()]);
+						solution[i + Phase.L1.getOffset() + Pwr.ACTIVE.getOffset()] //
+								+ solution[i + Phase.L2.getOffset() + Pwr.ACTIVE.getOffset()] //
+								+ solution[i + Phase.L3.getOffset() + Pwr.ACTIVE.getOffset()]); //
 				int reactivePower = Utils.roundToInverterPrecision(e, //
-						solution[i + Pwr.REACTIVE.getOffset()]);
+						solution[i + Phase.L1.getOffset() + Pwr.REACTIVE.getOffset()] //
+								+ solution[i + Phase.L2.getOffset() + Pwr.REACTIVE.getOffset()] //
+								+ solution[i + Phase.L3.getOffset() + Pwr.REACTIVE.getOffset()]); //
 
 				// set debug channels on parent
 				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(activePower);
