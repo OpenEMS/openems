@@ -8,8 +8,8 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssKacoBlueplanetGridsave50 ess) {
@@ -22,7 +22,7 @@ public class Utils {
 						return new StateCollectorChannel(ess, channelId);
 					}
 					return null;
-				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
 					case ACTIVE_POWER:
@@ -31,7 +31,7 @@ public class Utils {
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(ess, channelId, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(ess, channelId, Ess.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(ess, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {

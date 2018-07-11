@@ -21,6 +21,9 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id();
 
+	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device. Defaults to '1' for Modbus/TCP.")
+	int modbusUnitId() default 1;
+
 	@AttributeDefinition(name = "Minimum Ever Active Power", description = "This is automatically updated.")
 	int minActivePower();
 

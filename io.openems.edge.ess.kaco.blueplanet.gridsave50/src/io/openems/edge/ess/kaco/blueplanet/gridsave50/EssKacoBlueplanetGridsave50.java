@@ -42,9 +42,10 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -54,12 +55,13 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 ) //
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, Ess, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
 	private final static int UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
+	private final CircleConstraint maxApparentPowerConstraint;
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
 	private int maxApparentPowerScaleFactor = 0;
@@ -82,10 +84,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	public EssKacoBlueplanetGridsave50() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-
+		/*
+		 * Initialize Power
+		 */
 		this.power = new Power(this);
-		this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
 
+		// Max Apparent
+		// TODO adjust apparent power from modbus element
+		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+		
 		Channel<Integer> wMaxChannel = this.channel(ChannelId.W_MAX);
 		wMaxChannel.onUpdate(value -> {
 			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
@@ -112,7 +119,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// TODO check if set correctly
 		maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 		if (maxApparentPower > 0) {
-			this.power.setMaxApparentPower(this, maxApparentPower);
+			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
 		}
 	}
 
@@ -239,7 +246,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "Current state: " + this.channel(ChannelId.CURRENT_STATE).value().asOptionString()
 				+ ", requested State: " + this.channel(ChannelId.REQUESTED_STATE).value().asOptionString()
-				+ ", Active Power: " + this.channel(Ess.ChannelId.ACTIVE_POWER).value().asOptionString();
+				+ ", Active Power: " + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asOptionString();
 	}
 
 	@Override

@@ -175,22 +175,18 @@ public interface OpenemsComponent {
 	 * Generates a 'target' filter on the 'Controllers' member so, that the target
 	 * component 'id' is in 'controllerIds'.
 	 * 
-	 * @param cm
-	 *            a ConfigurationAdmin instance. Get one using
+	 * @param cm     a ConfigurationAdmin instance. Get one using
 	 * 
-	 *            <pre>
-	 *            &#64;Reference
-	 *            ConfigurationAdmin cm;
-	 *            </pre>
+	 *               <pre>
+	 *               &#64;Reference
+	 *               ConfigurationAdmin cm;
+	 *               </pre>
 	 * 
-	 * @param pid
-	 *            PID of the calling component (use 'config.service_pid()' or
-	 *            '(String)prop.get(Constants.SERVICE_PID)'
-	 * @param member
-	 *            Name of the Method or Field with the Reference annotation, e.g.
-	 *            'Controllers' for 'addControllers()' method
-	 * @param ids
-	 *            Component IDs to be filtered for
+	 * @param pid    PID of the calling component (use 'config.service_pid()' or
+	 *               '(String)prop.get(Constants.SERVICE_PID)'
+	 * @param member Name of the Method or Field with the Reference annotation, e.g.
+	 *               'Controllers' for 'addControllers()' method
+	 * @param ids    Component IDs to be filtered for
 	 * 
 	 * @return true if the filter was updated. You may use it to abort the
 	 *         activate() method.
@@ -200,7 +196,12 @@ public interface OpenemsComponent {
 		/*
 		 * generate required target filter
 		 */
-		StringBuilder targetBuilder = new StringBuilder("(&(enabled=true)(|");
+		// target component must be enabled
+		StringBuilder targetBuilder = new StringBuilder("(&(enabled=true)");
+		// target component must not be the same as the calling component
+		targetBuilder.append("(!(service.pid=" + pid + "))");
+		// add filter for given Component-IDs
+		targetBuilder.append("(|");
 		for (String id : ids) {
 			targetBuilder.append("(id=" + id + ")");
 		}
@@ -237,21 +238,17 @@ public interface OpenemsComponent {
 	 * updateConfigurationProperty(cm, servicePid, "propertyName", "propertyValue");
 	 * </pre>
 	 * 
-	 * @param cm
-	 *            a ConfigurationAdmin instance. Get one using
+	 * @param cm       a ConfigurationAdmin instance. Get one using
 	 * 
-	 *            <pre>
-	 *            &#64;Reference
-	 *            ConfigurationAdmin cm;
-	 *            </pre>
+	 *                 <pre>
+	 *                 &#64;Reference
+	 *                 ConfigurationAdmin cm;
+	 *                 </pre>
 	 * 
-	 * @param pid
-	 *            PID of the calling component (use 'config.service_pid()' or
-	 *            '(String)prop.get(Constants.SERVICE_PID)'
-	 * @param property
-	 *            Name of the configuration property
-	 * @param value
-	 *            New configuration value
+	 * @param pid      PID of the calling component (use 'config.service_pid()' or
+	 *                 '(String)prop.get(Constants.SERVICE_PID)'
+	 * @param property Name of the configuration property
+	 * @param value    New configuration value
 	 */
 	public static void updateConfigurationProperty(ConfigurationAdmin cm, String pid, String property, int value) {
 		Configuration c;

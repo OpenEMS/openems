@@ -24,8 +24,8 @@ import com.google.gson.JsonParser;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.websocket.WebSocketUtils;
-import io.openems.edge.controller.api.apicontrollerutils.ApiController;
-import io.openems.edge.controller.api.apicontrollerutils.EdgeWebsocketHandler;
+import io.openems.edge.controller.api.core.ApiController;
+import io.openems.edge.controller.api.core.EdgeWebsocketHandler;
 
 /**
  * Local implementation of WebSocketClient to catch events
