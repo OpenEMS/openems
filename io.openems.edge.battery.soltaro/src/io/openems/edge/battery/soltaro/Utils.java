@@ -27,11 +27,15 @@ public class Utils {
 					case SOC:
 					case MAX_CAPACITY:
 					case GRID_MODE:
+						return new IntegerReadChannel(s, channelId);	
 					case CHARGE_MAX_CURRENT:
+						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_A);	
 					case CHARGE_MAX_VOLTAGE:
+						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_V);	
 					case DISCHARGE_MAX_CURRENT:
+						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MAX_A);	
 					case DISCHARGE_MIN_VOLTAGE:
-						return new IntegerReadChannel(s, channelId);					
+						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);	
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
