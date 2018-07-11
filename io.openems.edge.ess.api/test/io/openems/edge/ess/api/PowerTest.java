@@ -1,7 +1,12 @@
 package io.openems.edge.ess.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.optim.linear.Relationship;
@@ -11,6 +16,7 @@ import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 
 public class PowerTest {
@@ -137,7 +143,7 @@ public class PowerTest {
 
 		assertEquals(1000, ess0.getPower().getMaxActivePower());
 	}
-	
+
 	@Test
 	public void testMinActivePower() throws Exception {
 		ManagedAsymmetricEss ess0 = new ManagedAsymmetricEssDummy() {
@@ -154,80 +160,77 @@ public class PowerTest {
 		assertEquals(-1000, ess0.getPower().getMinActivePower());
 	}
 
-//	@Test
-//	public void testSetActiveAndReactiveToZero() {
-//		int givenActivePower = 0;
-//		int givenReactivePower = 0;
-//
-//		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, ZERO_TOLERANCE);
-//		sut = new Power(ess);
-//
-//		try {
-//			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.EQ, 0);
-//			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
-//			sut.applyPower();
-//
-//		} catch (PowerException e) {
-//			fail(e.getMessage());
-//		}
-//	}
-//
-//	@Test
-//	public void testSetActivePower() {
-//		int givenActivePower = 1000;
-//		int givenReactivePower = 0;
-//
-//		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, ZERO_TOLERANCE);
-//
-//		sut = new Power(ess);
-//		try {
-//			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
-//			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, givenReactivePower);
-//			sut.applyPower();
-//
-//		} catch (PowerException e) {
-//			fail(e.getMessage());
-//		}
-//	}
-//
-//	@Test
-//	public void testApparentPowerAndActivePower() {
-//		int maxApparentPower = 2000;
-//		int givenActivePower = 1000;
-//		int givenReactivePower = 0;
-//
-//		ManagedSymmetricEssDummy ess0 = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
-//
-//		sut = new Power(ess0);
-//		try {
-//			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
-//			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
-//			sut.setMaxApparentPower(ess0, maxApparentPower);
-//			sut.applyPower();
-//		} catch (PowerException e) {
-//			fail(e.getMessage());
-//		}
-//	}
-//
-//	@Test // TODO
-//	public void testGivenPowerGreaterThanMaxApparentPower() {
-//		int maxApparentPower = 1000;
-//		int givenActivePower = 2000;
-//		int givenReactivePower = 0;
-//
-//		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
-//
-//		sut = new Power(ess);
-//		try {
-//			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower); // TODO LEQ?
-//			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
-//			sut.setMaxApparentPower(ess, maxApparentPower);
-//			sut.applyPower();
-//		} catch (PowerException e) {
-//			fail(e.getMessage());
-//		}
-//	}
-//
+	@Test
+	public void testSetActiveAndReactiveToZero() {
+		int givenActivePower = 0;
+		int givenReactivePower = 0;
+
+		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, ZERO_TOLERANCE);
+
+		ess.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 0);
+		ess.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 0);
+
+		ess.getPower().applyPower();
+	}
+
+	@Test
+	public void testSetActivePower() {
+		int givenActivePower = 1000;
+		int givenReactivePower = 0;
+
+		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, ZERO_TOLERANCE);
+
+		ess.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, givenActivePower);
+		ess.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, givenReactivePower);
+
+		ess.getPower().applyPower();
+	}
+
+	@Test
+	public void testApparentPowerAndActivePower() {
+		int maxApparentPower = 2000;
+		int givenActivePower = 1000;
+		int givenReactivePower = 0;
+
+		ManagedSymmetricEssDummy ess0 = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
+
+		try {
+			ess0.addPowerConstraintAndValidate(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
+					givenActivePower);
+			ess0.addPowerConstraintAndValidate(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.EQ,
+					givenReactivePower);
+
+			new CircleConstraint(ess0, maxApparentPower);
+		} catch (PowerException e) {
+			fail(e.getMessage());
+		}
+
+		ess0.getPower().applyPower();
+	}
+
+	@Test
+	public void testGivenPowerGreaterThanMaxApparentPower() {
+		int maxApparentPower = 1000;
+		int givenActivePower = 2000;
+		int givenReactivePower = 0;
+
+		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
+
+		try {
+			new CircleConstraint(ess, maxApparentPower);
+
+			ess.addPowerConstraintAndValidate(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ,
+					givenActivePower);
+			ess.addPowerConstraintAndValidate(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.EQ,
+					givenReactivePower);
+
+			fail("GivenPowerGreaterThanMaxApparentPower");
+			
+		} catch (PowerException e) {
+			assertEquals(PowerException.Type.NO_FEASIBLE_SOLUTION, e.getType());
+		}
+	}
+
 //	@Test // TODO
 //	public void testGivenPowerAndReactivePower() {
 //		int maxApparentPower = 2000;
@@ -356,54 +359,54 @@ public class PowerTest {
 //		return value > bottomLimit && value < upperLimit;
 //	}
 //
-//	void checkValues(int expectedActive, int expectedReactive, int actualActive, int actualReactive,
-//			double deltaPercent) {
-//		double deltaActive = expectedActive * deltaPercent / 100;
-//		double deltaReactive = expectedReactive * deltaPercent / 100;
-//		assertEquals(expectedActive, actualActive, deltaActive);
-//		assertEquals(expectedReactive, actualReactive, deltaReactive);
-//	}
-//
-//	void checkValues(Map<Integer, Integer> expectedActualValues, double deltaPercent) {
-//		for (Entry<Integer, Integer> entry : expectedActualValues.entrySet()) {
-//			Integer expected = entry.getKey();
-//			Integer actual = entry.getValue();
-//			double delta = expected * deltaPercent / 100;
-//			assertEquals(expected, actual, delta);
-//		}
-//	}
-//
-//	private ManagedSymmetricEssDummy createSymmetricEss(int expectedActivePower, int expectedReactivePower,
-//			double deltaPercent) {
-//		return new ManagedSymmetricEssDummy() {
-//			@Override
-//			public void applyPower(int activePower, int reactivePower) {
-//				checkValues(expectedActivePower, expectedReactivePower, activePower, reactivePower, deltaPercent);
-//			}
-//		};
-//	}
-//
-//	private ManagedAsymmetricEssDummy createAsymmetricEss(List<Integer> activePower, List<Integer> reactivePower,
-//			double deltaPercent) {
-//		return new ManagedAsymmetricEssDummy() {
-//
-//			@Override
-//			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-//					int activePowerL3, int reactivePowerL3) {
-//				Map<Integer, Integer> valuesToCheck = new HashMap<>();
-//				valuesToCheck.put(activePower.get(0), activePowerL1);
-//				valuesToCheck.put(activePower.get(1), activePowerL2);
-//				valuesToCheck.put(activePower.get(2), activePowerL3);
-//
-//				valuesToCheck.put(reactivePower.get(0), reactivePowerL1);
-//				valuesToCheck.put(reactivePower.get(1), reactivePowerL2);
-//				valuesToCheck.put(reactivePower.get(2), reactivePowerL3);
-//
-//				checkValues(valuesToCheck, deltaPercent);
-//			}
-//
-//		};
-//	}
+	void checkValues(int expectedActive, int expectedReactive, int actualActive, int actualReactive,
+			double deltaPercent) {
+		double deltaActive = expectedActive * deltaPercent / 100;
+		double deltaReactive = expectedReactive * deltaPercent / 100;
+		assertEquals(expectedActive, actualActive, deltaActive);
+		assertEquals(expectedReactive, actualReactive, deltaReactive);
+	}
+
+	void checkValues(Map<Integer, Integer> expectedActualValues, double deltaPercent) {
+		for (Entry<Integer, Integer> entry : expectedActualValues.entrySet()) {
+			Integer expected = entry.getKey();
+			Integer actual = entry.getValue();
+			double delta = expected * deltaPercent / 100;
+			assertEquals(expected, actual, delta);
+		}
+	}
+
+	private ManagedSymmetricEssDummy createSymmetricEss(int expectedActivePower, int expectedReactivePower,
+			double deltaPercent) {
+		return new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				checkValues(expectedActivePower, expectedReactivePower, activePower, reactivePower, deltaPercent);
+			}
+		};
+	}
+
+	private ManagedAsymmetricEssDummy createAsymmetricEss(List<Integer> activePower, List<Integer> reactivePower,
+			double deltaPercent) {
+		return new ManagedAsymmetricEssDummy() {
+
+			@Override
+			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+					int activePowerL3, int reactivePowerL3) {
+				Map<Integer, Integer> valuesToCheck = new HashMap<>();
+				valuesToCheck.put(activePower.get(0), activePowerL1);
+				valuesToCheck.put(activePower.get(1), activePowerL2);
+				valuesToCheck.put(activePower.get(2), activePowerL3);
+
+				valuesToCheck.put(reactivePower.get(0), reactivePowerL1);
+				valuesToCheck.put(reactivePower.get(1), reactivePowerL2);
+				valuesToCheck.put(reactivePower.get(2), reactivePowerL3);
+
+				checkValues(valuesToCheck, deltaPercent);
+			}
+
+		};
+	}
 //
 //	@Test
 //	public void testSetActivePowerConstraintTypeRelationshipInt() {
