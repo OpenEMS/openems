@@ -56,4 +56,8 @@ public class Constraint {
 	public void setValue(double value) {
 		this.value = value;
 	}
+	
+	public void setValue(int value) {
+		this.value = value;
+	}
 }
