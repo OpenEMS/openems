@@ -60,13 +60,13 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 		}
 
 		@Override
-		protected void activate(String name) {
+		public void activate(String name) {
 			super.activate(name);
 			log.info("Started Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}
 
 		@Override
-		protected void deactivate() {
+		public void deactivate() {
 			super.deactivate();
 			log.info("Stopped Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}

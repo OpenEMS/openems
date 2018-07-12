@@ -7,12 +7,12 @@ package io.openems.edge.common.worker;
 public abstract class AbstractImmediateWorker extends AbstractWorker {
 
 	@Override
-	protected void activate(String name) {
+	public void activate(String name) {
 		super.activate(name);
 	}
 
 	@Override
-	protected void deactivate() {
+	public void deactivate() {
 		super.deactivate();
 	}
 

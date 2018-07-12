@@ -22,12 +22,12 @@ public class ReadWorker extends AbstractWorker {
 	}
 
 	@Override
-	protected void activate(String name) {
+	public void activate(String name) {
 		super.activate(name);
 	}
 
 	@Override
-	protected void deactivate() {
+	public void deactivate() {
 		super.deactivate();
 	}
 
