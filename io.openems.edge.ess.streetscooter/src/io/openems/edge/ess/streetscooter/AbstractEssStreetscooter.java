@@ -71,13 +71,13 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.GEQ, 0);
 		this.channel(ChannelId.BATTERY_BMS_PWR_CHRG_MAX).onChange(value -> {
-			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
 		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.LEQ, 0);
 		this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
-			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 	}
 

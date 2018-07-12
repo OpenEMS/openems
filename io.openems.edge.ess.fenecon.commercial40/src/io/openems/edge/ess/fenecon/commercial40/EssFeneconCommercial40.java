@@ -93,13 +93,13 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.GEQ, 0);
 		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
-			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
 		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.LEQ, 0);
 		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
-			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 	}
 

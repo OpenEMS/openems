@@ -212,12 +212,16 @@ public class Power {
 	 * @return
 	 */
 	private LinearConstraint toLinearConstraint(Constraint constraint) {
-		double[] coefficients = new double[this.totalCoefficients];
-		for (Coefficient coefficient : constraint.getCoefficients()) {
-			this.getCoefficients(coefficients, coefficient.getEss(), coefficient.getPhase(), coefficient.getPwr(),
-					coefficient.getValue());
+		if (constraint.isEnabled()) {
+			double[] coefficients = new double[this.totalCoefficients];
+			for (Coefficient coefficient : constraint.getCoefficients()) {
+				this.getCoefficients(coefficients, coefficient.getEss(), coefficient.getPhase(), coefficient.getPwr(),
+						coefficient.getValue());
+			}
+			return new LinearConstraint(coefficients, constraint.getRelationship(), constraint.getValue().get());
+		} else {
+			return null;
 		}
-		return new LinearConstraint(coefficients, constraint.getRelationship(), constraint.getValue());
 	}
 
 	/**
@@ -229,7 +233,9 @@ public class Power {
 		List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
 		Stream.concat(this.staticConstraints.stream(), this.cycleConstraints.stream()).forEachOrdered(c -> {
 			LinearConstraint lc = toLinearConstraint(c);
-			constraints.add(lc);
+			if (lc != null) {
+				constraints.add(lc);
+			}
 		});
 		return constraints;
 	}
@@ -357,7 +363,7 @@ public class Power {
 	 */
 	public boolean isSolvable(LinearConstraint... additionalConstraints) {
 		try {
-			this.solve(this.objectiveFunction, GoalType.MINIMIZE);
+			this.solve(this.objectiveFunction, GoalType.MINIMIZE, additionalConstraints);
 			return true;
 		} catch (PowerException e) {
 			switch (e.getType()) {

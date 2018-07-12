@@ -3,8 +3,6 @@ package io.openems.edge.ess.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -386,27 +384,27 @@ public class PowerTest {
 		};
 	}
 
-	private ManagedAsymmetricEssDummy createAsymmetricEss(List<Integer> activePower, List<Integer> reactivePower,
-			double deltaPercent) {
-		return new ManagedAsymmetricEssDummy() {
-
-			@Override
-			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-					int activePowerL3, int reactivePowerL3) {
-				Map<Integer, Integer> valuesToCheck = new HashMap<>();
-				valuesToCheck.put(activePower.get(0), activePowerL1);
-				valuesToCheck.put(activePower.get(1), activePowerL2);
-				valuesToCheck.put(activePower.get(2), activePowerL3);
-
-				valuesToCheck.put(reactivePower.get(0), reactivePowerL1);
-				valuesToCheck.put(reactivePower.get(1), reactivePowerL2);
-				valuesToCheck.put(reactivePower.get(2), reactivePowerL3);
-
-				checkValues(valuesToCheck, deltaPercent);
-			}
-
-		};
-	}
+//	private ManagedAsymmetricEssDummy createAsymmetricEss(List<Integer> activePower, List<Integer> reactivePower,
+//			double deltaPercent) {
+//		return new ManagedAsymmetricEssDummy() {
+//
+//			@Override
+//			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+//					int activePowerL3, int reactivePowerL3) {
+//				Map<Integer, Integer> valuesToCheck = new HashMap<>();
+//				valuesToCheck.put(activePower.get(0), activePowerL1);
+//				valuesToCheck.put(activePower.get(1), activePowerL2);
+//				valuesToCheck.put(activePower.get(2), activePowerL3);
+//
+//				valuesToCheck.put(reactivePower.get(0), reactivePowerL1);
+//				valuesToCheck.put(reactivePower.get(1), reactivePowerL2);
+//				valuesToCheck.put(reactivePower.get(2), reactivePowerL3);
+//
+//				checkValues(valuesToCheck, deltaPercent);
+//			}
+//
+//		};
+//	}
 //
 //	@Test
 //	public void testSetActivePowerConstraintTypeRelationshipInt() {

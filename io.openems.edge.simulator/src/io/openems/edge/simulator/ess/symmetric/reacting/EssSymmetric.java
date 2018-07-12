@@ -165,14 +165,14 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.allowedChargeConstraint.setValue(0);
+			this.allowedChargeConstraint.setIntValue(0);
 		} else {
-			this.allowedChargeConstraint.setValue(this.maxApparentPower * -1);
+			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
 		}
 		if (this.soc == 0) {
-			this.allowedDischargeConstraint.setValue(0);
+			this.allowedDischargeConstraint.setIntValue(0);
 		} else {
-			this.allowedDischargeConstraint.setValue(this.maxApparentPower);
+			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
 		}
 	}
 
