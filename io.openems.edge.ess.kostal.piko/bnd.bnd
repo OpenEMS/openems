@@ -15,7 +15,8 @@ Export-Package: \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.common;version=latest
+	io.openems.common;version=latest,\
+	com.google.guava
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

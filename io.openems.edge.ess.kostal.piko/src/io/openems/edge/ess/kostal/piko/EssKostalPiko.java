@@ -16,7 +16,7 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Unit;
 
@@ -27,7 +27,7 @@ import io.openems.edge.common.channel.doc.Unit;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, OpenemsComponent, EventHandler {
+public class EssKostalPiko extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent, EventHandler {
 
 	private final ReadTasksManager readTasksManager;
 	private final PikoProtocol pikoProtocol;
@@ -267,17 +267,17 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 		HOME_CONSUMPTION_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_TOTAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_SELF_CONSUMPTION_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		ISOLATION_RESISTOR(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILO_OHM)), //
+		ISOLATION_RESISTOR(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILOOHM)), //
 		MAX_RESIDUAL_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		ANALOG_INPUT_CH_1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		ANALOG_INPUT_CH_2(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		ANALOG_INPUT_CH_3(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		ANALOG_INPUT_CH_4(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
-		YIELD_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILO_WATT_HOURS)), //
+		YIELD_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILOWATT_HOURS)), //
 		YIELD_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT_HOURS)), //
-		HOME_CONSUMPTION_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILO_WATT_HOURS)), //
+		HOME_CONSUMPTION_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILOWATT_HOURS)), //
 		HOME_CONSUMPTION_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT_HOURS)), //
-		SELF_CONSUMPTION_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILO_WATT_HOURS)), //
+		SELF_CONSUMPTION_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILOWATT_HOURS)), //
 		SELF_CONSUMPTION_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT_HOURS)), //
 		SELF_CONSUMPTION_RATE_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
 		SELF_CONSUMPTION_RATE_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //

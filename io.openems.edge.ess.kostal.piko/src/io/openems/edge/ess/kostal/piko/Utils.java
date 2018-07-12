@@ -7,13 +7,21 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringReadChannel;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssKostalPiko c) {
 		return Stream.of( //
-				Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case STATE:
+						return new StateCollectorChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
 					case ACTIVE_POWER:
