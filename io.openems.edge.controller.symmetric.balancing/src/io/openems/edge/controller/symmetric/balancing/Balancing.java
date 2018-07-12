@@ -89,7 +89,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			requiredPower = this.calculateRequiredPower();
 
 		} catch (InvalidValueException | NullPointerException e) {
-			logError(this.log, e.getMessage());
+			logError(this.log,
+					"Error while calculating required power. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			return;
 		}
 
