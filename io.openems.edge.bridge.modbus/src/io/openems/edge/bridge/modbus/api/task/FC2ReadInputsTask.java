@@ -6,6 +6,7 @@ import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesResponse;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 /**
  * Implements a Read Inputs abstractTask, implementing Modbus function code 2

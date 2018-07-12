@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class TasksManager<T extends Task> {
+public class TaskManager<T extends ManagedTask> {
 
 	private final List<T> prioHighTasks = new ArrayList<>();
 	private final List<T> prioLowTasks = new ArrayList<>();
@@ -15,22 +15,26 @@ public class TasksManager<T extends Task> {
 	private final Queue<T> nextOnceTasks = new LinkedList<>();
 
 	@SafeVarargs
-	public TasksManager(T... tasks) {
+	public TaskManager(T... tasks) {
 		for (T task : tasks) {
-			switch (task.getPriority()) {
-			case HIGH:
-				this.prioHighTasks.add(task);
-				break;
-			case LOW:
-				this.prioLowTasks.add(task);
-				break;
-			case ONCE:
-				this.prioOnceTasks.add(task);
-				break;
-			}
+			this.addTask(task);
 		}
-		// Fill the 'nextOnceTasks'. This happens only once.
-		this.nextOnceTasks.addAll(prioOnceTasks);
+	}
+	
+	public void addTask(T task) {
+		switch (task.getPriority()) {
+		case HIGH:
+			this.prioHighTasks.add(task);
+			break;
+		case LOW:
+			this.prioLowTasks.add(task);
+			break;
+		case ONCE:
+			this.prioOnceTasks.add(task);
+			// Fill the 'nextOnceTasks'. This happens only once.
+			this.nextOnceTasks.add(task);
+			break;
+		}
 	}
 
 	public synchronized List<T> getNextReadTasks() {

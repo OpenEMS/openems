@@ -6,6 +6,7 @@ import com.ghgande.j2mod.modbus.msg.ReadCoilsRequest;
 import com.ghgande.j2mod.modbus.msg.ReadCoilsResponse;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 /**
  * Implements a Read Coils abstractTask, implementing Modbus function code 1
