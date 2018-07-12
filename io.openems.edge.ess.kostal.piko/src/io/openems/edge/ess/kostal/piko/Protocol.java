@@ -8,20 +8,16 @@ import java.util.List;
 
 import io.openems.edge.common.channel.Channel;
 
-public class PikoProtocol {
-
-	private final EssKostalPiko parent;
-	// private final short deviceId;
-	private final SocketConnection socketConnection;
+public class Protocol {
 
 	private final static boolean DEBUG_MODE = false;
 
-	// , short deviceId
-	public PikoProtocol(EssKostalPiko parent, String host, int port) {
-		this.parent = parent;
-		// this.deviceId = deviceId;
-		this.socketConnection = new SocketConnection(host, port);
+	private final EssKostalPiko parent;
+	private final SocketConnection socketConnection;
 
+	public Protocol(EssKostalPiko parent, SocketConnection socketConnection) {
+		this.parent = parent;
+		this.socketConnection = socketConnection;
 	}
 
 	public void execute(List<ReadTask> nextReadTasks) {
@@ -184,12 +180,5 @@ public class PikoProtocol {
 			checksum += data[i];
 		}
 		return checksum == 0x00;
-	}
-
-	/**
-	 * Closing the socket, streams and Deactivate the Component
-	 */
-	public void deactivate() {
-		this.socketConnection.close();
 	}
 }

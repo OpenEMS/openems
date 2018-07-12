@@ -1,7 +1,5 @@
 package io.openems.edge.ess.kostal.piko;
 
-import java.util.List;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,11 +28,11 @@ import io.openems.edge.common.channel.doc.Unit;
 public class EssKostalPiko extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent, EventHandler {
 
 	private final ReadTasksManager readTasksManager;
-	private final PikoProtocol pikoProtocol;
+	private SocketConnection socketConnection = null;
+	private Worker worker = null;
 
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.pikoProtocol = new PikoProtocol(this, "192.168.178.28", 81);
 		this.readTasksManager = new ReadTasksManager(//
 				// ONCE
 				new ReadTask(ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
@@ -162,17 +160,26 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 				new ReadTask(ChannelId.AC_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
 				new ReadTask(ChannelId.AC_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403) //
 		);
-
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		
+		this.socketConnection = new SocketConnection("192.168.178.28", 81);
+		Protocol protocol = new Protocol(this, socketConnection);
+		this.worker = new Worker(protocol, this.readTasksManager);
+		this.worker.activate(config.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		this.pikoProtocol.deactivate();
+		if(this.worker != null) {
+			this.worker.deactivate();
+		}
+		if(this.socketConnection != null) {
+			this.socketConnection.close();
+		}
 		super.deactivate();
 	}
 
@@ -303,9 +310,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-			List<ReadTask> nextReadTasks = this.readTasksManager.getNextReadTasks();
-			this.pikoProtocol.execute(nextReadTasks);
-			break;
+			this.worker.triggerNextCycle();
 		}
 	}
 
