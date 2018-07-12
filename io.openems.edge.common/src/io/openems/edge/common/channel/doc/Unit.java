@@ -98,13 +98,13 @@ public enum Unit {
 	 */
 	
 	/**
-	 * Unit of Temperature [°C]
+	 * Unit of Temperature [ï¿½C]
 	 */
-	DEGREE_CELSIUS("°C"),
+	DEGREE_CELSIUS("ï¿½C"),
 	/**
-	 * Unit of Temperature [d°C]
+	 * Unit of Temperature [dï¿½C]
 	 */
-	DEZIDEGREE_CELSIUS("d°C", DEGREE_CELSIUS, -1),
+	DEZIDEGREE_CELSIUS("dï¿½C", DEGREE_CELSIUS, -1),
 
 	/*
 	 * Time
@@ -126,7 +126,7 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [kOhm]
 	 */
-	KILO_OHM("kOhm", OHM, 3),
+	KILOOHM("kOhm", OHM, 3);
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
