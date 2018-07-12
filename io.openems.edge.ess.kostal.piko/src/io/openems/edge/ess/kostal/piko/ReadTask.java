@@ -1,27 +1,24 @@
 package io.openems.edge.ess.kostal.piko;
 
 import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.taskmanager.Task;
 
-public class ReadTask {
+public class ReadTask extends Task {
 
 	private final ChannelId channelId;
-	private final Priority priority;
 	private final FieldType fieldType;
 	private final int address;
 
 	public ReadTask(ChannelId channelId, Priority priority, FieldType fieldType, int address) {
+		super(priority);
 		this.channelId = channelId;
-		this.priority = priority;
 		this.address = address;
 		this.fieldType = fieldType;
 	}
 
 	public ChannelId getChannelId() {
 		return channelId;
-	}
-
-	public Priority getPriority() {
-		return this.priority;
 	}
 
 	public FieldType getFieldType() {

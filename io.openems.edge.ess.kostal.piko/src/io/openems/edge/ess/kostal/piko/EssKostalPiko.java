@@ -14,6 +14,8 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.taskmanager.TasksManager;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Unit;
@@ -27,13 +29,13 @@ import io.openems.edge.common.channel.doc.Unit;
 )
 public class EssKostalPiko extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent, EventHandler {
 
-	private final ReadTasksManager readTasksManager;
+	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
 
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.readTasksManager = new ReadTasksManager(//
+		this.readTasksManager = new TasksManager<ReadTask>(//
 				// ONCE
 				new ReadTask(ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
 				new ReadTask(ChannelId.ARTICLE_NUMBER, Priority.ONCE, FieldType.STRING, 0x01000100), //
