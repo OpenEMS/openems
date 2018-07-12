@@ -20,7 +20,7 @@ public abstract class AbstractWorker {
 	 * 
 	 * @param name
 	 */
-	protected void activate(String name) {
+	public void activate(String name) {
 		if (name != null) {
 			this.worker.setName(name);
 			this.worker.start();
@@ -30,7 +30,7 @@ public abstract class AbstractWorker {
 	/**
 	 * Stops the worker thread
 	 */
-	protected void deactivate() {
+	public void deactivate() {
 		this.isStopped.set(true);
 	}
 

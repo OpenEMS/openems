@@ -69,7 +69,7 @@ public class Cycle extends AbstractWorker {
 	}
 
 	@Deactivate
-	protected void deactivate() {
+	public void deactivate() {
 		super.deactivate();
 	}
 
