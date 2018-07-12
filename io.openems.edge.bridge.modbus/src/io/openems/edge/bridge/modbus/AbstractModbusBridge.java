@@ -27,7 +27,7 @@ import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.worker.AbstractWorker;
+import io.openems.edge.common.worker.AbstractCycleWorker;
 
 /**
  * Abstract service for connecting to, querying and writing to a Modbus device
@@ -112,7 +112,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		this.protocols.removeAll(sourceId);
 	}
 
-	private class ModbusWorker extends AbstractWorker {
+	private class ModbusWorker extends AbstractCycleWorker {
+
 		@Override
 		public void activate(String name) {
 			super.activate(name);
@@ -193,12 +194,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			});
 			return result;
 		}
-
-		@Override
-		protected int getCycleTime() {
-			// TODO calculate cycle time to optimize handling of read and write tasks
-			return 1000;
-		}
 	}
 
 	@Override
@@ -206,6 +201,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			this.forceWrite.set(true);
+			this.worker.triggerNextCycle();
 			break;
 		}
 	}
