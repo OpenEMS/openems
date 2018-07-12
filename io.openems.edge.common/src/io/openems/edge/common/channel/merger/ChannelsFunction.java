@@ -34,11 +34,7 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 		}
 		final Consumer<Value<T>> handler = value -> {
 			this.valueMap.put(component.id(), value);
-			try {
-				this.targetChannel.setNextValue(this.calculate());
-			} catch (NoSuchElementException e) {
-				this.targetChannel.setNextValue(null);
-			}
+			this.recalculateValue();
 		};
 		Channel<T> channel = component.channel(this.sourceChannelId);
 		handler.accept(channel.getNextValue()); // handle current value
@@ -51,6 +47,7 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 					"Remove Component [" + component.id() + "] of type [" + component.getClass().getSimpleName() + "]");
 		}
 		this.valueMap.remove(component.id());
+		this.recalculateValue();
 	}
 
 	public ChannelsFunction<C, T> debug() {
@@ -58,5 +55,13 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 		return this;
 	}
 
+	private void recalculateValue() {
+		try {
+			this.targetChannel.setNextValue(this.calculate());
+		} catch (NoSuchElementException e) {
+			this.targetChannel.setNextValue(null);
+		}
+	}
+	
 	protected abstract double calculate() throws NoSuchElementException;
 }
