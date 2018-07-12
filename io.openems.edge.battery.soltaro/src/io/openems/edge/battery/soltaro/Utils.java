@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -28,13 +27,18 @@ public class Utils {
 					case SOC:
 					case MAX_CAPACITY:
 					case GRID_MODE:
-						return new IntegerReadChannel(s, channelId);
+					case CHARGE_MAX_CURRENT:
+					case CHARGE_MAX_VOLTAGE:
+					case DISCHARGE_MAX_CURRENT:
+					case DISCHARGE_MIN_VOLTAGE:
+						return new IntegerReadChannel(s, channelId);					
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case BMS_CONTACTOR_CONTROL:
 						return new IntegerWriteChannel(s, channelId);
+						
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH:
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_LOW:
 					case ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH:
@@ -367,10 +371,14 @@ public class Utils {
 					case CLUSTER_1_VOLTAGE:
 					case CLUSTER_1_CURRENT:
 					case CLUSTER_1_CHARGE_INDICATION:
-//					case CLUSTER_1_SOC:
 					case CLUSTER_1_SOH:
 					case CLUSTER_RUN_STATE:
 					case SYSTEM_INSULATION:
+						
+					case SYSTEM_ACCEPT_MAX_CHARGE_CURRENT:
+					case SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT:
+					case SYSTEM_OVER_VOLTAGE_PROTECTION:
+					case SYSTEM_UNDER_VOLTAGE_PROTECTION:
 
 					case CLUSTER_1_MIN_CELL_TEMPERATURE:
 					case CLUSTER_1_MAX_CELL_TEMPERATURE:
@@ -381,14 +389,9 @@ public class Utils {
 					case CLUSTER_1_MIN_CELL_VOLTAGE:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
 						return new IntegerReadChannel(s, channelId);
-
 					}
 					return null;
 				}) //
 		).flatMap(channel -> channel);
-	}
-
-	public static ModbusProtocol createModbusProtocol(int unitId) {
-		return null;
 	}
 }

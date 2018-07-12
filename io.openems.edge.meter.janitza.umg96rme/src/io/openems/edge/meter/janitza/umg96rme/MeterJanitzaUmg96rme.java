@@ -40,8 +40,6 @@ import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
-	private final static int UNIT_ID = 1;
-
 	private MeterType meterType = MeterType.PRODUCTION;
 
 	@Reference
@@ -60,7 +58,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
 		// Initialize Min/MaxActivePower channels

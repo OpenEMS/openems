@@ -16,13 +16,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 
 @Designate(ocd = Config1.class, factory = true)
 @Component(name = "Ess1.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
-public class Ess1Streetscooter extends AbstractEssStreetscooter implements ManagedSymmetricEss, Ess, OpenemsComponent {
+public class Ess1Streetscooter extends AbstractEssStreetscooter implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	private static final int INVERTER_1_MODE_ADDRESS = 3056;
 	private static final int ICU1_SET_POWER_ADRESS = 4002;
@@ -34,7 +34,7 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter implements Manag
 	
 	
 	private static final int BATTERY_1_OVERLOAD_ADDRESS = 1001;
-	private static final int BATTERY_1_CONNECTED_ADDRESS = 1000; // DAS STIMMT!
+	private static final int BATTERY_1_CONNECTED_ADDRESS = 1000; 
 	private static final int INVERTER_1_CONNECTED_ADDRESS = 13000;
 	private static final int ICU_1_RUNSTATE_ADDRESS = 14001;
 	
@@ -47,8 +47,8 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter implements Manag
 
 	@Activate
 	protected
-	void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), UNIT_ID, this.cm, "Modbus", config0.modbus_id());
+	void activate(ComponentContext context, Config1 config1) {
+		super.activate(context, config1.service_pid(), config1.id(), config1.enabled(), UNIT_ID, this.cm, "Modbus", config1.modbus_id());
 	}
 	
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

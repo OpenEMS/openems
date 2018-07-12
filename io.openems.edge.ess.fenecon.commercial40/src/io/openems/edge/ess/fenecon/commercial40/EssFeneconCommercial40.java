@@ -41,12 +41,14 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.CircleConstraint;
-import io.openems.edge.ess.power.api.CoefficientOneConstraint;
+import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -56,7 +58,7 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, Ess, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40.class);
 
@@ -80,25 +82,23 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		 */
 		this.power = new Power(this);
 		// ReactivePower limitations
-		this.power.setReactivePower(ConstraintType.STATIC, Relationship.GEQ, MIN_REACTIVE_POWER);
-		this.power.setReactivePower(ConstraintType.STATIC, Relationship.LEQ, MAX_REACTIVE_POWER);
+		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GEQ, MIN_REACTIVE_POWER);
+		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.LEQ, MAX_REACTIVE_POWER);
 		// Allowed Apparent
-		CircleConstraint[] allowedApparentConstraint = this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
-		this.channel(ChannelId.ALLOWED_APPARENT).onUpdate(value -> {
-			for (CircleConstraint constraint : allowedApparentConstraint) {
-				constraint.setRadius(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-			}
+		CircleConstraint allowedApparentConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+		this.channel(ChannelId.ALLOWED_APPARENT).onChange(value -> {
+			allowedApparentConstraint.setRadius(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Charge
-		CoefficientOneConstraint allowedChargeConstraint = this.power.setActivePower(ConstraintType.STATIC,
+		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.GEQ, 0);
-		this.channel(ChannelId.ALLOWED_CHARGE).onUpdate(value -> {
+		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
 			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
-		CoefficientOneConstraint allowedDischargeConstraint = this.power.setActivePower(ConstraintType.STATIC,
+		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.LEQ, 0);
-		this.channel(ChannelId.ALLOWED_DISCHARGE).onUpdate(value -> {
+		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
 			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 	}
@@ -396,13 +396,13 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x0103), // WorkMode: RemoteDispatch
 						m(EssFeneconCommercial40.ChannelId.BATTERY_MAINTENANCE_STATE, new UnsignedWordElement(0x0104)),
 						m(EssFeneconCommercial40.ChannelId.INVERTER_STATE, new UnsignedWordElement(0x0105)),
-						m(Ess.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106), //
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106), //
 								new ElementToChannelConverter((value) -> {
 									switch (TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value)) {
 									case 1:
-										return Ess.GridMode.OFF_GRID.ordinal();
+										return SymmetricEss.GridMode.OFF_GRID.ordinal();
 									case 2:
-										return Ess.GridMode.ON_GRID.ordinal();
+										return SymmetricEss.GridMode.ON_GRID.ordinal();
 									}
 									throw new IllegalArgumentException("Undefined GridMode [" + value + "]");
 								})),
@@ -583,7 +583,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x020C, 0x020F), //
 						m(EssFeneconCommercial40.ChannelId.GRID_ACTIVE_POWER, new SignedWordElement(0x0210),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Ess.ChannelId.REACTIVE_POWER, new SignedWordElement(0x0211),
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x0211),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.APPARENT_POWER, new UnsignedWordElement(0x0212),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -614,7 +614,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L3, new SignedWordElement(0x0227),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Ess.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0228),
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0228),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0229, 0x022F), //
 						m(EssFeneconCommercial40.ChannelId.ALLOWED_CHARGE, new SignedWordElement(0x0230),
@@ -674,7 +674,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								.m(EssFeneconCommercial40.ChannelId.STATE_149, 2) //
 								.build()), //
 				new FC3ReadRegistersTask(0x1402, Priority.HIGH, //
-						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402))));
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 	}
 
 	@Override

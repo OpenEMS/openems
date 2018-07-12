@@ -26,9 +26,9 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 /**
  * Implements the FENECON Commercial 40 Charger

@@ -21,11 +21,14 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.api.CoefficientOneConstraint;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.CircleConstraint;
+import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.simulator.ess.EssUtils;
 
@@ -34,11 +37,11 @@ import io.openems.edge.simulator.ess.EssUtils;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class EssSymmetric extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, Ess, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
 	private Power power = null;
-	private CoefficientOneConstraint allowedChargeConstraint;
-	private CoefficientOneConstraint allowedDischargeConstraint;
+	private Constraint allowedChargeConstraint;
+	private Constraint allowedDischargeConstraint;
 
 	/**
 	 * Current state of charge
@@ -84,13 +87,13 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 */
 		this.power = new Power(this);
 		// Max Apparent Power
-		this.power.setMaxApparentPower(this, maxApparentPower);
+		new CircleConstraint(this, this.maxApparentPower);
 		// Allowed Charge
-		this.allowedChargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.GEQ,
-				0 /* initial zero; is set later */);
+		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+				Relationship.GEQ, 0 /* initial zero; is set later */);
 		// Allowed Discharge
-		this.allowedDischargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.LEQ,
-				0 /* initial zero; is set later */);
+		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+				Relationship.LEQ, 0 /* initial zero; is set later */);
 	}
 
 	@Deactivate

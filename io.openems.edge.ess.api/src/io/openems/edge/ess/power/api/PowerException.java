@@ -9,7 +9,7 @@ public class PowerException extends OpenemsException {
 
 	private static final long serialVersionUID = 1L;
 
-	private enum Type {
+	public enum Type {
 		NO_FEASIBLE_SOLUTION, UNBOUNDED_SOLUTION
 	}
 
@@ -17,11 +17,6 @@ public class PowerException extends OpenemsException {
 
 	public PowerException(NoFeasibleSolutionException e) {
 		super("No Feasible Solution");
-		this.type = Type.NO_FEASIBLE_SOLUTION;
-	}
-
-	public PowerException(NoFeasibleSolutionException e, AbstractConstraint constraint) {
-		super("No Feasible Solution: " + Utils.abstractConstraintToString(constraint));
 		this.type = Type.NO_FEASIBLE_SOLUTION;
 	}
 

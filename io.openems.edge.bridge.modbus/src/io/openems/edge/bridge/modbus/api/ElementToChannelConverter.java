@@ -20,6 +20,13 @@ public class ElementToChannelConverter {
 			value -> value);
 
 	/**
+	 * Applies a scale factor of -1.
+	 * 
+	 * @see ElementToChannelScaleFactorConverter
+	 */
+	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
+	
+	/**
 	 * Applies a scale factor of 1.
 	 * 
 	 * @see ElementToChannelScaleFactorConverter

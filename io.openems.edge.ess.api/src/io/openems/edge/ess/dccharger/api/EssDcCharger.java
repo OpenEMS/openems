@@ -101,7 +101,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 */
 		this.getMaxActualPower().setNextValue(maxActualPowerConfig);
 
-		this.getMaxActualPower().onUpdate(value -> {
+		this.getMaxActualPower().onChange(value -> {
 			if (value.get() != maxActualPowerConfig) {
 				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActualPower", value.get());
 			}

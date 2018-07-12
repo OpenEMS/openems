@@ -13,8 +13,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Component( //
 		immediate = true, //
@@ -23,8 +23,6 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		})
 public class ManagedEssComponent implements EventHandler {
-
-//	private final Logger log = LoggerFactory.getLogger(ManagedEssComponent.class);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private volatile List<ManagedSymmetricEss> components = new CopyOnWriteArrayList<>();

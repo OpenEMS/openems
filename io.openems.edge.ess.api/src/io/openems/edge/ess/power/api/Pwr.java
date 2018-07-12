@@ -1,21 +1,14 @@
 package io.openems.edge.ess.power.api;
 
-enum Pwr {
-	ACTIVE("Active Power", 0), REACTIVE("Reactive Power", 1);
+public enum Pwr {
+	ACTIVE(0), REACTIVE(1);
 
-	private final String note;
 	private final int offset;
 
-	Pwr(String note, int offset) {
-		this.note = note;
+	Pwr(int offset) {
 		this.offset = offset;
 	}
-
-	@Override
-	public String toString() {
-		return this.note;
-	}
-
+	
 	public int getOffset() {
 		return offset;
 	}

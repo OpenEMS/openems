@@ -75,11 +75,10 @@ public enum Unit {
 	 * Unit of Energy [Wh]
 	 */
 	WATT_HOURS("Wh"),
-
 	/**
 	 * Unit of Energy [kWh]
 	 */
-	KILO_WATT_HOURS("kWh", WATT_HOURS, 3),
+	KILOWATT_HOURS("kWh", WATT_HOURS, 3),
 
 	/*
 	 * Frequency
@@ -99,33 +98,36 @@ public enum Unit {
 	 */
 	
 	/**
-	 * Unit of Temperature [Â°C]
+	 * Unit of Temperature [°C]
 	 */
-	DEGREE_CELSIUS("Â°C"),
+	DEGREE_CELSIUS("°C"),
+	/**
+	 * Unit of Temperature [d°C]
+	 */
+	DEZIDEGREE_CELSIUS("d°C", DEGREE_CELSIUS, -1),
 
+	/*
+	 * Time
+	 */
+	/**
+	 * Unit of Time in Seconds [s]
+	 */
+	SECONDS("sec"),
+	
 	/*
 	 * Resistance
 	 */
 	
 	/**
-	 * Unit of Resistor [Î©/Ohm]
+	 * Unit of Resistance [Ohm]
 	 */
-	OHM("Î©"),
+	OHM("Ohm"),
 
 	/**
-	 * Unit of Resistor [kÎ©/kÎ©]
+	 * Unit of Resistance [kOhm]
 	 */
-	KILO_OHM("kÎ©", OHM, 3),
+	KILO_OHM("kOhm", OHM, 3),
 
-	/*
-	 * Time
-	 */
-	
-	/**
-	 * Unit of Time in Seconds [s]
-	 */
-	SECONDS("sec");
-	
 	private final Unit baseUnit;
 	private final int scaleFactor;
 	private final String symbol;
@@ -158,6 +160,7 @@ public enum Unit {
 			return value.toString();
 		case AMPERE:
 		case DEGREE_CELSIUS:
+		case DEZIDEGREE_CELSIUS:
 		case HERTZ:
 		case MILLIAMPERE:
 		case MILLIHERTZ:
@@ -168,6 +171,8 @@ public enum Unit {
 		case VOLT_AMPERE_REACTIVE:
 		case WATT:
 		case WATT_HOURS:
+		case OHM:
+		case KILOOHM:
 		case SECONDS:
 			return value + " " + this.symbol;
 		case ON_OFF:

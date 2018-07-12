@@ -11,9 +11,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
-	// TODO what values are necessary to define a battery system? (voltage, current,
-	// temperature...)
-
 	public enum GridMode {
 		UNDEFINED, ON_GRID, OFF_GRID
 	}
@@ -43,9 +40,9 @@ public interface Battery extends OpenemsComponent {
 				.option(GridMode.UNDEFINED) //
 				.option(GridMode.ON_GRID) //
 				.option(GridMode.OFF_GRID) //
-		),
+		),		
 		/**
-		 * Max Active Power
+		 * Max capacity
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
@@ -53,14 +50,55 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		MAX_CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS));
+		MAX_CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		/**
+		 * Min voltage for discharging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: V
+		 * </ul>
+		 */
+		DISCHARGE_MIN_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		/**
+		 * Max current for discharging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: V
+		 * </ul>
+		 */
+		DISCHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		/**
+		 * Maximal voltage for charging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: V
+		 * </ul>
+		 */
+		CHARGE_MAX_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		/**
+		 * Max current for charging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: V
+		 * </ul>
+		 */
+		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		;
 
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
 			this.doc = doc;
 		}
-
+		
 		@Override
 		public Doc doc() {
 			return this.doc;
@@ -94,4 +132,39 @@ public interface Battery extends OpenemsComponent {
 		return this.channel(ChannelId.MAX_CAPACITY);
 	}
 
+	/**
+	 * Gets the min voltage for discharging
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getDischargeMinVoltage() {
+		return this.channel(ChannelId.DISCHARGE_MIN_VOLTAGE);
+	}
+	
+	/**
+	 * Gets the max current for discharging
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getDischargeMaxCurrent() {
+		return this.channel(ChannelId.DISCHARGE_MAX_CURRENT);
+	}
+	
+	/**
+	 * Gets the max voltage for charging
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getChargeMaxVoltage() {
+		return this.channel(ChannelId.CHARGE_MAX_VOLTAGE);
+	}
+	
+	/**
+	 * Gets the max current for charging
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getChargeMaxCurrent() {
+		return this.channel(ChannelId.CHARGE_MAX_CURRENT);
+	}
 }

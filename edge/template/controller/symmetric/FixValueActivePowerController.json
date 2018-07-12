@@ -1,8 +1,0 @@
-{
-	"class": "io.openems.impl.controller.symmetric.fixvalue.FixValueActivePowerController",
-	"esss": [
-		"ess0"
-	],
-	"priority": 150,
-	"activePower": 2000
-}

@@ -14,10 +14,10 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
-public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
+public class FC6WriteRegisterTask extends FC3ReadRegistersTask implements WriteTask {
 
 	public FC6WriteRegisterTask(int startAddress, AbstractModbusElement<?> element) {
-		super(startAddress, element);
+		super(startAddress, Priority.HIGH, new AbstractModbusElement<?>[] { element });
 	}
 
 	@Override
@@ -29,7 +29,8 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 			Optional<Register[]> valueOpt = ((AbstractWordElement<?>) element).getNextWriteValue();
 			if (valueOpt.isPresent()) {
 				Register[] registers = valueOpt.get();
-				if (registers.length != 1 && registers[0] != null) {
+						
+				if (registers.length == 1 && registers[0] != null) {
 					// found value -> write
 					try {
 						/*
@@ -73,5 +74,4 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 					+ response.getClass().getSimpleName() + "]");
 		}
 	}
-
 }
