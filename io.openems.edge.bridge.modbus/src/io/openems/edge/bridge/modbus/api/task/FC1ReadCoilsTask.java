@@ -4,6 +4,7 @@ import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.ReadCoilsRequest;
 import com.ghgande.j2mod.modbus.msg.ReadCoilsResponse;
+import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
@@ -19,9 +20,9 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 	}
 
 	@Override
-	protected byte[] getBytes(ModbusResponse response) {
+	protected BitVector getBitVector(ModbusResponse response) {
 		ReadCoilsResponse coilsResponse = (ReadCoilsResponse) response;
-		return coilsResponse.getCoils().getBytes();
+		return coilsResponse.getCoils();
 	}
 
 	@Override
