@@ -7,11 +7,12 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.core.power.LinearPower;
 import io.openems.edge.ess.power.api.Power;
 
 public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss {
 
-	private final Power power;
+	private LinearPower power;
 
 	public ManagedAsymmetricEssDummy() {
 		Stream.of( //
@@ -62,12 +63,6 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
-		this.power = new Power(this);
-	}
-
-	@Override
-	public Power getPower() {
-		return this.power;
 	}
 
 	@Override
@@ -90,4 +85,13 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 		return true;
 	}
 
+	public void addToPower(LinearPower power) {
+		this.power = power;
+		power.addEss(this);
+	}
+
+	@Override
+	public Power getPower() {
+		return this.power;
+	}
 }

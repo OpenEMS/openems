@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import org.apache.commons.math3.optim.linear.Relationship;
 
+import io.openems.edge.ess.power.api.Coefficient;
+import io.openems.edge.ess.power.api.ConstraintType;
+
 /**
  * Creates a constraint with following settings:
  * <ul>
@@ -31,7 +34,7 @@ public class Constraint {
 		this.relationship = relationship;
 		this.value = Optional.ofNullable(value);
 	}
-	
+
 	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, Integer value) {
 		this(type, coefficients, relationship, value == null ? null : value.doubleValue());
 	}

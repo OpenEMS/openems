@@ -9,12 +9,13 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.core.power.LinearPower;
 import io.openems.edge.ess.power.api.Power;
 
 public class EssClusterDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss, MetaEss {
 
-	private final Power power;
 	private final ManagedSymmetricEss[] managedEsss;
+	private LinearPower power;
 
 	public EssClusterDummy(SymmetricEss... esss) {
 		Stream.of( //
@@ -67,7 +68,7 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 
 		/*
-		 * Add all ManagedSymmetricEss devices to Power object
+		 * Add all ManagedSymmetricEss devices to this.managedEsss
 		 */
 		List<ManagedSymmetricEss> managedSymmetricEsssList = new ArrayList<>();
 		for (SymmetricEss ess : esss) {
@@ -79,12 +80,6 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
 			managedEsss[i] = managedSymmetricEsssList.get(i);
 		}
-		this.power = new Power(managedEsss);
-	}
-
-	@Override
-	public Power getPower() {
-		return this.power;
 	}
 
 	@Override
@@ -118,4 +113,13 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
 	}
 
+	public void addToPower(LinearPower power) {
+		this.power = power;
+		power.addEss(this);
+	}
+
+	@Override
+	public Power getPower() {
+		return this.power;
+	}
 }

@@ -39,7 +39,6 @@ import io.openems.edge.simulator.ess.EssUtils;
 public class EssSymmetric extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
-	private Power power = null;
 	private Constraint allowedChargeConstraint;
 	private Constraint allowedDischargeConstraint;
 
@@ -71,6 +70,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		}
 	}
 
+	@Reference
+	private Power power;
+	
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected SimulatorDatasource datasource;
 
@@ -85,7 +87,6 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		/*
 		 * Initialize Power
 		 */
-		this.power = new Power(this);
 		// Max Apparent Power
 		new CircleConstraint(this, this.maxApparentPower);
 		// Allowed Charge
