@@ -11,8 +11,6 @@ import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.Relationship;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 
@@ -30,7 +28,7 @@ public class Data {
 	/**
 	 * Holds all ManagedSymmetricEss objects covered by this Power object
 	 */
-	protected final BiMap<String, ManagedSymmetricEss> allEsss = HashBiMap.create();
+	protected final Set<ManagedSymmetricEss> allEsss = new HashSet<>();
 
 	private final int COEFFICIENTS_PER_ESS = 6;
 
@@ -80,9 +78,10 @@ public class Data {
 			return essIndex;
 		}
 
-		// not found -> re-add all Ess. This adds Sub-Ess of MetaEss.
+		// not found -> refresh everything manually.
 		this.realEsss.clear();
-		this.allEsss.values().forEach(e -> this.addEss(e));
+		this.allEsss.forEach(e -> this.addEss(e));
+		this.addEss(ess);
 		if (retry) {
 			return this._getEssIndex(ess, false);
 		} else {
@@ -107,7 +106,7 @@ public class Data {
 	 * @param ess
 	 */
 	public synchronized void addEss(ManagedSymmetricEss ess) {
-		this.allEsss.put(ess.id(), ess);
+		this.allEsss.add(ess);
 		if (ess instanceof MetaEss) {
 			MetaEss e = (MetaEss) ess;
 			this.metaEsss.add(e);
@@ -298,7 +297,7 @@ public class Data {
 	 * @param ess
 	 */
 	public synchronized void removeEss(ManagedSymmetricEss ess) {
-		this.allEsss.remove(ess.id(), ess);
+		this.allEsss.remove(ess);
 		if (ess instanceof MetaEss) {
 			MetaEss e = (MetaEss) ess;
 			this.metaEsss.remove(e);
