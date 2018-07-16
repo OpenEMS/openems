@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,6 +30,9 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 					case REACTIVE_POWER:
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(this, channelId);
+					case ACTIVE_CHARGE_ENERGY:
+					case ACTIVE_DISCHARGE_ENERGY:
+						return new LongReadChannel(this, channelId);
 					case GRID_MODE:
 						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
 					}

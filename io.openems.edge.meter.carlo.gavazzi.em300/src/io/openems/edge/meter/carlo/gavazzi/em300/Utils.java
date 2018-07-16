@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.Meter;
@@ -32,13 +33,12 @@ public class Utils {
 					case MAX_ACTIVE_POWER:
 					case MIN_ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case CONSUMPTION_ACTIVE_POWER:
-					case CONSUMPTION_REACTIVE_POWER:
-					case PRODUCTION_ACTIVE_POWER:
-					case PRODUCTION_REACTIVE_POWER:
 					case CURRENT:
 					case VOLTAGE:
 						return new IntegerReadChannel(c, channelId);
+					case ACTIVE_CONSUMPTION_ENERGY:
+					case ACTIVE_PRODUCTION_ENERGY:
+						return new LongReadChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
@@ -46,18 +46,6 @@ public class Utils {
 					case ACTIVE_POWER_L1:
 					case ACTIVE_POWER_L2:
 					case ACTIVE_POWER_L3:
-					case CONSUMPTION_ACTIVE_POWER_L1:
-					case CONSUMPTION_ACTIVE_POWER_L2:
-					case CONSUMPTION_ACTIVE_POWER_L3:
-					case CONSUMPTION_REACTIVE_POWER_L1:
-					case CONSUMPTION_REACTIVE_POWER_L2:
-					case CONSUMPTION_REACTIVE_POWER_L3:
-					case PRODUCTION_ACTIVE_POWER_L1:
-					case PRODUCTION_ACTIVE_POWER_L2:
-					case PRODUCTION_ACTIVE_POWER_L3:
-					case PRODUCTION_REACTIVE_POWER_L1:
-					case PRODUCTION_REACTIVE_POWER_L2:
-					case PRODUCTION_REACTIVE_POWER_L3:
 					case REACTIVE_POWER_L1:
 					case REACTIVE_POWER_L2:
 					case REACTIVE_POWER_L3:

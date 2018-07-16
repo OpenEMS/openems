@@ -575,10 +575,10 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.BATTERY_POWER, new SignedWordElement(0x0202),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0203, 0x0207),
-						m(EssFeneconCommercial40.ChannelId.AC_CHARGE_ENERGY,
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
 								new UnsignedDoublewordElement(0x0208).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.AC_DISCHARGE_ENERGY,
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
 								new UnsignedDoublewordElement(0x020A).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x020C, 0x020F), //
