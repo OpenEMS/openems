@@ -1,4 +1,4 @@
-package io.openems.edge.meter.symmetric.api;
+package io.openems.edge.meter.api;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -9,7 +9,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.Meter;
 
 /**
  * Represents a Symmetric Meter.
@@ -23,11 +22,22 @@ import io.openems.edge.meter.api.Meter;
  * @author stefan.feilmeier
  *
  */
-public interface SymmetricMeter extends Meter {
+public interface SymmetricMeter extends OpenemsComponent {
 
 	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * Frequency
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: mHz
+		 * <li>Range: only positive values
+		 * </ul>
+		 */
+		FREQUENCY(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ)), //
 		/**
 		 * Minimum Ever Active Power
 		 * 
@@ -170,6 +180,13 @@ public interface SymmetricMeter extends Meter {
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Gets the type of this Meter
+	 * 
+	 * @return
+	 */
+	MeterType getMeterType();
 
 	/**
 	 * Gets the Active Power in [W]. Negative values for Consumption; positive for

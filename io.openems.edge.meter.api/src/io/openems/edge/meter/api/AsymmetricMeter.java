@@ -1,10 +1,9 @@
-package io.openems.edge.meter.asymmetric.api;
+package io.openems.edge.meter.api;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.meter.api.Meter;
 
 /**
  * Represents an Asymmetric Meter.
@@ -16,7 +15,7 @@ import io.openems.edge.meter.api.Meter;
  * Production, i.e. power that is 'entering the system', e.g. buy-from-grid
  * 
  */
-public interface AsymmetricMeter extends Meter {
+public interface AsymmetricMeter extends SymmetricMeter {
 
 	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
