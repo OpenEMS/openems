@@ -27,15 +27,14 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.Meter;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.CarloGavazzi.EM300", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, Meter, OpenemsComponent {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 

@@ -28,8 +28,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.meter.api.Meter;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Enables access to sum/average data.
@@ -279,7 +278,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	};
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private void addMeter(Meter meter) {
+	private void addMeter(SymmetricMeter meter) {
 		switch (meter.getMeterType()) {
 		case PRODUCTION_AND_CONSUMPTION:
 			// TODO PRODUCTION_AND_CONSUMPTION
@@ -317,7 +316,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		}
 	}
 
-	protected void removeMeter(Meter meter) {
+	protected void removeMeter(SymmetricMeter meter) {
 		this.gridActivePower.removeComponent(meter);
 		this.gridMinActivePower.removeComponent(meter);
 		this.gridMaxActivePower.removeComponent(meter);
