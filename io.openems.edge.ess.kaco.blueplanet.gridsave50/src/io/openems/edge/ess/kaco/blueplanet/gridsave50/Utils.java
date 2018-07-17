@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -28,6 +29,9 @@ public class Utils {
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 						return new IntegerReadChannel(ess, channelId);
+					case ACTIVE_CHARGE_ENERGY:
+					case ACTIVE_DISCHARGE_ENERGY:
+						return new LongReadChannel(ess, channelId);
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(ess, channelId, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER);
 					case GRID_MODE:

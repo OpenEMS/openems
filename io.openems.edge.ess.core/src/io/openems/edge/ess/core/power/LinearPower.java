@@ -105,7 +105,7 @@ public class LinearPower implements Power {
 		Map<ManagedSymmetricEss, SymmetricSolution> solutions = Utils.toSolutions(this.data, solutionArray);
 
 		// set debug channels on parent
-		this.data.allEsss.values().forEach(ess -> {
+		this.data.allEsss.forEach(ess -> {
 			AtomicInteger activePower = new AtomicInteger(0);
 			AtomicInteger reactivePower = new AtomicInteger(0);
 			AtomicInteger activePowerL1 = new AtomicInteger(0);

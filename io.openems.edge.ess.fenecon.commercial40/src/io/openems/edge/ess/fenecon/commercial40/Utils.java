@@ -30,6 +30,9 @@ public class Utils {
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case ACTIVE_CHARGE_ENERGY:
+					case ACTIVE_DISCHARGE_ENERGY:
+						return new LongReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, EssFeneconCommercial40.MAX_APPARENT_POWER);
 					case GRID_MODE:

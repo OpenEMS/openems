@@ -82,7 +82,31 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT));
+		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
+		/**
+		 * Active Charge Energy
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTIVE_CHARGE_ENERGY(new Doc() //
+				.type(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Active Discharge Energy
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTIVE_DISCHARGE_ENERGY(new Doc() //
+				.type(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
 
@@ -141,5 +165,23 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Integer> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
+	}
+	
+	/**
+	 * Gets the Active Charge Energy in [Wh].
+	 * 
+	 * @return
+	 */
+	default Channel<Long> getActiveChargeEnergy() {
+		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
+	}
+	
+	/**
+	 * Gets the Active Discharge Energy in [Wh].
+	 * 
+	 * @return
+	 */
+	default Channel<Long> getActiveDischargeEnergy() {
+		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
 	}
 }
