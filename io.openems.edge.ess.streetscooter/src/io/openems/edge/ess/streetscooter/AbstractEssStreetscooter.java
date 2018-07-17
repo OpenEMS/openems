@@ -4,7 +4,6 @@ import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -36,7 +35,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 
 	protected static final int UNIT_ID = 100;
 
-	static final int MAX_APPARENT_POWER = 2000;
+	static final int MAX_APPARENT_POWER = 15000;
 	private static final int POWER_PRECISION = 100;
 
 	public static final int INVERTER_MODE_UNDEFINED = -1;
@@ -54,17 +53,21 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
+	protected final Logger log;// = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
 
 	private final PowerHandler powerHandler;
 
-	public AbstractEssStreetscooter() {
+	public AbstractEssStreetscooter() {		
+		log = initializeLogger();
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel((Channel<?>) channel));
 		this.powerHandler = new PowerHandler(this, this.log);
 	}
 
+	protected abstract Logger initializeLogger();
+
 	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+	
 		/*
 		 * Initialize Power
 		 */
@@ -82,14 +85,30 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
 			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
-		super.activate(id);
+		super.activate(context,  servicePid,  id,  enabled,  unitId, cm,  modbusReference,  modbusId);
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() + ", mode:"
-				+ this.channel(ChannelId.INVERTER_MODE).value().asOptionString();
+		return "SoC:" + this.getSoc().value().asString() + 
+				", mode:" + this.channel(ChannelId.INVERTER_MODE).value().asOptionString() +
+				"|L:" + this.getActivePower().value().asString()  //
+				;
+	}
+	
+	@Override
+	public void applyPower(int activePower, int reactivePower) {
+		log.info(
+			"ESS id : " + this.id() +
+			"Active power: " + activePower +
+			"Reactive Power: " + reactivePower				
+		);
+		this.powerHandler.accept(activePower, reactivePower);
+	}
 
+	@Override
+	public int getPowerPrecision() {
+		return AbstractEssStreetscooter.POWER_PRECISION;
 	}
 
 	@Override
@@ -341,14 +360,4 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	protected abstract int getIcuRunstateAddress();
 
 	protected abstract int getInverterModeAddress();
-
-	@Override
-	public void applyPower(int activePower, int reactivePower) {
-		this.powerHandler.accept(activePower, reactivePower);
-	}
-
-	@Override
-	public int getPowerPrecision() {
-		return AbstractEssStreetscooter.POWER_PRECISION;
-	}
 }

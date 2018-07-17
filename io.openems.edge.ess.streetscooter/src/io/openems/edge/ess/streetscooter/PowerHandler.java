@@ -33,21 +33,29 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		checkForResettingFault();
 
 		if (isInverterInFaultMode()) {
+			log.info(parent.id() + " >>>>>>> do error handling!");
 			doErrorHandling();
 		}
 
 		if (isErrorHandling()) {
+			log.info(parent.id() + " >>>>>>> is error handling!");
 			return;
 		}
 
 		// System is in normal mode
 		if (!isRunning()) {
-			setRunning();
+			log.info(parent.id() + " >>>>>>> set running!");
+			setRunning(true);
 		}
 		if (isRunning() && !isEnabled()) {
-			setEnabled();
+			log.info(parent.id() + " >>>>>>> set enabled!");
+			setEnabled(true);
 		}
+		
+		log.info(parent.id() + " >>>>>>> isRunning: " + isRunning() + "; isEnabled: " + isEnabled() + "; inverter mode: " + parent.channel(ChannelId.INVERTER_MODE));
+		
 		if (isRunning() && isEnabled() && isInverterInNormalMode()) {
+			log.info(parent.id() + " >>>>>>> write active power! -> active power: " +  activePower + ", reactive power: " + reactivePower);
 			writeActivePower(activePower);
 		}
 	}
@@ -67,14 +75,14 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		if (lastRestartAfterFault == null && attempsToRestart == 0) {
 			lastRestartAfterFault = LocalDateTime.now();
 			attempsToRestart = 1;
-			setRunning();
-			setEnabled();
+			setRunning(true);
+			setEnabled(true);
 			log.info("Try to restart the system for the first time after detecting fault");
 		} else {
 			if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart == 1) {
 				attempsToRestart++;
-				setRunning();
-				setEnabled();
+				setRunning(true);
+				setEnabled(true);
 				log.info("Try to restart the system for the second time after detecting fault");
 			} else if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart > 1) {
 				// Do nothing, let system in fault mode
@@ -103,19 +111,19 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		return inverterModeChannel.value().orElse(AbstractEssStreetscooter.INVERTER_MODE_UNDEFINED).equals(AbstractEssStreetscooter.INVERTER_MODE_FAULT);
 	}
 
-	private void setEnabled() {
+	private void setEnabled(boolean value) {
 		try {
 			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_ENABLED);
-			channel.setNextWriteValue(true);
+			channel.setNextWriteValue(value);
 		} catch (Exception e) {
 			log.error("Unable to set icu enabled: " + e.getMessage());
 		}
 	}
 
-	private void setRunning() {
+	private void setRunning(boolean value) {
 		try {
 			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_RUN);
-			channel.setNextWriteValue(true);
+			channel.setNextWriteValue(value);
 		} catch (Exception e) {
 			log.error("Unable to set icu run: " + e.getMessage());
 		}

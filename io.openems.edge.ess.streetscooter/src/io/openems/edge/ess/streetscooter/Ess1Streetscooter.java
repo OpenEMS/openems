@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -106,5 +108,10 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+	
+	@Override
+	protected Logger initializeLogger() {
+		return LoggerFactory.getLogger(Ess1Streetscooter.class);
 	}
 }
