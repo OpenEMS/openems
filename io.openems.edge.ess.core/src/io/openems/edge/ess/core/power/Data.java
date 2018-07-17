@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -65,7 +66,7 @@ public class Data {
 	 * @param retry
 	 * @return
 	 */
-	private synchronized int _getEssIndex(ManagedSymmetricEss ess, boolean retry) {
+	private synchronized Optional<Integer> _getEssIndex(ManagedSymmetricEss ess, boolean retry) {
 		boolean found = false;
 		int essIndex = 0;
 		for (ManagedSymmetricEss realEss : this.realEsss.keys()) {
@@ -77,7 +78,7 @@ public class Data {
 			}
 		}
 		if (found) {
-			return essIndex;
+			return Optional.of(essIndex);
 		}
 
 		// not found -> re-add all Ess. This adds Sub-Ess of MetaEss.
@@ -86,7 +87,7 @@ public class Data {
 		if (retry) {
 			return this._getEssIndex(ess, false);
 		} else {
-			throw new IllegalArgumentException("Ess [" + ess.id() + "] was not found in the system.");
+			return Optional.empty();
 		}
 	}
 
@@ -256,7 +257,7 @@ public class Data {
 	 * @param ess
 	 * @return
 	 */
-	public synchronized int getEssIndex(ManagedSymmetricEss ess) {
+	public synchronized Optional<Integer> getEssIndex(ManagedSymmetricEss ess) {
 		return this._getEssIndex(ess, true);
 	}
 

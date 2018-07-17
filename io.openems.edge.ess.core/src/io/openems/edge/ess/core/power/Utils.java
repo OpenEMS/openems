@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -77,7 +78,12 @@ public class Utils {
 			return;
 		}
 
-		int essIndex = data.getEssIndex(ess);
+		Optional<Integer> indexOpt = data.getEssIndex(ess);
+		if (!indexOpt.isPresent()) { // TODO coefficients
+			return;
+		}
+		
+		int essIndex = indexOpt.get();
 		int pwrOffset = pwr.getOffset();
 		switch (phase) {
 		case ALL:
@@ -215,7 +221,11 @@ public class Utils {
 	public static Map<ManagedSymmetricEss, SymmetricSolution> toSolutions(Data data, double[] solution) {
 		Map<ManagedSymmetricEss, SymmetricSolution> solutions = new HashMap<>();
 		data.realEsss.keys().forEach(ess -> {
-			int i = data.getEssIndex(ess);
+			Optional<Integer> indexOpt = data.getEssIndex(ess);
+			if(!indexOpt.isPresent()) {
+				return;
+			}
+			int i = indexOpt.get();
 
 			if (ess instanceof ManagedAsymmetricEss) {
 				/*
