@@ -52,7 +52,7 @@ public class Utils {
 					case EN_LIMIT:
 					case W_SET_PCT:
 					case REQUESTED_STATE:
-					case BAT_SOC_:
+					case BAT_SOC:
 					case BAT_SOH:
 					case BAT_TEMP:
 					case COMMAND_ID_REQ:

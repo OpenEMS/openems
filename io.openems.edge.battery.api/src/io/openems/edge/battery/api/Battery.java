@@ -15,6 +15,8 @@ public interface Battery extends OpenemsComponent {
 		UNDEFINED, ON_GRID, OFF_GRID
 	}
 
+	// TODO State of Health, Temperature?
+	
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
 		 * State of Charge
