@@ -23,10 +23,10 @@ import com.ed.openems.centurio.datasource.api.EdComData;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.Meter;
+import io.openems.edge.meter.api.AsymmetricMeter;
+
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -35,7 +35,7 @@ import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
 				+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class CenturioGridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, Meter, OpenemsComponent, EventHandler {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected EdComData datasource;
