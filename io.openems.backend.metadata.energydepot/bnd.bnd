@@ -1,0 +1,30 @@
+#
+# io.openems.backend.metadata.energydepot PROVIDER BUNDLE
+#
+
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.backend.metadata.energydepot. \
+	\
+	${warning;Please update this Bundle-Description in io.openems.backend.metadata.energydepot/api.bnd}
+
+Export-Package:  \
+	io.openems.backend.metadata.energydepot.api;-provide=true
+
+Private-Package:  \
+	io.openems.backend.metadata.energydepot
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.backend.metadata.api;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.backend.edgewebsocket.api;version=latest,\
+	com.google.gson,\
+	org.mariadb.jdbc
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

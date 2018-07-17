@@ -1,0 +1,18 @@
+Bundle-Name: EdCom
+Bundle-Description: EdCom is a Java library for communication with the Centurio System, including Domus and Vectis via local network.
+Bundle-DocURL: http://energydepot.ch
+Bundle-License: PROPRIETARY
+Bundle-Version: 1.1.0
+
+Include-Resource: @lib/edcom-v3.0.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-exportcontents: \
+	com.ed.data, \
+	com.ed.data.history, \
+	com.ed.edcom, \
+	javax.jmdns
+-sources: false

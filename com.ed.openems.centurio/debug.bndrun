@@ -1,0 +1,13 @@
+#
+# com.ed.openems.centurio DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~com.ed.openems.centurio.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
