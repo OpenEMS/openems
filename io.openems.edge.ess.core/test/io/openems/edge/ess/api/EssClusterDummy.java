@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -32,10 +31,9 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 					case MAX_ACTIVE_POWER:
-						return new IntegerReadChannel(this, channelId);
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
-						return new LongReadChannel(this, channelId);
+						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
 						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
 					}

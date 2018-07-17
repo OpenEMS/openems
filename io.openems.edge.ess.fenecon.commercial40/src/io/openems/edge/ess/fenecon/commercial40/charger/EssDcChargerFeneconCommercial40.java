@@ -277,15 +277,15 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 						this.<Channel<Integer>>channel(ChannelId.PV_DCDC1_INPUT_POWER) //
 				});
 		/*
-		 * Merge PV_DCDC0_INPUT_CHARGE_ENERGY and PV_DCDC1_INPUT_CHARGE_ENERGY to
+		 * Merge PV_DCDC0_OUTPUT_DISCHARGE_ENERGY and PV_DCDC1_OUTPUT_DISCHARGE_ENERGY to
 		 * ACTUAL_ENERGY
 		 */
-//		new ChannelMergerSumLong( //
-//				/* target */ this.getActualEnergy(), //
-//				/* sources */ (Channel<Long>[]) new Channel<?>[] { //
-//						this.<Channel<Long>>channel(ChannelId.PV_DCDC0_INPUT_CHARGE_ENERGY), //
-//						this.<Channel<Long>>channel(ChannelId.PV_DCDC1_INPUT_CHARGE_ENERGY) //
-//				});
+		new ChannelMergerSumInteger( //
+				/* target */ this.getActualEnergy(), //
+				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
+						this.<Channel<Integer>>channel(ChannelId.PV_DCDC0_OUTPUT_DISCHARGE_ENERGY), //
+						this.<Channel<Integer>>channel(ChannelId.PV_DCDC1_OUTPUT_DISCHARGE_ENERGY) //
+				});
 
 		return protocol;
 	}

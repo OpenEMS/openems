@@ -163,7 +163,7 @@ public class Data {
 	 * @param value
 	 * @return
 	 */
-	public Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase, Pwr pwr,
+	public synchronized Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase, Pwr pwr,
 			Relationship relationship, int value) {
 		return this.addConstraint(Utils.createSimpleConstraint(ess, type, phase, pwr, relationship, value));
 	}
@@ -171,7 +171,7 @@ public class Data {
 	/**
 	 * Clear Cycle constraints, keeping only the 'staticConstraints' for next Cycle.
 	 */
-	public void clearCycleConstraints() {
+	public synchronized void clearCycleConstraints() {
 		this.cycleConstraints.clear();
 	}
 
@@ -180,7 +180,7 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public IntStream getActivePowerCoefficientIndices() {
+	public synchronized IntStream getActivePowerCoefficientIndices() {
 		return IntStream.iterate(0, i -> i + 2).limit(this.getNoOfCoefficients() / 2);
 	}
 
@@ -189,7 +189,7 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public Stream<Constraint> getAllConstraints() {
+	public synchronized Stream<Constraint> getAllConstraints() {
 		return Stream.concat(this.staticConstraints.stream(), this.cycleConstraints.stream());
 	}
 
@@ -198,7 +198,7 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public List<LinearConstraint> getAllLinearConstraints() {
+	public synchronized List<LinearConstraint> getAllLinearConstraints() {
 		List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
 		this.getAllConstraints().forEachOrdered(c -> {
 			LinearConstraint lc = Utils.toLinearConstraint(this, c);
@@ -215,7 +215,7 @@ public class Data {
 	 * @param type
 	 * @return
 	 */
-	private List<Constraint> getConstraintListForType(ConstraintType type) {
+	private synchronized List<Constraint> getConstraintListForType(ConstraintType type) {
 		switch (type) {
 		case STATIC:
 			return this.staticConstraints;
@@ -230,7 +230,7 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public LinearConstraint[] createConstraintsForQuadrantI() {
+	public synchronized LinearConstraint[] createConstraintsForQuadrantI() {
 		LinearConstraint[] result = new LinearConstraint[this.getNoOfCoefficients()];
 		for (int i = 0; i < this.getNoOfCoefficients(); i++) {
 			double[] coefficients = this.createEmptyCoefficients();
@@ -245,7 +245,7 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public double[] createEmptyCoefficients() {
+	public synchronized double[] createEmptyCoefficients() {
 		return new double[this.getNoOfCoefficients()];
 	}
 
@@ -262,7 +262,7 @@ public class Data {
 	/**
 	 * Gets the total number of Coefficients
 	 */
-	public int getNoOfCoefficients() {
+	public synchronized int getNoOfCoefficients() {
 		return this.realEsss.size() * COEFFICIENTS_PER_ESS;
 	}
 
@@ -271,7 +271,7 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public LinearObjectiveFunction createSimpleObjectiveFunction() {
+	public synchronized LinearObjectiveFunction createSimpleObjectiveFunction() {
 		double[] c = this.createEmptyCoefficients();
 		for (int i = 0; i < c.length; i++) {
 			c[i] = 1;
