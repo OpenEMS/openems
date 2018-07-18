@@ -28,8 +28,8 @@ public class Utils {
 					case REACTIVE_POWER:
 					case CURRENT:
 					case VOLTAGE:
-					case ACTIVE_CONSUMPTION_ENERGY:
-					case ACTIVE_PRODUCTION_ENERGY:
+					case ACTIVE_CONSUMPTION_ENERGY: // TODO ACTIVE_CONSUMPTION_ENERGY
+					case ACTIVE_PRODUCTION_ENERGY: // TODO ACTIVE_PRODUCTION_ENERGY
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
