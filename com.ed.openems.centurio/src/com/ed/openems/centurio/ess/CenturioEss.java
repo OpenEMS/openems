@@ -3,6 +3,7 @@ package com.ed.openems.centurio.ess;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -31,7 +32,11 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -47,8 +52,13 @@ public class CenturioEss extends AbstractOpenemsComponent
 	protected EdComData datasource;
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	@Reference
 	private Power power;
 	private List<String> errors;
+	private int maxApparentPower = 0;
+	private Constraint allowedChargeConstraint;
+	private Constraint allowedDischargeConstraint;
 
 	protected final static int MAX_APPARENT_POWER = 40000;
 	
@@ -58,13 +68,23 @@ public class CenturioEss extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-
+		this.maxApparentPower = config.maxP();
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
 		this.getMaxActivePower().setNextValue(config.maxP());
 		
+		/*
+		 * Initialize Power
+		 */
+		
+		// Allowed Charge
+		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+				Relationship.GEQ, 0 /* initial zero; is set later */);
+		// Allowed Discharge
+		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+				Relationship.LEQ, 0 /* initial zero; is set later */);		
 
 	
 	}
@@ -155,11 +175,11 @@ public class CenturioEss extends AbstractOpenemsComponent
 		Status status = this.datasource.getStatusData();
 		InverterData invdata = this.datasource.getInverterData();
 
-		this.getSoc().setNextValue(battery.getSOE());
-		this.getActivePower().setNextValue(battery.getPower() * (-1));
+		this.getSoc().setNextValue(Math.round(battery.getSOE()));
+		this.getActivePower().setNextValue(Math.round(battery.getPower()/10) * -10);
 
-		this.getReactivePower().setNextValue((invdata.getReactivPower(0) * (-1)) + invdata.getReactivPower(1) * (-1)
-				+ invdata.getReactivPower(2) * (-1));
+		this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
+				+ Math.round(invdata.getReactivPower(2)/10) * (-10));
 
 		int invStatus = status.getInverterStatus();
 
@@ -213,10 +233,21 @@ public class CenturioEss extends AbstractOpenemsComponent
 		
 		if(soc < 1 || soc > 99) {
 			activePower = 0;
+			
 		}
-		
-		if(settings.getPacSetPoint() != activePower) {
-			System.out.println("New power set for Centurio: " + activePower + " W");
+		if (soc > 99) {
+			this.allowedChargeConstraint.setIntValue(0);
+		} else {
+			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
+		}
+		if (soc < 1) {
+			this.allowedDischargeConstraint.setIntValue(0);
+		} else {
+			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
+		}
+		float old = settings.getPacSetPoint();
+		if(old != activePower) {
+			System.out.println("Old power set for Centurio: " + old + " W; " + "New: " + activePower + " W");
 			settings.setPacSetPoint(activePower);
 		}
 		

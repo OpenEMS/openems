@@ -75,7 +75,7 @@ public class CenturioPVMeter extends AbstractOpenemsComponent implements Symmetr
 
 		InverterData inverter = this.datasource.getInverterData();
 		
-		this.getActivePower().setNextValue(inverter.getPvPower());
+		this.getActivePower().setNextValue(Math.round(inverter.getPvPower() /10)*10);
 		
 		
 	}

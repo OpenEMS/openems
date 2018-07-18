@@ -74,17 +74,23 @@ public class Vectis extends AbstractOpenemsComponent
 
 		VectisData vectis = this.datasource.getVectis();
 
-		this.getReactivePowerL1().setNextValue(vectis.getReactivePower(0));
-		this.getReactivePowerL2().setNextValue(vectis.getReactivePower(1));
-		this.getReactivePowerL3().setNextValue(vectis.getReactivePower(2));
-		this.getReactivePower()
-				.setNextValue(vectis.getReactivePower(0) + vectis.getReactivePower(1) + vectis.getReactivePower(2));
-
-		this.getActivePowerL1().setNextValue(vectis.getACPower(0));
-		this.getActivePowerL2().setNextValue(vectis.getACPower(1));
-		this.getActivePowerL3().setNextValue(vectis.getACPower(2));
-		this.getActivePower().setNextValue(vectis.getACPower(0) + vectis.getACPower(1) + vectis.getACPower(2));
+		int reaL1 = Math.round(vectis.getReactivePower(0));
+		int reaL2 = Math.round(vectis.getReactivePower(1));
+		int reaL3 = Math.round(vectis.getReactivePower(2));
 		
+		this.getReactivePowerL1().setNextValue(reaL1);
+		this.getReactivePowerL2().setNextValue(reaL2);
+		this.getReactivePowerL3().setNextValue(reaL3);
+		this.getReactivePower().setNextValue(reaL1 + reaL2 + reaL3);
+		
+		int acL1 = Math.round(vectis.getACPower(0));
+		int acL2 = Math.round(vectis.getACPower(1));
+		int acL3 = Math.round(vectis.getACPower(2));
+		
+		this.getActivePowerL1().setNextValue(acL1);
+		this.getActivePowerL2().setNextValue(acL2);
+		this.getActivePowerL3().setNextValue(acL3);
+		this.getActivePower().setNextValue(acL1 + acL2 + acL3);
 
 	}
 
