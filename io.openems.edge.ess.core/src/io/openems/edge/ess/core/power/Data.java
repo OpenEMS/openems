@@ -2,17 +2,17 @@ package io.openems.edge.ess.core.power;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.Relationship;
-
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -47,8 +47,7 @@ public class Data {
 	 * Holds all ManagedSymmetricEss objects that represent physical ESS (i.e. no
 	 * MetaEss).
 	 */
-	protected final ListMultimap<ManagedSymmetricEss, Constraint> realEsss = MultimapBuilder.linkedHashKeys()
-			.arrayListValues().build();
+	protected final Set<ManagedSymmetricEss> realEsss = new HashSet<>();
 
 	/**
 	 * Holds the static constraints. Those constraints stay forever. They can be
@@ -63,10 +62,10 @@ public class Data {
 	 * @param retry
 	 * @return
 	 */
-	private synchronized int _getEssIndex(ManagedSymmetricEss ess, boolean retry) {
+	private synchronized int _getEssIndex(ManagedSymmetricEss ess) {
 		boolean found = false;
 		int essIndex = 0;
-		for (ManagedSymmetricEss realEss : this.realEsss.keys()) {
+		for (ManagedSymmetricEss realEss : this.realEsss) {
 			if (realEss.equals(ess)) {
 				found = true;
 				break;
@@ -78,15 +77,9 @@ public class Data {
 			return essIndex;
 		}
 
-		// not found -> refresh everything manually.
-		this.realEsss.clear();
-		this.allEsss.forEach(e -> this.addEss(e));
-		this.addEss(ess);
-		if (retry) {
-			return this._getEssIndex(ess, false);
-		} else {
-			throw new IllegalArgumentException("Ess [" + ess.id() + "] was not found in the system.");
-		}
+		// not found -> add ess
+		throw new IllegalArgumentException(
+				"Ess [" + ess.id() + "; " + ess.hashCode() + "] was not found in the system.");
 	}
 
 	/**
@@ -106,16 +99,17 @@ public class Data {
 	 * @param ess
 	 */
 	public synchronized void addEss(ManagedSymmetricEss ess) {
-		this.allEsss.add(ess);
+		System.out.println("addEss " + ess.id() + " (" + ess.hashCode() + ")");
+		boolean wasAlreadyAdded = !this.allEsss.add(ess);
+		if (wasAlreadyAdded) {
+			return;
+		}
 		if (ess instanceof MetaEss) {
-			MetaEss e = (MetaEss) ess;
-			this.metaEsss.add(e);
-			for (ManagedSymmetricEss subEss : e.getEsss()) {
-				this.addEss(subEss);
-			}
+			this.metaEsss.add((MetaEss) ess);
+
 		} else {
-			if (!(this.realEsss.containsKey(ess))) {
-				this.realEsss.put(ess, null);
+			if (!(this.realEsss.contains(ess))) {
+				this.realEsss.add(ess);
 
 				if (ess instanceof ManagedAsymmetricEss) {
 					// nothing
@@ -153,6 +147,40 @@ public class Data {
 	}
 
 	/**
+	 * Removes a ManagedSymmetricEss
+	 * 
+	 * @param ess
+	 */
+	public synchronized void removeEss(ManagedSymmetricEss ess) {
+		System.out.println("removeEss " + ess.id() + " (" + ess.hashCode() + ")");
+		this.allEsss.remove(ess);
+		if (ess instanceof MetaEss) {
+			this.metaEsss.remove((MetaEss) ess);
+
+		} else {
+			/*
+			 * find all existing Constraints for this Ess and remove them
+			 */
+			Consumer<Iterator<Constraint>> constraintHandler = (i) -> {
+				while (i.hasNext()) {
+					Constraint ct = i.next();
+					boolean constraintHasThisEss = Stream.of(ct.getCoefficients()) //
+							.anyMatch(co -> co.getEss().equals(ess));
+					if (constraintHasThisEss) {
+						i.remove();
+						// NOTE: what happens if this Constraint is for several Ess? Should we keep it
+						// and only remove the matching coefficients?
+					}
+				}
+			};
+			constraintHandler.accept(this.staticConstraints.iterator());
+			constraintHandler.accept(this.cycleConstraints.iterator());
+
+			this.realEsss.remove(ess);
+		}
+	}
+
+	/**
 	 * Add a simple Constraint
 	 * 
 	 * @param ess
@@ -163,8 +191,8 @@ public class Data {
 	 * @param value
 	 * @return
 	 */
-	public synchronized Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase, Pwr pwr,
-			Relationship relationship, int value) {
+	public synchronized Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase,
+			Pwr pwr, Relationship relationship, int value) {
 		return this.addConstraint(Utils.createSimpleConstraint(ess, type, phase, pwr, relationship, value));
 	}
 
@@ -189,8 +217,9 @@ public class Data {
 	 * 
 	 * @return
 	 */
-	public synchronized Stream<Constraint> getAllConstraints() {
-		return Stream.concat(this.staticConstraints.stream(), this.cycleConstraints.stream());
+	public synchronized List<Constraint> getAllConstraints() {
+		return Stream.concat(this.staticConstraints.stream(), this.cycleConstraints.stream())
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -200,12 +229,12 @@ public class Data {
 	 */
 	public synchronized List<LinearConstraint> getAllLinearConstraints() {
 		List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
-		this.getAllConstraints().forEachOrdered(c -> {
-			LinearConstraint lc = Utils.toLinearConstraint(this, c);
+		for (Constraint c : this.getAllConstraints()) {
+			LinearConstraint lc = this.toLinearConstraint(c);
 			if (lc != null) {
 				constraints.add(lc);
 			}
-		});
+		}
 		return constraints;
 	}
 
@@ -250,13 +279,14 @@ public class Data {
 	}
 
 	/**
-	 * Gets the coefficient start index for the given ManagedSymmetricEss
+	 * Gets the coefficient start index for the given ManagedSymmetricEss - if it is
+	 * available
 	 * 
 	 * @param ess
 	 * @return
 	 */
 	public synchronized int getEssIndex(ManagedSymmetricEss ess) {
-		return this._getEssIndex(ess, true);
+		return this._getEssIndex(ess);
 	}
 
 	/**
@@ -292,27 +322,64 @@ public class Data {
 	}
 
 	/**
-	 * Removes a ManagedSymmetricEss
+	 * Creates a LinearConstraint - suitable for linear optimization problem - from
+	 * a OpenEMS Constraint object
 	 * 
-	 * @param ess
+	 * @param constraint
+	 * @return
 	 */
-	public synchronized void removeEss(ManagedSymmetricEss ess) {
-		this.allEsss.remove(ess);
-		if (ess instanceof MetaEss) {
-			MetaEss e = (MetaEss) ess;
-			this.metaEsss.remove(e);
-			for (ManagedSymmetricEss subEss : e.getEsss()) {
-				this.removeEss(subEss);
+	protected synchronized LinearConstraint toLinearConstraint(Constraint constraint) {
+		if (constraint.isEnabled()) {
+			double[] coefficients = this.createEmptyCoefficients();
+			for (Coefficient coefficient : constraint.getCoefficients()) {
+				this.getCoefficients(coefficients, coefficient.getEss(), coefficient.getPhase(), coefficient.getPwr(),
+						coefficient.getValue());
 			}
+			return new LinearConstraint(coefficients, constraint.getRelationship(), constraint.getValue().get());
 		} else {
-			List<Constraint> constraints = this.realEsss.get(ess);
-			if (constraints != null) {
-				for (Constraint constraint : constraints) {
-					this.removeConstraint(constraint);
-				}
-			}
-			this.realEsss.removeAll(ess);
+			return null;
 		}
 	}
 
+	/**
+	 * Helper for toLinearConstraint-method. Creates the coefficients array for a
+	 * LinearConstraint from given meta data
+	 * 
+	 * @param coefficients
+	 * @param ess
+	 * @param phase
+	 * @param pwr
+	 * @param value
+	 */
+	private synchronized void getCoefficients(double[] coefficients, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			double value) {
+		if (ess instanceof MetaEss) {
+			for (ManagedSymmetricEss subEss : ((MetaEss) ess).getEsss()) {
+				this.getCoefficients(coefficients, subEss, phase, pwr, value);
+			}
+			return;
+		}
+
+		int essIndex;
+		try {
+			essIndex = this.getEssIndex(ess);
+		} catch (IllegalArgumentException e) {
+			// this can happen, if EssCluster was not updating its SubEss... FIXME
+			return;
+		}
+		
+		int pwrOffset = pwr.getOffset();
+		switch (phase) {
+		case ALL:
+			coefficients[essIndex + Phase.L1.getOffset() + pwrOffset] = value;
+			coefficients[essIndex + Phase.L2.getOffset() + pwrOffset] = value;
+			coefficients[essIndex + Phase.L3.getOffset() + pwrOffset] = value;
+			break;
+		case L1:
+		case L2:
+		case L3:
+			coefficients[essIndex + phase.getOffset() + pwrOffset] = value;
+			break;
+		}
+	}
 }
