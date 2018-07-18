@@ -54,7 +54,19 @@ public interface EssDcCharger extends OpenemsComponent {
 					}
 				}
 			});
-		})); //
+		})),
+		/**
+		 * Actual Energy
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTUAL_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
 
@@ -85,6 +97,15 @@ public interface EssDcCharger extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMaxActualPower() {
 		return this.channel(ChannelId.MAX_ACTUAL_POWER);
+	}
+
+	/**
+	 * Gets the Actual Energy in [Wh].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getActualEnergy() {
+		return this.channel(ChannelId.ACTUAL_ENERGY);
 	}
 
 	/**

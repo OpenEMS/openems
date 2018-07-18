@@ -50,6 +50,8 @@ public class EssCluster extends AbstractOpenemsComponent
 	private final SumInteger<AsymmetricEss> activePowerL3;
 	private final SumInteger<AsymmetricEss> reactivePowerL3;
 	private final SumInteger<SymmetricEss> maxActivePower;
+	private final SumInteger<SymmetricEss> activeChargeEnergy;
+	private final SumInteger<SymmetricEss> activeDischargeEnergy;
 
 	@Reference
 	private Power power = null;
@@ -86,6 +88,10 @@ public class EssCluster extends AbstractOpenemsComponent
 				AsymmetricEss.ChannelId.REACTIVE_POWER_L3);
 		this.maxActivePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.MAX_ACTIVE_POWER,
 				SymmetricEss.ChannelId.MAX_ACTIVE_POWER);
+		this.activeChargeEnergy = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
+				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+		this.activeDischargeEnergy = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
+				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 
 	@Activate
@@ -117,6 +123,8 @@ public class EssCluster extends AbstractOpenemsComponent
 			this.activePower.addComponent(ess);
 			this.reactivePower.addComponent(ess);
 			this.maxActivePower.addComponent(ess);
+			this.activeChargeEnergy.addComponent(ess);
+			this.activeDischargeEnergy.addComponent(ess);
 			if (ess instanceof AsymmetricEss) {
 				AsymmetricEss e = (AsymmetricEss) ess;
 				this.activePowerL1.addComponent(e);
@@ -142,6 +150,8 @@ public class EssCluster extends AbstractOpenemsComponent
 			this.activePower.removeComponent(ess);
 			this.reactivePower.removeComponent(ess);
 			this.maxActivePower.removeComponent(ess);
+			this.activeChargeEnergy.removeComponent(ess);
+			this.activeDischargeEnergy.removeComponent(ess);
 			if (ess instanceof AsymmetricEss) {
 				AsymmetricEss e = (AsymmetricEss) ess;
 				this.activePowerL1.removeComponent(e);

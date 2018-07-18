@@ -120,6 +120,12 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedDoublewordElement(0xc57A),
 								ElementToChannelConverter.SCALE_FACTOR_1) //
+				), new FC3ReadRegistersTask(0xC702, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(0xC704, 0xC707), // PRODUCTION_REACTIVE_ENERGY
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				));
 	}
 

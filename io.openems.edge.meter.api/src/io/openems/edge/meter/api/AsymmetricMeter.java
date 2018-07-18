@@ -4,7 +4,6 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.converter.StaticConverters;
 
 /**
  * Represents an Asymmetric Meter.
@@ -22,81 +21,6 @@ public interface AsymmetricMeter extends SymmetricMeter {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Consumption Active Power L1
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * ACTIVE_POWER_L1
-		 * </ul>
-		 */
-		CONSUMPTION_ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
-		 * Consumption Active Power L2
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * ACTIVE_POWER_L2
-		 * </ul>
-		 */
-		CONSUMPTION_ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
-		 * Consumption Active Power L3
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * ACTIVE_POWER_L3
-		 * </ul>
-		 */
-		CONSUMPTION_ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
-		 * Production Active Power L1
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER_L1
-		 * </ul>
-		 */
-		PRODUCTION_ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
-		 * Production Active Power L2
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER_L2
-		 * </ul>
-		 */
-		PRODUCTION_ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
-		 * Production Active Power L3
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER_L3
-		 * </ul>
-		 */
-		PRODUCTION_ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
 		 * Active Power L1
 		 * 
 		 * <ul>
@@ -111,17 +35,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		ACTIVE_POWER_L1(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_ACTIVE_POWER_L1)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L1).setNextValue(chargeValue);
-					});
-				})), //
+				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power L2
 		 * 
@@ -137,17 +51,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		ACTIVE_POWER_L2(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_ACTIVE_POWER_L2)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L2).setNextValue(chargeValue);
-					});
-				})), //
+				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power L3
 		 * 
@@ -163,95 +67,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		ACTIVE_POWER_L3(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_ACTIVE_POWER_L3)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L3).setNextValue(chargeValue);
-					});
-				})), //
-		/**
-		 * Consumption Reactive Power L1
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * REACTIVE_POWER_L1
-		 * </ul>
-		 */
-		CONSUMPTION_REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
-		 * Consumption Reactive Power L2
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * REACTIVE_POWER_L2
-		 * </ul>
-		 */
-		CONSUMPTION_REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
-		 * Consumption Reactive Power L3
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * REACTIVE_POWER_L3
-		 * </ul>
-		 */
-		CONSUMPTION_REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
-		 * Production Reactive Power L1
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from
-		 * REACTIVE_POWER_L1
-		 * </ul>
-		 */
-		PRODUCTION_REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
-		 * Production Reactive Power L2
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from
-		 * REACTIVE_POWER_L2
-		 * </ul>
-		 */
-		PRODUCTION_REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
-		 * Production Reactive Power L3
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from
-		 * REACTIVE_POWER_L3
-		 * </ul>
-		 */
-		PRODUCTION_REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L1
 		 * 
@@ -266,18 +82,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_REACTIVE_POWER_L1)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_REACTIVE_POWER_L1)
-								.setNextValue(chargeValue);
-					});
-				})),
+				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L2
 		 * 
@@ -292,18 +97,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_REACTIVE_POWER_L2)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_REACTIVE_POWER_L2)
-								.setNextValue(chargeValue);
-					});
-				})),
+				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L3
 		 * 
@@ -318,18 +112,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_REACTIVE_POWER_L3)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_REACTIVE_POWER_L3)
-								.setNextValue(chargeValue);
-					});
-				})),
+				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Voltage L1
 		 * 
@@ -433,66 +216,6 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Consumption Active Power for L1 in [W]. This is derived from
-	 * negative 'getActivePowerL1()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionActivePowerL1() {
-		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L1);
-	}
-
-	/**
-	 * Gets the Consumption Active Power for L2 in [W]. This is derived from
-	 * negative 'getActivePowerL2()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionActivePowerL2() {
-		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L2);
-	}
-
-	/**
-	 * Gets the Consumption Active Power for L3 in [W]. This is derived from
-	 * negative 'getActivePowerL3()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionActivePowerL3() {
-		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER_L3);
-	}
-
-	/**
-	 * Gets the Production Active Power for L1 in [W]. This is derived from positive
-	 * 'getActivePowerL1()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionActivePowerL1() {
-		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER_L1);
-	}
-
-	/**
-	 * Gets the Production Active Power for L2 in [W]. This is derived from positive
-	 * 'getActivePowerL2()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionActivePowerL2() {
-		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER_L2);
-	}
-
-	/**
-	 * Gets the Production Active Power for L3 in [W]. This is derived from positive
-	 * 'getActivePowerL3()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionActivePowerL3() {
-		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER_L3);
-	}
-
-	/**
 	 * Gets the Reactive Power for L1 in [var]. Negative values for Consumption;
 	 * positive for Production.
 	 * 
@@ -520,66 +243,6 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 */
 	default Channel<Integer> getReactivePowerL3() {
 		return this.channel(ChannelId.REACTIVE_POWER_L3);
-	}
-
-	/**
-	 * Gets the Consumption Reactive Power for L1 in [var]. This is derived from
-	 * negative 'getReactivePowerL2()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionReactivePowerL1() {
-		return this.channel(ChannelId.CONSUMPTION_REACTIVE_POWER_L1);
-	}
-
-	/**
-	 * Gets the Consumption Reactive Power for L2 in [var]. This is derived from
-	 * negative 'getReactivePowerL2()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionReactivePowerL2() {
-		return this.channel(ChannelId.CONSUMPTION_REACTIVE_POWER_L2);
-	}
-
-	/**
-	 * Gets the Consumption Reactive Power for L3 in [var]. This is derived from
-	 * negative 'getReactivePowerL3()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionReactivePowerL3() {
-		return this.channel(ChannelId.CONSUMPTION_REACTIVE_POWER_L3);
-	}
-
-	/**
-	 * Gets the Production Reactive Power for L1 in [var]. This is derived from
-	 * positive 'getReactivePowerL1()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionReactivePowerL1() {
-		return this.channel(ChannelId.PRODUCTION_REACTIVE_POWER_L1);
-	}
-
-	/**
-	 * Gets the Production Reactive Power for L2 in [var]. This is derived from
-	 * positive 'getReactivePowerL2()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionReactivePowerL2() {
-		return this.channel(ChannelId.PRODUCTION_REACTIVE_POWER_L2);
-	}
-
-	/**
-	 * Gets the Production Reactive Power for L3 in [var]. This is derived from
-	 * positive 'getReactivePowerL3()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionReactivePowerL3() {
-		return this.channel(ChannelId.PRODUCTION_REACTIVE_POWER_L3);
 	}
 
 }

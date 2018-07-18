@@ -31,9 +31,11 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 					case MAX_ACTIVE_POWER:
+					case ACTIVE_CHARGE_ENERGY:
+					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
