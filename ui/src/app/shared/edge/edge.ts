@@ -10,10 +10,14 @@ import { cmp } from 'semver-compare-multi';
 import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
 import { CurrentDataAndSummary } from './currentdata';
+import { CurrentDataAndSummary_2018_7 } from './currentdata.2018.7';
 import { DefaultMessages } from '../service/defaultmessages';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Utils } from '../service/utils';
 import { Role } from '../type/role';
+import { ConfigImpl_2018_8 } from './config.2018.8';
+import { ConfigImpl_2018_7 } from './config.2018.7';
+import { CurrentDataAndSummary_2018_8 } from './currentdata.2018.8';
 
 export class Log {
   timestamp: number;
@@ -80,7 +84,12 @@ export class Edge {
     // wait for reply
     this.replyStreams[messageId].first().subscribe(reply => {
       let config = (<DefaultMessages.ConfigQueryReply>reply).config;
-      let configImpl = new ConfigImpl(this, config)
+      let configImpl
+      if (this.isVersionAtLeast('2018.8')) {
+        configImpl = new ConfigImpl_2018_8(this, config);
+      } else {
+        configImpl = new ConfigImpl_2018_7(this, config);
+      }
       this.config.next(configImpl);
       this.replyStreams[messageId].unsubscribe();
       delete this.replyStreams[messageId];
@@ -117,7 +126,13 @@ export class Edge {
     let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.edgeId, channels));
     let obs = replyStream
       .map(message => (message as DefaultMessages.CurrentDataReply).currentData)
-      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(this, currentData, config));
+      .combineLatest(this.config, (currentData, config) => {
+        if (this.isVersionAtLeast('2018.8')) {
+          return new CurrentDataAndSummary_2018_8(this, currentData, <ConfigImpl_2018_8>config);
+        } else {
+          return new CurrentDataAndSummary_2018_7(this, currentData, <ConfigImpl_2018_7>config);
+        }
+      });
     // TODO send "unsubscribe" to websocket when nobody is subscribed on this observable anymore
     return obs;
   }
