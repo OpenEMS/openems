@@ -14,7 +14,7 @@ import io.openems.edge.ess.power.api.Power;
 
 public class EssClusterDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss, MetaEss {
 
-	private final ManagedSymmetricEss[] managedEsss;
+	private final List<ManagedSymmetricEss> managedEsss = new ArrayList<>();
 	private LinearPower power;
 
 	public EssClusterDummy(SymmetricEss... esss) {
@@ -72,15 +72,10 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 		/*
 		 * Add all ManagedSymmetricEss devices to this.managedEsss
 		 */
-		List<ManagedSymmetricEss> managedSymmetricEsssList = new ArrayList<>();
 		for (SymmetricEss ess : esss) {
 			if (ess instanceof ManagedSymmetricEss) {
-				managedSymmetricEsssList.add((ManagedSymmetricEss) ess);
+				this.managedEsss.add((ManagedSymmetricEss) ess);
 			}
-		}
-		this.managedEsss = new ManagedSymmetricEss[managedSymmetricEsssList.size()];
-		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
-			managedEsss[i] = managedSymmetricEsssList.get(i);
 		}
 	}
 
@@ -105,7 +100,7 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 	}
 
 	@Override
-	public ManagedSymmetricEss[] getEsss() {
+	public List<ManagedSymmetricEss> getEsss() {
 		return this.managedEsss;
 	}
 

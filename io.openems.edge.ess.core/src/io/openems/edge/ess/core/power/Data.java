@@ -99,7 +99,6 @@ public class Data {
 	 * @param ess
 	 */
 	public synchronized void addEss(ManagedSymmetricEss ess) {
-		System.out.println("addEss " + ess.id() + " (" + ess.hashCode() + ")");
 		boolean wasAlreadyAdded = !this.allEsss.add(ess);
 		if (wasAlreadyAdded) {
 			return;
@@ -152,7 +151,6 @@ public class Data {
 	 * @param ess
 	 */
 	public synchronized void removeEss(ManagedSymmetricEss ess) {
-		System.out.println("removeEss " + ess.id() + " (" + ess.hashCode() + ")");
 		this.allEsss.remove(ess);
 		if (ess instanceof MetaEss) {
 			this.metaEsss.remove((MetaEss) ess);
@@ -360,14 +358,7 @@ public class Data {
 			return;
 		}
 
-		int essIndex;
-		try {
-			essIndex = this.getEssIndex(ess);
-		} catch (IllegalArgumentException e) {
-			// this can happen, if EssCluster was not updating its SubEss... FIXME
-			return;
-		}
-		
+		int essIndex = this.getEssIndex(ess);
 		int pwrOffset = pwr.getOffset();
 		switch (phase) {
 		case ALL:
