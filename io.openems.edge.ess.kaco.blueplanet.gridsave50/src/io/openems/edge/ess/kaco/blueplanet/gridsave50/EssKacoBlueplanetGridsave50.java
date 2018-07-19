@@ -32,7 +32,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -40,6 +39,7 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -58,8 +58,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
-	private final static int UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
+
+	private static final Integer WATCHDOG_TIMER_DEFAULT = 0; // TODO auf 30 setzen wenn tests vorbei
 	private CircleConstraint maxApparentPowerConstraint = null;
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
@@ -67,6 +68,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private Power power;
+	private Battery battery;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -74,10 +76,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setBattery(Battery battery) {
 		this.battery = battery;
-	
-		this.battery.getSoc().onUpdate(value -> {
+
+		this.battery.getSoc().onChange(value -> {
 			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(value.get());
+			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(value.get());
 		});
 	}
 
@@ -86,8 +89,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void refreshPower() {
+		maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 		if (maxApparentPower > 0) {
 			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
+			this.channel(SymmetricEss.ChannelId.MAX_ACTIVE_POWER).setNextValue(maxApparentPower); // TODO check if right, should be, cause max_act = max_app if cos phi = 1
 		}
 	}
 
@@ -98,10 +103,38 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		int UNIT_ID = 1; // ?
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
 			return;
 		}
+
+		
+		// TODO can this mapping be done in a better way?
+		this.channel(ChannelId.CURRENT_STATE).onChange(value -> {
+			Optional<Enum<?>> stateOpt = value.asEnumOptional();
+			if (!stateOpt.isPresent()) {
+				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.UNDEFINED.ordinal());
+				return;
+			}
+			CurrentState state = (CurrentState) stateOpt.get();
+			switch (state) {
+			case GRID_CONNECTED:
+				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.ON_GRID.ordinal());
+				break;
+			case ERROR:
+			case NO_ERROR_PENDING:
+			case OFF:
+			case PRECHARGE:
+			case SHUTTING_DOWN:
+			case STANDBY:
+			case STARTING:
+			case THROTTLED:
+				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.OFF_GRID.ordinal());
+			}
+		});
 
 		/*
 		 * Initialize Power
@@ -133,68 +166,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		});
 	}
 
-	private void refreshPower() {
-		if (maxApparentPower > 0) {
-			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
-		}
-	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		// update filter for 'battery'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
-			return;
-		}
-
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
-	}
-
-	private void handleStateMachine() {
-		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
-		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
-		if (!currentStateOpt.isPresent()) {
-			return;
-		}
-
-		CurrentState currentState = (CurrentState) currentStateOpt.get();
-
-		switch (currentState) {
-		case OFF:
-			startSystem();
-			setBatteryRanges();
-			break;
-
-		case STANDBY:
-			startGridMode();
-			setBatteryRanges();
-			break;
-
-		case ERROR:
-			doErrorHandling();
-			break;
-
-		case GRID_CONNECTED:
-			break;
-		case PRECHARGE:
-		case NO_ERROR_PENDING:
-		case SHUTTING_DOWN:
-		case STARTING:
-		case THROTTLED:
-			// Do nothing because these states are only temporarily reached
-			break;
-		}
-	}
-
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		setBatteryRanges();
-
 		if (!isSystemInGridmode()) { // necessary? or should we set these values always?
 			return;
 		}
@@ -210,7 +183,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		if (wSetPctOpt.isPresent()) {
 
 			int scalefactor = wSetPctOpt.get();
-			int WSetPct = (int) ((activePower * 100) / (MAX_APPARENT_POWER * Math.pow(10, scalefactor)));
+
+			int max = maxApparentPower; // TODO ensure that this value is not null
+			if (max == 0) {
+				max = MAX_APPARENT_POWER;
+			}
+
+			int WSetPct = (int) ((activePower * 100) / (max * Math.pow(10, scalefactor)));
 
 			try {
 				wSetPctChannel.setNextWriteValue(WSetPct);
@@ -218,6 +197,55 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				log.error("problem occurred while trying so set active power" + e.getMessage());
 			}
 		}
+	}
+
+	private void handleStateMachine() {
+		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
+		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
+		if (!currentStateOpt.isPresent()) {
+			return;
+		}
+
+		CurrentState currentState = (CurrentState) currentStateOpt.get();
+
+		switch (currentState) {
+		case OFF:
+			doOffHandling();
+			break;
+		case STANDBY:
+			doStandbyHandling();
+			break;
+		case ERROR:
+			doErrorHandling();
+			break;
+		case GRID_CONNECTED:
+			doGridConnectedHandling();
+			break;
+		case PRECHARGE:
+		case NO_ERROR_PENDING:
+		case SHUTTING_DOWN:
+		case STARTING:
+		case THROTTLED:
+			// Do nothing because these states are only temporarily reached
+			break;
+		}
+	}
+
+	private void doStandbyHandling() {
+		setWatchdog();
+		setBatteryRanges();
+		startGridMode();
+	}
+
+	private void doOffHandling() {
+		setWatchdog();
+		startSystem();
+		setBatteryRanges();
+	}
+
+	private void doGridConnectedHandling() {
+		setWatchdog();
+		setBatteryRanges();
 	}
 
 	private void setBatteryRanges() {
@@ -255,15 +283,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doErrorHandling() {
 		// find out the reason what is wrong an react
 		// for a first try, switch system off, it will be restarted
+		setWatchdog();
 		stopSystem();
 	}
 
-	
 	@Override
 	public String debugLog() {
-		return "Current state: " + this.channel(ChannelId.CURRENT_STATE).value().asOptionString()
-				+ ", requested State: " + this.channel(ChannelId.REQUESTED_STATE).value().asOptionString()
-				+ ", Active Power: " + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asOptionString();
+		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() + ",L:"
+				+ this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() + ",Grid mode:"
+				+ this.channel(SymmetricEss.ChannelId.GRID_MODE).value().asOptionString();
 	}
 
 	@Override
@@ -321,6 +349,16 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			requestedState.setNextWriteValue(RequestedState.OFF.value);
 		} catch (OpenemsException e) {
 			log.error("problem occurred while trying to stop system" + e.getMessage());
+		}
+	}
+
+	private void setWatchdog() {
+		// according to 3.5.2.2 in the manual write watchdog register
+		IntegerWriteChannel watchdogChannel = this.channel(ChannelId.WATCHDOG);
+		try {
+			watchdogChannel.setNextWriteValue(WATCHDOG_TIMER_DEFAULT);
+		} catch (OpenemsException e) {
+			log.error("Watchdog timer could not be written!" + e.getMessage());
 		}
 	}
 
@@ -587,69 +625,79 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 //	private final static int SUNSPEC_1 = 40003 - 1; // According to setup process pdf currently not used...
-//	private final static int SUNSPEC_103 = 40071 - 1; // contains information about power
+//	private final static int SUNSPEC_103 = 40071 - 1;
 	private final static int SUNSPEC_121 = 40213 - 1;
 	private final static int SUNSPEC_64201 = 40823 - 1;
 	private final static int SUNSPEC_64202 = 40877 - 1;
 	private final static int SUNSPEC_64203 = 40893 - 1;
 	private final static int SUNSPEC_64302 = 40931 - 1;
 
-	
+	// channels from SymmetricEss --> SOC, GridMode, MaxActivePower
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
+//				new FC3ReadRegistersTask(SUNSPEC_103 + 14, Priority.LOW,
+//					m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 14), ElementToChannelConverter.SCALE_FACTOR_1), //
+//					new DummyRegisterElement(SUNSPEC_103 + 15, SUNSPEC_103 + 19),
+//					m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), ElementToChannelConverter.SCALE_FACTOR_1)), //
+				new FC3ReadRegistersTask(SUNSPEC_64201 + 35, Priority.LOW,
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 35),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 36),
+								ElementToChannelConverter.SCALE_FACTOR_1)), //
 				new FC3ReadRegistersTask(SUNSPEC_121 + 2, Priority.LOW,
-						m(EssKacoBlueplanetGridsave50.ChannelId.W_MAX, new UnsignedWordElement(SUNSPEC_121 + 2)),
-						new DummyRegisterElement(SUNSPEC_121 + 3, SUNSPEC_121 + 21),
-						m(EssKacoBlueplanetGridsave50.ChannelId.W_MAX_SF, new SignedWordElement(SUNSPEC_121 + 22))),
+						m(EssKacoBlueplanetGridsave50.ChannelId.W_MAX, new UnsignedWordElement(SUNSPEC_121 + 2)), //
+						new DummyRegisterElement(SUNSPEC_121 + 3, SUNSPEC_121 + 21), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.W_MAX_SF, new SignedWordElement(SUNSPEC_121 + 22))), //
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 4,
 						m(EssKacoBlueplanetGridsave50.ChannelId.REQUESTED_STATE,
-								new UnsignedWordElement(SUNSPEC_64201 + 4))),
-				new FC3ReadRegistersTask(SUNSPEC_64201 + 5, Priority.LOW,
+								new UnsignedWordElement(SUNSPEC_64201 + 4))), //
+				new FC3ReadRegistersTask(SUNSPEC_64201 + 5, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.CURRENT_STATE,
-								new UnsignedWordElement(SUNSPEC_64201 + 5))),
-				new FC16WriteRegistersTask(SUNSPEC_64201 + 8,
-						m(EssKacoBlueplanetGridsave50.ChannelId.WATCHDOG, new UnsignedWordElement(SUNSPEC_64201 + 8))),
-				new FC16WriteRegistersTask(SUNSPEC_64201 + 9,
-						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT, new SignedWordElement(SUNSPEC_64201 + 9))),
-				new FC3ReadRegistersTask(SUNSPEC_64201 + 46, Priority.LOW,
+								new UnsignedWordElement(SUNSPEC_64201 + 5))), //
+				new FC16WriteRegistersTask(SUNSPEC_64201 + 8, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.WATCHDOG, new UnsignedWordElement(SUNSPEC_64201 + 8))), //
+				new FC16WriteRegistersTask(SUNSPEC_64201 + 9, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT, new SignedWordElement(SUNSPEC_64201 + 9))), //
+				new FC3ReadRegistersTask(SUNSPEC_64201 + 46, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT_SF,
-								new SignedWordElement(SUNSPEC_64201 + 46))),
-				new FC3ReadRegistersTask(SUNSPEC_64202 + 6, Priority.LOW,
-						m(EssKacoBlueplanetGridsave50.ChannelId.V_SF, new SignedWordElement(SUNSPEC_64202 + 6)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.A_SF, new SignedWordElement(SUNSPEC_64202 + 7))),
+								new SignedWordElement(SUNSPEC_64201 + 46))), //
+				new FC3ReadRegistersTask(SUNSPEC_64202 + 6, Priority.LOW, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.V_SF, new SignedWordElement(SUNSPEC_64202 + 6)), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.A_SF, new SignedWordElement(SUNSPEC_64202 + 7))), //
 				new FC16WriteRegistersTask(SUNSPEC_64202 + 8,
 						m(EssKacoBlueplanetGridsave50.ChannelId.DIS_MIN_V, new UnsignedWordElement(SUNSPEC_64202 + 8),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.DIS_MAX_A, new UnsignedWordElement(SUNSPEC_64202 + 9),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(SUNSPEC_64202 + 10),
 						m(EssKacoBlueplanetGridsave50.ChannelId.CHA_MAX_V, new UnsignedWordElement(SUNSPEC_64202 + 11),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.CHA_MAX_A, new UnsignedWordElement(SUNSPEC_64202 + 12),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						new DummyRegisterElement(SUNSPEC_64202 + 13, SUNSPEC_64202 + 14),
-						m(EssKacoBlueplanetGridsave50.ChannelId.EN_LIMIT, new UnsignedWordElement(SUNSPEC_64202 + 15))),
-				new FC3ReadRegistersTask(SUNSPEC_64203 + 5, Priority.LOW,
-						m(EssKacoBlueplanetGridsave50.ChannelId.SOC_SF, new SignedWordElement(SUNSPEC_64203 + 5)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.SOH_SF, new SignedWordElement(SUNSPEC_64203 + 6)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.TEMP_SF, new SignedWordElement(SUNSPEC_64203 + 7))),
-				new FC16WriteRegistersTask(SUNSPEC_64203 + 16,
-						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOC, new UnsignedWordElement(SUNSPEC_64203 + 16)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOH, new UnsignedWordElement(SUNSPEC_64203 + 17)),
-						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_TEMP, new SignedWordElement(SUNSPEC_64203 + 18))),
-				new FC16WriteRegistersTask(SUNSPEC_64302 + 12,
-						m(EssKacoBlueplanetGridsave50.ChannelId.COMMAND_ID_REQ,
-								new SignedWordElement(SUNSPEC_64302 + 12)),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(SUNSPEC_64202 + 13, SUNSPEC_64202 + 14), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.EN_LIMIT, new UnsignedWordElement(SUNSPEC_64202 + 15))), //
+				new FC3ReadRegistersTask(SUNSPEC_64203 + 5, Priority.LOW, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.SOC_SF, new SignedWordElement(SUNSPEC_64203 + 5)), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.SOH_SF, new SignedWordElement(SUNSPEC_64203 + 6)), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.TEMP_SF, new SignedWordElement(SUNSPEC_64203 + 7))), //
+				new FC16WriteRegistersTask(SUNSPEC_64203 + 16, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOC, new UnsignedWordElement(SUNSPEC_64203 + 16)), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_SOH, new UnsignedWordElement(SUNSPEC_64203 + 17)), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.BAT_TEMP, new SignedWordElement(SUNSPEC_64203 + 18))), //
+				new FC16WriteRegistersTask(SUNSPEC_64302 + 12, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.COMMAND_ID_REQ, //
+								new SignedWordElement(SUNSPEC_64302 + 12)), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.REQ_PARAM_0,
-								new UnsignedDoublewordElement(SUNSPEC_64302 + 13))),
+								new UnsignedDoublewordElement(SUNSPEC_64302 + 13))), //
 				new FC16WriteRegistersTask(SUNSPEC_64302 + 29,
 						m(EssKacoBlueplanetGridsave50.ChannelId.COMMAND_ID_REQ_ENA,
-								new UnsignedWordElement(SUNSPEC_64302 + 29))),
-				new FC3ReadRegistersTask(SUNSPEC_64302 + 30, Priority.LOW,
+								new UnsignedWordElement(SUNSPEC_64302 + 29))), //
+				new FC3ReadRegistersTask(SUNSPEC_64302 + 30, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.COMMAND_ID_RES,
-								new SignedWordElement(SUNSPEC_64302 + 30)),
+								new SignedWordElement(SUNSPEC_64302 + 30)), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.RETURN_CODE,
-								new SignedWordElement(SUNSPEC_64302 + 31))));
+								new SignedWordElement(SUNSPEC_64302 + 31)))); //
 	}
 }
