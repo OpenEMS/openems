@@ -1,8 +1,0 @@
-{
-	"persistence": [
-		{
-			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
-			"apikey": ""
-		}
-	]
-}

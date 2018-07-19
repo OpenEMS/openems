@@ -19,13 +19,12 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.Meter;
+import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the Janitza UMG 96RM-E power analyser
@@ -97,7 +96,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		 */
 		return new ModbusProtocol(unitId, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
-						m(Meter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(802, 807), //
 						cm(new FloatDoublewordElement(808)) //

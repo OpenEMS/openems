@@ -24,11 +24,11 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -38,13 +38,21 @@ import io.openems.edge.ess.power.api.Power;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssCluster extends AbstractOpenemsComponent
-		implements ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, MetaEss, OpenemsComponent {
-
-	private Power power = new Power(); // initialize empty power
+		implements ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent {
 
 	private final AverageInteger<SymmetricEss> soc;
 	private final SumInteger<SymmetricEss> activePower;
+	private final SumInteger<SymmetricEss> reactivePower;
+	private final SumInteger<AsymmetricEss> activePowerL1;
+	private final SumInteger<AsymmetricEss> reactivePowerL1;
+	private final SumInteger<AsymmetricEss> activePowerL2;
+	private final SumInteger<AsymmetricEss> reactivePowerL2;
+	private final SumInteger<AsymmetricEss> activePowerL3;
+	private final SumInteger<AsymmetricEss> reactivePowerL3;
 	private final SumInteger<SymmetricEss> maxActivePower;
+
+	@Reference
+	private Power power = null;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -62,6 +70,20 @@ public class EssCluster extends AbstractOpenemsComponent
 		this.soc = new AverageInteger<SymmetricEss>(this, SymmetricEss.ChannelId.SOC, SymmetricEss.ChannelId.SOC);
 		this.activePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_POWER,
 				SymmetricEss.ChannelId.ACTIVE_POWER);
+		this.reactivePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.REACTIVE_POWER,
+				SymmetricEss.ChannelId.REACTIVE_POWER);
+		this.activePowerL1 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.ACTIVE_POWER_L1,
+				AsymmetricEss.ChannelId.ACTIVE_POWER_L1);
+		this.reactivePowerL1 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.REACTIVE_POWER_L1,
+				AsymmetricEss.ChannelId.REACTIVE_POWER_L1);
+		this.activePowerL2 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.ACTIVE_POWER_L2,
+				AsymmetricEss.ChannelId.ACTIVE_POWER_L2);
+		this.reactivePowerL2 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.REACTIVE_POWER_L2,
+				AsymmetricEss.ChannelId.REACTIVE_POWER_L2);
+		this.activePowerL3 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.ACTIVE_POWER_L3,
+				AsymmetricEss.ChannelId.ACTIVE_POWER_L3);
+		this.reactivePowerL3 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.REACTIVE_POWER_L3,
+				AsymmetricEss.ChannelId.REACTIVE_POWER_L3);
 		this.maxActivePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.MAX_ACTIVE_POWER,
 				SymmetricEss.ChannelId.MAX_ACTIVE_POWER);
 	}
@@ -84,9 +106,8 @@ public class EssCluster extends AbstractOpenemsComponent
 		}
 		this.managedEsss = new ManagedSymmetricEss[managedSymmetricEsssList.size()];
 		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
-			managedEsss[i] = managedSymmetricEsssList.get(i);
+			this.managedEsss[i] = managedSymmetricEsssList.get(i);
 		}
-		this.power = new Power(managedEsss);
 
 		/*
 		 * Initialize Channel-Mergers
@@ -94,7 +115,17 @@ public class EssCluster extends AbstractOpenemsComponent
 		for (SymmetricEss ess : this.esss) {
 			this.soc.addComponent(ess);
 			this.activePower.addComponent(ess);
+			this.reactivePower.addComponent(ess);
 			this.maxActivePower.addComponent(ess);
+			if (ess instanceof AsymmetricEss) {
+				AsymmetricEss e = (AsymmetricEss) ess;
+				this.activePowerL1.addComponent(e);
+				this.reactivePowerL1.addComponent(e);
+				this.activePowerL2.addComponent(e);
+				this.reactivePowerL2.addComponent(e);
+				this.activePowerL3.addComponent(e);
+				this.reactivePowerL3.addComponent(e);
+			}
 		}
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
@@ -109,13 +140,18 @@ public class EssCluster extends AbstractOpenemsComponent
 		for (SymmetricEss ess : this.esss) {
 			this.soc.removeComponent(ess);
 			this.activePower.removeComponent(ess);
+			this.reactivePower.removeComponent(ess);
 			this.maxActivePower.removeComponent(ess);
+			if (ess instanceof AsymmetricEss) {
+				AsymmetricEss e = (AsymmetricEss) ess;
+				this.activePowerL1.removeComponent(e);
+				this.reactivePowerL1.removeComponent(e);
+				this.activePowerL2.removeComponent(e);
+				this.reactivePowerL2.removeComponent(e);
+				this.activePowerL3.removeComponent(e);
+				this.reactivePowerL3.removeComponent(e);
+			}
 		}
-	}
-
-	@Override
-	public Power getPower() {
-		return this.power;
 	}
 
 	@Override
@@ -140,4 +176,8 @@ public class EssCluster extends AbstractOpenemsComponent
 		return this.managedEsss;
 	}
 
+	@Override
+	public Power getPower() {
+		return this.power;
+	}
 }

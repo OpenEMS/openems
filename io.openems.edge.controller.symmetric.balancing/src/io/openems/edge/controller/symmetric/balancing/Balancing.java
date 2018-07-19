@@ -26,7 +26,7 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -89,7 +89,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			requiredPower = this.calculateRequiredPower();
 
 		} catch (InvalidValueException | NullPointerException e) {
-			logError(this.log, e.getMessage());
+			logError(this.log,
+					"Error while calculating required power. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			return;
 		}
 
@@ -121,6 +122,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		try {
 			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
 					requiredPower);
+			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 0);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
 		}

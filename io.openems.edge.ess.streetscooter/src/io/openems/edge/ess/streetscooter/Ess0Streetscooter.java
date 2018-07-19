@@ -17,6 +17,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config0.class, factory = true)
 @Component(name = "Ess0.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
@@ -34,6 +35,9 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter implements Manag
 	private static final int INVERTER_0_CONNECTED_ADDRESS = 2000;
 	private static final int ICU_0_RUNSTATE_ADDRESS = 4000;
 
+	@Reference
+	private Power power;
+	
 	@Reference
 	private ConfigurationAdmin cm;
 
@@ -95,5 +99,10 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter implements Manag
 	@Override
 	protected int getIcuRunstateAddress() {
 		return ICU_0_RUNSTATE_ADDRESS;
+	}
+	
+	@Override
+	public Power getPower() {
+		return this.power;
 	}
 }

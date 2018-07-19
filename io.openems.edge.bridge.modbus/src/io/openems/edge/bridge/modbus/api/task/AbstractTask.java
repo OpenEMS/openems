@@ -13,12 +13,11 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * 
  * @author stefan.feilmeier
  */
-public abstract class AbstractTask implements Task{
+public abstract class AbstractTask implements Task {
 
 	private final int length;
 	private final int startAddress;
-	protected final Logger log;	
-	
+	protected final Logger log;
 
 	private ModbusElement<?>[] elements;
 	private int unitId; // this is always set by ModbusProtocol.addTask()
@@ -70,6 +69,6 @@ public abstract class AbstractTask implements Task{
 		sb.append("]");
 		return sb.toString();
 	}
-	
+
 	protected abstract String getActiondescription();
 }

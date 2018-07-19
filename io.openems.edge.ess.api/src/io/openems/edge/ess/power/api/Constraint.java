@@ -1,8 +1,12 @@
 package io.openems.edge.ess.power.api;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.apache.commons.math3.optim.linear.Relationship;
+
+import io.openems.edge.ess.power.api.Coefficient;
+import io.openems.edge.ess.power.api.ConstraintType;
 
 /**
  * Creates a constraint with following settings:
@@ -21,14 +25,18 @@ public class Constraint {
 	private final ConstraintType type;
 	private final Coefficient[] coefficients;
 	private final Relationship relationship;
-	
-	private double value;
 
-	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, double value) {
+	private Optional<Double> value;
+
+	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, Double value) {
 		this.type = type;
 		this.coefficients = coefficients;
 		this.relationship = relationship;
-		this.value = value;
+		this.value = Optional.ofNullable(value);
+	}
+
+	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, Integer value) {
+		this(type, coefficients, relationship, value == null ? null : value.doubleValue());
 	}
 
 	@Override
@@ -37,10 +45,19 @@ public class Constraint {
 				+ ", value=" + value + "]";
 	}
 
+	/**
+	 * Whether this Constraint is Enabled and valid.
+	 * 
+	 * @return
+	 */
+	public boolean isEnabled() {
+		return this.value.isPresent();
+	}
+
 	public ConstraintType getType() {
 		return type;
 	}
-	
+
 	public Coefficient[] getCoefficients() {
 		return coefficients;
 	}
@@ -49,11 +66,19 @@ public class Constraint {
 		return relationship;
 	}
 
-	public double getValue() {
-		return value;
+	public Optional<Double> getValue() {
+		return this.value;
 	}
 
-	public void setValue(double value) {
-		this.value = value;
+	public void setDoubleValue(Double value) {
+		this.value = Optional.ofNullable(value);
+	}
+
+	public void setIntValue(Integer value) {
+		if (value == null) {
+			this.value = Optional.empty();
+		} else {
+			this.value = Optional.ofNullable(value.doubleValue());
+		}
 	}
 }

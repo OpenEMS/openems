@@ -33,13 +33,13 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -68,39 +68,16 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	private final static int MIN_REACTIVE_POWER = -10000;
 	private final static int MAX_REACTIVE_POWER = 10000;
 
-	private final Power power;
-
 	private String modbusBridgeId;
+
+	@Reference
+	private Power power;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	public EssFeneconCommercial40() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		/*
-		 * Initialize Power
-		 */
-		this.power = new Power(this);
-		// ReactivePower limitations
-		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GEQ, MIN_REACTIVE_POWER);
-		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.LEQ, MAX_REACTIVE_POWER);
-		// Allowed Apparent
-		CircleConstraint allowedApparentConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-		this.channel(ChannelId.ALLOWED_APPARENT).onUpdate(value -> {
-			allowedApparentConstraint.setRadius(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
-		// Allowed Charge
-		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0);
-		this.channel(ChannelId.ALLOWED_CHARGE).onUpdate(value -> {
-			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
-		// Allowed Discharge
-		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0);
-		this.channel(ChannelId.ALLOWED_DISCHARGE).onUpdate(value -> {
-			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
 	}
 
 	@Override
@@ -129,6 +106,30 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
+
+		/*
+		 * Initialize Power
+		 */
+		// ReactivePower limitations
+		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GEQ, MIN_REACTIVE_POWER);
+		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.LEQ, MAX_REACTIVE_POWER);
+		// Allowed Apparent
+		CircleConstraint allowedApparentConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+		this.channel(ChannelId.ALLOWED_APPARENT).onChange(value -> {
+			allowedApparentConstraint.setRadius(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+		});
+		// Allowed Charge
+		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+				Relationship.GEQ, 0);
+		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
+			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+		});
+		// Allowed Discharge
+		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+				Relationship.LEQ, 0);
+		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
+			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+		});
 	}
 
 	@Deactivate

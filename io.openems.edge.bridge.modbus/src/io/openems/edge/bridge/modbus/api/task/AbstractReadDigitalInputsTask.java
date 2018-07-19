@@ -1,11 +1,13 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boolean> {
 
@@ -36,7 +38,7 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	@Override
 	protected Boolean[] handleResponse(ModbusResponse response) throws OpenemsException {
 		try {
-			return (Utils.toBooleanArray(getBytes(response)));
+			return (Utils.toBooleanArray(getBitVector(response)));
 		} catch (ClassCastException e) {			
 			throw new OpenemsException("Unexpected Modbus response. Expected [" + getExpectedInputClassname() + "], got ["
 					+ response.getClass().getSimpleName() + "]");
@@ -44,5 +46,5 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	}
 	
 	protected abstract String getExpectedInputClassname();
-	protected abstract byte[] getBytes(ModbusResponse response) throws OpenemsException;
+	protected abstract BitVector getBitVector(ModbusResponse response) throws OpenemsException;
 }

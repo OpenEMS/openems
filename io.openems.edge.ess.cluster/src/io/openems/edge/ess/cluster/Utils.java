@@ -7,6 +7,8 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -37,7 +39,28 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				}) //
-		).flatMap(channel -> channel);
+				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTIVE_POWER_L1:
+					case ACTIVE_POWER_L2:
+					case ACTIVE_POWER_L3:
+					case REACTIVE_POWER_L1:
+					case REACTIVE_POWER_L2:
+					case REACTIVE_POWER_L3:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(ManagedAsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case DEBUG_SET_ACTIVE_POWER_L1:
+					case DEBUG_SET_ACTIVE_POWER_L2:
+					case DEBUG_SET_ACTIVE_POWER_L3:
+					case DEBUG_SET_REACTIVE_POWER_L1:
+					case DEBUG_SET_REACTIVE_POWER_L2:
+					case DEBUG_SET_REACTIVE_POWER_L3:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				})).flatMap(channel -> channel);
 	}
 }

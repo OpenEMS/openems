@@ -24,8 +24,8 @@ import io.openems.edge.common.type.TypeUtils;
  * <li>a {@link OpenemsType} which needs to map to the generic parameter <T>.
  * (via {@link Channel#getType()})
  * <li>an (active) {@link Value}. (via {@link Channel#value()})
- * <li>callback methods to listen on value changes. (see
- * {@link Channel#onUpdate()} and {@link Channel#onSetNextValue()})
+ * <li>callback methods to listen on value updates and changes. (see
+ * {@link Channel#onChange()}, {@link Channel#onUpdate()} and {@link Channel#onSetNextValue()})
  * </ul>
  * 
  * Channels implement a 'Process Image' pattern. They provide an 'active' value
@@ -133,7 +133,7 @@ public interface Channel<T> {
 	public void onUpdate(Consumer<Value<T>> callback);
 
 	/**
-	 * Add an onChange callback. It is called, after the active value was changed by
+	 * Add an onChange callback. It is called, after a new, different active value was set by
 	 * nextProcessImage().
 	 */
 	public void onChange(Consumer<Value<T>> callback);

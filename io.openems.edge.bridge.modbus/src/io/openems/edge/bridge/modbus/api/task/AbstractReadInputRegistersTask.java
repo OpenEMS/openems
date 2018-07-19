@@ -8,6 +8,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 public abstract class AbstractReadInputRegistersTask extends AbstractReadTask<InputRegister> {
 

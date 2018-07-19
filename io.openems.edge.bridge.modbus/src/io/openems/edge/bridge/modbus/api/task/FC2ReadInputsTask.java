@@ -4,8 +4,10 @@ import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesResponse;
+import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 /**
  * Implements a Read Inputs abstractTask, implementing Modbus function code 2
@@ -18,9 +20,9 @@ public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements 
 	}
 
 	@Override
-	protected byte[] getBytes(ModbusResponse response) {
+	protected BitVector getBitVector(ModbusResponse response) {
 			ReadInputDiscretesResponse readInputDiscretesResponse = (ReadInputDiscretesResponse) response;
-			return readInputDiscretesResponse.getDiscretes().getBytes();		
+			return readInputDiscretesResponse.getDiscretes();		
 	}
 	
 	@Override
