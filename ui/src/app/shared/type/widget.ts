@@ -1,1 +1,1 @@
-export type Widget = "EVCS";
+export type Widget = "EVCS" | "CHANNELTHRESHOLD"

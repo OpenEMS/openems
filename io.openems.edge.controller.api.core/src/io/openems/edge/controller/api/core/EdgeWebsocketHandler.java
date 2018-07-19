@@ -12,12 +12,12 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.timedata.TimedataUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
@@ -173,8 +173,8 @@ public class EdgeWebsocketHandler {
 			return;
 		}
 		try {
-			JsonArray jData = timedataService.queryHistoricData(jHistoricData);
-			WebSocketUtils.send(this.websocket, DefaultMessages.historicDataQueryReply(jMessageId, jData));
+			JsonObject j = TimedataUtils.handle(timedataService, jMessageId, jHistoricData);
+			WebSocketUtils.send(this.websocket, j);
 		} catch (OpenemsException e) {
 			WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, e.getMessage());

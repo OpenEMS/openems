@@ -32,7 +32,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -40,6 +39,7 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -60,12 +60,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private final static int UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
-	private final CircleConstraint maxApparentPowerConstraint;
+	private CircleConstraint maxApparentPowerConstraint = null;
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
 	private int maxApparentPowerScaleFactor = 0;
 
-	private final Power power;
+	@Reference
+	private Power power;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -75,15 +76,33 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	public EssKacoBlueplanetGridsave50() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
+	private void refreshPower() {
+		if (maxApparentPower > 0) {
+			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
+		}
+	}
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	@Activate
+	void activate(ComponentContext context, Config config) {
+		// update filter for 'battery'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
+			return;
+		}
+
 		/*
 		 * Initialize Power
 		 */
-		this.power = new Power(this);
-
 		// Max Apparent
 		// TODO adjust apparent power from modbus element
 		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-		
+
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
 			@SuppressWarnings("unchecked")
@@ -106,25 +125,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 			refreshPower();
 		});
-	}
-
-	private void refreshPower() {
-		if (maxApparentPower > 0) {
-			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
-		}
-	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		// update filter for 'battery'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
-			return;
-		}
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());

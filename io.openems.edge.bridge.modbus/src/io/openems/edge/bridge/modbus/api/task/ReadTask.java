@@ -5,6 +5,7 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.taskmanager.ManagedTask;
 
 /**
  * A Modbus 'ReadTask' is holding references to one or more Modbus
@@ -14,15 +15,7 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
  * 
  * @author stefan.feilmeier
  */
-public interface ReadTask extends Task{
-
-	/**
-	 * Gets the Priority of this ReadTask. The higher the priority, the more often
-	 * the abstractTask is executed. (HIGH = execute in every cycle).
-	 * 
-	 * @return
-	 */
-	public Priority getPriority();
+public interface ReadTask extends Task, ManagedTask {
 
 	/**
 	 * Sends a query for this AbstractTask to the Modbus device

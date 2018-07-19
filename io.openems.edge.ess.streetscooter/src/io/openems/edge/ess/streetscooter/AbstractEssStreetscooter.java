@@ -1,6 +1,8 @@
 package io.openems.edge.ess.streetscooter;
 
 import org.apache.commons.math3.optim.linear.Relationship;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,11 +17,11 @@ import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC2ReadInputsTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
-import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -27,7 +29,6 @@ import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
@@ -55,35 +56,33 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
-	private final Power power;
 	private final PowerHandler powerHandler;
 
 	public AbstractEssStreetscooter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel((Channel<?>) channel));
+		this.powerHandler = new PowerHandler(this, this.log);
+	}
+
+	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		/*
 		 * Initialize Power
 		 */
-		this.power = new Power(this);
-		this.powerHandler = new PowerHandler(this, this.log);
 		// max Apparent
 		new CircleConstraint(this, MAX_APPARENT_POWER);
 		// Allowed Charge
 		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.GEQ, 0);
 		this.channel(ChannelId.BATTERY_BMS_PWR_CHRG_MAX).onChange(value -> {
-			allowedChargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
 		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 				Relationship.LEQ, 0);
 		this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
-			allowedDischargeConstraint.setValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
-	}
-
-	@Override
-	public Power getPower() {
-		return this.power;
+		super.activate(id);
 	}
 
 	@Override

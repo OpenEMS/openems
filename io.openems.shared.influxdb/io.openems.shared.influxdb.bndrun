@@ -1,0 +1,14 @@
+#
+# io.openems.shared.influxdb LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		io.openems.shared.influxdb.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=io.openems.shared.influxdb.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}

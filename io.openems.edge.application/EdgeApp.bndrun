@@ -30,6 +30,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.cluster)',\
@@ -65,6 +66,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
+	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
@@ -81,6 +83,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
+	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.jSerialComm;version=snapshot,\

@@ -118,7 +118,7 @@ export const TRANSLATION = {
         Developed: "This user interface is developed by FENECON as open-source software.",
         Fenecon: "More about FENECON",
         Fems: "More about FEMS",
-        Sourcecode: "Source code",
+        OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
         Build: "This build",
         Contact: "Please contact our FEMS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team

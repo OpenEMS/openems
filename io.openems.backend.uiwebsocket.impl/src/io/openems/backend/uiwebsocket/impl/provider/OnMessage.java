@@ -7,13 +7,14 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.timedata.Tag;
+import io.openems.common.timedata.TimedataUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.AbstractOnMessage;
@@ -178,16 +179,11 @@ public class OnMessage extends AbstractOnMessage {
 	 */
 	private void historicData(WebSocket websocket, JsonObject jMessageId, int edgeId, JsonObject jHistoricData) {
 		try {
-			String mode = JsonUtils.getAsString(jHistoricData, "mode");
-
-			if (mode.equals("query")) {
-				/*
-				 * Query historic data
-				 */
-				JsonArray jData = this.parent.parent.timeDataService.queryHistoricData(edgeId, jHistoricData);
-				WebSocketUtils.sendOrLogError(websocket, DefaultMessages.historicDataQueryReply(jMessageId, jData));
-				return;
-			}
+			Edge edge = this.parent.parent.metadataService.getEdge(edgeId);
+			Tag[] tags = new Tag[] { new Tag("fems", TimedataUtils.parseNumberFromName(edge.getName())) };
+			JsonObject j = TimedataUtils.handle(this.parent.parent.timeDataService, jMessageId, jHistoricData, tags);
+			WebSocketUtils.sendOrLogError(websocket, j);
+			return;
 		} catch (Exception e) {
 			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, "Edge [ID:" + edgeId + "] " + e.getMessage());

@@ -8,6 +8,7 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 /**
  * Implements a Read Input Register abstractTask, implementing Modbus function code 4

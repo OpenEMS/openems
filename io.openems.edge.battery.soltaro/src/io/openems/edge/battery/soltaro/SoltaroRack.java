@@ -29,7 +29,6 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -40,6 +39,7 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //

@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,6 +28,8 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
+					case ACTIVE_CHARGE_ENERGY:
+					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, EssFeneconCommercial40.MAX_APPARENT_POWER);
@@ -80,10 +81,9 @@ public class Utils {
 					case TRANSFORMER_TEMPERATURE_L2:
 					case BMS_DCDC_WORK_MODE:
 					case BMS_DCDC_WORK_STATE:
-						return new IntegerReadChannel(c, channelId);
 					case AC_CHARGE_ENERGY:
 					case AC_DISCHARGE_ENERGY:
-						return new LongReadChannel(c, channelId);
+						return new IntegerReadChannel(c, channelId);
 					case SET_WORK_STATE:
 					case SET_ACTIVE_POWER:
 					case SET_REACTIVE_POWER:
