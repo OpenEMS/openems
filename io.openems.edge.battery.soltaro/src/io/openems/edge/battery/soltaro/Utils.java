@@ -25,24 +25,22 @@ public class Utils {
 				}), Arrays.stream(Battery.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
-					case MAX_CAPACITY:
-					case GRID_MODE:
-						return new IntegerReadChannel(s, channelId);	
+						return new IntegerReadChannel(s, channelId);
 					case CHARGE_MAX_CURRENT:
-						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_A);	
+						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_A);
 					case CHARGE_MAX_VOLTAGE:
-						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_V);	
+						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_V);
 					case DISCHARGE_MAX_CURRENT:
-						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MAX_A);	
+						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MAX_A);
 					case DISCHARGE_MIN_VOLTAGE:
-						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);	
+						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case BMS_CONTACTOR_CONTROL:
 						return new IntegerWriteChannel(s, channelId);
-						
+
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH:
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_LOW:
 					case ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH:
@@ -378,7 +376,7 @@ public class Utils {
 					case CLUSTER_1_SOH:
 					case CLUSTER_RUN_STATE:
 					case SYSTEM_INSULATION:
-						
+
 					case SYSTEM_ACCEPT_MAX_CHARGE_CURRENT:
 					case SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT:
 					case SYSTEM_OVER_VOLTAGE_PROTECTION:
