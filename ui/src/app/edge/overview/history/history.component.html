@@ -5,7 +5,12 @@
   </mat-card-header>
   <mat-card-content>
     <div style="height: 150px">
-      <socchart [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+      <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
+        <socchart-2018-8 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-8>
+      </ng-container>
+      <ng-template #version_2018_7>
+        <socchart-2018-7 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-7>
+      </ng-template>
     </div>
   </mat-card-content>
   <mat-card-actions fxLayout fxLayoutAlign="end start">

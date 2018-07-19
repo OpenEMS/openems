@@ -7,7 +7,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +35,6 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	protected volatile TimedataService timedataService;
-
-	@Reference
-	protected EventAdmin eventAdmin;
 
 	@Activate
 	void activate(Config config) {

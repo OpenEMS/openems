@@ -54,7 +54,19 @@ public interface EssDcCharger extends OpenemsComponent {
 					}
 				}
 			});
-		})); //
+		})),
+		/**
+		 * Actual Energy
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTUAL_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
 
@@ -88,6 +100,15 @@ public interface EssDcCharger extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Actual Energy in [Wh].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getActualEnergy() {
+		return this.channel(ChannelId.ACTUAL_ENERGY);
+	}
+
+	/**
 	 * Internal helper method to handle storing MaxActualPower in config property
 	 * 'maxActualPower'
 	 * 
@@ -101,7 +122,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 */
 		this.getMaxActualPower().setNextValue(maxActualPowerConfig);
 
-		this.getMaxActualPower().onUpdate(value -> {
+		this.getMaxActualPower().onChange(value -> {
 			if (value.get() != maxActualPowerConfig) {
 				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActualPower", value.get());
 			}

@@ -18,7 +18,7 @@ import io.openems.edge.common.channel.Channel;
  * 
  * Possible meta information:
  * <ul>
- * <li>read-only/writable flag {@link Doc#isWritable()}
+ * <li>read-only/writable flag {@link Doc#setWritable()}
  * <li>expected OpenemsType via {@link Doc#getType()}
  * <li>descriptive text via {@link Doc#getText()}
  * <li>a Unit via {@link Doc#getUnit()}
@@ -43,7 +43,7 @@ public class Doc {
 	 * 
 	 * @return
 	 */
-	public Doc isWritable() {
+	public Doc setWritable() {
 		this.isWritable = true;
 		return this;
 	}
@@ -94,7 +94,7 @@ public class Doc {
 		return this;
 	}
 
-	String getText() {
+	public String getText() {
 		return this.text;
 	}
 
@@ -123,8 +123,12 @@ public class Doc {
 	 */
 	private BiMap<Integer, Object> options = HashBiMap.create();
 
+	public boolean hasOptions() {
+		return this.options.size() > 0;
+	}
+
 	public Doc option(int value, Enum<?> option) {
-		this.options.put(value, option.name());
+		this.options.put(value, option);
 		return this;
 	}
 
@@ -132,8 +136,15 @@ public class Doc {
 		this.options.put(option.ordinal(), option);
 		// this.options.put(option.ordinal(), option.name());
 		return this;
-	}
+		}
 
+	public Doc options(Enum<? extends OptionsEnum>[] options) {
+		for(Enum<? extends OptionsEnum> option : options) {
+			this.option(((OptionsEnum)option).getValue(), option);
+		}
+		return this;
+	}
+	
 	public Doc option(int value, String option) {
 		this.options.put(value, option);
 		return this;

@@ -3,6 +3,8 @@ package io.openems.edge.meter.socomec.dirisa14;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.meter.api.MeterType;
+
 @ObjectClassDefinition( //
 		name = "Meter SOCOMEC Diris A14", //
 		description = "Implements the SOCOMEC Diris A14 meter.")
@@ -13,8 +15,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption")
-	String type() default "production";
+	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
+	MeterType type() default MeterType.PRODUCTION;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id();

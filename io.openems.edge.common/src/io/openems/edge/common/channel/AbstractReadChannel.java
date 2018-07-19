@@ -1,6 +1,7 @@
 package io.openems.edge.common.channel;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -18,11 +19,13 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
+	protected final OpenemsComponent parent;
+
 	private final ChannelId channelId;
-	private final OpenemsComponent component;
 	private final OpenemsType type;
 	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
 
 	private volatile Value<T> nextValue = null; // TODO add timeout for nextValue validity
 	private volatile Value<T> activeValue = null;
@@ -31,11 +34,11 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		this(type, component, channelId, null);
 	}
 
-	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId, T initialValue) {
+	public AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, T initialValue) {
 		this.nextValue = new Value<T>(this, null);
 		this.activeValue = new Value<T>(this, null);
 		this.type = type;
-		this.component = component;
+		this.parent = parent;
 		this.channelId = channelId;
 		// validate Type
 		if (channelId.doc().getType().isPresent()) {
@@ -66,18 +69,22 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 
 	@Override
 	public OpenemsComponent getComponent() {
-		return component;
+		return parent;
 	}
 
 	@Override
 	public void nextProcessImage() {
+		boolean valueHasChanged = !Objects.equals(this.activeValue, this.nextValue);
 		this.activeValue = this.nextValue;
 		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
+		if (valueHasChanged) {
+			this.onChangeCallbacks.forEach(callback -> callback.accept(this.activeValue));
+		}
 	}
 
 	@Override
 	public ChannelAddress address() {
-		return new ChannelAddress(this.component.id(), this.channelId().id());
+		return new ChannelAddress(this.parent.id(), this.channelId().id());
 	}
 
 	@Override
@@ -120,8 +127,14 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		this.onUpdateCallbacks.add(callback);
 	}
 
+	@Override
 	public void onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
+	}
+
+	@Override
+	public void onChange(Consumer<Value<T>> callback) {
+		this.onChangeCallbacks.add(callback);
 	}
 
 	/*

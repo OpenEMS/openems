@@ -3,8 +3,7 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Private-Package: \
-	io.openems.edge.controller.api.backend,\
-	io.openems.edge.controller.api.apicontrollerutils
+	io.openems.edge.controller.api.backend
 
 -includeresource: {readme.md}
 
@@ -17,7 +16,8 @@ Private-Package: \
 	com.google.guava,\
 	io.openems.edge.timedata.api;version=latest,\
 	io.openems.common;version=latest,\
-	org.ops4j.pax.logging.pax-logging-api
+	org.ops4j.pax.logging.pax-logging-api,\
+	io.openems.edge.controller.api.core;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

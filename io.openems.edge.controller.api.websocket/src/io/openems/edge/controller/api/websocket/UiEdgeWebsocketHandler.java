@@ -7,8 +7,8 @@ import org.java_websocket.WebSocket;
 
 import io.openems.common.session.Role;
 import io.openems.edge.common.user.User;
-import io.openems.edge.controller.api.apicontrollerutils.ApiController;
-import io.openems.edge.controller.api.apicontrollerutils.EdgeWebsocketHandler;
+import io.openems.edge.controller.api.core.ApiController;
+import io.openems.edge.controller.api.core.EdgeWebsocketHandler;
 
 public class UiEdgeWebsocketHandler extends EdgeWebsocketHandler {
 

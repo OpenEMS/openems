@@ -5,19 +5,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.utils.Mutex;
+
 public abstract class AbstractWorker {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
-
+	private final Mutex cycleMutex = new Mutex(true);
+	
 	/**
 	 * Initializes the worker and starts the worker thread
 	 * 
 	 * @param name
 	 */
-	protected void activate(String name) {
+	public void activate(String name) {
 		if (name != null) {
 			this.worker.setName(name);
 			this.worker.start();
@@ -27,7 +30,7 @@ public abstract class AbstractWorker {
 	/**
 	 * Stops the worker thread
 	 */
-	protected void deactivate() {
+	public void deactivate() {
 		this.isStopped.set(true);
 	}
 
@@ -38,19 +41,31 @@ public abstract class AbstractWorker {
 
 	/**
 	 * Gets the cycleTime of this worker in [ms].
+	 * <ul>
+	 * <li>> 0 sets the minimum execution time of one Cycle
+	 * <li>= 0 never wait between two consecutive executions of forever()
+	 * <li>< 0 causes the Cycle to sleep forever until 'triggerNextRun()' is called
+	 * </ul>
 	 * 
 	 * @return
 	 */
 	protected abstract int getCycleTime();
 
 	/**
-	 * Causes the Worker to interrupt sleeping and start again the run() method
+	 * Causes the Worker to interrupt sleeping and start again the forever() method
 	 * immediately
 	 */
 	public void triggerForceRun() {
 		if (!isForceRun.getAndSet(true)) {
 			this.worker.interrupt();
 		}
+	}
+	
+	/**
+	 * Allows the next execution of the forever() method.
+	 */
+	public void triggerNextCycle() {
+		this.cycleMutex.release();
 	}
 
 	private final Thread worker = new Thread() {
@@ -67,9 +82,16 @@ public abstract class AbstractWorker {
 					 * Wait for next cycle
 					 */
 					try {
-						long sleep = getCycleTime() - (System.currentTimeMillis() - cycleStart);
-						if (sleep > 0) {
-							Thread.sleep(sleep);
+						int cycleTime = getCycleTime();
+						if (cycleTime == 0) {
+							// no wait
+						} else if (cycleTime > 0) {
+							long sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
+							if (sleep > 0) {
+								Thread.sleep(sleep);
+							}
+						} else {
+							cycleMutex.await();
 						}
 					} catch (InterruptedException e) {
 						if (isForceRun.get()) {
@@ -103,8 +125,7 @@ public abstract class AbstractWorker {
 	 * ForceRun-Flag. It is not making sense anyway, because something is wrong with
 	 * the setup if we landed here.
 	 *
-	 * @param duration
-	 *            in seconds
+	 * @param duration in seconds
 	 */
 	private long onWorkerExceptionSleep(long duration) {
 		if (duration < 60) {

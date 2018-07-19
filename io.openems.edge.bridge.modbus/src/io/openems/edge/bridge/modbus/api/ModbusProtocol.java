@@ -1,20 +1,16 @@
 package io.openems.edge.bridge.modbus.api;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ArrayListMultimap;
-
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.task.Priority;
+import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
-import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.common.taskmanager.TaskManager;
 
 public class ModbusProtocol {
 
@@ -26,24 +22,19 @@ public class ModbusProtocol {
 	private final int unitId;
 
 	/**
-	 * All ReadTasks by their Priority
+	 * TaskManager for ReadTasks
 	 */
-	private final ArrayListMultimap<Priority, ReadTask> readTasks = ArrayListMultimap.create();
+	private final TaskManager<ReadTask> readTaskManager = new TaskManager<>();
 
 	/**
-	 * Next queue of ReadTasks
+	 * TaskManager for WriteTasks
 	 */
-	private final ArrayListMultimap<Priority, ReadTask> nextReadTasks = ArrayListMultimap.create();
+	private final TaskManager<WriteTask> writeTaskManager = new TaskManager<>();
 
-	/**
-	 * All WriteTasks
-	 */
-	private final List<WriteTask> writeTasks = new ArrayList<>();
-
-	public ModbusProtocol(int unitId, AbstractTask... tasks) {
+	public ModbusProtocol(int unitId, Task... tasks) {
 		this.unitId = unitId;
-		for (AbstractTask abstractTask : tasks) {
-			addTask(abstractTask);
+		for (Task task : tasks) {
+			addTask(task);
 		}
 	}
 
@@ -51,71 +42,23 @@ public class ModbusProtocol {
 		return unitId;
 	}
 
-	public void addTask(Task abstractTask) {
+	public synchronized void addTask(Task task) {
 		// add the unitId to the abstractTask
-		abstractTask.setUnitId(this.unitId);
+		task.setUnitId(this.unitId);
 		// check abstractTask for plausibility
-		this.checkTask(abstractTask);
+		this.checkTask(task);
 		/*
 		 * fill writeTasks
 		 */
-		if (abstractTask instanceof WriteTask) {
-			WriteTask writeTask = (WriteTask) abstractTask;
-			this.writeTasks.add(writeTask);
+		if (task instanceof WriteTask) {
+			this.writeTaskManager.addTask((WriteTask) task);
 		}
 		/*
-		 * fill readTasks
+		 * fill readTaskManager
 		 */
-		if (abstractTask instanceof ReadTask) {
-			ReadTask readTask = (ReadTask) abstractTask;
-			this.readTasks.put(readTask.getPriority(), readTask);
+		if (task instanceof ReadTask) {
+			this.readTaskManager.addTask((ReadTask) task);
 		}
-	}
-
-	/**
-	 * Returns the next list of ReadTasks that should be executed within one cycle
-	 * 
-	 * @return
-	 */
-	public List<ReadTask> getNextReadTasks() {
-		List<ReadTask> result = new ArrayList<>(this.readTasks.get(Priority.HIGH).size() + 1);
-		this.readTasks.keySet().forEach(priority -> {
-			/*
-			 * Evaluates, how many tasks should be taken per priority for the result
-			 */
-			int take = 0; // how many tasks should be taken?
-			switch (priority) {
-			case HIGH:
-				take = -1; // take all tasks
-				break;
-			case LOW:
-				take = 1; // take one abstractTask
-				break;
-			}
-			/*
-			 * Apply the 'take' value
-			 */
-			if (take == 0) {
-				// add none
-			} else if (take < 0) {
-				// take all read tasks
-				result.addAll(this.readTasks.get(priority));
-			} else {
-				synchronized (this.nextReadTasks) {
-					if (this.nextReadTasks.get(priority).size() == 0) {
-						// refill the queue
-						this.nextReadTasks.putAll(priority, this.readTasks.get(priority));
-					}
-					// take the given number of tasks; using nextReadTasks as a buffer queue.
-					Iterator<ReadTask> iter = this.nextReadTasks.get(priority).iterator();
-					for (int i = 0; i < take && iter.hasNext(); i++) {
-						result.add(iter.next());
-						iter.remove();
-					}
-				}
-			}
-		});
-		return result;
 	}
 
 	/**
@@ -124,17 +67,26 @@ public class ModbusProtocol {
 	 * @return
 	 */
 	public List<WriteTask> getNextWriteTasks() {
-		return this.writeTasks;
+		return this.writeTaskManager.getNextReadTasks();
+	}
+	
+	/**
+	 * Returns the next list of ReadTasks that should be executed within one cycle
+	 * 
+	 * @return
+	 */
+	public List<ReadTask> getNextReadTasks() {
+		return this.readTaskManager.getNextReadTasks();
 	}
 
 	/**
 	 * Checks a {@link AbstractTask} for plausibility
 	 *
-	 * @param abstractTask
+	 * @param task
 	 */
-	private void checkTask(Task abstractTask) {
-		int address = abstractTask.getStartAddress();
-		for (ModbusElement<?> element : abstractTask.getElements()) {
+	private synchronized void checkTask(Task task) {
+		int address = task.getStartAddress();
+		for (ModbusElement<?> element : task.getElements()) {
 			if (element.getStartAddress() != address) {
 				log.error("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
 						+ Integer.toHexString(element.getStartAddress()) + "] but should be [" + address + "/0x"
