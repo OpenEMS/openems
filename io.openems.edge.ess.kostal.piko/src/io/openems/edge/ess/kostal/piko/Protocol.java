@@ -11,7 +11,6 @@ import io.openems.edge.common.channel.Channel;
 public class Protocol {
 
 	private final static boolean DEBUG_MODE = false;
-
 	private final EssKostalPiko parent;
 	private final SocketConnection socketConnection;
 
@@ -91,7 +90,7 @@ public class Protocol {
 		return stringValue.trim();
 	}
 
-	private static byte[] addressWithByteBuffer(int address) {
+	private byte[] addressWithByteBuffer(int address) {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 		byteBuffer.put((byte) ((address) & (0xff)));
@@ -103,6 +102,7 @@ public class Protocol {
 	}
 
 	private byte[] sendAndReceive(int address) throws Exception {
+
 		/*
 		 * convert address to byte array
 		 */
@@ -115,7 +115,8 @@ public class Protocol {
 		/*
 		 * Build Request
 		 */
-		byte[] request = new byte[] { 0x62, (byte) 0Xff, 0x03, (byte) 0xff, 0x00, (byte) 0xf0, Array.getByte(result, 0),
+		byte[] request = new byte[] { 0x62, (byte) this.socketConnection.getUnitID(), 0x03,
+				(byte) this.socketConnection.getUnitID(), 0x00, (byte) 0xf0, Array.getByte(result, 0),
 				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3), checksum, 0x00 };
 		/*
 		 * Send
@@ -164,9 +165,9 @@ public class Protocol {
 		return results;
 	}
 
-	private static byte calculateChecksumFromAddress(byte[] result) {
+	private byte calculateChecksumFromAddress(byte[] result) {
 		byte checksum = 0x00;
-		byte[] request = new byte[] { 0x62, (byte) 0xff, 0x03, (byte) 0xff, Array.getByte(result, 0), 0x00, (byte) 0xf0,
+		byte[] request = new byte[] { 0x62, (byte)this.socketConnection.getUnitID(), 0x03, (byte) this.socketConnection.getUnitID(), Array.getByte(result, 0), 0x00, (byte) 0xf0,
 				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3) };
 		for (int i = 0; i < request.length; i++) {
 			checksum -= request[i];
@@ -174,7 +175,7 @@ public class Protocol {
 		return checksum;
 	}
 
-	private static boolean verifyChecksumOfReply(byte[] data) {
+	private boolean verifyChecksumOfReply(byte[] data) {
 		byte checksum = 0x00;
 		for (int i = 0; i < data.length; i++) {
 			checksum += data[i];

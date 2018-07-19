@@ -1,5 +1,6 @@
 package io.openems.edge.ess.kostal.piko;
 
+import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
@@ -10,6 +11,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	String id() default "ess0";
 
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Kostal PIKO/TCP device.")
+	String ip();
+
+	@AttributeDefinition(name = "Unit ID", description = "The Unit ID of the Kostal PIKO/TCP device.")
+	int unitID() default 0xff;
+
+	@AttributeDefinition(name = "Port", description = "The Port of the Kostal PIKO/TCP device.")
+	int port() default 81;
+	
 	boolean enabled() default true;
 
 	String webconsole_configurationFactory_nameHint() default "ESS KOSTAL PIKO [{id}]";

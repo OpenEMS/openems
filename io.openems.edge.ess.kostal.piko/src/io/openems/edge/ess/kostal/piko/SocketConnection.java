@@ -14,16 +14,21 @@ public class SocketConnection {
 
 	private final String host;
 	private final int port;
+	private final byte unitID;
 
 	private Socket socket = null;
 	private OutputStream out = null;
 	private InputStream in = null;
 
-	public SocketConnection(String host, int port) {
+	public SocketConnection(String host, int port, byte unitID) {
 		this.host = host;
 		this.port = port;
+		this.unitID = unitID;
 	}
 
+	public byte getUnitID() {
+		return unitID;
+	}
 	public void open() throws IOException {
 		if (this.socket != null && this.socket.isConnected()) {
 			return;

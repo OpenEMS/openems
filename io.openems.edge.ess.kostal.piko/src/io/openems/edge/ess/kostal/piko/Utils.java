@@ -10,7 +10,9 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssKostalPiko c) {
@@ -26,12 +28,32 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
+							return new IntegerReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId, EssKostalPiko.MAX_APPARENT_POWER);
 					case GRID_MODE:
+						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+					}
+					return null;
+				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTIVE_POWER_L1:
+					case ACTIVE_POWER_L2:
+					case ACTIVE_POWER_L3:
+					case REACTIVE_POWER_L1:
+					case REACTIVE_POWER_L2:
+					case REACTIVE_POWER_L3:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(EssKostalPiko.ChannelId.values()).map(channelId -> {
+				}),  Arrays.stream(EssDcCharger.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTUAL_POWER:
+					case MAX_ACTUAL_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}),Arrays.stream(EssKostalPiko.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case INVERTER_NAME:
 					case ARTICLE_NUMBER:
@@ -97,8 +119,6 @@ public class Utils {
 					case BATTERY_CURRENT:
 					case BATTERY_VOLTAGE:
 					case BATTERY_TEMPERATURE:
-					case BATTERY_CYCLES:
-					case BATTERY_SOC:
 					case BATTERY_CURRENT_DIRECTION:
 					case AC_TOTAL_POWER:
 					case AC_CURRENT_L1:

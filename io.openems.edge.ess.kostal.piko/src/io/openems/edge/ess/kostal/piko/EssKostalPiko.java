@@ -16,7 +16,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
+import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Unit;
 
@@ -27,8 +29,10 @@ import io.openems.edge.common.channel.doc.Unit;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class EssKostalPiko extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent, EventHandler {
+public class EssKostalPiko extends AbstractOpenemsComponent
+		implements EssDcCharger, AsymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
+	protected final static int MAX_APPARENT_POWER = 2300;
 	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
@@ -57,7 +61,6 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 				new ReadTask(ChannelId.BAUDRATE_INDEX_MODBUS_RTU, Priority.ONCE, FieldType.INTEGER_UNSIGNED_BYTE,
 						0x07000206), //
 				new ReadTask(ChannelId.BATTERY_TEMPERATURE, Priority.ONCE, FieldType.FLOAT, 0x02000703), //
-				new ReadTask(ChannelId.BATTERY_CYCLES, Priority.ONCE, FieldType.FLOAT, 0x02000704), //
 				new ReadTask(ChannelId.ISOLATION_RESISTOR, Priority.ONCE, FieldType.FLOAT, 0x06000100), //
 				new ReadTask(ChannelId.GRID_FREQUENCY, Priority.ONCE, FieldType.FLOAT, 0x04000600), //
 				new ReadTask(ChannelId.COSINUS_PHI, Priority.ONCE, FieldType.FLOAT, 0x04000700), //
@@ -105,17 +108,21 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 
 				// LOW
 				new ReadTask(ChannelId.FEED_IN_STATUS, Priority.LOW, FieldType.BOOLEAN, 0x01000A00),
+				new ReadTask(ChannelId.DC_VOLTAGE_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000302), //
+				new ReadTask(ChannelId.DC_VOLTAGE_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000402), //
+				new ReadTask(ChannelId.DC_VOLTAGE_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000502), //
+				
 				new ReadTask(ChannelId.OVERALL_DC_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000100), //
 				new ReadTask(ChannelId.DC_CURRENT_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000301), //
-				new ReadTask(ChannelId.DC_VOLTAGE_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000302), //
-				new ReadTask(ChannelId.DC_POWER_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000303), //
 				new ReadTask(ChannelId.DC_CURRENT_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000401), //
-				new ReadTask(ChannelId.DC_VOLTAGE_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000402), //
-				new ReadTask(ChannelId.DC_POWER_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000403), //
 				new ReadTask(ChannelId.DC_CURRENT_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000501), //
-				new ReadTask(ChannelId.DC_VOLTAGE_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000502), //
+
+				
+				new ReadTask(ChannelId.DC_POWER_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000303), //
+				new ReadTask(ChannelId.DC_POWER_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000403), //
 				new ReadTask(ChannelId.DC_POWER_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000503), //
-				new ReadTask(ChannelId.BATTERY_CURRENT_DIRECTION, Priority.LOW, FieldType.FLOAT, 0x02000705), //
+				
+				new ReadTask(ChannelId.BATTERY_CURRENT_DIRECTION, Priority.LOW, FieldType.FLOAT, 0x02000706), //
 				new ReadTask(ChannelId.AC_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x04000201), //
 				new ReadTask(ChannelId.AC_CURRENT_L2, Priority.LOW, FieldType.FLOAT, 0x04000301), //
 				new ReadTask(ChannelId.AC_CURRENT_L3, Priority.LOW, FieldType.FLOAT, 0x04000401), //
@@ -146,29 +153,31 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 				new ReadTask(ChannelId.HOME_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT, 0x0F000302), //
 				new ReadTask(ChannelId.HOME_CONSUMPTION_BATTERY, Priority.LOW, FieldType.FLOAT, 0x05000200), //
 				new ReadTask(ChannelId.BATTERY_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000701), //
-				new ReadTask(ChannelId.YIELD_TOTAL, Priority.HIGH, FieldType.FLOAT, 0x0F000201), //
-				new ReadTask(ChannelId.YIELD_DAY, Priority.HIGH, FieldType.FLOAT, 0x0F000202), //
 				new ReadTask(ChannelId.SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT, 0x0F000401), //
 				new ReadTask(ChannelId.SELF_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT, 0x0F000402), //
-				new ReadTask(ChannelId.AC_TOTAL_POWER, Priority.LOW, FieldType.FLOAT, 0x04000100), //
 				new ReadTask(ChannelId.BATTERY_VOLTAGE, Priority.LOW, FieldType.FLOAT, 0x02000702), //
 
 				// HIGH
-				new ReadTask(ChannelId.BATTERY_SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705), //
+				new ReadTask(SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705), //
+				new ReadTask(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000203), //
+				new ReadTask(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
+				new ReadTask(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403), //
+				new ReadTask(SymmetricEss.ChannelId.ACTIVE_POWER, Priority.HIGH, FieldType.FLOAT, 0x04000100),//
+
+				
+				new ReadTask(EssDcCharger.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200),//
 				new ReadTask(ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000202), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L2, Priority.HIGH, FieldType.FLOAT, 0x04000302), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L3, Priority.HIGH, FieldType.FLOAT, 0x04000402), //
-				new ReadTask(ChannelId.AC_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000203), //
-				new ReadTask(ChannelId.AC_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
-				new ReadTask(ChannelId.AC_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403) //
+				new ReadTask(ChannelId.YIELD_DAY, Priority.HIGH, FieldType.FLOAT, 0x0F000202), //
+				new ReadTask(ChannelId.YIELD_TOTAL, Priority.HIGH, FieldType.FLOAT, 0x0F000201)//
 		);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		
-		this.socketConnection = new SocketConnection("192.168.178.28", 81);
+		this.socketConnection = new SocketConnection(config.ip(), config.port(), (byte) config.unitID());
 		Protocol protocol = new Protocol(this, socketConnection);
 		this.worker = new Worker(protocol, this.readTasksManager);
 		this.worker.activate(config.id());
@@ -176,10 +185,10 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 
 	@Deactivate
 	protected void deactivate() {
-		if(this.worker != null) {
+		if (this.worker != null) {
 			this.worker.deactivate();
 		}
-		if(this.socketConnection != null) {
+		if (this.socketConnection != null) {
 			this.socketConnection.close();
 		}
 		super.deactivate();
@@ -247,21 +256,20 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Symmetric
 		BATTERY_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		BATTERY_VOLTAGE(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		BATTERY_TEMPERATURE(new Doc().type(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)), //
-		BATTERY_CYCLES(new Doc()), //
-		BATTERY_SOC(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
+
 		AC_TOTAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		AC_CURRENT_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		AC_VOLTAGE_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
-		AC_POWER_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		AC_CURRENT_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		AC_VOLTAGE_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
-		AC_POWER_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		AC_CURRENT_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		AC_VOLTAGE_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
+		AC_CURRENT_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+		AC_CURRENT_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+		AC_CURRENT_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+		AC_POWER_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
+		AC_POWER_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		AC_POWER_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		POWER_LIMITATION_OF_EVU(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
 		GRID_FREQUENCY(new Doc().type(OpenemsType.FLOAT).unit(Unit.HERTZ)), //
-		COSINUS_PHI(new Doc()), //
+		COSINUS_PHI(new Doc().type(OpenemsType.FLOAT)), //
 		HOME_CONSUMPTION_PV(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_BATTERY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_GRID(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
