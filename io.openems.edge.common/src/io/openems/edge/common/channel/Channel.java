@@ -89,6 +89,7 @@ public interface Channel<T> {
 	 */
 	public default void setNextValue(Object value) {
 		try {
+			//TODO automatically convert enumOption to Integer 
 			this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException(
