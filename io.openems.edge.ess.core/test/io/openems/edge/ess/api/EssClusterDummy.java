@@ -14,7 +14,7 @@ import io.openems.edge.ess.power.api.Power;
 
 public class EssClusterDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss, MetaEss {
 
-	private final ManagedSymmetricEss[] managedEsss;
+	private final List<ManagedSymmetricEss> managedEsss = new ArrayList<>();
 	private LinearPower power;
 
 	public EssClusterDummy(SymmetricEss... esss) {
@@ -31,9 +31,11 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 					case MAX_ACTIVE_POWER:
+					case ACTIVE_CHARGE_ENERGY:
+					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -70,15 +72,10 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 		/*
 		 * Add all ManagedSymmetricEss devices to this.managedEsss
 		 */
-		List<ManagedSymmetricEss> managedSymmetricEsssList = new ArrayList<>();
 		for (SymmetricEss ess : esss) {
 			if (ess instanceof ManagedSymmetricEss) {
-				managedSymmetricEsssList.add((ManagedSymmetricEss) ess);
+				this.managedEsss.add((ManagedSymmetricEss) ess);
 			}
-		}
-		this.managedEsss = new ManagedSymmetricEss[managedSymmetricEsssList.size()];
-		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
-			managedEsss[i] = managedSymmetricEsssList.get(i);
 		}
 	}
 
@@ -103,7 +100,7 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 	}
 
 	@Override
-	public ManagedSymmetricEss[] getEsss() {
+	public List<ManagedSymmetricEss> getEsss() {
 		return this.managedEsss;
 	}
 
