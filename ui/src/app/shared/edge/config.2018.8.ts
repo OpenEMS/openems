@@ -79,13 +79,10 @@ export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config
         return result;
     }
 
-
     /**
     * Return ChannelAddresses of power channels
     */
     public getPowerChannels(): DefaultTypes.ChannelAddresses {
-        let result: DefaultTypes.ChannelAddresses = {}
-
         return {
             "_sum": [
                 'EssActivePower', 'GridActivePower', 'ProductionActivePower', 'ConsumptionActivePower'
@@ -126,7 +123,7 @@ export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config
                 // Grid
                 'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
                 // Production
-                'ProductionActivePower', 'ProductionMaxActivePower',
+                'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
                 // Consumption
                 'ConsumptionActivePower', 'ConsumptionMaxActivePower'
             ]

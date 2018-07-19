@@ -39,7 +39,7 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 activePowerACL1: null,
                 activePowerACL2: null,
                 activePowerACL3: null,
-                activePowerDC: null,
+                activePowerDC: null, // TODO rename to actualPower
                 maxActivePower: null
             }, grid: {
                 powerRatio: null,
@@ -66,6 +66,10 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             result.storage.chargeActivePower = result.storage.chargeActivePowerAC; // TODO
             result.storage.dischargeActivePowerAC = essActivePower > 0 ? essActivePower : 0;
             result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC; // TODO
+            if (sum['ProductionDcActualPower'] != null) {
+                result.storage.chargeActivePowerDC = sum['ProductionDcActualPower'];
+                result.storage.hasDC = true;
+            }
         }
 
         {
@@ -92,19 +96,21 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             /*
              * Production
              */
-            const productionActivePower: number = sum['ProductionActivePower'];
-            result.production.activePowerAC = productionActivePower;
-            result.production.activePower = result.production.activePowerAC; // TODO
+            result.production.activePowerAC = sum['ProductionAcActivePower'];
+            result.production.activePower = sum['ProductionActivePower']; // TODO
             result.production.maxActivePower = sum['ProductionMaxActivePower'];
             result.production.powerRatio = Math.round(result.production.activePower / result.production.maxActivePower * 100);
+            if (sum['ProductionDcActualPower'] != null) {
+                result.production.activePowerDC = sum['ProductionDcActualPower'];
+                result.production.hasDC = true;
+            }
         }
 
         {
             /*
              * Consumption
              */
-            const consumptionActivePower: number = sum['ConsumptionActivePower'];
-            result.consumption.activePower = consumptionActivePower;
+            result.consumption.activePower = sum['ConsumptionActivePower'];
             const consumptionMaxActivePower = sum['ConsumptionMaxActivePower'];
             result.consumption.powerRatio = Math.round(result.consumption.activePower / consumptionMaxActivePower * 100);
         }
