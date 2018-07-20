@@ -1,0 +1,6 @@
+4+|*link:../io.openems.edge.ess.api/src/io/openems/edge/ess/api/Ess.java[Ess icon:code[]]*
+// tag::channels[]
+|Soc                       |% |0..100 | State of Charge
+|GridMode                  |  |0=Undefined, 1=On-Grid, 2=Off-Grid |
+|MaxActivePower            |W | | Maximum possible Active Power
+// end::channels[]

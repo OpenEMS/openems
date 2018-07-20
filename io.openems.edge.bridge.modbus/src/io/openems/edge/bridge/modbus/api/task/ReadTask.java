@@ -5,7 +5,7 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.common.taskmanager.ManagedTask;
 
 /**
  * A Modbus 'ReadTask' is holding references to one or more Modbus
@@ -15,43 +15,14 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * 
  * @author stefan.feilmeier
  */
-public interface ReadTask {
+public interface ReadTask extends Task, ManagedTask {
 
 	/**
-	 * Sets the modbus unit id
-	 * 
-	 * @param unitId
-	 */
-	public void setUnitId(int unitId);
-
-	/**
-	 * Gets the ModbusElements
-	 * 
-	 * @return
-	 */
-	public ModbusElement<?>[] getElements();
-
-	/**
-	 * Gets the start modbus register address
-	 * 
-	 * @return
-	 */
-	public int getStartAddress();
-
-	/**
-	 * Gets the Priority of this ReadTask. The higher the priority, the more often
-	 * the task is executed. (HIGH = execute in every cycle).
-	 * 
-	 * @return
-	 */
-	public Priority getPriority();
-
-	/**
-	 * Sends a query for this Task to the Modbus device
+	 * Sends a query for this AbstractTask to the Modbus device
 	 * 
 	 * @param bridge
 	 * @param unitId
 	 * @throws ModbusException
 	 */
-	public abstract void executeQuery(AbstractModbusBridge bridge) throws OpenemsException;
+	public abstract <T> void executeQuery(AbstractModbusBridge bridge) throws OpenemsException;
 }

@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
@@ -14,7 +14,7 @@ public class Utils {
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new StateChannel(c, channelId);
+						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(Sum.ChannelId.values()).map(channelId -> {
@@ -26,6 +26,10 @@ public class Utils {
 					case GRID_MIN_ACTIVE_POWER:
 					case PRODUCTION_ACTIVE_POWER:
 					case PRODUCTION_MAX_ACTIVE_POWER:
+					case PRODUCTION_AC_ACTIVE_POWER:
+					case PRODUCTION_MAX_AC_ACTIVE_POWER:
+					case PRODUCTION_DC_ACTUAL_POWER:
+					case PRODUCTION_MAX_DC_ACTUAL_POWER:
 					case CONSUMPTION_ACTIVE_POWER:
 					case CONSUMPTION_MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, 0);

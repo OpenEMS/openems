@@ -2,9 +2,7 @@ Bundle-Name: OpenEMS Backend Commons
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:	1.0.0.${tstamp}
-Export-Package: \
-	io.openems.backend.common.session,\
-	io.openems.backend.common.events
+Export-Package: io.openems.backend.common.session
 
 -includeresource: {readme.md}
 

@@ -13,7 +13,8 @@ Export-Package: \
 	io.openems.edge.common.channel.value,\
 	io.openems.edge.api.user,\
 	io.openems.edge.common.user,\
-	io.openems.edge.common.type
+	io.openems.edge.common.type,\
+	io.openems.edge.common.taskmanager
 
 -includeresource: {readme.md}
 

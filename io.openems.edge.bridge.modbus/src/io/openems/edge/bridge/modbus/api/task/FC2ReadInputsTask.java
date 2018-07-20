@@ -1,0 +1,42 @@
+package io.openems.edge.bridge.modbus.api.task;
+
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesRequest;
+import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesResponse;
+import com.ghgande.j2mod.modbus.util.BitVector;
+
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
+
+/**
+ * Implements a Read Inputs abstractTask, implementing Modbus function code 2
+ * (http://www.simplymodbus.ca/FC02.htm)
+ */
+public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements ReadTask {
+
+	public FC2ReadInputsTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
+		super(startAddress, priority, elements);
+	}
+
+	@Override
+	protected BitVector getBitVector(ModbusResponse response) {
+			ReadInputDiscretesResponse readInputDiscretesResponse = (ReadInputDiscretesResponse) response;
+			return readInputDiscretesResponse.getDiscretes();		
+	}
+	
+	@Override
+	protected String getActiondescription() {		
+		return "FC2 Read Coils";
+	}
+
+	@Override
+	protected String getExpectedInputClassname() {
+		return "ReadInputDiscretesResponse";
+	}
+	
+	@Override
+	protected ModbusRequest getRequest() {
+		return new ReadInputDiscretesRequest(getStartAddress(), getLength());
+	}
+}

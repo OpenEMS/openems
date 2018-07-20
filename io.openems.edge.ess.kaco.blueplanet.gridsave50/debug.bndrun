@@ -1,0 +1,13 @@
+#
+# io.openems.edge.ess.kaco.blueplanet50 DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.ess.kaco.blueplanet50.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

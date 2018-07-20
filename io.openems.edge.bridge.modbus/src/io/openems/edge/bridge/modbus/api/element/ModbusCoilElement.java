@@ -14,7 +14,7 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 	 * @param coil
 	 * @throws OpenemsException
 	 */
-	public void setInputCoil(boolean coil) throws OpenemsException;
+	public void setInputCoil(Boolean coil) throws OpenemsException;
 
 	/**
 	 * Sets a value that should be written to the Modbus device

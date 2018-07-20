@@ -29,11 +29,14 @@ public class CoilElement extends AbstractModbusElement<Boolean> implements Modbu
 
 	@Override
 	public void _setNextWriteValue(Optional<Boolean> valueOpt) throws OpenemsException {
+		if (this.isDebug()) {
+			log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+		}
 		this.nextWriteValue = valueOpt;
 	}
 
 	@Override
-	public void setInputCoil(boolean coil) throws OpenemsException {
+	public void setInputCoil(Boolean coil) throws OpenemsException {
 		if (this.isDebug()) {
 			log.info("Element [" + this + "] set input coil to [" + coil + "]");
 		}

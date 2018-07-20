@@ -8,6 +8,7 @@ import { ConfigImpl } from '../edge/config';
 import { Edge } from '../edge/edge';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
+import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
 @Component({
   selector: 'existingthing',
@@ -19,7 +20,7 @@ export class ExistingThingComponent implements OnChanges {
   public thing = null;
   public meta = null;
   public role: Role = "guest";
-  public config: ConfigImpl = null;
+  public config: ConfigImpl_2018_7 = null;
   public formPristine: boolean = true;
   public messages: { [channelId: string]: DefaultTypes.ConfigUpdate } = {};
 
@@ -34,7 +35,12 @@ export class ExistingThingComponent implements OnChanges {
     edge.config.takeUntil(this.stopOnDestroy)
       .filter(edge => edge != null)
       .takeUntil(this.stopOnDestroy).subscribe(config => {
-        this.config = config;
+        if (edge.isVersionAtLeast('2018.8')) {
+          console.error("ExistingThingComponent is not compatible with version > 2018.8");
+          this.config = null;
+        } else {
+          this.config = <ConfigImpl_2018_7>config;
+        }
       });
   }
   get edge(): Edge {

@@ -1,0 +1,13 @@
+#
+# io.openems.edge.ess.kostal.piko DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.ess.kostal.piko.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

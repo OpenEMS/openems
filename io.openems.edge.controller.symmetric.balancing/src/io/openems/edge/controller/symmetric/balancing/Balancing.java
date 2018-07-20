@@ -1,5 +1,6 @@
 package io.openems.edge.controller.symmetric.balancing;
 
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,12 +19,14 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.PowerException;
-import io.openems.edge.ess.power.symmetric.PEqualLimitation;
-import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -48,7 +51,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricEss ess;
+	private ManagedSymmetricEss ess;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
@@ -70,15 +73,13 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	@Override
 	public void run() {
-		// TODO improvement: calculate required power with SoC in mind. On high SoC
-		// prefer feeding-to-grid a little bit (<100 W) than buying; on low SoC inverse
 		int requiredPower;
 		try {
 			/*
 			 * Check that we are On-Grid
 			 */
 			Enum<?> gridMode = this.ess.getGridMode().value().asEnum();
-			if (gridMode != Ess.GridMode.ON_GRID) {
+			if (gridMode != SymmetricEss.GridMode.ON_GRID) {
 				return;
 			}
 
@@ -88,17 +89,18 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			requiredPower = this.calculateRequiredPower();
 
 		} catch (InvalidValueException | NullPointerException e) {
-			logError(this.log, e.getMessage());
+			logError(this.log,
+					"Error while calculating required power. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			return;
 		}
 
-		SymmetricPower power = ess.getPower();
+		Power power = ess.getPower();
 		if (requiredPower > 0) {
 			/*
 			 * Discharge
 			 */
 			// fit into max possible discharge power
-			int maxDischargePower = power.getMaxP().orElse(0);
+			int maxDischargePower = power.getMaxActivePower();
 			if (requiredPower > maxDischargePower) {
 				requiredPower = maxDischargePower;
 			}
@@ -108,7 +110,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 * Charge
 			 */
 			// fit into max possible discharge power
-			int maxChargePower = power.getMinP().orElse(0);
+			int maxChargePower = power.getMinActivePower();
 			if (requiredPower < maxChargePower) {
 				requiredPower = maxChargePower;
 			}
@@ -118,7 +120,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * set result
 		 */
 		try {
-			power.applyLimitation(new PEqualLimitation(power).setP(requiredPower));
+			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
+					requiredPower);
+			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 0);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
 		}

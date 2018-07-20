@@ -127,6 +127,20 @@ public class Value<T> {
 		int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 		return this.parent.channelDoc().getOptionEnum(intValue);
 	}
+	
+	
+	/**
+	 * Gets the value as an Optional enum  
+	 * 
+	 * @return
+	 */
+	public Optional<Enum<?>> asEnumOptional() {
+		try {
+			return Optional.ofNullable(asEnum());
+		} catch (Exception e) {  // if there is null in asEnum a NullPointerException is thrown
+			return Optional.empty();
+		}
+	}
 
 	/**
 	 * Gets the value in JSON format

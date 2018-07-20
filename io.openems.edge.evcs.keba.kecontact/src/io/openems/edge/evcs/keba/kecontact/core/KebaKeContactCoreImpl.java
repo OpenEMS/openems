@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.worker.AbstractWorker;
+import io.openems.edge.common.worker.AbstractImmediateWorker;
 import io.openems.edge.evcs.keba.kecontact.KebaKeContact;
 
 @Component( //
@@ -46,7 +46,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 		this.onReceiveCallbacks.add(callback);
 	}
 
-	private class ReceiveWorker extends AbstractWorker {
+	private class ReceiveWorker extends AbstractImmediateWorker {
 
 		private final DatagramSocket socket;
 
@@ -60,13 +60,13 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 		}
 
 		@Override
-		protected void activate(String name) {
+		public void activate(String name) {
 			super.activate(name);
 			log.info("Started Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}
 
 		@Override
-		protected void deactivate() {
+		public void deactivate() {
 			super.deactivate();
 			log.info("Stopped Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}
@@ -89,12 +89,6 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 
 			// call callbacks
 			onReceiveCallbacks.forEach(consumer -> consumer.accept(ip, message));
-		}
-
-		@Override
-		protected int getCycleTime() {
-			// do not wait between to consecutive calls of forever()
-			return 0;
 		}
 	}
 

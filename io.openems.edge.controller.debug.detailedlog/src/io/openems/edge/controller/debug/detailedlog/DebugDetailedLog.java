@@ -26,6 +26,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -106,8 +108,30 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 					.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 					.forEach(channel -> {
 						String unit = channel.channelDoc().getUnit().getSymbol();
-						String line = String.format("%-" + WIDTH_FIRST + "s : %15s %s", channel.channelId().id(),
-								channel.value().asStringWithoutUnit(), unit);
+						/*
+						 * create descriptive text
+						 */
+						String description = "";
+						if (channel.channelDoc().hasOptions()) {
+							description += channel.value().asOptionString();
+						}
+						if (channel instanceof StateChannel && ((StateChannel) channel).value().orElse(false) == true) {
+							if(!description.isEmpty()) {
+								description += "; ";
+							}
+							description += ((StateChannel) channel).channelDoc().getText();
+						}
+						if (channel instanceof StateCollectorChannel
+								&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
+							if(!description.isEmpty()) {
+								description += "; ";
+							}
+							description += ((StateCollectorChannel) channel).listStates();
+						}
+						// Build complete line
+						String line = String.format("%-" + WIDTH_FIRST + "s : %15s %-3s %s", channel.channelId().id(),
+								channel.value().asStringWithoutUnit(), unit,
+								description.isEmpty() ? "" : "(" + description + ")");
 						// Print the line only if is not equal to the last printed line
 						if ((!this.lastPrinted.containsKey(channel.address()))
 								|| !(this.lastPrinted.get(channel.address()).equals(line))) {
