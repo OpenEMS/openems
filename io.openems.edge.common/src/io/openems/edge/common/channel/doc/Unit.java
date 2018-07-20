@@ -126,7 +126,7 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [kOhm]
 	 */
-	KILO_OHM("kOhm", OHM, 3);
+	KILOOHM("kOhm", OHM, 3);
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -172,7 +172,7 @@ public enum Unit {
 		case WATT:
 		case WATT_HOURS:
 		case OHM:
-		case KILO_OHM:
+		case KILOOHM:
 		case SECONDS:
 			return value + " " + this.symbol;
 		case ON_OFF:
