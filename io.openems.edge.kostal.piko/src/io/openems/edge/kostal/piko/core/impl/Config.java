@@ -1,15 +1,15 @@
-package io.openems.edge.ess.kostal.piko;
+package io.openems.edge.kostal.piko.core.impl;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "ESS KOSTAL PIKO", //
-		description = "Implements a KOSTAL PIKO based energy storage system.")
+		name = "KOSTAL PIKO Core", //
+		description = "Implements a KOSTAL PIKO.")
 @interface Config {
 	String service_pid();
 
-	String id() default "ess0";
+	String id() default "kostalPiko0";
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address")
 	String ip();

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.kostal.piko;
+package io.openems.edge.kostal.piko.core.impl;
 
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
@@ -13,12 +13,10 @@ import io.openems.edge.common.channel.Channel;
 
 public class Protocol {
 
-	private final Logger log = LoggerFactory.getLogger(EssKostalPiko.class);
-	private final EssKostalPiko parent;
+	private final Logger log = LoggerFactory.getLogger(KostalPikoCoreImpl.class);
 	private final SocketConnection socketConnection;
 
-	public Protocol(EssKostalPiko parent, SocketConnection socketConnection) {
-		this.parent = parent;
+	public Protocol(SocketConnection socketConnection) {
 		this.socketConnection = socketConnection;
 	}
 
@@ -26,7 +24,7 @@ public class Protocol {
 		for (ReadTask task : nextReadTasks) {
 			try {
 				this.socketConnection.open();
-				Channel<?> channel = this.parent.channel(task.getChannelId());
+				Channel<?> channel = task.getComponent().channel(task.getChannelId());
 				switch (task.getFieldType()) {
 				case STRING:
 					channel.setNextValue(getStringValue(task.getAddress()));

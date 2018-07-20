@@ -1,4 +1,4 @@
-package io.openems.edge.ess.kostal.piko;
+package io.openems.edge.kostal.piko.core.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
