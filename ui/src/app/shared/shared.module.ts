@@ -36,10 +36,11 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 /*
  * Components
  */
-import { SocChartComponent } from './../edge/history/chart/socchart/socchart.component';
 import { AbstractConfigComponent } from './config/abstractconfig.component';
 import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
+import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
+import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
 
 @NgModule({
   imports: [
@@ -64,7 +65,8 @@ import { ChannelComponent } from './config/channel.component';
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent,
+    SocChartComponent_2018_8,
+    SocChartComponent_2018_7,
     AbstractConfigComponent,
     ChannelComponent,
     ExistingThingComponent
@@ -89,7 +91,8 @@ import { ChannelComponent } from './config/channel.component';
     MyDateRangePickerModule,
     ToasterModule,
     // components
-    SocChartComponent,
+    SocChartComponent_2018_7,
+    SocChartComponent_2018_8,
     LoadingModule,
     AbstractConfigComponent,
     ChannelComponent,

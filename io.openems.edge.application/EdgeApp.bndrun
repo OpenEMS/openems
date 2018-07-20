@@ -61,6 +61,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
+	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.jSerialComm;version=snapshot,\

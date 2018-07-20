@@ -29,7 +29,11 @@ public class PowerComponent implements EventHandler, Power {
 
 	private final LinearPower linearPower = new LinearPower();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference( //
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		this.linearPower.addEss(ess);
 	}

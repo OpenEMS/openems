@@ -7,6 +7,7 @@ import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
 import { THING_STATES } from './thingstates';
 import { ConfigImpl } from '../../../shared/edge/config';
+import { ConfigImpl_2018_7 } from '../../../shared/edge/config.2018.7';
 
 interface WarningOrFault {
   channelId: string,
@@ -29,7 +30,7 @@ interface WarningsAndFaults {
 export class StateComponent {
 
   @Input()
-  public config: ConfigImpl;
+  public config: ConfigImpl_2018_7;
 
   @Input()
   set currentData(currentData: CurrentDataAndSummary) {
@@ -109,7 +110,7 @@ export class StateComponent {
           if (faults.length > 0 || warnings.length > 0) {
             // get Thing name
             let name = null;
-            if (this.config.storageThings.includes(thingId)) {
+            if (this.config.esss.includes(thingId)) {
               name = "Speichersystem"
             }
             warningsAndFaultss.push({

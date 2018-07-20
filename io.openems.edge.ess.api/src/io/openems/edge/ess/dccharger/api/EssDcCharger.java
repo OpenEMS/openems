@@ -65,7 +65,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTUAL_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
@@ -104,7 +104,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Long> getActualEnergy() {
+	default Channel<Integer> getActualEnergy() {
 		return this.channel(ChannelId.ACTUAL_ENERGY);
 	}
 

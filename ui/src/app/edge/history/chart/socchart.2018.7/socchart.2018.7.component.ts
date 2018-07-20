@@ -10,10 +10,10 @@ import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
 
 @Component({
-  selector: 'socchart',
-  templateUrl: './socchart.component.html'
+  selector: 'socchart-2018-7',
+  templateUrl: './socchart.2018.7.component.html'
 })
-export class SocChartComponent implements OnInit, OnChanges {
+export class SocChartComponent_2018_7 implements OnInit, OnChanges {
 
   @Input()
   set edge(edge: Edge) {
@@ -43,7 +43,7 @@ export class SocChartComponent implements OnInit, OnChanges {
   public labels: Date[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
-  private config: DefaultTypes.Config;
+  private config: DefaultTypes.Config_2018_7;
   private stopOnDestroy: Subject<void> = new Subject<void>();
   public _edge: Edge;
 
@@ -86,55 +86,34 @@ export class SocChartComponent implements OnInit, OnChanges {
       this._edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
         // prepare datas array and prefill with each device
         let tmpData: {
-          [componentId: string]: number[];
+          [thing: string]: number[];
         } = {};
         let labels: Date[] = [];
-        for (let componentId in this.channels) {
-          tmpData[componentId] = [];
+        for (let thing in this.channels) {
+          tmpData[thing] = [];
         }
         for (let record of historicData.data) {
           // read timestamp and soc of each device
           labels.push(new Date(record.time));
-          for (let componentId in this.channels) {
+          for (let thing in this.channels) {
             let soc = null;
-            if (this.edge.isVersionAtLeast("2018.8")) {
-              /*
-               * AFTER VERSION 2018.8
-               */
-              if (componentId == '_sum' && "EssSoc" in record.channels[componentId]
-                && record.channels[componentId]["EssSoc"] != null)
-                soc = Math.round(record.channels[componentId].EssSoc);
-            }
-            if (componentId in record.channels
-              && "Soc" in record.channels[componentId]
-              && record.channels[componentId]["Soc"] != null) {
-              soc = Math.round(record.channels[componentId].Soc);
+            if (thing in record.channels
+              && "Soc" in record.channels[thing]
+              && record.channels[thing]["Soc"] != null) {
+              soc = Math.round(record.channels[thing].Soc);
             }
             if (soc > 100 || soc < 0) {
               soc = null;
             }
-            tmpData[componentId].push(soc);
+            tmpData[thing].push(soc);
           }
         }
         // refresh global datasets and labels
         let datasets = [];
-        for (let componentId in tmpData) {
-          let label;
-          if (this.edge.isVersionAtLeast("2018.8")) {
-            /*
-             * AFTER VERSION 2018.8
-             */
-            label = this.translate.instant('General.Soc')
-          } else {
-            /*
-            * BEFORE VERSION 2018.8
-            */
-            label = this.translate.instant('General.Soc') + " (" + (this.config === null ? componentId : this.config.things[componentId].alias) + ")"
-          }
-
+        for (let device in tmpData) {
           datasets.push({
-            label: label,
-            data: tmpData[componentId]
+            label: this.translate.instant('General.Soc') + " (" + (this.config === null ? device : this.config.things[device].alias) + ")",
+            data: tmpData[device]
           });
         }
         this.datasets = datasets;

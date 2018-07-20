@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
@@ -23,9 +22,8 @@ public class Utils {
 					switch (channelId) {
 					case ACTUAL_POWER:
 					case MAX_ACTUAL_POWER:
-						return new IntegerReadChannel(c, channelId);
 					case ACTUAL_ENERGY:
-						return new LongReadChannel(c, channelId);
+						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(EssDcChargerFeneconCommercial40.ChannelId.values()).map(channelId -> {
@@ -70,7 +68,6 @@ public class Utils {
 					case PV_DCDC1_OUTPUT_POWER:
 					case PV_DCDC1_OUTPUT_VOLTAGE:
 					case PV_DCDC1_REACTOR_TEMPERATURE:
-						return new IntegerReadChannel(c, channelId);
 					case BMS_DCDC0_INPUT_CHARGE_ENERGY:
 					case BMS_DCDC0_INPUT_DISCHARGE_ENERGY:
 					case BMS_DCDC0_OUTPUT_CHARGE_ENERGY:
@@ -87,7 +84,7 @@ public class Utils {
 					case PV_DCDC1_INPUT_DISCHARGE_ENERGY:
 					case PV_DCDC1_OUTPUT_CHARGE_ENERGY:
 					case PV_DCDC1_OUTPUT_DISCHARGE_ENERGY:
-						return new LongReadChannel(c, channelId);
+						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}) //

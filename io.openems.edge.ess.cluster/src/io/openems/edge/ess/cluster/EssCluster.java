@@ -1,6 +1,6 @@
 package io.openems.edge.ess.cluster;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -59,10 +59,63 @@ public class EssCluster extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
+	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
+	private final List<ManagedSymmetricEss> managedEsss = new CopyOnWriteArrayList<>();
 
-	private ManagedSymmetricEss[] managedEsss = new ManagedSymmetricEss[0];
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	protected void addEss(SymmetricEss ess) {
+		if (ess == this) {
+			return;
+		}
+
+		this.esss.add(ess);
+		if (ess instanceof ManagedSymmetricEss) {
+			this.managedEsss.add((ManagedSymmetricEss) ess);
+		}
+
+		this.soc.addComponent(ess);
+		this.activePower.addComponent(ess);
+		this.reactivePower.addComponent(ess);
+		this.maxActivePower.addComponent(ess);
+		this.activeChargeEnergy.addComponent(ess);
+		this.activeDischargeEnergy.addComponent(ess);
+		if (ess instanceof AsymmetricEss) {
+			AsymmetricEss e = (AsymmetricEss) ess;
+			this.activePowerL1.addComponent(e);
+			this.reactivePowerL1.addComponent(e);
+			this.activePowerL2.addComponent(e);
+			this.reactivePowerL2.addComponent(e);
+			this.activePowerL3.addComponent(e);
+			this.reactivePowerL3.addComponent(e);
+		}
+	}
+
+	protected void removeEss(SymmetricEss ess) {
+		if (ess == this) {
+			return;
+		}
+
+		this.esss.remove(ess);
+		if (ess instanceof ManagedSymmetricEss) {
+			this.managedEsss.remove((ManagedSymmetricEss) ess);
+		}
+
+		this.soc.removeComponent(ess);
+		this.activePower.removeComponent(ess);
+		this.reactivePower.removeComponent(ess);
+		this.maxActivePower.removeComponent(ess);
+		this.activeChargeEnergy.removeComponent(ess);
+		this.activeDischargeEnergy.removeComponent(ess);
+		if (ess instanceof AsymmetricEss) {
+			AsymmetricEss e = (AsymmetricEss) ess;
+			this.activePowerL1.removeComponent(e);
+			this.reactivePowerL1.removeComponent(e);
+			this.activePowerL2.removeComponent(e);
+			this.reactivePowerL2.removeComponent(e);
+			this.activePowerL3.removeComponent(e);
+			this.reactivePowerL3.removeComponent(e);
+		}
+	}
 
 	public EssCluster() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -101,67 +154,12 @@ public class EssCluster extends AbstractOpenemsComponent
 			return;
 		}
 
-		/*
-		 * Add all ManagedSymmetricEss devices to Power object
-		 */
-		List<ManagedSymmetricEss> managedSymmetricEsssList = new ArrayList<>();
-		for (SymmetricEss ess : this.esss) {
-			if (ess instanceof ManagedSymmetricEss) {
-				managedSymmetricEsssList.add((ManagedSymmetricEss) ess);
-			}
-		}
-		this.managedEsss = new ManagedSymmetricEss[managedSymmetricEsssList.size()];
-		for (int i = 0; i < managedSymmetricEsssList.size(); i++) {
-			this.managedEsss[i] = managedSymmetricEsssList.get(i);
-		}
-
-		/*
-		 * Initialize Channel-Mergers
-		 */
-		for (SymmetricEss ess : this.esss) {
-			this.soc.addComponent(ess);
-			this.activePower.addComponent(ess);
-			this.reactivePower.addComponent(ess);
-			this.maxActivePower.addComponent(ess);
-			this.activeChargeEnergy.addComponent(ess);
-			this.activeDischargeEnergy.addComponent(ess);
-			if (ess instanceof AsymmetricEss) {
-				AsymmetricEss e = (AsymmetricEss) ess;
-				this.activePowerL1.addComponent(e);
-				this.reactivePowerL1.addComponent(e);
-				this.activePowerL2.addComponent(e);
-				this.reactivePowerL2.addComponent(e);
-				this.activePowerL3.addComponent(e);
-				this.reactivePowerL3.addComponent(e);
-			}
-		}
-
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		/*
-		 * Clear Channel-Mergers
-		 */
-		for (SymmetricEss ess : this.esss) {
-			this.soc.removeComponent(ess);
-			this.activePower.removeComponent(ess);
-			this.reactivePower.removeComponent(ess);
-			this.maxActivePower.removeComponent(ess);
-			this.activeChargeEnergy.removeComponent(ess);
-			this.activeDischargeEnergy.removeComponent(ess);
-			if (ess instanceof AsymmetricEss) {
-				AsymmetricEss e = (AsymmetricEss) ess;
-				this.activePowerL1.removeComponent(e);
-				this.reactivePowerL1.removeComponent(e);
-				this.activePowerL2.removeComponent(e);
-				this.reactivePowerL2.removeComponent(e);
-				this.activePowerL3.removeComponent(e);
-				this.reactivePowerL3.removeComponent(e);
-			}
-		}
 	}
 
 	@Override
@@ -182,8 +180,8 @@ public class EssCluster extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public synchronized ManagedSymmetricEss[] getEsss() {
-		return this.managedEsss;
+	public synchronized List<ManagedSymmetricEss> getEsss() {
+		return Collections.unmodifiableList(this.managedEsss);
 	}
 
 	@Override
