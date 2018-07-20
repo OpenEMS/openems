@@ -33,29 +33,23 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		checkForResettingFault();
 
 		if (isInverterInFaultMode()) {
-			log.info(parent.id() + " >>>>>>> do error handling!");
 			doErrorHandling();
 		}
 
 		if (isErrorHandling()) {
-			log.info(parent.id() + " >>>>>>> is error handling!");
 			return;
 		}
 
-		// System is in normal mode
 		if (!isRunning()) {
-			log.info(parent.id() + " >>>>>>> set running!");
 			setRunning(true);
 		}
 		if (isRunning() && !isEnabled()) {
-			log.info(parent.id() + " >>>>>>> set enabled!");
 			setEnabled(true);
 		}
 		
-		log.info(parent.id() + " >>>>>>> isRunning: " + isRunning() + "; isEnabled: " + isEnabled() + "; inverter mode: " + parent.channel(ChannelId.INVERTER_MODE));
+//		log.info(parent.id() + " >>>>>>>>>>>>>>> isRunning: " + isRunning() + "; isEnabled: " + isEnabled() + "; inverter mode: " + parent.channel(ChannelId.INVERTER_MODE));
 		
 		if (isRunning() && isEnabled() && isInverterInNormalMode()) {
-			log.info(parent.id() + " >>>>>>> write active power! -> active power: " +  activePower + ", reactive power: " + reactivePower);
 			writeActivePower(activePower);
 		}
 	}

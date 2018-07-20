@@ -1,4 +1,4 @@
-package io.openems.edge.meter.symmetric.api;
+package io.openems.edge.meter.api;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -9,8 +9,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.converter.StaticConverters;
-import io.openems.edge.meter.api.Meter;
 
 /**
  * Represents a Symmetric Meter.
@@ -24,36 +22,22 @@ import io.openems.edge.meter.api.Meter;
  * @author stefan.feilmeier
  *
  */
-public interface SymmetricMeter extends Meter {
+public interface SymmetricMeter extends OpenemsComponent {
 
 	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Consumption Active Power
+		 * Frequency
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: mHz
 		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * ACTIVE_POWER
 		 * </ul>
 		 */
-		CONSUMPTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
-		/**
-		 * Production Active Power
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Symmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: only positive values, derived from ACTIVE_POWER
-		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
-		 * </ul>
-		 */
-		PRODUCTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		FREQUENCY(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ)), //
 		/**
 		 * Minimum Ever Active Power
 		 * 
@@ -96,11 +80,6 @@ public interface SymmetricMeter extends Meter {
 				.text(POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_ACTIVE_POWER).setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_ACTIVE_POWER).setNextValue(chargeValue);
 						/*
 						 * Fill Min/Max Active Power channels
 						 */
@@ -132,31 +111,6 @@ public interface SymmetricMeter extends Meter {
 					});
 				})), //
 		/**
-		 * Consumption Reactive Power
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Symmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from negative
-		 * REACTIVE_POWER
-		 * </ul>
-		 */
-		CONSUMPTION_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
-		 * Production Reactive Power
-		 * 
-		 * <ul>
-		 * <li>Interface: Meter Symmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
-		 * <li>Range: only positive values
-		 * <li>Implementation Note: value is automatically derived from REACTIVE_POWER
-		 * </ul>
-		 */
-		PRODUCTION_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		/**
 		 * Reactive Power
 		 * 
 		 * <ul>
@@ -170,17 +124,31 @@ public interface SymmetricMeter extends Meter {
 		 */
 		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
-						channel.getComponent().channel(ChannelId.PRODUCTION_REACTIVE_POWER)
-								.setNextValue(dischargeValue);
-						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value.get());
-						channel.getComponent().channel(ChannelId.CONSUMPTION_REACTIVE_POWER).setNextValue(chargeValue);
-					});
-				})),
+				.text(POWER_DOC_TEXT)), //
+		/**
+		 * Active Production Energy
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTIVE_PRODUCTION_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Active Consumption Energy
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ACTIVE_CONSUMPTION_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Voltage
 		 * 
@@ -214,6 +182,13 @@ public interface SymmetricMeter extends Meter {
 	}
 
 	/**
+	 * Gets the type of this Meter
+	 * 
+	 * @return
+	 */
+	MeterType getMeterType();
+
+	/**
 	 * Gets the Active Power in [W]. Negative values for Consumption; positive for
 	 * Production
 	 * 
@@ -221,26 +196,6 @@ public interface SymmetricMeter extends Meter {
 	 */
 	default Channel<Integer> getActivePower() {
 		return this.channel(ChannelId.ACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Consumption Active Power in [W]. This is derived from negative
-	 * 'getActivePower()' values; 0 for positive.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getConsumptionActivePower() {
-		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Production Active Power in [W]. This is derived from positive
-	 * 'getActivePower()' values; 0 for negative.
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getProductionActivePower() {
-		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER);
 	}
 
 	/**
@@ -254,23 +209,22 @@ public interface SymmetricMeter extends Meter {
 	}
 
 	/**
-	 * Gets the Consumption Reactive Power in [var]. This is derived from negative
-	 * 'getReactivePower()' values; 0 for positive.
+	 * Gets the Production Active Energy in [Wh]. This relates to positive
+	 * ACTIVE_POWER.
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getConsumptionReactivePower() {
-		return this.channel(ChannelId.CONSUMPTION_REACTIVE_POWER);
+	default Channel<Integer> getActiveProductionEnergy() {
+		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
 	/**
-	 * Gets the Production Reactive Power in [var]. This is derived from positive
-	 * 'getReactivePower()' values; 0 for negative.
+	 * Gets the Consumption Active Energy in [Wh]. This relates to negative ACTIVE_POWER.
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getProductionReactivePower() {
-		return this.channel(ChannelId.PRODUCTION_REACTIVE_POWER);
+	default Channel<Integer> getActiveConsumptionEnergy() {
+		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
 	/**

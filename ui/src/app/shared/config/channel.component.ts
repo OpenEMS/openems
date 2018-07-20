@@ -9,6 +9,7 @@ import { Edge } from '../edge/edge';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
 import { EdgeModule } from '../../edge/edge.module';
+import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
 @Component({
   selector: 'channel',
@@ -29,7 +30,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
 
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
-  @Input() public config: ConfigImpl = null;
+  @Input() public config: ConfigImpl_2018_7 = null;
   @Input() public role: Role = "guest"; // TODO in edge
   @Input() public edge: Edge = null;
   @Input() public showThings: boolean = false;

@@ -23,10 +23,9 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.Meter;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the SOCOMEC Diris A14 meter
@@ -34,7 +33,7 @@ import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.SOCOMEC.DirisA14", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, Meter, OpenemsComponent {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -97,7 +96,7 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(Meter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)),
@@ -121,6 +120,12 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedDoublewordElement(0xc57A),
 								ElementToChannelConverter.SCALE_FACTOR_1) //
+				), new FC3ReadRegistersTask(0xC702, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(0xC704, 0xC707), // PRODUCTION_REACTIVE_ENERGY
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				));
 	}
 

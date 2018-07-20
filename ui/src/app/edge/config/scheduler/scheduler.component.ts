@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import { AbstractConfigComponent } from '../../../shared/config/abstractconfig.component';
 import { ConfigImpl } from '../../../shared/edge/config';
+import { ConfigImpl_2018_7 } from '../../../shared/edge/config.2018.7';
 
 @Component({
   selector: 'scheduler',
@@ -10,7 +11,7 @@ import { ConfigImpl } from '../../../shared/edge/config';
 export class SchedulerComponent extends AbstractConfigComponent {
   public showSubThings = true
 
-  protected filterThings(config: ConfigImpl): string[] {
+  protected filterThings(config: ConfigImpl_2018_7): string[] {
     return [config.scheduler];
   }
 }

@@ -3,7 +3,6 @@ package io.openems.edge.ess.core.power;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -57,46 +56,6 @@ public class Utils {
 			c[i] = constraints.get(i);
 		}
 		return c;
-	}
-
-	/**
-	 * Helper for toLinearConstraint-method. Creates the coefficients array for a
-	 * LinearConstraint from given meta data
-	 * 
-	 * @param coefficients
-	 * @param ess
-	 * @param phase
-	 * @param pwr
-	 * @param value
-	 */
-	public static synchronized void getCoefficients(Data data, double[] coefficients, ManagedSymmetricEss ess,
-			Phase phase, Pwr pwr, double value) {
-		if (ess instanceof MetaEss) {
-			for (ManagedSymmetricEss subEss : ((MetaEss) ess).getEsss()) {
-				Utils.getCoefficients(data, coefficients, subEss, phase, pwr, value);
-			}
-			return;
-		}
-
-		Optional<Integer> indexOpt = data.getEssIndex(ess);
-		if (!indexOpt.isPresent()) { // TODO coefficients
-			return;
-		}
-		
-		int essIndex = indexOpt.get();
-		int pwrOffset = pwr.getOffset();
-		switch (phase) {
-		case ALL:
-			coefficients[essIndex + Phase.L1.getOffset() + pwrOffset] = value;
-			coefficients[essIndex + Phase.L2.getOffset() + pwrOffset] = value;
-			coefficients[essIndex + Phase.L3.getOffset() + pwrOffset] = value;
-			break;
-		case L1:
-		case L2:
-		case L3:
-			coefficients[essIndex + phase.getOffset() + pwrOffset] = value;
-			break;
-		}
 	}
 
 	public static String linearConstraintToString(LinearConstraint constraint, String note) {
@@ -177,37 +136,19 @@ public class Utils {
 			}
 		} else {
 			SymmetricSolution ss = solutions.get(ess);
-			activePower.addAndGet(ss.getActivePower());
+			if (ss != null) {
+				activePower.addAndGet(ss.getActivePower());
 
-			if (ess instanceof ManagedAsymmetricEss && ss instanceof AsymmetricSolution) {
-				AsymmetricSolution as = (AsymmetricSolution) ss;
-				activePowerL1.addAndGet(as.getActivePowerL1());
-				reactivePowerL1.addAndGet(as.getReactivePowerL1());
-				activePowerL2.addAndGet(as.getActivePowerL2());
-				reactivePowerL2.addAndGet(as.getReactivePowerL2());
-				activePowerL3.addAndGet(as.getActivePowerL3());
-				reactivePowerL3.addAndGet(as.getReactivePowerL3());
+				if (ess instanceof ManagedAsymmetricEss && ss instanceof AsymmetricSolution) {
+					AsymmetricSolution as = (AsymmetricSolution) ss;
+					activePowerL1.addAndGet(as.getActivePowerL1());
+					reactivePowerL1.addAndGet(as.getReactivePowerL1());
+					activePowerL2.addAndGet(as.getActivePowerL2());
+					reactivePowerL2.addAndGet(as.getReactivePowerL2());
+					activePowerL3.addAndGet(as.getActivePowerL3());
+					reactivePowerL3.addAndGet(as.getReactivePowerL3());
+				}
 			}
-		}
-	}
-
-	/**
-	 * Creates a LinearConstraint - suitable for linear optimization problem - from
-	 * a OpenEMS Constraint object
-	 * 
-	 * @param constraint
-	 * @return
-	 */
-	public static LinearConstraint toLinearConstraint(Data data, Constraint constraint) {
-		if (constraint.isEnabled()) {
-			double[] coefficients = data.createEmptyCoefficients();
-			for (Coefficient coefficient : constraint.getCoefficients()) {
-				Utils.getCoefficients(data, coefficients, coefficient.getEss(), coefficient.getPhase(),
-						coefficient.getPwr(), coefficient.getValue());
-			}
-			return new LinearConstraint(coefficients, constraint.getRelationship(), constraint.getValue().get());
-		} else {
-			return null;
 		}
 	}
 
@@ -220,12 +161,8 @@ public class Utils {
 	 */
 	public static Map<ManagedSymmetricEss, SymmetricSolution> toSolutions(Data data, double[] solution) {
 		Map<ManagedSymmetricEss, SymmetricSolution> solutions = new HashMap<>();
-		data.realEsss.keys().forEach(ess -> {
-			Optional<Integer> indexOpt = data.getEssIndex(ess);
-			if(!indexOpt.isPresent()) {
-				return;
-			}
-			int i = indexOpt.get();
+		data.realEsss.forEach(ess -> {
+			int i = data.getEssIndex(ess);
 
 			if (ess instanceof ManagedAsymmetricEss) {
 				/*
@@ -283,4 +220,25 @@ public class Utils {
 				relationship, //
 				value);
 	}
+
+	public static boolean coefficientIsCoveredBy(Coefficient c, ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+		if (ess instanceof MetaEss) {
+			for (ManagedSymmetricEss subEss : ((MetaEss) ess).getEsss()) {
+				if (Utils.coefficientIsCoveredBy(c, subEss, phase, pwr)) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			if (c.getEss() == ess //
+					&& c.getPwr() == pwr //
+					&& (phase == Phase.ALL //
+							|| c.getPhase() == phase //
+					)) {
+				return true;
+			}
+			return false;
+		}
+	}
+
 }

@@ -8,6 +8,7 @@ import { Edge } from '../edge/edge';
 import { Websocket } from '../shared';
 import { DefaultTypes } from '../service/defaulttypes';
 import { ConfigImpl } from '../edge/config';
+import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
 @Component({
   selector: 'abstractconfig',
@@ -17,7 +18,7 @@ export class AbstractConfigComponent implements OnInit {
 
   public showSubThings: boolean = false;
   public edge: Edge = null;
-  public config: ConfigImpl = null;
+  public config: ConfigImpl_2018_7 = null;
   public things: string[] = [];
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -36,8 +37,14 @@ export class AbstractConfigComponent implements OnInit {
         edge.config
           .filter(edge => edge != null)
           .takeUntil(this.stopOnDestroy).subscribe(config => {
-            this.config = config;
-            this.things = this.filterThings(config);
+            if (edge.isVersionAtLeast('2018.8')) {
+              console.error("AbstractConfigComponent is not compatible with version > 2018.8");
+              this.config = null;
+              this.things = [];
+            } else {
+              this.config = <ConfigImpl_2018_7>config;
+              this.things = this.filterThings(config);
+            }
           });
       });
   }

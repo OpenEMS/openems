@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -33,8 +32,11 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Tag;
+import io.openems.common.timedata.TimedataUtils;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
+import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -42,19 +44,12 @@ public class Influx implements TimedataService {
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 
+	private InfluxConnector influxConnector = null;
+
 	private final String TMP_MINI_MEASUREMENT = "minies";
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	protected volatile MetadataService metadataService;
-
-	private String database;
-	private String url;
-	private int port;
-	private String username;
-	private String password;
-	private String measurement;
-
-	private Optional<InfluxDB> influxDbOpt = Optional.empty();
 
 	private final Map<Integer, DeviceCache> deviceCacheMap = new HashMap<>();
 
@@ -63,51 +58,31 @@ public class Influx implements TimedataService {
 		log.info("Activate Timedata.InfluxDB [url=" + config.url() + ";port=" + config.port() + ";database="
 				+ config.database() + ";username=" + config.username() + ";password="
 				+ (config.password() != null ? "ok" : "NOT_SET") + ";measurement=" + config.measurement() + "]");
-		this.database = config.database();
-		this.url = config.url();
-		this.port = config.port();
-		this.username = config.username();
-		this.password = config.password();
-		this.measurement = config.measurement();
+
+		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
+				config.database());
 	}
 
 	@Deactivate
 	void deactivate() {
 		log.info("Deactivate Timedata.InfluxDB");
-		if (this.influxDbOpt.isPresent()) {
-			this.influxDbOpt.get().close();
-
-			// TODO this works only with a more recent version of Influxdb-Java
-			// this.influxDbOpt.get().close();
-
+		if (this.influxConnector != null) {
+			this.influxConnector.deactivate();
 		}
-	}
-
-	private synchronized InfluxDB getInfluxDbConnection() throws OpenemsException {
-		if (!this.influxDbOpt.isPresent()) {
-			InfluxDB influxDB = InfluxDBFactory.connect("http://" + url + ":" + port, username, password);
-			try {
-				influxDB.ping();
-				this.influxDbOpt = Optional.of(influxDB);
-			} catch (RuntimeException e) {
-				throw new OpenemsException("Unable to connect to InfluxDB: " + e.getMessage());
-			}
-		}
-		return this.influxDbOpt.get();
 	}
 
 	private void writeData(int influxId, TreeBasedTable<Long, String, Object> data) throws OpenemsException {
-		InfluxDB influxDB = this.getInfluxDbConnection();
+		InfluxDB influxDB = this.influxConnector.getConnection();
 
-		BatchPoints batchPoints = BatchPoints.database(database) //
+		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag("fems", String.valueOf(influxId)) //
 				.build();
 
 		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
 			Long timestamp = entry.getKey();
-			Builder builder = Point.measurement(this.measurement) // this builds an InfluxDB record ("point") for a
-																	// given timestamp
-					.time(timestamp, TimeUnit.MILLISECONDS).fields(entry.getValue());
+			// this builds an InfluxDB record ("point") for a given timestamp
+			Builder builder = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS)
+					.fields(entry.getValue());
 			batchPoints.point(builder.build());
 		}
 
@@ -126,9 +101,9 @@ public class Influx implements TimedataService {
 	 */
 	private void writeDataToOldMiniMonitoring(Edge edge, int influxId, TreeBasedTable<Long, String, Object> data)
 			throws OpenemsException {
-		InfluxDB influxDB = getInfluxDbConnection();
+		InfluxDB influxDB = this.influxConnector.getConnection();
 
-		BatchPoints batchPoints = BatchPoints.database(database) //
+		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag("fems", String.valueOf(influxId)) //
 				.build();
 
@@ -184,21 +159,6 @@ public class Influx implements TimedataService {
 		influxDB.write(batchPoints);
 	}
 
-	@Override
-	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
-			JsonObject channels, int resolution) throws OpenemsException {
-		Optional<Integer> influxIdOpt = Optional.empty(); // if given, query only this id. If not given, do not apply
-															// filter
-		if (edgeIdOpt.isPresent()) {
-			Edge edge = this.metadataService.getEdge(edgeIdOpt.get());
-			influxIdOpt = Optional.of(InfluxdbUtils.parseNumberFromName(edge.getName()));
-		}
-		InfluxDB influxDB = getInfluxDbConnection();
-		return InfluxdbUtils.queryHistoricData(influxDB, this.database, influxIdOpt, fromDate, toDate, channels,
-				resolution);
-	}
-
-	@Override
 	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress) {
 		DeviceCache deviceCache = this.deviceCacheMap.get(edgeId);
 		if (deviceCache != null) {
@@ -211,13 +171,23 @@ public class Influx implements TimedataService {
 	/**
 	 * Takes a JsonObject and writes the points to influxDB.
 	 *
-	 * Format: { "timestamp1" { "channel1": value, "channel2": value }, "timestamp2"
-	 * { "channel1": value, "channel2": value } }
+	 * Format:
+	 * 
+	 * <pre>
+	 * {
+	 *   "timestamp1" {
+	 * 	   "channel1": value,
+	 *     "channel2": value 
+	 *   }, "timestamp2" {
+	 *     "channel1": value,
+	 *     "channel2": value
+	 *   }
+	 * }
+	 * </pre>
 	 */
-	@Override
 	public void write(int edgeId, JsonObject jData) throws OpenemsException {
 		Edge edge = this.metadataService.getEdge(edgeId);
-		int influxId = InfluxdbUtils.parseNumberFromName(edge.getName());
+		int influxId = TimedataUtils.parseNumberFromName(edge.getName());
 		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
 
 		// get existing or create new DeviceCache
@@ -282,7 +252,7 @@ public class Influx implements TimedataService {
 				// add incoming data to cache (this replaces already existing cache values)
 				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
 					String channel = channelEntry.getKey();
-					Optional<Object> valueOpt = InfluxdbUtils.parseValue(channel, channelEntry.getValue());
+					Optional<Object> valueOpt = Utils.parseValue(channel, channelEntry.getValue());
 					if (valueOpt.isPresent()) {
 						Object value = valueOpt.get();
 						deviceCache.putToChannelCache(channel, value);
@@ -293,7 +263,7 @@ public class Influx implements TimedataService {
 			// add incoming data to write data
 			for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
 				String channel = channelEntry.getKey();
-				Optional<Object> valueOpt = InfluxdbUtils.parseValue(channel, channelEntry.getValue());
+				Optional<Object> valueOpt = Utils.parseValue(channel, channelEntry.getValue());
 				if (valueOpt.isPresent()) {
 					Object value = valueOpt.get();
 					data.put(timestamp, channel, value);
@@ -308,5 +278,11 @@ public class Influx implements TimedataService {
 		if (edge.getProducttype().equals("MiniES 3-3")) {
 			writeDataToOldMiniMonitoring(edge, influxId, data);
 		}
+	}
+
+	@Override
+	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+			int resolution, Tag... tags) throws OpenemsException {
+		return this.influxConnector.queryHistoricData(fromDate, toDate, channels, resolution, tags);
 	}
 }
