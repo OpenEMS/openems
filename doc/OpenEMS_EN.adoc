@@ -5,7 +5,7 @@ ifndef::backend-pdf[]
 = image:OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400,role="related right"]  Open Energy Management System
 endif::[]
 Stefan Feilmeier (c) 2018 FENECON GmbH
-Version 2018.9.0-SNAPSHOT
+Version 2018.9.0
 :sectnums:
 :sectnumlevels: 4
 :toc:
