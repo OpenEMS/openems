@@ -4,8 +4,7 @@
 
 Bundle-Version: 1.0.1.${tstamp}
 
-Export-Package:  \
-	com.ed.openems.centurio.api;-provide=true
+Export-Package: com.ed.openems.centurio.api;-provide=true
 
 Private-Package:  \
 	com.ed.openems.centurio.datasource.api , \

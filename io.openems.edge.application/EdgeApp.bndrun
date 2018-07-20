@@ -58,10 +58,8 @@ JPM-Command:				openems-edge
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
-	io.openems.edge.meter.socomec.dirisa14;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
-	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.j2mod;version=snapshot,\
@@ -96,5 +94,8 @@ JPM-Command:				openems-edge
 	org.osgi.compendium;version='[4.1.0,4.1.1)',\
 	com.sun.jna;version='[4.2.1,4.2.2)',\
 	io.openems.wrapper.edcom;version=snapshot,\
-	com.ed.openems.centurio;version=snapshot
+	com.ed.openems.centurio;version=snapshot,\
+	io.openems.edge.battery.soltaro;version=snapshot,\
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
+	io.openems.edge.meter.janitza.umg96rme;version=snapshot
 -resolve: auto

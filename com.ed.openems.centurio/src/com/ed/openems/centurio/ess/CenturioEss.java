@@ -175,7 +175,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		Status status = this.datasource.getStatusData();
 		InverterData invdata = this.datasource.getInverterData();
 
-		this.getSoc().setNextValue(Math.round(battery.getSOE()));
+		this.getSoc().setNextValue((int)battery.getSOE());
 		this.getActivePower().setNextValue(Math.round(battery.getPower()/10) * -10);
 
 		this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
@@ -256,7 +256,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 	@Override
 	public int getPowerPrecision() {
 		
-		return 1;
+		return 10;
 	}
 
 }

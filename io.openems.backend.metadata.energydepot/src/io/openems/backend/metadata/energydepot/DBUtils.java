@@ -88,20 +88,20 @@ public class DBUtils {
 		
 	}
 	
-	public MyUser getUserFromDB(String pwdString){
-		
+	public MyUser getUserFromDB(String login){
+		/*
 		byte[] res = hashPassword(pwdString.toCharArray(), Base64.getDecoder().decode("YWRtaW4="));
 		String pwd = Base64.getEncoder().encodeToString(res);
-		
+		*/
 		MyUser user = null;
 		
 		Statement stmt;
 		try {
 			stmt = this.conn.createStatement();
-			String sql = "SELECT * FROM users WHERE pwd = " + pwd;
+			String sql = "SELECT * FROM users WHERE login = " + login;
 			ResultSet result = stmt.executeQuery(sql);
 			while(result.next()) {
-				user = new MyUser(result.getInt("user_id"), result.getString("name"), result.getInt("edge_id"));
+				user = new MyUser(result.getInt("user_id"), result.getString("name"), result.getInt("edge_id"), result.getString("role"));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

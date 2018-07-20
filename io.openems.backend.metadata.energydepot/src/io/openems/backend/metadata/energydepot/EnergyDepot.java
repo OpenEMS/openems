@@ -35,7 +35,7 @@ public class EnergyDepot implements MetadataService{
 
 	
 
-	private Map<Integer, User> users = new HashMap<>();
+	private Map<Integer, MyUser> users = new HashMap<>();
 	private Map<Integer, MyEdge> edges = new HashMap<>();
 	
 	private DBUtils dbu = null;
@@ -78,18 +78,27 @@ public class EnergyDepot implements MetadataService{
 		String username = cookie[0];
 		String expire = cookie[1];
 		String hash = cookie[2];
+		MyUser user = this.dbu.getUserFromDB(username);
+		user.addEdgeRole(user.getEdgeid(), Role.getRole(user.getRole()));
 		
-		return this.authenticate();
+		synchronized (this.users) {
+			this.users.put(user.getId(), user);
+		}
+		
+		return user;
+		
+		//return this.authenticate();
 	}
 
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 		
+		/*
 		this.user = new User(0, "admin");
 		for (int edgeId : this.edges.keySet()) {
 			this.user.addEdgeRole(edgeId, Role.ADMIN);
 		}
-		
+		*/
 		List<Integer> ids = new ArrayList<>();
 		for (MyEdge edge : this.edges.values()) {
 			if (edge.getApikey().equals(apikey)) {
@@ -108,17 +117,20 @@ public class EnergyDepot implements MetadataService{
 
 	@Override
 	public Optional<Edge> getEdgeOpt(int edgeId) {
-		// TODO Auto-generated method stub
-		return Optional.ofNullable(this.edges.get(edgeId));
+		synchronized (this.edges) {
+			if (this.edges.containsKey(edgeId)) {
+				return Optional.of(this.edges.get(edgeId));
+			}
+		}
+		
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<User> getUser(int userId) {
-		// TODO Auto-generated method stub
-		if (this.user != null && userId == this.user.getId()) {
-			return Optional.of(this.user);
-		} else {
-			return Optional.empty();
+		// try to read from cache
+		synchronized (this.users) {
+			return Optional.ofNullable(this.users.get(userId));
 		}
 	}
 

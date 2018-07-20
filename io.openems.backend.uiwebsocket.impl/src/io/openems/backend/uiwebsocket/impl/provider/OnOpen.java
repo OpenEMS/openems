@@ -40,7 +40,7 @@ public class OnOpen extends AbstractOnOpen {
 		User user;
 
 		// login using session_id from the cookie
-		Optional<String> sessionIdOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "session_id");
+		Optional<String> sessionIdOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "wordpress_logged_in_c92c39b1a6e355483164923c7de6f7b7");
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID
