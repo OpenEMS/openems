@@ -28,7 +28,9 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-							return new IntegerReadChannel(c, channelId);
+					case ACTIVE_DISCHARGE_ENERGY:
+					case ACTIVE_CHARGE_ENERGY:
+						return new IntegerReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, EssKostalPiko.MAX_APPARENT_POWER);
 					case GRID_MODE:
@@ -46,14 +48,16 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				}),  Arrays.stream(EssDcCharger.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(EssDcCharger.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case ACTUAL_POWER:
 					case MAX_ACTUAL_POWER:
+						return new IntegerReadChannel(c, channelId, EssKostalPiko.MAX_ACTUAL_POWER);
+					case ACTUAL_POWER:
+					case ACTUAL_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				}),Arrays.stream(EssKostalPiko.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(EssKostalPiko.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case INVERTER_NAME:
 					case ARTICLE_NUMBER:

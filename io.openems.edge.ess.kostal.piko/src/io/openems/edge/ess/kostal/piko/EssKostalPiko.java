@@ -32,6 +32,7 @@ import io.openems.edge.common.channel.doc.Unit;
 public class EssKostalPiko extends AbstractOpenemsComponent
 		implements EssDcCharger, AsymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
+	protected final static int MAX_ACTUAL_POWER = 6600;
 	protected final static int MAX_APPARENT_POWER = 2300;
 	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
@@ -111,17 +112,16 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 				new ReadTask(ChannelId.DC_VOLTAGE_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000302), //
 				new ReadTask(ChannelId.DC_VOLTAGE_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000402), //
 				new ReadTask(ChannelId.DC_VOLTAGE_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000502), //
-				
+
 				new ReadTask(ChannelId.OVERALL_DC_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000100), //
 				new ReadTask(ChannelId.DC_CURRENT_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000301), //
 				new ReadTask(ChannelId.DC_CURRENT_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000401), //
 				new ReadTask(ChannelId.DC_CURRENT_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000501), //
 
-				
 				new ReadTask(ChannelId.DC_POWER_STRING_1, Priority.LOW, FieldType.FLOAT, 0x02000303), //
 				new ReadTask(ChannelId.DC_POWER_STRING_2, Priority.LOW, FieldType.FLOAT, 0x02000403), //
 				new ReadTask(ChannelId.DC_POWER_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000503), //
-				
+
 				new ReadTask(ChannelId.BATTERY_CURRENT_DIRECTION, Priority.LOW, FieldType.FLOAT, 0x02000706), //
 				new ReadTask(ChannelId.AC_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x04000201), //
 				new ReadTask(ChannelId.AC_CURRENT_L2, Priority.LOW, FieldType.FLOAT, 0x04000301), //
@@ -156,16 +156,20 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 				new ReadTask(ChannelId.SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT, 0x0F000401), //
 				new ReadTask(ChannelId.SELF_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT, 0x0F000402), //
 				new ReadTask(ChannelId.BATTERY_VOLTAGE, Priority.LOW, FieldType.FLOAT, 0x02000702), //
-
 				// HIGH
-				new ReadTask(SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705), //
+
+				new ReadTask(EssDcCharger.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200), //
+				// TODO Energy Related with cycles check it again
+				// new ReadTask(EssDcCharger.ChannelId.ACTUAL_ENERGY, Priority.HIGH,
+				// FieldType.INTEGER_UNSIGNED_BYTE, 0x02000704),//
+
+				new ReadTask(SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.INTEGER, 0x02000705), //
+
 				new ReadTask(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000203), //
 				new ReadTask(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
 				new ReadTask(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403), //
-				new ReadTask(SymmetricEss.ChannelId.ACTIVE_POWER, Priority.HIGH, FieldType.FLOAT, 0x04000100),//
+				new ReadTask(SymmetricEss.ChannelId.ACTIVE_POWER, Priority.HIGH, FieldType.FLOAT, 0x04000100), //
 
-				
-				new ReadTask(EssDcCharger.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200),//
 				new ReadTask(ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000202), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L2, Priority.HIGH, FieldType.FLOAT, 0x04000302), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L3, Priority.HIGH, FieldType.FLOAT, 0x04000402), //
@@ -195,7 +199,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		INVERTER_NAME(new Doc()), //
+		INVERTER_NAME(new Doc().type(OpenemsType.STRING)), //
 		ARTICLE_NUMBER(new Doc().type(OpenemsType.STRING)), //
 		INVERTER_SERIAL_NUMBER(new Doc().type(OpenemsType.STRING)), //
 		FIRMWARE_VERSION(new Doc().type(OpenemsType.STRING)), //
@@ -284,7 +288,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 		HOME_CONSUMPTION_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_TOTAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_SELF_CONSUMPTION_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		ISOLATION_RESISTOR(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILOOHM)), //
+		ISOLATION_RESISTOR(new Doc().type(OpenemsType.FLOAT).unit(Unit.KILO_OHM)), //
 		MAX_RESIDUAL_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		ANALOG_INPUT_CH_1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		ANALOG_INPUT_CH_2(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
@@ -298,8 +302,8 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 		SELF_CONSUMPTION_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT_HOURS)), //
 		SELF_CONSUMPTION_RATE_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
 		SELF_CONSUMPTION_RATE_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
-		DEGREE_OF_SELF_SUFFICIENCY_DAY(new Doc()), //
-		DEGREE_OF_SELF_SUFFICIENCY_TOTAL(new Doc().type(OpenemsType.FLOAT));//
+		DEGREE_OF_SELF_SUFFICIENCY_DAY(new Doc().type(OpenemsType.FLOAT)), //
+		DEGREE_OF_SELF_SUFFICIENCY_TOTAL(new Doc().type(OpenemsType.FLOAT)); //
 
 		private final Doc doc;
 

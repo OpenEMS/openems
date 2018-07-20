@@ -44,21 +44,21 @@ public class SocketConnection {
 			try {
 				this.in.close();
 			} catch (IOException e) {
-				this.log.error(e.getMessage());
+				this.log.error("In Stream Closed");
 			}
 		}
 		if (out != null) {
 			try {
 				this.out.close();
 			} catch (IOException e) {
-				this.log.error(e.getMessage());
+				this.log.error("Out Stream Closed");
 			}
 		}
 		if (this.socket != null) {
 			try {
 				this.socket.close();
 			} catch (IOException e) {
-				this.log.error(e.getMessage());
+				this.log.error("Socket Closed");
 			}
 		}
 	}
