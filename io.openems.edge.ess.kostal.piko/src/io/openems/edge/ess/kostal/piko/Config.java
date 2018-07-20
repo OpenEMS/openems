@@ -11,13 +11,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	String id() default "ess0";
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Kostal PIKO/TCP device.")
+	@AttributeDefinition(name = "IP-Address", description = "The IP address")
 	String ip();
 
-	@AttributeDefinition(name = "Unit ID", description = "The Unit ID of the Kostal PIKO/TCP device.")
+	@AttributeDefinition(name = "Unit ID", description = "The Unit ID")
 	int unitID() default 0xff;
 
-	@AttributeDefinition(name = "Port", description = "The Port of the Kostal PIKO/TCP device.")
+	@AttributeDefinition(name = "Port", description = "The Port")
 	int port() default 81;
 	
 	boolean enabled() default true;

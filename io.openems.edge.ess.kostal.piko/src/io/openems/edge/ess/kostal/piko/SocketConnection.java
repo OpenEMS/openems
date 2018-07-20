@@ -29,6 +29,7 @@ public class SocketConnection {
 	public byte getUnitID() {
 		return unitID;
 	}
+
 	public void open() throws IOException {
 		if (this.socket != null && this.socket.isConnected()) {
 			return;
@@ -44,21 +45,21 @@ public class SocketConnection {
 			try {
 				this.in.close();
 			} catch (IOException e) {
-				this.log.error("In Stream Closed");
+				this.log.error("In Stream Closed: " + e.getMessage());
 			}
 		}
 		if (out != null) {
 			try {
 				this.out.close();
 			} catch (IOException e) {
-				this.log.error("Out Stream Closed");
+				this.log.error("Out Stream Closed" + e.getMessage());
 			}
 		}
 		if (this.socket != null) {
 			try {
 				this.socket.close();
 			} catch (IOException e) {
-				this.log.error("Socket Closed");
+				this.log.error("Socket Closed" + e.getMessage());
 			}
 		}
 	}

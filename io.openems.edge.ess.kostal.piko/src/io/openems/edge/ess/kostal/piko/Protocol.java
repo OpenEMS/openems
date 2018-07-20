@@ -1,8 +1,6 @@
 package io.openems.edge.ess.kostal.piko;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -16,7 +14,6 @@ import io.openems.edge.common.channel.Channel;
 public class Protocol {
 
 	private final Logger log = LoggerFactory.getLogger(EssKostalPiko.class);
-	private final static boolean DEBUG_MODE = false;
 	private final EssKostalPiko parent;
 	private final SocketConnection socketConnection;
 
@@ -26,38 +23,30 @@ public class Protocol {
 	}
 
 	public void execute(List<ReadTask> nextReadTasks) {
-		try {
-			for (ReadTask task : nextReadTasks) {
+		for (ReadTask task : nextReadTasks) {
+			try {
 				this.socketConnection.open();
-				try {
-					Channel<?> channel = this.parent.channel(task.getChannelId());
-					switch (task.getFieldType()) {
-					case STRING:
-						channel.setNextValue(getStringValue(task.getAddress()));
-						break;
-					case INTEGER:
-						channel.setNextValue(getIntegerValue(task.getAddress()));
-						break;
-					case BOOLEAN:
-						channel.setNextValue(getBooleanValue(task.getAddress()));
-						break;
-					case INTEGER_UNSIGNED_BYTE:
-						channel.setNextValue(getIntegerFromUnsignedByte(task.getAddress()));
-						break;
-					case FLOAT:
-						channel.setNextValue(getFloatValue(task.getAddress()));
-						break;
-					}
-				} catch (NullPointerException e1) {
-					log.error("Null Pointer Exception");
-				} catch (BufferUnderflowException e2) {
-					log.error("Buffer Under Flow Exception");
-				}catch(IOException e3) {
-					log.error("Stream Closed");
+				Channel<?> channel = this.parent.channel(task.getChannelId());
+				switch (task.getFieldType()) {
+				case STRING:
+					channel.setNextValue(getStringValue(task.getAddress()));
+					break;
+				case INTEGER:
+					channel.setNextValue(getIntegerValue(task.getAddress()));
+					break;
+				case BOOLEAN:
+					channel.setNextValue(getBooleanValue(task.getAddress()));
+					break;
+				case INTEGER_UNSIGNED_BYTE:
+					channel.setNextValue(getIntegerFromUnsignedByte(task.getAddress()));
+					break;
+				case FLOAT:
+					channel.setNextValue(getFloatValue(task.getAddress()));
+					break;
 				}
+			} catch (Exception e) {
+				log.warn("KOSTAL Protocol error. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -132,12 +121,6 @@ public class Protocol {
 		/*
 		 * Send
 		 */
-		if (DEBUG_MODE) {
-			for (byte b : request) {
-				System.out.print(Integer.toHexString(b));
-			}
-		}
-
 		this.socketConnection.getOut().write(request);
 		this.socketConnection.getOut().flush();
 		Thread.sleep(100);
@@ -150,7 +133,7 @@ public class Protocol {
 			datasList.add(data);
 		}
 		if (datasList.isEmpty()) {
-			log.error("Could not receive any data");
+			throw new Exception("Could not receive any data");
 		}
 		byte[] datas = new byte[datasList.size()];
 		for (int i = 0; i < datasList.size(); i++) {
@@ -161,19 +144,15 @@ public class Protocol {
 		 */
 		boolean isChecksumOk = verifyChecksumOfReply(datas);
 		if (!isChecksumOk) {
-			log.error("Checksum cannot be verified");
+			throw new Exception("Checksum cannot be verified");
 		}
 		/*
 		 * Extract value
 		 */
-		try {
-			results = new byte[datas.length - 7];
+		results = new byte[datas.length - 7];
 
-			for (int i = 5; i < datas.length - 2; i++) {
-				results[i - 5] = datas[i];
-			}
-		} catch (NegativeArraySizeException e) {
-			log.error("Negative Array Size Exception");
+		for (int i = 5; i < datas.length - 2; i++) {
+			results[i - 5] = datas[i];
 		}
 		/*
 		 * Return value
