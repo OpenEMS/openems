@@ -98,7 +98,7 @@ public class DBUtils {
 		Statement stmt;
 		try {
 			stmt = this.conn.createStatement();
-			String sql = "SELECT * FROM users WHERE login = " + login;
+			String sql = "SELECT * FROM users WHERE login = '" + login +"'";
 			ResultSet result = stmt.executeQuery(sql);
 			while(result.next()) {
 				user = new MyUser(result.getInt("user_id"), result.getString("name"), result.getInt("edge_id"), result.getString("role"));

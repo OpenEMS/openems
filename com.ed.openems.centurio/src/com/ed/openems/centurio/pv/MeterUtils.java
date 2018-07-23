@@ -30,14 +30,13 @@ public class MeterUtils {
 			case CURRENT:
 			case VOLTAGE:
 			case FREQUENCY:
-				return new IntegerReadChannel(c, channelId);
 			case ACTIVE_PRODUCTION_ENERGY:
 			case ACTIVE_CONSUMPTION_ENERGY:
-				return new LongReadChannel(c, channelId);
-			
+				return new IntegerReadChannel(c, channelId);
+
 			}
 			return null;
-		}),  Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
+		}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case ACTIVE_POWER_L1:
 			case ACTIVE_POWER_L2:

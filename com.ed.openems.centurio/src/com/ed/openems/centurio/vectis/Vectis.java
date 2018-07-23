@@ -83,9 +83,9 @@ public class Vectis extends AbstractOpenemsComponent
 		this.getReactivePowerL3().setNextValue(reaL3);
 		this.getReactivePower().setNextValue(reaL1 + reaL2 + reaL3);
 		
-		int acL1 = Math.round(vectis.getACPower(0));
-		int acL2 = Math.round(vectis.getACPower(1));
-		int acL3 = Math.round(vectis.getACPower(2));
+		int acL1 = Math.round(vectis.getACPower(0) /10) *10;
+		int acL2 = Math.round(vectis.getACPower(1)/10) *10;
+		int acL3 = Math.round(vectis.getACPower(2)/10)*10;
 		
 		this.getActivePowerL1().setNextValue(acL1);
 		this.getActivePowerL2().setNextValue(acL2);

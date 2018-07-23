@@ -67,19 +67,42 @@ public class EnergyDepot implements MetadataService{
 	@Override
 	public User authenticate() throws OpenemsException {
 		// TODO Auto-generated method stub
-		return this.user;
+		
+		MyUser user = new MyUser(0, "Guest", 3, "guest");
+		for (int edgeId : this.edges.keySet()) {
+			user.addEdgeRole(3, Role.GUEST);
+		}
+		synchronized (this.users) {
+			this.users.put(user.getId(), user);
+		}
+		return user;
 	}
 
 	@Override
 	public User authenticate(String sessionId) throws OpenemsException {
 		// TODO verify userdata from wordpress
 		// add Edge Role
+		
 		String[] cookie = sessionId.split("%");
 		String username = cookie[0];
 		String expire = cookie[1];
-		String hash = cookie[2];
+		String token = cookie[2];
+		String hash = cookie[3];
+		
 		MyUser user = this.dbu.getUserFromDB(username);
-		user.addEdgeRole(user.getEdgeid(), Role.getRole(user.getRole()));
+		if( user == null) {
+			throw new OpenemsException("User not found: " + username);
+		}
+		// admin, guest, installer, owner
+		if (user.getRole().equals("admin")) {
+			for (int edgeId : this.edges.keySet()) {
+				user.addEdgeRole(edgeId, Role.ADMIN);
+			}
+		}else {
+			user.addEdgeRole(user.getEdgeid(), Role.getRole(user.getRole()));
+		}
+		
+		
 		
 		synchronized (this.users) {
 			this.users.put(user.getId(), user);
