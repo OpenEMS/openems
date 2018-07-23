@@ -5,7 +5,7 @@ ifndef::backend-pdf[]
 = image:OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400,role="related right"]  Open Energy Management System
 endif::[]
 Stefan Feilmeier (c) 2018 FENECON GmbH
-Version 2018.9.0-SNAPSHOT
+Version 2018.9.0
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -157,11 +157,6 @@ image::eclipse-no-problems.png[Eclipse IDE showing 'no problems']
 +
 .io.openems.edge.application project in Eclipse IDE
 image::eclipse-io.openems.edge.application.png[io.openems.edge.application project in Eclipse IDE]
-
-.. Click on btn:[Resolve] to resolve all dependencies and accept the 'Resolution Results' popup window with btn:[Finish].
-+
-.Resolve OSGi in Eclipse IDE
-image::eclipse-resolve-osgi.png[Resolve OSGi in Eclipse IDE]
 
 .. Click on btn:[Run OSGi] to run OpenEMS Edge. You should see log outputs on the console inside Eclipse IDE.
 +

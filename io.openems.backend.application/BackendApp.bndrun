@@ -17,7 +17,7 @@ JPM-Command:				openems-backend
 	bnd.identity;id='io.openems.backend.uiwebsocket.impl',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='osgi.enroute.webconsole.xray.provider',\
-	bnd.identity;id='io.openems.backend.metadata.dummy'
+	bnd.identity;id='io.openems.backend.metadata.energydepot'
 -runproperties: \
 	felix.cm.dir=c:/openems-backend-config,\
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED",\
@@ -63,6 +63,7 @@ JPM-Command:				openems-backend
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	com.google.guava;version='[25.1.0,25.1.1)',\
-	org.osgi.compendium;version='[4.1.0,4.1.1)',\
 	io.openems.shared.influxdb;version=snapshot,\
-	io.openems.backend.metadata.dummy;version=snapshot
+	io.openems.backend.metadata.energydepot;version=snapshot,\
+	org.mariadb.jdbc;version='[2.2.5,2.2.6)'
+-resolve: auto
