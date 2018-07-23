@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.standardloadprofile;
+package io.openems.edge.simulator.datasource.csv;
 
 import java.util.Set;
 
@@ -18,11 +18,11 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Datasource.SLP", //
+@Component(name = "Simulator.Datasource.CSVReader", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class StandardLoadProfileDatasource extends AbstractOpenemsComponent
+public class CSVDatasource extends AbstractOpenemsComponent
 		implements SimulatorDatasource, EventHandler {
 
 	private DataContainer data;
@@ -31,7 +31,7 @@ public class StandardLoadProfileDatasource extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
-		// read standard load profile
+		// read csv-data
 		this.data = Util.getValues(config.source(), 10000);
 	}
 
