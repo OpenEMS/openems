@@ -32,7 +32,7 @@ public class CSVDatasource extends AbstractOpenemsComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
 		// read csv-data
-		this.data = Util.getValues(config.source(), config.multiplier());
+		this.data = Util.getValues(config.source(), config.factor());
 	}
 
 	@Override

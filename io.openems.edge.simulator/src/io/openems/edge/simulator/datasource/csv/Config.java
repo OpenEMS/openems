@@ -13,8 +13,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 	
-	@AttributeDefinition(name = "Multiplier", description = "Each value in the csv-file is multiplied by this factor.")
-	float multiplier() default 1000;
+	@AttributeDefinition(name = "Factor", description = "Each value in the csv-file is multiplied by this factor.")
+	float factor() default 1;
 
 	@AttributeDefinition(name = "Source", description = "A CSV-Input file containing a series of values.")
 	Source source();
