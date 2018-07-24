@@ -19,5 +19,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Maximum Ever Active Power", description = "This is automatically updated.")
 	int maxActivePower();
 
-	String webconsole_configurationFactory_nameHint() default "Simulator GridMeter Acting [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Simulator GridMeter Reacting [{id}]";
 }
