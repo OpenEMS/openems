@@ -1,5 +1,6 @@
 package io.openems.edge.battery.soltaro;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -49,6 +50,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 )
 public class SoltaroRack extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler {
 
+	private static final int SECURITY_INTERVAL_SECONDS = 5;
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
 	public static final int DISCHARGE_MAX_A = 20;
@@ -63,6 +65,8 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	private LocalDateTime lastCommandSent = LocalDateTime.now();
 
 	public SoltaroRack() {
 		log.info("initializing channels");
@@ -949,6 +953,13 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	}
 
 	private void checkSystemState() {
+		
+		if (lastCommandSent.plusSeconds(SECURITY_INTERVAL_SECONDS).isAfter(LocalDateTime.now())) {
+			return;
+		} else {
+			lastCommandSent = LocalDateTime.now();
+		}
+		
 		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		Optional<Enum<?>> ccOpt = contactorControlChannel.value().asEnumOptional();
