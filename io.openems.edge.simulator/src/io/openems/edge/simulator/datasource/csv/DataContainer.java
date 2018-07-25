@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.standardloadprofile;
+package io.openems.edge.simulator.datasource.csv;
 
 import java.util.ArrayList;
 import java.util.HashMap;
