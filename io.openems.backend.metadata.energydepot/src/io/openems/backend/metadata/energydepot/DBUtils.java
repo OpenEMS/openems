@@ -31,24 +31,32 @@ public class DBUtils {
 	private String password;
 	private Connection conn;
 	private final Logger log = LoggerFactory.getLogger(DBUtils.class);
-
+	private String url = "jdbc:mariadb://localhost:3306/primus?user=root2&password=";
+	
 	public DBUtils(String p) {
 		this.password = p;
 		try {
 			DriverManager.registerDriver(new Driver());
 			this.conn = DriverManager
-					.getConnection("jdbc:mariadb://localhost:3306/primus?user=root2&password=" + this.password);
+					.getConnection(this.url + this.password);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
+	
+	private void reconnect() throws SQLException {
+		if(this.conn.isClosed()) {
+			this.conn = DriverManager.getConnection(this.url + this.password);
+		}
+	}
+	
 	public Map<Integer, MyEdge> getEdges() {
 
 		Map<Integer, MyEdge> edges = new HashMap<>();
 
 		try {
+			reconnect();
 			Statement stmt = this.conn.createStatement();
 			String sql = "SELECT * FROM Edges";
 			ResultSet result = stmt.executeQuery(sql);
@@ -92,6 +100,7 @@ public class DBUtils {
 
 		Statement stmt;
 		try {
+			reconnect();
 			stmt = this.conn.createStatement();
 			String sql = "SELECT * FROM users WHERE login = '" + login + "'";
 			ResultSet result = stmt.executeQuery(sql);

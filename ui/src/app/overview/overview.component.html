@@ -4,14 +4,14 @@
       <mat-card class="single">
         <mat-card-header *ngIf="websocket.status == 'online'">
           <mat-icon mat-card-avatar>face</mat-icon>
-          <mat-card-title translate [translateParams]="{value: 'FEMS'}">Overview.ConnectionSuccessful</mat-card-title>
+          <mat-card-title translate [translateParams]="{value: 'PRIMUS'}">Overview.ConnectionSuccessful</mat-card-title>
           <mat-card-subtitle>
             <small>{{ websocket.url }}</small>
           </mat-card-subtitle>
         </mat-card-header>
         <mat-card-header *ngIf="websocket.status == 'failed'">
           <mat-icon mat-card-avatar>stop</mat-icon>
-          <mat-card-title translate [translateParams]="{value: 'FEMS'}">Overview.ConnectionFailed</mat-card-title>
+          <mat-card-title translate [translateParams]="{value: 'PRIMUS'}">Overview.ConnectionFailed</mat-card-title>
           <mat-card-subtitle>
             <small>{{ websocket.url }}</small>
           </mat-card-subtitle>

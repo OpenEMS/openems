@@ -59,7 +59,7 @@ To get more help on the `angular-cli` use `ng help` or go check out the [Angular
 
 #### i18n - internationalization
 
-Translation is based on [ngx-translate](https://github.com/ngx-translate). The language can be changed at runtime in the "Über FEMS-UI" dialog.
+Translation is based on [ngx-translate](https://github.com/ngx-translate). The language can be changed at runtime in the "Über PRIMUS-UI" dialog.
 
 ##### In HTML template use:
 

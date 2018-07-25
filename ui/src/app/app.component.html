@@ -8,7 +8,7 @@
       </mat-list-item>
       <mat-list-item *ngIf="env.backend === 'OpenEMS Edge' && env.production">
         <!--TODO: is this link still necessary?-->
-        <a href="/grafana/dashboard/file/fems-asymmetric.json" mat-button>
+        <a href="/grafana/dashboard/file/primus-asymmetric.json" mat-button>
           <span translate>General.History</span>
         </a>
       </mat-list-item>
@@ -41,7 +41,7 @@
       </ng-container>
       <!-- <ng-container *ngIf="!currentEdge">
         <div>
-          <button routerLink="/overview" mat-button>FEMS</button>
+          <button routerLink="/overview" mat-button>PRIMUS</button>
         </div>
       </ng-container> -->
     </mat-toolbar>

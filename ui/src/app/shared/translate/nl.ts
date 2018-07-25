@@ -28,14 +28,14 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Overzicht",
-        AboutUI: "Over FEMS- UI"
+        AboutUI: "Over PRIMUS- UI"
     },
     Overview: {
         AllConnected: "Alle verbindingen gemaakt.",
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
         ToEnergymonitor: "Naar Energiemonitor...",
-        IsOffline: "FEMS is offline!"
+        IsOffline: "PRIMUS is offline!"
     },
     Edge: {
         Overview: {
@@ -89,7 +89,7 @@ export const TRANSLATION = {
                 NewScheduler: "New Schema...",
                 Class: "Soort: ",
                 NotImplemented: "Gegevens niet geïmplementeerd: ",
-                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom FEMS- Team)
+                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
                 Always: "Altijd"
             },
             Log: {
@@ -111,14 +111,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Gebruikersinterface voor FEMS en OpenEMS",
+        UI: "Gebruikersinterface voor PRIMUS en OpenEMS",
         Developed: "Deze gebruikersinterface is ontwikkeld door FENECON als open- source - software.",
         Fenecon: "Meer over FENECON",
-        Fems: "Meer over FEMS",
+        Fems: "Meer over PRIMUS",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
-        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het FEMS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom FEMS- Team)
+        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het PRIMUS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
         Language: "Selecteer taal: "
     },
     Notifications: {

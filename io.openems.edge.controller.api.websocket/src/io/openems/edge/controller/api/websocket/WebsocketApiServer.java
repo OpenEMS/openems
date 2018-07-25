@@ -51,9 +51,9 @@ final class WebsocketApiServer extends AbstractWebsocketServer {
 		// Create Edges entry
 		JsonObject jEdge = new JsonObject();
 		jEdge.addProperty("id", 0);
-		jEdge.addProperty("name", "fems0");
-		jEdge.addProperty("comment", "FEMS");
-		jEdge.addProperty("producttype", "");
+		jEdge.addProperty("name", "primus0");
+		jEdge.addProperty("comment", "PRIMUS");
+		jEdge.addProperty("producttype", "Centurio");
 		jEdge.addProperty("version", OpenemsConstants.OPENEMS_VERSION);
 		jEdge.add("role", user.getRole().asJson());
 		jEdge.addProperty("online", true);

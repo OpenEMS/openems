@@ -37,7 +37,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.allalphabetically)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)',\
-	bnd.identity;id='com.ed.openems.centurio'
+	bnd.identity;id='com.ed.openems.centurio',\
+	bnd.identity;id='io.openems.edge.simulator'
 
 -runbundles: \
 	com.google.gson;version='[2.8.2,2.8.3)',\
@@ -98,5 +99,6 @@ JPM-Command:				openems-edge
 	com.ed.openems.centurio;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.meter.socomec.dirisa14;version=snapshot
+	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
+	io.openems.edge.simulator;version=snapshot
 -resolve: auto
