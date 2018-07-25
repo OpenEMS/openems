@@ -175,7 +175,7 @@ export class Websocket {
           this.initialize();
           if (env.backend === "OpenEMS Backend") {
             if (env.production) {
-              window.location.href = "/primus/overview";
+              window.location.href = "/primus-online-monitoring/";
             } else {
               console.info("would redirect...");
             }

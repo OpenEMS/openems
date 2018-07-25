@@ -1,22 +1,24 @@
 package io.openems.backend.metadata.energydepot;
 
+import java.util.ArrayList;
+
 import io.openems.backend.metadata.api.User;
 import io.openems.common.session.Role;
 
 public class MyUser extends User {
 
-	private  int edgeid;
+	private  ArrayList<Integer> edgeids;
 	private String role;
 
-	public MyUser(int id, String name, int edgeid, String role) {
+	public MyUser(int id, String name, ArrayList<Integer> edgeids, String role) {
 		super(id, name);
-		this.edgeid = edgeid;
+		this.edgeids = edgeids;
 		this.role = role;
 		// TODO Auto-generated constructor stub
 	}
 
-	public int getEdgeid() {
-		return this.edgeid;
+	public ArrayList<Integer> getEdgeids() {
+		return this.edgeids;
 	}
 	
 	public String getRole() {
