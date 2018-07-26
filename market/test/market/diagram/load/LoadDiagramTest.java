@@ -56,7 +56,7 @@ public class LoadDiagramTest {
 		d.setValue(new Date(11001), new Date(12000), new ValueDecimal(5.1));
 		d.setValue(new Date(13001), new Date(14000), new ValueDecimal(5.2));
 
-		d.deletePeriod(new Date(10501), new Date(10700));
+		d.erasePeriod(new Date(10501), new Date(10700));
 		isNull = false;
 		try {
 			d.getAvg(new Date(10501), new Date(10700)).doubleValue();
@@ -64,7 +64,7 @@ public class LoadDiagramTest {
 			isNull = true;
 		}
 		Assert.assertTrue(isNull);
-		d.deletePeriod(new Date(10801), new Date(11700));
+		d.erasePeriod(new Date(10801), new Date(11700));
 
 		isNull = false;
 		try {
@@ -73,7 +73,7 @@ public class LoadDiagramTest {
 			isNull = true;
 		}
 		Assert.assertTrue(isNull);
-		d.deletePeriod(new Date(9000), new Date(20000));
+		d.erasePeriod(new Date(9000), new Date(20000));
 
 		isNull = false;
 		try {

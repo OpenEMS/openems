@@ -26,20 +26,20 @@ public class LoadDiagram extends ArrayListDiagram<ValueDecimal> {
 		super.setValue(from, to, value);
 	}
 
-	public void deletePeriod(Date at) {
-		deletePeriod(at, 1);
+	public void erasePeriod(Date at) {
+		erasePeriod(at, 1);
 	}
 
-	public void deletePeriod(Date from, long duration) {
-		deletePeriod(from, new Date(from.getTime() + duration - 1));
+	public void erasePeriod(Date from, long duration) {
+		erasePeriod(from, new Date(from.getTime() + duration - 1));
 	}
 
-	public void deletePeriod(long from, long duration) {
-		deletePeriod(new Date(from), new Date(from + duration - 1));
+	public void erasePeriod(long from, long duration) {
+		erasePeriod(new Date(from), new Date(from + duration - 1));
 	}
 
-	public void deletePeriod(Date from, Date to) {
-		super.deletePeriod(from, to);
+	public void erasePeriod(Date from, Date to) {
+		super.erasePeriod(from, to);
 	}
 
 	public ValueDecimal getValue(Date at) {

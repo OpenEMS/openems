@@ -32,7 +32,7 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 	}
 
 	@Override
-	public void deletePeriod(Date from, Date to) {
+	public void erasePeriod(Date from, Date to) {
 		if (from.getTime() > to.getTime()) {
 			return;
 		}

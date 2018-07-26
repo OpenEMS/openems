@@ -19,7 +19,7 @@ public interface Diagram<T extends Value<T>> {
 	void setValue(Date from, Date to, T value);
 
 	/**
-	 * Deletes all values for the given period including the milliseconds of both
+	 * Erases all values for the given period including the milliseconds of both
 	 * limits. Any entries inside this period will be overwritten or cut off. If to
 	 * is before from nothing is done.
 	 * 
@@ -28,7 +28,7 @@ public interface Diagram<T extends Value<T>> {
 	 * @param to
 	 *            end of period
 	 */
-	void deletePeriod(Date from, Date to);
+	void erasePeriod(Date from, Date to);
 
 	/**
 	 * Returns the value valid at the given time
