@@ -54,7 +54,7 @@ public class EnergyDepot implements MetadataService {
 		log.info("Activate EnergyDepot DB");
 		this.edges.clear();
 		this.edges = this.dbu.getEdges();
-		//log.info(this.edges.toString());
+		// log.info(this.edges.toString());
 	}
 
 	@Deactivate
@@ -65,14 +65,19 @@ public class EnergyDepot implements MetadataService {
 	@Override
 	public User authenticate() throws OpenemsException {
 		// TODO Auto-generated method stub
+		MyUser user = this.dbu.getUserFromDB("Gastzugang");
+		if (user == null) {
+			throw new OpenemsException("User not found: Gastzugang");
+		}
 		
-		MyUser user = new MyUser(0, "Guest", null, "guest");
-		
-			user.addEdgeRole(3, Role.GUEST);
+		for (int edgeId : user.getEdgeids()) {
+			user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
+		}
 		
 		synchronized (this.users) {
 			this.users.put(user.getId(), user);
 		}
+
 		return user;
 	}
 
@@ -80,47 +85,47 @@ public class EnergyDepot implements MetadataService {
 	public User authenticate(String sessionId) throws OpenemsException {
 		// TODO verify userdata from wordpress
 		// add Edge Role
-		
+
 		String[] cookiesplit = sessionId.split("%");
 		String username = cookiesplit[0];
-		
-		
+
 		HttpsURLConnection connection = null;
 		try {
 			connection = (HttpsURLConnection) new URL(
-					"https://www.energydepot.de/api/auth/validate_auth_cookie/?cookie=" +  sessionId).openConnection();
+					"https://www.energydepot.de/api/auth/validate_auth_cookie/?cookie=" + sessionId).openConnection();
 			connection.setConnectTimeout(5000);// 5 secs
 			connection.setReadTimeout(5000);// 5 secs
-			//connection.setRequestProperty("Accept-Charset", charset);
+			// connection.setRequestProperty("Accept-Charset", charset);
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-length", "0");
-			//connection.setDoOutput(true);
+			// connection.setDoOutput(true);
 			connection.setRequestProperty("Accept", "application/json");
-			//connection.setRequestProperty("Content-Type", "application/json");
+			// connection.setRequestProperty("Content-Type", "application/json");
 
-			//OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-			//out.write("");
-			//out.flush();
-			//out.close();
+			// OutputStreamWriter out = new
+			// OutputStreamWriter(connection.getOutputStream());
+			// out.write("");
+			// out.flush();
+			// out.close();
 			connection.connect();
 			int responseCode = connection.getResponseCode();
-			
+
 			InputStream is = connection.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 
 			String status;
 			boolean valid = false;
-			
-			switch(responseCode) {
+
+			switch (responseCode) {
 			case 200:
 			case 201:
 				while ((line = br.readLine()) != null) {
 					log.info(line);
-					if(line.isEmpty()) {
+					if (line.isEmpty()) {
 						continue;
 					}
-					
+
 					JsonObject j = (new JsonParser()).parse(line).getAsJsonObject();
 
 					if (j.has("status")) {
@@ -141,9 +146,9 @@ public class EnergyDepot implements MetadataService {
 										user.addEdgeRole(edgeId, Role.ADMIN);
 									}
 								} else {
-									for(int edgeId : user.getEdgeids())
-									
-									user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
+									for (int edgeId : user.getEdgeids())
+
+										user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
 								}
 
 								synchronized (this.users) {
@@ -157,21 +162,19 @@ public class EnergyDepot implements MetadataService {
 							}
 
 						}
-						if(status.equals("error")){
+						if (status.equals("error")) {
 							throw new OpenemsException("Authentication Error: " + j.get("error").getAsString());
 						}
 
 					}
-					
-					
+
 				}
 				break;
-				
+
 			default:
 				throw new OpenemsException("Errorcode: " + responseCode);
 			}
-			
-			
+
 			throw new OpenemsException("No matching user found");
 		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
@@ -195,6 +198,12 @@ public class EnergyDepot implements MetadataService {
 		 * this.user.addEdgeRole(edgeId, Role.ADMIN); }
 		 */
 		List<Integer> ids = new ArrayList<>();
+
+		/*
+		 * Map<Integer, MyEdge> tmpedges = this.dbu.getEdges();
+		 * if(!this.edges.equals(tmpedges)) { this.edges = tmpedges; }
+		 */
+
 		for (MyEdge edge : this.edges.values()) {
 			if (edge.getApikey().equals(apikey)) {
 				ids.add(edge.getId());
