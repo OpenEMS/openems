@@ -1,0 +1,32 @@
+#
+# io.openems.backend.uiwebsocket.energydepot PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.backend.uiwebsocket.energydepot. \
+	\
+	${warning;Please update this Bundle-Description in io.openems.backend.uiwebsocket.energydepot/api.bnd}
+
+Export-Package:  \
+	io.openems.backend.uiwebsocket.api;
+
+Private-Package:  \
+	io.openems.backend.uiwebsocket.energydepot
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	com.google.gson,\
+	io.openems.backend.edgewebsocket.api,\
+	io.openems.backend.metadata.api,\
+	io.openems.backend.timedata.api,\
+	io.openems.backend.uiwebsocket.api,\
+	io.openems.common,\
+	io.openems.wrapper.websocket
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
