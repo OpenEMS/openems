@@ -1,23 +1,34 @@
 package market.diagram.universal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import market.diagram.api.Diagram;
+import market.diagram.api.Period;
 import market.diagram.api.Value;
 
 public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 
+	private static final long serialVersionUID = 2363731098141896256L;
+
 	private List<Node<T>> tl;
+
+	private Date iterator;
 
 	public ArrayListDiagram() {
 		tl = new ArrayList<Node<T>>();
+		iterator = new Date(0);
 	}
 
 	@Override
-	public T getValue(Date at) {
+	public synchronized T getValue(Date at) {
 		int index = -1 - Collections.binarySearch(tl, new Node<T>(at, false));
 		try {
 			Node<T> before = tl.get(index - 1);
@@ -28,11 +39,11 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 			}
 		} catch (IndexOutOfBoundsException e) {
 		}
-		throw new NullPointerException();
+		return null;
 	}
 
 	@Override
-	public void erasePeriod(Date from, Date to) {
+	public synchronized void erasePeriod(Date from, Date to) {
 		if (from.getTime() > to.getTime()) {
 			return;
 		}
@@ -76,14 +87,13 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public T getAvg(Date from, Date to) {
+	public synchronized T getAvg(Date from, Date to) {
 		long duration = to.getTime() - from.getTime() + 1;
 		if (duration < 0) {
-			throw new NullPointerException();
+			return null;
 		}
 		if (duration == 0) {
-			throw new NullPointerException();
+			return null;
 		}
 		if (duration == 1) {
 			return getValue(from);
@@ -122,11 +132,15 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 			}
 			index++;
 		}
-		return sum.divide(duration);
+		try {
+			return sum.divide(duration);
+		} catch (NullPointerException e) {
+			return null;
+		}
 	}
 
 	@Override
-	public void setValue(Date from, Date to, T value) {
+	public synchronized void setValue(Date from, Date to, T value) {
 		if (from.getTime() > to.getTime()) {
 			return;
 		}
@@ -174,10 +188,16 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 
 			}
 		}
-
+		// check, if neighbouring periods have same value and simplify in case
+		simplify(s, e);
 	}
 
-	public void print() {
+	@Override
+	public Diagram<T> getCopy() {
+		return bytesToDiagram(diagramToBytes(this));
+	}
+
+	public synchronized void print() {
 		for (Node<T> n : tl) {
 			if (n.isStart()) {
 				System.out.println("->->->->->->->->: " + n.getTime());
@@ -190,10 +210,103 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 		}
 	}
 
+	public synchronized String toString() {
+		String s = "";
+		for (Node<T> n : tl) {
+			if (n.isStart()) {
+				s += "->->->->->->->->: " + n.getTime() + "\n\n";
+				s += n.getValue().toString() + "\n";
+			} else {
+				s += "\n";
+				s += "<-<-<-<-<-<-<-<-: " + n.getTime() + "\n";
+			}
+		}
+		return s;
+	}
+
+	@Override
+	public synchronized Period<T> getNext() {
+		int index = -1 - Collections.binarySearch(tl, new Node<T>(iterator, true));
+		try {
+			Node<T> next = tl.get(index);
+			if (next.isEnd()) {
+				iterator = new Date(next.getTime() + 1);
+				return new UniversalPeriod<T>(iterator, new Date(next.getTime()), next.getValue());
+			} else {
+				iterator = new Date(tl.get(index + 1).getTime() + 1);
+				return new UniversalPeriod<T>(new Date(next.getTime()), new Date(tl.get(index + 1).getTime()),
+						next.getValue());
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public synchronized void setIterator(Date at) {
+		iterator = at;
+	}
+
 	private int binaryInsert(Node<T> node) {
 		int index = -1 - Collections.binarySearch(tl, node);
 		tl.add(index, node);
 		return index;
+	}
+
+	private synchronized byte[] diagramToBytes(ArrayListDiagram<T> input) {
+		byte[] stream = null;
+		// ObjectOutputStream is used to convert a Java object into OutputStream
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos);) {
+			oos.writeObject(input);
+			stream = baos.toByteArray();
+		} catch (IOException e) {
+			// Error in serialization
+			e.printStackTrace();
+		}
+		return stream;
+	}
+
+	@SuppressWarnings("unchecked")
+	private ArrayListDiagram<T> bytesToDiagram(byte[] bytes) {
+		ArrayListDiagram<T> diagram = null;
+
+		try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+				ObjectInputStream ois = new ObjectInputStream(bais);) {
+			diagram = (ArrayListDiagram<T>) ois.readObject();
+		} catch (IOException e) {
+			// Error in de-serialization
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// You are converting an invalid stream to Student
+			e.printStackTrace();
+		}
+		return diagram;
+	}
+
+	private boolean simplify(int s, int e) {
+		boolean hadEffect = false;
+		try {
+			if (tl.get(e + 1).getValue().equals(tl.get(e).getValue())
+					&& tl.get(e).getTime() == tl.get(e + 1).getTime() - 1) {
+				tl.remove(e + 1);
+				tl.remove(e);
+				hadEffect = true;
+			}
+		} catch (IndexOutOfBoundsException exc) {
+
+		}
+		try {
+			if (tl.get(s - 1).getValue().equals(tl.get(s).getValue())
+					&& tl.get(s).getTime() == tl.get(s - 1).getTime() + 1) {
+				tl.remove(s);
+				tl.remove(s - 1);
+				hadEffect = true;
+			}
+		} catch (IndexOutOfBoundsException exc) {
+
+		}
+		return hadEffect;
 	}
 
 }

@@ -1,8 +1,17 @@
 package market.diagram.api;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public interface Diagram<T extends Value<T>> {
+/**
+ * A diagram, that can store a timeline of values.
+ * 
+ * @author FENECON GmbH
+ *
+ * @param <T>
+ *            must implement this package's Value interface.
+ */
+public interface Diagram<T extends Value<T>> extends Serializable {
 
 	/**
 	 * Writes the value for the given period including the milliseconds of both
@@ -36,10 +45,9 @@ public interface Diagram<T extends Value<T>> {
 	 * @param at
 	 *            given time
 	 * @return valid value at given time; of type T (specific Value implementation)
-	 * @throws NullPointerException
-	 *             if no value has been specified for the given time
+	 *         or null, if no value has been specified for the given time
 	 */
-	T getValue(Date at) throws NullPointerException;
+	T getValue(Date at);
 
 	/**
 	 * Returns the a value object representing the average value over the given time
@@ -54,10 +62,35 @@ public interface Diagram<T extends Value<T>> {
 	 * @param to
 	 *            end of period
 	 * @return value object representing the average value; of type T (specific
-	 *         Value implementation)
-	 * @throws NullPointerException
-	 *             if no value has been specified for the given time or if to is
-	 *             before from
+	 *         Value implementation) or null, if no value has been specified for the
+	 *         given time or if to is before from
 	 */
-	T getAvg(Date from, Date to) throws NullPointerException;
+	T getAvg(Date from, Date to);
+
+	/**
+	 * Searches for the next period starting with the iterator's current position.
+	 * If the iterator's current position is empty or at the end of the last period
+	 * this method returns the next existing period in the future. It returns null,
+	 * if it reaches the timeline's end. If the iterator's current position is
+	 * inside a valid period this method returns a period starting at the iterator's
+	 * current position.
+	 * 
+	 * @return maximum period from the iterator's position to the next value-change
+	 */
+	Period<T> getNext();
+
+	/**
+	 * Sets the iterator's position to the given date.
+	 * 
+	 * @param at
+	 *            Date, at which the iterator's position is set
+	 */
+	void setIterator(Date at);
+
+	/**
+	 * Returns a deep-copy of this.
+	 * 
+	 * @return deep-copy of this.
+	 */
+	Diagram<T> getCopy();
 }

@@ -1,8 +1,11 @@
 package market.diagram.universal;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Node<V> implements Comparable<Node<V>> {
+public class Node<V> implements Comparable<Node<V>>, Serializable {
+
+	private static final long serialVersionUID = -5287328839768200606L;
 
 	private Date time;
 	private V value;

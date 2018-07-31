@@ -22,6 +22,11 @@ public class ValueDecimal extends BigDecimal implements Value<ValueDecimal> {
 	}
 
 	@Override
+	public ValueDecimal subtract(ValueDecimal v) {
+		return new ValueDecimal(super.subtract(v));
+	}
+
+	@Override
 	public ValueDecimal multiply(long v) {
 		return new ValueDecimal(super.multiply(new BigDecimal(v)));
 	}
@@ -34,5 +39,13 @@ public class ValueDecimal extends BigDecimal implements Value<ValueDecimal> {
 	@Override
 	public ValueDecimal clone() {
 		return new ValueDecimal(this.doubleValue());
+	}
+
+	public BigDecimal getDecimal() {
+		return (BigDecimal) this;
+	}
+
+	public double getDecimalDouble() {
+		return super.doubleValue();
 	}
 }

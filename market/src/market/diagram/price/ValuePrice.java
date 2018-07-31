@@ -6,8 +6,10 @@ import market.diagram.api.Value;
 
 public class ValuePrice implements Value<ValuePrice> {
 
-	BigDecimal price;
-	BigDecimal power;
+	private static final long serialVersionUID = -1125126358112158818L;
+
+	private BigDecimal price;
+	private BigDecimal power;
 
 	public ValuePrice(double price, double power) {
 		this.price = new BigDecimal(price);
@@ -25,6 +27,11 @@ public class ValuePrice implements Value<ValuePrice> {
 	}
 
 	@Override
+	public ValuePrice subtract(ValuePrice v) {
+		return new ValuePrice(price.subtract(v.price), power.subtract(v.power));
+	}
+
+	@Override
 	public ValuePrice multiply(long v) {
 		return new ValuePrice(price.multiply(new BigDecimal(v)), price.multiply(new BigDecimal(v)));
 	}
@@ -38,5 +45,21 @@ public class ValuePrice implements Value<ValuePrice> {
 	@Override
 	public ValuePrice clone() {
 		return new ValuePrice(this.price.doubleValue(), this.power.doubleValue());
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public double getPriceDouble() {
+		return price.doubleValue();
+	}
+
+	public BigDecimal getPower() {
+		return power;
+	}
+
+	public double getPowerDouble() {
+		return power.doubleValue();
 	}
 }

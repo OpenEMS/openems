@@ -2,9 +2,12 @@ package market.diagram.price;
 
 import java.util.Date;
 
+import market.diagram.api.Period;
 import market.diagram.universal.ArrayListDiagram;
 
 public class PriceDiagram extends ArrayListDiagram<ValuePrice> {
+
+	private static final long serialVersionUID = 5907453111456542062L;
 
 	public PriceDiagram() {
 		super();
@@ -63,4 +66,15 @@ public class PriceDiagram extends ArrayListDiagram<ValuePrice> {
 		return super.getAvg(from, to);
 	}
 
+	public PriceDiagram getCopy() {
+		return (PriceDiagram) super.getCopy();
+	}
+
+	public PricePeriod getNext() {
+		Period<ValuePrice> next = super.getNext();
+		if (next == null) {
+			return null;
+		}
+		return new PricePeriod(next);
+	}
 }

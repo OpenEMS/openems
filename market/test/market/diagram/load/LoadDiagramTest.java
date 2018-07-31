@@ -82,6 +82,24 @@ public class LoadDiagramTest {
 			isNull = true;
 		}
 		Assert.assertTrue(isNull);
+		LoadDiagram c = d.getCopy();
+		Assert.assertTrue(d.toString().equals(c.toString()));
+		d.setValue(new Date(10001), new Date(11000), new ValueDecimal(6.0));
+		Assert.assertFalse(d.toString().equals(c.toString()));
+		d.setValue(new Date(11001), new Date(12000), new ValueDecimal(6.0));
+		d.setValue(new Date(12002), new Date(13000), new ValueDecimal(6.0));
+
+		d.setIterator(new Date(0));
+		Assert.assertEquals(2.3, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(4, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(2.3, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(4.1, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(1.1, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(1.2, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(4.2, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(6, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertEquals(6, d.getNext().getValue().getDecimalDouble(), 0);
+		Assert.assertTrue(d.getNext() == null);
 	}
 
 }
