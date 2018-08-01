@@ -24,11 +24,13 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -73,6 +75,18 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
+		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
+		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
+		try {
+			setActivePowerChannel.setNextWriteValue(activePower);
+		} catch (OpenemsException e) {
+			log.error("Unable to set ActivePower: " + e.getMessage());
+		}
+		try {
+			setReactivePowerChannel.setNextWriteValue(reactivePower);
+		} catch (OpenemsException e) {
+			log.error("Unable to set ReactivePower: " + e.getMessage());
+		}
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -114,6 +128,16 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(unitId, //
 				new FC3ReadRegistersTask(100, Priority.HIGH, //
 						m(EssFeneconMini.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedDoublewordElement(100), //
+								new ElementToChannelConverter((value) -> {
+									switch (TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value)) {
+									case 1:
+										return SymmetricEss.GridMode.OFF_GRID.ordinal();
+									case 2:
+										return SymmetricEss.GridMode.ON_GRID.ordinal();
+									}
+									throw new IllegalArgumentException("Undefined GridMode [" + value + "]");
+								})),
 						m(EssFeneconMini.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
 						new DummyRegisterElement(102, 103), //
 						m(EssFeneconMini.ChannelId.TOTAL_BATTERY_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
@@ -184,8 +208,60 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 								.m(EssFeneconMini.ChannelId.STATE_33, 13)//
 								.m(EssFeneconMini.ChannelId.STATE_34, 14)//
 								.m(EssFeneconMini.ChannelId.STATE_35, 15)//
-								.build())//
-		);
+								.build(), //
+
+						bm(new UnsignedWordElement(153))//
+								.m(EssFeneconMini.ChannelId.STATE_36, 0)//
+								.m(EssFeneconMini.ChannelId.STATE_37, 1)//
+								.m(EssFeneconMini.ChannelId.STATE_38, 2)//
+								.m(EssFeneconMini.ChannelId.STATE_39, 3)//
+								.m(EssFeneconMini.ChannelId.STATE_40, 4)//
+								.m(EssFeneconMini.ChannelId.STATE_41, 5)//
+								.m(EssFeneconMini.ChannelId.STATE_42, 6)//
+								.m(EssFeneconMini.ChannelId.STATE_43, 7)//
+								.m(EssFeneconMini.ChannelId.STATE_44, 8)//
+								.m(EssFeneconMini.ChannelId.STATE_45, 9)//
+								.m(EssFeneconMini.ChannelId.STATE_46, 10)//
+								.m(EssFeneconMini.ChannelId.STATE_47, 11)//
+								.m(EssFeneconMini.ChannelId.STATE_48, 12)//
+								.m(EssFeneconMini.ChannelId.STATE_49, 13)//
+								.m(EssFeneconMini.ChannelId.STATE_50, 14)//
+								.m(EssFeneconMini.ChannelId.STATE_51, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(154))//
+								.m(EssFeneconMini.ChannelId.STATE_52, 0)//
+								.m(EssFeneconMini.ChannelId.STATE_53, 1)//
+								.m(EssFeneconMini.ChannelId.STATE_54, 2)//
+								.m(EssFeneconMini.ChannelId.STATE_55, 3)//
+								.m(EssFeneconMini.ChannelId.STATE_56, 4)//
+								.m(EssFeneconMini.ChannelId.STATE_57, 5)//
+								.m(EssFeneconMini.ChannelId.STATE_58, 6)//
+								.m(EssFeneconMini.ChannelId.STATE_59, 7)//
+								.m(EssFeneconMini.ChannelId.STATE_60, 8)//
+								.m(EssFeneconMini.ChannelId.STATE_61, 9)//
+								.m(EssFeneconMini.ChannelId.STATE_62, 10)//
+								.m(EssFeneconMini.ChannelId.STATE_63, 11)//
+								.m(EssFeneconMini.ChannelId.STATE_64, 12)//
+								.build()), //
+				new FC16WriteRegistersTask(200, //
+						m(EssFeneconMini.ChannelId.SET_WORK_STATE, new UnsignedWordElement(200))), //
+				new FC16WriteRegistersTask(201, //
+						m(EssFeneconMini.ChannelId.SET_ACTIVE_POWER, new UnsignedWordElement(201)), //
+						m(EssFeneconMini.ChannelId.SET_REACTIVE_POWER, new UnsignedWordElement(202))), //
+				new FC16WriteRegistersTask(9014, //
+						m(EssFeneconMini.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
+						m(EssFeneconMini.ChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
+						m(EssFeneconMini.ChannelId.RTC_DAY, new UnsignedWordElement(9016)), //
+						m(EssFeneconMini.ChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
+						m(EssFeneconMini.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
+						m(EssFeneconMini.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
+				new FC16WriteRegistersTask(30558, //
+						m(EssFeneconMini.ChannelId.SET_SETUP_MODE, new UnsignedWordElement(30558))), //
+				new FC16WriteRegistersTask(30559, //
+						m(EssFeneconMini.ChannelId.SET_PCS_MODE, new UnsignedWordElement(30559))), //
+				new FC16WriteRegistersTask(30157, //
+						m(EssFeneconMini.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
+						m(EssFeneconMini.ChannelId.PCS_MODE, new UnsignedWordElement(30158))));//
 	}
 
 	@Override
@@ -227,6 +303,8 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 				.option(5, "Fail")//
 		), //
 
+		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		SET_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		BATTERY_SOC(new Doc().unit(Unit.PERCENT)), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
@@ -247,6 +325,36 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 				.option(5, "Fail")//
 				.option(6, "ByPass 1")//
 				.option(7, "ByPass 2")), //
+		RTC_YEAR(new Doc().text("Year")), //
+		RTC_MONTH(new Doc().text("Month")), //
+		RTC_DAY(new Doc().text("Day")), //
+		RTC_HOUR(new Doc().text("Hour")), //
+		RTC_MINUTE(new Doc().text("Minute")), //
+		RTC_SECOND(new Doc().text("Second")), //
+		SET_SETUP_MODE(new Doc()//
+				.option(0, "OFF")//
+				.option(1, "ON")), //
+		SET_PCS_MODE(new Doc()//
+				.option(0, "Emergency")//
+				.option(1, "ConsumersPeakPattern")//
+				.option(2, "Economic")//
+				.option(3, "Eco")//
+				.option(4, "Debug")//
+				.option(5, "SmoothPv")//
+				.option(6, "Remote")), //
+		SETUP_MODE(new Doc()//
+				.option(0, "OFF")//
+				.option(1, "ON")), //
+		PCS_MODE(new Doc()//
+				.option(0, "Emergency")//
+				.option(1, "ConsumersPeakPattern")//
+				.option(2, "Economic")//
+				.option(3, "Eco")//
+				.option(4, "Debug")//
+				.option(5, "SmoothPv")//
+				.option(6, "Remote")//
+
+		), //
 
 		STATE_0(new Doc().level(Level.WARNING).text("FailTheSystemShouldBeStopped")), //
 		STATE_1(new Doc().level(Level.WARNING).text("CommonLowVoltageAlarm")), //
@@ -255,7 +363,6 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 		STATE_4(new Doc().level(Level.WARNING).text("DischargingOverCurrentAlarm")), //
 		STATE_5(new Doc().level(Level.WARNING).text("OverTemperatureAlarm")), //
 		STATE_6(new Doc().level(Level.WARNING).text("InteralCommunicationAbnormal")), //
-
 		STATE_7(new Doc().level(Level.WARNING).text("GridUndervoltage")), //
 		STATE_8(new Doc().level(Level.WARNING).text("GridOvervoltage")), //
 		STATE_9(new Doc().level(Level.WARNING).text("")), //
@@ -268,7 +375,6 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 		STATE_16(new Doc().level(Level.WARNING).text("CombinationError")), //
 		STATE_17(new Doc().level(Level.WARNING).text("CommWithInverterError")), //
 		STATE_18(new Doc().level(Level.WARNING).text("TmeError")), //
-
 		STATE_19(new Doc().level(Level.WARNING).text("PcsAlarm2")), //
 		STATE_20(new Doc().level(Level.FAULT).text("ControlCurrentOverload100Percent")), //
 		STATE_21(new Doc().level(Level.FAULT).text("ControlCurrentOverload110Percent")), //
@@ -285,7 +391,36 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 		STATE_32(new Doc().level(Level.FAULT).text("InverterCurrentZeroDriftError")), //
 		STATE_33(new Doc().level(Level.FAULT).text("GridCurrentZeroDriftError")), //
 		STATE_34(new Doc().level(Level.FAULT).text("PDPProtection")), //
-		STATE_35(new Doc().level(Level.FAULT).text("HardwareControlCurrentProtection")),//
+		STATE_35(new Doc().level(Level.FAULT).text("HardwareControlCurrentProtection")), //
+		STATE_36(new Doc().level(Level.FAULT).text("HardwareACVoltProtection")), //
+		STATE_37(new Doc().level(Level.FAULT).text("HardwareDCCurrentProtection")), //
+		STATE_38(new Doc().level(Level.FAULT).text("HardwareTemperatureProtection")), //
+		STATE_39(new Doc().level(Level.FAULT).text("NoCapturingSignal")), //
+		STATE_40(new Doc().level(Level.FAULT).text("DCOvervoltage")), //
+		STATE_41(new Doc().level(Level.FAULT).text("DCDisconnected")), //
+		STATE_42(new Doc().level(Level.FAULT).text("InverterUndervoltage")), //
+		STATE_43(new Doc().level(Level.FAULT).text("InverterOvervoltage")), //
+		STATE_44(new Doc().level(Level.FAULT).text("CurrentSensorFail")), //
+		STATE_45(new Doc().level(Level.FAULT).text("VoltageSensorFail")), //
+		STATE_46(new Doc().level(Level.FAULT).text("PowerUncontrollable")), //
+		STATE_47(new Doc().level(Level.FAULT).text("CurrentUncontrollable")), //
+		STATE_48(new Doc().level(Level.FAULT).text("FanError")), //
+		STATE_49(new Doc().level(Level.FAULT).text("PhaseLack")), //
+		STATE_50(new Doc().level(Level.FAULT).text("InverterRelayFault")), //
+		STATE_51(new Doc().level(Level.FAULT).text("GridRelayFault")), //
+		STATE_52(new Doc().level(Level.FAULT).text("ControlPanelOvertemp")), //
+		STATE_53(new Doc().level(Level.FAULT).text("PowerPanelOvertemp")), //
+		STATE_54(new Doc().level(Level.FAULT).text("DCInputOvercurrent")), //
+		STATE_55(new Doc().level(Level.FAULT).text("CapacitorOvertemp")), //
+		STATE_56(new Doc().level(Level.FAULT).text("RadiatorOvertemp")), //
+		STATE_57(new Doc().level(Level.FAULT).text("TransformerOvertemp")), //
+		STATE_58(new Doc().level(Level.FAULT).text("CombinationCommError")), //
+		STATE_59(new Doc().level(Level.FAULT).text("EEPROMError")), //
+		STATE_60(new Doc().level(Level.FAULT).text("LoadCurrentZeroDriftError")), //
+		STATE_61(new Doc().level(Level.FAULT).text("CurrentLimitRError")), //
+		STATE_62(new Doc().level(Level.FAULT).text("PhaseSyncError")), //
+		STATE_63(new Doc().level(Level.FAULT).text("ExternalPVCurrentZeroDriftError")), //
+		STATE_64(new Doc().level(Level.FAULT).text("ExternalGridCurrentZeroDriftError")), //
 
 		; //
 
