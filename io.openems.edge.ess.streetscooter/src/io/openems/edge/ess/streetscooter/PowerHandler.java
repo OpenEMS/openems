@@ -47,7 +47,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 			setEnabled(true);
 		}
 		
-//		log.info(parent.id() + " >>>>>>>>>>>>>>> isRunning: " + isRunning() + "; isEnabled: " + isEnabled() + "; inverter mode: " + parent.channel(ChannelId.INVERTER_MODE));
+		log.info(parent.id() + " >>>>>>>>>>>>>>> isRunning: " + isRunning() + "; isEnabled: " + isEnabled() + "; inverter mode: " + parent.channel(ChannelId.INVERTER_MODE).value());
 		
 		if (isRunning() && isEnabled() && isInverterInNormalMode()) {
 			writeActivePower(activePower);
