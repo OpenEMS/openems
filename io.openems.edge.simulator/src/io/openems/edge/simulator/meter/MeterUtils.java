@@ -10,6 +10,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.simulator.meter.grid.acting.GridMeter;
+import io.openems.edge.simulator.meter.production.acting.ProductionMeter;
+import io.openems.edge.simulator.meter.nrc.acting.NRCMeter;
 
 public class MeterUtils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(OpenemsComponent c) {
@@ -52,6 +54,18 @@ public class MeterUtils {
 					}
 					return null;
 				}), Arrays.stream(GridMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case SIMULATED_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(ProductionMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case SIMULATED_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(NRCMeter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SIMULATED_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);

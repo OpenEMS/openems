@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.standardloadprofile;
+package io.openems.edge.simulator.datasource.csv;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,8 +19,12 @@ public class Util {
 			return null;
 		}
 		switch (source) {
-		case H0_HOUSEHOLD_SUMMER_WEEKDAY:
-			return "h0-summer-weekday.csv";
+		case H0_HOUSEHOLD_SUMMER_WEEKDAY_STANDARD_LOAD_PROFILE:
+			return "h0-summer-weekday-standard-load-profile.csv";
+		case H0_HOUSEHOLD_SUMMER_WEEKDAY_PV_PRODUCTION:
+			return "h0-summer-weekday-pv-production.csv";
+		case H0_HOUSEHOLD_SUMMER_WEEKDAY_NON_REGULATED_CONSUMPTION:
+			return "h0-summer-weekday-non-regulated-consumption.csv";
 		}
 		return null;
 	}
