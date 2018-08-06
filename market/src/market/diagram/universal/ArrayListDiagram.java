@@ -255,13 +255,11 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 
 	private synchronized byte[] diagramToBytes(ArrayListDiagram<T> input) {
 		byte[] stream = null;
-		// ObjectOutputStream is used to convert a Java object into OutputStream
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(baos);) {
 			oos.writeObject(input);
 			stream = baos.toByteArray();
 		} catch (IOException e) {
-			// Error in serialization
 			e.printStackTrace();
 		}
 		return stream;
@@ -275,10 +273,8 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 				ObjectInputStream ois = new ObjectInputStream(bais);) {
 			diagram = (ArrayListDiagram<T>) ois.readObject();
 		} catch (IOException e) {
-			// Error in de-serialization
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// You are converting an invalid stream to Student
 			e.printStackTrace();
 		}
 		return diagram;
