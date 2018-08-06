@@ -25,6 +25,18 @@ import market.diagram.load.LoadDiagram;
 import market.diagram.load.ValueDecimal;
 import market.square.api.MarketSquare;
 
+/**
+ * A MarketAgent, which sets demand-bids based on the underlying meter's
+ * history, thus it doesn't react to the markets current state. That is, because
+ * the underlying meter can't be controlled. This agent's only purpose is to
+ * inform other agents about the demand measured by the underlying meter. It
+ * also generates a prediction by copying the last day's recording to the next
+ * day.
+ * 
+ * @author FENECON GmbH
+ *
+ */
+
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Agent.Consumption.HistoryBased", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //

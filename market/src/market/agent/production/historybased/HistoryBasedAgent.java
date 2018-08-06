@@ -25,6 +25,19 @@ import market.diagram.price.PriceDiagram;
 import market.diagram.price.ValuePrice;
 import market.square.api.MarketSquare;
 
+/**
+ * A MarketAgent, which sets supply-offers based on the underlying meter's
+ * history, thus it doesn't react to the markets current state. That is, because
+ * the underlying meter can't be controlled. This agent's only purpose is to
+ * inform other agents about the supply measured by the underlying meter. It
+ * also generates a prediction by copying the last day's recording to the next
+ * day. The agent provides its power to a fixed price, which can be defined in
+ * the configuration.
+ * 
+ * @author FENECON GmbH
+ *
+ */
+
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Agent.Production.HistoryBased", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //

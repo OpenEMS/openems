@@ -28,6 +28,19 @@ import market.diagram.price.PriceDiagram;
 import market.diagram.price.ValuePrice;
 import market.square.api.MarketSquare;
 
+/**
+ * A MarketAgent, which sets demand-bids based on a given amount of energy, that
+ * has to be available to the represented consumer until a given deadline has
+ * passed. The agent tries to spread the given amount of energy in a way, that
+ * the market's energy-price is equalized over time.
+ * 
+ * @author FENECON GmbH
+ *
+ */
+
+// TODO: implement energyAim, deadline as channels
+// TODO: implement max and minPower restrictions
+
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Agent.Consumption.RequirementBased", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //

@@ -31,6 +31,14 @@ import market.diagram.price.PriceDiagram;
 import market.diagram.price.ValuePrice;
 import market.square.api.MarketSquare;
 
+/**
+ * This MarketSquare implementation updates its market-state every during every
+ * cycle. It processes the input in 15 minute blocks 24h ahead of real-time.
+ * 
+ * @author FENECON GmbH
+ *
+ */
+
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Square.Linear", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //

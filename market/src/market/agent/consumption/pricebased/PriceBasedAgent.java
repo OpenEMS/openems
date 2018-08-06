@@ -27,6 +27,17 @@ import market.diagram.price.PriceDiagram;
 import market.diagram.price.ValuePrice;
 import market.square.api.MarketSquare;
 
+/**
+ * A MarketAgent, which sets demand-bids based on the underlying meter's
+ * restrictions and a fixed price defined in the configuration. It calculates
+ * the maximum power being available without exceeding the configured price and
+ * takes the value closest to this maximum power, that is meeting the underlying
+ * meter's restrictions.
+ * 
+ * @author FENECON GmbH
+ *
+ */
+
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Agent.Consumption.PriceBased", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
