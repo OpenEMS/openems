@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.standardloadprofile;
+package io.openems.edge.simulator.datasource.csv;
 
 import java.util.Set;
 
@@ -18,27 +18,42 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Datasource.SLP", //
+@Component(name = "Simulator.Datasource.CSVReader", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class StandardLoadProfileDatasource extends AbstractOpenemsComponent
-		implements SimulatorDatasource, EventHandler {
+public class CSVDatasource extends AbstractOpenemsComponent implements SimulatorDatasource, EventHandler {
 
 	private DataContainer data;
+
+	private int timeDelta = 1;
+
+	private boolean realtime = false;
+
+	private long lastIteration;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
-		// read standard load profile
-		this.data = Util.getValues(config.source(), 10000);
+		this.timeDelta = config.timeDelta();
+		this.realtime = config.realtime();
+		this.lastIteration = System.currentTimeMillis();
+		// read csv-data
+		this.data = Util.getValues(config.source(), config.factor());
+
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
+			// don't change record, if realtime is set to true and timeDelta has not passed
+			// yet
+			if (realtime && System.currentTimeMillis() < lastIteration + 1000 /* second to millisecond */ * timeDelta) {
+				return;
+			}
+			lastIteration = System.currentTimeMillis();
 			this.data.nextRecord();
 			break;
 		}
@@ -56,7 +71,7 @@ public class StandardLoadProfileDatasource extends AbstractOpenemsComponent
 
 	@Override
 	public int getTimeDelta() {
-		return 15 /* minutes */ * 60;
+		return timeDelta;
 	}
 
 }

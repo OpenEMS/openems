@@ -1,0 +1,25 @@
+#
+# market PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for market. \
+	\
+	${warning;Please update this Bundle-Description in market/api.bnd}
+
+Export-Package:  \
+	market.api;-provide=true
+
+Private-Package:  \
+	market
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
