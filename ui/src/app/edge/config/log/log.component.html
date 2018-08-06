@@ -1,4 +1,4 @@
-<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayout="wrap">
   <div fxFlex="100%">
     <mat-card class="single">
       <mat-card-header>
@@ -6,11 +6,11 @@
         <mat-card-title>System-Log</mat-card-title>
         <mat-card-subtitle>{{ edge.name }}</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content fxLayout fxLayoutWrap="wrap">
+      <mat-card-content fxLayout fxLayout="wrap">
         <div fxFlex="100%">
-          <mat-input-container fxFlex>
+          <mat-form-field fxFlex>
             <input type="text" #filter placeholder="Filter" value="" matInput>
-          </mat-input-container>
+          </mat-form-field>
           <mat-slide-toggle fxFlex="300px" (change)="toggleSubscribe($event)" [checked]="isSubscribed">
             <span translate>Edge.Config.Log.AutomaticUpdating</span>
           </mat-slide-toggle>

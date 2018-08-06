@@ -1,5 +1,6 @@
-import { Component, Input, OnInit, OnChanges, OnDestroy, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Component, Input, OnInit, OnChanges, ViewChild, SimpleChanges } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -20,7 +21,7 @@ export class SocChartComponent_2018_7 implements OnInit, OnChanges {
     this.stopOnDestroy.next();
     this._edge = edge;
     if (this._edge)
-      this._edge.config.takeUntil(this.stopOnDestroy).subscribe(config => {
+      this._edge.config.pipe(takeUntil(this.stopOnDestroy)).subscribe(config => {
         this.config = config;
         this.createChart();
       });
