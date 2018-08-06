@@ -73,8 +73,8 @@ export class DefaultMessages {
             edgeId: edgeId,
             historicData: {
                 mode: "query",
-                fromDate: format(fromDate, 'YYYY-MM-DD'),
-                toDate: format(toDate, 'YYYY-MM-DD'),
+                fromDate: format(fromDate, 'yyyy-MM-dd'),
+                toDate: format(toDate, 'yyyy-MM-dd'),
                 timezone: timezone,
                 channels: channels
                 // TODO
