@@ -185,12 +185,12 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 		switch (invStatus) {
 		case 12:
-			this.getGridMode().setNextValue(SymmetricEss.GridMode.OFF_GRID.ordinal());
+			this.getGridMode().setNextValue(2);
 		case 13:
 		case 14:
-			this.getGridMode().setNextValue(SymmetricEss.GridMode.ON_GRID.ordinal());
+			this.getGridMode().setNextValue(1);
 		default:
-			this.getGridMode().setNextValue(SymmetricEss.GridMode.UNDEFINED.ordinal());
+			this.getGridMode().setNextValue(0);
 		}
 
 		errors = status.getErrors().getErrorCodes();
@@ -213,8 +213,8 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "GridMode: " + this.getGridMode().value().toString();
-		// return "Battery Power: " + this.getActivePower().value().toString();
+		//return "GridMode: " + this.getGridMode().value().toString();
+		 return "Battery Power: " + this.getActivePower().value().toString();
 
 	}
 
@@ -231,17 +231,24 @@ public class CenturioEss extends AbstractOpenemsComponent
 		
 		float soc = this.datasource.getBatteryData().getSOE();
 		
-		if(soc < 1 || soc > 99) {
+		if (soc == 0 && activePower > 0) {
 			activePower = 0;
-			
 		}
-		if (soc > 99) {
+		if (soc == 100 && activePower < 0) {
+			activePower = 0;
+		}
+			
+			
+		
+		if (soc == 100) {
 			this.allowedChargeConstraint.setIntValue(0);
+			
 		} else {
 			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
 		}
-		if (soc < 1) {
+		if (soc == 0) {
 			this.allowedDischargeConstraint.setIntValue(0);
+			
 		} else {
 			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
 		}

@@ -65,7 +65,7 @@ public class EnergyDepot implements MetadataService {
 	@Override
 	public User authenticate() throws OpenemsException {
 		// TODO Auto-generated method stub
-		MyUser user = this.dbu.getUserFromDB("Gastzugang");
+		MyUser user = this.dbu.getUserFromDB("Gastzugang", null);
 		if (user == null) {
 			throw new OpenemsException("User not found: Gastzugang");
 		}
@@ -136,9 +136,12 @@ public class EnergyDepot implements MetadataService {
 							valid = j.get("valid").getAsBoolean();
 
 							if (valid) {
-								MyUser user = this.dbu.getUserFromDB(username);
+								MyUser user = this.dbu.getUserFromDB(username, sessionId);
 								if (user == null) {
-									throw new OpenemsException("User not found: " + username);
+									
+									throw new OpenemsException("User Not found!");
+									
+									
 								}
 								// admin, guest, installer, owner
 								if (user.getRole().equals("admin")) {
