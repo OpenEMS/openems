@@ -11,8 +11,13 @@
   <div fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" fxLayoutAlign="start start" fxLayout="row wrap">
     <history fxFlex="100%" [edge]="edge" [config]="config"></history>
     <ng-container *ngFor="let widget of widgets">
-      <evcs *ngIf="widget == 'EVCS'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></evcs>
-      <channelthreshold *ngIf="widget == 'CHANNELTHRESHOLD'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></channelthreshold>
+      <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
+        <!-- No widgets yet for 2018.8 -->
+      </ng-container>
+      <ng-template #version_2018_7>
+        <evcs-2018-7 *ngIf="widget == 'EVCS'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></evcs-2018-7>
+        <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></channelthreshold-2018-7>
+      </ng-template>
     </ng-container>
     <state fxFlex="100%" (requiredSubscribes)="onRequiredSubscribes('state', $event)" [currentData]="currentData" [config]="config"></state>
   </div>
