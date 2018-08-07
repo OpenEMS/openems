@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
+import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { DefaultMessages } from '../../../../shared/service/defaultmessages';
 import { Websocket, Service } from '../../../../shared/shared';
@@ -22,7 +22,7 @@ export class SystemExecuteComponent implements OnInit {
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(edge => {
         this.edge = edge;
       });

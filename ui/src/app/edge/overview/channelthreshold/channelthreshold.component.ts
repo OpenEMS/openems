@@ -1,12 +1,9 @@
-import { Component, Input, OnDestroy, ViewChildren, QueryList } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, Input } from '@angular/core';
 
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
 import { Edge } from '../../../shared/edge/edge';
-import { ChannelComponent } from '../../../shared/config/channel.component';
 
 @Component({
   selector: 'channelthreshold',

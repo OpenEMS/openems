@@ -1,12 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil, filter } from 'rxjs/operators';
 
 import { Utils } from '../service/utils';
 import { Edge } from '../edge/edge';
 import { Websocket } from '../shared';
-import { DefaultTypes } from '../service/defaulttypes';
 import { ConfigImpl } from '../edge/config';
 import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
@@ -30,22 +29,22 @@ export class AbstractConfigComponent implements OnInit {
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .takeUntil(this.stopOnDestroy)
-      .filter(edge => edge != null)
+      .pipe(takeUntil(this.stopOnDestroy),
+        filter(edge => edge != null))
       .subscribe(edge => {
         this.edge = edge;
         edge.config
-          .filter(edge => edge != null)
-          .takeUntil(this.stopOnDestroy).subscribe(config => {
-            if (edge.isVersionAtLeast('2018.8')) {
-              console.error("AbstractConfigComponent is not compatible with version > 2018.8");
-              this.config = null;
-              this.things = [];
-            } else {
-              this.config = <ConfigImpl_2018_7>config;
-              this.things = this.filterThings(config);
-            }
-          });
+          .pipe(filter(edge => edge != null),
+            takeUntil(this.stopOnDestroy)).subscribe(config => {
+              if (edge.isVersionAtLeast('2018.8')) {
+                console.error("AbstractConfigComponent is not compatible with version > 2018.8");
+                this.config = null;
+                this.things = [];
+              } else {
+                this.config = <ConfigImpl_2018_7>config;
+                this.things = this.filterThings(config);
+              }
+            });
       });
   }
 

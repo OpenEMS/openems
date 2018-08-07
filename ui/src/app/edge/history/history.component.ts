@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
+//import { Router, ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import { TranslateService } from '@ngx-translate/core';
@@ -57,14 +58,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(edge => {
         this.edge = edge;
         if (edge == null) {
           this.config = null;
         } else {
           edge.config
-            .takeUntil(this.stopOnDestroy)
+            .pipe(takeUntil(this.stopOnDestroy))
             .subscribe(config => {
               this.config = config;
               if (config) {

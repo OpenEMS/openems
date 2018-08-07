@@ -1,4 +1,3 @@
-import { Component, Input, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 

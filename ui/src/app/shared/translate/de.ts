@@ -15,7 +15,7 @@ export const TRANSLATION = {
         ChargePower: "Beladung",
         DischargePower: "Entladung",
         PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
-        DateFormat: "DD.MM.YYYY", // z.B. Englisch: YYYY-MM-DD (DD = Tag, MM = Monat, YYYY = Jahr)
+        DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         Search: "Suchen",
         Week: {
             Monday: "Montag",

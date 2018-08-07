@@ -1,4 +1,3 @@
-import { routing, appRoutingProviders } from './../app.routing';
 import { Dataset, EMPTY_DATASET } from './chart';
 import { Service } from './service/service';
 import { Utils } from './service/utils';

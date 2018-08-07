@@ -1,6 +1,5 @@
 import { TranslateLoader } from '@ngx-translate/core';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { Observable, of } from 'rxjs';
 
 import { TRANSLATION as DE } from './de';
 import { TRANSLATION as EN } from './en';
@@ -13,13 +12,13 @@ export class MyTranslateLoader implements TranslateLoader {
 
     getTranslation(lang: string): Observable<any> {
         if (lang == 'de') {
-            return Observable.of(DE);
+            return of(DE);
         } else if (lang == 'cz') {
-            return Observable.of(CZ);
+            return of(CZ);
         } else if (lang == 'nl') {
-            return Observable.of(NL);
+            return of(NL);
         } else {
-            return Observable.of(EN);
+            return of(EN);
         }
     }
 }
