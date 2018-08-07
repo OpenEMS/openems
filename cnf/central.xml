@@ -130,5 +130,11 @@
 			<artifactId>mariadb-java-client</artifactId>
 			<version>2.2.5</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.felix/org.apache.felix.fileinstall -->
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.fileinstall</artifactId>
+			<version>3.6.4</version>
+		</dependency>
 	</dependencies>
 </project>
