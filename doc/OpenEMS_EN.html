@@ -425,7 +425,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1><span class="image related right"><img src="./img/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="400"></span>  Open Energy Management System</h1>
 <div class="details">
 <span id="author" class="author">Stefan Feilmeier (c) 2018 FENECON GmbH</span><br>
-<span id="revdate">Version 2018.9.0-SNAPSHOT</span>
+<span id="revdate">Version 2018.9.0</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -816,21 +816,12 @@ Select a directory - for example <code>C:\Users\your.user\git\openems-workspace<
 </div>
 </li>
 <li>
-<p>Click on <b class="button">Resolve</b> to resolve all dependencies and accept the 'Resolution Results' popup window with <b class="button">Finish</b>.</p>
-<div class="imageblock">
-<div class="content">
-<img src="./img/eclipse-resolve-osgi.png" alt="Resolve OSGi in Eclipse IDE">
-</div>
-<div class="title">Figure 8. Resolve OSGi in Eclipse IDE</div>
-</div>
-</li>
-<li>
 <p>Click on <b class="button">Run OSGi</b> to run OpenEMS Edge. You should see log outputs on the console inside Eclipse IDE.</p>
 <div class="imageblock">
 <div class="content">
 <img src="./img/eclipse-edge-initial-log-output.png" alt="OpenEMS Edge initial log output">
 </div>
-<div class="title">Figure 9. OpenEMS Edge initial log output</div>
+<div class="title">Figure 8. OpenEMS Edge initial log output</div>
 </div>
 </li>
 </ol>
@@ -849,7 +840,7 @@ Select a directory - for example <code>C:\Users\your.user\git\openems-workspace<
 <div class="content">
 <img src="./img/apache-felix-console-configuration.png" alt="Apache Felix Web Console Configuration">
 </div>
-<div class="title">Figure 10. Apache Felix Web Console Configuration</div>
+<div class="title">Figure 9. Apache Felix Web Console Configuration</div>
 </div>
 </li>
 <li>
@@ -874,7 +865,7 @@ The Scheduler is responsible for executing the control algorithms (Controllers) 
 <div class="content">
 <img src="./img/config-scheduler-all-alphabetically.png" alt="Configuration of All Alphabetically Scheduler">
 </div>
-<div class="title">Figure 11. Configuration of All Alphabetically Scheduler</div>
+<div class="title">Figure 10. Configuration of All Alphabetically Scheduler</div>
 </div>
 </li>
 <li>
@@ -898,7 +889,7 @@ The Scheduler is responsible for executing the control algorithms (Controllers) 
 <div class="content">
 <img src="./img/config-controller-debug-log.png" alt="Configuration of Controller Debug Log">
 </div>
-<div class="title">Figure 12. Configuration of Controller Debug Log</div>
+<div class="title">Figure 11. Configuration of Controller Debug Log</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
@@ -931,7 +922,7 @@ It is once per second because you accepted the default value of "1000 ms" for "C
 <div class="content">
 <img src="./img/config-simulator-datasource-standard-load-profile.png" alt="Configuration of Simulator DataSource: Standard Load Profile">
 </div>
-<div class="title">Figure 13. Configuration of Simulator DataSource: Standard Load Profile</div>
+<div class="title">Figure 12. Configuration of Simulator DataSource: Standard Load Profile</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
@@ -958,7 +949,7 @@ The data source was configured with the OpenEMS Component ID "datasource0" which
 <div class="content">
 <img src="./img/config-simulator-grid-meter-acting.png" alt="Configuration of Simulator GridMeter Acting">
 </div>
-<div class="title">Figure 14. Configuration of Simulator GridMeter Acting</div>
+<div class="title">Figure 13. Configuration of Simulator GridMeter Acting</div>
 </div>
 <div class="paragraph">
 <p>This time some more logs will show up. Most importantly they show, that the Grid meter now shows a power value.</p>
@@ -1002,7 +993,7 @@ This setup causes the simulated grid-meter to take the standardized load-profile
 <div class="content">
 <img src="./img/config-simulator-esssymmetric-reacting.png" alt="Configuration of Simulator EssSymmetric Reacting">
 </div>
-<div class="title">Figure 15. Configuration of Simulator EssSymmetric Reacting</div>
+<div class="title">Figure 14. Configuration of Simulator EssSymmetric Reacting</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
@@ -1020,7 +1011,7 @@ This setup causes the simulated grid-meter to take the standardized load-profile
 <div class="content">
 <img src="./img/config-controller-balancing-symmetric.png" alt="Configuration of Symmetric Balancing Controller">
 </div>
-<div class="title">Figure 16. Configuration of Symmetric Balancing Controller</div>
+<div class="title">Figure 15. Configuration of Symmetric Balancing Controller</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
@@ -1047,7 +1038,7 @@ Note, how the Controller now tells the battery to discharge (<code>Ess SoC:49 %|
 <div class="content">
 <img src="./img/config-controller-api-websocket.png" alt="Configuration of Controller Api Websocket">
 </div>
-<div class="title">Figure 17. Configuration of Controller Api Websocket</div>
+<div class="title">Figure 16. Configuration of Controller Api Websocket</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
@@ -1139,7 +1130,7 @@ The Controller Api Websocket is required to enable access to OpenEMS Edge by a l
 <div class="content">
 <img src="./img/openems-ui-login.png" alt="OpenEMS UI Login screen">
 </div>
-<div class="title">Figure 18. OpenEMS UI Login screen</div>
+<div class="title">Figure 17. OpenEMS UI Login screen</div>
 </div>
 </li>
 <li>
@@ -1148,7 +1139,7 @@ The Controller Api Websocket is required to enable access to OpenEMS Edge by a l
 <div class="content">
 <img src="./img/openems-ui-overview.png" alt="OpenEMS UI Overview screen">
 </div>
-<div class="title">Figure 19. OpenEMS UI Overview screen</div>
+<div class="title">Figure 18. OpenEMS UI Overview screen</div>
 </div>
 </li>
 <li>
@@ -1157,7 +1148,7 @@ The Controller Api Websocket is required to enable access to OpenEMS Edge by a l
 <div class="content">
 <img src="./img/openems-ui-edge-overview.png" alt="OpenEMS UI Energymonitor screen">
 </div>
-<div class="title">Figure 20. OpenEMS UI Energymonitor screen</div>
+<div class="title">Figure 19. OpenEMS UI Energymonitor screen</div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1317,7 +1308,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/input-process-output.png" alt="Input-Process-Output model">
 </div>
-<div class="title">Figure 21. Input-Process-Output model</div>
+<div class="title">Figure 20. Input-Process-Output model</div>
 </div>
 <div class="dlist">
 <dl>
@@ -1348,7 +1339,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/input-process-scheduler-output.png" alt="IPO model with Scheduler and Controllers">
 </div>
-<div class="title">Figure 22. IPO model with Scheduler and Controllers</div>
+<div class="title">Figure 21. IPO model with Scheduler and Controllers</div>
 </div>
 </div>
 <div class="sect3">
@@ -1360,7 +1351,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/edge-cycle.png" alt="OpenEMS Edge Cycle">
 </div>
-<div class="title">Figure 23. OpenEMS Edge Cycle</div>
+<div class="title">Figure 22. OpenEMS Edge Cycle</div>
 </div>
 </div>
 <div class="sect3">
@@ -1375,7 +1366,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/cycle-modbus.png" alt="Synchronize Cycle with Modbus read/write">
 </div>
-<div class="title">Figure 24. Synchronize Cycle with Modbus read/write</div>
+<div class="title">Figure 23. Synchronize Cycle with Modbus read/write</div>
 </div>
 </div>
 <div class="sect3">
@@ -1387,7 +1378,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/device-nature-channel-scheduler-controller.png" alt="Architecture scheme">
 </div>
-<div class="title">Figure 25. Architecture scheme</div>
+<div class="title">Figure 24. Architecture scheme</div>
 </div>
 </div>
 </div>
@@ -1400,7 +1391,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/apache-felix-console-configuration.png" alt="Apache Felix Web Console Configuration">
 </div>
-<div class="title">Figure 26. Apache Felix Web Console Configuration</div>
+<div class="title">Figure 25. Apache Felix Web Console Configuration</div>
 </div>
 <div class="paragraph">
 <p>Configuration via OpenEMS UI is currently not available due to the ongoing <a href="#_migration_to_osgi">Migration to OSGi</a>. Once migration is finished, it is going to be possible to change every configuration using the settings menu in OpenEMS UI - directly to OpenEMS Edge and via Backend.</p>
@@ -1409,7 +1400,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/ui-config.png" alt="OpenEMS UI Configuration">
 </div>
-<div class="title">Figure 27. OpenEMS UI Configuration</div>
+<div class="title">Figure 26. OpenEMS UI Configuration</div>
 </div>
 </div>
 <div class="sect2">
@@ -1581,7 +1572,7 @@ It describes how physical hardware is abstracted using <em>Natures</em>, how sta
 <div class="content">
 <img src="./img/eclipse-file-new-other.png" alt="Creating a new project in Eclipse IDE">
 </div>
-<div class="title">Figure 28. Creating a new project in Eclipse IDE</div>
+<div class="title">Figure 27. Creating a new project in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1590,7 +1581,7 @@ It describes how physical hardware is abstracted using <em>Natures</em>, how sta
 <div class="content">
 <img src="./img/eclipse-bndtools-osgi-project.png" alt="Creating a Bnd OSGi Project in Eclipse IDE">
 </div>
-<div class="title">Figure 29. Creating a Bnd OSGi Project in Eclipse IDE</div>
+<div class="title">Figure 28. Creating a Bnd OSGi Project in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1611,7 +1602,7 @@ Technically an OpenEMS Edge Device provides implementations of the interfaces of
 <div class="content">
 <img src="./img/eclipse-new-osgi-provider-bundle.png" alt="Creating a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE">
 </div>
-<div class="title">Figure 30. Creating a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
+<div class="title">Figure 29. Creating a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1632,7 +1623,7 @@ The project name is used as the folder name in OpenEMS source directory. The nam
 <div class="content">
 <img src="./img/eclipse-new-osgi-provider-socomec.png" alt="Naming a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE">
 </div>
-<div class="title">Figure 31. Naming a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
+<div class="title">Figure 30. Naming a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1641,7 +1632,7 @@ The project name is used as the folder name in OpenEMS source directory. The nam
 <div class="content">
 <img src="./img/eclipse-new-osgi-provider-socomec-final.png" alt="Java settings for a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE">
 </div>
-<div class="title">Figure 32. Java settings for a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
+<div class="title">Figure 31. Java settings for a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1663,7 +1654,7 @@ The project name is used as the folder name in OpenEMS source directory. The nam
 <div class="content">
 <img src="./img/eclipse-new-socomec-bundle.png" alt="New SOCOMEC DIRIS A14 Bnd OSGi Provider/Adapter Bundle in Eclipse IDE">
 </div>
-<div class="title">Figure 33. New SOCOMEC DIRIS A14 Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
+<div class="title">Figure 32. New SOCOMEC DIRIS A14 Bnd OSGi Provider/Adapter Bundle in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1687,7 +1678,7 @@ You can see, that the Bundle is currently dependent on a core OSGi API bundle ('
 <div class="content">
 <img src="./img/eclipse-bnd-file-build.png" alt="Bndtools Build configuration">
 </div>
-<div class="title">Figure 34. Bndtools Build configuration</div>
+<div class="title">Figure 33. Bndtools Build configuration</div>
 </div>
 </li>
 <li>
@@ -1696,7 +1687,7 @@ You can see, that the Bundle is currently dependent on a core OSGi API bundle ('
 <div class="content">
 <img src="./img/eclipse-osgi-build-path.png" alt="Bndtools Build Path configuration">
 </div>
-<div class="title">Figure 35. Bndtools Build Path configuration</div>
+<div class="title">Figure 34. Bndtools Build Path configuration</div>
 </div>
 </li>
 <li>
@@ -1768,7 +1759,7 @@ Private-Package: io.openems.edge.meter.socomec.dirisa14
 <div class="content">
 <img src="./img/eclipse-new-annotation.png" alt="Creating a Java annotation in Eclipse IDE">
 </div>
-<div class="title">Figure 36. Creating a Java annotation in Eclipse IDE</div>
+<div class="title">Figure 35. Creating a Java annotation in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1777,7 +1768,7 @@ Private-Package: io.openems.edge.meter.socomec.dirisa14
 <div class="content">
 <img src="./img/eclipse-new-config-annotation.png" alt="Creating the Java annotation 'Config' in Eclipse IDE">
 </div>
-<div class="title">Figure 37. Creating the Java annotation 'Config' in Eclipse IDE</div>
+<div class="title">Figure 36. Creating the Java annotation 'Config' in Eclipse IDE</div>
 </div>
 </li>
 <li>
@@ -1898,7 +1889,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 <div class="content">
 <img src="./img/eclipse-rename.png" alt="Renaming a Java class in Eclipse IDE">
 </div>
-<div class="title">Figure 38. Renaming a Java class in Eclipse IDE</div>
+<div class="title">Figure 37. Renaming a Java class in Eclipse IDE</div>
 </div>
 <div class="paragraph">
 <p>Afterwards the <code>MeterSocomecDirisA14.java</code> file has the following content:</p>
@@ -2268,7 +2259,7 @@ public class Utils {
 <div class="content">
 <img src="./img/eclipse-channels-switch-case.png" alt="Eclipse IDE Quick Fix for switch-case">
 </div>
-<div class="title">Figure 39. Eclipse IDE Quick Fix for switch-case</div>
+<div class="title">Figure 38. Eclipse IDE Quick Fix for switch-case</div>
 </div>
 <div class="paragraph">
 <p>Finally we need to call the <em>Utils.initializeChannels()</em> from the Component constructor. Add the following code to the Component code. It receives a Stream of Channel objects and adds all of them to the Component using the <code>addChannel()</code> method.</p>
@@ -2365,7 +2356,7 @@ public String debugLog() {
 <div class="content">
 <img src="./img/eclipse-edgeapp-bndrun.png" alt="Eclipse IDE EdgeApp.bndrun">
 </div>
-<div class="title">Figure 40. Eclipse IDE EdgeApp.bndrun</div>
+<div class="title">Figure 39. Eclipse IDE EdgeApp.bndrun</div>
 </div>
 <div class="paragraph">
 <p>Press <b class="button">Resolve</b> to dissolve the dependencies and accept the <em>Resolution Results</em> window with <b class="button">Finish</b>.</p>
@@ -2445,7 +2436,7 @@ public String debugLog() {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-06-24 14:11:28 DST
+Last updated 2018-07-20 17:12:22 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

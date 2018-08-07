@@ -1,6 +1,4 @@
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import * as d3 from 'd3';
+import { Component, Input } from '@angular/core';
 
 import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
 

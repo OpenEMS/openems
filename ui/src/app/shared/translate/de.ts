@@ -15,7 +15,7 @@ export const TRANSLATION = {
         ChargePower: "Beladung",
         DischargePower: "Entladung",
         PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
-        DateFormat: "DD.MM.YYYY", // z.B. Englisch: YYYY-MM-DD (DD = Tag, MM = Monat, YYYY = Jahr)
+        DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         Search: "Suchen",
         Week: {
             Monday: "Montag",
@@ -118,7 +118,7 @@ export const TRANSLATION = {
         Developed: "Diese Benutzeroberfläche wird von FENECON als Open-Source-Software entwickelt.",
         Fenecon: "Mehr zu FENECON",
         Fems: "Mehr zu FEMS",
-        Sourcecode: "Quellcode",
+        OpenEMS: "Mehr zu OpenEMS",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
         Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team

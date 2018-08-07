@@ -7,6 +7,7 @@ import { HistoryComponent } from './history/history.component';
 import { FieldstatusComponent } from './fieldstatus/fieldstatus.component';
 import { OverviewComponent } from './overview.component';
 import { StateComponent } from './state/state.component';
+import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { EnergytableComponent_2018_7 } from './energytable.2018.7/energytable.2018.7.component';
 import { EnergytableComponent_2018_8 } from './energytable.2018.8/energytable.2018.8.component';
 
@@ -22,7 +23,8 @@ import { EnergytableComponent_2018_8 } from './energytable.2018.8/energytable.20
     EnergytableComponent_2018_7,
     HistoryComponent,
     FieldstatusComponent,
-    StateComponent
+    StateComponent,
+    ChannelthresholdComponent
   ]
 })
 export class OverviewModule { }

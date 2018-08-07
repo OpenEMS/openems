@@ -1,5 +1,7 @@
-import { Component, Input, OnDestroy, ViewChildren, QueryList } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+//import { Component, Input, OnDestroy, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, ViewChildren, QueryList } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
@@ -45,7 +47,7 @@ export class EvcsComponent {
     }
     this.channelComponentChildren.forEach(channelComponent => {
       channelComponent.message
-        .takeUntil(this.stopOnDestroy)
+        .pipe(takeUntil(this.stopOnDestroy))
         .subscribe((message) => {
           if (message != null) {
             this.edge.send(message);
