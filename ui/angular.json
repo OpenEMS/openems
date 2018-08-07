@@ -47,7 +47,7 @@
                   "with": "src/environments/openems-backend.ts"
                 }
               ],
-              "baseHref": "/m/",
+              "baseHref": "/primus/",
               "outputPath": "target/backend"
             },
             "backend-dev-local": {
