@@ -5,21 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.mariadb.jdbc.Driver;
@@ -32,6 +26,7 @@ import com.google.gson.JsonSyntaxException;
 
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.StringUtils;
 
@@ -39,13 +34,19 @@ public class DBUtils {
 	private String password;
 	private Connection conn;
 	private final Logger log = LoggerFactory.getLogger(DBUtils.class);
-	private String url = "jdbc:mariadb://localhost:3306/primus?user=root2&password=";
+	private String url;
+	private String wpurl;
+	private String dbuser;
 
-	public DBUtils(String p) {
+	public DBUtils(String dbuser, String p, String dburl, String wpurl) {
 		this.password = p;
+		this.wpurl = wpurl;
+		this.dbuser = dbuser;
+		this.url = dburl + "/primus?user=" + this.dbuser + "&password=" + this.password;
+		
 		try {
 			DriverManager.registerDriver(new Driver());
-			this.conn = DriverManager.getConnection(this.url + this.password);
+			this.conn = DriverManager.getConnection(this.url);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,7 +55,7 @@ public class DBUtils {
 
 	private void reconnect() throws SQLException {
 		if (this.conn.isClosed()) {
-			this.conn = DriverManager.getConnection(this.url + this.password);
+			this.conn = DriverManager.getConnection(this.url);
 		}
 	}
 
@@ -101,12 +102,12 @@ public class DBUtils {
 
 	}
 
-	public MyUser getUserFromDB(String login, String sessionId) {
+	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
 		MyUser user = null;
-		
+
 		createUser(sessionId);
-		
+
 		Statement stmt;
 		try {
 			reconnect();
@@ -121,10 +122,10 @@ public class DBUtils {
 				sql = "SELECT edge_id FROM user_edges WHERE user_id = " + result.getInt("user_id");
 
 				ResultSet edges = stmt.executeQuery(sql);
-				int i = 0;
+
 				while (edges.next()) {
 					edge_ids_list.add(edges.getInt("edge_id"));
-					i++;
+
 				}
 
 				user = new MyUser(result.getInt("user_id"), result.getString("name"), edge_ids_list,
@@ -143,27 +144,72 @@ public class DBUtils {
 
 	}
 
-	private boolean createUser(String sessionId) {
+	private boolean createUser(String sessionId) throws OpenemsException {
 
+		JsonObject j = getWPResponse("/user/get_user_meta/?cookie=" + sessionId);
+		if (j == null) {
+			return false;
+		}
+		String nick = j.get("nickname").getAsString();
+		String role = j.get("primusrole").getAsString();
+		String primus = j.get("primus").getAsString();
+		String[] edges = primus.split(",");
+
+		j = getWPResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
+		if (j == null) {
+			return false;
+		}
+		JsonObject userinfo = j.getAsJsonObject("user");
+
+		String name = userinfo.get("firstname").getAsString() + " " + userinfo.get("lastname").getAsString();
+		if (!name.matches(".*\\w.*")) {
+			name = nick;
+		}
+		String email = userinfo.get("email").getAsString();
+
+		try {
+			reconnect();
+			Statement stmt;
+			stmt = this.conn.createStatement();
+
+			String sql = "INSERT INTO users (role,edge_id,name,email,login) VALUES ('" + role + "', '" + edges[0]
+					+ "', '" + name + "', '" + email + "', '" + nick + "')";
+			stmt.executeUpdate(sql);
+			sql = "SELECT * FROM users WHERE login = '" + nick + "'";
+
+			ResultSet result = stmt.executeQuery(sql);
+			while (result.next()) {
+				int id = result.getInt("user_id");
+				if (id == 0) {
+					return false;
+				}
+				for (String edge_id : edges) {
+					sql = "INSERT INTO user_edges (user_id, edge_id) VALUES (" + id + ", " + edge_id + ")";
+					stmt.executeUpdate(sql);
+				}
+			}
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
+	public JsonObject getWPResponse(String urlparams) throws OpenemsException {
 		HttpsURLConnection connection = null;
 
 		try {
-			connection = (HttpsURLConnection) new URL(
-					"https://www.energydepot.de/api/user/get_user_meta/?cookie=" + sessionId).openConnection();
+			connection = (HttpsURLConnection) new URL(this.wpurl + "/api" + urlparams).openConnection();
 			connection.setConnectTimeout(5000);// 5 secs
 			connection.setReadTimeout(5000);// 5 secs
-			// connection.setRequestProperty("Accept-Charset", charset);
+
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-length", "0");
-			// connection.setDoOutput(true);
-			connection.setRequestProperty("Accept", "application/json");
-			// connection.setRequestProperty("Content-Type", "application/json");
 
-			// OutputStreamWriter out = new
-			// OutputStreamWriter(connection.getOutputStream());
-			// out.write("");
-			// out.flush();
-			// out.close();
+			connection.setRequestProperty("Accept", "application/json");
+
 			connection.connect();
 			int responseCode = connection.getResponseCode();
 
@@ -177,7 +223,7 @@ public class DBUtils {
 			case 200:
 			case 201:
 				while ((line = br.readLine()) != null) {
-					log.info(line);
+
 					if (line.isEmpty()) {
 						continue;
 					}
@@ -189,35 +235,11 @@ public class DBUtils {
 						status = j.get("status").getAsString();
 
 						if (status.equals("ok")) {
-							String nick = j.get("nickname").getAsString();
-							String role = j.get("primusrole").getAsString();
-							String primus = j.get("primus").getAsString();
-							String[] edges = primus.split(",");
+							return j;
 
-							reconnect();
-							Statement stmt;
-							stmt = this.conn.createStatement();
-
-							String sql = "INSERT INTO users (role,edge_id,name,login) VALUES ('" + role + "', '"
-									+ edges[0] + "', '" + nick + "', '" + nick + "')";
-							stmt.executeUpdate(sql);
-							sql = "SELECT * FROM users WHERE login = '" + nick + "'";
-
-							ResultSet result = stmt.executeQuery(sql);
-							while(result.next()) {
-								int id = result.getInt("user_id");
-								if (id == 0) {
-									return false;
-								}
-								for (String edge_id : edges) {
-									sql = "INSERT INTO user_edges (user_id, edge_id) VALUES (" + id + ", " + edge_id + ")";
-									stmt.executeUpdate(sql);
-								}
-							}
-							
-
-							return true;
-
+						}
+						if(status.equals("error")) {
+							throw new OpenemsException("Authentication Error: " + j.get("error").getAsString());
 						}
 					}
 				}
@@ -225,12 +247,14 @@ public class DBUtils {
 		} catch (JsonSyntaxException | IOException e) {
 
 			e.printStackTrace();
-			return false;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
+			return null;
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
 		}
-		return false;
+
+		return null;
 
 	}
 

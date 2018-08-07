@@ -44,7 +44,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	private ServiceInfo si = null;
 	private Discovery nd;
 	private VectisData vectis;
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
@@ -58,10 +58,10 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		try {
 
 			this.nd = Discovery.getInstance(lHost);
-			if(!config.sn().trim().isEmpty() && config.sn() != null) {
+			if (!config.sn().trim().isEmpty() && config.sn() != null) {
 				this.si = nd.getBySerialNumber(config.sn());
 			}
-			
+
 			this.nd.close();
 			if (this.si == null) {
 				inverterAddress = InetAddress.getByName(config.ip());
@@ -69,9 +69,6 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 				inverterAddress = InetAddress.getByName(this.si.getHostAddress());
 			}
 
-			
-
-			
 			this.cl = new Client(inverterAddress, this.lHost, 1);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -81,30 +78,13 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		this.cl.setUserKey(config.uk());
 		try {
 			this.battery = new BatteryData();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
+
 			this.inverter = new InverterData();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
+
 			this.status = new Status();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
+
 			this.settings = new Settings();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			this.vectis = new VectisData();
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -192,7 +172,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		} else {
 			return this.vectis;
 		}
-	
+
 	}
 
 }

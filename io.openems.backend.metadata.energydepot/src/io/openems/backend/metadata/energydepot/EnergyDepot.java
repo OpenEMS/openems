@@ -1,17 +1,10 @@
 package io.openems.backend.metadata.energydepot;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
@@ -50,11 +42,11 @@ public class EnergyDepot implements MetadataService {
 
 	@Activate
 	void activate(Config config) {
-		this.dbu = new DBUtils(config.password());
+		this.dbu = new DBUtils(config.user(),config.password(), config.dburl(), config.wpurl());
 		log.info("Activate EnergyDepot DB");
 		this.edges.clear();
 		this.edges = this.dbu.getEdges();
-		// log.info(this.edges.toString());
+
 	}
 
 	@Deactivate
@@ -69,11 +61,11 @@ public class EnergyDepot implements MetadataService {
 		if (user == null) {
 			throw new OpenemsException("User not found: Gastzugang");
 		}
-		
+
 		for (int edgeId : user.getEdgeids()) {
 			user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
 		}
-		
+
 		synchronized (this.users) {
 			this.users.put(user.getId(), user);
 		}
@@ -83,114 +75,52 @@ public class EnergyDepot implements MetadataService {
 
 	@Override
 	public User authenticate(String sessionId) throws OpenemsException {
-		// TODO verify userdata from wordpress
-		// add Edge Role
 
 		String[] cookiesplit = sessionId.split("%");
 		String username = cookiesplit[0];
 
-		HttpsURLConnection connection = null;
 		try {
-			connection = (HttpsURLConnection) new URL(
-					"https://www.energydepot.de/api/auth/validate_auth_cookie/?cookie=" + sessionId).openConnection();
-			connection.setConnectTimeout(5000);// 5 secs
-			connection.setReadTimeout(5000);// 5 secs
-			// connection.setRequestProperty("Accept-Charset", charset);
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Content-length", "0");
-			// connection.setDoOutput(true);
-			connection.setRequestProperty("Accept", "application/json");
-			// connection.setRequestProperty("Content-Type", "application/json");
 
-			// OutputStreamWriter out = new
-			// OutputStreamWriter(connection.getOutputStream());
-			// out.write("");
-			// out.flush();
-			// out.close();
-			connection.connect();
-			int responseCode = connection.getResponseCode();
-
-			InputStream is = connection.getInputStream();
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			String line = null;
-
-			String status;
 			boolean valid = false;
 
-			switch (responseCode) {
-			case 200:
-			case 201:
-				while ((line = br.readLine()) != null) {
-					log.info(line);
-					if (line.isEmpty()) {
-						continue;
-					}
+			JsonObject j = this.dbu.getWPResponse("/auth/validate_auth_cookie/?cookie=" + sessionId);
 
-					JsonObject j = (new JsonParser()).parse(line).getAsJsonObject();
+			valid = j.get("valid").getAsBoolean();
 
-					if (j.has("status")) {
-						// parse the result
-						status = j.get("status").getAsString();
+			if (valid) {
+				MyUser user = this.dbu.getUserFromDB(username, sessionId);
+				if (user == null) {
 
-						if (status.equals("ok")) {
-							valid = j.get("valid").getAsBoolean();
-
-							if (valid) {
-								MyUser user = this.dbu.getUserFromDB(username, sessionId);
-								if (user == null) {
-									
-									throw new OpenemsException("User Not found!");
-									
-									
-								}
-								// admin, guest, installer, owner
-								if (user.getRole().equals("admin")) {
-									for (int edgeId : this.edges.keySet()) {
-										user.addEdgeRole(edgeId, Role.ADMIN);
-									}
-								} else {
-									for (int edgeId : user.getEdgeids())
-
-										user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
-								}
-
-								synchronized (this.users) {
-									this.users.put(user.getId(), user);
-								}
-
-								return user;
-
-							} else {
-								throw new OpenemsException("User Login not valid!");
-							}
-
-						}
-						if (status.equals("error")) {
-							throw new OpenemsException("Authentication Error: " + j.get("error").getAsString());
-						}
-
-					}
+					throw new OpenemsException("User Not found!");
 
 				}
-				break;
+				// admin, guest, installer, owner
+				if (user.getRole().equals("admin")) {
+					for (int edgeId : this.edges.keySet()) {
+						user.addEdgeRole(edgeId, Role.ADMIN);
+					}
+				} else {
+					for (int edgeId : user.getEdgeids())
 
-			default:
-				throw new OpenemsException("Errorcode: " + responseCode);
+						user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
+				}
+
+				synchronized (this.users) {
+					this.users.put(user.getId(), user);
+				}
+
+				return user;
+
+			} else {
+				throw new OpenemsException("User Login not valid!");
 			}
-
-			throw new OpenemsException("No matching user found");
 		} catch (JsonSyntaxException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
-		} catch (IOException e) {
-			throw new OpenemsException("IOException while reading from Energydepot: " + e.getMessage());
-		} finally {
-			if (connection != null) {
-				connection.disconnect();
-			}
+
 		}
 		return null;
-		// return this.authenticate();
+
 	}
 
 	@Override
