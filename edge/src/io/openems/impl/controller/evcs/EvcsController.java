@@ -20,17 +20,35 @@ public class EvcsController extends Controller {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 
-	// delay the control for 300 cycles to avoid too fast control
-	private final int CONTROL_LAG = 100;
+	/**
+	 * Delay adjustment of EVCS current to CONTROL_LAG cycles
+	 */
+	private final int CONTROL_LAG = 300; // every 5 minutes
 	private final int WAIT_FOR_VALUE_SET = 5;
 
 	private final int DEFAULT_MIN_CURRENT = 6000;
 	private final boolean DEFAULT_FORCE_CHARGE = false;
 
-	private final AvgFiFoQueue sellToGridPowerQueue = new AvgFiFoQueue(CONTROL_LAG, 1.5);
+	/**
+	 * Calculate average Grid Active Power
+	 *
+	 * <ul>
+	 * <li>positive: buy-from-grid
+	 * <li>negative: sell-to-grid
+	 * </ul>
+	 */
+	private final AvgFiFoQueue gridActivePowerQueue = new AvgFiFoQueue(CONTROL_LAG, 1.5);
+	/**
+	 * Calculate average ESS Active Power
+	 *
+	 * <ul>
+	 * <li>positive: discharge
+	 * <li>negative: charge
+	 * </ul>
+	 */
 	private final AvgFiFoQueue essActivePowerQueue = new AvgFiFoQueue(CONTROL_LAG, 1.5);
 	private Optional<Integer> lastCurrentMilliAmp = Optional.empty();
-	private int lagCountdown = CONTROL_LAG;
+	private int lagCountdown = 0;
 	private int waitForValueSet = WAIT_FOR_VALUE_SET;
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 
@@ -83,7 +101,7 @@ public class EvcsController extends Controller {
 
 		// get sell-to-grid power
 		try {
-			this.sellToGridPowerQueue.add(this.meter.value().getActivePowerSum());
+			this.gridActivePowerQueue.add(this.meter.value().getActivePowerSum());
 			this.essActivePowerQueue.add(this.ess.value().getActivePowerSum());
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
@@ -111,23 +129,25 @@ public class EvcsController extends Controller {
 				// set to max for KEBA
 				currentMilliAmp = 63000;
 			} else {
-				// calculate excess power
-				long gridBuyGridPower = this.sellToGridPowerQueue.avg();
-				long essDischargePower = this.essActivePowerQueue.avg();
-				log.info("EssActivePower: " + essDischargePower + "; sellToGrid: " + gridBuyGridPower);
-				long excessPower;
-				if (gridBuyGridPower + essDischargePower > 0) {
-					excessPower = 0;
-				} else {
-					excessPower = Math.abs(gridBuyGridPower + essDischargePower);
+				// calculate excess power = feed-to-grid + ess charge
+				long essChargePower = this.essActivePowerQueue.avg() * -1;
+				long gridSellPower = this.gridActivePowerQueue.avg() * -1;
+				long evcsCurrent = evcs.userCurrent.getValue();
+				currentMilliAmp = (int) Math.round(
+						// convert power to current
+						((gridSellPower + essChargePower) / 692.820323) * 1000
+						// add actual evcs charging current
+						+ evcsCurrent);
+				log.info("Calculation: essChargePower [" + essChargePower + "] + gridSellPower [" + gridSellPower
+						+ "]) + userCurrent [" + evcsCurrent + "] = " + currentMilliAmp);
+				if (currentMilliAmp < 0) {
+					currentMilliAmp = 0;
 				}
-				log.info("Calculation: abs(gridBuyGridPower [" + gridBuyGridPower + "] + essDischargePower ["
-						+ essDischargePower + "]) = excessPower [" + excessPower + "]");
 
 				// set evcs charging current
-				currentMilliAmp = (int) Math.round((excessPower / 692.820323) * 1000);
 				if (currentMilliAmp < minCurrent.valueOptional().orElse(DEFAULT_MIN_CURRENT)) {
 					currentMilliAmp = minCurrent.valueOptional().orElse(DEFAULT_MIN_CURRENT);
+					log.info("Reset: currentMilliAmp [" + currentMilliAmp + "]");
 				}
 			}
 			this.setCurrentMilliAmp(currentMilliAmp);
