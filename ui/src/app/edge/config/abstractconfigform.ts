@@ -1,9 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subject } from 'rxjs/Subject';
+import { OnInit, OnDestroy } from '@angular/core';
+import { FormGroup, FormArray, AbstractControl } from '@angular/forms';
+import { BehaviorSubject, Subject } from 'rxjs';
+
 
 import { Websocket } from '../../shared/shared';
 import { Edge } from '../../shared/edge/edge';

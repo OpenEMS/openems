@@ -15,7 +15,7 @@ export const TRANSLATION = {
         ChargePower: "Nabíjecí výkon",
         DischargePower: "Vybíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
-        DateFormat: "DD.MM.YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
+        DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",

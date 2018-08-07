@@ -1,4 +1,4 @@
-<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div fxLayout fxLayoutAlign="center start" fxLayout="wrap">
   <div fxFlex="50%" fxFlex.xs="100%">
     <form [formGroup]="form" (ngSubmit)="doLogin()">
       <mat-card class="single">
@@ -32,10 +32,10 @@
             <mat-card-title>Bitte geben Sie Ihre Zugangsdaten ein</mat-card-title>
             <!-- TODO translate -->
           </mat-card-header>
-          <mat-card-content fxLayout fxLayoutWrap="wrap">
-            <mat-input-container fxFlex="100%">
+          <mat-card-content fxLayout fxLayout="wrap">
+            <mat-form-field fxFlex="100%">
               <input matInput formControlName="password" matInput type="password" placeholder="Passwort">
-            </mat-input-container>
+            </mat-form-field>
             <!-- Messages -->
             <p fxFlex="100%">{{ (websocket.event | async)?.message }}</p>
           </mat-card-content>
@@ -59,10 +59,10 @@
     <!-- List of edges -->
     <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
       <mat-card class="single">
-        <mat-card-content fxLayout fxLayoutWrap="wrap">
-          <mat-input-container fxFlex="100%" [formGroup]="filter">
+        <mat-card-content fxLayout fxLayout="wrap">
+          <mat-form-field fxFlex="100%" [formGroup]="filter">
             <input type="text" formControlName="filter" placeholder="Filter" matInput autofocus>
-          </mat-input-container>
+          </mat-form-field>
         </mat-card-content>
       </mat-card>
     </ng-container>

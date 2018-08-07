@@ -1,23 +1,24 @@
-import { Component, Input, OnDestroy, ViewChildren, QueryList } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Component, Input, ViewChildren, QueryList } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
+import { CurrentDataAndSummary_2018_7 } from '../../../shared/edge/currentdata.2018.7';
 import { Edge } from '../../../shared/edge/edge';
 import { ChannelComponent } from '../../../shared/config/channel.component';
 
 @Component({
-  selector: 'evcs',
-  templateUrl: './evcs.component.html'
+  selector: 'evcs-2018-7',
+  templateUrl: './evcs.2018.7.component.html'
 })
-export class EvcsComponent {
+export class EvcsComponent_2018_7 {
 
   @Input()
-  public currentData: CurrentDataAndSummary;
+  public currentData: CurrentDataAndSummary_2018_7;
 
   @Input()
-  public config: DefaultTypes.Config;
+  public config: DefaultTypes.Config_2018_7;
 
   @Input()
   public edge: Edge;
@@ -45,7 +46,7 @@ export class EvcsComponent {
     }
     this.channelComponentChildren.forEach(channelComponent => {
       channelComponent.message
-        .takeUntil(this.stopOnDestroy)
+        .pipe(takeUntil(this.stopOnDestroy))
         .subscribe((message) => {
           if (message != null) {
             this.edge.send(message);

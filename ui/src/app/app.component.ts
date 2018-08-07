@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/takeUntil';
-import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ToasterService, BodyOutputType } from 'angular2-toaster';
 
 import { environment } from '../environments';
@@ -26,7 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.service.notificationEvent.takeUntil(this.ngUnsubscribe).subscribe(notification => {
+    this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(notification => {
       this.toaster.pop({ type: notification.type, body: notification.message });
     });
   }

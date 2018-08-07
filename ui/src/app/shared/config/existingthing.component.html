@@ -9,7 +9,7 @@
             </span>ID: {{ thing.id }}
             <br/>Implementation: {{ thing.class }}</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content fxLayout fxLayoutWrap="wrap">
+    <mat-card-content fxLayout fxLayout="row wrap">
         <ng-container *ngFor="let channelId of utils.keys(meta.channels)">
             <channel [thingId]="thingId" [channelId]="channelId" [config]="config" [role]="role" [edge]="edge" [showThings]="showSubThings"
                 fxFlex="100%"></channel>

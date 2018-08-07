@@ -2,9 +2,12 @@ package market.diagram.load;
 
 import java.util.Date;
 
+import market.diagram.api.Period;
 import market.diagram.universal.ArrayListDiagram;
 
 public class LoadDiagram extends ArrayListDiagram<ValueDecimal> {
+
+	private static final long serialVersionUID = 5265230054197284740L;
 
 	public LoadDiagram() {
 		super();
@@ -65,5 +68,17 @@ public class LoadDiagram extends ArrayListDiagram<ValueDecimal> {
 
 	public void print() {
 		super.print();
+	}
+
+	public LoadDiagram getCopy() {
+		return (LoadDiagram) super.getCopy();
+	}
+
+	public LoadPeriod getNext() {
+		Period<ValueDecimal> next = super.getNext();
+		if (next == null) {
+			return null;
+		}
+		return new LoadPeriod(next);
 	}
 }

@@ -45,11 +45,11 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 Build for OpenEMS Backend:
 
-`ng build -prod --env=backend --base-href /m/ --output-path=target/backend`
+`ng build -c backend`
 
 Build for OpenEMS Edge:
 
-`ng build -prod --env=edge --base-href / --output-path=target/edge`
+`ng build -c edge`
 
 ## Further help
 

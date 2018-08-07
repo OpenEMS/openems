@@ -46,7 +46,9 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-backend.ts"
                 }
-              ]
+              ],
+              "baseHref": "/m/",
+              "outputPath": "target/backend"
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -87,7 +89,20 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-edge.ts"
                 }
-              ]
+              ],
+              "baseHref": "/",
+              "outputPath": "target/edge"
+            },
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
             }
           }
         },
@@ -111,6 +126,9 @@
             },
             "edge": {
               "browserTarget": "openems-ui:build:edge"
+            },
+            "production": {
+              "browserTarget": "openems-ui:build:production"
             }
           }
         },
@@ -157,8 +175,8 @@
       }
     },
     "openems-ui-e2e": {
-      "root": "",
-      "sourceRoot": "",
+      "root": "e2e",
+      "sourceRoot": "e2e",
       "projectType": "application",
       "architect": {
         "e2e": {

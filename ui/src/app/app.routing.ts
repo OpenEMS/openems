@@ -1,7 +1,6 @@
 import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { AppComponent } from './app.component';
 import { AboutComponent } from './about/about.component';
 import { OverviewComponent } from './overview/overview.component';
 import { OverviewComponent as EdgeOverviewComponent } from './edge/overview/overview.component';

@@ -1,29 +1,24 @@
-import { Component, Input, OnDestroy, ViewChildren, QueryList } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, Input } from '@angular/core';
 
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
+import { CurrentDataAndSummary_2018_7 } from '../../../shared/edge/currentdata.2018.7';
 import { Edge } from '../../../shared/edge/edge';
-import { ChannelComponent } from '../../../shared/config/channel.component';
 
 @Component({
-  selector: 'channelthreshold',
-  templateUrl: './channelthreshold.component.html'
+  selector: 'channelthreshold-2018-7',
+  templateUrl: './channelthreshold.2018.7.component.html'
 })
-export class ChannelthresholdComponent {
+export class ChannelthresholdComponent_2018_7 {
 
   @Input()
-  public currentData: CurrentDataAndSummary;
+  public currentData: CurrentDataAndSummary_2018_7;
 
   @Input()
-  public config: DefaultTypes.Config;
+  public config: DefaultTypes.Config_2018_7;
 
   @Input()
   public edge: Edge;
-
-
 
   constructor(public utils: Utils) { }
 
