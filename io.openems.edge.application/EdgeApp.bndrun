@@ -28,6 +28,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.ess.limittotaldischarge)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
@@ -64,6 +65,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
+	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
