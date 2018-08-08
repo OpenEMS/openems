@@ -287,20 +287,25 @@ public class LinearPower implements Power {
 		}
 
 		/*
-		 * Remove Constraints from temporary list, that are already covered. i.e.
-		 * Relationship is EQUALS and Constraint-Value is != 0
+		 * Remove Constraints from temporary list, that are already covered. i.e. <ul>
+		 * <li>Type is STATIC, Relationship is EQUALS and Constraint-Value is != 0
+		 * <li>Type is CYCLE </ul>
 		 */
 		for (Constraint constraint : this.data.getAllConstraints()) {
-			if (constraint.getRelationship() != Relationship.EQ || constraint.getValue().orElse(0d) == 0) {
-				continue;
-			}
-			for (Coefficient thisCoefficient : constraint.getCoefficients()) {
-				Iterator<Coefficient> i = allPossibleCoefficients.iterator();
-				while (i.hasNext()) {
-					Coefficient possibleCoefficient = i.next();
-					if (Utils.coefficientIsCoveredBy(possibleCoefficient, thisCoefficient.getEss(), thisCoefficient.getPhase(),
-							thisCoefficient.getPwr())) {
-						i.remove();
+			if ( //
+			(constraint.getType() == ConstraintType.STATIC && constraint.getRelationship() == Relationship.EQ
+					&& constraint.getValue().orElse(0d) != 0) //
+					|| //
+					(constraint.getType() == ConstraintType.CYCLE) //
+			) {
+				for (Coefficient thisCoefficient : constraint.getCoefficients()) {
+					Iterator<Coefficient> i = allPossibleCoefficients.iterator();
+					while (i.hasNext()) {
+						Coefficient possibleCoefficient = i.next();
+						if (Utils.coefficientIsCoveredBy(possibleCoefficient, thisCoefficient.getEss(),
+								thisCoefficient.getPhase(), thisCoefficient.getPwr())) {
+							i.remove();
+						}
 					}
 				}
 			}
