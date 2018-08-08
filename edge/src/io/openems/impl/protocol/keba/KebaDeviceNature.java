@@ -487,4 +487,9 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	public WriteChannel<Boolean> setEnabled() {
 		return this.setEnabled;
 	}
+
+	@Override
+	public ReadChannel<Integer> actualPower() {
+		return this.actualPower;
+	}
 }

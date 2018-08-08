@@ -39,4 +39,12 @@ public interface EvcsNature extends DeviceNature {
 
 	@ChannelInfo(type = Boolean.class)
 	public WriteChannel<Boolean> setEnabled();
+
+	/**
+	 * Actual Charging Power in [mW]
+	 *
+	 * @return
+	 */
+	@ChannelInfo(type = Integer.class)
+	public ReadChannel<Integer> actualPower();
 }

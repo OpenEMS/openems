@@ -132,14 +132,12 @@ public class EvcsController extends Controller {
 				// calculate excess power = feed-to-grid + ess charge
 				long essChargePower = this.essActivePowerQueue.avg() * -1;
 				long gridSellPower = this.gridActivePowerQueue.avg() * -1;
-				long evcsCurrent = evcs.userCurrent.getValue();
-				currentMilliAmp = (int) Math.round(
-						// convert power to current
-						((gridSellPower + essChargePower) / 692.820323) * 1000
-						// add actual evcs charging current
-						+ evcsCurrent);
+				long evcsPower = evcs.actualPower.getValue() / 1000;
+				long excessPower = gridSellPower + essChargePower + evcsPower;
+				// add actual evcs charging current
+				currentMilliAmp = (int) Math.round((excessPower / 692.820323) * 1000);
 				log.info("Calculation: essChargePower [" + essChargePower + "] + gridSellPower [" + gridSellPower
-						+ "]) + userCurrent [" + evcsCurrent + "] = " + currentMilliAmp);
+						+ "]) + evcsPower [" + evcsPower + "] = " + excessPower + " W => " + currentMilliAmp + " mA");
 				if (currentMilliAmp < 0) {
 					currentMilliAmp = 0;
 				}

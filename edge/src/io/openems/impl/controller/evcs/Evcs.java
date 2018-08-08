@@ -32,12 +32,17 @@ public class Evcs extends ThingMap {
 	public final ReadChannel<Integer> userCurrent;
 	public final WriteChannel<Integer> setCurrent;
 	public final WriteChannel<Boolean> setEnabled;
+	/**
+	 * Actual Power in [mW]
+	 */
+	public final ReadChannel<Integer> actualPower;
 
 	public Evcs(EvcsNature evcs) {
 		super(evcs);
 		this.setCurrent = evcs.setCurrent();
 		this.setEnabled = evcs.setEnabled();
 		this.userCurrent = evcs.currUser();
+		this.actualPower = evcs.actualPower();
 	}
 
 }
