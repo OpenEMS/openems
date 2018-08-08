@@ -1,7 +1,6 @@
 package io.openems.edge.ess.fenecon.mini;
 
 import java.time.LocalDateTime;
-
 import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,7 +18,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -53,12 +51,11 @@ import io.openems.edge.ess.power.api.Pwr;
 		name = "Ess.Fenecon.Mini", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
 )
 
 public class EssFeneconMini extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
-
 	private final Logger log = LoggerFactory.getLogger(EssFeneconMini.class);
 	private String modbusBridgeId;
 	private final static int UNIT_ID = 4;
@@ -442,7 +439,7 @@ public class EssFeneconMini extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
 			this.defineWorkState();
 			break;
 		}
