@@ -45,7 +45,8 @@ public interface Diagram<T extends Value<T>> extends Serializable {
 	 * @param at
 	 *            given time
 	 * @return valid value at given time; of type T (specific Value implementation)
-	 *         or null, if no value has been specified for the given time
+	 *         or the value's zero-value, if no value has been specified for the
+	 *         given time
 	 */
 	T getValue(Date at);
 
@@ -55,15 +56,16 @@ public interface Diagram<T extends Value<T>> extends Serializable {
 	 * nothing is added to the sum, but its duration is added to the divisor.
 	 * 
 	 * Since a Date addresses a specific millisecond according to unix time, if from
-	 * equals to, this method returns the same as getValue(from) and not null.
+	 * equals to, this method returns the same as getValue(from) and not the value's
+	 * zero-value.
 	 * 
 	 * @param from
 	 *            start of period
 	 * @param to
 	 *            end of period
 	 * @return value object representing the average value; of type T (specific
-	 *         Value implementation) or null, if no value has been specified for the
-	 *         given time or if to is before from
+	 *         Value implementation) or the value's zero-value, if no value has been
+	 *         specified for the given time or if to is before from
 	 */
 	T getAvg(Date from, Date to);
 

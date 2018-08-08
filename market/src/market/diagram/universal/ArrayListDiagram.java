@@ -13,6 +13,7 @@ import java.util.List;
 import market.diagram.api.Diagram;
 import market.diagram.api.Period;
 import market.diagram.api.Value;
+import market.diagram.api.ValueFactory;
 
 public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 
@@ -22,9 +23,12 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 
 	private Date iterator;
 
-	public ArrayListDiagram() {
+	private ValueFactory<T> vf;
+
+	public ArrayListDiagram(ValueFactory<T> valueFactory) {
 		tl = new ArrayList<Node<T>>();
 		iterator = new Date(0);
+		vf = valueFactory;
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 			}
 		} catch (IndexOutOfBoundsException e) {
 		}
-		return null;
+		return vf.NewZero();
 	}
 
 	@Override
@@ -90,10 +94,10 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 	public synchronized T getAvg(Date from, Date to) {
 		long duration = to.getTime() - from.getTime() + 1;
 		if (duration < 0) {
-			return null;
+			return vf.NewZero();
 		}
 		if (duration == 0) {
-			return null;
+			return vf.NewZero();
 		}
 		if (duration == 1) {
 			return getValue(from);
@@ -117,12 +121,14 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 				if (curEnd.getTime() < endTime) {
 					endTime = curEnd.getTime();
 				}
-				T endCopy = null;
+				T endCopy = vf.NewZero();
 				try {
 					endCopy = (T) curEnd.getValue().clone();
 					endCopy = endCopy.multiply(endTime - startTime + 1);
 				} catch (CloneNotSupportedException | NullPointerException e) {
 					e.printStackTrace();
+				} catch (NumberFormatException e) {
+					endCopy = vf.NewMax();
 				}
 				if (sum == null) {
 					sum = endCopy;
@@ -135,12 +141,15 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 		try {
 			return sum.divide(duration);
 		} catch (NullPointerException e) {
-			return null;
+			return vf.NewZero();
 		}
 	}
 
 	@Override
 	public synchronized void setValue(Date from, Date to, T value) {
+		if (value == null) {
+			return;
+		}
 		if (from.getTime() > to.getTime()) {
 			return;
 		}
@@ -200,12 +209,12 @@ public class ArrayListDiagram<T extends Value<T>> implements Diagram<T> {
 	public synchronized void print() {
 		for (Node<T> n : tl) {
 			if (n.isStart()) {
-				System.out.println("->->->->->->->->: " + n.getTime());
+				System.out.println("->->->->->->->->: " + n.getTime() + "   ~   " + new Date(n.getTime()).toString());
 				System.out.println();
 				System.out.println(n.getValue().toString());
 			} else {
 				System.out.println();
-				System.out.println("<-<-<-<-<-<-<-<-: " + n.getTime());
+				System.out.println("<-<-<-<-<-<-<-<-: " + n.getTime() + "   ~   " + new Date(n.getTime()).toString());
 			}
 		}
 	}
