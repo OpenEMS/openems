@@ -58,6 +58,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
+	public static final int DEFAULT_UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
 
 	private CircleConstraint maxApparentPowerConstraint = null;
@@ -96,9 +97,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		int UNIT_ID = 1; // TODO ?
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+	void activate(ComponentContext context, Config config) {		
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
@@ -112,7 +112,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void initializePower() {
-		// TODO adjust apparent power from modbus element
 		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
@@ -241,11 +240,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
 
 		try {
-			log.info(" ===============  BATTERY RANGES  ========================");
+			log.info(" ===============  BATTERY RANGES FOR " + this.id() + "  ========================");
 			log.info("DIS MIN V: " + disMinV);
 			log.info("DIS MAX A: " + disMaxA);
 			log.info("CHA MAX V: " + chaMaxV);
 			log.info("CHA MAX A: " + chaMaxA);
+			log.info("SoC: " + battery.getSoc().value().orElse(Integer.MIN_VALUE));
 			
 			disMinVChannel.setNextWriteValue(disMinV);
 			chaMaxVChannel.setNextWriteValue(chaMaxV);
