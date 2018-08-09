@@ -14,7 +14,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String password();
 	
 	@AttributeDefinition(name = "DB URL", description = "DB Server URL incl port")
-	String dburl() default "jdbc:mariadb://localhost:3306";;
+	String dburl() default "jdbc:mariadb://localhost:3306";
+	
+	@AttributeDefinition(name = "DB URL", description = "DB Server URL incl port")
+	String dbname() default "primus";
 	
 	@AttributeDefinition(name = "Wordpress URL", description = "Wordpress URL for API use")
 	String wpurl() default "https://www.energydepot.de";

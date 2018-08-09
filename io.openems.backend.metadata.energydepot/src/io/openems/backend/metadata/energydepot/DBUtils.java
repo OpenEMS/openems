@@ -11,38 +11,33 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import org.mariadb.jdbc.Driver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import io.openems.backend.metadata.api.Edge.State;
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.session.Role;
-import io.openems.common.utils.StringUtils;
 
 public class DBUtils {
 	private String password;
 	private Connection conn;
-	private final Logger log = LoggerFactory.getLogger(DBUtils.class);
 	private String url;
 	private String wpurl;
 	private String dbuser;
+	private String dbname;
+	private String dburl;
 
-	public DBUtils(String dbuser, String p, String dburl, String wpurl) {
+	public DBUtils(String dbuser, String p, String dbname, String dburl, String wpurl) {
 		this.password = p;
 		this.wpurl = wpurl;
 		this.dbuser = dbuser;
-		this.url = dburl + "/primus?user=" + this.dbuser + "&password=" + this.password;
+		this.dbname = dbname;
+		this.dburl = dburl;
+		this.url = dburl + "/" + this.dbname + "?user=" + this.dbuser + "&password=" + this.password;
 		
 		try {
 			DriverManager.registerDriver(new Driver());
@@ -53,15 +48,13 @@ public class DBUtils {
 		}
 	}
 
-	private void reconnect() throws SQLException {
+	public void reconnect() throws SQLException {
 		if (this.conn.isClosed()) {
 			this.conn = DriverManager.getConnection(this.url);
 		}
 	}
 
-	public Map<Integer, MyEdge> getEdges() {
-
-		Map<Integer, MyEdge> edges = new HashMap<>();
+	public ResultSet getEdges() {
 
 		try {
 			reconnect();
@@ -69,38 +62,36 @@ public class DBUtils {
 			String sql = "SELECT * FROM Edges";
 			ResultSet result = stmt.executeQuery(sql);
 
-			while (result.next()) {
-				int id = result.getInt("Edges_id");
-				String name = result.getString("name");
-				String comment = result.getString("comment");
-				String apikey = result.getString("apikey");
-				String producttype = result.getString("producttype");
-
-				Role role = Role.getRole("ADMIN");
-				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
-						producttype, new JsonObject(), role);
-
-				edge.onSetConfig(jConfig -> {
-					log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
-				});
-				edge.onSetSoc(soc -> {
-					log.debug("Edge [" + id + "]. Set SoC: " + soc);
-				});
-				edge.onSetIpv4(ipv4 -> {
-					log.debug("Edge [" + id + "]. Set IPv4: " + ipv4);
-				});
-				log.debug("Adding Edge from DB: " + name + ", " + comment + ", " + apikey);
-				edges.put(id, edge);
-			}
+			return result;
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		return edges;
+		return null;
 
 	}
+	
+	public ResultSet getWPEdges() {
+		try {
+			Connection conn = DriverManager.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Statement stmt = conn.createStatement();
+			String sql = "SELECT * FROM wp_participants_database";
+			ResultSet result = stmt.executeQuery(sql);
+			conn.close();
+			return result;
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return null;
+	}
+	
 
 	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
@@ -190,8 +181,7 @@ public class DBUtils {
 			}
 			return true;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
 			return false;
 		}
 

@@ -1,10 +1,16 @@
 package io.openems.backend.metadata.energydepot;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,10 +27,13 @@ import com.google.gson.JsonSyntaxException;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.User;
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "io.openems.backend.metadata.energydepot")
@@ -34,7 +43,9 @@ public class EnergyDepot implements MetadataService {
 
 	private Map<Integer, MyUser> users = new HashMap<>();
 	private Map<Integer, MyEdge> edges = new HashMap<>();
-
+	private final ExecutorService readEdgeExecutor = Executors.newSingleThreadExecutor();
+	private Future<?> readEdgeFuture = null;
+	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 	private DBUtils dbu = null;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -42,16 +53,73 @@ public class EnergyDepot implements MetadataService {
 
 	@Activate
 	void activate(Config config) {
-		this.dbu = new DBUtils(config.user(),config.password(), config.dburl(), config.wpurl());
+		this.dbu = new DBUtils(config.user(),config.password(), config.dbname(), config.dburl(), config.wpurl());
 		log.info("Activate EnergyDepot DB");
 		this.edges.clear();
-		this.edges = this.dbu.getEdges();
+		
+		
+		this.readEdgeFuture = this.readEdgeExecutor.submit((Runnable) () -> {
+			
+				/*
+				ResultSet result = this.dbu.getEdges();
+				*/
+				ResultSet result = this.dbu.getWPEdges();
+
+				try {
+					while (result.next()) {
+						
+						/*
+						int id = result.getInt("Edges_id");
+						String name = result.getString("name");
+						String comment = result.getString("comment");
+						String apikey = result.getString("apikey");
+						String producttype = result.getString("producttype");
+						*/
+						
+						int id = result.getInt("id");
+						String name = result.getString("edge_name");
+						String comment = result.getString("edge_comment");
+						String apikey = result.getString("apikey");
+						String producttype = result.getString("producttype");
+
+						Role role = Role.getRole("ADMIN");
+						MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
+								producttype, new JsonObject(), role);
+
+						edge.onSetConfig(jConfig -> {
+							log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
+						});
+						edge.onSetSoc(soc -> {
+							log.debug("Edge [" + id + "]. Set SoC: " + soc);
+						});
+						edge.onSetIpv4(ipv4 -> {
+							log.debug("Edge [" + id + "]. Set IPv4: " + ipv4);
+						});
+						log.debug("Adding Edge from DB: " + name + ", " + comment + ", " + apikey);
+						
+						synchronized (this.edges) {
+							this.edges.put(id, edge);
+						}
+						
+						
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			
+			this.isInitialized.set(true);
+		});
 
 	}
 
 	@Deactivate
 	void deactivate() {
 		log.info("Deactivate EnergyDepot DB");
+		this.readEdgeFuture.cancel(true);
+		this.readEdgeExecutor.shutdown();
+		this.isInitialized.set(false);
 	}
 
 	@Override
