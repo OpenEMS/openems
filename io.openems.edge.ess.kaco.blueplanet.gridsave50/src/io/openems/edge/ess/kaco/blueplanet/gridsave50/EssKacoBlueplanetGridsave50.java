@@ -241,6 +241,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
 
 		try {
+			log.info(" ===============  BATTERY RANGES  ========================");
+			log.info("DIS MIN V: " + disMinV);
+			log.info("DIS MAX A: " + disMaxA);
+			log.info("CHA MAX V: " + chaMaxV);
+			log.info("CHA MAX A: " + chaMaxA);
+			
 			disMinVChannel.setNextWriteValue(disMinV);
 			chaMaxVChannel.setNextWriteValue(chaMaxV);
 			disMaxAChannel.setNextWriteValue(disMaxA);
@@ -643,7 +649,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(unitId, //
 				new FC3ReadRegistersTask(SUNSPEC_103 + 39,Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE, new SignedWordElement(SUNSPEC_103 + 39))), //				
-				new FC3ReadRegistersTask(SUNSPEC_64201 + 35, Priority.LOW,
+				new FC3ReadRegistersTask(SUNSPEC_64201 + 35, Priority.HIGH,
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 35),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 36),
