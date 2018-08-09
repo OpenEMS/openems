@@ -43,7 +43,7 @@
               <tr>
                 <td style="width:50%">Lade-Begrenzung</td>
                 <td style="width:15%"></td>
-                <td style="width:35%" class="align_right">{{ data.CurrUser }}</td>
+                <td style="width:35%" class="align_right">{{ data.CurrUser | number:'1.0-0' }}</td>
                 <td style="width:10%">mA</td>
               </tr>
             </ng-container>
@@ -51,7 +51,7 @@
               <tr>
                 <td style="width:50%">Lade-Leistung</td>
                 <td style="width:15%"></td>
-                <td style="width:35%" class="align_right">{{ data.ActualPower }}</td>
+                <td style="width:35%" class="align_right">{{ data.ActualPower / 1000 | number:'1.0-0' }}</td>
                 <td style="width:10%">W</td>
               </tr>
             </ng-container>

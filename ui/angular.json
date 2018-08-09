@@ -46,7 +46,9 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-backend.ts"
                 }
-              ]
+              ],
+              "baseHref": "/m/",
+              "outputPath": "target/backend"
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -87,7 +89,9 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-edge.ts"
                 }
-              ]
+              ],
+              "baseHref": "/",
+              "outputPath": "target/edge"
             },
             "production": {
               "optimization": true,
