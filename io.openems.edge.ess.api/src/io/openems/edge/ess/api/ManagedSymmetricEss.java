@@ -88,10 +88,13 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Adds a Power constraint.
 	 * 
-	 * @param relationship
-	 * @param activePower
-	 * @return
-	 * @throws PowerException
+	 * @param type         Whether this Constraint is STATIC or for one CYCLE only.
+	 * @param phase        Apply Constraint on Phase L1, L2, L3 or on ALL Phases
+	 * @param pwr          Constraint for ACTIVE or REACTIVE Power
+	 * @param relationship Is the Constraint EQ (Equal), GEQ (Greater or Equal) or
+	 *                     LEQ (Less or Equal)?
+	 * @param value        The Constraint value (right side of the equation)
+	 * @return the added Constraint
 	 */
 	public default Constraint addPowerConstraint(ConstraintType type, Phase phase, Pwr pwr, Relationship relationship,
 			int value) {
@@ -101,10 +104,15 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Adds a Power constraint if the problem is still solvable after adding it.
 	 * 
-	 * @param relationship
-	 * @param activePower
-	 * @return
-	 * @throws PowerException
+	 * @param type         Whether this Constraint is STATIC or for one CYCLE only.
+	 * @param phase        Apply Constraint on Phase L1, L2, L3 or on ALL Phases
+	 * @param pwr          Constraint for ACTIVE or REACTIVE Power
+	 * @param relationship Is the Constraint EQ (Equal), GEQ (Greater or Equal) or
+	 *                     LEQ (Less or Equal)?
+	 * @param value        The Constraint value (right side of the equation)
+	 * @return the added Constraint
+	 * @throws PowerException if the problem is not solvable after adding the
+	 *                        Constraint. In this case the Constraint was not added.
 	 */
 	public default Constraint addPowerConstraintAndValidate(ConstraintType type, Phase phase, Pwr pwr,
 			Relationship relationship, int value) throws PowerException {
