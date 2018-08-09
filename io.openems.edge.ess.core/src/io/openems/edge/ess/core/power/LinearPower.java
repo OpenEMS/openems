@@ -43,6 +43,11 @@ public class LinearPower implements Power {
 
 	private final Logger log = LoggerFactory.getLogger(LinearPower.class);
 
+	/**
+	 * Enable DEBUG mode for extensive logs
+	 */
+	private final static boolean DEBUG = false;
+
 	/*
 	 * Holds a reference to the Data POJO
 	 */
@@ -106,6 +111,33 @@ public class LinearPower implements Power {
 		double[] solutionArray = this.solveOptimally();
 
 		Map<ManagedSymmetricEss, SymmetricSolution> solutions = Utils.toSolutions(this.data, solutionArray);
+
+		if (LinearPower.DEBUG) {
+			StringBuilder b = new StringBuilder();
+			for (int i = 0; i < solutionArray.length; i++) {
+				double x = solutionArray[i];
+				switch (i % 2) {
+				case 0:
+					b.append("p");
+					break;
+				case 1:
+					b.append("q");
+					break;
+				}
+				b.append((i / 2) % 3 + 1);
+				b.append("[");
+				b.append(String.format("%+.1f", x));
+				b.append("]");
+				if (i < solutionArray.length - 1) {
+					b.append(" ");
+				}
+			}
+			log.info(String.format("%-30s %s", "Solutions", b.toString()));
+			solutions.forEach((ess, solution) -> {
+				log.info(String.format("Solution %20s  %s", ess.id(),
+						"ActivePower: " + solution.getActivePower() + " W"));
+			});
+		}
 
 		// set debug channels on parent
 		this.data.allEsss.forEach(ess -> {
@@ -227,15 +259,18 @@ public class LinearPower implements Power {
 	public synchronized double[] solve(LinearObjectiveFunction objectiveFunction, GoalType goalType,
 			LinearConstraint... additionalConstraints) throws PowerException {
 		List<LinearConstraint> constraints = this.data.getAllLinearConstraints();
-		// log.info("Constraints");
-		// for (LinearConstraint c : constraints) {
-		// log.info(Utils.linearConstraintToString(c, ""));
-		// }
-		// log.info("Additional Constraints");
-		// for (LinearConstraint c : additionalConstraints) {
-		// log.info(Utils.linearConstraintToString(c, ""));
-		// }
-		// log.info(Utils.objectiveFunctionToString(objectiveFunction, goalType));
+
+		if (LinearPower.DEBUG) {
+			log.info("Constraints");
+			for (LinearConstraint c : constraints) {
+				log.info(Utils.linearConstraintToString(c, ""));
+			}
+			log.info("Additional Constraints");
+			for (LinearConstraint c : additionalConstraints) {
+				log.info(Utils.linearConstraintToString(c, ""));
+			}
+			log.info(Utils.objectiveFunctionToString(objectiveFunction, goalType));
+		}
 
 		// copy to array (let space for 'additionalConstraints')
 		Arrays.stream(additionalConstraints).forEach(c -> constraints.add(c));
@@ -287,20 +322,25 @@ public class LinearPower implements Power {
 		}
 
 		/*
-		 * Remove Constraints from temporary list, that are already covered. i.e.
-		 * Relationship is EQUALS and Constraint-Value is != 0
+		 * Remove Constraints from temporary list, that are already covered. i.e. <ul>
+		 * <li>Type is STATIC, Relationship is EQUALS and Constraint-Value is != 0
+		 * <li>Type is CYCLE </ul>
 		 */
 		for (Constraint constraint : this.data.getAllConstraints()) {
-			if (constraint.getRelationship() != Relationship.EQ || constraint.getValue().orElse(0d) == 0) {
-				continue;
-			}
-			for (Coefficient thisCoefficient : constraint.getCoefficients()) {
-				Iterator<Coefficient> i = allPossibleCoefficients.iterator();
-				while (i.hasNext()) {
-					Coefficient possibleCoefficient = i.next();
-					if (Utils.coefficientIsCoveredBy(possibleCoefficient, thisCoefficient.getEss(), thisCoefficient.getPhase(),
-							thisCoefficient.getPwr())) {
-						i.remove();
+			if ( //
+			(constraint.getType() == ConstraintType.STATIC && constraint.getRelationship() == Relationship.EQ
+					&& constraint.getValue().orElse(0d) != 0) //
+					|| //
+					(constraint.getType() == ConstraintType.CYCLE) //
+			) {
+				for (Coefficient thisCoefficient : constraint.getCoefficients()) {
+					Iterator<Coefficient> i = allPossibleCoefficients.iterator();
+					while (i.hasNext()) {
+						Coefficient possibleCoefficient = i.next();
+						if (Utils.coefficientIsCoveredBy(possibleCoefficient, thisCoefficient.getEss(),
+								thisCoefficient.getPhase(), thisCoefficient.getPwr())) {
+							i.remove();
+						}
 					}
 				}
 			}
@@ -310,8 +350,10 @@ public class LinearPower implements Power {
 		// (Coefficient == 0) and return it
 		List<Constraint> result = new ArrayList<>();
 		for (Coefficient coefficient : allPossibleCoefficients) {
-//			log.info("Add Null-Constraint for [" + coefficient.getEss().id() + "], " + coefficient.getPwr().name()
-//					+ ", " + coefficient.getPhase().name());
+			if (LinearPower.DEBUG) {
+				log.info("Add Null-Constraint for [" + coefficient.getEss().id() + "], " + coefficient.getPwr().name()
+						+ ", " + coefficient.getPhase().name());
+			}
 			result.add(new Constraint(ConstraintType.CYCLE, new Coefficient[] { coefficient }, Relationship.EQ, 0));
 		}
 		return result;
