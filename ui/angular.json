@@ -57,7 +57,7 @@
                   "with": "src/environments/openems-backend.ts"
                 }
               ],
-              "baseHref": "/m/",
+              "baseHref": "/primus/",
               "outputPath": "target/backend",
               "optimization": true,
               "outputHashing": "all",
@@ -91,7 +91,19 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-backend-dev-live.ts"
                 }
-              ]
+				],
+				"baseHref": "/primus-dev/",
+              "outputPath": "target/backend-dev",
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+              
             },
             "edge": {
               "optimization": true,
