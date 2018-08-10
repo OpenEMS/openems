@@ -316,6 +316,8 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
 			this.worker.triggerNextCycle();
+			
+			
 		}
 	}
 

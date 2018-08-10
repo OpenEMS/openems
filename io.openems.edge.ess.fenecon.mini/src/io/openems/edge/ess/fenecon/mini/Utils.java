@@ -9,7 +9,6 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
@@ -30,38 +29,26 @@ public class Utils {
 					case REACTIVE_POWER:
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
-						return new IntegerReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
-					}
-					return null;
-				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case DEBUG_SET_ACTIVE_POWER:
-					case DEBUG_SET_REACTIVE_POWER:
-						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(EssFeneconMini.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SYSTEM_STATE:
-					case ACTIVE_POWER:
 					case ALLOWED_CHARGE:
 					case ALLOWED_DISCHARGE:
 					case BATTERY_CURRENT:
 					case BATTERY_GROUP_STATE:
 					case BATTERY_POWER:
-					case BATTERY_SOC:
 					case BATTERY_VOLTAGE:
 					case CONTROL_MODE:
 					case CURRENT:
 					case FREQUENCY:
 					case PCS_OPERATION_STATE:
 					case PHASE_ALLOWED_APPARENT:
-					case REACTIVE_POWER:
-					case TOTAL_BATTERY_CHARGE_ENERGY:
-					case TOTAL_BATTERY_DISCHARGE_ENERGY:
 					case VOLTAGE:
 						return new IntegerReadChannel(c, channelId);
 
