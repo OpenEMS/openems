@@ -1,26 +1,45 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
   "version": 1,
+  "defaultProject": "app",
   "newProjectRoot": "projects",
   "projects": {
-    "openems-ui": {
+    "app": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
+      "schematics": {},
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "progress": false,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.app.json",
             "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/@ionic/angular/dist/ionic/svg",
+                "output": "./svg"
+              },
               "src/assets",
               "src/favicon.ico"
             ],
             "styles": [
+              {
+                "input": "src/theme/variables.scss"
+              },
+              {
+                "input": "src/global.scss"
+              },
               "src/styles.css",
               "node_modules/material-design-icons-iconfont/dist/material-design-icons.css",
               "node_modules/angular2-toaster/toaster.css",
@@ -32,6 +51,14 @@
           },
           "configurations": {
             "backend": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/openems-backend.ts"
+                }
+              ],
+              "baseHref": "/m/",
+              "outputPath": "target/backend",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -40,15 +67,7 @@
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-backend.ts"
-                }
-              ],
-              "baseHref": "/primus/",
-              "outputPath": "target/backend"
+              "buildOptimizer": true
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -109,54 +128,65 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "openems-ui:build"
+            "browserTarget": "app:build"
           },
           "configurations": {
             "backend": {
-              "browserTarget": "openems-ui:build:backend"
+              "browserTarget": "app:build:backend"
             },
             "backend-dev-local": {
-              "browserTarget": "openems-ui:build:backend-dev-local"
+              "browserTarget": "app:build:backend-dev-local"
             },
             "backend-local-server": {
-              "browserTarget": "openems-ui:build:backend-local-server"
+              "browserTarget": "app:build:backend-local-server"
             },
             "backend-dev-live": {
-              "browserTarget": "openems-ui:build:backend-dev-live"
+              "browserTarget": "app:build:backend-dev-live"
             },
             "edge": {
-              "browserTarget": "openems-ui:build:edge"
+              "browserTarget": "app:build:edge"
             },
             "production": {
-              "browserTarget": "openems-ui:build:production"
+              "browserTarget": "app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "openems-ui:build"
+            "browserTarget": "app:build"
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
-            "karmaConfig": "./karma.conf.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
-            "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
-            ],
+            "karmaConfig": "src/karma.conf.js",
             "styles": [
+              "styles.css",
               "src/styles.css",
               "node_modules/material-design-icons-iconfont/dist/material-design-icons.css",
               "node_modules/angular2-toaster/toaster.css",
               "src/theme.scss"
             ],
+            "scripts": [
+              "node_modules/chart.js/dist/Chart.min.js"
+            ],
             "assets": [
+              {
+                "glob": "favicon.ico",
+                "input": "src/",
+                "output": "/"
+              },
               "src/assets",
-              "src/favicon.ico"
+              "src/favicon.ico",
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets"
+              }
             ]
           }
         },
@@ -171,27 +201,48 @@
               "**/node_modules/**"
             ]
           }
+        },
+        "ionic-cordova-build": {
+          "builder": "@ionic/ng-toolkit:cordova-build",
+          "options": {
+            "browserTarget": "app:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "app:build:production"
+            }
+          }
+        },
+        "ionic-cordova-serve": {
+          "builder": "@ionic/ng-toolkit:cordova-serve",
+          "options": {
+            "cordovaBuildTarget": "app:ionic-cordova-build",
+            "devServerTarget": "app:serve"
+          },
+          "configurations": {
+            "production": {
+              "cordovaBuildTarget": "app:ionic-cordova-build:production",
+              "devServerTarget": "app:serve:production"
+            }
+          }
         }
       }
     },
-    "openems-ui-e2e": {
-      "root": "e2e",
-      "sourceRoot": "e2e",
+    "app-e2e": {
+      "root": "e2e/",
       "projectType": "application",
       "architect": {
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "openems-ui:serve"
+            "protractorConfig": "e2e/protractor.conf.js",
+            "devServerTarget": "app:serve"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "e2e/tsconfig.e2e.json"
-            ],
+            "tsConfig": "e2e/tsconfig.e2e.json",
             "exclude": [
               "**/node_modules/**"
             ]
@@ -200,8 +251,16 @@
       }
     }
   },
-  "defaultProject": "openems-ui",
+  "cli": {
+    "defaultCollection": "@ionic/schematics-angular"
+  },
   "schematics": {
+    "@ionic/schematics-angular:component": {
+      "styleext": "scss"
+    },
+    "@ionic/schematics-angular:page": {
+      "styleext": "scss"
+    },
     "@schematics/angular:component": {
       "prefix": "app",
       "styleext": "css"

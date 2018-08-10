@@ -31,7 +31,7 @@ public class LoadDiagramTest {
 		} catch (NullPointerException e) {
 			isNull = true;
 		}
-		Assert.assertTrue(isNull);
+		Assert.assertFalse(isNull);
 
 		d.setValue(new Date(0), new Date(100), new ValueDecimal(2.0));
 		d.setValue(new Date(0), new Date(100), new ValueDecimal(2.1));
@@ -46,7 +46,7 @@ public class LoadDiagramTest {
 
 		isNull = false;
 		try {
-			d.getAvg(new Date(0), new Date(2000)).doubleValue();
+			Assert.assertNotEquals(0.0, d.getAvg(new Date(0), new Date(2000)).doubleValue(), 0.0);
 		} catch (NullPointerException e) {
 			isNull = true;
 		}
@@ -59,29 +59,29 @@ public class LoadDiagramTest {
 		d.erasePeriod(new Date(10501), new Date(10700));
 		isNull = false;
 		try {
-			d.getAvg(new Date(10501), new Date(10700)).doubleValue();
+			Assert.assertEquals(0.0, d.getAvg(new Date(10501), new Date(10700)).doubleValue(), 0.0);
 		} catch (NullPointerException e) {
 			isNull = true;
 		}
-		Assert.assertTrue(isNull);
+		Assert.assertFalse(isNull);
 		d.erasePeriod(new Date(10801), new Date(11700));
 
 		isNull = false;
 		try {
-			d.getAvg(new Date(10801), new Date(11700)).doubleValue();
+			Assert.assertEquals(0.0, d.getAvg(new Date(10801), new Date(11700)).doubleValue(), 0.0);
 		} catch (NullPointerException e) {
 			isNull = true;
 		}
-		Assert.assertTrue(isNull);
+		Assert.assertFalse(isNull);
 		d.erasePeriod(new Date(9000), new Date(20000));
 
 		isNull = false;
 		try {
-			d.getAvg(new Date(8000), new Date(30000)).doubleValue();
+			Assert.assertEquals(0.0, d.getAvg(new Date(8000), new Date(30000)).doubleValue(), 0.0);
 		} catch (NullPointerException e) {
 			isNull = true;
 		}
-		Assert.assertTrue(isNull);
+		Assert.assertFalse(isNull);
 		LoadDiagram c = d.getCopy();
 		Assert.assertTrue(d.toString().equals(c.toString()));
 		d.setValue(new Date(10001), new Date(11000), new ValueDecimal(6.0));

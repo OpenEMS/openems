@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 
+
 import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
@@ -40,12 +41,14 @@ import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
 import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
 import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
+import { IonicModule } from '@ionic/angular';
 
 @NgModule({
   imports: [
     BrowserAnimationsModule,
     CommonModule,
     FormsModule,
+    IonicModule,
     ReactiveFormsModule,
     MyMaterialModule,
     FlexLayoutModule,
@@ -54,7 +57,7 @@ import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/
     LoadingModule,
     MyDateRangePickerModule,
     ToasterModule,
-    routing
+    routing,
   ],
   declarations: [
     // pipes
@@ -82,6 +85,7 @@ import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/
     ChartsModule,
     CommonModule,
     FormsModule,
+    IonicModule,
     MyMaterialModule,
     FlexLayoutModule,
     RouterModule,

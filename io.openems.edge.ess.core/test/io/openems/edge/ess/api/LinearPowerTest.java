@@ -44,7 +44,41 @@ public class LinearPowerTest {
 
 		power.applyPower();
 	}
+	
+	@Test
+	public void testQuadrantIII() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(-1000, activePower);
+			}
+		};
 
+		LinearPower power = new LinearPower();
+		ess0.addToPower(power);
+		new CircleConstraint(ess0, 10000);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, -1000);
+
+		power.applyPower();
+	}
+
+	@Test
+	public void testQuadrantI() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(1234, activePower);
+			}
+		};
+
+		LinearPower power = new LinearPower();
+		ess0.addToPower(power);
+		new CircleConstraint(ess0, 10000);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 1234);
+
+		power.applyPower();
+	}
+	
 	@Test
 	public void testAsymmetric() throws Exception {
 		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
