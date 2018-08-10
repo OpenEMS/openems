@@ -45,6 +45,7 @@ JPM-Command:				openems-backend
 	org.apache.servicemix.bundles.okio;version='[1.13.0,1.13.1)',\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
+	io.openems.wrapper.msgpack;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
 	org.apache.servicemix.bundles.okhttp;version='[3.10.0,3.10.1)',\

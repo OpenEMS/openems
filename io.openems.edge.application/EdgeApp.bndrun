@@ -91,6 +91,7 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.jSerialComm;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
+	io.openems.wrapper.msgpack;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
