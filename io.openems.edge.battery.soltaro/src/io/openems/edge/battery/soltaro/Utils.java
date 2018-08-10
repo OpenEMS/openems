@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -34,6 +35,10 @@ public class Utils {
 						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MAX_A);
 					case DISCHARGE_MIN_VOLTAGE:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);
+					case READY_FOR_WORKING:
+						return new BooleanReadChannel(s, channelId);
+					default:
+						break;
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
@@ -79,6 +84,8 @@ public class Utils {
 					case FAILURE_TEMP_SAMPLING_LINE:
 					case FAILURE_TEMP_SENSOR:
 					case FAILURE_VOLTAGE_SAMPLING:
+						
+					case PRECHARGE_TAKING_TOO_LONG:
 						return new StateChannel(s, channelId);
 					case CLUSTER_1_BATTERY_000_VOLTAGE:
 					case CLUSTER_1_BATTERY_001_VOLTAGE:
@@ -390,7 +397,9 @@ public class Utils {
 					case CLUSTER_1_MIN_CELL_TEMPERATURE_ID:
 					case CLUSTER_1_MIN_CELL_VOLTAGE:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
-						return new IntegerReadChannel(s, channelId);
+						return new IntegerReadChannel(s, channelId);					
+					default:
+						break;
 					}
 					return null;
 				}) //

@@ -64,6 +64,15 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		/**
+		 * Indicates that the battery has started and is ready for charging/discharging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
 		;
 
 		private final Doc doc;
@@ -121,5 +130,14 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getChargeMaxCurrent() {
 		return this.channel(ChannelId.CHARGE_MAX_CURRENT);
+	}
+	
+	/**
+	 * Gets the indicator if ready to charge/discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Boolean> getReadyForWorking() {
+		return this.channel(ChannelId.READY_FOR_WORKING);
 	}
 }

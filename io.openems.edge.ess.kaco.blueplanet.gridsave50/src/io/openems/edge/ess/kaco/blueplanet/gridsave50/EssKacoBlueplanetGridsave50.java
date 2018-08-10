@@ -83,14 +83,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
-	private void refreshPower() {
-		maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
-		if (maxApparentPower > 0) {
-			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
-			this.channel(SymmetricEss.ChannelId.MAX_ACTIVE_POWER).setNextValue(maxApparentPower); // TODO check if right, should be, cause max_act = max_app if cos phi = 1
-		}
-	}
-
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -98,21 +90,25 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {		
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id()); //
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
 			return;
 		}
 
-		watchdogInterval = config.watchdoginterval();
-		
+		watchdogInterval = config.watchdoginterval();		
 		doChannelMapping();
 		initializePower();
+	}
+	
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	private void initializePower() {
 		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+//		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, allowedDischarge...) // TODO add this constraint
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
@@ -136,17 +132,18 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			refreshPower();
 		});
 	}
+	
+	private void refreshPower() {
+		maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
+		if (maxApparentPower > 0) {
+			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
+			this.channel(SymmetricEss.ChannelId.MAX_ACTIVE_POWER).setNextValue(maxApparentPower);
+		}
+	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		if (!isSystemInGridmode()) { // necessary? or should we set these values always?
-			return;
-		}
-
-		// according to manual active power has to be set in % of maximum active power
-		// with scale factor see page 10
-		// WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled * 10^W_Max_SF * 10^WSetPct_SF)
-
+		
 		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
 		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
 
@@ -155,17 +152,27 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 			int scalefactor = wSetPctOpt.get();
 
-			int max = maxApparentPower; // TODO ensure that this value is not null
+			int max = maxApparentPower; 
 			if (max == 0) {
 				max = MAX_APPARENT_POWER;
 			}
-
+			
+			/**
+			 * according to manual active power has to be set in % of maximum active power
+			 * with scale factor see page 10
+			 * WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled * 10^W_Max_SF * 10^WSetPct_SF)
+			 */
 			int WSetPct = (int) ((activePower * 100) / (max * Math.pow(10, scalefactor)));
 
+			// If the battery system is not ready yet or inverter is not in grid (=normal) mode, set power to zero to avoid damaging or improper system states
+			if (! battery.getReadyForWorking().value().orElse(false) || !isSystemInGridmode()) {
+				WSetPct = 0;
+			}
+			
 			try {
 				wSetPctChannel.setNextWriteValue(WSetPct);
 			} catch (OpenemsException e) {
-				log.error("problem occurred while trying so set active power" + e.getMessage());
+				log.error("EssKacoBlueplanetGridsave50.applyPower(): Problem occurred while trying so set active power" + e.getMessage());
 			}
 		}
 	}
@@ -218,6 +225,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		setWatchdog();
 		setBatteryRanges();
 	}
+	
+	private void doErrorHandling() {
+		// find out the reason what is wrong an react
+		// for a first try, switch system off, it will be restarted
+		setWatchdog();
+		stopSystem();
+	}
 
 	private void setBatteryRanges() {
 		if (battery == null) {
@@ -240,29 +254,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
 
 		try {
-			log.info(" ===============  BATTERY RANGES FOR " + this.id() + "  ========================");
-			log.info("DIS MIN V: " + disMinV);
-			log.info("DIS MAX A: " + disMaxA);
-			log.info("CHA MAX V: " + chaMaxV);
-			log.info("CHA MAX A: " + chaMaxA);
-			log.info("SoC: " + battery.getSoc().value().orElse(Integer.MIN_VALUE));
-			
 			disMinVChannel.setNextWriteValue(disMinV);
 			chaMaxVChannel.setNextWriteValue(chaMaxV);
 			disMaxAChannel.setNextWriteValue(disMaxA);
 			chaMaxAChannel.setNextWriteValue(chaMaxA);
-
 			enLimitChannel.setNextWriteValue(1);
 		} catch (OpenemsException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
-	}
-
-	private void doErrorHandling() {
-		// find out the reason what is wrong an react
-		// for a first try, switch system off, it will be restarted
-		setWatchdog();
-		stopSystem();
 	}
 
 	@Override
@@ -565,11 +564,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		public String getOption() {
 			return option;
 		}
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
