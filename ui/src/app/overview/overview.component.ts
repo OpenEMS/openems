@@ -31,6 +31,7 @@ export class OverviewComponent {
     this.filter = formBuilder.group({
       "filter": formBuilder.control('')
     });
+
     // TODO should only forward when automatic login was successful and user did not come to this page on purpose
     // websocket.edges.takeUntil(this.stopOnDestroy).subscribe(edges => {
     // if (Object.keys(edges).length == 1) {
