@@ -104,7 +104,6 @@ public class EnergyDepot implements MetadataService {
 						
 					}
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -124,7 +123,6 @@ public class EnergyDepot implements MetadataService {
 
 	@Override
 	public User authenticate() throws OpenemsException {
-		// TODO Auto-generated method stub
 		MyUser user = this.dbu.getUserFromDB("Gastzugang", null);
 		if (user == null) {
 			throw new OpenemsException("User not found: Gastzugang");

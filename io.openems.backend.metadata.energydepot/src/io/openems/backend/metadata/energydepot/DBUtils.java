@@ -43,7 +43,6 @@ public class DBUtils {
 			DriverManager.registerDriver(new Driver());
 			this.conn = DriverManager.getConnection(this.url);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -65,7 +64,6 @@ public class DBUtils {
 			return result;
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -84,7 +82,7 @@ public class DBUtils {
 			
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		
 			e.printStackTrace();
 		}
 		
@@ -127,7 +125,7 @@ public class DBUtils {
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 

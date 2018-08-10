@@ -32,7 +32,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
 				+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class CenturioPVMeter extends AbstractOpenemsComponent implements SymmetricMeter,  OpenemsComponent, EventHandler {
+public class CenturioPVMeter extends AbstractOpenemsComponent
+		implements SymmetricMeter, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected EdComData datasource;
@@ -74,10 +75,8 @@ public class CenturioPVMeter extends AbstractOpenemsComponent implements Symmetr
 	private void updateChannels() {
 
 		InverterData inverter = this.datasource.getInverterData();
-		
-		this.getActivePower().setNextValue(Math.round(inverter.getPvPower() /10)*10);
-		
-		
+		this.getActivePower().setNextValue(Math.round(inverter.getPvPower() / 10) * 10);
+
 	}
 
 	@Override
@@ -89,9 +88,9 @@ public class CenturioPVMeter extends AbstractOpenemsComponent implements Symmetr
 
 	@Override
 	public MeterType getMeterType() {
-		
+
 		return MeterType.PRODUCTION;
-		
+
 	}
 
 }

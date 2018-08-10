@@ -213,7 +213,6 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		//return "GridMode: " + this.getGridMode().value().toString();
 		 return "Battery Power: " + this.getActivePower().value().toString();
 
 	}

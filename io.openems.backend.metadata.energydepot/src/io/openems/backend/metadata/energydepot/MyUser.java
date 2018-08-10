@@ -3,7 +3,6 @@ package io.openems.backend.metadata.energydepot;
 import java.util.ArrayList;
 
 import io.openems.backend.metadata.api.User;
-import io.openems.common.session.Role;
 
 public class MyUser extends User {
 
@@ -14,7 +13,6 @@ public class MyUser extends User {
 		super(id, name);
 		this.edgeids = edgeids;
 		this.role = role;
-		// TODO Auto-generated constructor stub
 	}
 
 	public ArrayList<Integer> getEdgeids() {

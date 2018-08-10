@@ -97,8 +97,6 @@ JPM-Command:				openems-edge
 	com.sun.jna;version='[4.2.1,4.2.2)',\
 	io.openems.wrapper.edcom;version=snapshot,\
 	com.ed.openems.centurio;version=snapshot,\
-	io.openems.edge.battery.soltaro;version=snapshot,\
-	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot
 -resolve: auto
