@@ -23,23 +23,33 @@ public class ValuePrice implements Value<ValuePrice> {
 
 	@Override
 	public ValuePrice add(ValuePrice v) {
-		return new ValuePrice(price.add(v.price), power.add(v.power));
+		try {
+			return new ValuePrice(
+					(this.price.multiply(this.power).add(v.price.multiply(v.power))).divide((this.power.add(v.power))),
+					power.add(v.power));
+		} catch (ArithmeticException e) {
+			return new ValuePrice(this.price, power.add(v.power));
+		}
 	}
 
 	@Override
 	public ValuePrice subtract(ValuePrice v) {
-		return new ValuePrice(price.subtract(v.price), power.subtract(v.power));
+		try {
+			return new ValuePrice(this.price.multiply(this.power).subtract(v.price.multiply(v.power))
+					.divide(this.power.subtract(v.power)), power.subtract(v.power));
+		} catch (ArithmeticException e) {
+			return new ValuePrice(this.price, power.subtract(v.power));
+		}
 	}
 
 	@Override
 	public ValuePrice multiply(long v) {
-		return new ValuePrice(price.multiply(new BigDecimal(v)), price.multiply(new BigDecimal(v)));
+		return new ValuePrice(price, power.multiply(new BigDecimal(v)));
 	}
 
 	@Override
 	public ValuePrice divide(long v) {
-		return new ValuePrice(price.divide(new BigDecimal(v), 10, BigDecimal.ROUND_HALF_UP),
-				power.divide(new BigDecimal(v), 10, BigDecimal.ROUND_HALF_UP));
+		return new ValuePrice(price, power.divide(new BigDecimal(v), 10, BigDecimal.ROUND_HALF_UP));
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package market.square.api;
 
 import java.util.Date;
 
+import org.osgi.service.event.EventHandler;
+
 import market.diagram.api.Diagram;
 import market.diagram.price.PriceDiagram;
 
@@ -23,7 +25,7 @@ import market.diagram.price.PriceDiagram;
  * @author FENECON GmbH
  */
 
-public interface MarketSquare extends Runnable {
+public interface MarketSquare extends EventHandler {
 
 	/**
 	 * Returns a PriceDiagram depicting the sold power and the according average
@@ -66,8 +68,10 @@ public interface MarketSquare extends Runnable {
 	 * @param d
 	 *            a Diagram representing the agent's demand or supply. If the
 	 *            Diagram represents demand, the Diagram MUST be a LoadDiagram as
-	 *            defined in this bundle. If the Diagram represents supply, the
-	 *            Diagram MUST be a PriceDiagram as defined in this Bundle.
+	 *            defined in this bundle. Negative values are positive demand.
+	 *            Positive values are forced supply. If the Diagram represents
+	 *            supply, the Diagram MUST be a PriceDiagram as defined in this
+	 *            Bundle.
 	 * @return diagramID, that can be used to delete the diagram from the agent's
 	 *         account later on
 	 */
