@@ -204,6 +204,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		case SHUTTING_DOWN:
 		case STARTING:
 		case THROTTLED:
+		case CURRENTLY_UNKNOWN:
 			// Do nothing because these states are only temporarily reached
 			break;
 		}
@@ -362,7 +363,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			case STANDBY:
 			case STARTING:
 			case THROTTLED:
+			case CURRENTLY_UNKNOWN:
 				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.OFF_GRID.ordinal());
+				break;
+			default:
+				break;
 			}
 		});
 		
@@ -380,8 +385,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		ERROR(7, "Error"), // can be reached from every state, not directly addressable
 		PRECHARGE(9, "Precharge"), // State when system goes from OFF to STANDBY, not directly addressable
 		STARTING(3, "Starting"), // State from STANDBY to GRID_CONNECTED, not directly addressable
-		SHUTTING_DOWN(6, "Shutting down"), // State when system goes from GRID_CONNECTED to STANDBY, not directly
-											// addressable
+		SHUTTING_DOWN(6, "Shutting down"), // State when system goes from GRID_CONNECTED to STANDBY, not directly addressable
+		CURRENTLY_UNKNOWN(10, "Currently not known"), // State appears sometimes, but currently there exists no documentation
 		NO_ERROR_PENDING(12, "No error pending"), // State when system goes from ERROR to OFF, not directly addressable
 		THROTTLED(5, "Throttled"); // State that can occur when system is GRID_CONNECTED, not directly addressable
 
