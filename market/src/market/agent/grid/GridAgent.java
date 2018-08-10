@@ -1,4 +1,4 @@
-package market.agent.production.historybased;
+package market.agent.grid;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,33 +26,28 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.SymmetricMeter;
 import market.agent.api.MarketAgent;
+import market.diagram.load.LoadDiagram;
+import market.diagram.load.ValueDecimal;
 import market.diagram.price.PriceDiagram;
 import market.diagram.price.ValuePrice;
 import market.square.api.MarketSquare;
 
 /**
- * A MarketAgent, which sets supply-offers based on the underlying meter's
- * history, thus it doesn't react to the markets current state. That is, because
- * the underlying meter can't be controlled. This agent's only purpose is to
- * inform other agents about the supply measured by the underlying meter. It
- * also generates a prediction by copying the last day's recording to the next
- * day. The agent provides its power to a fixed price, which can be defined in
- * the configuration.
+ * A MarketAgent, which represents the mains connection at the internal
+ * energy-market. It consumes energy, as long as the price is lower than the
+ * Config.sellPrice() and produces energy, when the market-price is higher than
+ * the Config.buyPrice().
  * 
  * @author FENECON GmbH
  *
  */
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Market.Agent.Production.HistoryBased", //
+@Component(name = "Market.Agent.Grid", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
-public class HistoryBasedAgent extends AbstractOpenemsComponent implements MarketAgent, OpenemsComponent, EventHandler {
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected SymmetricMeter meter;
+public class GridAgent extends AbstractOpenemsComponent implements MarketAgent, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private MarketSquare market;
@@ -64,9 +59,15 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 
 	private PriceDiagram production;
 
+	private LoadDiagram consumption;
+
 	private double speedFactor = 1;
 
-	private double price;
+	private double sellPrice;
+
+	private double buyPrice;
+
+	private int maxPower;
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		CURRENT_POWER(new Doc().unit(Unit.WATT)), //
@@ -82,11 +83,12 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 		}
 	}
 
-	public HistoryBasedAgent() {
+	public GridAgent() {
 		this.production = new PriceDiagram();
+		this.consumption = new LoadDiagram();
 		// init channels
 		Stream.of( //
-				Arrays.stream(HistoryBasedAgent.ChannelId.values()).map(channelId -> {
+				Arrays.stream(GridAgent.ChannelId.values()).map(channelId -> {
 					return new IntegerReadChannel(this, channelId);
 				})
 		//
@@ -97,17 +99,18 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
-			return;
-		}
-
 		this.speedFactor = config.speedFactor();
-		this.price = config.price();
+		this.sellPrice = config.sellPrice();
+		this.buyPrice = config.buyPrice();
+		this.maxPower = config.maxPower();
 
 		id = market.registerAgent();
 
 		market.addDiagram(id, production);
+		market.addDiagram(id, consumption);
+
+		// always offer full capacity for buyPrice
+		production.setValue(new Date(0), new Date(Long.MAX_VALUE), new ValuePrice(buyPrice, maxPower));
 	}
 
 	@Deactivate
@@ -117,33 +120,41 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 		market.unregisterAgent(id);
 	}
 
-	int powerSum = 0;
 	int secCount = 0;
 	long last = 0;
 
-	private void calculateProduction() {
+	private void calculateConsumption() {
 		long now = System.currentTimeMillis();
 		secCount++;
-		powerSum += meter.getActivePower().value().get();
-
-		if (secCount >= (int) (60 * speedFactor)) {
+		if (secCount >= (int) (900 * speedFactor)) {
 			secCount = 0;
-			// record real time data
+			// from now 24h in 15min steps
+			for (long l = now; l < now + (long) (86400000 * speedFactor); l += (long) (900000 * speedFactor)) {
+				// consumption is negative -> negative powerDelta value equals increase in
+				// consumption and price
+				double powerDelta = 0.0;
+				powerDelta = 1000 /*
+									 * market.getMarketReactivity(new Date(l), new Date(l + (long) (900000 *
+									 * speedFactor)))
+									 */
+						* /* proportional to price-difference */ (market.getMarketState()
+								.getAvg(new Date(l), (long) (900000 * speedFactor)).getPriceDouble() - sellPrice)
+						* /* proportional to time being left */ ((l - now) / (86400000 * speedFactor));
+				ValueDecimal newPower = consumption.getAvg(new Date(l), (long) (900000 * speedFactor))
+						.add(new ValueDecimal(powerDelta));
+				if (newPower.getDecimalDouble() > 0) {
+					newPower = new ValueDecimal(0);
+				}
+				consumption.setValue(new Date(l), (long) (900000 * speedFactor), newPower);
+			}
 
-			production.setValue(new Date(last + 1), new Date(now),
-					new ValuePrice(price, (double) powerSum / (60.0 * speedFactor)));
-			powerSum = 0;
-			// copy last minute to next day
-			ValuePrice hist = production.getAvg(new Date(now - (long) (60000 /* one minute */ * speedFactor)),
-					(long) (60000 /* one minute */ * speedFactor));
-			production.setValue(new Date(now + (long) (86400000L /* one day */ * speedFactor)),
-					(long) (60000 /* one minute */ * speedFactor), new ValuePrice(price, hist.getPowerDouble()));
 			// erase everything older than two days
+			consumption.erasePeriod(new Date(0), new Date(now - (long) (2 * 86400000L * speedFactor)));
 			production.erasePeriod(new Date(0), new Date(now - (long) (2 * 86400000L * speedFactor)));
 		}
-		this.channel(ChannelId.CURRENT_POWER).setNextValue(production.getValue(now).getPowerDouble());
-		this.channel(ChannelId.NEXT_POWER)
-				.setNextValue(production.getValue(1533891300000L + (long) (86400000L * speedFactor)).getPowerDouble());
+		this.channel(ChannelId.CURRENT_POWER).setNextValue(consumption.getValue(now).getDecimalDouble());
+		this.channel(ChannelId.NEXT_POWER).setNextValue(
+				consumption.getValue(1533891300000L + (long) (86400000L * speedFactor)).getDecimalDouble());
 		last = now;
 	}
 
@@ -155,7 +166,8 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			calculateProduction();
+			// production is offered statically -> see activate()
+			calculateConsumption();
 			break;
 		}
 	}

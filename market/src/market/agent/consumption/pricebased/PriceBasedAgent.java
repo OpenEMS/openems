@@ -13,7 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -41,8 +43,8 @@ import market.square.api.MarketSquare;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Agent.Consumption.PriceBased", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class PriceBasedAgent extends AbstractOpenemsComponent implements MarketAgent, OpenemsComponent {
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
+public class PriceBasedAgent extends AbstractOpenemsComponent implements MarketAgent, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected SymmetricMeter meter;
@@ -68,7 +70,7 @@ public class PriceBasedAgent extends AbstractOpenemsComponent implements MarketA
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
 		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Meter", config.meter_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
 			return;
 		}
 
@@ -91,51 +93,56 @@ public class PriceBasedAgent extends AbstractOpenemsComponent implements MarketA
 		market.unregisterAgent(id);
 	}
 
-	@Override
-	public void run() {
-		int secCount = 0;
-		int minCount = 0;
-		while (true) {
-			long now = System.currentTimeMillis();
-			secCount++;
+	int secCount = 0;
+	int minCount = 0;
 
-			if (secCount >= 60 * speedFactor) {
-				secCount = 0;
-				minCount++;
-			}
+	private void calculateConsumption() {
+		long now = System.currentTimeMillis();
+		secCount++;
 
-			if (minCount >= 15) {
-				minCount = 0;
-				marketState = market.getConsistentMarketState();
-				for (long l = now; l < now + (long) (86400000L * speedFactor) /* one day */; l += (long) (60000
-						* speedFactor)/* 1 min */) {
-					ValuePrice currentPrice = marketState.getAvg(l, (long) (60000 * speedFactor));
-					if (currentPrice == null) {
-						currentPrice = new ValuePrice(0, 0);
-					}
+		if (secCount >= 60 * speedFactor) {
+			secCount = 0;
+			minCount++;
+		}
 
-					ValueDecimal maxNewPower = new ValueDecimal(consumption.getAvg(l, (long) (60000 * speedFactor))
-							.getDecimalDouble()
-							+ market.getMarketReactivity(new Date(l), new Date(now + (long) (60000 * speedFactor)))
-									* (price - currentPrice.getPriceDouble()));
-
-					ValueDecimal newPower = maxNewPower;
-					if (maxNewPower.getDecimalDouble() < 0) {
-						newPower = new ValueDecimal(0);
-					}
-					// TODO: min and max power
-
-					consumption.setValue(l, (long) (60000 * speedFactor), newPower);
+		if (minCount >= 15) {
+			minCount = 0;
+			marketState = market.getConsistentMarketState();
+			for (long l = now; l < now
+					+ (long) (86400000L * speedFactor) /* one day */; l += (long) (60000 * speedFactor)/* 1 min */) {
+				ValuePrice currentPrice = marketState.getAvg(l, (long) (60000 * speedFactor));
+				if (currentPrice == null) {
+					currentPrice = new ValuePrice(0, 0);
 				}
-				// erase everything older than a day
-				consumption.erasePeriod(new Date(0), new Date(now - (long) (86400000L * speedFactor)));
-			}
 
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				ValueDecimal maxNewPower = new ValueDecimal(
+						consumption.getAvg(l, (long) (60000 * speedFactor)).getDecimalDouble()
+								+ market.getMarketReactivity(new Date(l), new Date(now + (long) (60000 * speedFactor)))
+										* (price - currentPrice.getPriceDouble()));
+
+				ValueDecimal newPower = maxNewPower;
+				if (maxNewPower.getDecimalDouble() < 0) {
+					newPower = new ValueDecimal(0);
+				}
+				// TODO: min and max power
+
+				consumption.setValue(l, (long) (60000 * speedFactor), newPower);
 			}
+			// erase everything older than a day
+			consumption.erasePeriod(new Date(0), new Date(now - (long) (86400000L * speedFactor)));
+		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			calculateConsumption();
+			break;
 		}
 	}
 
