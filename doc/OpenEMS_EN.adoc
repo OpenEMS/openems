@@ -737,7 +737,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 <7> The 'Modbus-ID' parameter creates the link to a Modbus-Service via its OpenEMS Component-ID. At runtime the user will typically set this configuration parameter to something like 'modbus0'.
 <8> The Modbus service implementation requires us to provide the Modbus _Unit-ID_ (also commonly called _Device-ID_ or _Slave-ID_) of the Modbus slave device. This is the ID that is configured at the SOCOMEC DIRIS.
 <9> The *Modbus_target* will be automatically set by OpenEMS framework and does usually not need to be configured by the user. _Note_: Linking other OpenEMS Components is implemented using OSGi References. The OpenEMS Edge framework therefor sets the 'target' property of a reference to filter the matched services.
-<10> The default Meter implementation uses configuration parameters *minActivePower* and *maxActivePower* to store the minimum/maximum ever experience active power. By providing them here the User can possibly adjust them if required.
+<10> The default Meter implementation uses configuration parameters *minActivePower* and *maxActivePower* to store the minimum/maximum ever experienced active power. By providing them here the User can possibly adjust them if required.
 <11> The *webconsole_configurationFactory_nameHint* parameter sets a custom name for Apache Felix Web Console, helping the user to find the correct bundle.
 
 ====== Implement the OpenEMS Component

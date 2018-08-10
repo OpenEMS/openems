@@ -6,21 +6,28 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -42,8 +49,8 @@ import market.square.api.MarketSquare;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Market.Square.Linear", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class LinearMarket extends AbstractOpenemsComponent implements MarketSquare, OpenemsComponent {
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
+public class LinearMarket extends AbstractOpenemsComponent implements MarketSquare, OpenemsComponent, EventHandler {
 
 	@SuppressWarnings("rawtypes")
 	private Map<Long, Map<Long, Diagram>> input;
@@ -54,11 +61,35 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 
 	private double speedFactor;
 
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		LATEST_MARKET_REACTIVITY(new Doc().unit(Unit.NONE)), //
+		LATEST_SOLD_POWER(new Doc().unit(Unit.WATT)), //
+		LATEST_PRICE(new Doc().unit(Unit.NONE)); // TODO: create [1€/kWh]
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	@SuppressWarnings("rawtypes")
 	public LinearMarket() {
 		input = new HashMap<Long, Map<Long, Diagram>>();
 		output = new PriceDiagram();
+		history = new PriceDiagram();
 		speedFactor = 1;
+
+		// init channels
+		Stream.of( //
+				Arrays.stream(LinearMarket.ChannelId.values()).map(channelId -> {
+					return new IntegerReadChannel(this, channelId);
+				})
+		//
+		).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
@@ -124,14 +155,10 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 
 	@Override
 	public synchronized double getMarketReactivity(Date at, Date to) {
-		long now = System.currentTimeMillis();
-		if (output.getAvg(now, 86400000L).getPriceDouble() - history.getAvg(now, 86400000L).getPriceDouble() != 0
-				&& output.getAvg(now, 86400000L).getPowerDouble()
-						- history.getAvg(now, 86400000L).getPowerDouble() != 0) {
-			return Math.abs(
-					(output.getAvg(now, 86400000L).getPowerDouble() - history.getAvg(now, 86400000L).getPowerDouble())
-							/ (output.getAvg(now, 86400000L).getPriceDouble()
-									- history.getAvg(now, 86400000L).getPriceDouble()));
+		if (output.getAvg(at, to).getPriceDouble() - history.getAvg(at, to).getPriceDouble() != 0
+				&& output.getAvg(at, to).getPowerDouble() - history.getAvg(at, to).getPowerDouble() != 0) {
+			return Math.abs((output.getAvg(at, to).getPowerDouble() - history.getAvg(at, to).getPowerDouble())
+					/ (output.getAvg(at, to).getPriceDouble() - history.getAvg(at, to).getPriceDouble()));
 		} else {
 			return 1000; // TODO: estimated value...calculate real average or find better
 							// solution...e.g. currentPrice.getPowerDouble() /
@@ -140,109 +167,132 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 	}
 
 	@SuppressWarnings("rawtypes")
-	@Override
-	public void run() {
-		while (true) {
-			long now = System.currentTimeMillis();
-			// delete outdated data
+	private void calculateMarketState() {
+		long now = System.currentTimeMillis();
+		// delete outdated data
 
-			input.forEach((agentID, diagramMap) -> {
-				diagramMap.forEach((diagramID, d) -> {
-					d.erasePeriod(new Date(0L), new Date(now - (long) (60000 * speedFactor)));
-				});
+		input.forEach((agentID, diagramMap) -> {
+			diagramMap.forEach((diagramID, d) -> {
+				d.erasePeriod(new Date(0L), new Date(now - (long) (2 * 86400000L * speedFactor)));
 			});
-			output.erasePeriod(new Date(0L), new Date(now - (long) (60000 * speedFactor)));
+		});
+		output.erasePeriod(new Date(0L), new Date(now - (long) (2 * 86400000L * speedFactor)));
 
-			// store history for calculation of market-reactivity
-			history = output.getCopy();
+		// store history for calculation of market-reactivity
+		history = output.getCopy();
 
-			// copy input to ensure consistency
+		// copy input to ensure consistency
 
-			byte[] inputBytes = diagramsToBytes(input);
-			Map<Long, Map<Long, Diagram>> inputCopy = bytesToDiagrams(inputBytes);
+		byte[] inputBytes = diagramsToBytes(input);
+		Map<Long, Map<Long, Diagram>> inputCopy = bytesToDiagrams(inputBytes);
 
-			// add up demand
+		// add up demand
 
-			LoadDiagram demand = new LoadDiagram();
-			// initialize values in current period so that checking for null becomes
-			// irrelevant
-			demand.setValue(now, (long) (86400000 * speedFactor), new ValueDecimal(0));
+		LoadDiagram demand = new LoadDiagram();
+		// initialize values in current period so that checking for null becomes
+		// irrelevant
+		demand.setValue(now, (long) (86400000 * speedFactor), new ValueDecimal(0));
 
+		// sum up demand (usually negative) and convert to positive value
+
+		inputCopy.forEach((agentID, diagramMap) -> {
+			diagramMap.forEach((diagramID, d) -> {
+				if (d.getClass().equals(LoadDiagram.class)) {
+					LoadDiagram ld = (LoadDiagram) d;
+					// from now for 24h in 15min steps
+					for (long l = now; l < now + (long) (86400000 * speedFactor); l += (long) (900000 * speedFactor)) {
+						demand.setValue(l, (long) (900000 * speedFactor),
+								demand.getAvg(l, (long) (900000 * speedFactor))
+										.subtract(ld.getAvg(l, (long) (900000 * speedFactor))));
+					}
+				} else if (!d.getClass().equals(PriceDiagram.class)) {
+					// illegal input
+					diagramMap.remove(diagramID);
+				}
+			});
+		});
+
+		// from now for 24h in 15min steps
+		for (long l = now; l < now + (long) (86400000 * speedFactor); l += (long) (900000 * speedFactor)) {
+			final long counter = l; // copy l to final variable because ,err, java !
+
+			// sum up supply
+			List<ValuePrice> supplyList = new ArrayList<ValuePrice>();
 			inputCopy.forEach((agentID, diagramMap) -> {
 				diagramMap.forEach((diagramID, d) -> {
-					if (d.getClass().equals(LoadDiagram.class)) {
-						LoadDiagram ld = (LoadDiagram) d;
-						// from now for 24h in 15min steps
-						for (long l = now; l < now
-								+ (long) (86400000 * speedFactor); l += (long) (900000 * speedFactor)) {
-							ValueDecimal avg = demand.getAvg(l, (long) (900000 * speedFactor));
-							if (avg != null) {
-								demand.setValue(l, (long) (900000 * speedFactor),
-										avg.add(ld.getAvg(l, (long) (900000 * speedFactor))));
-							}
-						}
-					} else if (!d.getClass().equals(PriceDiagram.class)) {
-						// illegal input
-						diagramMap.remove(diagramID);
+					if (d.getClass().equals(PriceDiagram.class)) {
+						PriceDiagram pd = (PriceDiagram) d;
+						supplyList.add(pd.getAvg(counter, (long) (900000 * speedFactor)));
 					}
 				});
 			});
+			// in case mains connection is too small we add a very expensive, but infinite
+			// power-source, so that the market-system never fails
+			supplyList.add(new ValuePrice(Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+			// sort supply sources by price
+			Collections.sort(supplyList, (a, b) -> a.getPriceDouble() < b.getPriceDouble() ? -1
+					: a.getPriceDouble() == b.getPriceDouble() ? 0 : 1);
+
 			// calculate new market state
-
-			// from now for 24h in 15min steps
-			for (long l = now; l < now + (long) (86400000 * speedFactor); l += (long) (900000 * speedFactor)) {
-				final long counter = l; // copy l to final variable because ,err, java !
-				List<ValuePrice> supplyList = new ArrayList<ValuePrice>();
-				inputCopy.forEach((agentID, diagramMap) -> {
-					diagramMap.forEach((diagramID, d) -> {
-						if (d.getClass().equals(PriceDiagram.class)) {
-							PriceDiagram pd = (PriceDiagram) d;
-							ValuePrice avg = pd.getAvg(counter, (long) (900000 * speedFactor));
-							if (avg != null) {
-								supplyList.add(avg);
-							}
-						}
-					});
-				});
-				// in case mains connection is too small
-				supplyList.add(new ValuePrice(Double.MAX_VALUE, Double.MAX_VALUE));
-
-				// sort supply sources by price
-				Collections.sort(supplyList, (a, b) -> a.getPriceDouble() < b.getPriceDouble() ? -1
-						: a.getPriceDouble() == b.getPriceDouble() ? 0 : 1);
-
-				ValueDecimal totalDemand = demand.getAvg(counter, (long) (900000 * speedFactor));
-				double pricePowerSum = 0.0;
-				for (ValuePrice s : supplyList) {
-					demand.setValue(counter, (long) (900000 * speedFactor),
-							demand.getAvg(counter, (long) (900000 * speedFactor))
-									.subtract(new ValueDecimal(s.getPowerDouble())));
-					// must be true (at least with the virtual supply selling for Double.Max_Value
-					// as price)
-					if (demand.getAvg(counter, (long) (900000 * speedFactor)).getDecimalDouble() <= 0) {
-						pricePowerSum += s.getPriceDouble() * (s.getPowerDouble()
-								- demand.getAvg(counter, (long) (900000 * speedFactor)).getDecimalDouble());
-						// TODO: decide, whether to use final or average price
-						output.setValue(counter, (long) (900000 * speedFactor), new ValuePrice(
-								pricePowerSum / totalDemand.getDecimalDouble(), totalDemand.getDecimalDouble()));
-						break;
-					} else {
-						pricePowerSum += s.getPriceDouble() * s.getPowerDouble();
-					}
+			ValueDecimal totalDemand = demand.getAvg(counter, (long) (900000 * speedFactor));
+			double totalDemandDouble = totalDemand.getDecimalDouble();
+			double pricePowerSum = 0.0;
+			for (ValuePrice s : supplyList) {
+				double supplyPrice = s.getPriceDouble();
+				double supplyPower = s.getPowerDouble();
+				if (l < 1533891300000L + (long) (86400000 * speedFactor)
+						&& (l + (long) (900000 * speedFactor)) > 1533891300000L + (long) (86400000 * speedFactor)) {
+				}
+				demand.setValue(counter, (long) (900000 * speedFactor), demand
+						.getAvg(counter, (long) (900000 * speedFactor)).subtract(new ValueDecimal(s.getPowerDouble())));
+				// must be true at some point (at least with the virtual supply selling for
+				// Double.Max_Value as price)
+				if (demand.getAvg(counter, (long) (900000 * speedFactor)).getDecimalDouble() <= 0) {
+					pricePowerSum += s.getPriceDouble() * (s.getPowerDouble()
+							+ demand.getAvg(counter, (long) (900000 * speedFactor)).getDecimalDouble());
+					// TODO: decide, whether to use final or average price
+					output.setValue(counter, (long) (900000 * speedFactor), new ValuePrice(
+							totalDemand.getDecimalDouble() != 0 ? pricePowerSum / totalDemand.getDecimalDouble() : 0,
+							totalDemand.getDecimalDouble()));
+					break;
+				} else {
+					pricePowerSum += s.getPriceDouble() * s.getPowerDouble();
 				}
 			}
-			System.out.println(output.getValue(new Date(System.currentTimeMillis())));
-
-			try {
-				Thread.sleep(1000L);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
+		this.channel(ChannelId.LATEST_SOLD_POWER)
+				.setNextValue(output.getValue(1533891300000L + (long) (86400000 * speedFactor)).getPowerDouble());
+		// TODO: find origin of those points you get in the LATEST_SOLD_POWER diagram
+		// when watching a constant time at a small speedFactor. The diagram has regular
+		// peaks like a saw,
+		// although supply and demand are consistent. (Maybe this could be caused by
+		// inconsistent writes to the diagrams, so that the getAvg() takes more and more
+		// zero-value in account, but this should lead to more fluid waves.) However,
+		// the most likely cause is that all the getAvg calls inside of this method's
+		// for-next-day-in-15min-blocks-loop match two different write-blocks to a
+		// changing degree, depending on the position in time, relative to the 15minute
+		// (or with speedFactor 0.01666667 15second) block. Therefore this method should
+		// only be executed at the beginning of each 15min period and/or properly
+		// synchronized with the agent's write-blocks.
+		this.channel(ChannelId.LATEST_PRICE)
+				.setNextValue(output.getValue(1533891300000L + (long) (86400000 * speedFactor)).getPriceDouble() * 100);
+		System.out.println(getMarketReactivity(new Date(1533891300000L + (long) (86400000 * speedFactor)),
+				new Date(1533891300000L + (long) (86400000 * speedFactor) + (long) (900000 * speedFactor))));
 	}
 
-	// TODO: remove this note
-	// https://howtodoinjava.com/core-java/serialization/how-to-do-deep-cloning-using-in-memory-serialization-in-java/
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+			calculateMarketState();
+			break;
+		}
+	}
 
 	@SuppressWarnings("rawtypes")
 	private synchronized byte[] diagramsToBytes(Map<Long, Map<Long, Diagram>> input) {

@@ -51,6 +51,6 @@ public class Node<V> implements Comparable<Node<V>>, Serializable {
 				return -1;
 			}
 		}
-		return (int) timediff;
+		return timediff < 0 ? -1 : 1;
 	}
 }

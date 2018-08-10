@@ -18,7 +18,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 
@@ -29,7 +28,7 @@ import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class KostalPikoEss extends AbstractOpenemsComponent implements AsymmetricEss, SymmetricEss, OpenemsComponent {
+public class KostalPikoEss extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;

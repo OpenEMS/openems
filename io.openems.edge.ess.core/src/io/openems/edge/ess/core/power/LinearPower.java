@@ -379,26 +379,77 @@ public class LinearPower implements Power {
 		 */
 		this.getNullConstraints().forEach(constraint -> this.addConstraint(constraint));
 
-		/*
-		 * Try to solve with Constraints to keep Ess1 == Ess2 == Ess3
-		 */
-		try {
-			List<LinearConstraint> constraints = new ArrayList<>();
-			for (int i = 2; i < this.data.getNoOfCoefficients(); i += 2) {
-				// Active Power
-				double[] coefficients = this.data.createEmptyCoefficients();
-				coefficients[0] = 1;
-				coefficients[i] = -1;
-				constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
-				// Reactive Power
-				coefficients = this.data.createEmptyCoefficients();
-				coefficients[1] = 1;
-				coefficients[i + 1] = -1;
-				constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
+			/**
+			 * <ul>
+			 * <li>Try to MINIMIZE in Quadrant I
+			 * <li>Fails? try to MAXIMIZE in Quadrant III
+			 * <li>While keeping Ess1 == Ess2 == Ess3
+			 * </ul>
+			 */
+			try {
+				List<LinearConstraint> constraints = new ArrayList<>();
+				for (int i = 2; i < this.data.getNoOfCoefficients(); i += 2) {
+					// Active Power
+					double[] coefficients = this.data.createEmptyCoefficients();
+					coefficients[0] = 1;
+					coefficients[i] = -1;
+					constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+					// Reactive Power
+					coefficients = this.data.createEmptyCoefficients();
+					coefficients[1] = 1;
+					coefficients[i + 1] = -1;
+					constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+				}
+				for (int i = 0; i < this.data.getNoOfCoefficients(); i++) {
+					double[] cs = this.data.createEmptyCoefficients();
+					cs[i] = 1;
+					Relationship relationship;
+					switch (goalType) {
+					case MINIMIZE:
+						relationship = Relationship.GEQ; // Quadrant I
+						break;
+					case MAXIMIZE:
+					default:
+						relationship = Relationship.LEQ; // Quadrant III
+						break;
+					}
+					constraints.add(new LinearConstraint(cs, relationship, 0));
+				}
+				return this.solve(this.data.createSimpleObjectiveFunction(), goalType, constraints);
+			} catch (PowerException e) {
+				// Error -> next try
 			}
-			return this.solve(this.data.createSimpleObjectiveFunction(), GoalType.MINIMIZE, constraints);
-		} catch (PowerException e) {
-			// Error -> next try
+		}
+
+		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
+			/**
+			 * <ul>
+			 * <li>Try to MINIMIZE in Quadrant I
+			 * <li>Fails? try to MAXIMIZE in Quadrant III
+			 * </ul>
+			 */
+			try {
+				final List<LinearConstraint> constraints = new ArrayList<>();
+				for (int i = 0; i < this.data.getNoOfCoefficients(); i++) {
+					double[] cs = this.data.createEmptyCoefficients();
+					cs[i] = 1;
+					Relationship relationship;
+					switch (goalType) {
+					case MINIMIZE:
+						relationship = Relationship.GEQ; // Quadrant I
+						break;
+					case MAXIMIZE:
+					default:
+						relationship = Relationship.LEQ; // Quadrant III
+						break;
+					}
+					constraints.add(new LinearConstraint(cs, relationship, 0));
+				}
+				return this.solve(this.data.createSimpleObjectiveFunction(), goalType, constraints);
+			} catch (PowerException e) {
+				// Error -> next try
+			}
 		}
 
 		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
