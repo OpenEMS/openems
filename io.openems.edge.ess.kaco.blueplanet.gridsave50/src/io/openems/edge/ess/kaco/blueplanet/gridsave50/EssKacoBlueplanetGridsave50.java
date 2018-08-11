@@ -2,6 +2,7 @@ package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
 import java.util.Optional;
 
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -44,7 +45,11 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.CircleConstraint;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -62,6 +67,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	protected static final int MAX_APPARENT_POWER = 52000;
 
 	private CircleConstraint maxApparentPowerConstraint = null;
+	private Constraint allowedCharge = null;
+	private Constraint allowedDischarge = null;
+
 	private int watchdogInterval = 0;
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
@@ -107,8 +115,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void initializePower() {
+		/*
+		 * Create Power Constraints
+		 */
 		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-//		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, allowedDischarge...) // TODO add this constraint
+		this.allowedCharge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 0);
+		this.allowedDischarge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ,
+				0);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
@@ -243,6 +256,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
 		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
+
+		// Update Power Constraints
+		this.logInfo(log,
+				"AllowedCharge [" + (chaMaxA * chaMaxV * -1) + "] AllowedDischarge [" + disMaxA * disMinV + "]");
+		this.allowedCharge.setIntValue(chaMaxA * chaMaxV * -1);
+		this.allowedDischarge.setIntValue(disMaxA * disMinV);
 
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
