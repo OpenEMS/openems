@@ -79,7 +79,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		STATE_MACHINE(new Doc().level(Level.INFO).text("Current State of State-Machine").options(State.values())), //
-		AWAITING_HYSTERESIS(new Doc().level(Level.INFO).text("Would change State, but hystesis is active").options(State.values())); //
+		AWAITING_HYSTERESIS(
+				new Doc().level(Level.INFO).text("Would change State, but hystesis is active").options(State.values())); //
 
 		private final Doc doc;
 
@@ -139,7 +140,10 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			/*
 			 * Normal State
 			 */
-			if (soc <= this.minSoc) {
+			if (soc <= this.forceChargeSoc) {
+				nextState = State.FORCE_CHARGE_SOC;
+				break;
+			} else if (soc <= this.minSoc) {
 				nextState = State.MIN_SOC;
 				break;
 			}
@@ -164,8 +168,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			/*
 			 * Force-Charge-SoC State
 			 */
-			if (soc > this.minSoc) {
+			if (soc > this.forceChargeSoc) {
 				nextState = State.MIN_SOC;
+				break;
+			}
+			if (soc > this.minSoc) {
+				nextState = State.NORMAL;
 				break;
 			}
 			// Force charge: set Constraint for ActivePower <= MAX_CHARGE / 5
