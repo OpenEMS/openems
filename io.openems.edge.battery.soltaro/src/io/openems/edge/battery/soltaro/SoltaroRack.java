@@ -74,7 +74,6 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	private boolean isStopping = false; // indicates that system is stopping; during that time no commands should be sent
 	
 	public SoltaroRack() {
-		log.info("initializing channels");
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -1027,21 +1026,9 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 
 	@Override
 	public String debugLog() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SoC:");
-		sb.append(this.getSoc().value().asString());
-		sb.append(", Min V: ");
-		sb.append(this.getDischargeMinVoltage().value().orElse(0));
-		sb.append(", Dis Min V: ");
-		sb.append(this.getDischargeMinVoltage().value().orElse(0));
-		sb.append(", Dis Max A: ");
-		sb.append(this.getDischargeMaxCurrent().value().orElse(0));
-		sb.append(", Cha Max V: ");
-		sb.append(this.getChargeMaxVoltage().value().orElse(0));
-		sb.append(", Cha Max A: ");
-		sb.append(this.getChargeMaxCurrent().value().orElse(0));
-		
-		return sb.toString();
+		return "SoC:" + this.getSoc().value() //
+				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
 	}
 
 	private void startSystem() {
