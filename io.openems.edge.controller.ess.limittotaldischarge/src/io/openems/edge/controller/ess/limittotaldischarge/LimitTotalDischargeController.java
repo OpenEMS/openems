@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.apache.commons.math3.optim.linear.Relationship;
@@ -38,6 +39,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	private final Logger log = LoggerFactory.getLogger(LimitTotalDischargeController.class);
 
+	/**
+	 * Length of hysteresis in seconds. States are not changed quicker than this.
+	 */
+	private final int hysteresis = 5 * 60;
+	private LocalDateTime lastStateChange = LocalDateTime.MIN;
+
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
 	private State state = State.NORMAL;
@@ -71,7 +78,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		STATE_MACHINE(new Doc().level(Level.INFO).text("Current State of State-Machine").options(State.values())); //
+		STATE_MACHINE(new Doc().level(Level.INFO).text("Current State of State-Machine").options(State.values())), //
+		AWAITING_HYSTERESIS(new Doc().level(Level.INFO).text("Would change State, but hystesis is active").options(State.values())); //
 
 		private final Doc doc;
 
@@ -116,9 +124,6 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Override
 	public void run() {
-		// store current state in StateMachine channel
-		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
-		
 		Optional<Integer> socOpt = this.ess.getSoc().value().asOptional();
 
 		// Set to normal state and return if SoC is not available
@@ -128,14 +133,15 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 		}
 		int soc = socOpt.get();
 
+		State nextState = this.state;
 		switch (this.state) {
 		case NORMAL:
 			/*
 			 * Normal State
 			 */
 			if (soc <= this.minSoc) {
-				this.state = State.MIN_SOC;
-				return;
+				nextState = State.MIN_SOC;
+				break;
 			}
 			// no constraints in normal operation mode
 			break;
@@ -144,12 +150,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			 * Min-SoC State
 			 */
 			if (soc <= this.forceChargeSoc) {
-				this.state = State.FORCE_CHARGE_SOC;
-				return;
+				nextState = State.FORCE_CHARGE_SOC;
+				break;
 			}
 			if (soc > this.minSoc) {
-				this.state = State.NORMAL;
-				return;
+				nextState = State.NORMAL;
+				break;
 			}
 			// Deny further discharging: set Constraint for ActivePower <= 0
 			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, 0);
@@ -159,13 +165,32 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			 * Force-Charge-SoC State
 			 */
 			if (soc > this.minSoc) {
-				this.state = State.MIN_SOC;
-				return;
+				nextState = State.MIN_SOC;
+				break;
 			}
 			// Force charge: set Constraint for ActivePower <= MAX_CHARGE / 5
 			int chargePower = this.ess.getPower().getMinActivePower() / 5;
 			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, chargePower);
 			break;
 		}
+
+		/*
+		 * Do we have a new State? Change State only if hysteresis time passed, to avoid
+		 * too quick changes
+		 */
+		if (this.state != nextState) {
+			if (this.lastStateChange.plusSeconds(this.hysteresis).isBefore(LocalDateTime.now())) {
+				this.state = nextState;
+				this.lastStateChange = LocalDateTime.now();
+				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
+			} else {
+				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(true);
+			}
+		} else {
+			this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
+		}
+
+		// store current state in StateMachine channel
+		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 }

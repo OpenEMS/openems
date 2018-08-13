@@ -143,7 +143,7 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 		}
 		this.channel(ChannelId.CURRENT_POWER).setNextValue(production.getValue(now).getPowerDouble());
 		this.channel(ChannelId.NEXT_POWER)
-				.setNextValue(production.getValue(1533891300000L + (long) (86400000L * speedFactor)).getPowerDouble());
+				.setNextValue(production.getValue(1534144900000L + (long) (86400000L * speedFactor)).getPowerDouble());
 		last = now;
 	}
 

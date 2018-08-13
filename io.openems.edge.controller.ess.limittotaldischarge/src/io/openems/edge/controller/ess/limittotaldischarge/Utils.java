@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -26,6 +27,8 @@ public class Utils {
 					switch (channelId) {
 					case STATE_MACHINE:
 						return new IntegerReadChannel(c, channelId);
+					case AWAITING_HYSTERESIS:
+						return new BooleanReadChannel(c, channelId);
 					}
 					return null;
 				}) //
