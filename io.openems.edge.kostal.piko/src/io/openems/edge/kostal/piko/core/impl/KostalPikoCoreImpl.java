@@ -1,8 +1,5 @@
 package io.openems.edge.kostal.piko.core.impl;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,13 +15,11 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.merger.SumInteger;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.kostal.piko.charger.KostalPikoCharger;
@@ -39,7 +34,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
 		})
 public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		implements KostalPikoCore, OpenemsComponent, EventHandler {
@@ -49,36 +44,8 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
-	private SumInteger<SymmetricEss> activePower;
-	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
-	private final List<ManagedSymmetricEss> managedEsss = new CopyOnWriteArrayList<>();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	protected void addEss(SymmetricEss ess) {
-		if (ess == this) {
-			return;
-		}
-
-		this.esss.add(ess);
-		if (ess instanceof ManagedSymmetricEss) {
-			this.managedEsss.add((ManagedSymmetricEss) ess);
-		}
-		this.activePower.addComponent(ess);
-
-	}
-
-	protected void removeEss(SymmetricEss ess) {
-		if (ess == this) {
-			return;
-		}
-
-		this.esss.remove(ess);
-		if (ess instanceof ManagedSymmetricEss) {
-			this.managedEsss.remove((ManagedSymmetricEss) ess);
-		}
-
-		this.activePower.removeComponent(ess);
-	}
 
 	/* INVERTER, BATTERY */
 	private KostalPikoEss ess = null;
@@ -88,10 +55,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		this.ess = ess;
 		this.readTasksManager.addTasks( //
 				new ReadTask(ess, SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705) //
-
-//				new ReadTask(ess, AsymmetricEss.ChannelId.ACTIVE_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000203), //
-//				new ReadTask(ess, AsymmetricEss.ChannelId.ACTIVE_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
-//				new ReadTask(ess, AsymmetricEss.ChannelId.ACTIVE_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403)//
 		);
 	}
 
@@ -107,9 +70,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	@Override
 	public void setCharger(KostalPikoCharger charger) {
 		this.charger = charger;
-		this.readTasksManager.addTasks( //
-				new ReadTask(charger, EssDcCharger.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200) //
-		);
 	}
 
 	@Override
@@ -118,15 +78,17 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		this.unsetComponent(charger);
 	}
 
+	private KostalPikoGridMeter meter = null;
+
 	/* NETZ */
 	@Override
 	public void setGridMeter(KostalPikoGridMeter meter) {
-		this.readTasksManager.addTasks( //
-				new ReadTask(meter, SymmetricMeter.ChannelId.ACTIVE_POWER, Priority.HIGH, FieldType.FLOAT, 0x05000100));//
+		this.meter = meter;
 	}
 
 	@Override
 	public void unsetGridMeter(KostalPikoGridMeter meter) {
+		this.meter = null;
 		this.unsetComponent(meter);
 	}
 
@@ -261,8 +223,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L1, Priority.LOW, FieldType.FLOAT, 0x05000402), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L2, Priority.LOW, FieldType.FLOAT, 0x05000502), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L3, Priority.LOW, FieldType.FLOAT, 0x05000602), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_PV, Priority.LOW, FieldType.FLOAT,
-						0x05000100), //
+
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_TOTAL_POWER, Priority.LOW, FieldType.FLOAT,
 						0x05000700), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
@@ -299,13 +260,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 						0x02000401), //
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_CURRENT_STRING_3, Priority.LOW, FieldType.FLOAT,
 						0x02000501), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_1, Priority.LOW, FieldType.FLOAT,
-						0x02000303), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_2, Priority.LOW, FieldType.FLOAT,
-						0x02000403), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_3, Priority.LOW, FieldType.FLOAT,
-						0x02000503), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID, Priority.LOW, FieldType.FLOAT,
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID, Priority.HIGH, FieldType.FLOAT,
 						0x05000300), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L1, Priority.LOW,
 						FieldType.FLOAT, 0x05000401), //
@@ -326,13 +281,17 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L3, Priority.LOW, FieldType.FLOAT, 0x04000401), //
 
 				// HIGH
-				// TODO Energy Related with cycles check it again
-				// new ReadTask(EssDcCharger.KostalPikoCore.ChannelId.ACTUAL_ENERGY,
-				// Priority.HIGH,
-				// FieldType.INTEGER_UNSIGNED_BYTE, 0x02000704),//
-
+				new ReadTask(this, KostalPikoCore.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_1, Priority.HIGH, FieldType.FLOAT,
+						0x02000303), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_2, Priority.HIGH, FieldType.FLOAT,
+						0x02000403), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_3, Priority.HIGH, FieldType.FLOAT,
+						0x02000503), //
 				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_VOLTAGE, Priority.HIGH, FieldType.FLOAT,
 						0x02000702), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_PV, Priority.HIGH, FieldType.FLOAT,
+						0x05000100), //
 				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000701), //
 				new ReadTask(this, KostalPikoCore.ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000202), //
 				new ReadTask(this, KostalPikoCore.ChannelId.AC_VOLTAGE_L2, Priority.HIGH, FieldType.FLOAT, 0x04000302), //
@@ -377,13 +336,46 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	}
 
 	private void calculateDerivedChannelValues() {
-		// calculate ESS ActivePower
-		if (this.ess != null && this.charger != null) {
+		if (this.ess != null && this.charger != null && this.meter != null) {
+
+			// calculate Charger ActivePower
+			Channel<Float> pvPower1 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_1);
+			Channel<Float> pvPower2 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_2);
+			float pvPower = pvPower1.value().orElse(0f) + pvPower2.value().orElse(0f);
+			this.charger.channel(EssDcCharger.ChannelId.ACTUAL_POWER).setNextValue(pvPower);
+
+			// calculate ESS ActivePower
 			Channel<Float> gridAcPTotalChannel = this.channel(KostalPikoCore.ChannelId.GRID_AC_P_TOTAL);
 			float gridAcPTotal = gridAcPTotalChannel.value().orElse(0f);
-			Channel<Integer> pvPowerChannel = this.charger.channel(EssDcCharger.ChannelId.ACTUAL_POWER);
-			int pvPower = pvPowerChannel.value().orElse(0);
-			this.ess.channel(SymmetricEss.ChannelId.ACTIVE_POWER).setNextValue(gridAcPTotal - pvPower);
+			float essActivPower = (gridAcPTotal - pvPower);
+			this.ess.channel(SymmetricEss.ChannelId.ACTIVE_POWER).setNextValue(essActivPower);
+
+			// calculate Meter ActivePower
+			Channel<Float> homeConsumptionBattery = this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_BATTERY);
+			Channel<Float> homeConsumptionGrid = this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID);
+			// Channel<Float> homeConsumptionPv =
+			// this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_PV);
+			float homeConsmBatttery = homeConsumptionBattery.value().orElse(0f);
+			float homeConsmGrid = homeConsumptionGrid.value().orElse(0f);
+			// float homeConsmPv = homeConsumptionPv.value().orElse(0f);
+
+			Channel<Float> homePowerL1 = this.channel(KostalPikoCore.ChannelId.HOME_POWER_L1);
+			Channel<Float> homePowerL2 = this.channel(KostalPikoCore.ChannelId.HOME_POWER_L2);
+			Channel<Float> homePowerL3 = this.channel(KostalPikoCore.ChannelId.HOME_POWER_L3);
+
+			float homePwL1 = homePowerL1.value().orElse(0f);
+			float homePwL2 = homePowerL2.value().orElse(0f);
+			float homePwL3 = homePowerL3.value().orElse(0f);
+
+			float load = homeConsmBatttery + homeConsmGrid + homePwL1 + homePwL2 + homePwL3;
+			this.meter.channel(SymmetricMeter.ChannelId.ACTIVE_POWER).setNextValue(load - gridAcPTotal);
 		}
+
 	}
+
+	@Override
+	public String debugLog() {
+		return "P:" + this.charger.getActualPower().value().asString();
+	}
+
 }
