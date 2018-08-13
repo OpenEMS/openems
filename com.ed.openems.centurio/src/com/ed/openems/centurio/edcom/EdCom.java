@@ -15,6 +15,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ed.data.BatteryData;
+import com.ed.data.EnergyMeter;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
@@ -44,6 +45,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	private ServiceInfo si = null;
 	private Discovery nd;
 	private VectisData vectis;
+	private EnergyMeter energy;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
@@ -84,6 +86,8 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			this.status = new Status();
 
 			this.settings = new Settings();
+			
+			this.energy = new EnergyMeter();
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -94,6 +98,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		this.status.registerData(cl);
 		this.settings.registerData(cl);
 		this.vectis.registerData(cl);
+		this.energy.registerData(cl);
 		this.cl.start();
 		if (this.cl.isConnected()) {
 
@@ -173,6 +178,17 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			return this.vectis;
 		}
 
+	}
+
+	@Override
+	public EnergyMeter getEnergyMeter() {
+		if (this.energy.dataReady()) {
+			EnergyMeter data = this.energy;
+			this.energy.refresh();
+			return data;
+		} else {
+			return this.energy;
+		}
 	}
 
 }

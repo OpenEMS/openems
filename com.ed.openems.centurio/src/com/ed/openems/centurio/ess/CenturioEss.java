@@ -18,8 +18,11 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ed.data.BatteryData;
+import com.ed.data.EnergyMeter;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
@@ -59,6 +62,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 	private int maxApparentPower = 0;
 	private Constraint allowedChargeConstraint;
 	private Constraint allowedDischargeConstraint;
+	private final Logger log = LoggerFactory.getLogger(CenturioEss.class);
 
 	protected final static int MAX_APPARENT_POWER = 40000;
 	
@@ -174,13 +178,29 @@ public class CenturioEss extends AbstractOpenemsComponent
 		BatteryData battery = this.datasource.getBatteryData();
 		Status status = this.datasource.getStatusData();
 		InverterData invdata = this.datasource.getInverterData();
+		EnergyMeter energy = this.datasource.getEnergyMeter();
 
+		
+		
 		this.getSoc().setNextValue((int)battery.getSOE());
 		this.getActivePower().setNextValue(Math.round(battery.getPower()/10) * -10);
 
 		this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
 				+ Math.round(invdata.getReactivPower(2)/10) * (-10));
-
+		
+		try {
+			float ah = energy.getAhBattery(EnergyMeter.DAY);
+			float voltage = battery.getBmsVoltage();
+			
+			float kWh = voltage * ah;
+			
+			log.info("Energy Depot ESS (kWh): " + kWh);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
 		int invStatus = status.getInverterStatus();
 
 		switch (invStatus) {

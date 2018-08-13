@@ -1,6 +1,7 @@
 package com.ed.openems.centurio.datasource.api;
 
 import com.ed.data.BatteryData;
+import com.ed.data.EnergyMeter;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
@@ -14,4 +15,5 @@ public interface EdComData {
 	boolean isConnected();
 	Settings getSettings();
 	VectisData getVectis();
+	EnergyMeter getEnergyMeter();
 }
