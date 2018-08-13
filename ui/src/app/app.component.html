@@ -1,58 +1,25 @@
-<!-- <div fxLayout="row">
-  <mat-toolbar color="primary">
-    <div fxFlex="40px">
-      <div *ngIf="router.url !== '/overview'">
-        <button routerLink="/overview" mat-icon-button>
-          <ion-icon size="large" name="arrow-back"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-
-    <ng-container #rolli *ngIf="(websocket.currentEdge | async) as currentEdge">
-      <div fxFlex>
-        <button routerLink="/device/{{ currentEdge.name }}/overview" mat-button>
-          Energiemonitor
-          <small>({{ currentEdge.name }})</small>
-        </button>
-      </div>
-    </ng-container>
-
-
-    <div fxFlex="50px">
-      <button (click)="presentPopover($event)" mat-icon-button>
-        <ion-icon name="menu" size="large"></ion-icon>
-      </button>
-    </div>
-
-
-  </mat-toolbar>
-</div> -->
-
-
 <ion-header>
   <ion-toolbar color=primary>
     <ion-buttons slot="start">
-      <ion-button *ngIf="router.url !== '/overview'" routerLink="/overview" routerLinkActive="active">
+      <ion-button *ngIf="router.url !== '/overview'" (click)="navBack()">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
-      <!-- <ion-button *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
-        Energiemonitor
-        <small>({{ currentEdge.name }})</small>
-      </ion-button> -->
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button *ngIf="router.url !== '/overview'" (click)="presentPopover($event)">
-        <ion-icon name="settings" size="large"></ion-icon>
-      </ion-button>
-      <ion-button *ngIf="router.url === '/overview'" (click)="presentPopover($event)">
-        <ion-icon name="menu" size="large"></ion-icon>
+      <nav *ngIf="(websocket.currentEdge | async) as currentEdge">
+        <ion-button routerLink="/device/{{ currentEdge.name }}/config/overview">
+          <ion-icon name="settings" size="large"></ion-icon>
+        </ion-button>
+      </nav>
+      <ion-button (click)="presentPopover($event)">
+        <ion-icon size="large" name="more"></ion-icon>
       </ion-button>
     </ion-buttons>
 
     <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
       <button mat-button>
         Energiemonitor
+        <!-- TODO translate -->
         <small>({{ currentEdge.name }})</small>
       </button>
     </ion-title>

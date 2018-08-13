@@ -27,6 +27,7 @@ import { registerLocaleData } from '@angular/common';
 import localDE from '@angular/common/locales/de';
 import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
+import { SettingsModule } from './settings/settings.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -36,6 +37,7 @@ import { PopoverPageModule } from './shared/popover/popover.module';
     IonicModule.forRoot(AppComponent),
     SharedModule,
     AboutModule,
+    SettingsModule,
     EdgeModule,
     ConfigModule,
     OverviewModule,

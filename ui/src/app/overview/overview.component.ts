@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs';
+import { takeUntil, takeWhile } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
@@ -12,7 +13,7 @@ import { Websocket, Utils } from '../shared/shared';
   selector: 'overview',
   templateUrl: './overview.component.html'
 })
-export class OverviewComponent {
+export class OverviewComponent implements OnInit {
   public env = environment;
   public form: FormGroup;
   public filter: FormGroup;
@@ -40,7 +41,20 @@ export class OverviewComponent {
     // this.router.navigate(['/device', edge.name]);
     // }
     // })
+
+    websocket.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
+      if (Object.keys(edges).length == 1) {
+        this.websocket.MTO = false;
+        let edge = edges[Object.keys(edges)[0]];
+        this.router.navigate(['/device', edge.name]);
+      }
+    })
   }
+
+  ngOnInit() {
+    console.log("Overview geladen");
+  }
+
 
   doLogin() {
     let password: string = this.form.value['password'];

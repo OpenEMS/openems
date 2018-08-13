@@ -12,6 +12,7 @@ import { Service, Websocket } from './shared/shared';
 
 import { PopoverPage } from './shared/popover/popover.component';
 import { Router, RouterModule } from '@angular/router';
+import { Location } from '@angular/common';
 
 
 @Component({
@@ -31,7 +32,8 @@ export class AppComponent {
     private service: Service,
     private toaster: ToasterService,
     private popoverController: PopoverController,
-    public router: Router
+    public router: Router,
+    private location: Location
   ) {
     service.setLang('de');
   }
@@ -40,7 +42,6 @@ export class AppComponent {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(notification => {
       this.toaster.pop({ type: notification.type, body: notification.message });
     });
-    console.log("IZZZ DA")
   }
 
   ngOnDestroy() {
@@ -56,5 +57,10 @@ export class AppComponent {
       translucent: false
     });
     return await popover.present();
+  }
+
+  navBack() {
+    this.location.back();
+    // this.router.url.startsWith("device");
   }
 }
