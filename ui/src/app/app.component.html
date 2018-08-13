@@ -1,66 +1,81 @@
-<mat-sidenav-container fullscreen>
-  <mat-sidenav #sidenav mode="push">
-    <mat-list>
-      <mat-list-item>
-        <button routerLinkActive="active" routerLink="/overview" mat-button>
-          <span translate>Menu.Overview</span>
-        </button>
-      </mat-list-item>
-      <mat-list-item *ngIf="env.backend === 'OpenEMS Edge' && env.production">
-        <!--TODO: is this link still necessary?-->
-        <a href="/grafana/dashboard/file/fems-asymmetric.json" mat-button>
-          <span translate>General.History</span>
-        </a>
-      </mat-list-item>
-      <mat-list-item>
-        <button routerLinkActive="active" routerLink="/about" mat-button>
-          <span translate>Menu.AboutUI</span>
-        </button>
-      </mat-list-item>
-    </mat-list>
-  </mat-sidenav>
-  <div fxLayout="row" fxLayoutAlign="space-between left">
-    <mat-toolbar color="primary">
-      <div fxFlex="40px">
-        <button routerLinkActive="active" (click)="sidenav.toggle()" mat-icon-button>
-          <mat-icon>menu</mat-icon>
+<!-- <div fxLayout="row">
+  <mat-toolbar color="primary">
+    <div fxFlex="40px">
+      <div *ngIf="router.url !== '/overview'">
+        <button routerLink="/overview" mat-icon-button>
+          <ion-icon size="large" name="arrow-back"></ion-icon>
         </button>
       </div>
-      <ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
-        <div fxFlex>
-          <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
-          <button routerLink="/device/{{ currentEdge.name }}/overview" mat-button>Energiemonitor
-            <small>({{ currentEdge.name }})</small>
-          </button>
-        </div>
-        <div fxFlex="50px">
-          <button routerLink="/device/{{ currentEdge.name }}/config" mat-icon-button>
-            <mat-icon>settings</mat-icon>
-          </button>
-        </div>
-      </ng-container>
-      <!-- <ng-container *ngIf="!currentEdge">
-          <div>
-            <button routerLink="/overview" mat-button>FEMS</button>
-          </div>
-        </ng-container> -->
-    </mat-toolbar>
-  </div>
-  <!--   -->
-  <div *ngIf="websocket.status == 'connecting'" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
-    <span>Trying to reconnect...</span>
+    </div>
+
+
+    <ng-container #rolli *ngIf="(websocket.currentEdge | async) as currentEdge">
+      <div fxFlex>
+        <button routerLink="/device/{{ currentEdge.name }}/overview" mat-button>
+          Energiemonitor
+          <small>({{ currentEdge.name }})</small>
+        </button>
+      </div>
+    </ng-container>
+
+
+    <div fxFlex="50px">
+      <button (click)="presentPopover($event)" mat-icon-button>
+        <ion-icon name="menu" size="large"></ion-icon>
+      </button>
+    </div>
+
+
+  </mat-toolbar>
+</div> -->
+
+
+<ion-header>
+  <ion-toolbar color=primary>
+    <ion-buttons slot="start">
+      <ion-button *ngIf="router.url !== '/overview'" routerLink="/overview" routerLinkActive="active">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+      <!-- <ion-button *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
+        Energiemonitor
+        <small>({{ currentEdge.name }})</small>
+      </ion-button> -->
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="router.url !== '/overview'" (click)="presentPopover($event)">
+        <ion-icon name="settings" size="large"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="router.url === '/overview'" (click)="presentPopover($event)">
+        <ion-icon name="menu" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
+      <button mat-button>
+        Energiemonitor
+        <small>({{ currentEdge.name }})</small>
+      </button>
+    </ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+
+
+<!--   -->
+<div *ngIf="websocket.status == 'connecting'" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
+  <span>Trying to reconnect...</span>
+  <!-- TODO translate -->
+</div>
+<ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
+  <div *ngIf="!currentEdge.online" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
+    <span>Device not connected.</span>
     <!-- TODO translate -->
   </div>
-  <ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
-    <div *ngIf="!currentEdge.online" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
-      <span>Device not connected.</span>
-      <!-- TODO translate -->
-    </div>
-  </ng-container>
-  <div fxLayout fxLayoutAlign="center start" fxLayout="wrap">
-    <div fxFlex="100%">
-      <router-outlet></router-outlet>
-    </div>
+</ng-container>
+<div fxLayout fxLayoutAlign="center start" fxLayout="wrap">
+  <div fxFlex="100%">
+    <router-outlet></router-outlet>
   </div>
-  <toaster-container></toaster-container>
-</mat-sidenav-container>
+</div>
+<toaster-container></toaster-container>

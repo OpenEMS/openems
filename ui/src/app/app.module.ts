@@ -25,10 +25,12 @@ import { MyTranslateLoader } from './shared/translate/translate';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localDE from '@angular/common/locales/de';
+import { PopoverPage } from './shared/popover/popover.component';
+import { PopoverPageModule } from './shared/popover/popover.module';
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [],
+  entryComponents: [PopoverPage],
   imports: [
     BrowserModule,
     IonicModule.forRoot(AppComponent),
@@ -39,7 +41,8 @@ import localDE from '@angular/common/locales/de';
     OverviewModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
-    })
+    }),
+    PopoverPageModule
   ],
   providers: [
     StatusBar,
