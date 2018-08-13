@@ -1,7 +1,5 @@
 package io.openems.edge.meter.api;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -9,6 +7,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Represents a Symmetric Meter.
@@ -84,7 +83,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 						 * Fill Min/Max Active Power channels
 						 */
 						if (value.asOptional().isPresent()) {
-							int newValue = (int) value.get();
+							int newValue = (int)(Integer) value.get();
 							{
 								Channel<Integer> minActivePowerChannel = channel.getComponent()
 										.channel(ChannelId.MIN_ACTIVE_POWER);

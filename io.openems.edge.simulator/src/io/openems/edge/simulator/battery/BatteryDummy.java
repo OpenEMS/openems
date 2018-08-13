@@ -1,5 +1,11 @@
 package io.openems.edge.simulator.battery;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.battery.api.Battery;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -10,13 +16,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -34,6 +33,8 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int disChargeMaxCurrent;
 	private int chargeMaxCurrent;
 	private int SOC;
+	private int SOH;
+	private int Temp;
 
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -47,6 +48,8 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		disChargeMaxCurrent = config.disChargeMaxCurrent();
 		chargeMaxCurrent = config.chargeMaxCurrent();
 		SOC = config.SOC();
+		SOH = config.SOH();
+		Temp = config.temperature();
 	}
 
 	@Override
@@ -64,6 +67,8 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		IntegerWriteChannel disChargeMaxCurrentChannel = this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT);
 		IntegerWriteChannel chargeMaxCurrentChannel = this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT);
 		IntegerWriteChannel socChannel = this.channel(Battery.ChannelId.SOC);
+		IntegerWriteChannel sohChannel = this.channel(Battery.ChannelId.SOH);
+		IntegerWriteChannel tempChannel = this.channel(Battery.ChannelId.BATTERY_TEMP);
 
 		try {
 			disChargeMinVoltageChannel.setNextWriteValue(disChargeMinVoltage);
@@ -71,12 +76,16 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 			disChargeMaxCurrentChannel.setNextWriteValue(disChargeMaxCurrent);
 			chargeMaxCurrentChannel.setNextWriteValue(chargeMaxCurrent);
 			socChannel.setNextWriteValue(SOC);
+			sohChannel.setNextWriteValue(SOH);
+			tempChannel.setNextWriteValue(Temp);
 			
 			disChargeMinVoltageChannel.setNextValue(disChargeMinVoltage);
 			chargeMaxVoltageChannel.setNextValue(chargeMaxVoltage);
 			disChargeMaxCurrentChannel.setNextValue(disChargeMaxCurrent);
 			chargeMaxCurrentChannel.setNextValue(chargeMaxCurrent);
 			socChannel.setNextValue(SOC);
+			sohChannel.setNextValue(SOH);
+			tempChannel.setNextValue(Temp);
 
 		} catch (OpenemsException e) {
 			log.error("Error occurred while writing channel values! " + e.getMessage());

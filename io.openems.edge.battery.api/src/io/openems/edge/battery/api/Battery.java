@@ -1,12 +1,11 @@
 package io.openems.edge.battery.api;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface Battery extends OpenemsComponent {
@@ -24,6 +23,28 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		/**
+		 * State of Health
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: %
+		 * <li>Range: 0..100
+		 * </ul>
+		 */
+		SOH(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		/**
+		 * Battery Temperature
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: Celsius
+		 * <li>Range: (-50)..100
+		 * </ul>
+		 */
+		BATTERY_TEMP(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
 		/**
 		 * Min voltage for discharging
 		 * 
@@ -85,6 +106,24 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getSoc() {
 		return this.channel(ChannelId.SOC);
+	}
+
+	/**
+	 * Gets the State of Health in [%], range 0..100 %
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getSoh() {
+		return this.channel(ChannelId.SOH);
+	}
+
+	/**
+	 * Gets the Battery Temperature in [degC], range (-50)..100
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getBatteryTemp() {
+		return this.channel(ChannelId.BATTERY_TEMP);
 	}
 
 	/**

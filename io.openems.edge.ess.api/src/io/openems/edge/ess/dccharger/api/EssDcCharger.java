@@ -1,8 +1,5 @@
 package io.openems.edge.ess.dccharger.api;
 
-import org.osgi.annotation.versioning.ProviderType;
-import org.osgi.service.cm.ConfigurationAdmin;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -10,6 +7,8 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
@@ -43,7 +42,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				 * Fill Max Actual Power channel
 				 */
 				if (value.asOptional().isPresent()) {
-					int newValue = (int) value.get();
+					int newValue = (int)(Integer) value.get();
 					Channel<Integer> maxActualPowerChannel = channel.getComponent().channel(ChannelId.MAX_ACTUAL_POWER);
 					int maxActualPower = maxActualPowerChannel.value().orElse(0);
 					int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);

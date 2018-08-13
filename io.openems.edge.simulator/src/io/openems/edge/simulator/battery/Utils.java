@@ -1,13 +1,13 @@
 package io.openems.edge.simulator.battery;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class Utils {
 	public static Stream<? extends Channel<?>> initializeChannels(BatteryDummy s) {
@@ -23,6 +23,8 @@ public class Utils {
 				}), Arrays.stream(Battery.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
+					case SOH:
+					case BATTERY_TEMP:
 					case CHARGE_MAX_CURRENT:
 					case CHARGE_MAX_VOLTAGE:
 					case DISCHARGE_MAX_CURRENT:
