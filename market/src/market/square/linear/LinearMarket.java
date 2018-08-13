@@ -222,7 +222,11 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 			});
 			// in case mains connection is too small we add a very expensive, but infinite
 			// power-source, so that the market-system never fails
-			supplyList.add(new ValuePrice(Integer.MAX_VALUE, Integer.MAX_VALUE));
+			supplyList.add(new ValuePrice(Integer.MAX_VALUE, Integer.MAX_VALUE / 2)); // TODO: remove division...it's a
+																						// patch necessary, because
+																						// LATEST_PRICE channel somehow
+																						// can't handle
+																						// Integer.MAX_VALUE
 
 			// sort supply sources by price
 			Collections.sort(supplyList, (a, b) -> a.getPriceDouble() < b.getPriceDouble() ? -1
@@ -231,8 +235,8 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 			// calculate new market state
 			ValueDecimal totalDemand = demand.getAvg(counter, (long) (900000 * speedFactor));
 			for (ValuePrice s : supplyList) {
-				if (l < 1534143100000L + (long) (86400000 * speedFactor)
-						&& (l + (long) (900000 * speedFactor)) > 1534143100000L + (long) (86400000 * speedFactor)) {
+				if (l < 1534144900000L + (long) (86400000 * speedFactor)
+						&& (l + (long) (900000 * speedFactor)) > 1534144900000L + (long) (86400000 * speedFactor)) {
 				}
 				demand.setValue(counter, (long) (900000 * speedFactor), demand
 						.getAvg(counter, (long) (900000 * speedFactor)).subtract(new ValueDecimal(s.getPowerDouble())));
@@ -246,7 +250,7 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 			}
 		}
 		this.channel(ChannelId.LATEST_SOLD_POWER)
-				.setNextValue(output.getValue(1534143100000L + (long) (86400000 * speedFactor)).getPowerDouble());
+				.setNextValue(output.getValue(1534144900000L + (long) (86400000 * speedFactor)).getPowerDouble());
 		// TODO: find origin of those points you get in the LATEST_SOLD_POWER diagram
 		// when watching a constant time at a small speedFactor. The diagram has regular
 		// peaks like a saw,
@@ -260,9 +264,9 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 		// only be executed at the beginning of each 15min period and/or properly
 		// synchronized with the agent's write-blocks.
 		this.channel(ChannelId.LATEST_PRICE)
-				.setNextValue(output.getValue(1534143100000L + (long) (86400000 * speedFactor)).getPriceDouble() * 100);
-		System.out.println(getMarketReactivity(new Date(1534143100000L + (long) (86400000 * speedFactor)),
-				new Date(1534143100000L + (long) (86400000 * speedFactor) + (long) (900000 * speedFactor))));
+				.setNextValue(output.getValue(1534144900000L + (long) (86400000 * speedFactor)).getPriceDouble() * 100);
+		System.out.println(getMarketReactivity(new Date(1534144900000L + (long) (86400000 * speedFactor)),
+				new Date(1534144900000L + (long) (86400000 * speedFactor) + (long) (900000 * speedFactor))));
 	}
 
 	@Override
