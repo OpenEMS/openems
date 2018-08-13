@@ -154,20 +154,15 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 	}
 
 	@Override
-	public synchronized double getMarketReactivity(Date at, Date to) {
-		if (output.getAvg(at, to).getPriceDouble() - history.getAvg(at, to).getPriceDouble() != 0
-				&& output.getAvg(at, to).getPowerDouble() - history.getAvg(at, to).getPowerDouble() != 0) {
-			return Math.abs((output.getAvg(at, to).getPowerDouble() - history.getAvg(at, to).getPowerDouble())
-					/ (output.getAvg(at, to).getPriceDouble() - history.getAvg(at, to).getPriceDouble()));
-		} else {
-			return 1000; // TODO: estimated value...calculate real average or find better
-							// solution...e.g. currentPrice.getPowerDouble() /
-							// currentPrice.getPriceDouble()
-		}
+	public synchronized double getMarketReactivity(Date from, Date to) {
+		// TODO: estimated value...calculate real average or find better
+		// solution...e.g. currentPrice.getPowerDouble() /
+		// currentPrice.getPriceDouble()
+		return 1000;
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void calculateMarketState() {
+	private synchronized void calculateMarketState() {
 		long now = System.currentTimeMillis();
 		// delete outdated data
 
@@ -183,8 +178,7 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 
 		// copy input to ensure consistency
 
-		byte[] inputBytes = diagramsToBytes(input);
-		Map<Long, Map<Long, Diagram>> inputCopy = bytesToDiagrams(inputBytes);
+		Map<Long, Map<Long, Diagram>> inputCopy = bytesToDiagrams(diagramsToBytes(input));
 
 		// add up demand
 
@@ -236,33 +230,23 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 
 			// calculate new market state
 			ValueDecimal totalDemand = demand.getAvg(counter, (long) (900000 * speedFactor));
-			double totalDemandDouble = totalDemand.getDecimalDouble();
-			double pricePowerSum = 0.0;
 			for (ValuePrice s : supplyList) {
-				double supplyPrice = s.getPriceDouble();
-				double supplyPower = s.getPowerDouble();
-				if (l < 1533891300000L + (long) (86400000 * speedFactor)
-						&& (l + (long) (900000 * speedFactor)) > 1533891300000L + (long) (86400000 * speedFactor)) {
+				if (l < 1534143100000L + (long) (86400000 * speedFactor)
+						&& (l + (long) (900000 * speedFactor)) > 1534143100000L + (long) (86400000 * speedFactor)) {
 				}
 				demand.setValue(counter, (long) (900000 * speedFactor), demand
 						.getAvg(counter, (long) (900000 * speedFactor)).subtract(new ValueDecimal(s.getPowerDouble())));
 				// must be true at some point (at least with the virtual supply selling for
 				// Double.Max_Value as price)
 				if (demand.getAvg(counter, (long) (900000 * speedFactor)).getDecimalDouble() <= 0) {
-					pricePowerSum += s.getPriceDouble() * (s.getPowerDouble()
-							+ demand.getAvg(counter, (long) (900000 * speedFactor)).getDecimalDouble());
-					// TODO: decide, whether to use final or average price
-					output.setValue(counter, (long) (900000 * speedFactor), new ValuePrice(
-							totalDemand.getDecimalDouble() != 0 ? pricePowerSum / totalDemand.getDecimalDouble() : 0,
-							totalDemand.getDecimalDouble()));
+					output.setValue(counter, (long) (900000 * speedFactor),
+							new ValuePrice(s.getPriceDouble(), totalDemand.getDecimalDouble()));
 					break;
-				} else {
-					pricePowerSum += s.getPriceDouble() * s.getPowerDouble();
 				}
 			}
 		}
 		this.channel(ChannelId.LATEST_SOLD_POWER)
-				.setNextValue(output.getValue(1533891300000L + (long) (86400000 * speedFactor)).getPowerDouble());
+				.setNextValue(output.getValue(1534143100000L + (long) (86400000 * speedFactor)).getPowerDouble());
 		// TODO: find origin of those points you get in the LATEST_SOLD_POWER diagram
 		// when watching a constant time at a small speedFactor. The diagram has regular
 		// peaks like a saw,
@@ -276,9 +260,9 @@ public class LinearMarket extends AbstractOpenemsComponent implements MarketSqua
 		// only be executed at the beginning of each 15min period and/or properly
 		// synchronized with the agent's write-blocks.
 		this.channel(ChannelId.LATEST_PRICE)
-				.setNextValue(output.getValue(1533891300000L + (long) (86400000 * speedFactor)).getPriceDouble() * 100);
-		System.out.println(getMarketReactivity(new Date(1533891300000L + (long) (86400000 * speedFactor)),
-				new Date(1533891300000L + (long) (86400000 * speedFactor) + (long) (900000 * speedFactor))));
+				.setNextValue(output.getValue(1534143100000L + (long) (86400000 * speedFactor)).getPriceDouble() * 100);
+		System.out.println(getMarketReactivity(new Date(1534143100000L + (long) (86400000 * speedFactor)),
+				new Date(1534143100000L + (long) (86400000 * speedFactor) + (long) (900000 * speedFactor))));
 	}
 
 	@Override
