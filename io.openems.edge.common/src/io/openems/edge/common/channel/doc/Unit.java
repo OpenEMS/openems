@@ -31,12 +31,12 @@ public enum Unit {
 	/**
 	 * Unit of Active Power [mW]
 	 */
-	MILLIWATT("W", WATT, -3),
-	/*
+	MILLIWATT("mW", WATT, -3),
+	/**
 	 * Unit of Reactive Power [var]
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
-	/*
+	/**
 	 * Unit of Apparent Power [VA]
 	 */
 	VOLT_AMPERE("VA"),
@@ -53,6 +53,7 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
+	
 	/*
 	 * Current
 	 */
@@ -95,14 +96,15 @@ public enum Unit {
 	/*
 	 * Temperature
 	 */
+	
 	/**
-	 * Unit of Temperature [°C]
+	 * Unit of Temperature [ï¿½C]
 	 */
-	DEGREE_CELSIUS("°C"),
+	DEGREE_CELSIUS("ï¿½C"),
 	/**
-	 * Unit of Temperature [d°C]
+	 * Unit of Temperature [dï¿½C]
 	 */
-	DEZIDEGREE_CELSIUS("d°C", DEGREE_CELSIUS, -1),
+	DEZIDEGREE_CELSIUS("dï¿½C", DEGREE_CELSIUS, -1),
 
 	/*
 	 * Time
@@ -115,15 +117,16 @@ public enum Unit {
 	/*
 	 * Resistance
 	 */
+	
 	/**
 	 * Unit of Resistance [Ohm]
 	 */
 	OHM("Ohm"),
+
 	/**
 	 * Unit of Resistance [kOhm]
 	 */
-	KILOOHM("kO", OHM, 3);
-	
+	KILOOHM("kOhm", OHM, 3);
 
 	private final Unit baseUnit;
 	private final int scaleFactor;

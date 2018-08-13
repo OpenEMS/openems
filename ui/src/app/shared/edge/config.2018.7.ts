@@ -44,6 +44,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
     public readonly persistences: string[] = [];
     public readonly simulatorDevices: string[] = [];
     public readonly evcsDevices: string[] = [];
+    public readonly thresholdDevices: string[] = [];
 
     constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config_2018_7) {
         super();
@@ -74,6 +75,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         let persistences: string[] = [];
         let simulatorDevices: string[] = [];
         let evcsDevices: string[] = [];
+        let thresholdDevices: string[] = [];
 
         for (let thingId in config.things) {
             let thing = config.things[thingId];
@@ -135,6 +137,11 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
             if (i.includes("KebaDeviceNature")) {
                 evcsDevices.push(thingId);
             }
+
+            // Channelthreshold 
+            if (thing.class == "io.openems.impl.controller.channelthreshold.ChannelThresholdController") {
+                thresholdDevices.push(thingId);
+            }
         }
 
         this.gridMeters = gridMeters.sort();
@@ -149,6 +156,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         this.evcsDevices = evcsDevices;
         this.esss = esss.sort();
         this.chargers = chargers.sort();
+        this.thresholdDevices = thresholdDevices;
     }
 
     public getStateChannels(): DefaultTypes.ChannelAddresses {
@@ -244,6 +252,18 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         return result;
     }
 
+    public getThresholdWidgetChannels(): DefaultTypes.ChannelAddresses {
+        let result: DefaultTypes.ChannelAddresses = {}
+        for (let thingId of this.thresholdDevices) {
+            let address = this.config.things[thingId]['outputChannelAddress'].split("/");
+            if (!(address[0] in result)) {
+                result[address[0]] = []
+            };
+            result[address[0]].push(address[1]);
+        }
+        return result;
+    }
+
     /**
      * Return ChannelAddresses of power and soc channels
      */
@@ -264,6 +284,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         merge(this.getEssSocChannels());
         // widget channels
         merge(this.getEvcsWidgetChannels());
+        merge(this.getThresholdWidgetChannels());
         return channels;
     }
 
@@ -271,6 +292,9 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         let widgets: Widget[] = [];
         if (this.evcsDevices.length > 0) {
             widgets.push("EVCS");
+        }
+        if (this.thresholdDevices.length > 0) {
+            widgets.push("CHANNELTHRESHOLD");
         }
         return widgets;
     }

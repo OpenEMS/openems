@@ -1,15 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
 
-import { Service, Websocket, Utils } from '../shared/shared';
+import { Websocket, Utils } from '../shared/shared';
 
 @Component({
   selector: 'overview',
@@ -34,6 +31,7 @@ export class OverviewComponent {
     this.filter = formBuilder.group({
       "filter": formBuilder.control('')
     });
+
     // TODO should only forward when automatic login was successful and user did not come to this page on purpose
     // websocket.edges.takeUntil(this.stopOnDestroy).subscribe(edges => {
     // if (Object.keys(edges).length == 1) {

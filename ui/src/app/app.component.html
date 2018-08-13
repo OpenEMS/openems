@@ -40,24 +40,24 @@
         </div>
       </ng-container>
       <!-- <ng-container *ngIf="!currentEdge">
-        <div>
-          <button routerLink="/overview" mat-button>FEMS</button>
-        </div>
-      </ng-container> -->
+          <div>
+            <button routerLink="/overview" mat-button>FEMS</button>
+          </div>
+        </ng-container> -->
     </mat-toolbar>
   </div>
   <!--   -->
-  <div *ngIf="websocket.status == 'connecting'" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap" style="font-family: sans-serif; background-color: yellow">
+  <div *ngIf="websocket.status == 'connecting'" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
     <span>Trying to reconnect...</span>
     <!-- TODO translate -->
   </div>
   <ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
-    <div *ngIf="!currentEdge.online" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap" style="font-family: sans-serif; background-color: yellow">
+    <div *ngIf="!currentEdge.online" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
       <span>Device not connected.</span>
       <!-- TODO translate -->
     </div>
   </ng-container>
-  <div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxLayout fxLayoutAlign="center start" fxLayout="wrap">
     <div fxFlex="100%">
       <router-outlet></router-outlet>
     </div>

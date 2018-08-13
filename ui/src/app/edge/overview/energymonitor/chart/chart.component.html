@@ -1,5 +1,5 @@
 <ngx-loading [show]="loading"></ngx-loading>
-<div #energymonitorChart fxLayout fxFlex fxLayoutWrap="wrap" fxLayoutAlign="center center">
+<div #energymonitorChart fxLayout fxFlex fxLayout="wrap" fxLayoutAlign="center center">
   <svg style.width="{{ width }}px" style.height="{{ height }}px">
     <!--graphic-->
     <svg:g [attr.transform]="translation">
@@ -10,7 +10,7 @@
     </svg:g>
   </svg>
   <!--legend-->
-  <div fxHide fxShow.xs fxLayout fxLayoutWrap="wrap" style="margin: 20px">
+  <div fxHide fxShow.xs fxLayout fxLayout="wrap" style="margin: 20px">
     <div fxFlex="50%">
       <svg style="width:20px; height:20px; background-color:#000000" /> {{ gridSection.name }}
     </div>

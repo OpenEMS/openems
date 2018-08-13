@@ -44,7 +44,41 @@ public class LinearPowerTest {
 
 		power.applyPower();
 	}
+	
+	@Test
+	public void testQuadrantIII() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(-1000, activePower);
+			}
+		};
 
+		LinearPower power = new LinearPower();
+		ess0.addToPower(power);
+		new CircleConstraint(ess0, 10000);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, -1000);
+
+		power.applyPower();
+	}
+
+	@Test
+	public void testQuadrantI() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(1234, activePower);
+			}
+		};
+
+		LinearPower power = new LinearPower();
+		ess0.addToPower(power);
+		new CircleConstraint(ess0, 10000);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 1234);
+
+		power.applyPower();
+	}
+	
 	@Test
 	public void testAsymmetric() throws Exception {
 		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
@@ -133,6 +167,37 @@ public class LinearPowerTest {
 		power.applyPower();
 	}
 
+	@Test
+	public void testSymmetricClusterDistribution() throws Exception {
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(500, activePower);
+				assertEquals(250, reactivePower);
+			}
+		};
+
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(500, activePower);
+				assertEquals(250, reactivePower);
+			}
+		};
+		EssClusterDummy ess0 = new EssClusterDummy(ess1, ess2);
+
+		LinearPower power = new LinearPower();
+		ess1.addToPower(power);
+		ess2.addToPower(power);
+		ess0.addToPower(power);
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 1000);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 500);
+
+		power.applyPower();
+	}
+
+	
 	@Test
 	public void testMaxActivePower() throws Exception {
 		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
