@@ -258,10 +258,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
 
 		// Update Power Constraints
+		// TODO: The actual AC allowed charge and discharge should come from the KACO Blueplanet instead of calculating it from DC parameters.
+		final double EFFICIENCY_FACTOR = 0.9;
 		this.logInfo(log,
-				"AllowedCharge [" + (chaMaxA * chaMaxV * -1) + "] AllowedDischarge [" + disMaxA * disMinV + "]");
-		this.allowedCharge.setIntValue(chaMaxA * chaMaxV * -1);
-		this.allowedDischarge.setIntValue(disMaxA * disMinV);
+				"AllowedCharge [" + (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR) + "] AllowedDischarge [" + (disMaxA * disMinV * EFFICIENCY_FACTOR) + "]");
+		this.allowedCharge.setDoubleValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
+		this.allowedDischarge.setDoubleValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
 
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
