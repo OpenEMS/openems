@@ -1136,7 +1136,7 @@ Prerequisites:
 * Setup an SSH client to connect to the Linux console, e.g. http://www.9bis.net/kitty/[KiTTY]
 * Setup an SCP client to copy the JAR file via SSH, e.g. https://winscp.net/eng/docs/lang:de[WinSCP]
 
-===== Connect via SSH and SCP
+==== Connect via SSH and SCP
 
 . Connect via SSH using KiTTY
 .. Open KiTTY and connect to the target device.
