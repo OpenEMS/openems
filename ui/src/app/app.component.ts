@@ -3,12 +3,16 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ToasterService, BodyOutputType } from 'angular2-toaster';
 
-import { Platform } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
+
+import { PopoverPage } from './shared/popover/popover.component';
+import { Router, RouterModule } from '@angular/router';
+import { Location } from '@angular/common';
 
 
 @Component({
@@ -17,7 +21,6 @@ import { Service, Websocket } from './shared/shared';
 })
 export class AppComponent {
   public env = environment;
-
   private navCollapsed: boolean = true;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -27,7 +30,10 @@ export class AppComponent {
     private statusBar: StatusBar,
     public websocket: Websocket,
     private service: Service,
-    private toaster: ToasterService
+    private toaster: ToasterService,
+    private popoverController: PopoverController,
+    public router: Router,
+    private location: Location
   ) {
     service.setLang('de');
   }
@@ -41,5 +47,20 @@ export class AppComponent {
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  //Presents Popovermenu for Navbar
+  async presentPopover(event: any) {
+    const popover = await this.popoverController.create({
+      component: PopoverPage,
+      event: event,
+      translucent: false
+    });
+    return await popover.present();
+  }
+
+  navBack() {
+    this.location.back();
+    // this.router.url.startsWith("device");
   }
 }
