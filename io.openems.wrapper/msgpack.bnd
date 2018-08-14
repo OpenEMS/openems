@@ -13,6 +13,7 @@ Include-Resource: @msgpack-core-0.8.16.jar
 -exportcontents: \
 	org.msgpack, \
 	org.msgpack.value, \
+	org.msgpack.core.buffer, \
 	org.msgpack.core
 	
 -sources: false
