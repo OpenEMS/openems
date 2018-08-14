@@ -131,6 +131,7 @@ public class Utils {
 					case DEGREE_OF_SELF_SUFFICIENCY_DAY:
 					case DEGREE_OF_SELF_SUFFICIENCY_TOTAL:
 					case GRID_AC_P_TOTAL:
+					case ACTUAL_POWER:
 						return new FloatReadChannel(c, channelId);
 					}
 					return null;
