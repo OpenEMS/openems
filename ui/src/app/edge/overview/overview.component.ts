@@ -77,6 +77,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.currentData = null;
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+
+    this.websocket.clearCurrentEdge();
   }
 
   private requiredSubscribes: { [componentId: string]: DefaultTypes.ChannelAddresses } = {};

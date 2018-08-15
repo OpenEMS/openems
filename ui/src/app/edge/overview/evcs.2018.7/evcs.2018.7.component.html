@@ -59,7 +59,7 @@
               <tr class="underline">
                 <td style="width:50%">Aktuelle Beladung</td>
                 <td style="width:15%"></td>
-                <td style="width:35%" class="align_right">{{ data.EnergySession / 1000 | number:'1.0-0' }}</td>
+                <td style="width:35%" class="align_right">{{ data.EnergySession / 10000 | number:'1.0-0' }}</td>
                 <td style="width:10%">kWh</td>
               </tr>
             </ng-container>
@@ -67,7 +67,7 @@
               <tr class="underline">
                 <td style="width:50%">Gesamte Beladung</td>
                 <td style="width:15%"></td>
-                <td style="width:35%" class="align_right">{{ data.EnergyTotal / 1000 | number:'1.0-0' }}</td>
+                <td style="width:35%" class="align_right">{{ data.EnergyTotal / 10000 | number:'1.0-0' }}</td>
                 <td style="width:10%">kWh</td>
               </tr>
             </ng-container>
