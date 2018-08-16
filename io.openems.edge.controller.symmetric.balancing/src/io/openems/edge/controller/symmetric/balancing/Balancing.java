@@ -120,8 +120,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * set result
 		 */
 		try {
-			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
-					requiredPower);
+			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, requiredPower); //
 			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 0);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
