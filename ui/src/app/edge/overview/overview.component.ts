@@ -29,7 +29,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private route: ActivatedRoute,
-    public utils: Utils
+    public utils: Utils,
   ) { }
 
   ngOnInit() {

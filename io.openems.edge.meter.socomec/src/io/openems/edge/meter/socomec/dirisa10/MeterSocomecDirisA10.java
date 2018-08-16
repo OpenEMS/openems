@@ -1,4 +1,4 @@
-package io.openems.edge.meter.socomec.dirisa14;
+package io.openems.edge.meter.socomec.dirisa10;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -28,11 +28,11 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
- * Implements the SOCOMEC Diris A14 meter
+ * Implements the SOCOMEC Diris A10 meter
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.SOCOMEC.DirisA14", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
+@Component(name = "Meter.SOCOMEC.DirisA10", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+public class MeterSocomecDirisA10 extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
@@ -40,7 +40,7 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public MeterSocomecDirisA14() {
+	public MeterSocomecDirisA10() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -92,40 +92,26 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0xc55A),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)),
-						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0xc566)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0xc55A), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //
+						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0xc566)), //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568), ElementToChannelConverter.SCALE_FACTOR_1), // evtl scalefactor -1 !?
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A), ElementToChannelConverter.SCALE_FACTOR_1), //
 						// TODO: add ApparentPower here
 						new DummyRegisterElement(0xc56C, 0xc56F), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(0xc570),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(0xc572),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(0xc574),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new UnsignedDoublewordElement(0xc576),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new UnsignedDoublewordElement(0xc578),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedDoublewordElement(0xc57A),
-								ElementToChannelConverter.SCALE_FACTOR_1) //
-				), new FC3ReadRegistersTask(0xC702, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(0xC704, 0xC707), // PRODUCTION_REACTIVE_ENERGY
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A), ElementToChannelConverter.SCALE_FACTOR_1) //
+				), new FC3ReadRegistersTask(0x0358, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0x0358)) //
+//						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708), ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				));
 	}
 

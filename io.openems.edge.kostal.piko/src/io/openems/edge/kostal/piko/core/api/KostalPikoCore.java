@@ -98,8 +98,8 @@ public interface KostalPikoCore {
 		 * Grid
 		 */
 		GRID_AC_P_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		
-		
+
+		ACTUAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		AC_VOLTAGE_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		AC_VOLTAGE_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		AC_VOLTAGE_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
