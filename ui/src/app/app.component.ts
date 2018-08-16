@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ToasterService, BodyOutputType } from 'angular2-toaster';
+import { ToasterService } from 'angular2-toaster';
 
 import { Platform, PopoverController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
@@ -11,7 +11,7 @@ import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
 
 import { PopoverPage } from './shared/popover/popover.component';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 
 
@@ -33,7 +33,7 @@ export class AppComponent {
     private toaster: ToasterService,
     private popoverController: PopoverController,
     public router: Router,
-    private location: Location
+    private location: Location,
   ) {
     service.setLang('de');
   }
@@ -59,8 +59,10 @@ export class AppComponent {
     return await popover.present();
   }
 
+
+  //Todo: Optimize Back Button for Stack Method
   navBack() {
     this.location.back();
-    // this.router.url.startsWith("device");
   }
+
 }

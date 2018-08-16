@@ -6,7 +6,7 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 // modules
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, IonRouterOutlet } from '@ionic/angular';
 import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
 import { OverviewModule } from './overview/overview.module';
@@ -44,7 +44,7 @@ import { SettingsModule } from './settings/settings.module';
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),
-    PopoverPageModule
+    PopoverPageModule,
   ],
   providers: [
     StatusBar,
