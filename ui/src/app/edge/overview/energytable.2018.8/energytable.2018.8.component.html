@@ -1,9 +1,10 @@
-<div fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
+<div fxLayout fxLayoutAlign="start start" fxLayout="row wrap">
 
   <mat-card fxFlex="100%" class="single_leftright single_top">
     <ngx-loading [show]="!(currentData && config)"></ngx-loading>
     <mat-card-header>
-      <mat-icon mat-card-avatar>format_list_bulleted</mat-icon>
+      <ion-icon color="primary" mat-card-avatar name="today"></ion-icon>
+      <!-- <mat-icon mat-card-avatar>format_list_bulleted</mat-icon> -->
       <mat-card-title translate>Edge.Overview.Energytable.Title</mat-card-title>
     </mat-card-header>
   </mat-card>

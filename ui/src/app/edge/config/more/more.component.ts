@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/first';
+import { filter, first } from 'rxjs/operators';
 
 import { Websocket, Service } from '../../../shared/shared';
 import { Edge } from '../../../shared/edge/edge';
@@ -26,8 +24,8 @@ export class MoreComponent implements OnInit {
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .filter(edge => edge != null)
-      .first()
+      .pipe(filter(edge => edge != null),
+        first())
       .subscribe(edge => {
         this.edge = edge;
       });

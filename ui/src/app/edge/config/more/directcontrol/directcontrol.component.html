@@ -3,8 +3,8 @@
     <mat-icon mat-card-avatar>stop</mat-icon>
     <mat-card-title>Direct Control</mat-card-title>
   </mat-card-header>
-  <mat-card-content fxLayout fxLayoutWrap="wrap">
-    <form fxLayout fxLayoutWrap="wrap">
+  <mat-card-content fxLayout fxLayout="wrap">
+    <form fxLayout fxLayout="wrap">
       <table fxFlex="100%">
         <tr>
           <th>Thing</th>
@@ -14,19 +14,19 @@
         </tr>
         <tr *ngFor="let form of forms; let i = index" [formGroup]="form">
           <td>
-            <mat-input-container>
+            <mat-form-field>
               <input type="text" formControlName="thing" placeholder="Thing" matInput>
-            </mat-input-container>
+            </mat-form-field>
           </td>
           <td>
-            <mat-input-container>
+            <mat-form-field>
               <input type="text" formControlName="channel" placeholder="Channel" matInput>
-            </mat-input-container>
+            </mat-form-field>
           </td>
           <td>
-            <mat-input-container>
+            <mat-form-field>
               <input type="text" formControlName="value" placeholder="Value" matInput>
-            </mat-input-container>
+            </mat-form-field>
           </td>
           <td width="50">
             <button type="button" (click)="removeLine(index)" mat-mini-fab>

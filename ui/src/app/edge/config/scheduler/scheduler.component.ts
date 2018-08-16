@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 
 import { AbstractConfigComponent } from '../../../shared/config/abstractconfig.component';
-import { ConfigImpl } from '../../../shared/edge/config';
 import { ConfigImpl_2018_7 } from '../../../shared/edge/config.2018.7';
 
 @Component({

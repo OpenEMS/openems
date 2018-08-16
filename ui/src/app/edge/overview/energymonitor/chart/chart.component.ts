@@ -1,12 +1,8 @@
-import { Component, Input, OnInit, OnChanges, OnDestroy, AfterViewInit, ViewChild, QueryList, ElementRef } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/debounceTime';
-import * as d3 from 'd3';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Subject, fromEvent } from 'rxjs';
+import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 
-import { AbstractSection, SectionValue, SvgSquarePosition, SvgSquare } from './section/abstractsection.component';
+
 import { ConsumptionSectionComponent } from './section/consumptionsection.component';
 import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
@@ -51,8 +47,8 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // make sure chart is redrawn in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 100);
-    const source = Observable.fromEvent(window, 'resize', null, null);
-    const subscription = source.takeUntil(this.ngUnsubscribe).debounceTime(200).delay(100).subscribe(e => {
+    const source = fromEvent(window, 'resize', null, null);
+    const subscription = source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
       this.updateOnWindowResize();
     });
   }

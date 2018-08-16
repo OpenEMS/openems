@@ -1,10 +1,5 @@
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Observer } from 'rxjs/Observer';
-import { Observable } from 'rxjs/Observable';
-import { UUID } from 'angular2-uuid';
-import 'rxjs/add/operator/combineLatest';
+import { Subject, BehaviorSubject, ReplaySubject, Observer, Observable } from 'rxjs';
+import { first, map, combineLatest } from 'rxjs/operators';
 import { cmp } from 'semver-compare-multi';
 
 import { Websocket } from '../shared';
@@ -13,7 +8,6 @@ import { CurrentDataAndSummary } from './currentdata';
 import { CurrentDataAndSummary_2018_7 } from './currentdata.2018.7';
 import { DefaultMessages } from '../service/defaultmessages';
 import { DefaultTypes } from '../service/defaulttypes';
-import { Utils } from '../service/utils';
 import { Role } from '../type/role';
 import { ConfigImpl_2018_8 } from './config.2018.8';
 import { ConfigImpl_2018_7 } from './config.2018.7';
@@ -44,7 +38,7 @@ export class Edge {
     // prepare stream/obersable for log
     let logStream = replyStreams["log"] = new Subject<DefaultMessages.LogReply>();
     this.log = logStream
-      .map(message => message.log);
+      .pipe(map(message => message.log));
   }
 
   // holds current data
@@ -82,7 +76,7 @@ export class Edge {
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
     // wait for reply
-    this.replyStreams[messageId].first().subscribe(reply => {
+    this.replyStreams[messageId].pipe(first()).subscribe(reply => {
       let config = (<DefaultMessages.ConfigQueryReply>reply).config;
       let configImpl
       if (this.isVersionAtLeast('2018.8')) {
@@ -125,14 +119,14 @@ export class Edge {
     this.subscribeCurrentDataChannels = channels;
     let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.edgeId, channels));
     let obs = replyStream
-      .map(message => (message as DefaultMessages.CurrentDataReply).currentData)
-      .combineLatest(this.config, (currentData, config) => {
-        if (this.isVersionAtLeast('2018.8')) {
-          return new CurrentDataAndSummary_2018_8(this, currentData, <ConfigImpl_2018_8>config);
-        } else {
-          return new CurrentDataAndSummary_2018_7(this, currentData, <ConfigImpl_2018_7>config);
-        }
-      });
+      .pipe(map(message => (message as DefaultMessages.CurrentDataReply).currentData),
+        combineLatest(this.config, (currentData, config) => {
+          if (this.isVersionAtLeast('2018.8')) {
+            return new CurrentDataAndSummary_2018_8(this, currentData, <ConfigImpl_2018_8>config);
+          } else {
+            return new CurrentDataAndSummary_2018_7(this, currentData, <ConfigImpl_2018_7>config);
+          }
+        }));
     // TODO send "unsubscribe" to websocket when nobody is subscribed on this observable anymore
     return obs;
   }
@@ -153,7 +147,7 @@ export class Edge {
     let replyStream = this.sendMessageWithReply(DefaultMessages.historicDataQuery(this.edgeId, fromDate, toDate, timezone, channels));
     // wait for reply
     return new Promise((resolve, reject) => {
-      replyStream.first().subscribe(reply => {
+      replyStream.pipe(first()).subscribe(reply => {
         let historicData = (reply as DefaultMessages.HistoricDataReply).historicData;
         this.removeReplyStream(reply);
         resolve(historicData);
@@ -175,7 +169,7 @@ export class Edge {
   public subscribeLog(): { messageId: string, logs: Observable<DefaultTypes.Log> } {
     const message = DefaultMessages.logSubscribe(this.edgeId);
     let replyStream = this.sendMessageWithReply(message);
-    return { messageId: message.messageId.ui, logs: replyStream.map(message => message.log as DefaultTypes.Log) };
+    return { messageId: message.messageId.ui, logs: replyStream.pipe(map(message => message.log as DefaultTypes.Log)) };
   }
 
   /**
@@ -193,7 +187,7 @@ export class Edge {
     let replyStream = this.sendMessageWithReply(DefaultMessages.systemExecute(this.edgeId, password, command, background, timeout));
     // wait for reply
     return new Promise((resolve, reject) => {
-      replyStream.first().subscribe(reply => {
+      replyStream.pipe(first()).subscribe(reply => {
         let output = (reply as DefaultMessages.SystemExecuteReply).system.output;
         this.removeReplyStream(reply);
         resolve(output);

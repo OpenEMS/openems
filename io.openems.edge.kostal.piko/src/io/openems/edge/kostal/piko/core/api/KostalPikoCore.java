@@ -94,7 +94,12 @@ public interface KostalPikoCore {
 		DC_VOLTAGE_STRING_3(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		DC_POWER_STRING_3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 
-		AC_TOTAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
+		/*
+		 * Grid
+		 */
+		GRID_AC_P_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
+
+		ACTUAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		AC_VOLTAGE_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		AC_VOLTAGE_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		AC_VOLTAGE_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
@@ -110,13 +115,13 @@ public interface KostalPikoCore {
 		HOME_CONSUMPTION_PV(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_BATTERY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_GRID(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		HOME_CURRENT_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+		HOME_CURRENT_FROM_EXT_SENSOR_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		HOME_POWER_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		HOME_CURRENT_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+		HOME_CURRENT_FROM_EXT_SENSOR_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		HOME_POWER_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_L2(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		HOME_CURRENT_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
+		HOME_CURRENT_FROM_EXT_SENSOR_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		HOME_POWER_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_L3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_TOTAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
@@ -136,7 +141,7 @@ public interface KostalPikoCore {
 		SELF_CONSUMPTION_RATE_TOTAL(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
 		SELF_CONSUMPTION_RATE_DAY(new Doc().type(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
 		DEGREE_OF_SELF_SUFFICIENCY_DAY(new Doc().type(OpenemsType.FLOAT)), //
-		DEGREE_OF_SELF_SUFFICIENCY_TOTAL(new Doc().type(OpenemsType.FLOAT)); //
+		DEGREE_OF_SELF_SUFFICIENCY_TOTAL(new Doc().type(OpenemsType.FLOAT));
 
 		private final Doc doc;
 

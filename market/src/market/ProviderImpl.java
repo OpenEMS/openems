@@ -4,7 +4,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
-@Component(name="market", immediate=true)
+@Component(name = "market", immediate = true)
 public class ProviderImpl /* implements SomeApi */ {
 
 	@Activate

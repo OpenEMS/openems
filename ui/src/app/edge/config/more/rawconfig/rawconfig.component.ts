@@ -1,10 +1,7 @@
-import { Component, Input } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { Websocket, Service } from '../../../../shared/shared';
-import { Edge } from '../../../../shared/edge/edge';
 import { Utils } from '../../../../shared/shared';
 
 @Component({

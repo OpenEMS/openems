@@ -10,7 +10,7 @@ public class PriceDiagram extends ArrayListDiagram<ValuePrice> {
 	private static final long serialVersionUID = 5907453111456542062L;
 
 	public PriceDiagram() {
-		super();
+		super(new ValuePriceFactory());
 	}
 
 	public void setValue(Date at, ValuePrice value) {

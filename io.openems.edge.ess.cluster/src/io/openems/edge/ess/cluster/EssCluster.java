@@ -14,7 +14,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -38,7 +40,7 @@ import io.openems.edge.ess.api.MetaEss;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssCluster extends AbstractOpenemsComponent
-		implements ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent {
+		implements ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler {
 
 	private final AverageInteger<SymmetricEss> soc;
 	private final SumInteger<SymmetricEss> activePower;
@@ -162,6 +164,38 @@ public class EssCluster extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+			this.refreshGridMode();
+			break;
+		}
+	}
+	
+	/**
+	 * Derives the GridMode from all 
+	 */
+	private void refreshGridMode() {
+		Integer gridMode = null;
+		for(SymmetricEss ess : this.esss) {
+			int thisGridMode = ess.getGridMode().value().orElse(GridMode.UNDEFINED.getValue());
+			if(gridMode == null) {
+				gridMode = thisGridMode;
+			} else if(thisGridMode == gridMode) {
+				// no changes
+			} else {
+				// different gridModes -> set as UNDEFINED
+				gridMode = GridMode.UNDEFINED.getValue();
+			}
+		}
+		if(gridMode == null) {
+			// make sure GridMode is initialized
+			gridMode = GridMode.UNDEFINED.getValue();
+		}
+		this.getGridMode().setNextValue(gridMode);
+	} 
+	
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
 		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");

@@ -10,7 +10,7 @@ public class LoadDiagram extends ArrayListDiagram<ValueDecimal> {
 	private static final long serialVersionUID = 5265230054197284740L;
 
 	public LoadDiagram() {
-		super();
+		super(new ValueDecimalFactory());
 	}
 
 	public void setValue(Date at, ValueDecimal value) {

@@ -36,5 +36,4 @@ public class ReadTask extends Task {
 	public int getAddress() {
 		return address;
 	}
-
 }

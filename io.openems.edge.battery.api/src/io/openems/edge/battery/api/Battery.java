@@ -11,12 +11,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
-	public enum GridMode {
-		UNDEFINED, ON_GRID, OFF_GRID
-	}
-
 	// TODO State of Health, Temperature?
-	
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
 		 * State of Charge
@@ -29,30 +24,6 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		/**
-		 * Grid-Mode
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Integer/Enum
-		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
-		 * </ul>
-		 */
-		GRID_MODE(new Doc().type(OpenemsType.INTEGER) //
-				.option(GridMode.UNDEFINED) //
-				.option(GridMode.ON_GRID) //
-				.option(GridMode.OFF_GRID) //
-		),		
-		/**
-		 * Max capacity
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Integer
-		 * <li>Unit: Wh
-		 * </ul>
-		 */
-		MAX_CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		/**
 		 * Min voltage for discharging
 		 * 
@@ -93,6 +64,15 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		/**
+		 * Indicates that the battery has started and is ready for charging/discharging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
 		;
 
 		private final Doc doc;
@@ -114,24 +94,6 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getSoc() {
 		return this.channel(ChannelId.SOC);
-	}
-
-	/**
-	 * Is the Battery On-Grid?
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getGridMode() {
-		return this.channel(ChannelId.GRID_MODE);
-	}
-
-	/**
-	 * Gets the maximum capacity
-	 * 
-	 * @return
-	 */
-	default Channel<Integer> getMaxCapacity() {
-		return this.channel(ChannelId.MAX_CAPACITY);
 	}
 
 	/**
@@ -168,5 +130,14 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getChargeMaxCurrent() {
 		return this.channel(ChannelId.CHARGE_MAX_CURRENT);
+	}
+	
+	/**
+	 * Gets the indicator if ready to charge/discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Boolean> getReadyForWorking() {
+		return this.channel(ChannelId.READY_FOR_WORKING);
 	}
 }
