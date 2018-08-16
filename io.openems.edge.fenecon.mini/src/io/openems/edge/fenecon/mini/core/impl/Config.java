@@ -1,10 +1,10 @@
-package io.openems.edge.ess.fenecon.mini;
+package io.openems.edge.fenecon.mini.core.impl;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "ESS FENECON MINI", //
+		name = "FENECON MINI CORE", //
 		description = "Implements the FENECON MINI energy storage system.")
 @interface Config {
 	String service_pid();

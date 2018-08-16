@@ -70,7 +70,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	@Override
 	public void setGridMeter(KostalPikoGridMeter charger) {
 		this.readTasksManager.addTasks( //
-				// TODO
+		// TODO
 		);
 	}
 
@@ -316,9 +316,10 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
 			this.worker.triggerNextCycle();
-			
-			
+			break;
+
 		}
 	}
+
 
 }
