@@ -84,7 +84,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 						 * Fill Min/Max Active Power channels
 						 */
 						if (value.asOptional().isPresent()) {
-							int newValue = (int) value.get();
+							int newValue = (int)(Integer) value.get();
 							{
 								Channel<Integer> minActivePowerChannel = channel.getComponent()
 										.channel(ChannelId.MIN_ACTIVE_POWER);
