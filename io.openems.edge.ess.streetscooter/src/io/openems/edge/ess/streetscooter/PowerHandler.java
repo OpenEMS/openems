@@ -13,6 +13,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
+import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.InverterMode;
 
 public class PowerHandler implements BiConsumer<Integer, Integer> {
 
@@ -97,12 +98,12 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 
 	private boolean isInverterInNormalMode() {
 		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().orElse(AbstractEssStreetscooter.INVERTER_MODE_UNDEFINED).equals(AbstractEssStreetscooter.INVERTER_MODE_NORMAL);
+		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue()).equals(InverterMode.NORMAL.getValue());
 	}
 
 	private boolean isInverterInFaultMode() {
 		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().orElse(AbstractEssStreetscooter.INVERTER_MODE_UNDEFINED).equals(AbstractEssStreetscooter.INVERTER_MODE_FAULT);
+		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue()).equals(InverterMode.FAULT.getValue());
 	}
 
 	private void setEnabled(boolean value) {

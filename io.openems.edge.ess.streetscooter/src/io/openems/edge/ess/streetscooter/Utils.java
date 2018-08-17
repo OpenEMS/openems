@@ -86,6 +86,7 @@ public class Utils {
 					case INVERTER_V_AC_3:
 					case INVERTER_V_DC_1:
 					case INVERTER_V_DC_2:
+					case DEBUG_INVERTER_SET_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case INVERTER_SET_ACTIVE_POWER:
 						return new IntegerWriteChannel(c, channelId);
@@ -96,6 +97,8 @@ public class Utils {
 					case BATTERY_OVERLOAD:
 					case ICU_RUNSTATE:
 					case INVERTER_CONNECTED:
+					case DEBUG_ICU_ENABLED:
+					case DEBUG_ICU_RUN:
 						return new BooleanReadChannel(c, channelId);
 					case SYSTEM_STATE_INFORMATION:
 						return new StringWriteChannel(c, channelId);
