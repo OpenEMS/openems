@@ -79,6 +79,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 * Check that we are On-Grid
 			 */
 			Enum<?> gridMode = this.ess.getGridMode().value().asEnum();
+			if (gridMode.equals(SymmetricEss.GridMode.UNDEFINED)) {
+				this.logWarn(this.log, "Grid-Mode is undefined!");
+			}
 			if (gridMode != SymmetricEss.GridMode.ON_GRID) {
 				return;
 			}
@@ -120,7 +123,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * set result
 		 */
 		try {
-			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, requiredPower); //
+			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
+					requiredPower); //
 			this.ess.addPowerConstraintAndValidate(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 0);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
