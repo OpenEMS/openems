@@ -28,7 +28,9 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Overzicht",
-        AboutUI: "Over FEMS- UI"
+        AboutUI: "Over FEMS- UI",
+        Settings: 'Algemene instellingen',
+        Logout: 'Uitloggen'
     },
     Overview: {
         AllConnected: "Alle verbindingen gemaakt.",
@@ -49,7 +51,32 @@ export const TRANSLATION = {
                 ProductionMeter: "Productiemeter"
             },
             Energytable: {
-                Title: "Energie tabel"
+                Title: "Energie tabel",
+                LoadingDC: "DC laden",
+                ProductionDC: "Generatie DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Laadstation",
+                    Status: "Staat",
+                    Starting: "Beginnend",
+                    NotReadyForCharging: "Niet klaar voor opladen",
+                    ReadyForCharging: "Klaar om op te laden",
+                    Charging: "Is aan het laden",
+                    Error: "Fout",
+                    NotAuthorized: "Geen bevoegdheid",
+                    Unplugged: "Unplugged",
+                    CharingStationPluggedIn: "Laadstation aangesloten",
+                    ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
+                    ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
+                    ChargingStationPluggedInEVLocked: "Laadstation + E-Auto aangesloten + op slot",
+                    ChargingLimit: "Laadlimiet",
+                    ChargingPower: "Oplaadvermogen",
+                    CurrentCharge: "Huidige lading",
+                    TotalCharge: "Totale lading",
+                    EnforceCharging: "Handhaaf het laden",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
@@ -72,7 +99,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulatie uitvoeren",
                 Log: "Log",
                 LiveLog: "Live System log",
-                ManualControl: "Handmatige bediening"
+                ManualControl: "Handmatige bediening",
+                DataStorage: "Gegevensopslag"
             },
             More: {
                 ManualCommand: "Handmatig commando",

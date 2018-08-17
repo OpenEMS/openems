@@ -29,7 +29,9 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Overview",
-        AboutUI: "About FEMS-UI"
+        AboutUI: "About FEMS-UI",
+        Settings: 'General Settings',
+        Logout: 'Sign Out'
     },
     Overview: {
         AllConnected: "All connections established.",
@@ -52,7 +54,32 @@ export const TRANSLATION = {
                 StorageCharge: "Storage-Discharge"
             },
             Energytable: {
-                Title: "Energytable"
+                Title: "Energytable",
+                LoadingDC: "Loading DC",
+                ProductionDC: "Production DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Charging Station",
+                    Status: "Status",
+                    Starting: "Starting",
+                    NotReadyForCharging: "Not ready for charging",
+                    ReadyForCharging: "Ready for charging",
+                    Charging: "Is charing",
+                    Error: "Error",
+                    NotAuthorized: "Not authorized",
+                    Unplugged: "Unplugged",
+                    ChargingStationPluggedIn: "Charing Station plugged in",
+                    ChargingStationPluggedInLocked: "Charing Station plugged in + locked",
+                    ChargingStationPluggedInEV: "Charing Station + E-Vehicel plugged in",
+                    ChargingStationPluggedInEVLocked: "Charing Station + E-Vehicel plugged in + locked",
+                    ChargingLimit: "Charging limit",
+                    ChargingPower: "Charing power",
+                    CurrentCharge: "Current charge",
+                    TotalCharge: "Total charge",
+                    EnforceCharging: "Enforce charging",
+                    Cable: "Cable"
+                }
             }
         },
         History: {
@@ -76,6 +103,7 @@ export const TRANSLATION = {
                 Log: "Log",
                 LiveLog: "Live system log",
                 ManualControl: "Manual control",
+                DataStorage: "Data Storage"
             },
             More: {
                 ManualCommand: "Manual command",

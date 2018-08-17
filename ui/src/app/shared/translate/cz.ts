@@ -28,7 +28,9 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Přehled",
-        AboutUI: "About FEMS-UI"
+        AboutUI: "About FEMS-UI",
+        Settings: 'Obecné Nastavení',
+        Logout: 'Odhlásit'
     },
     Overview: {
         AllConnected: "Všechna připojení aktivní.",
@@ -49,7 +51,32 @@ export const TRANSLATION = {
                 ProductionMeter: "Elektroměr - Výroba"
             },
             Energytable: {
-                Title: "Tabulka hodnot"
+                Title: "Tabulka hodnot",
+                LoadingDC: "Načítání DC",
+                ProductionDC: "Generování DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Nabíjecí stanice",
+                    Status: "Postavení",
+                    Starting: "Začínající",
+                    NotReadyForCharging: "Není připraven k nabíjení",
+                    ReadyForCharging: "Připraven k nabíjení",
+                    Charging: "Se nabíjí",
+                    Error: "Chyba",
+                    NotAuthorized: "Neautorizovaný",
+                    Unplugged: "Odpojena",
+                    ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
+                    ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
+                    ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
+                    ChargingStationPluggedInEVLocked: "Nabíjecí stanice + e-car připojené + uzamčena",
+                    ChargingLimit: "Omezení nabíjení",
+                    ChargingPower: "Nabíjecí výkon",
+                    CurrentCharge: "Aktuální nabíjení",
+                    TotalCharge: "Celkový poplatek",
+                    EnforceCharging: "Prosazování poplatků",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
@@ -73,6 +100,7 @@ export const TRANSLATION = {
                 Log: "Log",
                 LiveLog: "Live log systému",
                 ManualControl: "Manuální ovládání",
+                DataStorage: "Ukládání dat"
             },
             More: {
                 ManualCommand: "Manuální příkaz ",

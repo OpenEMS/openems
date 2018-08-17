@@ -101,8 +101,7 @@
           </ng-container>
           <!-- DC -->
           <tr *ngIf="sum.chargeActivePowerDC != null">
-            <!-- TODO translate -->
-            <td>Beladung DC</td>
+            <td translate>Edge.Overview.Energytable.LoadingDC</td>
             <td></td>
             <td class="align_right">{{ sum.chargeActivePowerDC | number:'1.0-0' }}</td>
             <td>W</td>
@@ -326,8 +325,7 @@
           </ng-container>
           <!-- DC -->
           <tr *ngIf="sum.activePowerDC != null">
-            <!-- TODO translate -->
-            <td>Erzeugung DC</td>
+            <td translate>Edge.Overview.Energytable.ProductionDC</td>
             <td></td>
             <td class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
             <td>W</td>
