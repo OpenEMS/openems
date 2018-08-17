@@ -37,15 +37,14 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	protected static final int UNIT_ID = 100;
-
-	static final int MAX_APPARENT_POWER = 15000;
+	protected static final int MAX_APPARENT_POWER = 4000;
+	
 	private static final int POWER_PRECISION = 100;
-
 	private static final int ICU_RUN_ADDRESS = 4002;
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-	protected final Logger log;// = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
+	protected final Logger log;
 
 	private final PowerHandler powerHandler;
 
@@ -74,17 +73,19 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			// max Apparent
 			new CircleConstraint(this, MAX_APPARENT_POWER);
 			// Allowed Charge
-			Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-					Relationship.GEQ, 0);
-			this.channel(ChannelId.BATTERY_BMS_PWR_RGN_MAX).onChange(value -> {
-				allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-			});
-			// Allowed Discharge
-			Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL,
-					Pwr.ACTIVE, Relationship.LEQ, 0);
-			this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
-				allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-			});
+//			Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
+//					Relationship.GEQ, 0);
+//			this.channel(ChannelId.BATTERY_BMS_PWR_RGN_MAX).onChange(value -> {
+//				this.logInfo(log, "Update AllowedCharge [" + value + "]");
+//				allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+//			});
+//			// Allowed Discharge
+//			Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL,
+//					Pwr.ACTIVE, Relationship.LEQ, 0);
+//			this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
+//				this.logInfo(log, "Update AllowedDischarge [" + value + "]");
+//				allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+//			});
 		}
 
 		super.activate(context, servicePid, id, enabled, unitId, cm, modbusReference, modbusId);

@@ -34,7 +34,7 @@ public class Utils {
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, AbstractEssStreetscooter.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.ON_GRID);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {

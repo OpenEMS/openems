@@ -47,9 +47,13 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		if (isRunning() && !isEnabled()) {
 			setEnabled(true);
 		}
-		
-		log.info(parent.id() + " >>>>>>>>>>>>>>> isRunning: " + isRunning() + "; isEnabled: " + isEnabled() + "; inverter mode: " + parent.channel(ChannelId.INVERTER_MODE).value());
-		
+
+		log.info(parent.id() //
+				+ " is" + (isEnabled() ? "" : " NOT") + " Enabled." //
+				+ " is" + (isRunning() ? "" : " NOT") + " Running. " //
+				+ " inverter mode [" + parent.channel(ChannelId.INVERTER_MODE).value() + "]." //
+				+ " set power [" + activePower + "]");
+
 		if (isRunning() && isEnabled() && isInverterInNormalMode()) {
 			writeActivePower(activePower);
 		}
@@ -98,12 +102,14 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 
 	private boolean isInverterInNormalMode() {
 		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue()).equals(InverterMode.NORMAL.getValue());
+		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue())
+				.equals(InverterMode.NORMAL.getValue());
 	}
 
 	private boolean isInverterInFaultMode() {
 		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue()).equals(InverterMode.FAULT.getValue());
+		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue())
+				.equals(InverterMode.FAULT.getValue());
 	}
 
 	private void setEnabled(boolean value) {
