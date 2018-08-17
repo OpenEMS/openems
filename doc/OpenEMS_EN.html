@@ -940,18 +940,18 @@ It is once per second because you accepted the default value of "1000 ms" for "C
 </div>
 </li>
 <li>
-<p>Configure the standard-load-profile datasource: "Simulator DataSource: Standard Load Profile". The default values can be accepted without changes.</p>
+<p>Configure the standard-load-profile datasource using the according input file in the csv-reader: "Simulator DataSource: CSVReader". The default values can be accepted without changes. The "Source" value is already set to the right input file.</p>
 <div class="imageblock">
 <div class="content">
-<img src="./img/config-simulator-datasource-standard-load-profile.png" alt="Configuration of Simulator DataSource: Standard Load Profile">
+<img src="./img/config-simulator-datasource-standard-load-profile.png" alt="Configuration of Simulator DataSource: CSVReader as standard load profile datasource">
 </div>
-<div class="title">Figure 12. Configuration of Simulator DataSource: Standard Load Profile</div>
+<div class="title">Figure 12. Configuration of Simulator DataSource: CSVReader as standard load profile datasource</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
 </div>
 <div class="paragraph">
-<p><code>INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate StandardLoadProfileDatasource [edge.simulator.datasource.standardloadprofile]</code>,</p>
+<p><code>INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate CSVDatasource [edge.simulator.datasource.csv]</code>,</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2844,7 +2844,7 @@ WantedBy=multi-user.target</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-08-14 09:47:43 DST
+Last updated 2018-08-16 18:28:33 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
