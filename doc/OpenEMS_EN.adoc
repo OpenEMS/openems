@@ -1115,13 +1115,15 @@ image::eclipse-bnd-file-export-destination.png[Eclipse Export Destination]
 
 This creates a so called Fat-JAR-file including all bundles. It can be executed by running `java -jar openems.jar` in a console.
 
-==== Build using Gradle 
+==== Build using bnd from command line
 
-. Open a console at the OpenEMS directory.
+. Install bnd on the command line. See https://github.com/bndtools/bnd/wiki/Install-bnd-on-the-command-line[bnd wiki icon:external-link[]] for details. (Following I assume that you download the biz.aQute.bnd.jar file to the parent directory of your repository.)
 
-. Run `gradlew.bat export.EdgeApp`
+. Open a console and change to your repository directory.
 
-// TODO explain more...
+. Execute `java -jar biz.aQute.bnd.jar package -o openems.jar io.openems.edge.application\EdgeApp.bndrun`
+
+. This creates a Fat-JAR 'openems.jar' in the base directory of the repository.
 
 === Deploy OpenEMS Edge
 
