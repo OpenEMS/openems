@@ -1,8 +1,7 @@
 <ion-header>
   <ion-toolbar color=primary>
     <ion-buttons slot="start">
-      <ion-button *ngIf="router.url !== '/overview' && !(router.url === '/device/fems0/overview' && (websocket.edges | async | keys).length == 1)"
-        (click)="navBack()">
+      <ion-button *ngIf="service.backUrl" [routerLink]="service.backUrl">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>

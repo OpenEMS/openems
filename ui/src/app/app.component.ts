@@ -29,7 +29,7 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     public websocket: Websocket,
-    private service: Service,
+    public service: Service,
     private toaster: ToasterService,
     private popoverController: PopoverController,
     public router: Router,

@@ -7,14 +7,14 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
 
-import { Websocket, Utils } from '../shared/shared';
+import { Websocket, Utils, Service } from '../shared/shared';
 import { enableDebugTools } from '../../../node_modules/@angular/platform-browser';
 
 @Component({
   selector: 'overview',
   templateUrl: './overview.component.html'
 })
-export class OverviewComponent implements OnInit {
+export class OverviewComponent {
   public env = environment;
   public form: FormGroup;
   public filter: FormGroup;
@@ -26,12 +26,14 @@ export class OverviewComponent implements OnInit {
     public utils: Utils,
     private translate: TranslateService,
     private formBuilder: FormBuilder,
-    private router: Router) {
-    this.form = formBuilder.group({
-      "password": formBuilder.control('user')
+    private router: Router,
+    private service: Service) {
+    this.service.backUrl = null;
+    this.form = this.formBuilder.group({
+      "password": this.formBuilder.control('user')
     });
-    this.filter = formBuilder.group({
-      "filter": formBuilder.control('')
+    this.filter = this.formBuilder.group({
+      "filter": this.formBuilder.control('')
     });
 
     //Forwarding to device overview if there is only 1 edge
@@ -43,11 +45,6 @@ export class OverviewComponent implements OnInit {
       }
     })
   }
-
-  ngOnInit() {
-    console.log("Overview geladen");
-  }
-
 
   doLogin() {
     let password: string = this.form.value['password'];

@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
 
 import { DefaultTypes } from './defaulttypes';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -66,5 +67,17 @@ export class Service implements ErrorHandler {
         // this.notify(notification);
     }
 
+    /**
+     * Sets the url for the toolbar back-button
+     */
+    public backUrl: string = "/overview";
 
+    public setBackUrlOverview(route: ActivatedRoute) {
+        let edgeName = route.snapshot.params['edgeName'];
+        if (edgeName) {
+            this.backUrl = '/device/' + edgeName + '/overview';
+        } else {
+            this.backUrl = '/overview'
+        }
+    }
 }

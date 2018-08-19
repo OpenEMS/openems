@@ -13,6 +13,7 @@ import { Edge } from '../../shared/edge/edge';
 import { ConfigImpl } from '../../shared/edge/config';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
 import { Websocket } from '../../shared/service/websocket';
+import { Service } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -53,8 +54,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private route: ActivatedRoute,
-    private translate: TranslateService
-  ) { }
+    private translate: TranslateService,
+    private service: Service,
+  ) {
+    this.service.setBackUrlOverview(this.route);
+  }
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
