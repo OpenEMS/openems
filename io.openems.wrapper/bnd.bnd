@@ -3,7 +3,6 @@
 	com.ghgande:j2mod,\
 	com.squareup.retrofit2:retrofit,\
 	com.squareup.retrofit2:converter-moshi,\
-	com.fazecast.jSerialComm,\
 	info.faljse:SDNotify,\
 	com.squareup.moshi:moshi;version=1.6,\
 	org.influxdb:influxdb-java;version=2.12,\
