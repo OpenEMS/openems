@@ -14,6 +14,7 @@ Include-Resource: @msgpack-core-0.8.16.jar
 	org.msgpack, \
 	org.msgpack.value, \
 	org.msgpack.core.buffer, \
-	org.msgpack.core
+	org.msgpack.core, \
+	sun.misc
 	
 -sources: false

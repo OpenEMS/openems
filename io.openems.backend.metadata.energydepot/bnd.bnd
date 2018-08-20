@@ -1,15 +1,10 @@
-#
-# io.openems.backend.metadata.energydepot PROVIDER BUNDLE
-#
-
+Bundle-Name: OpenEMS Backend Energy Depot Impl
+Bundle-Vendor: Energy Depot GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.backend.metadata.energydepot. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.backend.metadata.energydepot/api.bnd}
 
 Export-Package:  \
-	io.openems.backend.metadata.energydepot.api;-provide=true
+	io.openems.backend.metadata.api;-provide=true
 
 Private-Package:  \
 	io.openems.backend.metadata.energydepot

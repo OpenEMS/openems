@@ -38,7 +38,7 @@ public class DBUtils {
 		this.dbname = dbname;
 		this.dburl = dburl;
 		this.url = dburl + "/" + this.dbname + "?user=" + this.dbuser + "&password=" + this.password;
-		
+
 		try {
 			DriverManager.registerDriver(new Driver());
 			this.conn = DriverManager.getConnection(this.url);
@@ -70,26 +70,39 @@ public class DBUtils {
 		return null;
 
 	}
-	
+
 	public ResultSet getWPEdges() {
 		try {
-			Connection conn = DriverManager.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
+			Connection conn = DriverManager
+					.getConnection(this.dburl + "/wordpress" + "?user=" + this.dbuser + "&password=" + this.password);
 			Statement stmt = conn.createStatement();
 			String sql = "SELECT * FROM wp_participants_database";
 			ResultSet result = stmt.executeQuery(sql);
 			conn.close();
 			return result;
-			
-			
+
 		} catch (SQLException e) {
-		
+
 			e.printStackTrace();
 		}
-		
-		
+
 		return null;
 	}
-	
+
+	public void writeEdge(String apikey, String name, String comment, String producttype, int id) {
+		try {
+			reconnect();
+			Statement stmt = this.conn.createStatement();
+
+			String sql = "INSERT INTO Edges (apikey,name,comment,producttype,id) VALUES ('" + apikey + "', '" + name
+					+ "', '" + comment + "', '" + producttype + "', '" + id + "')";
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+	}
 
 	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
@@ -125,7 +138,7 @@ public class DBUtils {
 			}
 
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 
@@ -134,6 +147,10 @@ public class DBUtils {
 	}
 
 	private boolean createUser(String sessionId) throws OpenemsException {
+
+		if (sessionId == null) {
+			return false;
+		}
 
 		JsonObject j = getWPResponse("/user/get_user_meta/?cookie=" + sessionId);
 		if (j == null) {
@@ -179,7 +196,7 @@ public class DBUtils {
 			}
 			return true;
 		} catch (SQLException e) {
-			
+
 			return false;
 		}
 
@@ -226,7 +243,7 @@ public class DBUtils {
 							return j;
 
 						}
-						if(status.equals("error")) {
+						if (status.equals("error")) {
 							throw new OpenemsException("Authentication Error: " + j.get("error").getAsString());
 						}
 					}

@@ -77,8 +77,9 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			e.printStackTrace();
 		}
 
-		this.cl.setUserKey(config.uk());
+		
 		try {
+			this.cl.setUserKey(config.uk());
 			this.battery = new BatteryData();
 
 			this.inverter = new InverterData();
