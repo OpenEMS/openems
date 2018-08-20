@@ -1,4 +1,4 @@
-<div *ngIf="things" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="things" fxLayout fxLayoutAlign="center start" fxLayout="wrap row">
   <div fxFlex="100%" *ngFor="let thingId of things">
     <existingthing [thingId]="thingId" [edge]="edge" [showSubThings]="showSubThings"></existingthing>
   </div>

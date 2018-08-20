@@ -1,10 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
 
 import { Edge } from '../../../../shared/edge/edge';
-import { Websocket } from '../../../../shared/shared';
 
 @Component({
   selector: 'refu',

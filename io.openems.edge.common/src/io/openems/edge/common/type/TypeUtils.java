@@ -7,6 +7,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 
 /**
@@ -23,6 +24,10 @@ public class TypeUtils {
 		// Extract Optionals
 		if (value instanceof Optional<?>) {
 			value = ((Optional<?>) value).orElse(null);
+		}
+		// Extract OptionsEnum
+		if (value instanceof OptionsEnum) {
+			value = ((OptionsEnum) value).getValue();
 		}
 		switch (type) {
 		case BOOLEAN:

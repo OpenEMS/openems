@@ -1,12 +1,9 @@
 import { Component, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
 
-import { Edge } from '../../../shared/edge/edge';
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
 import { THING_STATES } from './thingstates';
-import { ConfigImpl } from '../../../shared/edge/config';
 import { ConfigImpl_2018_7 } from '../../../shared/edge/config.2018.7';
 
 interface WarningOrFault {

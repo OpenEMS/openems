@@ -18,9 +18,8 @@
     "forin": true,
     "import-blacklist": [
       true,
-      "rxjs",
       "rxjs/Rx"
-    ],
+	],
     "import-spacing": true,
     "indent": [
       true,
@@ -85,7 +84,8 @@
     ],
     "prefer-const": true,
     "quotemark": [
-      false
+      false,
+      "single"
     ],
     "radix": true,
     "semicolon": [
@@ -106,7 +106,6 @@
         "variable-declaration": "nospace"
       }
     ],
-    "typeof-compare": true,
     "unified-signatures": true,
     "variable-name": false,
     "whitespace": [
@@ -127,6 +126,7 @@
       true,
       "element",
       "app",
+      "page",
       "kebab-case"
     ],
     "no-output-on-prefix": true,
@@ -137,7 +137,6 @@
     "no-output-rename": true,
     "use-life-cycle-interface": true,
     "use-pipe-transform-interface": true,
-    "component-class-suffix": true,
     "directive-class-suffix": true
   }
 }

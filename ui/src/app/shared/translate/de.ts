@@ -15,7 +15,7 @@ export const TRANSLATION = {
         ChargePower: "Beladung",
         DischargePower: "Entladung",
         PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
-        DateFormat: "DD.MM.YYYY", // z.B. Englisch: YYYY-MM-DD (DD = Tag, MM = Monat, YYYY = Jahr)
+        DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         Search: "Suchen",
         Week: {
             Monday: "Montag",
@@ -29,7 +29,9 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Übersicht",
-        AboutUI: "Über FEMS-UI"
+        AboutUI: "Über FEMS-UI",
+        Settings: 'Allgemeine Einstellungen',
+        Logout: 'Abmelden'
     },
     Overview: {
         AllConnected: "Alle Verbindungen hergestellt.",
@@ -52,7 +54,32 @@ export const TRANSLATION = {
                 StorageCharge: "Speicher-Beladung"
             },
             Energytable: {
-                Title: "Energietabelle"
+                Title: "Energietabelle",
+                LoadingDC: "Beladung DC",
+                ProductionDC: "Erzeugung DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Ladestation",
+                    Status: "Status",
+                    Starting: "Startet",
+                    NotReadyForCharging: "Nicht bereit zur Beladung",
+                    ReadyForCharging: "Bereit zur Beladung",
+                    Charging: "Beladung läuft",
+                    Error: "Fehler",
+                    NotAuthorized: "Nicht authorisiert",
+                    Unplugged: "Ausgesteckt",
+                    ChargingStationPluggedIn: "Ladestation eingesteckt",
+                    ChargingStationPluggedInLocked: "Ladestation eingesteckt + gesperrt",
+                    ChargingStationPluggedInEV: "Ladestation + E-Auto eingesteckt",
+                    ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
+                    ChargingLimit: "Lade-Begrenzung",
+                    ChargingPower: "Lade-Leistung",
+                    CurrentCharge: "Aktuelle Beladung",
+                    TotalCharge: "Gesamte Beladung",
+                    EnforceCharging: "Erzwinge Beladung",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
@@ -75,7 +102,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulationen ausführen",
                 Log: "Log",
                 LiveLog: "Live Systemprotokoll",
-                ManualControl: "Manuelle Steuerung"
+                ManualControl: "Manuelle Steuerung",
+                DataStorage: "Datenspeicher"
             },
             More: {
                 ManualCommand: "Manueller Befehl",

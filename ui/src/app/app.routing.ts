@@ -1,8 +1,8 @@
 import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { AppComponent } from './app.component';
 import { AboutComponent } from './about/about.component';
+import { SettingsComponent } from './settings/settings.component';
 import { OverviewComponent } from './overview/overview.component';
 import { OverviewComponent as EdgeOverviewComponent } from './edge/overview/overview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
@@ -26,6 +26,7 @@ const appRoutes: Routes = [
   { path: 'overview', component: OverviewComponent },
 
   { path: 'about', component: AboutComponent },
+  { path: 'settings', component: SettingsComponent },
 
   { path: 'device/:edgeName', redirectTo: 'device/:edgeName/overview', pathMatch: 'full' },
   { path: 'device/:edgeName/overview', component: EdgeOverviewComponent },

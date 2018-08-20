@@ -1,12 +1,13 @@
-<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayout="wrap">
   <div fxFlex.xs="100%" fxFlex.sm="50%" fxFlex.md="35%" fxFlex.lg="25%" fxFlex.gt-lg="20%">
     <mat-card class="single">
       <mat-card-header>
         <mat-icon mat-card-avatar>account_circle</mat-icon>
+        <!-- <ion-icon size="small" color="primary" name="contact"></ion-icon> -->
         <mat-card-title>{{ edge.websocket.name }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div fxLayout fxLayoutWrap="wrap" fxFlex>
+        <div fxLayout fxLayout="wrap row" fxFlex>
           <button mat-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
             <span translate>Edge.History.Period</span>
           </button>
@@ -21,13 +22,13 @@
             <span translate>Edge.History.OtherPeriod</span>
           </button>
           <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
-          <div *ngIf="showOtherPeriod" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
+          <div *ngIf="showOtherPeriod" style="margin-top: 20px" fxLayout fxLayout="wrap" fxFlex="100%">
           </div>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
-  <div fxFlex.lt-md="100%" fxFlex.md="65%" fxFlex.lg="75%" fxFlex.gt-lg="80%" fxLayout fxLayoutWrap="wrap">
+  <div fxFlex.lt-md="100%" fxFlex.md="65%" fxFlex.lg="75%" fxFlex.gt-lg="80%" fxLayout fxLayout="wrap">
     <!--<div fxFlex="100%">
       <mat-card class="single">
         <mat-card-header>

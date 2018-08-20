@@ -88,7 +88,6 @@ public class Utils {
 					case BATTERY_VOLTAGE:
 					case BATTERY_TEMPERATURE:
 					case BATTERY_CURRENT_DIRECTION:
-					case AC_TOTAL_POWER:
 					case AC_CURRENT_L1:
 					case AC_VOLTAGE_L1:
 					case AC_POWER_L1:
@@ -104,13 +103,13 @@ public class Utils {
 					case HOME_CONSUMPTION_PV:
 					case HOME_CONSUMPTION_BATTERY:
 					case HOME_CONSUMPTION_GRID:
-					case HOME_CURRENT_L1:
+					case HOME_CURRENT_FROM_EXT_SENSOR_L1:
 					case HOME_POWER_L1:
 					case HOME_CONSUMPTION_L1:
-					case HOME_CURRENT_L2:
+					case HOME_CURRENT_FROM_EXT_SENSOR_L2:
 					case HOME_POWER_L2:
 					case HOME_CONSUMPTION_L2:
-					case HOME_CURRENT_L3:
+					case HOME_CURRENT_FROM_EXT_SENSOR_L3:
 					case HOME_POWER_L3:
 					case HOME_CONSUMPTION_L3:
 					case HOME_TOTAL_POWER:
@@ -131,6 +130,8 @@ public class Utils {
 					case SELF_CONSUMPTION_RATE_DAY:
 					case DEGREE_OF_SELF_SUFFICIENCY_DAY:
 					case DEGREE_OF_SELF_SUFFICIENCY_TOTAL:
+					case GRID_AC_P_TOTAL:
+					case ACTUAL_POWER:
 						return new FloatReadChannel(c, channelId);
 					}
 					return null;
