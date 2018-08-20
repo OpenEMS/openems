@@ -35,19 +35,6 @@ public class FeneconMiniGridMeter extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private AtomicReference<FeneconMiniCore> core = new AtomicReference<>();
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setCore(FeneconMiniCore core) {
-		this.core.set(core);
-		core.setGridMeter(this);
-	}
-
-	protected void unsetCore(FeneconMiniCore core) {
-		this.core.compareAndSet(core, null);
-		core.unsetGridMeter(this);
-	}
-
 	public FeneconMiniGridMeter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}

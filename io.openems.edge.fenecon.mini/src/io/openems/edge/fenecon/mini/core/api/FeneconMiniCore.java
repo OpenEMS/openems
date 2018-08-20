@@ -3,23 +3,10 @@ package io.openems.edge.fenecon.mini.core.api;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.fenecon.mini.charger.FeneconMiniCharger;
 import io.openems.edge.fenecon.mini.ess.FeneconMiniEss;
 import io.openems.edge.fenecon.mini.gridmeter.FeneconMiniGridMeter;
 
 public interface FeneconMiniCore {
-
-	public void setEss(FeneconMiniEss ess);
-
-	public void unsetEss(FeneconMiniEss ess);
-
-	public void setCharger(FeneconMiniCharger charger);
-
-	public void unsetCharger(FeneconMiniCharger charger);
-
-	public void setGridMeter(FeneconMiniGridMeter meter);
-
-	public void unsetGridMeter(FeneconMiniGridMeter meter);
 
 	enum SetWorkState {
 		LOCAL_CONTROL, START, REMOTE_CONTROL_OF_GRID, STOP, EMERGENCY_STOP

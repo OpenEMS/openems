@@ -61,6 +61,9 @@ public class ModbusProtocol {
 		}
 	}
 
+	public synchronized void removeTask(Task task) {
+	//}
+
 	/**
 	 * Returns the next list of WriteTasks that should be executed within one cycle
 	 * 
