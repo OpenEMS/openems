@@ -1,11 +1,12 @@
 package io.openems.edge.battery.api;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface Battery extends OpenemsComponent {
@@ -23,7 +24,7 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		/**
+		/*
 		 * State of Health
 		 *
 		 * <ul>
@@ -35,16 +36,15 @@ public interface Battery extends OpenemsComponent {
 		 */
 		SOH(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 		/**
-		 * Battery Temperature
+		 * Max capacity
 		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
-		 * <li>Unit: Celsius
-		 * <li>Range: (-50)..100
+		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		BATTERY_TEMP(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MAX_CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		/**
 		 * Min voltage for discharging
 		 * 
@@ -86,6 +86,17 @@ public interface Battery extends OpenemsComponent {
 		 */
 		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
 		/**
+		 * Battery Temperature
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: Celsius
+		 * <li>Range: (-50)..100
+		 * </ul>
+		 */
+		BATTERY_TEMP(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		/**
 		 * Indicates that the battery has started and is ready for charging/discharging
 		 * 
 		 * <ul>
@@ -124,6 +135,15 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getSoh() {
 		return this.channel(ChannelId.SOH);
+	}
+
+	/**
+	 * Gets the maximum capacity
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getMaxCapacity() {
+		return this.channel(ChannelId.MAX_CAPACITY);
 	}
 
 	/**
