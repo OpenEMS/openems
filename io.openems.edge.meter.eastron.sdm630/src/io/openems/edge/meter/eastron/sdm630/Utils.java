@@ -1,6 +1,7 @@
 package io.openems.edge.meter.eastron.sdm630;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -50,10 +51,21 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				})/*
-					 * , Arrays.stream(MeterEastronSDM630.ChannelId.values()).map(channelId -> {
-					 * switch (channelId) { } return null; })
-					 */ //
+				}), Arrays.stream(MeterEastronSDM630.ChannelId.values()).map(channelId -> {
+                    switch (channelId) {
+                        case APPARENT_POWER:
+                        case ACTIVE_CONSUMPTION_ENERGY:
+                        case ACTIVE_PRODUCTION_ENERGY:
+                        case APPARENT_POWER_L1:
+                        case APPARENT_POWER_L2:
+                        case APPARENT_POWER_L3:
+                        case FREQUENCY:
+                        case REACTIVE_CONSUMPTION_ENERGY:
+                        case REACTIVE_PRODUCTION_ENERGY:
+                            return new FloatReadChannel(c, channelId);
+                    }
+                    return null;
+                })
 		).flatMap(channel -> channel);
 	}
 }
