@@ -1,8 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subject } from 'rxjs/Subject';
-
-import { Websocket, Utils } from '../../../shared/shared';
+import { Utils } from '../../../shared/shared';
 import { CustomFieldDefinition } from '../../../shared/type/customfielddefinition';
 import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
 

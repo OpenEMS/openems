@@ -1,17 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription, Subject, BehaviorSubject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Edge } from '../../shared/edge/edge';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
-import { Utils, Websocket } from '../../shared/shared';
+import { Utils, Websocket, Service } from '../../shared/shared';
 import { ConfigImpl } from '../../shared/edge/config';
 import { CurrentDataAndSummary } from '../../shared/edge/currentdata';
 import { Widget } from '../../shared/type/widget';
-import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
-import { environment } from '../../../environments';
+
 
 @Component({
   selector: 'overview',
@@ -31,12 +29,21 @@ export class OverviewComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private route: ActivatedRoute,
-    public utils: Utils
-  ) { }
+    public utils: Utils,
+    private service: Service,
+  ) {
+    websocket.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
+      if (Object.keys(edges).length > 1) {
+        this.service.backUrl = '/overview';
+      } else {
+        this.service.backUrl = null;
+      }
+    })
+  }
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(edge => {
         this.edge = edge;
         if (edge == null) {
@@ -44,7 +51,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
         } else {
 
           edge.config
-            .takeUntil(this.stopOnDestroy)
+            .pipe(takeUntil(this.stopOnDestroy))
             .subscribe(config => {
               this.config = config;
               if (config != null) {
@@ -79,6 +86,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.currentData = null;
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+
+    this.websocket.clearCurrentEdge();
   }
 
   private requiredSubscribes: { [componentId: string]: DefaultTypes.ChannelAddresses } = {};
@@ -120,7 +129,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
     this.subscription = this.edge.subscribeCurrentData(channels)
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(currentData => {
         this.currentData = currentData;
 

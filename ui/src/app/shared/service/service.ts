@@ -1,11 +1,10 @@
 import { Injectable, ErrorHandler } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
 
-import { Websocket } from './websocket';
-import { Edge } from '../edge/edge';
 import { DefaultTypes } from './defaulttypes';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -66,5 +65,19 @@ export class Service implements ErrorHandler {
         //     message: error
         // };
         // this.notify(notification);
+    }
+
+    /**
+     * Sets the url for the toolbar back-button
+     */
+    public backUrl: string = "/overview";
+
+    public setBackUrlOverview(route: ActivatedRoute) {
+        let edgeName = route.snapshot.params['edgeName'];
+        if (edgeName) {
+            this.backUrl = '/device/' + edgeName + '/overview';
+        } else {
+            this.backUrl = '/overview'
+        }
     }
 }

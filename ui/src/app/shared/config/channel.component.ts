@@ -1,14 +1,14 @@
 import { Component, Input, Output, OnChanges, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
 import { DefaultMessages } from '../service/defaultmessages';
 import { Utils } from '../service/utils';
-import { ConfigImpl } from '../edge/config';
 import { Edge } from '../edge/edge';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
-import { EdgeModule } from '../../edge/edge.module';
+import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
 @Component({
   selector: 'channel',
@@ -29,7 +29,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
 
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
-  @Input() public config: ConfigImpl = null;
+  @Input() public config: ConfigImpl_2018_7 = null;
   @Input() public role: Role = "guest"; // TODO in edge
   @Input() public edge: Edge = null;
   @Input() public showThings: boolean = false;
@@ -125,7 +125,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
 
     // subscribe to form changes and build websocket message
     this.form.valueChanges
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(() => this.updateMessage());
   }
 

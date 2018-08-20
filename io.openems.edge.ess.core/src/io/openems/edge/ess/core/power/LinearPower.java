@@ -2,6 +2,7 @@ package io.openems.edge.ess.core.power;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
@@ -40,6 +42,11 @@ import io.openems.edge.ess.power.api.Pwr;
 public class LinearPower implements Power {
 
 	private final Logger log = LoggerFactory.getLogger(LinearPower.class);
+
+	/**
+	 * Enable DEBUG mode for extensive logs
+	 */
+	private final static boolean DEBUG = false;
 
 	/*
 	 * Holds a reference to the Data POJO
@@ -70,7 +77,7 @@ public class LinearPower implements Power {
 	 * @throws PowerException
 	 */
 	public synchronized Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
-		LinearConstraint lc = Utils.toLinearConstraint(this.data, constraint);
+		LinearConstraint lc = this.data.toLinearConstraint(constraint);
 		if (!this.isSolvable(lc)) {
 			// throws the exception if it is not solvable
 			throw new PowerException(new NoFeasibleSolutionException());
@@ -102,10 +109,38 @@ public class LinearPower implements Power {
 	public synchronized void applyPower() {
 		// solve using linear solver
 		double[] solutionArray = this.solveOptimally();
+
 		Map<ManagedSymmetricEss, SymmetricSolution> solutions = Utils.toSolutions(this.data, solutionArray);
 
+		if (LinearPower.DEBUG) {
+			StringBuilder b = new StringBuilder();
+			for (int i = 0; i < solutionArray.length; i++) {
+				double x = solutionArray[i];
+				switch (i % 2) {
+				case 0:
+					b.append("p");
+					break;
+				case 1:
+					b.append("q");
+					break;
+				}
+				b.append((i / 2) % 3 + 1);
+				b.append("[");
+				b.append(String.format("%+.1f", x));
+				b.append("]");
+				if (i < solutionArray.length - 1) {
+					b.append(" ");
+				}
+			}
+			log.info(String.format("%-30s %s", "Solutions", b.toString()));
+			solutions.forEach((ess, solution) -> {
+				log.info(String.format("Solution %20s  %s", ess.id(),
+						"ActivePower: " + solution.getActivePower() + " W"));
+			});
+		}
+
 		// set debug channels on parent
-		this.data.allEsss.values().forEach(ess -> {
+		this.data.allEsss.forEach(ess -> {
 			AtomicInteger activePower = new AtomicInteger(0);
 			AtomicInteger reactivePower = new AtomicInteger(0);
 			AtomicInteger activePowerL1 = new AtomicInteger(0);
@@ -131,7 +166,7 @@ public class LinearPower implements Power {
 			ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(reactivePower.get());
 		});
 
-		this.data.realEsss.keys().forEach(ess -> {
+		this.data.realEsss.forEach(ess -> {
 			SymmetricSolution ss = solutions.get(ess);
 			if (ss == null) {
 				return;
@@ -204,7 +239,7 @@ public class LinearPower implements Power {
 				return true; // it's unbounded, but still solvable
 			}
 		}
-		throw new IllegalArgumentException("AbstractPower.isSolvable() - Should never come here...");
+		throw new IllegalArgumentException("LinearPower.isSolvable() - Should never come here...");
 	}
 
 	public synchronized void removeConstraint(Constraint constraint) {
@@ -223,14 +258,21 @@ public class LinearPower implements Power {
 	 */
 	public synchronized double[] solve(LinearObjectiveFunction objectiveFunction, GoalType goalType,
 			LinearConstraint... additionalConstraints) throws PowerException {
-		// log.debug("Additional Constraints");
-		// for (LinearConstraint c : additionalConstraints) {
-		// log.debug(Utils.linearConstraintToString(c, ""));
-		// }
-		// log.debug(Utils.objectiveFunctionToString(objectiveFunction, goalType));
+		List<LinearConstraint> constraints = this.data.getAllLinearConstraints();
+
+		if (LinearPower.DEBUG) {
+			log.info("Constraints");
+			for (LinearConstraint c : constraints) {
+				log.info(Utils.linearConstraintToString(c, ""));
+			}
+			log.info("Additional Constraints");
+			for (LinearConstraint c : additionalConstraints) {
+				log.info(Utils.linearConstraintToString(c, ""));
+			}
+			log.info(Utils.objectiveFunctionToString(objectiveFunction, goalType));
+		}
 
 		// copy to array (let space for 'additionalConstraints')
-		List<LinearConstraint> constraints = this.data.getAllLinearConstraints();
 		Arrays.stream(additionalConstraints).forEach(c -> constraints.add(c));
 		LinearConstraint[] c = Utils.copyToArray(constraints);
 
@@ -271,50 +313,49 @@ public class LinearPower implements Power {
 	 * @return
 	 */
 	public List<Constraint> getNullConstraints() {
-		List<Constraint> result = new ArrayList<>();
+		List<Coefficient> allPossibleCoefficients = new ArrayList<>();
+		for (ManagedSymmetricEss ess : this.data.realEsss) {
+			for (Pwr pwr : Pwr.values()) {
+				Stream.of(Phase.L1, Phase.L2, Phase.L3)
+						.forEach(phase -> allPossibleCoefficients.add(new Coefficient(ess, phase, pwr, 1)));
+			}
+		}
 
-		this.data.realEsss.keys().forEach(ess -> {
-			Stream.of(Pwr.values()).forEach(pwr -> { // Try ACTIVE and REACTIVE power
-				boolean foundNoConstraint = this.data.getAllConstraints() // Get all Constraints, where...
-						.filter(constraint -> // the Constraint itself is...
-				constraint.getRelationship() == Relationship.EQ // of type EQUALS,
-						&& constraint.getValue().orElse(0d) != 0d) // the value is not 0
-						.flatMap(constraint -> Stream.of(constraint.getCoefficients())) // and none of its
-						.noneMatch(coefficient -> // Coefficients...
-				coefficient.getEss() == ess // matches the current Ess
-						&& coefficient.getPwr() == pwr // and the current Pwr
-				);
-				if (foundNoConstraint) { // found no definitive constraint for this Ess with this Pwr
-					// Check if this Ess is part of a MetaEss which has a constraint
-					boolean foundInMetaEss = this.data.metaEsss.stream() // from all MetaEss
-							.anyMatch(metaEsss -> { // none is matching the following:
-								return Stream.of(metaEsss.getEsss()) // get all sub-Ess
-										// that match the current Ess (i.e. this Ess is part of this MetaEss)
-										.filter(subEss -> ess == subEss) //
-										.anyMatch(subEss -> {
-											// Get all Constraints, where...
-											return this.data.getAllConstraints() //
-													// the Constraint itself is...
-													.filter(constraint -> constraint
-															.getRelationship() == Relationship.EQ // of type EQUALS,
-															// the value is not 0
-															&& constraint.getValue().orElse(0d) != 0d)
-													// and any of its
-													.flatMap(constraint -> Stream.of(constraint.getCoefficients()))
-													.anyMatch(coefficient -> // Coefficients...
-											coefficient.getEss() == metaEsss // matches the current metaEss
-													// and the current Pwr
-													&& coefficient.getPwr() == pwr);
-										});
-							});
-					if (!foundInMetaEss) {
-						// log.info("Add Null-Constraint for [" + ess.id() + "], " + pwr.name());
-						result.add(Utils.createSimpleConstraint(ess, ConstraintType.CYCLE, Phase.ALL, pwr,
-								Relationship.EQ, 0));
+		/*
+		 * Remove Constraints from temporary list, that are already covered. i.e. <ul>
+		 * <li>Type is STATIC, Relationship is EQUALS and Constraint-Value is != 0
+		 * <li>Type is CYCLE </ul>
+		 */
+		for (Constraint constraint : this.data.getAllConstraints()) {
+			if ( //
+			(constraint.getType() == ConstraintType.STATIC && constraint.getRelationship() == Relationship.EQ
+					&& constraint.getValue().orElse(0d) != 0) //
+					|| //
+					(constraint.getType() == ConstraintType.CYCLE) //
+			) {
+				for (Coefficient thisCoefficient : constraint.getCoefficients()) {
+					Iterator<Coefficient> i = allPossibleCoefficients.iterator();
+					while (i.hasNext()) {
+						Coefficient possibleCoefficient = i.next();
+						if (Utils.coefficientIsCoveredBy(possibleCoefficient, thisCoefficient.getEss(),
+								thisCoefficient.getPhase(), thisCoefficient.getPwr())) {
+							i.remove();
+						}
 					}
 				}
-			});
-		});
+			}
+		}
+
+		// For every Possible Coefficient that is left: create a Null-Constraint
+		// (Coefficient == 0) and return it
+		List<Constraint> result = new ArrayList<>();
+		for (Coefficient coefficient : allPossibleCoefficients) {
+			if (LinearPower.DEBUG) {
+				log.info("Add Null-Constraint for [" + coefficient.getEss().id() + "], " + coefficient.getPwr().name()
+						+ ", " + coefficient.getPhase().name());
+			}
+			result.add(new Constraint(ConstraintType.CYCLE, new Coefficient[] { coefficient }, Relationship.EQ, 0));
+		}
 		return result;
 	}
 
@@ -338,29 +379,80 @@ public class LinearPower implements Power {
 		 */
 		this.getNullConstraints().forEach(constraint -> this.addConstraint(constraint));
 
-		/*
-		 * Try to solve with Constraints to keep Ess1 == Ess2 == Ess3
-		 */
-		try {
-			List<LinearConstraint> constraints = new ArrayList<>();
-			for (int i = 2; i < this.data.getNoOfCoefficients(); i += 2) {
-				// Active Power
-				double[] coefficients = this.data.createEmptyCoefficients();
-				coefficients[0] = 1;
-				coefficients[i] = -1;
-				constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
-				// Reactive Power
-				coefficients = this.data.createEmptyCoefficients();
-				coefficients[1] = 1;
-				coefficients[i + 1] = -1;
-				constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
+			/**
+			 * <ul>
+			 * <li>Try to MINIMIZE in Quadrant I
+			 * <li>Fails? try to MAXIMIZE in Quadrant III
+			 * <li>While keeping Ess1 == Ess2 == Ess3
+			 * </ul>
+			 */
+			try {
+				List<LinearConstraint> constraints = new ArrayList<>();
+				for (int i = 2; i < this.data.getNoOfCoefficients(); i += 2) {
+					// Active Power
+					double[] coefficients = this.data.createEmptyCoefficients();
+					coefficients[0] = 1;
+					coefficients[i] = -1;
+					constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+					// Reactive Power
+					coefficients = this.data.createEmptyCoefficients();
+					coefficients[1] = 1;
+					coefficients[i + 1] = -1;
+					constraints.add(new LinearConstraint(coefficients, Relationship.EQ, 0));
+				}
+				for (int i = 0; i < this.data.getNoOfCoefficients(); i++) {
+					double[] cs = this.data.createEmptyCoefficients();
+					cs[i] = 1;
+					Relationship relationship;
+					switch (goalType) {
+					case MINIMIZE:
+						relationship = Relationship.GEQ; // Quadrant I
+						break;
+					case MAXIMIZE:
+					default:
+						relationship = Relationship.LEQ; // Quadrant III
+						break;
+					}
+					constraints.add(new LinearConstraint(cs, relationship, 0));
+				}
+				return this.solve(this.data.createSimpleObjectiveFunction(), goalType, constraints);
+			} catch (PowerException e) {
+				// Error -> next try
 			}
-			return this.solve(this.data.createSimpleObjectiveFunction(), GoalType.MINIMIZE, constraints);
-		} catch (PowerException e) {
-			// Error -> next try
 		}
 
-		for (GoalType goalType : GoalType.values()) {
+		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
+			/**
+			 * <ul>
+			 * <li>Try to MINIMIZE in Quadrant I
+			 * <li>Fails? try to MAXIMIZE in Quadrant III
+			 * </ul>
+			 */
+			try {
+				final List<LinearConstraint> constraints = new ArrayList<>();
+				for (int i = 0; i < this.data.getNoOfCoefficients(); i++) {
+					double[] cs = this.data.createEmptyCoefficients();
+					cs[i] = 1;
+					Relationship relationship;
+					switch (goalType) {
+					case MINIMIZE:
+						relationship = Relationship.GEQ; // Quadrant I
+						break;
+					case MAXIMIZE:
+					default:
+						relationship = Relationship.LEQ; // Quadrant III
+						break;
+					}
+					constraints.add(new LinearConstraint(cs, relationship, 0));
+				}
+				return this.solve(this.data.createSimpleObjectiveFunction(), goalType, constraints);
+			} catch (PowerException e) {
+				// Error -> next try
+			}
+		}
+
+		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
 			/**
 			 * <ul>
 			 * <li>try to MINIMIZE p >= 0; then MINIMIZE q >= 0
@@ -389,7 +481,7 @@ public class LinearPower implements Power {
 			}
 		}
 
-		for (GoalType goalType : GoalType.values()) {
+		for (GoalType goalType : new GoalType[] { GoalType.MINIMIZE, GoalType.MAXIMIZE }) {
 			/**
 			 * <ul>
 			 * <li>Try to MINIMIZE without additional constraints

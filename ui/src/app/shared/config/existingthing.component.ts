@@ -1,13 +1,14 @@
 import { Component, Input, OnChanges, ViewChildren, QueryList } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil, filter } from 'rxjs/operators';
+import { FormBuilder } from '@angular/forms';
 
 import { ChannelComponent } from './channel.component';
 import { Utils } from '../service/utils';
-import { ConfigImpl } from '../edge/config';
 import { Edge } from '../edge/edge';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
+import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
 @Component({
   selector: 'existingthing',
@@ -19,7 +20,7 @@ export class ExistingThingComponent implements OnChanges {
   public thing = null;
   public meta = null;
   public role: Role = "guest";
-  public config: ConfigImpl = null;
+  public config: ConfigImpl_2018_7 = null;
   public formPristine: boolean = true;
   public messages: { [channelId: string]: DefaultTypes.ConfigUpdate } = {};
 
@@ -31,10 +32,15 @@ export class ExistingThingComponent implements OnChanges {
   @Input() set edge(edge: Edge) {
     this.role = edge.role;
     this._edge = edge;
-    edge.config.takeUntil(this.stopOnDestroy)
-      .filter(edge => edge != null)
-      .takeUntil(this.stopOnDestroy).subscribe(config => {
-        this.config = config;
+    edge.config.pipe(takeUntil(this.stopOnDestroy),
+      filter(edge => edge != null),
+      takeUntil(this.stopOnDestroy)).subscribe(config => {
+        if (edge.isVersionAtLeast('2018.8')) {
+          console.error("ExistingThingComponent is not compatible with version > 2018.8");
+          this.config = null;
+        } else {
+          this.config = <ConfigImpl_2018_7>config;
+        }
       });
   }
   get edge(): Edge {
@@ -56,7 +62,7 @@ export class ExistingThingComponent implements OnChanges {
   ngAfterViewInit() {
     this.channelComponentChildren.forEach(channelComponent => {
       channelComponent.message
-        .takeUntil(this.stopOnDestroy)
+        .pipe(takeUntil(this.stopOnDestroy))
         .subscribe((message) => {
           if (message == null) {
             delete this.messages[channelComponent.channelId];

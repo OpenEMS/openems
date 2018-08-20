@@ -1,0 +1,19 @@
+Bundle-Name: influxdb-java
+Bundle-Description: Java client for InfluxDB
+Bundle-DocURL: https://github.com/influxdata/influxdb-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 0.8.16
+
+Include-Resource: @msgpack-core-0.8.16.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-exportcontents: \
+	org.msgpack, \
+	org.msgpack.value, \
+	org.msgpack.core.buffer, \
+	org.msgpack.core
+	
+-sources: false

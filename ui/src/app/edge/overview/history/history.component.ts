@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
 
 import { ConfigImpl } from '../../../shared/edge/config';
 import { Edge } from '../../../shared/edge/edge';

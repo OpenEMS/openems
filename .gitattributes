@@ -1,51 +1,51 @@
 # Text files with LF eol
-*.auth crlf=input
-*.awk crlf=input
-*.bnd crlf=input
-*.bndrun crlf=input
-*.c crlf=input ident
-*.conf crlf=input
-*.cpp crlf=input ident
-*.css crlf=input
-*.ddf crlf=input
-*.ee crlf=input
-*.gradle crlf=input
-*.groovy crlf=input
-*.h crlf=input ident
-*.html crlf=input ident
-*.java crlf=input ident
-*.js crlf=input
-*.lib crlf=input
-*.md crlf=input
-*.MF crlf=input
-*.mf crlf=input
-*.perm crlf=input
-*.php crlf=input
-*.pl crlf=input
-*.pom crlf=input
-*.prefs crlf=input
-*.properties crlf=input
-*.py crlf=input
-*.schema crlf=input
-*.SF crlf=input
-*.sh crlf=input
-*.tcl crlf=input
-*.txt crlf=input
-*.xml crlf=input
-*.xsd crlf=input ident
-*.xsl crlf=input
-*.xslt crlf=input
-*.yml crlf=input
-.classpath crlf=input
-.project crlf=input
-gradlew crlf=input
-packageinfo crlf=input
-Makefile crlf=input
-README crlf=input
-LICENSE crlf=input
+*.auth text eol=lf
+*.awk text eol=lf
+*.bnd text eol=lf
+*.bndrun text eol=lf
+*.c text eol=lf
+*.conf text eol=lf
+*.cpp text eol=lf
+*.css text eol=lf diff=css
+*.ddf text eol=lf
+*.ee text eol=lf
+*.gradle text eol=lf
+*.groovy text eol=lf
+*.h text eol=lf
+*.html text eol=lf diff=html
+*.java text eol=lf
+*.js text eol=lf diff=javascript
+*.lib text eol=lf
+*.md text eol=lf
+*.MF text eol=lf
+*.mf text eol=lf
+*.perm text eol=lf
+*.php text eol=lf
+*.pl text eol=lf
+*.pom text eol=lf
+*.prefs text eol=lf
+*.properties text eol=lf
+*.py text eol=lf
+*.schema text eol=lf
+*.SF text eol=lf
+*.sh text eol=lf
+*.tcl text eol=lf
+*.txt text eol=lf
+*.xml text eol=lf
+*.xsd text eol=lf
+*.xsl text eol=lf
+*.xslt text eol=lf
+*.yml text eol=lf
+.classpath text eol=lf diff=xml
+.project text eol=lf diff=xml
+gradlew text eol=lf
+packageinfo text eol=lf
+Makefile text eol=lf
+README text eol=lf
+LICENSE text eol=lf
 
-# No EOL translation
-*.bat -crlf
+# Windows
+.bat text eol=crlf
 
 # Binary. No EOL translation, no diff
 *.ico binary

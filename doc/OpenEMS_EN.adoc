@@ -5,7 +5,7 @@ ifndef::backend-pdf[]
 = image:OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400,role="related right"]  Open Energy Management System
 endif::[]
 Stefan Feilmeier (c) 2018 FENECON GmbH
-Version 2018.9.0-SNAPSHOT
+Version 2018.9.0
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -158,11 +158,6 @@ image::eclipse-no-problems.png[Eclipse IDE showing 'no problems']
 .io.openems.edge.application project in Eclipse IDE
 image::eclipse-io.openems.edge.application.png[io.openems.edge.application project in Eclipse IDE]
 
-.. Click on btn:[Resolve] to resolve all dependencies and accept the 'Resolution Results' popup window with btn:[Finish].
-+
-.Resolve OSGi in Eclipse IDE
-image::eclipse-resolve-osgi.png[Resolve OSGi in Eclipse IDE]
-
 .. Click on btn:[Run OSGi] to run OpenEMS Edge. You should see log outputs on the console inside Eclipse IDE.
 +
 .OpenEMS Edge initial log output
@@ -209,14 +204,14 @@ followed once per second by
 +
 NOTE: It is once per second because you accepted the default value of "1000 ms" for "Cycle time" in the Scheduler configuration.
 
-.. Configure the standard-load-profile datasource: "Simulator DataSource: Standard Load Profile". The default values can be accepted without changes.
+.. Configure the standard-load-profile datasource using the according input file in the csv-reader: "Simulator DataSource: CSVReader". The default values can be accepted without changes. The "Source" value is already set to the right input file.
 +
-.Configuration of Simulator DataSource: Standard Load Profile
-image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: Standard Load Profile]
+.Configuration of Simulator DataSource: CSVReader as standard load profile datasource
+image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: CSVReader as standard load profile datasource]
 +
 The log shows:
 +
-`INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate StandardLoadProfileDatasource [edge.simulator.datasource.standardloadprofile]`,
+`INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate CSVDatasource [edge.simulator.datasource.csv]`,
 +
 NOTE: The data source was configured with the OpenEMS Component ID "datasource0" which will be used in the next step as reference.
 
@@ -742,7 +737,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 <7> The 'Modbus-ID' parameter creates the link to a Modbus-Service via its OpenEMS Component-ID. At runtime the user will typically set this configuration parameter to something like 'modbus0'.
 <8> The Modbus service implementation requires us to provide the Modbus _Unit-ID_ (also commonly called _Device-ID_ or _Slave-ID_) of the Modbus slave device. This is the ID that is configured at the SOCOMEC DIRIS.
 <9> The *Modbus_target* will be automatically set by OpenEMS framework and does usually not need to be configured by the user. _Note_: Linking other OpenEMS Components is implemented using OSGi References. The OpenEMS Edge framework therefor sets the 'target' property of a reference to filter the matched services.
-<10> The default Meter implementation uses configuration parameters *minActivePower* and *maxActivePower* to store the minimum/maximum ever experience active power. By providing them here the User can possibly adjust them if required.
+<10> The default Meter implementation uses configuration parameters *minActivePower* and *maxActivePower* to store the minimum/maximum ever experienced active power. By providing them here the User can possibly adjust them if required.
 <11> The *webconsole_configurationFactory_nameHint* parameter sets a custom name for Apache Felix Web Console, helping the user to find the correct bundle.
 
 ====== Implement the OpenEMS Component
@@ -1093,6 +1088,174 @@ Then press btn:[Run OSGi] to run OpenEMS Edge. From then you can configure your 
 
 ==== Developing a Controller
 
+=== Build OpenEMS Edge
+
+This chapter explains, how OpenEMS Edge can be compiled to a JAR file that can be executed outside of an IDE.
+
+==== Build using Eclipse IDE
+
+. Inside Eclipse IDE open the *io.openems.edge.application* project and open the link:../io.openems.edge.application/EdgeApp.bndrun[EdgeApp.bndrun icon:code[]] file.
++
+.Eclipse IDE EdgeApp.bndrun
+image::eclipse-edgeapp-bndrun.png[Eclipse IDE EdgeApp.bndrun]
+
+. Press btn:[Export] to start the *Export Wizard Selection* assistant.
+
+. Select btn:[Executable JAR] and press btn:[Next >].
++
+.Eclipse Export Wizard Selection assistant
+image::eclipse-bnd-file-export.png[Eclipse Export Wizard Selection assistant]
+
+. Select a *Destination* for *Export to JAR*.
++
+.Eclipse Export Destination
+image::eclipse-bnd-file-export-destination.png[Eclipse Export Destination]
+
+. Press btn:[Finish]
+
+This creates a so called Fat-JAR-file including all bundles. It can be executed by running `java -jar openems.jar` in a console.
+
+==== Build using bnd from command line
+
+. Install bnd on the command line. See https://github.com/bndtools/bnd/wiki/Install-bnd-on-the-command-line[bnd wiki icon:external-link[]] for details. (Following I assume that you download the biz.aQute.bnd.jar file to the parent directory of your repository.)
+
+. Open a console and change to your repository directory.
+
+. Execute `java -jar biz.aQute.bnd.jar package -o openems.jar io.openems.edge.application\EdgeApp.bndrun`
+
+. This creates a Fat-JAR 'openems.jar' in the base directory of the repository.
+
+=== Deploy OpenEMS Edge
+
+This chapter explains how OpenEMS can be deployed on a Debian Linux Internet-of-Things Gateway. Similar techniques will work for other operating systems as well.
+
+This guide covers a simple, manual approach. For productive systems it is required to automate deployment to IoT devices. Good approaches include a Debian package repository that provides *.deb-files and third-party tools like http://www.eclipse.org/hawkbit/[Eclipse Hawkbit]. This is out-of-scope for this small guide.
+
+Prerequisites:
+
+* A target device running Debian Linux like a Raspberry Pi, Beaglebone Black or an IoT gateway. You need the IP address and SSH access.
+* Create a JAR-file that should be deployes. See <<_build_openems_edge>> for details.
+* Setup an SSH client to connect to the Linux console, e.g. http://www.9bis.net/kitty/[KiTTY]
+* Setup an SCP client to copy the JAR file via SSH, e.g. https://winscp.net/eng/docs/lang:de[WinSCP]
+
+==== Connect via SSH and SCP
+
+. Connect via SSH using KiTTY
+.. Open KiTTY and connect to the target device.
++
+Make sure to select SSH with port 22 and enter the IP address of the target device. Press the btn:[Open] button.
++
+.KiTTY Configuration
+image::deploy-kitty.png[KiTTY Configuration]
+
+.. Gain root permissions either by logging in as user *root* or by login in as a default user and executing *sudo -s*.
++
+.KiTTY Configuration
+image::deploy-ssh-root.png[KiTTY Configuration]
++
+NOTE: As an example, for the FENECON Energy Management System (FEMS) it is required to: +
+_login as:_ `fems` +
+_fems@192.168.178.38's password:_ `device specific password` +
+... +
+_fems@femsXXX:~$_ `sudo -s` +
+_[sudo] password for fems:_ `device specific password` +
+_root@femsXXX:/home/fems#_
+
+. Connect via SCP using WinSCP
+
+.. If you are lucky and have a fully configured system, right-click on the KiTTY window bar and select btn:[Start WinSCP].
++
+.Start WinSCP from KiTTY
+image::deploy-kitty-start-winscp.png[Start WinSCP from KiTTY]
+
+.. Otherwise open WinSCP separately, create a new connection, select *SCP* as protocol and enter again the IP address and port 22. Click btn:[Connect] once finished.
++
+.Start WinSCP from KiTTY
+image::deploy-winscp.png[Start WinSCP from KiTTY]
+
+===== Prepare operating system environment
+
+====== Create an application directory
+
+Create the directory */usr/lib/openems*. This is going to be the place, where we put the JAR file.
+
+Execute `mkdir /usr/lib/openems`.
+
+====== Create a config directory
+
+Create the directory */etc/openems.d*. This is going to be the place, where all the bundle configurations are held.
+
+Execute `mkdir /etc/openems.d`.
+
+====== Create a systemd service definition
+
+The systemd 'Service Manager' manages system processes in a Debian Linux. We will create a systemd service definition file, so that systemd takes care of managing (starting/restarting/...) the OpenEMS Edge service.
+
+. Create and open the service definition file.
++
+Execute `nano /etc/systemd/system/openems.service`
+
+. Paste the following content:
++
+----
+[Unit]
+Description=OpenEMS <1>
+After=network.target <2>
+
+[Service]
+User=root <3>
+Group=root
+Type=notify <4>
+WorkingDirectory=/usr/lib/openems
+LimitCORE=infinity
+LimitRTPRIO=2
+LimitRTTIME=60000000
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=1
+ExecStart=/usr/lib/jvm/java-8-openjdk-armhf/bin/java -Dfelix.cm.dir=/etc/openems.d/ -jar /usr/lib/openems/openems.jar <5>
+SuccessExitStatus=143 <6>
+Restart=always <7>
+RestartSec=10 <8>
+WatchdogSec=60 <9>
+
+[Install]
+WantedBy=multi-user.target
+----
+<1> The name of the service.
+<2> The service is allowed to start after network is available (e.g. to be able to access devices via ethernet connection)
+<3> It is run as user 'root' to have access to all devices. It is recommended to change this for productive systems.
+<4> OpenEMS notifies systemd once it is started up properly.
+<5> The start command. It uses Java 8, sets the config directory to `/etc/openems.d` and runs the jar file at `/usr/lib/openems/openems.jar`
+<6> In contrast to what systemd expects, Java exits with status 143 on success.
+<7> Systemd _always_ tries to restart OpenEMS once it was quit.
+<8> Systemd waits _10_ seconds till the next restart.
+<9> Systemd expects OpenEMS to trigger its watchdog once every 60 seconds. OpenEMS is doing that by default if it detects that it is run by systemd.
+
+. Press btn:[Ctrl] + btn:[x] to exit and btn:[y] to save the file.
+
+. Activate the service definition:
++
+Execute `systemctl daemon-reload`
+
+===== Update OpenEMS Edge JAR file
+
+To update the OpenEMS JAR file at the target device, it is required to copy the JAR file from your build directory (see <<_build_openems_edge>>) to `/usr/lib/openems/openems.jar` on the target device. Afterwards it is required to restart the systemd service
+
+. Copy JAR file via SCP.
++
+In WinSCP open your local build directory on the left side and */usr/lib/openems/* on the right side. Then drag and drop the file from left to right.
++
+.WinSCP copy file
+image::deploy-winscp-copy.png[WinSCP copy file]
+
+. Restart OpenEMS systemd service.
++
+Execute `systemctl restart openems --no-block; journalctl -lfu openems`
++
+The command restarts the service (_systemctl restart openems_) while not waiting for the OpenEMS startup notification (_--no-block_). Then it directly prints the OpenEMS system log (_journalctl -lfu openems_).
++
+.OpenEMS Edge start-up
+image::deploy-openems-start.png[OpenEMS Edge start-up]
 
 == OpenEMS UI
 
@@ -1108,3 +1271,29 @@ Then press btn:[Run OSGi] to run OpenEMS Edge. From then you can configure your 
 === Architecture
 
 === Configuration
+
+== Simulation
+
+OpenEMS provides several virtual devices for testing and development. To set up the simulation-environment follow the setup guide in <<_getting_started>>. The Apache Felix Web Console Configuration lists all OpenEMS component, but those which rely on external hardware can't be used for simulation. These are replaced by more generic components tagged with the "Simulator" prefix. Still, not all non-simulator devices rely on real hardware. Other components used in production, like Loggers, Controllers and Schedulers can be combined with the virtual devices to build a "living" system.
+
+=== Types of Simulated Components
+
+* **DataSource**: A data-source generates lists of data and provides them as a channel to other components. The data can be generated by different means, which could be an augmented random-generator or a reader for a specific data-format like the "Simulator Datasource: CSV Reader".
+* **Devices**: Devices replace a hardware-component like a meter or an ess. There are two kinds of devices:
+** **acting**: These devices act on their own. Their actions do not depend on other device's actions, but on data-sources.
+** **reacting**: These devices analyse other device's channels/properties to deduce their own behavior.
+
+=== Simulator Components
+
+* `Simulator DataSource: CSV Reader`: Reads .csv files and provides their content according to the `io.openems.edge.simulator.datasource.api.SimulatorDatasource` interface. Its package contains several sample csv-files for different devices and situations.
+* `Simulator EssSymmetric Reacting`: Simulates the State of Charge of a ess device. Its behavior depends on configured controllers.
+* `Simulator GridMeter Acting`: Intended to represent grid consumption/production. Portrays a datasource' values. It requests those tagged with the "ActivePower" key. The values are portrayed in the `SimulatedActivePower`, `ActivePower` and - divided by three - in the `ActivePowerL1`, `ActivePowerL2` and `ActivePowerL3` channels.
+* `Simulator ProductionMeter Acting`: Intended to represent fixed production like photovoltaic arrays. To date the functionality equals the one of `Simulator GridMeter Acting`.
+* `Simulator NRCMeter Acting`: Intended to represent non-regulated-consumption. To date the functionality equals the one of `Simulator GridMeter Acting`.
+* `Simulator GridMeter Reacting`: Intended to represent grid consumption/production. Takes all meters (but grid-meters) and esss, sums up their ActivePowers and divides this value by the number of grid-meters in the system. The negative of this result is then portrayed in the `SimulatedActivePower`, `ActivePower` and - divided by three - in the `ActivePowerL1`, `ActivePowerL2` and `ActivePowerL3` channels. This equals the physical reaction of the real grid.
+
+=== Possible Combinations
+
+In reality the OpenEMS can not measure the non-regulated-consumers, as they are spread all over the building. However, it can measure the power at the mains connection, which can be used to calculate the non-regulated-consumption. This approach can be simulated using the `Simulator GridMeter Acting` combined with a `Simulator EssSymmetric Reacting`.
+
+For intelligent systems going beyond real-time-regulation, however, having a - even in production - virtual meter measuring the non-regulated-consumers can be a major advantage. In order to test algorithms depending on such an environment, the simulator provides the `Simulator ProductionMeter Acting`, the `Simulator NRCMeter Acting` and the `Simulator GridMeter Reacting`.

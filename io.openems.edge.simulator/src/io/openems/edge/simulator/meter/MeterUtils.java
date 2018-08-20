@@ -7,10 +7,11 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.Meter;
-import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
-import io.openems.edge.meter.symmetric.api.SymmetricMeter;
+import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.simulator.meter.grid.acting.GridMeter;
+import io.openems.edge.simulator.meter.production.acting.ProductionMeter;
+import io.openems.edge.simulator.meter.nrc.acting.NRCMeter;
 
 public class MeterUtils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(OpenemsComponent c) {
@@ -21,24 +22,17 @@ public class MeterUtils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(Meter.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case FREQUENCY:
-						return new IntegerReadChannel(c, channelId);
-					}
-					return null;
 				}), Arrays.stream(SymmetricMeter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
+					case FREQUENCY:
 					case ACTIVE_POWER:
 					case MAX_ACTIVE_POWER:
 					case MIN_ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case CONSUMPTION_ACTIVE_POWER:
-					case CONSUMPTION_REACTIVE_POWER:
-					case PRODUCTION_ACTIVE_POWER:
-					case PRODUCTION_REACTIVE_POWER:
 					case CURRENT:
 					case VOLTAGE:
+					case ACTIVE_PRODUCTION_ENERGY:
+					case ACTIVE_CONSUMPTION_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
@@ -47,18 +41,6 @@ public class MeterUtils {
 					case ACTIVE_POWER_L1:
 					case ACTIVE_POWER_L2:
 					case ACTIVE_POWER_L3:
-					case CONSUMPTION_ACTIVE_POWER_L1:
-					case CONSUMPTION_ACTIVE_POWER_L2:
-					case CONSUMPTION_ACTIVE_POWER_L3:
-					case CONSUMPTION_REACTIVE_POWER_L1:
-					case CONSUMPTION_REACTIVE_POWER_L2:
-					case CONSUMPTION_REACTIVE_POWER_L3:
-					case PRODUCTION_ACTIVE_POWER_L1:
-					case PRODUCTION_ACTIVE_POWER_L2:
-					case PRODUCTION_ACTIVE_POWER_L3:
-					case PRODUCTION_REACTIVE_POWER_L1:
-					case PRODUCTION_REACTIVE_POWER_L2:
-					case PRODUCTION_REACTIVE_POWER_L3:
 					case REACTIVE_POWER_L1:
 					case REACTIVE_POWER_L2:
 					case REACTIVE_POWER_L3:
@@ -72,6 +54,18 @@ public class MeterUtils {
 					}
 					return null;
 				}), Arrays.stream(GridMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case SIMULATED_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(ProductionMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case SIMULATED_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(NRCMeter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SIMULATED_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);

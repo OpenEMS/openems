@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
+//import { Router, ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,6 +13,7 @@ import { Edge } from '../../shared/edge/edge';
 import { ConfigImpl } from '../../shared/edge/config';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
 import { Websocket } from '../../shared/service/websocket';
+import { Service } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -52,19 +54,22 @@ export class HistoryComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private route: ActivatedRoute,
-    private translate: TranslateService
-  ) { }
+    private translate: TranslateService,
+    private service: Service,
+  ) {
+    this.service.setBackUrlOverview(this.route);
+  }
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(edge => {
         this.edge = edge;
         if (edge == null) {
           this.config = null;
         } else {
           edge.config
-            .takeUntil(this.stopOnDestroy)
+            .pipe(takeUntil(this.stopOnDestroy))
             .subscribe(config => {
               this.config = config;
               if (config) {

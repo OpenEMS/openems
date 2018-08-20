@@ -1,5 +1,4 @@
 import { Role } from '../type/role'
-import { UUID } from 'angular2-uuid';
 
 export module DefaultTypes {
 
@@ -25,12 +24,6 @@ export module DefaultTypes {
   }
 
   export interface Config {
-    components?: { // FROM VERSION 2018.8
-      [id: string]: ComponentConfig
-    },
-    things?: { // BEVORE VERSION 2018.8
-      [id: string]: ThingConfig
-    },
     meta: {
       [factoryPid: string]: {
         implements: string[],
@@ -47,6 +40,18 @@ export module DefaultTypes {
         }
       }
     }
+  }
+
+  export interface Config_2018_8 extends Config {
+    components?: {
+      [id: string]: ComponentConfig
+    },
+  }
+
+  export interface Config_2018_7 extends Config {
+    things?: {
+      [id: string]: ThingConfig
+    },
   }
 
   export interface Data {

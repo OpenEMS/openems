@@ -1,8 +1,9 @@
-import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
-import { Observable } from "rxjs/Observable";
-import 'rxjs/add/observable/interval';
+import { interval } from 'rxjs';
+
+
 
 @Component({
     selector: '[storagesection]',
@@ -15,7 +16,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     ngOnInit() {
-        Observable.interval(1000)
+        interval(1000)
             .subscribe(x => {
             })
     }

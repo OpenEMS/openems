@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -9,7 +9,10 @@ import { DefaultTypes } from '../../../../shared/service/defaulttypes';
 import { Dataset, EMPTY_DATASET } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
-import { CurrentDataAndSummary } from '../../../../shared/edge/currentdata';
+import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
+import { CurrentDataAndSummary_2018_8 } from '../../../../shared/edge/currentdata.2018.8';
+import { ConfigImpl_2018_8 } from '../../../../shared/edge/config.2018.8';
+import { ConfigImpl_2018_7 } from '../../../../shared/edge/config.2018.7';
 
 // TODO grid should be shown as "Netzeinspeisung"/"Netzbezug" instead of positive/negative value
 @Component({
@@ -111,7 +114,12 @@ export class EnergyChartComponent implements OnChanges {
       let labels: Date[] = [];
       for (let record of historicData.data) {
         labels.push(new Date(record.time));
-        let data = new CurrentDataAndSummary(this.edge, record.channels, this.config);
+        let data;
+        if (this.edge.isVersionAtLeast('2018.8')) {
+          data = new CurrentDataAndSummary_2018_8(this.edge, record.channels, <ConfigImpl_2018_8>this.config);
+        } else {
+          data = new CurrentDataAndSummary_2018_7(this.edge, record.channels, <ConfigImpl_2018_7>this.config);
+        }
         activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
         activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
         activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW

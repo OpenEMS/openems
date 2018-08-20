@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntil } from 'rxjs/operators';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { Websocket } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
-import 'rxjs/add/operator/retryWhen';
-import 'rxjs/add/operator/delay';
+
 
 interface SimulatorForm {
   id: string,
@@ -47,7 +46,7 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
   ngOnInit() {
     super.ngOnInit();
 
-    this.edge.takeUntil(this.ngUnsubscribe).subscribe(edge => {
+    this.edge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
       // subscribed to edge
       if (edge != null) {
         edge.subscribeCurrentData({
@@ -79,7 +78,7 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
           ess3: [
             "Soc", "SystemState", "ActivePower"
           ]
-        }).takeUntil(this.ngUnsubscribe).subscribe(data => {
+        }).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
           let tmpData = {};
           // subscribed to data
           // TODO
