@@ -514,7 +514,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_build_openems_edge">4.6. Build OpenEMS Edge</a>
 <ul class="sectlevel3">
 <li><a href="#_build_using_eclipse_ide">4.6.1. Build using Eclipse IDE</a></li>
-<li><a href="#_build_using_gradle">4.6.2. Build using Gradle</a></li>
+<li><a href="#_build_using_bnd_from_command_line">4.6.2. Build using bnd from command line</a></li>
 </ul>
 </li>
 <li><a href="#_deploy_openems_edge">4.7. Deploy OpenEMS Edge</a>
@@ -940,18 +940,18 @@ It is once per second because you accepted the default value of "1000 ms" for "C
 </div>
 </li>
 <li>
-<p>Configure the standard-load-profile datasource: "Simulator DataSource: Standard Load Profile". The default values can be accepted without changes.</p>
+<p>Configure the standard-load-profile datasource using the according input file in the csv-reader: "Simulator DataSource: CSVReader". The default values can be accepted without changes. The "Source" value is already set to the right input file.</p>
 <div class="imageblock">
 <div class="content">
-<img src="./img/config-simulator-datasource-standard-load-profile.png" alt="Configuration of Simulator DataSource: Standard Load Profile">
+<img src="./img/config-simulator-datasource-standard-load-profile.png" alt="Configuration of Simulator DataSource: CSVReader as standard load profile datasource">
 </div>
-<div class="title">Figure 12. Configuration of Simulator DataSource: Standard Load Profile</div>
+<div class="title">Figure 12. Configuration of Simulator DataSource: CSVReader as standard load profile datasource</div>
 </div>
 <div class="paragraph">
 <p>The log shows:</p>
 </div>
 <div class="paragraph">
-<p><code>INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate StandardLoadProfileDatasource [edge.simulator.datasource.standardloadprofile]</code>,</p>
+<p><code>INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate CSVDatasource [edge.simulator.datasource.csv]</code>,</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2473,14 +2473,20 @@ public String debugLog() {
 </div>
 </div>
 <div class="sect3">
-<h4 id="_build_using_gradle">4.6.2. Build using Gradle</h4>
+<h4 id="_build_using_bnd_from_command_line">4.6.2. Build using bnd from command line</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Open a console at the OpenEMS directory.</p>
+<p>Install bnd on the command line. See <a href="https://github.com/bndtools/bnd/wiki/Install-bnd-on-the-command-line">bnd wiki <span class="icon"><i class="fa fa-external-link"></i></span></a> for details. (Following I assume that you download the biz.aQute.bnd.jar file to the parent directory of your repository.)</p>
 </li>
 <li>
-<p>Run <code>gradlew.bat export.EdgeApp</code></p>
+<p>Open a console and change to your repository directory.</p>
+</li>
+<li>
+<p>Execute <code>java -jar biz.aQute.bnd.jar package -o openems.jar io.openems.edge.application\EdgeApp.bndrun</code></p>
+</li>
+<li>
+<p>This creates a Fat-JAR 'openems.jar' in the base directory of the repository.</p>
 </li>
 </ol>
 </div>
@@ -2844,7 +2850,7 @@ WantedBy=multi-user.target</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-08-14 09:47:43 DST
+Last updated 2018-08-19 18:40:20 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

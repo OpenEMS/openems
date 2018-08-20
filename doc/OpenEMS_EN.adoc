@@ -204,14 +204,14 @@ followed once per second by
 +
 NOTE: It is once per second because you accepted the default value of "1000 ms" for "Cycle time" in the Scheduler configuration.
 
-.. Configure the standard-load-profile datasource: "Simulator DataSource: Standard Load Profile". The default values can be accepted without changes.
+.. Configure the standard-load-profile datasource using the according input file in the csv-reader: "Simulator DataSource: CSVReader". The default values can be accepted without changes. The "Source" value is already set to the right input file.
 +
-.Configuration of Simulator DataSource: Standard Load Profile
-image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: Standard Load Profile]
+.Configuration of Simulator DataSource: CSVReader as standard load profile datasource
+image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: CSVReader as standard load profile datasource]
 +
 The log shows:
 +
-`INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate StandardLoadProfileDatasource [edge.simulator.datasource.standardloadprofile]`,
+`INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate CSVDatasource [edge.simulator.datasource.csv]`,
 +
 NOTE: The data source was configured with the OpenEMS Component ID "datasource0" which will be used in the next step as reference.
 
@@ -1115,13 +1115,15 @@ image::eclipse-bnd-file-export-destination.png[Eclipse Export Destination]
 
 This creates a so called Fat-JAR-file including all bundles. It can be executed by running `java -jar openems.jar` in a console.
 
-==== Build using Gradle 
+==== Build using bnd from command line
 
-. Open a console at the OpenEMS directory.
+. Install bnd on the command line. See https://github.com/bndtools/bnd/wiki/Install-bnd-on-the-command-line[bnd wiki icon:external-link[]] for details. (Following I assume that you download the biz.aQute.bnd.jar file to the parent directory of your repository.)
 
-. Run `gradlew.bat export.EdgeApp`
+. Open a console and change to your repository directory.
 
-// TODO explain more...
+. Execute `java -jar biz.aQute.bnd.jar package -o openems.jar io.openems.edge.application\EdgeApp.bndrun`
+
+. This creates a Fat-JAR 'openems.jar' in the base directory of the repository.
 
 === Deploy OpenEMS Edge
 

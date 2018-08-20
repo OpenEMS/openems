@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color=primary>
     <ion-buttons slot="start">
-      <ion-button *ngIf="router.url !== '/overview'" (click)="navBack()">
+      <ion-button *ngIf="service.backUrl" [routerLink]="service.backUrl">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -15,7 +15,6 @@
         <ion-icon size="large" name="more"></ion-icon>
       </ion-button>
     </ion-buttons>
-
     <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
       <button mat-button>
         Energiemonitor
@@ -23,7 +22,6 @@
         <small>({{ currentEdge.name }})</small>
       </button>
     </ion-title>
-
   </ion-toolbar>
 </ion-header>
 

@@ -4,7 +4,7 @@ import { FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 import { Edge } from '../../../shared/edge/edge';
-import { Websocket } from '../../../shared/shared';
+import { Websocket, Service } from '../../../shared/shared';
 
 @Component({
   selector: 'overview',
@@ -19,8 +19,11 @@ export class OverviewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     public websocket: Websocket,
-    private formBuilder: FormBuilder
-  ) { }
+    private formBuilder: FormBuilder,
+    private service: Service,
+  ) {
+    this.service.setBackUrlOverview(this.route);
+  }
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route);

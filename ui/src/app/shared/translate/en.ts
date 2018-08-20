@@ -29,14 +29,16 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Overview",
-        AboutUI: "About PRIMUS-UI"
+        AboutUI: "About FEMS-UI",
+        Settings: 'General Settings',
+        Logout: 'Sign Out'
     },
     Overview: {
         AllConnected: "All connections established.",
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "PRIMUS is offline!"
+        IsOffline: "FEMS is offline!"
     },
     Edge: {
         Overview: {
@@ -52,7 +54,32 @@ export const TRANSLATION = {
                 StorageCharge: "Storage-Discharge"
             },
             Energytable: {
-                Title: "Energytable"
+                Title: "Energytable",
+                LoadingDC: "Loading DC",
+                ProductionDC: "Production DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Charging Station",
+                    Status: "Status",
+                    Starting: "Starting",
+                    NotReadyForCharging: "Not ready for charging",
+                    ReadyForCharging: "Ready for charging",
+                    Charging: "Is charing",
+                    Error: "Error",
+                    NotAuthorized: "Not authorized",
+                    Unplugged: "Unplugged",
+                    ChargingStationPluggedIn: "Charing Station plugged in",
+                    ChargingStationPluggedInLocked: "Charing Station plugged in + locked",
+                    ChargingStationPluggedInEV: "Charing Station + E-Vehicel plugged in",
+                    ChargingStationPluggedInEVLocked: "Charing Station + E-Vehicel plugged in + locked",
+                    ChargingLimit: "Charging limit",
+                    ChargingPower: "Charing power",
+                    CurrentCharge: "Current charge",
+                    TotalCharge: "Total charge",
+                    EnforceCharging: "Enforce charging",
+                    Cable: "Cable"
+                }
             }
         },
         History: {
@@ -76,6 +103,7 @@ export const TRANSLATION = {
                 Log: "Log",
                 LiveLog: "Live system log",
                 ManualControl: "Manual control",
+                DataStorage: "Data Storage"
             },
             More: {
                 ManualCommand: "Manual command",
@@ -92,7 +120,7 @@ export const TRANSLATION = {
                 NewScheduler: "New scheduler...",
                 Class: "Class:",
                 NotImplemented: "Form not implemented: ",
-                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Always"
             },
             Log: {
@@ -114,14 +142,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "User interface for PRIMUS and OpenEMS",
+        UI: "User interface for FEMS and OpenEMS",
         Developed: "This user interface is developed by FENECON as open-source software.",
         Fenecon: "More about FENECON",
-        Fems: "More about PRIMUS",
+        Fems: "More about FEMS",
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
         Build: "This build",
-        Contact: "Please contact our PRIMUS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "Please contact our FEMS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Select language:"
     },
     Notifications: {

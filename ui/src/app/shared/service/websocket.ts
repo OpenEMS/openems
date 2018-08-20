@@ -44,9 +44,6 @@ export class Websocket {
   // tracks which message id (=key) is connected with which edgeName (=value)
   private pendingQueryReplies: { [id: string]: string } = {};
 
-
-  public MTO: boolean = true;
-
   constructor(
     private router: Router,
     private service: Service,

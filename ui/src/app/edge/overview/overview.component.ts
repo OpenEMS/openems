@@ -5,7 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { Edge } from '../../shared/edge/edge';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
-import { Utils, Websocket } from '../../shared/shared';
+import { Utils, Websocket, Service } from '../../shared/shared';
 import { ConfigImpl } from '../../shared/edge/config';
 import { CurrentDataAndSummary } from '../../shared/edge/currentdata';
 import { Widget } from '../../shared/type/widget';
@@ -29,8 +29,17 @@ export class OverviewComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private route: ActivatedRoute,
-    public utils: Utils
-  ) { }
+    public utils: Utils,
+    private service: Service,
+  ) {
+    websocket.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
+      if (Object.keys(edges).length > 1) {
+        this.service.backUrl = '/overview';
+      } else {
+        this.service.backUrl = null;
+      }
+    })
+  }
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)

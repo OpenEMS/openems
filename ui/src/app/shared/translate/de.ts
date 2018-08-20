@@ -29,14 +29,16 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Übersicht",
-        AboutUI: "Über PRIMUS-UI"
+        AboutUI: "Über FEMS-UI",
+        Settings: 'Allgemeine Einstellungen',
+        Logout: 'Abmelden'
     },
     Overview: {
         AllConnected: "Alle Verbindungen hergestellt.",
         ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.", // value = name of websocket
         ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
-        IsOffline: "PRIMUS ist offline!"
+        IsOffline: "FEMS ist offline!"
     },
     Edge: {
         Overview: {
@@ -52,7 +54,32 @@ export const TRANSLATION = {
                 StorageCharge: "Speicher-Beladung"
             },
             Energytable: {
-                Title: "Energietabelle"
+                Title: "Energietabelle",
+                LoadingDC: "Beladung DC",
+                ProductionDC: "Erzeugung DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Ladestation",
+                    Status: "Status",
+                    Starting: "Startet",
+                    NotReadyForCharging: "Nicht bereit zur Beladung",
+                    ReadyForCharging: "Bereit zur Beladung",
+                    Charging: "Beladung läuft",
+                    Error: "Fehler",
+                    NotAuthorized: "Nicht authorisiert",
+                    Unplugged: "Ausgesteckt",
+                    ChargingStationPluggedIn: "Ladestation eingesteckt",
+                    ChargingStationPluggedInLocked: "Ladestation eingesteckt + gesperrt",
+                    ChargingStationPluggedInEV: "Ladestation + E-Auto eingesteckt",
+                    ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
+                    ChargingLimit: "Lade-Begrenzung",
+                    ChargingPower: "Lade-Leistung",
+                    CurrentCharge: "Aktuelle Beladung",
+                    TotalCharge: "Gesamte Beladung",
+                    EnforceCharging: "Erzwinge Beladung",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
@@ -75,7 +102,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulationen ausführen",
                 Log: "Log",
                 LiveLog: "Live Systemprotokoll",
-                ManualControl: "Manuelle Steuerung"
+                ManualControl: "Manuelle Steuerung",
+                DataStorage: "Datenspeicher"
             },
             More: {
                 ManualCommand: "Manueller Befehl",
@@ -92,7 +120,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Immer"
             },
             Log: {
@@ -114,14 +142,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Benutzeroberfläche für PRIMUS und OpenEMS",
+        UI: "Benutzeroberfläche für FEMS und OpenEMS",
         Developed: "Diese Benutzeroberfläche wird von FENECON als Open-Source-Software entwickelt.",
         Fenecon: "Mehr zu FENECON",
-        Fems: "Mehr zu PRIMUS",
+        Fems: "Mehr zu FEMS",
         OpenEMS: "Mehr zu OpenEMS",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser PRIMUS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Sprache wählen:"
     },
     Notifications: {

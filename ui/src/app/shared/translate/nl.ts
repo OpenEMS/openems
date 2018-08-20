@@ -28,14 +28,16 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Overzicht",
-        AboutUI: "Over PRIMUS- UI"
+        AboutUI: "Over FEMS- UI",
+        Settings: 'Algemene instellingen',
+        Logout: 'Uitloggen'
     },
     Overview: {
         AllConnected: "Alle verbindingen gemaakt.",
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
         ToEnergymonitor: "Naar Energiemonitor...",
-        IsOffline: "PRIMUS is offline!"
+        IsOffline: "FEMS is offline!"
     },
     Edge: {
         Overview: {
@@ -49,7 +51,32 @@ export const TRANSLATION = {
                 ProductionMeter: "Productiemeter"
             },
             Energytable: {
-                Title: "Energie tabel"
+                Title: "Energie tabel",
+                LoadingDC: "DC laden",
+                ProductionDC: "Generatie DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Laadstation",
+                    Status: "Staat",
+                    Starting: "Beginnend",
+                    NotReadyForCharging: "Niet klaar voor opladen",
+                    ReadyForCharging: "Klaar om op te laden",
+                    Charging: "Is aan het laden",
+                    Error: "Fout",
+                    NotAuthorized: "Geen bevoegdheid",
+                    Unplugged: "Unplugged",
+                    CharingStationPluggedIn: "Laadstation aangesloten",
+                    ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
+                    ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
+                    ChargingStationPluggedInEVLocked: "Laadstation + E-Auto aangesloten + op slot",
+                    ChargingLimit: "Laadlimiet",
+                    ChargingPower: "Oplaadvermogen",
+                    CurrentCharge: "Huidige lading",
+                    TotalCharge: "Totale lading",
+                    EnforceCharging: "Handhaaf het laden",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
@@ -72,7 +99,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulatie uitvoeren",
                 Log: "Log",
                 LiveLog: "Live System log",
-                ManualControl: "Handmatige bediening"
+                ManualControl: "Handmatige bediening",
+                DataStorage: "Gegevensopslag"
             },
             More: {
                 ManualCommand: "Handmatig commando",
@@ -89,7 +117,7 @@ export const TRANSLATION = {
                 NewScheduler: "New Schema...",
                 Class: "Soort: ",
                 NotImplemented: "Gegevens niet geïmplementeerd: ",
-                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
+                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom FEMS- Team)
                 Always: "Altijd"
             },
             Log: {
@@ -111,14 +139,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Gebruikersinterface voor PRIMUS en OpenEMS",
+        UI: "Gebruikersinterface voor FEMS en OpenEMS",
         Developed: "Deze gebruikersinterface is ontwikkeld door FENECON als open- source - software.",
         Fenecon: "Meer over FENECON",
-        Fems: "Meer over PRIMUS",
+        Fems: "Meer over FEMS",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
-        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het PRIMUS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
+        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het FEMS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom FEMS- Team)
         Language: "Selecteer taal: "
     },
     Notifications: {

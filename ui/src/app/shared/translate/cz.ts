@@ -28,14 +28,16 @@ export const TRANSLATION = {
     },
     Menu: {
         Overview: "Přehled",
-        AboutUI: "About PRIMUS-UI"
+        AboutUI: "About FEMS-UI",
+        Settings: 'Obecné Nastavení',
+        Logout: 'Odhlásit'
     },
     Overview: {
         AllConnected: "Všechna připojení aktivní.",
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
-        IsOffline: "PRIMUS je ve stavu offline!"
+        IsOffline: "FEMS je ve stavu offline!"
     },
     Edge: {
         Overview: {
@@ -49,7 +51,32 @@ export const TRANSLATION = {
                 ProductionMeter: "Elektroměr - Výroba"
             },
             Energytable: {
-                Title: "Tabulka hodnot"
+                Title: "Tabulka hodnot",
+                LoadingDC: "Načítání DC",
+                ProductionDC: "Generování DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Nabíjecí stanice",
+                    Status: "Postavení",
+                    Starting: "Začínající",
+                    NotReadyForCharging: "Není připraven k nabíjení",
+                    ReadyForCharging: "Připraven k nabíjení",
+                    Charging: "Se nabíjí",
+                    Error: "Chyba",
+                    NotAuthorized: "Neautorizovaný",
+                    Unplugged: "Odpojena",
+                    ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
+                    ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
+                    ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
+                    ChargingStationPluggedInEVLocked: "Nabíjecí stanice + e-car připojené + uzamčena",
+                    ChargingLimit: "Omezení nabíjení",
+                    ChargingPower: "Nabíjecí výkon",
+                    CurrentCharge: "Aktuální nabíjení",
+                    TotalCharge: "Celkový poplatek",
+                    EnforceCharging: "Prosazování poplatků",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
@@ -73,6 +100,7 @@ export const TRANSLATION = {
                 Log: "Log",
                 LiveLog: "Live log systému",
                 ManualControl: "Manuální ovládání",
+                DataStorage: "Ukládání dat"
             },
             More: {
                 ManualCommand: "Manuální příkaz ",
@@ -89,7 +117,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nový plánovač...",
                 Class: "Třída:",
                 NotImplemented: "Zadání nebylo implementováno: ",
-                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Vždy"
             },
             Log: {
@@ -111,14 +139,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Uživatelské rozhraní pro PRIMUS a OpenEMS",
+        UI: "Uživatelské rozhraní pro FEMS a OpenEMS",
         Developed: "Toto uživatelské rozhraní bylo vyvinuto společností FENECON jako open-source software.",
         Fenecon: "Více o společnosti FENECON",
-        Fems: "Více o PRIMUS",
+        Fems: "Více o FEMS",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
-        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš PRIMUS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš FEMS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Zvolte jazyk:"
     },
     Notifications: {
