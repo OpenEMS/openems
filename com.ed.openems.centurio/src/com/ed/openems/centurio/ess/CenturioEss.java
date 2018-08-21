@@ -187,7 +187,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 		this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
 				+ Math.round(invdata.getReactivPower(2)/10) * (-10));
-		
+	
 		try {
 			float ah = energy.getAhBattery(EnergyMeter.DAY);
 			float voltage = battery.getBmsVoltage();
@@ -197,7 +197,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 			log.info("Energy Depot ESS (kWh): " + kWh);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.warn("Energy Depot ESS (kWh): " +e1.getMessage());
 		}
 		
 		

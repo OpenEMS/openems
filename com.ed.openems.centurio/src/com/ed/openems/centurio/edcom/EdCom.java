@@ -2,7 +2,10 @@ package com.ed.openems.centurio.edcom;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 import javax.jmdns.ServiceInfo;
 
@@ -48,36 +51,49 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	private EnergyMeter energy;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException {
+	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
 		/* Init library */
 		Util.getInstance().setUserName(
 				"K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYmBxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVvn0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2TpvZ1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
+
 		this.lHost = InetAddress.getLocalHost();
-		InetAddress inverterAddress;
+		InetAddress inverterAddress = null;
+		boolean found = false;
+		Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
 
-		try {
+		while (found == false && eni.hasMoreElements()) {
+			try {
 
-			this.nd = Discovery.getInstance(lHost);
-			if (!config.sn().trim().isEmpty() && config.sn() != null) {
-				this.si = nd.getBySerialNumber(config.sn());
+				NetworkInterface ni = eni.nextElement();
+
+				this.lHost = ni.getInetAddresses().nextElement();
+
+				System.out.println("Edcom Interface: " + ni.getDisplayName() + ", " + this.lHost.getHostAddress());
+
+				this.nd = Discovery.getInstance(this.lHost);
+				if (!config.sn().trim().isEmpty() && config.sn() != null) {
+					this.si = nd.getBySerialNumber(config.sn());
+				}
+
+				this.nd.close();
+				if (this.si == null) {
+					inverterAddress = InetAddress.getByName(config.ip());
+				} else {
+					inverterAddress = InetAddress.getByName(this.si.getHostAddress());
+				}
+				if (inverterAddress != null) {
+					found = true;
+				}
+
+				this.cl = new Client(inverterAddress, this.lHost, 1);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-			this.nd.close();
-			if (this.si == null) {
-				inverterAddress = InetAddress.getByName(config.ip());
-			} else {
-				inverterAddress = InetAddress.getByName(this.si.getHostAddress());
-			}
-
-			this.cl = new Client(inverterAddress, this.lHost, 1);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
-		
 		try {
 			this.cl.setUserKey(config.uk());
 			this.battery = new BatteryData();
@@ -87,8 +103,10 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			this.status = new Status();
 
 			this.settings = new Settings();
-			
+
 			this.energy = new EnergyMeter();
+			
+			this.vectis = new VectisData();
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

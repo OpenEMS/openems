@@ -187,7 +187,7 @@ public class EnergyDepot implements MetadataService {
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 
-		// updateEdges();
+		//updateEdges();
 
 		/*
 		 * this.user = new User(0, "admin"); for (int edgeId : this.edges.keySet()) {
@@ -274,13 +274,14 @@ public class EnergyDepot implements MetadataService {
 					this.edges.put(id, edge);
 					log.info("Adding Edge from Wordpress: " + name + ", " + comment + ", " + apikey + ", id: " + id);
 				}
-				return true;
+				
 
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 }
