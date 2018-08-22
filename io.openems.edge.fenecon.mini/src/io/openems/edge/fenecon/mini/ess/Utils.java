@@ -35,21 +35,17 @@ public class Utils {
 					return null;
 				}), Arrays.stream(FeneconMiniEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case SELL_TO_GRID_ENERGY:
-					case BUY_FROM_GRID_ENERGY:
+					case SOC:
+					case ACTIVE_POWER_L1:
+					case ACTIVE_POWER_L2:
+					case ACTIVE_POWER_L3:
 					case SYSTEM_WORK_MODE_STATE:
 					case SYSTEM_STATE:
-					case ACTIVE_POWER:
 					case BATTERY_CURRENT:
 					case BATTERY_GROUP_STATE:
 					case BATTERY_POWER:
 					case BATTERY_VOLTAGE:
 					case CONTROL_MODE:
-					case CURRENT:
-					case FREQUENCY:
-					case PCS_OPERATION_STATE:
-					case PHASE_ALLOWED_APPARENT:
-					case VOLTAGE:
 					case BECU1_CHARGE_CURRENT:
 					case BECU1_CURRENT:
 					case BECU1_DISCHARGE_CURRENT:
@@ -82,9 +78,9 @@ public class Utils {
 					case BECU_CURRENT:
 					case BECU_DISCHARGE_CURRENT:
 					case BECU_NUM:
-					case BECU_SOC:
 					case BECU_VOLT:
 					case BECU_WORK_STATE:
+					case SYSTEM_WORK_STATE:
 
 						return new IntegerReadChannel(c, channelId);
 
@@ -96,14 +92,11 @@ public class Utils {
 					case RTC_SECOND:
 					case RTC_YEAR:
 					case SETUP_MODE:
-					case SET_ACTIVE_POWER:
 					case SET_PCS_MODE:
-					case SET_REACTIVE_POWER:
 					case SET_SETUP_MODE:
 					case SET_WORK_STATE:
 						return new IntegerWriteChannel(c, channelId);
 
-					case STATE_0:
 					case STATE_1:
 					case STATE_2:
 					case STATE_3:
@@ -247,70 +240,6 @@ public class Utils {
 					case STATE_141:
 					case STATE_142:
 					case STATE_143:
-					case STATE_144:
-					case STATE_145:
-					case STATE_146:
-					case STATE_147:
-					case STATE_148:
-					case STATE_149:
-					case STATE_150:
-					case STATE_151:
-					case STATE_152:
-					case STATE_153:
-					case STATE_154:
-					case STATE_155:
-					case STATE_156:
-					case STATE_157:
-					case STATE_158:
-					case STATE_159:
-					case STATE_160:
-					case STATE_161:
-					case STATE_162:
-					case STATE_163:
-					case STATE_164:
-					case STATE_165:
-					case STATE_166:
-					case STATE_167:
-					case STATE_168:
-					case STATE_169:
-					case STATE_170:
-					case STATE_171:
-					case STATE_172:
-					case STATE_173:
-					case STATE_174:
-					case STATE_175:
-					case STATE_176:
-					case STATE_177:
-					case STATE_178:
-					case STATE_179:
-					case STATE_180:
-					case STATE_181:
-					case STATE_182:
-					case STATE_183:
-					case STATE_184:
-					case STATE_185:
-					case STATE_186:
-					case STATE_187:
-					case STATE_188:
-					case STATE_189:
-					case STATE_190:
-					case STATE_191:
-					case STATE_192:
-					case STATE_193:
-					case STATE_194:
-					case STATE_195:
-					case STATE_196:
-					case STATE_197:
-					case STATE_198:
-					case STATE_199:
-					case STATE_200:
-					case STATE_201:
-					case STATE_202:
-					case STATE_203:
-					case STATE_204:
-					case STATE_205:
-					case STATE_206:
-					case STATE_207:
 						return new StateChannel(c, channelId);
 					}
 					return null;
