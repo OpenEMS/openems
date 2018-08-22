@@ -17,12 +17,12 @@
               <tr>
                 <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.Status</td>
                 <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.State">
-                  <ng-container *ngSwitchCase="'0'" translate>Edge.Overview.Widgets.EVCS.Starting</ng-container>
-                  <ng-container *ngSwitchCase="'1'" translate>Edge.Overview.Widgets.EVCS.NotReadyForCharging</ng-container>
-                  <ng-container *ngSwitchCase="'2'" translate>Edge.Overview.Widgets.EVCS.ReadyForCharging</ng-container>
-                  <ng-container *ngSwitchCase="'3'" translate>Edge.Overview.Widgets.EVCS.Charging</ng-container>
-                  <ng-container *ngSwitchCase="'4'" translate>Edge.Overview.Widgets.EVCS.Error</ng-container>
-                  <ng-container *ngSwitchCase="'5'" translate>Edge.Overview.Widgets.EVCS.NotAuthorized</ng-container>
+                  <span *ngSwitchCase="'0'" translate>Edge.Overview.Widgets.EVCS.Starting</span>
+                  <span *ngSwitchCase="'1'" translate>Edge.Overview.Widgets.EVCS.NotReadyForCharging</span>
+                  <span *ngSwitchCase="'2'" translate>Edge.Overview.Widgets.EVCS.ReadyForCharging</span>
+                  <span *ngSwitchCase="'3'" translate>Edge.Overview.Widgets.EVCS.Charging</span>
+                  <span *ngSwitchCase="'4'" translate>Edge.Overview.Widgets.EVCS.Error</span>
+                  <span *ngSwitchCase="'5'" translate>Edge.Overview.Widgets.EVCS.NotAuthorized</span>
                 </td>
               </tr>
             </ng-container>
@@ -30,12 +30,11 @@
               <tr class="underline">
                 <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.Cable</td>
                 <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.Plug">
-                  <!--TODO translate-->
-                  <ng-container *ngSwitchCase="'0'" translate>Edge.Overview.Widgets.EVCS.Unplugged</ng-container>
-                  <ng-container *ngSwitchCase="'1'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedIn</ng-container>
-                  <ng-container *ngSwitchCase="'3'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInLocked</ng-container>
-                  <ng-container *ngSwitchCase="'5'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInEV</ng-container>
-                  <ng-container *ngSwitchCase="'7'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInEVLocked</ng-container>
+                  <span *ngSwitchCase="'0'" translate>Edge.Overview.Widgets.EVCS.Unplugged</span>
+                  <span *ngSwitchCase="'1'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedIn</span>
+                  <span *ngSwitchCase="'3'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInLocked</span>
+                  <span *ngSwitchCase="'5'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInEV</span>
+                  <span *ngSwitchCase="'7'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInEVLocked</span>
                 </td>
               </tr>
             </ng-container>
