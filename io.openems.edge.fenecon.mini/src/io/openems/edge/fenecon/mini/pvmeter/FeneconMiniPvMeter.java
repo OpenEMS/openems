@@ -1,4 +1,4 @@
-package io.openems.edge.fenecon.mini.gridmeter;
+package io.openems.edge.fenecon.mini.pvmeter;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -18,17 +18,17 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Fenecon.Mini.GridMeter", //
+		name = "Fenecon.Mini.PVMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class FeneconMiniGridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
+public class FeneconMiniPvMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public FeneconMiniGridMeter() {
+	public FeneconMiniPvMeter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -48,6 +48,6 @@ public class FeneconMiniGridMeter extends AbstractOpenemsComponent implements Sy
 
 	@Override
 	public MeterType getMeterType() {
-		return MeterType.GRID;
+		return MeterType.PRODUCTION;
 	}
 }
