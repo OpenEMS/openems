@@ -75,6 +75,9 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 		this.sortedControllers.clear();
 		// add sorted controllers
 		for (String id : this.controllersIds) {
+			if(id.equals("")) {
+				continue;
+			}
 			Controller controller = allControllers.remove(id);
 			if (controller == null) {
 				log.warn("Required Controller [" + id + "] is not available.");
