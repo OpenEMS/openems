@@ -16,6 +16,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -286,5 +287,48 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final BitChannelMapper bm(UnsignedWordElement element) {
 		return new BitChannelMapper(element);
+	}
+	
+	/**
+	 * Handles channels that are mapping to one bit of a 
+	 * modbus unsigned double word element
+	 */
+	public class DoubleWordBitChannelMapper {
+		private final UnsignedDoublewordElement element;
+		private final Map<Integer, Channel<?>> channels = new HashMap<>();
+
+		public DoubleWordBitChannelMapper(UnsignedDoublewordElement element) {
+			this.element = element;
+			this.element.onUpdateCallback((value) -> {
+				this.channels.forEach((bitIndex, channel) -> {
+					channel.setNextValue(value << ~bitIndex < 0);
+				});
+			});
+		}
+
+		public DoubleWordBitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
+			Channel<?> channel = channel(channelId);
+			if (channel.getType() != OpenemsType.BOOLEAN) {
+				throw new IllegalArgumentException(
+						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
+			}
+			this.channels.put(bitIndex, channel);
+			return this;
+		}
+
+		public UnsignedDoublewordElement build() {
+			return this.element;
+		}
+	}
+
+	/**
+	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern inside the
+	 * protocol definition.
+	 * 
+	 * @param element
+	 * @return
+	 */
+	protected final DoubleWordBitChannelMapper bm(UnsignedDoublewordElement element) {
+		return new DoubleWordBitChannelMapper(element);
 	}
 }

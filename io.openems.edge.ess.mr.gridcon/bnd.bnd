@@ -7,7 +7,8 @@ Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
 	io.openems.edge.ess.power.symmetric,\
-	io.openems.edge.ess.power
+	io.openems.edge.ess.power.api,\
+	io.openems.edge.ess.mr.gridcon
 
 -includeresource: {readme.md}
 
@@ -17,10 +18,8 @@ Export-Package: \
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.battery.api;version=latest,\
-	io.openems.edge.battery.soltaro;version=latest
+	io.openems.edge.battery.api;version=latest\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
-Private-Package: io.openems.edge.ess.mr.gridcon
