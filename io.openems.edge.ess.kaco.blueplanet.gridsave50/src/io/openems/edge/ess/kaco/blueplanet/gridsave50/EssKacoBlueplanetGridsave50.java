@@ -124,6 +124,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.allowedCharge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 0);
 		this.allowedDischarge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ,
 				0);
+		this.noPowerOnError = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
+				0);
+		this.noPowerOnError.setValue(null);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
@@ -249,6 +252,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// for a first try, switch system off, it will be restarted
 		setWatchdog();
 		stopSystem();
+		this.noPowerOnError.setValue(0);
 	}
 
 	private void setBatteryRanges() {
