@@ -87,4 +87,10 @@ public class User {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "User [name=" + name + ", role=" + role + "]";
+	}
+	
 }
