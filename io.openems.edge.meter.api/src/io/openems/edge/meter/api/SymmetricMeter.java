@@ -193,7 +193,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActivePower() {
+	default Channel<?> getActivePower() {
 		return this.channel(ChannelId.ACTIVE_POWER);
 	}
 
@@ -203,7 +203,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getReactivePower() {
+	default Channel<?> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
 	}
 
@@ -213,7 +213,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActiveProductionEnergy() {
+	default Channel<?> getActiveProductionEnergy() {
 		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
@@ -222,7 +222,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActiveConsumptionEnergy() {
+	default Channel<?> getActiveConsumptionEnergy() {
 		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
@@ -231,7 +231,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getMinActivePower() {
+	default Channel<?> getMinActivePower() {
 		return this.channel(ChannelId.MIN_ACTIVE_POWER);
 	}
 
@@ -240,7 +240,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getMaxActivePower() {
+	default Channel<?> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
 
@@ -262,13 +262,13 @@ public interface SymmetricMeter extends OpenemsComponent {
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
 
 		this.getMinActivePower().onChange(value -> {
-			if (value.get() != minActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", value.get());
+			if ((Float)value.get() != (float) minActivePowerConfig) {
+				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());
 			}
 		});
 		this.getMaxActivePower().onChange(value -> {
-			if (value.get() != maxActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", value.get());
+			if ((Float) value.get() != (float) maxActivePowerConfig) {
+				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", ((Float) value.get()).intValue());
 			}
 		});
 	}
