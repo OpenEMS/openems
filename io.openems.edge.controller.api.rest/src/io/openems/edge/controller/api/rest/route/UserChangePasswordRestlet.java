@@ -2,20 +2,18 @@ package io.openems.edge.controller.api.rest.route;
 
 import org.restlet.Request;
 import org.restlet.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.edge.controller.api.rest.MyRestlet;
 import io.openems.edge.controller.api.rest.RestApi;
 
 public class UserChangePasswordRestlet extends MyRestlet {
 
-	private final Logger log = LoggerFactory.getLogger(UserChangePasswordRestlet.class);
-	private final RestApi parent;
+//	private final Logger log = LoggerFactory.getLogger(UserChangePasswordRestlet.class);
+//	private final RestApi parent;
 
 	public UserChangePasswordRestlet(RestApi parent) {
 		super();
-		this.parent = parent;
+//		this.parent = parent;
 	}
 
 	@Override

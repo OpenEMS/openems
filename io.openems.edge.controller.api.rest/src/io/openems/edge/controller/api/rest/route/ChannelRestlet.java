@@ -1,7 +1,7 @@
 package io.openems.edge.controller.api.rest.route;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 import org.restlet.Request;
 import org.restlet.Response;
@@ -12,11 +12,11 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.common.session.Role;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -82,18 +82,19 @@ public class ChannelRestlet extends MyRestlet {
 		}
 	}
 
-	private void assertAllowed(Request request, Set<Role> channelRoles) throws ResourceException {
-		boolean allowed = false;
-		for (Role role : channelRoles) {
-			if (isAuthenticatedAsRole(request, role)) {
-				allowed = true;
-				break;
-			}
-		}
-		if (!allowed) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
-		}
-	}
+	// private void assertAllowed(Request request, Set<Role> channelRoles) throws
+	// ResourceException {
+	// boolean allowed = false;
+	// for (Role role : channelRoles) {
+	// if (isAuthenticatedAsRole(request, role)) {
+	// allowed = true;
+	// break;
+	// }
+	// }
+	// if (!allowed) {
+	// throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
+	// }
+	// }
 
 	/**
 	 * handle HTTP GET request
@@ -103,8 +104,23 @@ public class ChannelRestlet extends MyRestlet {
 	 * @return
 	 */
 	private Representation getValue(Channel<?> channel) {
-// TODO improve JSON			return new StringRepresentation(channel.toJsonObject().toString(), MediaType.APPLICATION_JSON);
-		return new StringRepresentation(channel.value().asJson().toString(), MediaType.APPLICATION_JSON);
+		JsonObject j = new JsonObject();
+		// value
+		j.add("value", channel.value().asJson());
+		// type
+		Optional<OpenemsType> typeOpt = channel.channelDoc().getType();
+		String type;
+		if (typeOpt.isPresent()) {
+			type = typeOpt.get().toString().toLowerCase();
+		} else {
+			type = "UNDEFINED";
+		}
+		j.addProperty("type", type);
+		// writable
+		j.addProperty("writable", //
+				channel instanceof WriteChannel<?> ? true : false //
+		);
+		return new StringRepresentation(j.toString(), MediaType.APPLICATION_JSON);
 	}
 
 	/**
@@ -121,12 +137,12 @@ public class ChannelRestlet extends MyRestlet {
 		}
 
 		// parse value
-		JsonElement jValue;
-		if (jHttpPost.has("value")) {
-			jValue = jHttpPost.get("value");
-		} else {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Value is missing");
-		}
+//		JsonElement jValue;
+//		if (jHttpPost.has("value")) {
+//			jValue = jHttpPost.get("value");
+//		} else {
+//			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Value is missing");
+//		}
 
 		// TODO set channel value
 //		if (channel instanceof ConfigChannel<?>) {

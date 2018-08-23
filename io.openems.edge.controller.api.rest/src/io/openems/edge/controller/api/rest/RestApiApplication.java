@@ -32,14 +32,11 @@ public class RestApiApplication extends Application {
 		ChallengeAuthenticator guard = new ChallengeAuthenticator(getContext(), ChallengeScheme.HTTP_BASIC,
 				"OpenEMS REST-Api");
 		guard.setVerifier(new MyVerifier(this.parent));
-		guard.setEnroler(new MyEnroler());
 		return guard;
 	}
 
 	private Router createRouter() {
 		Router router = new Router(getContext());
-		// router.attach("/channel/{thing}/{channel}/current",
-		// ChannelCurrentResource.class);
 		router.attach("/user/changePassword", new UserChangePasswordRestlet(this.parent));
 		router.attach("/channel/{thing}/{channel}", new ChannelRestlet(this.parent));
 		return router;

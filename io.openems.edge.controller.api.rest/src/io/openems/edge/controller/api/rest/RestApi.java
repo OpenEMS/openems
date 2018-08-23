@@ -108,4 +108,9 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Api
 	public Timedata getTimedataService() {
 		return this.timedataService;
 	}
+	
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
+	}
 }
