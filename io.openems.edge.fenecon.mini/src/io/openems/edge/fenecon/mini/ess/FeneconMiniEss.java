@@ -63,263 +63,6 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements Sy
 		super.deactivate();
 	}
 
-	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(100, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
-						m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
-						new DummyRegisterElement(102, 103), //
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
-						m(FeneconMiniEss.ChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
-						new DummyRegisterElement(109), //
-						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
-						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
-				new FC3ReadRegistersTask(2007, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007))), //
-				new FC3ReadRegistersTask(2107, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107))), //
-				new FC3ReadRegistersTask(2207, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207))), //
-				new FC3ReadRegistersTask(3000, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.BECU1_CHARGE_CURRENT, new UnsignedWordElement(3000)), //
-						m(FeneconMiniEss.ChannelId.BECU1_DISCHARGE_CURRENT, new UnsignedWordElement(3001)), //
-						m(FeneconMiniEss.ChannelId.BECU1_VOLT, new UnsignedWordElement(3002)), //
-						m(FeneconMiniEss.ChannelId.BECU1_CURRENT, new UnsignedWordElement(3003)), //
-						m(FeneconMiniEss.ChannelId.BECU1_SOC, new UnsignedWordElement(3004))), //
-				new FC3ReadRegistersTask(3005, Priority.LOW, //
-						bm(new UnsignedWordElement(3005))//
-								.m(FeneconMiniEss.ChannelId.STATE_1, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_2, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_3, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_4, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_5, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_6, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_7, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_8, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_9, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_10, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_11, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_12, 11)//
-								.m(FeneconMiniEss.ChannelId.STATE_13, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_14, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_15, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_16, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3006))//
-								.m(FeneconMiniEss.ChannelId.STATE_17, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_18, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_19, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_20, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_21, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_22, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_23, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_24, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_25, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_26, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_27, 11)//
-								.m(FeneconMiniEss.ChannelId.STATE_28, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_29, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_30, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_31, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3007))//
-								.m(FeneconMiniEss.ChannelId.STATE_32, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_33, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_34, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_35, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_36, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_37, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_38, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_39, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_40, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_41, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_42, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_43, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_44, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_45, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3008))//
-								.m(FeneconMiniEss.ChannelId.STATE_46, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_47, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_48, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_49, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_50, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_51, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_52, 13)//
-								.build(), //
-						m(FeneconMiniEss.ChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
-						new DummyRegisterElement(3010, 3011), //
-						m(FeneconMiniEss.ChannelId.BECU1_MIN_VOLT_NO, new UnsignedWordElement(3012)), //
-						m(FeneconMiniEss.ChannelId.BECU1_MIN_VOLT, new UnsignedWordElement(3013)), //
-						m(FeneconMiniEss.ChannelId.BECU1_MAX_VOLT_NO, new UnsignedWordElement(3014)), //
-						m(FeneconMiniEss.ChannelId.BECU1_MAX_VOLT, new UnsignedWordElement(3015)), // ^
-						m(FeneconMiniEss.ChannelId.BECU1_MIN_TEMP_NO, new UnsignedWordElement(3016)), //
-						m(FeneconMiniEss.ChannelId.BECU1_MIN_TEMP, new UnsignedWordElement(3017)), //
-						m(FeneconMiniEss.ChannelId.BECU1_MAX_TEMP_NO, new UnsignedWordElement(3018)), //
-						m(FeneconMiniEss.ChannelId.BECU1_MAX_TEMP, new UnsignedWordElement(3019))), //
-
-				new FC3ReadRegistersTask(3200, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
-						m(FeneconMiniEss.ChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
-						m(FeneconMiniEss.ChannelId.BECU2_VOLT, new UnsignedWordElement(3202)), //
-						m(FeneconMiniEss.ChannelId.BECU2_CURRENT, new UnsignedWordElement(3203)), //
-						m(FeneconMiniEss.ChannelId.BECU2_SOC, new UnsignedWordElement(3204))), //
-				new FC3ReadRegistersTask(3205, Priority.LOW, //
-						bm(new UnsignedWordElement(3205))//
-								.m(FeneconMiniEss.ChannelId.STATE_53, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_54, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_55, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_56, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_57, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_58, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_59, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_60, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_61, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_62, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_63, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_64, 11)//
-								.m(FeneconMiniEss.ChannelId.STATE_65, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_66, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_67, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_68, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3206))//
-								.m(FeneconMiniEss.ChannelId.STATE_69, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_70, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_71, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_72, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_73, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_74, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_75, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_76, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_77, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_78, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_79, 11)//
-								.m(FeneconMiniEss.ChannelId.STATE_80, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_81, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_82, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_83, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3207))//
-								.m(FeneconMiniEss.ChannelId.STATE_84, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_85, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_86, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_87, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_88, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_89, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_90, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_91, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_92, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_93, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_94, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_95, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_96, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_97, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3208))//
-								.m(FeneconMiniEss.ChannelId.STATE_98, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_99, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_100, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_101, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_102, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_103, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_104, 13)//
-								.build(), //
-						m(FeneconMiniEss.ChannelId.BECU2_VERSION, new UnsignedWordElement(3209)), //
-						new DummyRegisterElement(3210, 3211), //
-						m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT_NO, new UnsignedWordElement(3212)), //
-						m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT, new UnsignedWordElement(3213)), //
-						m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT_NO, new UnsignedWordElement(3214)), //
-						m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT, new UnsignedWordElement(3215)), // ^
-						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP_NO, new UnsignedWordElement(3216)), //
-						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP, new UnsignedWordElement(3217)), //
-						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP_NO, new UnsignedWordElement(3218)), //
-						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP, new UnsignedWordElement(3219))), //
-				new FC3ReadRegistersTask(4000, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_STATE, new UnsignedDoublewordElement(4000)), //
-						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_MODE_STATE, new UnsignedDoublewordElement(4002))), //
-				new FC3ReadRegistersTask(4800, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.BECU_NUM, new UnsignedWordElement(4800)), //
-						// TODO BECU_WORK_STATE has been implemented with both registers(4801 and 4807)
-						m(FeneconMiniEss.ChannelId.BECU_WORK_STATE, new UnsignedWordElement(4801)), //
-						new DummyRegisterElement(4802), //
-						m(FeneconMiniEss.ChannelId.BECU_CHARGE_CURRENT, new UnsignedWordElement(4803)), //
-						m(FeneconMiniEss.ChannelId.BECU_DISCHARGE_CURRENT, new UnsignedWordElement(4804)), //
-						m(FeneconMiniEss.ChannelId.BECU_VOLT, new UnsignedWordElement(4805)), //
-						m(FeneconMiniEss.ChannelId.BECU_CURRENT, new UnsignedWordElement(4806))), //
-				new FC3ReadRegistersTask(4808, Priority.LOW, //
-						bm(new UnsignedWordElement(4808))//
-								.m(FeneconMiniEss.ChannelId.STATE_105, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_106, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_107, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_108, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_109, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_110, 9)//
-								.build(), //
-						bm(new UnsignedWordElement(4809))//
-								.m(FeneconMiniEss.ChannelId.STATE_111, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_112, 1)//
-								.build(), //
-						bm(new UnsignedWordElement(4810))//
-								.m(FeneconMiniEss.ChannelId.STATE_113, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_114, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_115, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_116, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_117, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_118, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_119, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_120, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_121, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_122, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_123, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_124, 11)//
-								.m(FeneconMiniEss.ChannelId.STATE_125, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_126, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_127, 14)//
-								.m(FeneconMiniEss.ChannelId.STATE_128, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(4811))//
-								.m(FeneconMiniEss.ChannelId.STATE_129, 0)//
-								.m(FeneconMiniEss.ChannelId.STATE_130, 1)//
-								.m(FeneconMiniEss.ChannelId.STATE_131, 2)//
-								.m(FeneconMiniEss.ChannelId.STATE_132, 3)//
-								.m(FeneconMiniEss.ChannelId.STATE_133, 4)//
-								.m(FeneconMiniEss.ChannelId.STATE_134, 5)//
-								.m(FeneconMiniEss.ChannelId.STATE_135, 6)//
-								.m(FeneconMiniEss.ChannelId.STATE_136, 7)//
-								.m(FeneconMiniEss.ChannelId.STATE_137, 8)//
-								.m(FeneconMiniEss.ChannelId.STATE_138, 9)//
-								.m(FeneconMiniEss.ChannelId.STATE_139, 10)//
-								.m(FeneconMiniEss.ChannelId.STATE_140, 11)//
-								.m(FeneconMiniEss.ChannelId.STATE_141, 12)//
-								.m(FeneconMiniEss.ChannelId.STATE_142, 13)//
-								.m(FeneconMiniEss.ChannelId.STATE_143, 14)//
-								.build(),
-
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812))//
-				), //
-
-				new FC3ReadRegistersTask(30166, Priority.HIGH, //
-						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166))), //
-				new FC16WriteRegistersTask(9014, //
-						m(FeneconMiniEss.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
-						m(FeneconMiniEss.ChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
-						m(FeneconMiniEss.ChannelId.RTC_DAY, new UnsignedWordElement(9016)), //
-						m(FeneconMiniEss.ChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
-						m(FeneconMiniEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
-						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
-				new FC16WriteRegistersTask(30558, //
-						m(FeneconMiniEss.ChannelId.SET_SETUP_MODE, new UnsignedWordElement(30558))), //
-				new FC16WriteRegistersTask(30559, //
-						m(FeneconMiniEss.ChannelId.SET_PCS_MODE, new UnsignedWordElement(30559))), //
-				new FC16WriteRegistersTask(30157, //
-						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
-						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158))));//
-	}
-
 	enum SetWorkState {
 		LOCAL_CONTROL, START, REMOTE_CONTROL_OF_GRID, STOP, EMERGENCY_STOP
 	}
@@ -587,5 +330,270 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements Sy
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	@Override
+	protected ModbusProtocol defineModbusProtocol(int unitId) {
+		return new ModbusProtocol(unitId, //
+				new FC3ReadRegistersTask(100, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
+						m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
+						new DummyRegisterElement(102, 103), //
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
+						new DummyRegisterElement(109), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(112))), //
+				new FC3ReadRegistersTask(2007, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007))), //
+				new FC3ReadRegistersTask(2107, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107))), //
+				new FC3ReadRegistersTask(2207, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207))), //
+				new FC3ReadRegistersTask(3000, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.BECU1_CHARGE_CURRENT, new UnsignedWordElement(3000)), //
+						m(FeneconMiniEss.ChannelId.BECU1_DISCHARGE_CURRENT, new UnsignedWordElement(3001)), //
+						m(FeneconMiniEss.ChannelId.BECU1_VOLT, new UnsignedWordElement(3002)), //
+						m(FeneconMiniEss.ChannelId.BECU1_CURRENT, new UnsignedWordElement(3003)), //
+						m(FeneconMiniEss.ChannelId.BECU1_SOC, new UnsignedWordElement(3004))), //
+				new FC3ReadRegistersTask(3005, Priority.LOW, //
+						bm(new UnsignedWordElement(3005))//
+								.m(FeneconMiniEss.ChannelId.STATE_1, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_2, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_3, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_4, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_5, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_6, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_7, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_8, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_9, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_10, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_11, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_12, 11)//
+								.m(FeneconMiniEss.ChannelId.STATE_13, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_14, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_15, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_16, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(3006))//
+								.m(FeneconMiniEss.ChannelId.STATE_17, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_18, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_19, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_20, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_21, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_22, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_23, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_24, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_25, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_26, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_27, 11)//
+								.m(FeneconMiniEss.ChannelId.STATE_28, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_29, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_30, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_31, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(3007))//
+								.m(FeneconMiniEss.ChannelId.STATE_32, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_33, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_34, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_35, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_36, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_37, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_38, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_39, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_40, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_41, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_42, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_43, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_44, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_45, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(3008))//
+								.m(FeneconMiniEss.ChannelId.STATE_46, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_47, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_48, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_49, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_50, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_51, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_52, 13)//
+								.build(), //
+						m(FeneconMiniEss.ChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
+						new DummyRegisterElement(3010, 3011), //
+						m(FeneconMiniEss.ChannelId.BECU1_MIN_VOLT_NO, new UnsignedWordElement(3012)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MIN_VOLT, new UnsignedWordElement(3013)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAX_VOLT_NO, new UnsignedWordElement(3014)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAX_VOLT, new UnsignedWordElement(3015)), // ^
+						m(FeneconMiniEss.ChannelId.BECU1_MIN_TEMP_NO, new UnsignedWordElement(3016)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MIN_TEMP, new UnsignedWordElement(3017)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAX_TEMP_NO, new UnsignedWordElement(3018)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAX_TEMP, new UnsignedWordElement(3019))), //
+
+				new FC3ReadRegistersTask(3200, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
+						m(FeneconMiniEss.ChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
+						m(FeneconMiniEss.ChannelId.BECU2_VOLT, new UnsignedWordElement(3202)), //
+						m(FeneconMiniEss.ChannelId.BECU2_CURRENT, new UnsignedWordElement(3203)), //
+						m(FeneconMiniEss.ChannelId.BECU2_SOC, new UnsignedWordElement(3204))), //
+				new FC3ReadRegistersTask(3205, Priority.LOW, //
+						bm(new UnsignedWordElement(3205))//
+								.m(FeneconMiniEss.ChannelId.STATE_53, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_54, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_55, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_56, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_57, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_58, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_59, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_60, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_61, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_62, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_63, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_64, 11)//
+								.m(FeneconMiniEss.ChannelId.STATE_65, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_66, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_67, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_68, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(3206))//
+								.m(FeneconMiniEss.ChannelId.STATE_69, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_70, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_71, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_72, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_73, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_74, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_75, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_76, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_77, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_78, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_79, 11)//
+								.m(FeneconMiniEss.ChannelId.STATE_80, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_81, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_82, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_83, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(3207))//
+								.m(FeneconMiniEss.ChannelId.STATE_84, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_85, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_86, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_87, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_88, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_89, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_90, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_91, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_92, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_93, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_94, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_95, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_96, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_97, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(3208))//
+								.m(FeneconMiniEss.ChannelId.STATE_98, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_99, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_100, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_101, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_102, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_103, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_104, 13)//
+								.build(), //
+						m(FeneconMiniEss.ChannelId.BECU2_VERSION, new UnsignedWordElement(3209)), //
+						new DummyRegisterElement(3210, 3211), //
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT_NO, new UnsignedWordElement(3212)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT, new UnsignedWordElement(3213)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT_NO, new UnsignedWordElement(3214)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT, new UnsignedWordElement(3215)), // ^
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP_NO, new UnsignedWordElement(3216)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP, new UnsignedWordElement(3217)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP_NO, new UnsignedWordElement(3218)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP, new UnsignedWordElement(3219))), //
+				new FC3ReadRegistersTask(4000, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_STATE, new UnsignedDoublewordElement(4000)), //
+						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_MODE_STATE, new UnsignedDoublewordElement(4002))), //
+				new FC3ReadRegistersTask(4800, Priority.HIGH, //
+						m(FeneconMiniEss.ChannelId.BECU_NUM, new UnsignedWordElement(4800)), //
+						// TODO BECU_WORK_STATE has been implemented with both registers(4801 and 4807)
+						m(FeneconMiniEss.ChannelId.BECU_WORK_STATE, new UnsignedWordElement(4801)), //
+						new DummyRegisterElement(4802), //
+						m(FeneconMiniEss.ChannelId.BECU_CHARGE_CURRENT, new UnsignedWordElement(4803)), //
+						m(FeneconMiniEss.ChannelId.BECU_DISCHARGE_CURRENT, new UnsignedWordElement(4804)), //
+						m(FeneconMiniEss.ChannelId.BECU_VOLT, new UnsignedWordElement(4805)), //
+						m(FeneconMiniEss.ChannelId.BECU_CURRENT, new UnsignedWordElement(4806))), //
+				new FC3ReadRegistersTask(4808, Priority.LOW, //
+						bm(new UnsignedWordElement(4808))//
+								.m(FeneconMiniEss.ChannelId.STATE_105, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_106, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_107, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_108, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_109, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_110, 9)//
+								.build(), //
+						bm(new UnsignedWordElement(4809))//
+								.m(FeneconMiniEss.ChannelId.STATE_111, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_112, 1)//
+								.build(), //
+						bm(new UnsignedWordElement(4810))//
+								.m(FeneconMiniEss.ChannelId.STATE_113, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_114, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_115, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_116, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_117, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_118, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_119, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_120, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_121, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_122, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_123, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_124, 11)//
+								.m(FeneconMiniEss.ChannelId.STATE_125, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_126, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_127, 14)//
+								.m(FeneconMiniEss.ChannelId.STATE_128, 15)//
+								.build(), //
+						bm(new UnsignedWordElement(4811))//
+								.m(FeneconMiniEss.ChannelId.STATE_129, 0)//
+								.m(FeneconMiniEss.ChannelId.STATE_130, 1)//
+								.m(FeneconMiniEss.ChannelId.STATE_131, 2)//
+								.m(FeneconMiniEss.ChannelId.STATE_132, 3)//
+								.m(FeneconMiniEss.ChannelId.STATE_133, 4)//
+								.m(FeneconMiniEss.ChannelId.STATE_134, 5)//
+								.m(FeneconMiniEss.ChannelId.STATE_135, 6)//
+								.m(FeneconMiniEss.ChannelId.STATE_136, 7)//
+								.m(FeneconMiniEss.ChannelId.STATE_137, 8)//
+								.m(FeneconMiniEss.ChannelId.STATE_138, 9)//
+								.m(FeneconMiniEss.ChannelId.STATE_139, 10)//
+								.m(FeneconMiniEss.ChannelId.STATE_140, 11)//
+								.m(FeneconMiniEss.ChannelId.STATE_141, 12)//
+								.m(FeneconMiniEss.ChannelId.STATE_142, 13)//
+								.m(FeneconMiniEss.ChannelId.STATE_143, 14)//
+								.build(),
+
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812))//
+				), //
+
+				new FC3ReadRegistersTask(30166, Priority.HIGH, //
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166))), //
+				new FC16WriteRegistersTask(9014, //
+						m(FeneconMiniEss.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
+						m(FeneconMiniEss.ChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
+						m(FeneconMiniEss.ChannelId.RTC_DAY, new UnsignedWordElement(9016)), //
+						m(FeneconMiniEss.ChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
+						m(FeneconMiniEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
+						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
+				new FC16WriteRegistersTask(30558, //
+						m(FeneconMiniEss.ChannelId.SET_SETUP_MODE, new UnsignedWordElement(30558))), //
+				new FC16WriteRegistersTask(30559, //
+						m(FeneconMiniEss.ChannelId.SET_PCS_MODE, new UnsignedWordElement(30559))), //
+				new FC16WriteRegistersTask(30157, //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158))));//
+
+	}
+
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|" + this.getGridMode().value().asOptionString();
 	}
 }
