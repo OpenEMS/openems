@@ -12,8 +12,10 @@
 /node_modules
 /bower_components
 
-# IDEs and editors
+# IntelliJ IDEA files and metadata
 /.idea
+*.iml
+*.eml
 
 # misc
 /.sass-cache

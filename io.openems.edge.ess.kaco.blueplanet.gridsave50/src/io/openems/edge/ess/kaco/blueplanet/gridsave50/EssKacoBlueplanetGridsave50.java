@@ -1,25 +1,5 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
-import java.util.Optional;
-
-import org.apache.commons.math3.optim.linear.Relationship;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -46,11 +26,21 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.CircleConstraint;
+import io.openems.edge.ess.power.api.Power;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -99,8 +89,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id()); //
+
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
 			return;
@@ -264,12 +256,17 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
 		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
+		int batSoC = battery.getSoc().value().orElse(99);
+		int batSoH = battery.getSoh().value().orElse(98);
+		int batTemp = battery.getBatteryTemp().value().orElse(97);
 
 		// Update Power Constraints
+		// TODO: The actual AC allowed charge and discharge should come from the KACO Blueplanet instead of calculating it from DC parameters.
+		final double EFFICIENCY_FACTOR = 0.9;
 		this.logInfo(log,
-				"AllowedCharge [" + (chaMaxA * chaMaxV * -1) + "] AllowedDischarge [" + disMaxA * disMinV + "]");
-		this.allowedCharge.setIntValue(chaMaxA * chaMaxV * -1);
-		this.allowedDischarge.setIntValue(disMaxA * disMinV);
+				"AllowedCharge [" + (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR) + "] AllowedDischarge [" + (disMaxA * disMinV * EFFICIENCY_FACTOR) + "]");
+		this.allowedCharge.setDoubleValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
+		this.allowedDischarge.setDoubleValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
 
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
@@ -280,6 +277,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel chaMaxVChannel = this.channel(ChannelId.CHA_MAX_V);
 		IntegerWriteChannel chaMaxAChannel = this.channel(ChannelId.CHA_MAX_A);
 		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
+		//battery stats to display on inverter
+		IntegerWriteChannel batSoCChannel = this.channel(ChannelId.BAT_SOC);
+		IntegerWriteChannel batSoHChannel = this.channel(ChannelId.BAT_SOH);
+		IntegerWriteChannel batTempChannel = this.channel(ChannelId.BAT_TEMP);
+
+
 
 		try {
 			disMinVChannel.setNextWriteValue(disMinV);
@@ -287,6 +290,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			disMaxAChannel.setNextWriteValue(disMaxA);
 			chaMaxAChannel.setNextWriteValue(chaMaxA);
 			enLimitChannel.setNextWriteValue(1);
+
+			//battery stats to display on inverter
+			batSoCChannel.setNextWriteValue(batSoC);
+			batSoHChannel.setNextWriteValue(batSoH);
+			batTempChannel.setNextWriteValue(batTemp);
 		} catch (OpenemsException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
@@ -403,6 +411,16 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(value.get());
 			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(value.get());
+		});
+
+		this.battery.getSoh().onChange(value -> {
+			this.getSoc().setNextValue(value.get());
+			this.channel(ChannelId.BAT_SOH).setNextValue(value.get());
+		});
+
+		this.battery.getBatteryTemp().onChange(value -> {
+			this.getSoc().setNextValue(value.get());
+			this.channel(ChannelId.BAT_TEMP).setNextValue(value.get());
 		});
 	}
 
@@ -653,7 +671,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		TEMP_SF(new Doc().unit(Unit.NONE)), //
 		BAT_SOC(new Doc().unit(Unit.PERCENT)), //
 		BAT_SOH(new Doc().unit(Unit.PERCENT)), //
-		BAT_TEMP(new Doc().unit(Unit.PERCENT)), //
+		BAT_TEMP(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		/*
 		 * SUNSPEC_64302
 		 */
@@ -682,6 +700,13 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private final static int SUNSPEC_64202 = 40877 - 1;
 	private final static int SUNSPEC_64203 = 40893 - 1;
 	private final static int SUNSPEC_64302 = 40931 - 1;
+/*	private final static int SUNSPEC_103 = 40071;
+	private final static int SUNSPEC_121 = 40213;
+	private final static int SUNSPEC_64201 = 40823;
+	private final static int SUNSPEC_64202 = 40877;
+	private final static int SUNSPEC_64203 = 40893;
+	private final static int SUNSPEC_64302 = 40931; */
+
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {

@@ -1,7 +1,5 @@
 package io.openems.edge.meter.api;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -9,6 +7,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Represents a Symmetric Meter.
@@ -84,7 +83,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 						 * Fill Min/Max Active Power channels
 						 */
 						if (value.asOptional().isPresent()) {
-							int newValue = (int) value.get();
+							int newValue = (int)(Integer) value.get();
 							{
 								Channel<Integer> minActivePowerChannel = channel.getComponent()
 										.channel(ChannelId.MIN_ACTIVE_POWER);
@@ -194,7 +193,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActivePower() {
+	default Channel<?> getActivePower() {
 		return this.channel(ChannelId.ACTIVE_POWER);
 	}
 
@@ -204,7 +203,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getReactivePower() {
+	default Channel<?> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
 	}
 
@@ -214,7 +213,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActiveProductionEnergy() {
+	default Channel<?> getActiveProductionEnergy() {
 		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
@@ -223,7 +222,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActiveConsumptionEnergy() {
+	default Channel<?> getActiveConsumptionEnergy() {
 		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
@@ -232,7 +231,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getMinActivePower() {
+	default Channel<?> getMinActivePower() {
 		return this.channel(ChannelId.MIN_ACTIVE_POWER);
 	}
 
@@ -241,7 +240,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getMaxActivePower() {
+	default Channel<?> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
 
@@ -263,13 +262,13 @@ public interface SymmetricMeter extends OpenemsComponent {
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
 
 		this.getMinActivePower().onChange(value -> {
-			if (value.get() != minActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", value.get());
+			if ((Float)value.get() != (float) minActivePowerConfig) {
+				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());
 			}
 		});
 		this.getMaxActivePower().onChange(value -> {
-			if (value.get() != maxActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", value.get());
+			if ((Float) value.get() != (float) maxActivePowerConfig) {
+				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", ((Float) value.get()).intValue());
 			}
 		});
 	}
