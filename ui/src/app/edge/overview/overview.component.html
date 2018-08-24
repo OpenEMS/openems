@@ -1,4 +1,4 @@
-<div fxLayoutAlign="start start" fxLayout="wrap" *ngIf="edge">
+<div fxLayoutAlign="start start" fxLayout="row wrap" *ngIf="edge">
   <energymonitor fxFlex.lt-md="100%" fxFlex.md="66%" fxFlex.gt-md="33%" [currentData]="currentData"></energymonitor>
   <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
     <energytable-2018-8 fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [currentData]="currentData" [config]="config"

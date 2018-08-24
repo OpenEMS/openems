@@ -15,6 +15,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
@@ -88,7 +89,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id()); //
+
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id()); //
+
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
 			return;
@@ -112,6 +116,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.allowedCharge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 0);
 		this.allowedDischarge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ,
 				0);
+		this.noPowerOnError = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
+				0);
+		this.noPowerOnError.setValue(null);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
@@ -162,20 +169,22 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 			/**
 			 * according to manual active power has to be set in % of maximum active power
-			 * with scale factor see page 10
-			 * WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled * 10^W_Max_SF * 10^WSetPct_SF)
+			 * with scale factor see page 10 WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled
+			 * * 10^W_Max_SF * 10^WSetPct_SF)
 			 */
 			int WSetPct = (int) ((activePower * 100) / (max * Math.pow(10, scalefactor)));
 
-			// If the battery system is not ready yet or inverter is not in grid (=normal) mode, set power to zero to avoid damaging or improper system states
-			if (! battery.getReadyForWorking().value().orElse(false) || !isSystemInGridmode()) {
+			// If the battery system is not ready yet or inverter is not in grid (=normal)
+			// mode, set power to zero to avoid damaging or improper system states
+			if (!battery.getReadyForWorking().value().orElse(false) || !isSystemInGridmode()) {
 				WSetPct = 0;
 			}
 
 			try {
 				wSetPctChannel.setNextWriteValue(WSetPct);
 			} catch (OpenemsException e) {
-				log.error("EssKacoBlueplanetGridsave50.applyPower(): Problem occurred while trying so set active power" + e.getMessage());
+				log.error("EssKacoBlueplanetGridsave50.applyPower(): Problem occurred while trying so set active power"
+						+ e.getMessage());
 			}
 		}
 	}
@@ -235,6 +244,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// for a first try, switch system off, it will be restarted
 		setWatchdog();
 		stopSystem();
+		this.noPowerOnError.setValue(0);
 	}
 
 	private void setBatteryRanges() {
@@ -292,9 +302,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() // 
-				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() // 
-				;
+		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() //
+				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
+		;
 	}
 
 	@Override
@@ -364,9 +374,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			log.error("Watchdog timer could not be written!" + e.getMessage());
 		}
 	}
-	
+
 	/**
-	 *    writes current channel values to corresponding values of the channels given from interfaces 
+	 * writes current channel values to corresponding values of the channels given
+	 * from interfaces
 	 */
 	private void doChannelMapping() {
 		this.channel(ChannelId.CURRENT_STATE).onChange(value -> {
@@ -395,7 +406,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				break;
 			}
 		});
-		
+
 		this.battery.getSoc().onChange(value -> {
 			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(value.get());
@@ -420,8 +431,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		ERROR(7, "Error"), // can be reached from every state, not directly addressable
 		PRECHARGE(9, "Precharge"), // State when system goes from OFF to STANDBY, not directly addressable
 		STARTING(3, "Starting"), // State from STANDBY to GRID_CONNECTED, not directly addressable
-		SHUTTING_DOWN(6, "Shutting down"), // State when system goes from GRID_CONNECTED to STANDBY, not directly addressable
-		CURRENTLY_UNKNOWN(10, "Currently not known"), // State appears sometimes, but currently there exists no documentation
+		SHUTTING_DOWN(6, "Shutting down"), // State when system goes from GRID_CONNECTED to STANDBY, not directly
+											// addressable
+		CURRENTLY_UNKNOWN(10, "Currently not known"), // State appears sometimes, but currently there exists no
+														// documentation
 		NO_ERROR_PENDING(12, "No error pending"), // State when system goes from ERROR to OFF, not directly addressable
 		THROTTLED(5, "Throttled"); // State that can occur when system is GRID_CONNECTED, not directly addressable
 
@@ -608,6 +621,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/*
+		 * DEBUG
+		 */
+		DEBUG_REQUESTED_STATE(new Doc()),
+		/*
 		 * SUNSPEC_103
 		 */
 		VENDOR_OPERATING_STATE(new Doc().options(ErrorCode.values())), // see error codes in user manual "10.10
@@ -620,8 +637,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		/*
 		 * SUNSPEC_64201
 		 */
-
-		REQUESTED_STATE(new Doc().options(RequestedState.values())), //
+		@SuppressWarnings("unchecked")
+		REQUESTED_STATE(new Doc().options(RequestedState.values()) //
+				// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+				.onInit(channel -> { //
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_REQUESTED_STATE).setNextValue(value);
+					});
+				})),
 		CURRENT_STATE(new Doc().options(CurrentState.values())), //
 		WATCHDOG(new Doc().unit(Unit.SECONDS)), //
 		W_SET_PCT(new Doc().unit(Unit.PERCENT)), //
@@ -688,8 +711,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(SUNSPEC_103 + 39,Priority.LOW, //
-						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE, new SignedWordElement(SUNSPEC_103 + 39))), //				
+				new FC3ReadRegistersTask(SUNSPEC_103 + 39, Priority.LOW, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE,
+								new SignedWordElement(SUNSPEC_103 + 39))), //
 				new FC3ReadRegistersTask(SUNSPEC_64201 + 35, Priority.HIGH,
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 35),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
@@ -710,7 +734,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 9, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT, new SignedWordElement(SUNSPEC_64201 + 9))), //
 				new FC3ReadRegistersTask(SUNSPEC_64201 + 46, Priority.LOW, //
-						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT_SF, new SignedWordElement(SUNSPEC_64201 + 46))), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT_SF,
+								new SignedWordElement(SUNSPEC_64201 + 46))), //
 				new FC3ReadRegistersTask(SUNSPEC_64202 + 6, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.V_SF, new SignedWordElement(SUNSPEC_64202 + 6)), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.A_SF, new SignedWordElement(SUNSPEC_64202 + 7))), //

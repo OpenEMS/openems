@@ -28,16 +28,12 @@
         <!-- Waiting for authentication -->
         <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
           <ion-card-header>
-
-            <!-- <mat-icon mat-card-avatar>stop</mat-icon> -->
-
             <ion-row>
               <ion-avatar>
                 <ion-icon size="large" name="hand"></ion-icon>
               </ion-avatar>
               Bitte geben Sie Ihre Zugangsdaten ein
             </ion-row>
-
             <!-- TODO translate -->
           </ion-card-header>
           <ion-card-content fxLayout fxLayout="wrap">

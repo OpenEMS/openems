@@ -92,16 +92,15 @@ public interface MarketSquare extends EventHandler {
 	/**
 	 * The "market reactivity" indicates, how much influence a change in demand or
 	 * supply of power will have on the price at a given time-period. It basically
-	 * describes how much power it takes to alter the price by 1€.
+	 * describes how much power it takes to increase the price by 10% or 0.01€, if
+	 * the current price is 0.00€.
 	 * 
 	 * @param from
 	 *            starting time
 	 * @param to
 	 *            ending time
-	 * @return the absolute of the quotient of the difference between the
-	 *         marketState's current and old power and the difference between the
-	 *         marketState's current and old price; Math.abs((CurrentPower -
-	 *         OldPower) / (CurrentPrice - OldPrice))
+	 * @return power-demand needed to increase price by 10% or 0.01€, if the current
+	 *         price is 0.00€. This value MUST be positive
 	 */
 	double getMarketReactivity(Date from, Date to);
 

@@ -93,6 +93,7 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.jSerialComm;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
+	io.openems.wrapper.msgpack;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
@@ -111,8 +112,8 @@ JPM-Command:				openems-edge
 	org.apache.servicemix.bundles.okio;version='[1.13.0,1.13.1)',\
 	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
 	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.8.3,1.8.4)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.8.3,1.8.4)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[1.10.1,1.10.2)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.10.1,1.10.2)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\

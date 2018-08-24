@@ -1,52 +1,51 @@
 # Text files with LF eol
-*.auth text eol=crlf
-*.awk text eol=crlf
-*.bnd text eol=crlf
-*.bndrun text eol=crlf
-*.c text eol=crlf
-*.conf text eol=crlf
-*.cpp text eol=crlf
-*.css text eol=crlf
-*.ddf text eol=crlf
-*.ee text eol=crlf
-*.gradle text eol=crlf
-*.groovy text eol=crlf
-*.h text eol=crlf
-*.html text eol=crlf
-*.java text eol=crlf
-*.js text eol=crlf
-*.lib text eol=crlf
-*.md text eol=crlf
-*.MF text eol=crlf
-*.mf text eol=crlf
-*.perm text eol=crlf
-*.php text eol=crlf
-*.pl text eol=crlf
-*.pom text eol=crlf
-*.prefs text eol=crlf
-*.properties text eol=crlf
-*.py text eol=crlf
-*.schema text eol=crlf
-*.SF text eol=crlf
-*.sh text eol=crlf
-*.tcl text eol=crlf
-*.ts text eol=crlf
-*.txt text eol=crlf
-*.xml text eol=crlf
-*.xsd text eol=crlf
-*.xsl text eol=crlf
-*.xslt text eol=crlf
-*.yml text eol=crlf
-.classpath text eol=crlf
-.project text eol=crlf
-gradlew text eol=crlf
-packageinfo text eol=crlf
-Makefile text eol=crlf
-README text eol=crlf
-LICENSE text eol=crlf
+*.auth text eol=lf
+*.awk text eol=lf
+*.bnd text eol=lf
+*.bndrun text eol=lf
+*.c text eol=lf
+*.conf text eol=lf
+*.cpp text eol=lf
+*.css text eol=lf diff=css
+*.ddf text eol=lf
+*.ee text eol=lf
+*.gradle text eol=lf
+*.groovy text eol=lf
+*.h text eol=lf
+*.html text eol=lf diff=html
+*.java text eol=lf
+*.js text eol=lf diff=javascript
+*.lib text eol=lf
+*.md text eol=lf
+*.MF text eol=lf
+*.mf text eol=lf
+*.perm text eol=lf
+*.php text eol=lf
+*.pl text eol=lf
+*.pom text eol=lf
+*.prefs text eol=lf
+*.properties text eol=lf
+*.py text eol=lf
+*.schema text eol=lf
+*.SF text eol=lf
+*.sh text eol=lf
+*.tcl text eol=lf
+*.txt text eol=lf
+*.xml text eol=lf
+*.xsd text eol=lf
+*.xsl text eol=lf
+*.xslt text eol=lf
+*.yml text eol=lf
+.classpath text eol=lf diff=xml
+.project text eol=lf diff=xml
+gradlew text eol=lf
+packageinfo text eol=lf
+Makefile text eol=lf
+README text eol=lf
+LICENSE text eol=lf
 
-# No EOL translation
-*.bat -crlf
+# Windows
+.bat text eol=crlf
 
 # Binary. No EOL translation, no diff
 *.ico binary

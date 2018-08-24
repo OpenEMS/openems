@@ -154,7 +154,7 @@ public class GridAgent extends AbstractOpenemsComponent implements MarketAgent, 
 		}
 		this.channel(ChannelId.CURRENT_POWER).setNextValue(consumption.getValue(now).getDecimalDouble());
 		this.channel(ChannelId.NEXT_POWER).setNextValue(
-				consumption.getValue(1533891300000L + (long) (86400000L * speedFactor)).getDecimalDouble());
+				consumption.getValue(1534144900000L + (long) (86400000L * speedFactor)).getDecimalDouble());
 		last = now;
 	}
 

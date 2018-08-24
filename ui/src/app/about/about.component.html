@@ -29,12 +29,5 @@
     <p>
       <span [innerHTML]="'About.Contact' | translate:{value: 'fems@fenecon.de'}"></span>
     </p>
-    <hr/>
-    <p translate>About.Language</p>
-    <ul>
-      <select #langSelect (change)="translate.use(langSelect.value)">
-        <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
-      </select>
-    </ul>
   </mat-card-content>
 </mat-card>
