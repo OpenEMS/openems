@@ -192,97 +192,100 @@ public class MeterEastronSDM630 extends AbstractOpenemsModbusComponent
     @Override
     protected ModbusProtocol defineModbusProtocol(int unitId) {
         final int OFFSET = 30000;
-        return new ModbusProtocol(unitId, new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
+        return new ModbusProtocol(unitId,
+                new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
                 // VOLTAGE
                 // Overall Voltage
                 // measured from L1
-                m(MeterEastronSDM630.ChannelId.VOLTAGE, new SignedDoublewordElement(30001 - OFFSET).wordOrder(WordOrder.MSWLSW),
-                        ElementToChannelConverter.DIRECT_1_TO_1)),
+                        m(MeterEastronSDM630.ChannelId.VOLTAGE,
+                                new SignedDoublewordElement(30001 - OFFSET)
+                                        .wordOrder(WordOrder.MSWLSW),
+                                        ElementToChannelConverter.DIRECT_1_TO_1)),
                 new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
                         // Phase 1 voltage
-                        m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
+                        m(ChannelId.VOLTAGE_L1,
                                 new SignedDoublewordElement(30001 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // Phase 2 voltage
-                        m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
+                        m(ChannelId.VOLTAGE_L2,
                                 new SignedDoublewordElement(30003 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // Phase 3 voltage
-                        m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
+                        m(ChannelId.VOLTAGE_L3,
                                 new SignedDoublewordElement(30005 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
                 new FC4ReadInputRegistersTask(30007 - OFFSET, Priority.HIGH,
                         // CURRENT
                         // Phase 1 current
-                        m(AsymmetricMeter.ChannelId.CURRENT_L1,
+                        m(ChannelId.CURRENT_L1,
                                 new SignedDoublewordElement(30007 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // Phase 2 current
-                        m(AsymmetricMeter.ChannelId.CURRENT_L2,
+                        m(ChannelId.CURRENT_L2,
                                 new SignedDoublewordElement(30009 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // Phase 3 current
-                        m(AsymmetricMeter.ChannelId.CURRENT_L3,
+                        m(ChannelId.CURRENT_L3,
                                 new SignedDoublewordElement(30011 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // APPARENT POWER
                         // phase 1 VA
-                        m(MeterEastronSDM630.ChannelId.APPARENT_POWER_L1,
+                        m(ChannelId.APPARENT_POWER_L1,
                                 new SignedDoublewordElement(30013 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // phase 2 VA
-                        m(MeterEastronSDM630.ChannelId.APPARENT_POWER_L2,
+                        m(ChannelId.APPARENT_POWER_L2,
                                 new SignedDoublewordElement(30015 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // phase 3 VA
-                        m(MeterEastronSDM630.ChannelId.APPARENT_POWER_L3,
+                        m(ChannelId.APPARENT_POWER_L3,
                                 new SignedDoublewordElement(30017 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // ACTIVE POWER
                         // phase 1 active power
-                        m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
+                        m(ChannelId.ACTIVE_POWER_L1,
                                 new SignedDoublewordElement(30019 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // phase 2 active power
-                        m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
+                        m(ChannelId.ACTIVE_POWER_L2,
                                 new SignedDoublewordElement(30021 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // phase 3 active power
-                        m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
+                        m(ChannelId.ACTIVE_POWER_L3,
                                 new SignedDoublewordElement(30023 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         new DummyRegisterElement(30025 - OFFSET, 30030 - OFFSET),
                         // REACTIVE POWER
                         // phase 1 VAr
-                        m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
+                        m(ChannelId.REACTIVE_POWER_L1,
                                 new SignedDoublewordElement(30031 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // phase 2 VAr
-                        m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
+                        m(ChannelId.REACTIVE_POWER_L2,
                                 new SignedDoublewordElement(30033 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         // phase 3 VAr
-                        m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
+                        m(ChannelId.REACTIVE_POWER_L3,
                                 new SignedDoublewordElement(30035 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         new DummyRegisterElement(30037 - OFFSET, 30048 - OFFSET),
                         // Overall Current
-                        m(SymmetricMeter.ChannelId.CURRENT,
+                        m(ChannelId.CURRENT,
                                 new SignedDoublewordElement(30049 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         new DummyRegisterElement(30051 - OFFSET, 30052 - OFFSET),
                         // total system VA
-                        m(MeterEastronSDM630.ChannelId.APPARENT_POWER,
+                        m(ChannelId.APPARENT_POWER,
                                 new SignedDoublewordElement(30053 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         new DummyRegisterElement(30055 - OFFSET, 30056 - OFFSET),
                         // total system active power
-                        m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+                        m(ChannelId.ACTIVE_POWER,
                                 new SignedDoublewordElement(30057 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1),
                         new DummyRegisterElement(30059 - OFFSET, 30060 - OFFSET),
                         // total system VAr
-                        m(SymmetricMeter.ChannelId.REACTIVE_POWER,
+                        m(ChannelId.REACTIVE_POWER,
                                 new SignedDoublewordElement(30061 - OFFSET).wordOrder(WordOrder.MSWLSW),
                                 ElementToChannelConverter.DIRECT_1_TO_1)),
                 new FC4ReadInputRegistersTask(30071 - OFFSET, Priority.LOW,
