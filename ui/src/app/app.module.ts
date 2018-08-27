@@ -11,7 +11,6 @@ import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
 import { OverviewModule } from './overview/overview.module';
 import { EdgeModule } from './edge/edge.module';
-import { ConfigModule } from './config/config.module';
 
 // components
 import { AppComponent } from './app.component';
@@ -39,7 +38,6 @@ import { SettingsModule } from './settings/settings.module';
     AboutModule,
     SettingsModule,
     EdgeModule,
-    ConfigModule,
     OverviewModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
