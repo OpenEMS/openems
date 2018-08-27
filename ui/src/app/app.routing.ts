@@ -19,7 +19,6 @@ import { SimulatorComponent as EdgeConfigSimulatorComponent } from './edge/confi
 import { DirectControlComponent as EdgeConfigDirectControlComponent } from './edge/config/2018.7/more/directcontrol/directcontrol.component';
 import { SystemExecuteComponent as EdgeConfigSystemExecuteComponent } from './edge/config/2018.7/more/systemexecute/systemexecute.component';
 
-
 const appRoutes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
   { path: 'index', component: IndexComponent },
@@ -32,7 +31,6 @@ const appRoutes: Routes = [
   { path: 'device/:edgeName/history', component: EdgeHistoryComponent },
   { path: 'device/:edgeName/log', component: EdgeConfigLogComponent },
 
-  /* TODO: update Odoo direct monitoring links to reflect path changes */
   { path: 'device/:edgeName/config', redirectTo: 'device/:edgeName/config/index', pathMatch: 'full' },
   { path: 'device/:edgeName/config/index', component: EdgeConfigIndexComponent },
   { path: 'device/:edgeName/config/bridge', component: EdgeConfigBridgeComponent },

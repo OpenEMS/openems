@@ -2,29 +2,6 @@
   <div fxFlex="35%" fxFlex.xs="100%">
     <form [formGroup]="form" (ngSubmit)="doLogin()">
       <mat-card class="single">
-        <mat-card-header *ngIf="websocket.status == 'online'">
-          <ion-icon mat-card-avatar color="primary" name="contact"></ion-icon>
-          <mat-card-title translate [translateParams]="{value: 'FEMS'}">Index.ConnectionSuccessful</mat-card-title>
-          <mat-card-subtitle>
-            <small>{{ websocket.url }}</small>
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-header *ngIf="websocket.status == 'failed'">
-          <ion-icon mat-card-avatar name="close"></ion-icon>
-          <mat-card-title translate [translateParams]="{value: 'FEMS'}">Index.ConnectionFailed</mat-card-title>
-          <mat-card-subtitle>
-            <small>{{ websocket.url }}</small>
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-header *ngIf="websocket.status == 'connecting'">
-          <!-- TODO show spinner -->
-          <ion-icon mat-card-avatar name="wifi"></ion-icon>
-          <mat-card-title>Connecting...</mat-card-title>
-          <!-- TODO translate -->
-          <mat-card-subtitle>
-            <small>{{ websocket.url }}</small>
-          </mat-card-subtitle>
-        </mat-card-header>
         <!-- Waiting for authentication -->
         <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
           <ion-card-header>

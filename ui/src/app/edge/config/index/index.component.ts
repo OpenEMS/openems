@@ -22,7 +22,6 @@ export class IndexComponent implements OnInit {
     private formBuilder: FormBuilder,
     private service: Service,
   ) {
-    this.service.setBackUrlIndex(this.route);
   }
 
   ngOnInit() {

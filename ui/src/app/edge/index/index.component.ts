@@ -32,13 +32,6 @@ export class IndexComponent implements OnInit, OnDestroy {
     public utils: Utils,
     private service: Service,
   ) {
-    websocket.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
-      if (Object.keys(edges).length > 1) {
-        this.service.backUrl = '/index';
-      } else {
-        this.service.backUrl = null;
-      }
-    })
   }
 
   ngOnInit() {

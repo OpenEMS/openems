@@ -27,7 +27,6 @@ export class IndexComponent {
     private formBuilder: FormBuilder,
     private router: Router,
     private service: Service) {
-    this.service.backUrl = null;
     this.form = this.formBuilder.group({
       "password": this.formBuilder.control('user')
     });
