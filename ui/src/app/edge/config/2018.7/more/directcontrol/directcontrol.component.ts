@@ -4,9 +4,9 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Websocket, Service } from '../../../../shared/shared';
-import { Edge } from '../../../../shared/edge/edge';
-import { DefaultMessages } from '../../../../shared/service/defaultmessages';
+import { Websocket, Service } from '../../../../../shared/shared';
+import { Edge } from '../../../../../shared/edge/edge';
+import { DefaultMessages } from '../../../../../shared/service/defaultmessages';
 
 @Component({
   selector: 'directcontrol',

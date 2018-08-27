@@ -7,17 +7,17 @@ import { OverviewComponent } from './overview/overview.component';
 import { OverviewComponent as EdgeOverviewComponent } from './edge/overview/overview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
 import { OverviewComponent as EdgeConfigOverviewComponent } from './edge/config/overview/overview.component';
-import { BridgeComponent as EdgeConfigBridgeComponent } from './edge/config/bridge/bridge.component';
-import { SchedulerComponent as EdgeConfigSchedulerComponent } from './edge/config/scheduler/scheduler.component';
+import { BridgeComponent as EdgeConfigBridgeComponent } from './edge/config/2018.7/bridge/bridge.component';
+import { SchedulerComponent as EdgeConfigSchedulerComponent } from './edge/config/2018.7/scheduler/scheduler.component';
 import { LogComponent as EdgeConfigLogComponent } from './edge/config/log/log.component';
-import { MoreComponent as EdgeConfigMoreComponent } from './edge/config/more/more.component';
-import { RawConfigComponent as EdgeConfigRawConfigComponent } from './edge/config/more/rawconfig/rawconfig.component';
-import { ConfigAllComponent as EdgeConfigConfigAllComponent } from './edge/config/configall/configall.component';
-import { ControllerComponent as EdgeControllerComponent } from './edge/config/controller/controller.component';
-import { PersistenceComponent as EdgePersistenceComponent } from './edge/config/persistence/persistence.component';
-import { SimulatorComponent as EdgeConfigSimulatorComponent } from './edge/config/simulator/simulator.component';
-import { DirectControlComponent as EdgeConfigDirectControlComponent } from './edge/config/more/directcontrol/directcontrol.component';
-import { SystemExecuteComponent as EdgeConfigSystemExecuteComponent } from './edge/config/more/systemexecute/systemexecute.component';
+import { MoreComponent as EdgeConfigMoreComponent } from './edge/config/2018.7/more/more.component';
+import { RawConfigComponent as EdgeConfigRawConfigComponent } from './edge/config/2018.7/more/rawconfig/rawconfig.component';
+import { ConfigAllComponent as EdgeConfigConfigAllComponent } from './edge/config/2018.7/configall/configall.component';
+import { ControllerComponent as EdgeControllerComponent } from './edge/config/2018.7/controller/controller.component';
+import { PersistenceComponent as EdgePersistenceComponent } from './edge/config/2018.7/persistence/persistence.component';
+import { SimulatorComponent as EdgeConfigSimulatorComponent } from './edge/config/2018.7/simulator/simulator.component';
+import { DirectControlComponent as EdgeConfigDirectControlComponent } from './edge/config/2018.7/more/directcontrol/directcontrol.component';
+import { SystemExecuteComponent as EdgeConfigSystemExecuteComponent } from './edge/config/2018.7/more/systemexecute/systemexecute.component';
 
 
 const appRoutes: Routes = [
