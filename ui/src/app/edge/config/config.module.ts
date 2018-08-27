@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
 import { MoreModule } from './2018.7/more/more.module';
 
-import { OverviewComponent } from './overview/overview.component';
+import { IndexComponent } from './index/index.component';
 import { BridgeComponent } from './2018.7/bridge/bridge.component';
 import { ControllerComponent } from './2018.7/controller/controller.component';
 import { SchedulerComponent } from './2018.7/scheduler/scheduler.component';
@@ -18,7 +18,7 @@ import { SimulatorComponent } from './2018.7/simulator/simulator.component';
     MoreModule
   ],
   declarations: [
-    OverviewComponent,
+    IndexComponent,
     ControllerComponent,
     BridgeComponent,
     LogComponent,

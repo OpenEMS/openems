@@ -6,17 +6,16 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 // modules
-import { IonicModule, IonRouterOutlet } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
-import { OverviewModule } from './overview/overview.module';
+import { IndexModule } from './index/index.module';
 import { EdgeModule } from './edge/edge.module';
 
 // components
 import { AppComponent } from './app.component';
 
 // services
-//import { Websocket, Service } from './shared/shared';
 import { Service } from './shared/shared';
 import { MyTranslateLoader } from './shared/translate/translate';
 
@@ -38,7 +37,7 @@ import { SettingsModule } from './settings/settings.module';
     AboutModule,
     SettingsModule,
     EdgeModule,
-    OverviewModule,
+    IndexModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),

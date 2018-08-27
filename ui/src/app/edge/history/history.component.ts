@@ -57,7 +57,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private translate: TranslateService,
     private service: Service,
   ) {
-    this.service.setBackUrlOverview(this.route);
+    this.service.setBackUrlIndex(this.route);
   }
 
   ngOnInit() {

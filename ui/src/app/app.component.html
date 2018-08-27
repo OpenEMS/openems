@@ -7,7 +7,7 @@
     </ion-buttons>
     <ion-buttons slot="end">
       <nav *ngIf="(websocket.currentEdge | async) as currentEdge">
-        <ion-button routerLink="/device/{{ currentEdge.name }}/config/overview">
+        <ion-button routerLink="/device/{{ currentEdge.name }}/config/index">
           <ion-icon name="settings" size="large"></ion-icon>
         </ion-button>
       </nav>
@@ -15,7 +15,7 @@
         <ion-icon size="large" name="more"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
+    <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/index">
       <button mat-button>
         Energiemonitor
         <!-- TODO translate -->

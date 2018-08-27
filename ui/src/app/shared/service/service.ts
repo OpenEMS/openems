@@ -70,14 +70,14 @@ export class Service implements ErrorHandler {
     /**
      * Sets the url for the toolbar back-button
      */
-    public backUrl: string = "/overview";
+    public backUrl: string = "/index";
 
-    public setBackUrlOverview(route: ActivatedRoute) {
+    public setBackUrlIndex(route: ActivatedRoute) {
         let edgeName = route.snapshot.params['edgeName'];
         if (edgeName) {
-            this.backUrl = '/device/' + edgeName + '/overview';
+            this.backUrl = '/device/' + edgeName + '/index';
         } else {
-            this.backUrl = '/overview'
+            this.backUrl = '/index'
         }
     }
 }

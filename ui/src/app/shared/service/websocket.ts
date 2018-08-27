@@ -59,8 +59,8 @@ export class Websocket {
    */
   public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
     let onTimeout = () => {
-      // Timeout: redirect to overview
-      this.router.navigate(['/overview']);
+      // Timeout: redirect to index
+      this.router.navigate(['/index']);
       subscription.unsubscribe();
     }
 
@@ -200,12 +200,12 @@ export class Websocket {
             this.initialize();
             if (env.backend === "OpenEMS Backend") {
               if (env.production) {
-                window.location.href = "/web/login?redirect=/m/overview";
+                window.location.href = "/web/login?redirect=/m/index";
               } else {
                 console.info("would redirect...");
               }
             } else if (env.backend === "OpenEMS Edge") {
-              this.router.navigate(['/overview']);
+              this.router.navigate(['/index']);
             }
           }
         }
@@ -284,7 +284,7 @@ export class Websocket {
               notify = false;
               setTimeout(() => {
                 this.clearCurrentEdge();
-                this.router.navigate(["/overview"]);
+                this.router.navigate(["/index"]);
               });
             }
           }
