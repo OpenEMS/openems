@@ -1,13 +1,13 @@
 import { Component, Input } from '@angular/core';
 
-import { Utils } from '../../../shared/service/utils';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary_2018_7 } from '../../../shared/edge/currentdata.2018.7';
-import { Edge } from '../../../shared/edge/edge';
+import { Utils } from '../../../../shared/service/utils';
+import { DefaultTypes } from '../../../../shared/service/defaulttypes';
+import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
+import { Edge } from '../../../../shared/edge/edge';
 
 @Component({
   selector: 'channelthreshold-2018-7',
-  templateUrl: './channelthreshold.2018.7.component.html'
+  templateUrl: './channelthreshold.component.html'
 })
 export class ChannelthresholdComponent_2018_7 {
 

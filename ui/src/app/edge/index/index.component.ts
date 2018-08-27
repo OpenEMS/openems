@@ -60,17 +60,6 @@ export class IndexComponent implements OnInit, OnDestroy {
 
                 this.subscribe();
               }
-              // TODO fieldstatus
-              // /*
-              //  * Add custom fields for fieldstatus component
-              //  */
-              // for (let thing in this.customFields) {
-              //   let thingChannels = []
-              //   for (let channel in this.customFields[thing]) {
-              //     thingChannels.push(channel);
-              //   }
-              //   channels[thing] = thingChannels;
-              // }
             });
         }
       });

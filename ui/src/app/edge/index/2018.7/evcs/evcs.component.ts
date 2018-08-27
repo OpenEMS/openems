@@ -2,15 +2,15 @@ import { Component, Input, ViewChildren, QueryList } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Utils } from '../../../shared/service/utils';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary_2018_7 } from '../../../shared/edge/currentdata.2018.7';
-import { Edge } from '../../../shared/edge/edge';
-import { ChannelComponent } from '../../../shared/config/channel.component';
+import { Utils } from '../../../../shared/service/utils';
+import { DefaultTypes } from '../../../../shared/service/defaulttypes';
+import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
+import { Edge } from '../../../../shared/edge/edge';
+import { ChannelComponent } from '../../../../shared/config/channel.component';
 
 @Component({
   selector: 'evcs-2018-7',
-  templateUrl: './evcs.2018.7.component.html'
+  templateUrl: './evcs.component.html'
 })
 export class EvcsComponent_2018_7 {
 

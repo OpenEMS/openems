@@ -1,12 +1,12 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 
-import { Utils } from '../../../shared/service/utils';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary_2018_7 } from '../../../shared/edge/currentdata.2018.7';
+import { Utils } from '../../../../shared/service/utils';
+import { DefaultTypes } from '../../../../shared/service/defaulttypes';
+import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
 
 @Component({
   selector: 'energytable-2018-7',
-  templateUrl: './energytable.2018.7.component.html'
+  templateUrl: './energytable.component.html'
 })
 export class EnergytableComponent_2018_7 {
 

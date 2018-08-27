@@ -6,7 +6,7 @@ import { CurrentDataAndSummary_2018_8 } from '../../../shared/edge/currentdata.2
 
 @Component({
   selector: 'energytable-2018-8',
-  templateUrl: './energytable.2018.8.component.html'
+  templateUrl: './energytable.component.html'
 })
 export class EnergytableComponent_2018_8 {
 
