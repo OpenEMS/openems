@@ -6,7 +6,7 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 // modules
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
 import { IndexModule } from './index/index.module';
@@ -14,6 +14,7 @@ import { EdgeModule } from './edge/edge.module';
 
 // components
 import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
 
 // services
 import { Service } from './shared/shared';
@@ -26,13 +27,15 @@ import localDE from '@angular/common/locales/de';
 import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
+import { RouteReuseStrategy } from '@angular/router';
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [PopoverPage],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(AppComponent),
+    IonicModule.forRoot(),
+    AppRoutingModule,
     SharedModule,
     AboutModule,
     SettingsModule,
@@ -46,6 +49,7 @@ import { SettingsModule } from './settings/settings.module';
   providers: [
     StatusBar,
     SplashScreen,
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }
   ],

@@ -15,7 +15,7 @@ import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
 
-import { routing, appRoutingProviders } from './../app.routing';
+import { appRoutingProviders } from './../app-routing.module';
 
 /*
  * Services
@@ -56,8 +56,7 @@ import { IonicModule } from '@ionic/angular';
     ChartsModule,
     LoadingModule,
     MyDateRangePickerModule,
-    ToasterModule,
-    routing,
+    ToasterModule
   ],
   declarations: [
     // pipes

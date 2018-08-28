@@ -1,5 +1,5 @@
 {
-  "name": "UIAPP",
+  "name": "openems-ui",
   "integrations": {
     "cordova": {}
   },
