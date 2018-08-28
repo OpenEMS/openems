@@ -1,83 +1,77 @@
-<div fxLayout fxLayoutAlign="center start" fxLayout="wrap">
-  <div fxFlex="35%" fxFlex.xs="100%">
-    <form [formGroup]="form" (ngSubmit)="doLogin()">
-      <mat-card class="single">
-        <!-- Waiting for authentication -->
-        <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
-          <ion-card-header>
-            <ion-row>
-              <ion-avatar>
-                <ion-icon size="large" name="hand"></ion-icon>
-              </ion-avatar>
-              Bitte geben Sie Ihre Zugangsdaten ein
-            </ion-row>
-            <!-- TODO translate -->
-          </ion-card-header>
-          <ion-card-content fxLayout fxLayout="wrap">
-            <mat-form-field fxFlex="100%">
-              <input matInput formControlName="password" matInput type="password" placeholder="Passwort">
-            </mat-form-field>
-            <!-- Messages -->
-            <p fxFlex="100%">{{ (websocket.event | async)?.message }}</p>
-          </ion-card-content>
-          <mat-card-actions fxLayout fxLayoutAlign="end start">
-            <ion-button slot="center" (click)="doLogin()" color="primary">
-              <ion-icon name="log-in"></ion-icon>
-            </ion-button>
-          </mat-card-actions>
-        </ng-container>
-        <!-- Logout from OpenEMS Edge -->
-        <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'online'">
-          <mat-card-actions fxLayout fxLayoutAlign="end start">
-            <ion-button (click)="doLogout()" color="primary">
-              <ion-icon name="log-out"></ion-icon>
-            </ion-button>
-          </mat-card-actions>
-        </ng-container>
-      </mat-card>
-    </form>
+<ion-grid>
+  <ion-row justify-content-center>
+    <ion-col size="12" size-md="6">
+      <!-- Waiting for authentication -->
+      <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'" padding>
+        <ion-item>
+          <ion-icon slot="start" name="contact"></ion-icon>
+          <ion-label>
+            <ion-card-title>Login</ion-card-title>
+            <ion-card-subtitle text-wrap>
+              Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
+            </ion-card-subtitle>
+          </ion-label>
+        </ion-item>
 
-    <!-- List of edges -->
-    <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
-      <mat-card class="single">
-        <mat-card-content fxLayout fxLayout="wrap">
-          <mat-form-field fxFlex="100%" [formGroup]="filter">
-            <input type="text" formControlName="filter" placeholder="Filter" matInput autofocus>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
-    <ng-container *ngFor="let edge of utils.values(websocket.edges | async)">
-      <ng-container *ngIf="env.backend === 'OpenEMS Edge' || edge.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || edge.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
+        <ion-card-content>
+          <ion-item>
+            <form [formGroup]="form" (ngSubmit)="doLogin()">
+              <ion-label position="floating">Passwort</ion-label>
+              <ion-input formControlName="password" required type="password" placeholder="Passwort"></ion-input>
+            </form>
+          </ion-item>
+          <!-- Messages -->
+          <ion-item>
+            {{ (websocket.event | async)?.message }}
+          </ion-item>
+          <ion-button slot="end" (click)="doLogin()">
+            <ion-icon slot="icon-only" name="log-in"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- List of edges -->
+      <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
         <mat-card class="single">
-          <mat-card-header>
-            <ion-icon *ngIf="edge.online" mat-card-avatar name="tv" color="primary"></ion-icon>
-            <ion-icon *ngIf="!edge.online" mat-card-avatar name="bug"></ion-icon>
-            <mat-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Index.ToEnergymonitor</mat-card-title>
-            <mat-card-title *ngIf="env.backend === 'OpenEMS Backend'">
-              <span>{{ edge.comment }}
-                <span *ngIf="!edge.online">
-                  <br/>
-                  <span translate>Index.IsOffline</span>
-                </span>
-              </span>
-            </mat-card-title>
-            <mat-card-subtitle>
-              <p *ngIf="env.backend === 'OpenEMS Backend'">{{ edge.name }}: {{ edge.producttype }}</p>
-              <p>Angemeldet als '{{ edge.role }}'.</p>
-              <!-- TODO translate -->
-            </mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="edge.online">
-            <!-- <button type="button" mat-fab routerLink="/device/{{ edge.name }}">
-              <mat-icon>navigate_next</mat-icon>
-            </button> -->
-            <ion-button routerLink="/device/{{ edge.name }}">
-              <ion-icon name="arrow-forward"></ion-icon>
-            </ion-button>
-          </mat-card-actions>
+          <mat-card-content fxLayout fxLayout="wrap">
+            <mat-form-field fxFlex="100%" [formGroup]="filter">
+              <input type="text" formControlName="filter" placeholder="Filter" matInput autofocus>
+            </mat-form-field>
+          </mat-card-content>
         </mat-card>
       </ng-container>
-    </ng-container>
-  </div>
-</div>
+      <ng-container *ngFor="let edge of utils.values(websocket.edges | async)">
+        <ng-container *ngIf="env.backend === 'OpenEMS Edge' || edge.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || edge.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
+          <mat-card class="single">
+            <mat-card-header>
+              <ion-icon *ngIf="edge.online" mat-card-avatar name="tv" color="primary"></ion-icon>
+              <ion-icon *ngIf="!edge.online" mat-card-avatar name="bug"></ion-icon>
+              <mat-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Index.ToEnergymonitor</mat-card-title>
+              <mat-card-title *ngIf="env.backend === 'OpenEMS Backend'">
+                <span>{{ edge.comment }}
+                  <span *ngIf="!edge.online">
+                    <br/>
+                    <span translate>Index.IsOffline</span>
+                  </span>
+                </span>
+              </mat-card-title>
+              <mat-card-subtitle>
+                <p *ngIf="env.backend === 'OpenEMS Backend'">{{ edge.name }}: {{ edge.producttype }}</p>
+                <p>Angemeldet als '{{ edge.role }}'.</p>
+                <!-- TODO translate -->
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="edge.online">
+              <!-- <button type="button" mat-fab routerLink="/device/{{ edge.name }}">
+              <mat-icon>navigate_next</mat-icon>
+            </button> -->
+              <ion-button routerLink="/device/{{ edge.name }}">
+                <ion-icon name="arrow-forward"></ion-icon>
+              </ion-button>
+            </mat-card-actions>
+          </mat-card>
+        </ng-container>
+      </ng-container>
+    </ion-col>
+  </ion-row>
+</ion-grid>

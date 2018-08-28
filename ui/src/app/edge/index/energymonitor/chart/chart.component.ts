@@ -46,7 +46,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // make sure chart is redrawn in the beginning and on window resize
-    setTimeout(() => this.updateOnWindowResize(), 100);
+    setTimeout(() => this.updateOnWindowResize(), 500);
     const source = fromEvent(window, 'resize', null, null);
     const subscription = source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
       this.updateOnWindowResize();

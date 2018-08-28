@@ -49,10 +49,6 @@ export class IndexComponent {
     this.websocket.logIn(password);
   }
 
-  doLogout(form: FormGroup) {
-    this.websocket.logOut();
-  }
-
   onDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();

@@ -24,7 +24,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-content padding>
+  <ion-content>
 
     <!-- Show Websocket Status -->
     <ion-grid>
@@ -53,14 +53,15 @@
             </ion-item>
           </ion-card>
         </ion-col>
-
       </ion-row>
     </ion-grid>
 
     <!-- Show Sub-Views -->
     <router-outlet></router-outlet>
+    <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
 
   </ion-content>
 </ion-app>
 
+<!-- TODO replace with ionic toaster -->
 <toaster-container></toaster-container>

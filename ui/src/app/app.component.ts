@@ -17,7 +17,7 @@ import { Location } from '@angular/common';
 
 
 @Component({
-  selector: 'root',
+  selector: 'app-root',
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
@@ -27,46 +27,62 @@ export class AppComponent {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
+    private platform: Platform,
+    private splashScreen: SplashScreen,
+    private statusBar: StatusBar,
     public websocket: Websocket,
     public service: Service,
     private toaster: ToasterService,
     private popoverController: PopoverController,
     public router: Router,
   ) {
+    // this.initializeApp();
     service.setLang('de');
+  }
 
-    /*
-     * Parse URL for global 'back' button
-     */
-    router.events.pipe(
-      takeUntil(this.ngUnsubscribe),
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(event => {
-      let url = (<NavigationEnd>event).urlAfterRedirects;
-      let urlArray = url.split('/');
-      let file = urlArray.pop();
-      // remove one more part of the url for 'index'
-      if (file === 'index') {
-        urlArray.pop();
-      }
-      // re-join the url
-      let backUrl: string | boolean = urlArray.join('/') || '/';
-      // correct path for '/device/[edgeName]/index'
-      if (backUrl === '/device') {
-        backUrl = '/';
-      }
-      // disable backUrl to first 'index' page if there is only one Edge in the system
-      if (Object.keys(this.websocket.edges.getValue()).length == 1 && backUrl === '/') {
-        backUrl = false;
-      }
-      this.backUrl = backUrl;
-    })
+  initializeApp() {
+    this.platform.ready().then(() => {
+      this.statusBar.styleDefault();
+      this.splashScreen.hide();
+    });
   }
 
   ngOnInit() {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(notification => {
       this.toaster.pop({ type: notification.type, body: notification.message });
     });
+    /*
+     * Parse URL for global 'back' button
+     */
+    this.router.events.pipe(
+      takeUntil(this.ngUnsubscribe),
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(event => {
+      let url = (<NavigationEnd>event).urlAfterRedirects;
+      let urlArray = url.split('/');
+      let backUrl: string | boolean = '/';
+      let file = urlArray.pop();
+
+      // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
+      if (file === 'index' && urlArray.length == 3 && Object.keys(this.websocket.edges.getValue()).length < 2) {
+        this.backUrl = false;
+        return;
+      }
+
+      // remove one part of the url for 'index'
+      if (file === 'index') {
+        urlArray.pop();
+      }
+      // re-join the url
+      backUrl = urlArray.join('/') || '/';
+
+      // correct path for '/device/[edgeName]/index'
+      if (backUrl === '/device') {
+        backUrl = '/';
+      }
+      this.backUrl = backUrl;
+      console.log(url, urlArray, backUrl)
+    })
   }
 
   ngOnDestroy() {
