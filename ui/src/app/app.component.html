@@ -16,11 +16,6 @@
           <ion-icon size="large" name="more"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/index">
-        Energiemonitor
-        <!-- TODO translate -->
-        <small>({{ currentEdge.name }})</small>
-      </ion-title>
     </ion-toolbar>
   </ion-header>
 

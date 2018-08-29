@@ -81,7 +81,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Zvolené období: ",
-            OtherPeriod: "Další období:",
+            OtherPeriod: "Další období",
             Period: "Období",
             Today: "Dnes",
             Yesterday: "Včera",

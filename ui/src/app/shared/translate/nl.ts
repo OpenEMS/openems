@@ -81,7 +81,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Geselecteerde periode: ",
-            OtherPeriod: "Andere periode: ",
+            OtherPeriod: "Andere periode",
             Period: "Periode",
             Today: "Vandaag",
             Yesterday: "Gisteren",

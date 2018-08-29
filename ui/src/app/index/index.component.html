@@ -4,7 +4,7 @@
       <!-- Waiting for authentication -->
       <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'" padding>
         <ion-item>
-          <ion-icon slot="start" name="contact"></ion-icon>
+          <ion-icon slot="start" name="contact" color="primary"></ion-icon>
           <ion-label>
             <ion-card-title>Login</ion-card-title>
             <ion-card-subtitle text-wrap>

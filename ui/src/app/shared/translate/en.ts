@@ -84,7 +84,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Selected period: ",
-            OtherPeriod: "Other period:",
+            OtherPeriod: "Other period",
             Period: "Period",
             Today: "Today",
             Yesterday: "Yesterday",
