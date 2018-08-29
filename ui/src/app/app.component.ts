@@ -59,6 +59,12 @@ export class AppComponent {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(event => {
       let url = (<NavigationEnd>event).urlAfterRedirects;
+      // disable backUrl on initial 'index' page
+      if (url === '/index') {
+        this.backUrl = false;
+        return;
+      }
+
       let urlArray = url.split('/');
       let backUrl: string | boolean = '/';
       let file = urlArray.pop();

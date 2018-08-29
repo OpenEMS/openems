@@ -29,9 +29,67 @@
           </ion-button>
         </ion-card-content>
       </ion-card>
+    </ion-col>
+  </ion-row>
 
-      <!-- List of edges -->
-      <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
+  <ng-container *ngIf="utils.values(websocket.edges | async).length > 0">
+    <ion-row justify-content-center>
+      <ion-col size="12" size-sm="6" size-md="4">
+        <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
+      </ion-col>
+    </ion-row>
+
+    <ion-row justify-content-center>
+      <ion-col size="12" size-sm="6" size-md="4">
+        <ion-list lines="full">
+          <!-- Unfortunately this does not refresh on changes. Most likely an Ionic bug 
+            <ion-virtual-scroll [items]="edges" approxItemHeight="100px">
+            <ion-item *virtualItem="let edge" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
+              <ion-label>
+                <h2>{{ edge.comment }}</h2>
+                <p *ngIf="!edge.online">Das Gerät ist nicht verbunden!</p>
+              </ion-label>
+              <ion-label>
+                <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                  <p>ID: {{ edge.name }}</p>
+                  <p>Typ: {{ edge.producttype }}</p>
+                </ng-container>
+                <p>Angemeldet als: {{ edge.role }}.</p>
+              </ion-label>
+              <ion-icon *ngIf="edge.online" slot="end" name="play" color="primary"></ion-icon>
+              <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
+            </ion-item>
+          </ion-virtual-scroll> -->
+
+          <ion-item *ngFor="let edge of edges" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
+            <ion-label>
+              <h2>{{ edge.comment }}</h2>
+              <p *ngIf="!edge.online">Das Gerät ist nicht verbunden!</p>
+            </ion-label>
+            <ion-label>
+              <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                <p>ID: {{ edge.name }}</p>
+                <p>Typ: {{ edge.producttype }}</p>
+              </ng-container>
+              <p>Angemeldet als: {{ edge.role }}.</p>
+            </ion-label>
+            <ion-icon *ngIf="edge.online" slot="end" name="play" color="primary"></ion-icon>
+            <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
+          </ion-item>
+
+          <ion-item *ngIf="filteredTruncated">
+            <ion-label>
+              <p>Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.</p>
+            </ion-label>
+          </ion-item>
+
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ng-container>
+
+  <!-- List of edges -->
+  <!-- <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
         <mat-card class="single">
           <mat-card-content fxLayout fxLayout="wrap">
             <mat-form-field fxFlex="100%" [formGroup]="filter">
@@ -40,6 +98,8 @@
           </mat-card-content>
         </mat-card>
       </ng-container>
+
+
       <ng-container *ngFor="let edge of utils.values(websocket.edges | async)">
         <ng-container *ngIf="env.backend === 'OpenEMS Edge' || edge.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || edge.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
           <mat-card class="single">
@@ -58,20 +118,14 @@
               <mat-card-subtitle>
                 <p *ngIf="env.backend === 'OpenEMS Backend'">{{ edge.name }}: {{ edge.producttype }}</p>
                 <p>Angemeldet als '{{ edge.role }}'.</p>
-                <!-- TODO translate -->
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="edge.online">
-              <!-- <button type="button" mat-fab routerLink="/device/{{ edge.name }}">
-              <mat-icon>navigate_next</mat-icon>
-            </button> -->
               <ion-button routerLink="/device/{{ edge.name }}">
                 <ion-icon name="arrow-forward"></ion-icon>
               </ion-button>
             </mat-card-actions>
           </mat-card>
         </ng-container>
-      </ng-container>
-    </ion-col>
-  </ion-row>
+      </ng-container> -->
 </ion-grid>

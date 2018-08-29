@@ -7,11 +7,11 @@ Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yar
 
  - connect to live OpenEMS Backend server
 
-    `ng serve --env=backend-dev-live` (Expects openems-backend on `wss://localhost:443/openems-backend-ui`)
+    `ng serve -c backend-dev-live` (Expects openems-backend on `wss://localhost:443/openems-backend-ui`)
 
  - connect to local OpenEMS Backend server
 
-    `ng serve --env=backend-dev-local` (Expects openems-backend on `ws://localhost:8078`)
+    `ng serve -c backend-dev-local` (Expects openems-backend on `ws://localhost:8078`)
 
  - connect to local OpenEMS Edge
 
