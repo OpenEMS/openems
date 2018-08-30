@@ -1,8 +1,6 @@
 
 package io.openems.edge.fenecon.pro.ess;
 
-import java.time.LocalDateTime;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -13,9 +11,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +32,10 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 
@@ -48,12 +43,11 @@ import io.openems.edge.ess.power.api.Power;
 @Component( //
 		name = "Ess.Fenecon.Pro", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 
 public class FeneconProEss extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, AsymmetricEss, ManagedAsymmetricEss, OpenemsComponent, EventHandler {
+		implements SymmetricEss, AsymmetricEss, ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
 
@@ -75,18 +69,12 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) {
-		IntegerWriteChannel setActivePowerChannelL1 = this
-				.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1);
-		IntegerWriteChannel setActivePowerChannelL2 = this
-				.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L2);
-		IntegerWriteChannel setActivePowerChannelL3 = this
-				.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L3);
-		IntegerWriteChannel setReactivePowerChannelL1 = this
-				.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1);
-		IntegerWriteChannel setReactivePowerChannelL2 = this
-				.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L2);
-		IntegerWriteChannel setReactivePowerChannelL3 = this
-				.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3);
+		IntegerWriteChannel setActivePowerChannelL1 = this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L1);
+		IntegerWriteChannel setActivePowerChannelL2 = this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L2);
+		IntegerWriteChannel setActivePowerChannelL3 = this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L3);
+		IntegerWriteChannel setReactivePowerChannelL1 = this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L1);
+		IntegerWriteChannel setReactivePowerChannelL2 = this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L2);
+		IntegerWriteChannel setReactivePowerChannelL3 = this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
 		try {
 			setActivePowerChannelL1.setNextWriteValue(activePowerL1);
 			setActivePowerChannelL2.setNextWriteValue(activePowerL2);
@@ -101,6 +89,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		} catch (OpenemsException e) {
 			log.error("Unable to set ReactivePower: " + e.getMessage());
 		}
+
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -113,13 +102,14 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
+
 //		// Allowed Charge
 //		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 //				Relationship.GEQ, 0);
 //		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
 //			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 //		});
-//		// Allowed Discharge
+		// Allowed Discharge
 //		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
 //				Relationship.LEQ, 0);
 //		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
@@ -168,6 +158,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 						m(FeneconProEss.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121)), //
 						m(FeneconProEss.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122)), //
 						m(FeneconProEss.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123)), //
+
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(124)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(125)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(126)), //
@@ -392,12 +383,12 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(200, //
 						m(FeneconProEss.ChannelId.SET_WORK_STATE, new UnsignedWordElement(200))), //
 				new FC16WriteRegistersTask(206, //
-						m(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1, new UnsignedWordElement(206)), //
-						m(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1, new UnsignedWordElement(207)), //
-						m(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L2, new UnsignedWordElement(208)), //
-						m(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L2, new UnsignedWordElement(209)), //
-						m(ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L3, new UnsignedWordElement(210)), //
-						m(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3, new UnsignedWordElement(211))), //
+						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L1, new UnsignedWordElement(206)), //
+						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L1, new UnsignedWordElement(207)), //
+						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L2, new UnsignedWordElement(208)), //
+						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L2, new UnsignedWordElement(209)), //
+						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L3, new UnsignedWordElement(210)), //
+						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3, new UnsignedWordElement(211))), //
 
 				new FC3ReadRegistersTask(3020, Priority.LOW, //
 						m(FeneconProEss.ChannelId.BATTERY_VOLTAGE_SECTION_1, new UnsignedWordElement(3020)), //
@@ -472,8 +463,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).value().asStringWithoutUnit() + ";"
-				+ this.channel(ChannelId.ALLOWED_DISCHARGE).value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ this.channel(ChannelId.ALLOWED_DISCHARGE).value().asString();
 	}
 
 	private enum SetWorkState {
@@ -528,6 +518,14 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		FREQUENCY_L2(new Doc().unit(Unit.MILLIHERTZ)), //
 		FREQUENCY_L3(new Doc().unit(Unit.MILLIHERTZ)), //
 		ALLOWED_APPARENT(new Doc().unit(Unit.VOLT_AMPERE)), //
+
+		SET_ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
+		SET_ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
+		SET_ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
+		SET_REACTIVE_POWER_L1(new Doc().unit(Unit.VOLT_AMPERE)), //
+		SET_REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE)), //
+		SET_REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE)), //
+
 		BATTERY_VOLTAGE_SECTION_1(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_VOLTAGE_SECTION_2(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_VOLTAGE_SECTION_3(new Doc().unit(Unit.MILLIVOLT)), //
@@ -791,37 +789,6 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		@Override
 		public Doc doc() {
 			return this.doc;
-		}
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
-			this.defineWorkState();
-			break;
-		}
-	}
-
-	private LocalDateTime lastDefineWorkState = null;
-
-	private void defineWorkState() {
-		/*
-		 * Set ESS in running mode
-		 */
-		LocalDateTime now = LocalDateTime.now();
-		if (lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
-			this.lastDefineWorkState = now;
-			IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
-			try {
-				int startOption = setWorkStateChannel.channelDoc().getOption(SetWorkState.START);
-				setWorkStateChannel.setNextWriteValue(startOption);
-			} catch (OpenemsException e) {
-				logError(this.log, "Unable to start: " + e.getMessage());
-			}
 		}
 	}
 

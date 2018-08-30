@@ -15,7 +15,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -92,18 +91,15 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(2035, Priority.HIGH, // //
 						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L1, new UnsignedDoublewordElement(2035)), //
 						new DummyRegisterElement(2037, 2065), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
-								ElementToChannelConverter.KEEP_POSITIVE)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066))), //
 				new FC3ReadRegistersTask(2135, Priority.HIGH, // //
 						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L2, new UnsignedDoublewordElement(2135)), //
 						new DummyRegisterElement(2137, 2165), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
-								ElementToChannelConverter.KEEP_POSITIVE)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166))), //
 				new FC3ReadRegistersTask(2235, Priority.HIGH, // //
 						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L3, new UnsignedDoublewordElement(2235)), //
 						new DummyRegisterElement(2237, 2265), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
-								ElementToChannelConverter.KEEP_POSITIVE))//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266)))//
 
 		); //
 		return protocol;
