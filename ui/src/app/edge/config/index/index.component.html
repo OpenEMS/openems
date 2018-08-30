@@ -10,7 +10,7 @@
         <mat-card-content>
           <mat-list dense fxLayout fxLayout="row wrap">
             <mat-list-item *ngFor="let bridgeId of config.bridges" fxFlex="50%">
-              <p mat-line>{{ config.things[bridgeId].class | classname }}</p>
+              <p mat-line text-wrap>{{ config.things[bridgeId].class | classname }}</p>
               <p mat-line>
                 <small>{{ bridgeId }}</small>
               </p>

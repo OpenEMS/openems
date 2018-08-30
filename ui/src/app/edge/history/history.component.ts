@@ -94,7 +94,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   updateOnWindowResize() {
-    console.log(window.innerHeight, window.innerWidth);
+    //console.log(window.innerHeight, window.innerWidth);
     let ref = /* fix proportions */ Math.min(window.innerHeight - 150,
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =

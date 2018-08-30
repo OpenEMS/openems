@@ -5,76 +5,82 @@
 
   <ng-container *ngIf="currentData && config">
     <ng-container *ngFor="let thing of config.evcsDevices">
-      <mat-card class="single" fxFlex="100%">
-        <mat-card-header>
+      <!-- <mat-card class="single" fxFlex="100%"> -->
+      <ion-card>
+        <!-- <mat-card-header>
           <img src="assets/img/evcs.png" mat-card-avatar/>
-          <mat-card-title translate>Edge.Overview.Widgets.EVCS.ChargingStation</mat-card-title>
+          <mat-card-title translate>Edge.Index.Widgets.EVCS.ChargingStation</mat-card-title>
           <mat-card-subtitle>{{ thing }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content *ngIf="currentData.data[thing] as data">
+        </mat-card-header> -->
+        <ion-item>
+          <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
+          <ion-label translate>Edge.Index.Widgets.EVCS.ChargingStation<br>{{thing}}</ion-label>
+          <!-- <ion-label>{{thing}}</ion-label> -->
+        </ion-item>
+        <ion-card-content *ngIf="currentData.data[thing] as data">
           <table class="full_width">
             <ng-container *ngIf="data.State != null">
               <tr>
-                <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.Status</td>
+                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.Status</td>
                 <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.State">
-                  <span *ngSwitchCase="'0'" translate>Edge.Overview.Widgets.EVCS.Starting</span>
-                  <span *ngSwitchCase="'1'" translate>Edge.Overview.Widgets.EVCS.NotReadyForCharging</span>
-                  <span *ngSwitchCase="'2'" translate>Edge.Overview.Widgets.EVCS.ReadyForCharging</span>
-                  <span *ngSwitchCase="'3'" translate>Edge.Overview.Widgets.EVCS.Charging</span>
-                  <span *ngSwitchCase="'4'" translate>Edge.Overview.Widgets.EVCS.Error</span>
-                  <span *ngSwitchCase="'5'" translate>Edge.Overview.Widgets.EVCS.NotAuthorized</span>
+                  <span *ngSwitchCase="'0'" translate>Edge.Index.Widgets.EVCS.Starting</span>
+                  <span *ngSwitchCase="'1'" translate>Edge.Index.Widgets.EVCS.NotReadyForCharging</span>
+                  <span *ngSwitchCase="'2'" translate>Edge.Index.Widgets.EVCS.ReadyForCharging</span>
+                  <span *ngSwitchCase="'3'" translate>Edge.Index.Widgets.EVCS.Charging</span>
+                  <span *ngSwitchCase="'4'" translate>Edge.Index.Widgets.EVCS.Error</span>
+                  <span *ngSwitchCase="'5'" translate>Edge.Index.Widgets.EVCS.NotAuthorized</span>
                 </td>
               </tr>
             </ng-container>
             <ng-container *ngIf="data.Plug != null">
               <tr class="underline">
-                <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.Cable</td>
+                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.Cable</td>
                 <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.Plug">
-                  <span *ngSwitchCase="'0'" translate>Edge.Overview.Widgets.EVCS.Unplugged</span>
-                  <span *ngSwitchCase="'1'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedIn</span>
-                  <span *ngSwitchCase="'3'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInLocked</span>
-                  <span *ngSwitchCase="'5'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInEV</span>
-                  <span *ngSwitchCase="'7'" translate>Edge.Overview.Widgets.EVCS.ChargingStationPluggedInEVLocked</span>
+                  <span *ngSwitchCase="'0'" translate>Edge.Index.Widgets.EVCS.Unplugged</span>
+                  <span *ngSwitchCase="'1'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedIn</span>
+                  <span *ngSwitchCase="'3'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedInLocked</span>
+                  <span *ngSwitchCase="'5'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedInEV</span>
+                  <span *ngSwitchCase="'7'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedInEVLocked</span>
                 </td>
               </tr>
             </ng-container>
             <ng-container *ngIf="data.CurrUser != null">
               <tr>
-                <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.ChargingLimit</td>
+                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingLimit</td>
                 <td style="width:15%"></td>
                 <td style="width:35%" class="align_right">{{ data.CurrUser | number:'1.0-0' }}</td>
-                <td style="width:10%">mA</td>
+                <td style="width:10%">&nbsp;mA</td>
               </tr>
             </ng-container>
             <ng-container *ngIf="data.ActualPower != null">
               <tr>
-                <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.ChargingPower</td>
+                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingPower</td>
                 <td style="width:15%"></td>
                 <td style="width:35%" class="align_right">{{ data.ActualPower / 1000 | number:'1.0-0' }}</td>
-                <td style="width:10%">W</td>
+                <td style="width:10%">&nbsp;W</td>
               </tr>
             </ng-container>
             <ng-container *ngIf="data.EnergySession != null">
               <tr class="underline">
-                <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.CurrentCharge</td>
+                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.CurrentCharge</td>
                 <td style="width:15%"></td>
                 <td style="width:35%" class="align_right">{{ data.EnergySession / 10000 | number:'1.0-0' }}</td>
-                <td style="width:10%">kWh</td>
+                <td style="width:10%">&nbsp;kWh</td>
               </tr>
             </ng-container>
             <ng-container *ngIf="data.EnergyTotal != null">
               <tr class="underline">
-                <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.TotalCharge</td>
+                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.TotalCharge</td>
                 <td style="width:15%"></td>
                 <td style="width:35%" class="align_right">{{ data.EnergyTotal / 10000 | number:'1.0-0' }}</td>
-                <td style="width:10%">kWh</td>
+                <td style="width:10%">&nbsp;kWh</td>
               </tr>
             </ng-container>
             <ng-container *ngFor="let controllerId of config.controllers">
               <ng-container *ngIf="config.things[controllerId].class == 'io.openems.impl.controller.evcs.EvcsController'">
                 <ng-container *ngIf="config.things[controllerId] as controller">
                   <tr *ngIf="config.things[controllerId] as controller">
-                    <td style="width:50%" translate>Edge.Overview.Widgets.EVCS.EnforceCharging</td>
+                    <td style="width:50%" translate>Edge.Index.Widgets.EVCS.EnforceCharging</td>
                     <td colspan="3" class="align_right" style="width:50%">
                       <channel [thingId]="controllerId" channelId="forceCharge" [config]="config" [role]="edge.role" [edge]="edge" title="" style="width:100%"></channel>
                     </td>
@@ -83,8 +89,9 @@
               </ng-container>
             </ng-container>
           </table>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
+      <!-- </mat-card> -->
     </ng-container>
   </ng-container>
 </div>
