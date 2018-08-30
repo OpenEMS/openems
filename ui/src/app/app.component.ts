@@ -87,7 +87,7 @@ export class AppComponent {
         backUrl = '/';
       }
       this.backUrl = backUrl;
-      console.log(url, urlArray, backUrl)
+      //console.log(url, urlArray, backUrl)
     })
   }
 

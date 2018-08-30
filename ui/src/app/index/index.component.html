@@ -24,7 +24,7 @@
           <ion-item>
             {{ (websocket.event | async)?.message }}
           </ion-item>
-          <ion-button slot="end" (click)="doLogin()">
+          <ion-button float-right (click)="doLogin()">
             <ion-icon slot="icon-only" name="log-in"></ion-icon>
           </ion-button>
         </ion-card-content>
@@ -63,15 +63,15 @@
 
           <ion-item *ngFor="let edge of edges" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
             <ion-label>
-              <h2>{{ edge.comment }}</h2>
-              <p *ngIf="!edge.online">Das Gerät ist nicht verbunden!</p>
+              <h2 text-wrap>{{ edge.comment }}</h2>
+              <p *ngIf="!edge.online" text-wrap>Das Gerät ist nicht verbunden!</p>
             </ion-label>
             <ion-label>
               <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
                 <p>ID: {{ edge.name }}</p>
-                <p>Typ: {{ edge.producttype }}</p>
+                <p text-wrap>Typ: {{ edge.producttype }}</p>
               </ng-container>
-              <p>Angemeldet als: {{ edge.role }}.</p>
+              <p text-wrap>Angemeldet als: {{ edge.role }}.</p>
             </ion-label>
             <ion-icon *ngIf="edge.online" slot="end" name="play" color="primary"></ion-icon>
             <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
@@ -79,7 +79,7 @@
 
           <ion-item *ngIf="filteredTruncated">
             <ion-label>
-              <p>Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.</p>
+              <p text-wrap>Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.</p>
             </ion-label>
           </ion-item>
 
