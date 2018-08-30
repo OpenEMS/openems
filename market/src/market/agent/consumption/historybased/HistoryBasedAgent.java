@@ -1,25 +1,5 @@
 package market.agent.consumption.historybased;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.stream.Stream;
-
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -31,6 +11,18 @@ import market.agent.api.MarketAgent;
 import market.diagram.load.LoadDiagram;
 import market.diagram.load.ValueDecimal;
 import market.square.api.MarketSquare;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.metatype.annotations.Designate;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.stream.Stream;
 
 /**
  * A MarketAgent, which sets demand-bids based on the underlying meter's
@@ -124,7 +116,7 @@ public class HistoryBasedAgent extends AbstractOpenemsComponent implements Marke
 	private void calculateConsumption() {
 		long now = System.currentTimeMillis();
 		secCount++;
-		powerSum += meter.getActivePower().value().get();
+		powerSum += (Integer) meter.getActivePower().value().get();
 
 		if (secCount >= (int) (60 * speedFactor)) {
 			secCount = 0;

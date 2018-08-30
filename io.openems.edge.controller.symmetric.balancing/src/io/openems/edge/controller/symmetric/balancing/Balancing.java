@@ -67,7 +67,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @throws InvalidValueException
 	 */
 	private int calculateRequiredPower() throws InvalidValueException, NullPointerException {
-		return this.meter.getActivePower().value().get() /* current buy-from/sell-to grid */
+		return (Integer) this.meter.getActivePower().value().get() /* current buy-from/sell-to grid */
 				+ this.ess.getActivePower().value().get() /* current charge/discharge Ess */;
 	}
 
