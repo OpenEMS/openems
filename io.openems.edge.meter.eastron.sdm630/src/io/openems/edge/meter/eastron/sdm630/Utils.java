@@ -1,9 +1,11 @@
 package io.openems.edge.meter.eastron.sdm630;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -20,6 +22,20 @@ public class Utils {
 				}), Arrays.stream(MeterEastronSDM630.ChannelId.values()).map(channelId -> {
                     switch (channelId) {
 						case FREQUENCY:
+						case ACTIVE_CONSUMPTION_ENERGY:
+						case ACTIVE_PRODUCTION_ENERGY:
+						case APPARENT_POWER:
+                        case APPARENT_POWER_L1:
+                        case APPARENT_POWER_L2:
+                        case APPARENT_POWER_L3:
+                        case REACTIVE_CONSUMPTION_ENERGY:
+                        case REACTIVE_PRODUCTION_ENERGY:
+                            return new IntegerReadChannel(c, channelId);
+                    }
+                    return null;
+                }), Arrays.stream(SymmetricMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+						case FREQUENCY:
 						case ACTIVE_POWER:
 						case MAX_ACTIVE_POWER:
 						case MIN_ACTIVE_POWER:
@@ -28,6 +44,11 @@ public class Utils {
 						case VOLTAGE:
 						case ACTIVE_CONSUMPTION_ENERGY:
 						case ACTIVE_PRODUCTION_ENERGY:
+							return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
 						case ACTIVE_POWER_L1:
 						case ACTIVE_POWER_L2:
 						case ACTIVE_POWER_L3:
@@ -40,16 +61,10 @@ public class Utils {
 						case VOLTAGE_L1:
 						case VOLTAGE_L2:
 						case VOLTAGE_L3:
-						case APPARENT_POWER:
-                        case APPARENT_POWER_L1:
-                        case APPARENT_POWER_L2:
-                        case APPARENT_POWER_L3:
-                        case REACTIVE_CONSUMPTION_ENERGY:
-                        case REACTIVE_PRODUCTION_ENERGY:
-                            return new FloatReadChannel(c, channelId);
-                    }
-                    return null;
-                })
+							return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				})
 		).flatMap(channel -> channel);
 	}
 }
