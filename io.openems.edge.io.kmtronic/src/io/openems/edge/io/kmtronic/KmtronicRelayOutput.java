@@ -118,7 +118,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 				.onInit(channel -> { //
 					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
-						channel.getComponent().channel(ChannelId.DEBUG_RELAY_2).setNextValue(value);
+						channel.getComponent().channel(ChannelId.DEBUG_RELAY_3).setNextValue(value);
 					});
 				})),
 		/**

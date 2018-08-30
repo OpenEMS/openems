@@ -10,7 +10,7 @@ JPM-Command:				openems-edge
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO,\
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED"
 
--runsystempackages: sun.misc
+-runsystempackages: sun.misc, com.sun.net.httpserver
 
 -runrequires: \
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.application)',\
@@ -23,6 +23,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.core)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.rest)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
@@ -59,6 +60,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.core;version=snapshot,\
+	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
