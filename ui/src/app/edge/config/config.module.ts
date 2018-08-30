@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
-import { MoreModule } from './more/more.module';
+import { MoreModule } from './2018.7/more/more.module';
 
-import { OverviewComponent } from './overview/overview.component';
-import { BridgeComponent } from './bridge/bridge.component';
-import { ControllerComponent } from './controller/controller.component';
-import { SchedulerComponent } from './scheduler/scheduler.component';
-import { PersistenceComponent } from './persistence/persistence.component';
+import { IndexComponent } from './index/index.component';
+import { BridgeComponent } from './2018.7/bridge/bridge.component';
+import { ControllerComponent } from './2018.7/controller/controller.component';
+import { SchedulerComponent } from './2018.7/scheduler/scheduler.component';
+import { PersistenceComponent } from './2018.7/persistence/persistence.component';
 
-import { ConfigAllComponent } from './configall/configall.component';
+import { ConfigAllComponent } from './2018.7/configall/configall.component';
 import { LogComponent } from './log/log.component';
-import { SimulatorComponent } from './simulator/simulator.component';
+import { SimulatorComponent } from './2018.7/simulator/simulator.component';
 
 @NgModule({
   imports: [
@@ -18,7 +18,7 @@ import { SimulatorComponent } from './simulator/simulator.component';
     MoreModule
   ],
   declarations: [
-    OverviewComponent,
+    IndexComponent,
     ControllerComponent,
     BridgeComponent,
     LogComponent,

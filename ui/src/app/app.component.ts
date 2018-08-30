@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ToasterService } from 'angular2-toaster';
+import { filter } from 'rxjs/operators';
 
 import { Platform, PopoverController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
@@ -11,17 +12,18 @@ import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
 
 import { PopoverPage } from './shared/popover/popover.component';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Location } from '@angular/common';
 
 
 @Component({
-  selector: 'root',
+  selector: 'app-root',
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
   public env = environment;
-  private navCollapsed: boolean = true;
+  public backUrl: string | boolean = '/';
+
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
@@ -33,15 +35,60 @@ export class AppComponent {
     private toaster: ToasterService,
     private popoverController: PopoverController,
     public router: Router,
-    private location: Location,
   ) {
+    // this.initializeApp();
     service.setLang('de');
+  }
+
+  initializeApp() {
+    this.platform.ready().then(() => {
+      this.statusBar.styleDefault();
+      this.splashScreen.hide();
+    });
   }
 
   ngOnInit() {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(notification => {
       this.toaster.pop({ type: notification.type, body: notification.message });
     });
+    /*
+     * Parse URL for global 'back' button
+     */
+    this.router.events.pipe(
+      takeUntil(this.ngUnsubscribe),
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(event => {
+      let url = (<NavigationEnd>event).urlAfterRedirects;
+      // disable backUrl on initial 'index' page
+      if (url === '/index') {
+        this.backUrl = false;
+        return;
+      }
+
+      let urlArray = url.split('/');
+      let backUrl: string | boolean = '/';
+      let file = urlArray.pop();
+
+      // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
+      if (file === 'index' && urlArray.length == 3 && Object.keys(this.websocket.edges.getValue()).length < 2) {
+        this.backUrl = false;
+        return;
+      }
+
+      // remove one part of the url for 'index'
+      if (file === 'index') {
+        urlArray.pop();
+      }
+      // re-join the url
+      backUrl = urlArray.join('/') || '/';
+
+      // correct path for '/device/[edgeName]/index'
+      if (backUrl === '/device') {
+        backUrl = '/';
+      }
+      this.backUrl = backUrl;
+      console.log(url, urlArray, backUrl)
+    })
   }
 
   ngOnDestroy() {
@@ -57,12 +104,6 @@ export class AppComponent {
       translucent: false
     });
     return await popover.present();
-  }
-
-
-  //Todo: Optimize Back Button for Stack Method
-  navBack() {
-    this.location.back();
   }
 
 }

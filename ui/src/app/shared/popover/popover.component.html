@@ -1,16 +1,14 @@
-<ion-content>
-    <ion-list>
-        <ion-item *ngIf="env.backend === 'OpenEMS Edge' && env.production" (click)="close()" href="/grafana/dashboard/file/fems-asymmetric.json">
-            <ion-label translate>General.History</ion-label>
-        </ion-item>
-        <ion-item routerLinkActive="active" routerLink="/about" (click)="close()">
-            <ion-label translate>Menu.AboutUI</ion-label>
-        </ion-item>
-        <ion-item routerLinkActive="active" routerLink="/settings" (click)="close()">
-            <ion-label translate>Menu.Settings</ion-label>
-        </ion-item>
-        <!-- TODO <ion-item button (click)="close()" (click)="this.websocket.logOut()">
-            <ion-label translate>Menu.Logout</ion-label>
-        </ion-item> -->
-    </ion-list>
-</ion-content>
+<ion-list>
+  <ion-item *ngIf="env.backend === 'OpenEMS Edge' && env.production" (click)="close()" href="/grafana/dashboard/file/fems-asymmetric.json">
+    <ion-label translate>General.History</ion-label>
+  </ion-item>
+  <ion-item routerLinkActive="active" routerLink="/about" (click)="close()">
+    <ion-label translate>Menu.AboutUI</ion-label>
+  </ion-item>
+  <ion-item routerLinkActive="active" routerLink="/settings" (click)="close()">
+    <ion-label translate>Menu.Settings</ion-label>
+  </ion-item>
+  <ion-item *ngIf="env.backend === 'OpenEMS Edge'" button (click)="close()" (click)="this.websocket.logOut()">
+    <ion-label translate>Menu.Logout</ion-label>
+  </ion-item>
+</ion-list>
