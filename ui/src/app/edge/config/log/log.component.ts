@@ -36,8 +36,8 @@ export class LogComponent implements OnInit, OnDestroy {
       });
   }
 
-  public toggleSubscribe($event: any /*MdSlideToggleChange*/) {
-    if ($event.checked) {
+  public toggleSubscribe(event: CustomEvent) {
+    if (event.detail['checked']) {
       this.subscribeLog();
     } else {
       this.unsubscribeLog();
@@ -56,11 +56,15 @@ export class LogComponent implements OnInit, OnDestroy {
       });
     }
 
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+    this.stopOnDestroy = new Subject<void>();
+
     if (this.edge != null) {
       const result = this.edge.subscribeLog();
       this.messageId = result.messageId;
       result.logs.pipe(takeUntil(this.stopOnDestroy)).subscribe(log => {
-        log.time = format(new Date(<number>log.time * 1000), "DD.MM.YYYY HH:mm:ss");
+        log.time = new Date(<number>log.time).toLocaleString();
         switch (log.level) {
           case 'INFO':
             log.color = 'green';
