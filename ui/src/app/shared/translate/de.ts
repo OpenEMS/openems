@@ -29,7 +29,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Übersicht",
-        AboutUI: "Über FEMS-UI",
+        AboutUI: "Über PRIMUS-UI",
         Settings: 'Allgemeine Einstellungen',
         Logout: 'Abmelden'
     },
@@ -38,7 +38,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.", // value = name of websocket
         ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
-        IsOffline: "FEMS ist offline!"
+        IsOffline: "PRIMUS ist offline!"
     },
     Edge: {
         Index: {
@@ -120,7 +120,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
                 Always: "Immer"
             },
             Log: {
@@ -142,14 +142,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Benutzeroberfläche für FEMS und OpenEMS",
+        UI: "Benutzeroberfläche für PRIMUS und OpenEMS",
         Developed: "Diese Benutzeroberfläche wird von FENECON als Open-Source-Software entwickelt.",
         Fenecon: "Mehr zu FENECON",
-        Fems: "Mehr zu FEMS",
+        Fems: "Mehr zu PRIMUS",
         OpenEMS: "Mehr zu OpenEMS",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser PRIMUS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
         Language: "Sprache wählen:"
     },
     Notifications: {
