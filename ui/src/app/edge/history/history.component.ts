@@ -48,10 +48,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
     openSelectorOnInputClick: true,
   };
   // sets the height for a chart. This is recalculated on every window resize.
-  private socChartHeight: string = "250px";
-  private energyChartHeight: string = "250px";
+  public socChartHeight: string = "250px";
+  public energyChartHeight: string = "250px";
   private ngUnsubscribe: Subject<void> = new Subject<void>();
-  private activePeriod: PeriodString = "today";
+  public activePeriod: PeriodString = "today";
 
   constructor(
     public websocket: Websocket,
@@ -137,7 +137,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
    * @param from
    * @param to
    */
-  private setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
+  setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
     this.activePeriod = period;
     switch (period) {
       case "yesterday": {
