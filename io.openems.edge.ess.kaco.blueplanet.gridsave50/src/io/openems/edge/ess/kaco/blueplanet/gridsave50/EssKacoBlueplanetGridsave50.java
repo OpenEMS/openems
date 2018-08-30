@@ -1,5 +1,6 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
+import org.apache.commons.math3.optim.linear.Relationship;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -25,8 +26,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
-import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.*;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -38,9 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.Phase;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -60,6 +57,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private CircleConstraint maxApparentPowerConstraint = null;
 	private Constraint allowedCharge = null;
 	private Constraint allowedDischarge = null;
+	private Constraint noPowerOnError;
 
 	private int watchdogInterval = 0;
 	private int maxApparentPower = 0;
@@ -118,7 +116,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				0);
 		this.noPowerOnError = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ,
 				0);
-		this.noPowerOnError.setValue(null);
+		this.noPowerOnError.setIntValue(null);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
@@ -244,7 +242,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// for a first try, switch system off, it will be restarted
 		setWatchdog();
 		stopSystem();
-		this.noPowerOnError.setValue(0);
+		this.noPowerOnError.setIntValue(0);
 	}
 
 	private void setBatteryRanges() {
