@@ -1,0 +1,17 @@
+{
+	"class": "io.openems.impl.controller.symmetric.limit.PGreaterEqualController",
+	"esss": [
+		"ess0"
+	],
+	"priority": 150,
+	"p": -2000
+}
+
+{
+	"class": "io.openems.impl.controller.symmetric.limit.PSmallerEqualController",
+	"esss": [
+		"ess0"
+	],
+	"priority": 150,
+	"p": 2000
+}
