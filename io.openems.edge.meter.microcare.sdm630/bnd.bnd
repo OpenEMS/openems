@@ -1,16 +1,16 @@
 #
-# io.openems.edge.meter.eastron.sdm630 PROVIDER BUNDLE
+# io.openems.edge.meter.microcare.sdm630 PROVIDER BUNDLE
 #
-Bundle-Name: OpenEMS Edge Meter Eastron SDM 630 Smart Meter
+Bundle-Name: OpenEMS Edge Meter Microcare SDM 630 Smart Meter
 Bundle-Vendor: Microcare (Destrier Electronics Pty Ltd)
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-License: Proprietary (for now)
 
 Export-Package:  \
-	io.openems.edge.meter.eastron.sdm630.api;-provide=true
+	io.openems.edge.meter.microcare.sdm630.api;-provide=true
 
 Private-Package:  \
-	io.openems.edge.meter.eastron.sdm630
+	io.openems.edge.meter.microcare.sdm630
 
 -includeresource: {readme.md}
 

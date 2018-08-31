@@ -1,4 +1,4 @@
-# io.openems.edge.meter.eastron.sdm630 Provider
+# io.openems.edge.meter.microcare.sdm630 Provider
 
 ${Bundle-Description}
 
