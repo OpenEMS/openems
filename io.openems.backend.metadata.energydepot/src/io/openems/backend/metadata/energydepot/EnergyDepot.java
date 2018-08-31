@@ -59,49 +59,7 @@ public class EnergyDepot implements MetadataService {
 
 		this.readEdgeFuture = this.readEdgeExecutor.submit((Runnable) () -> {
 
-			ResultSet result = this.dbu.getWPEdges();
-
-			try {
-				while (result.next()) {
-
-					/*
-					 * int id = result.getInt("Edges_id"); String name = result.getString("name");
-					 * String comment = result.getString("comment"); String apikey =
-					 * result.getString("apikey"); String producttype =
-					 * result.getString("producttype");
-					 */
-
-					int id = result.getInt("id");
-
-					String name = result.getString("edge_name");
-					String comment = result.getString("edge_comment");
-					String apikey = result.getString("apikey");
-					String producttype = result.getString("producttype");
-
-					Role role = Role.getRole("ADMIN");
-					MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
-							producttype, new JsonObject(), role);
-
-					edge.onSetConfig(jConfig -> {
-						log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
-					});
-					edge.onSetSoc(soc -> {
-						log.debug("Edge [" + id + "]. Set SoC: " + soc);
-					});
-					edge.onSetIpv4(ipv4 -> {
-						log.debug("Edge [" + id + "]. Set IPv4: " + ipv4);
-					});
-
-					synchronized (this.edges) {
-						this.edges.put(id, edge);
-						log.info(
-								"Adding Edge from Wordpress: " + name + ", " + comment + ", " + apikey + ", id: " + id);
-					}
-
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			updateEdges();
 
 			this.isInitialized.set(true);
 		});
@@ -187,7 +145,7 @@ public class EnergyDepot implements MetadataService {
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 
-		//updateEdges();
+		updateEdges();
 
 		/*
 		 * this.user = new User(0, "admin"); for (int edgeId : this.edges.keySet()) {
@@ -271,10 +229,13 @@ public class EnergyDepot implements MetadataService {
 				});
 
 				synchronized (this.edges) {
-					this.edges.put(id, edge);
-					log.info("Adding Edge from Wordpress: " + name + ", " + comment + ", " + apikey + ", id: " + id);
+					if (!this.edges.containsKey(id)) {
+						this.edges.put(id, edge);
+						log.info(
+								"Adding Edge from Wordpress: " + name + ", " + comment + ", " + apikey + ", id: " + id);
+					}
+
 				}
-				
 
 			}
 		} catch (SQLException e) {
