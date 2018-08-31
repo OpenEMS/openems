@@ -372,10 +372,4 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		}
 
 	}
-
-	@Override
-	public String debugLog() {
-		return "P:" + this.charger.getActualPower().value().asString();
-	}
-
 }
