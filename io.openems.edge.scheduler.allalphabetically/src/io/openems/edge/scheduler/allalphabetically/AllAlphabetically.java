@@ -40,12 +40,16 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	void addController(Controller controller) {
-		this._controllers.put(controller.id(), controller);
+		if (controller != null && controller.id() != null) {
+			this._controllers.put(controller.id(), controller);
+		}
 		this.updateSortedControllers();
 	}
 
 	void removeController(Controller controller) {
-		this._controllers.remove(controller.id(), controller);
+		if (controller != null && controller.id() != null) {
+			this._controllers.remove(controller.id(), controller);
+		}
 		this.updateSortedControllers();
 	}
 
@@ -75,7 +79,7 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 		this.sortedControllers.clear();
 		// add sorted controllers
 		for (String id : this.controllersIds) {
-			if(id.equals("")) {
+			if (id.equals("")) {
 				continue;
 			}
 			Controller controller = allControllers.remove(id);
