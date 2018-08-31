@@ -88,7 +88,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
    */
   private updateOnWindowResize(): void {
     let size = 300;
-    if (this.chartDiv.nativeElement.offsetParent.offsetWidth) {
+    if (this.chartDiv.nativeElement.offsetParent) {
       size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 10;
     }
     if (size > window.innerHeight) {

@@ -137,7 +137,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
    * @param from
    * @param to
    */
-  public setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
+  setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
     this.activePeriod = period;
     switch (period) {
       case "yesterday": {

@@ -35,8 +35,8 @@
                 <ion-card-content>
                     <ion-list>
                         <ion-item>
-                            <ion-label>Debug-Mode</ion-label>
-                            <ion-toggle (change)="toggleDebugMode($event)" [checked]="env.debugMode"></ion-toggle>
+                            <ion-checkbox (ionChange)="toggleDebugMode($event)" slot="start" [(ngModel)]="env.debugMode"></ion-checkbox>
+                            <ion-label translate>Debug-Mode</ion-label>
                         </ion-item>
                     </ion-list>
                 </ion-card-content>
