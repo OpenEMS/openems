@@ -28,20 +28,20 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Overview",
-        AboutUI: "About PRIMUS-UI",
+        Index: "Index",
+        AboutUI: "About FEMS-UI",
         Settings: 'General Settings',
         Logout: 'Sign Out'
     },
-    Overview: {
+    Index: {
         AllConnected: "All connections established.",
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "PRIMUS is offline!"
+        IsOffline: "FEMS is offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Energymonitor",
                 ConsumptionWarning: "Consumption & unknown producers",
@@ -84,7 +84,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Selected period: ",
-            OtherPeriod: "Other period:",
+            OtherPeriod: "Other period",
             Period: "Period",
             Today: "Today",
             Yesterday: "Yesterday",
@@ -94,7 +94,7 @@ export const TRANSLATION = {
             Go: "Go!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Connections and devices",
                 Scheduler: "Applicationplanner",
                 Controller: "Applications",
@@ -120,7 +120,7 @@ export const TRANSLATION = {
                 NewScheduler: "New scheduler...",
                 Class: "Class:",
                 NotImplemented: "Form not implemented: ",
-                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Always"
             },
             Log: {
@@ -142,14 +142,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "User interface for PRIMUS and OpenEMS",
+        UI: "User interface for FEMS and OpenEMS",
         Developed: "This user interface is developed by FENECON as open-source software.",
-        Fenecon: "More about Energy Depot",
-        Fems: "More about PRIMUS",
+        Fenecon: "More about FENECON",
+        Fems: "More about FEMS",
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
         Build: "This build",
-        Contact: "Please contact our PRIMUS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "Please contact our FEMS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Select language:"
     },
     Notifications: {

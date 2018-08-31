@@ -15,7 +15,7 @@ import { DefaultMessages } from '../service/defaultmessages';
 export class Websocket {
   public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
-  private static readonly DEFAULT_EDGENAME = "primus";
+  private static readonly DEFAULT_EDGENAME = "fems";
 
   // holds references of edge names (=key) to Edge objects (=value)
   private _edges: BehaviorSubject<{ [name: string]: Edge }> = new BehaviorSubject({});
@@ -59,8 +59,8 @@ export class Websocket {
    */
   public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
     let onTimeout = () => {
-      // Timeout: redirect to overview
-      this.router.navigate(['/overview']);
+      // Timeout: redirect to index
+      this.router.navigate(['/index']);
       subscription.unsubscribe();
     }
 
@@ -200,12 +200,12 @@ export class Websocket {
             this.initialize();
             if (env.backend === "OpenEMS Backend") {
               if (env.production) {
-                window.location.href = "/primus-online-monitoring/";
+                window.location.href = "/web/login?redirect=/m/index";
               } else {
                 console.info("would redirect...");
               }
             } else if (env.backend === "OpenEMS Edge") {
-              this.router.navigate(['/overview']);
+              this.router.navigate(['/index']);
             }
           }
         }
@@ -284,7 +284,7 @@ export class Websocket {
               notify = false;
               setTimeout(() => {
                 this.clearCurrentEdge();
-                this.router.navigate(["/overview"]);
+                this.router.navigate(["/index"]);
               });
             }
           }

@@ -11,7 +11,7 @@ describe('AppComponent', () => {
 
   let statusBarSpy, splashScreenSpy, platformReadySpy, platformSpy;
 
-  beforeEach(async () => {
+  beforeEach(async(() => {
     statusBarSpy = jasmine.createSpyObj('StatusBar', ['styleDefault']);
     splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
     platformReadySpy = Promise.resolve();
@@ -26,9 +26,9 @@ describe('AppComponent', () => {
         { provide: Platform, useValue: platformSpy },
       ],
     }).compileComponents();
-  });
+  }));
 
-  it('should create the app', async () => {
+  it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();
