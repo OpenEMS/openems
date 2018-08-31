@@ -143,8 +143,8 @@ export const TRANSLATION = {
     },
     About: {
         UI: "User interface for PRIMUS and OpenEMS",
-        Developed: "This user interface is developed by FENECON as open-source software.",
-        Fenecon: "More about FENECON",
+        Developed: "This user interface is developed by Energy Depot as open-source software.",
+        Fenecon: "More about Energy Depot",
         Fems: "More about PRIMUS",
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",

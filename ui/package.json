@@ -1,7 +1,7 @@
 {
   "name": "openems-ui",
   "version": "0.0.1",
-  "author": "FENECON GmbH",
+  "author": "Energy Depot GmbH",
   "homepage": "http://openems.io",
   "scripts": {
     "ng": "ng",

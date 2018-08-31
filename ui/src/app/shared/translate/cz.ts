@@ -140,8 +140,8 @@ export const TRANSLATION = {
     },
     About: {
         UI: "Uživatelské rozhraní pro PRIMUS a OpenEMS",
-        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností FENECON jako open-source software.",
-        Fenecon: "Více o společnosti FENECON",
+        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností Energy Depot jako open-source software.",
+        Fenecon: "Více o společnosti Energy Depot",
         Fems: "Více o PRIMUS",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
