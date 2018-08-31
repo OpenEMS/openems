@@ -63,4 +63,10 @@ public class KostalPikoEss extends AbstractOpenemsComponent implements Symmetric
 	protected void deactivate() {
 		super.deactivate();
 	}
+
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString(); //
+	}
 }
