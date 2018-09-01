@@ -41,6 +41,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.kostal.piko)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.pro)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.carlo.gavazzi.em300)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.socomec.dirisa14)',\
@@ -76,6 +77,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
+	io.openems.edge.fenecon.pro;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.socomec.dirisa14;version=snapshot,\

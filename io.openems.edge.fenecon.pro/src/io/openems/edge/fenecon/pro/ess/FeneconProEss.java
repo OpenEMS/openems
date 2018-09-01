@@ -1,4 +1,3 @@
-
 package io.openems.edge.fenecon.pro.ess;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -41,7 +41,7 @@ import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Ess.Fenecon.Pro", //
+		name = "Fenecon.Pro.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -102,19 +102,6 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
-
-//		// Allowed Charge
-//		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-//				Relationship.GEQ, 0);
-//		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
-//			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-//		});
-		// Allowed Discharge
-//		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-//				Relationship.LEQ, 0);
-//		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
-//			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-//		});
 	}
 
 	@Deactivate
@@ -138,8 +125,10 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 						m(FeneconProEss.ChannelId.TOTAL_BATTERY_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
 						m(FeneconProEss.ChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109)), //
-						m(FeneconProEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
-						m(FeneconProEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
+						m(FeneconProEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(FeneconProEss.ChannelId.BATTERY_POWER, new SignedWordElement(112)), //
 						bm(new UnsignedWordElement(113))//
 								.m(FeneconProEss.ChannelId.STATE_0, 0) //
@@ -152,13 +141,18 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 								.build(), //
 						m(FeneconProEss.ChannelId.PCS_OPERATION_STATE, new UnsignedWordElement(114)), //
 						new DummyRegisterElement(115, 117), //
-						m(FeneconProEss.ChannelId.CURRENT_L1, new SignedWordElement(118)), //
-						m(FeneconProEss.ChannelId.CURRENT_L2, new SignedWordElement(119)), //
-						m(FeneconProEss.ChannelId.CURRENT_L3, new SignedWordElement(120)), //
-						m(FeneconProEss.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121)), //
-						m(FeneconProEss.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122)), //
-						m(FeneconProEss.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123)), //
-
+						m(FeneconProEss.ChannelId.CURRENT_L1, new SignedWordElement(118),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.CURRENT_L2, new SignedWordElement(119),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.CURRENT_L3, new SignedWordElement(120),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(124)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(125)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(126)), //
@@ -166,9 +160,12 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(128)), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(129)), //
 						new DummyRegisterElement(130), //
-						m(FeneconProEss.ChannelId.FREQUENCY_L1, new UnsignedWordElement(131)), //
-						m(FeneconProEss.ChannelId.FREQUENCY_L2, new UnsignedWordElement(132)), //
-						m(FeneconProEss.ChannelId.FREQUENCY_L3, new UnsignedWordElement(133)), //
+						m(FeneconProEss.ChannelId.FREQUENCY_L1, new UnsignedWordElement(131),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(FeneconProEss.ChannelId.FREQUENCY_L2, new UnsignedWordElement(132),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(FeneconProEss.ChannelId.FREQUENCY_L3, new UnsignedWordElement(133),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
 						// TODO Allowed Apparent is for one phase; multiply with 3
 						m(FeneconProEss.ChannelId.ALLOWED_APPARENT, new UnsignedWordElement(134)), //
 						new DummyRegisterElement(135, 140), //
