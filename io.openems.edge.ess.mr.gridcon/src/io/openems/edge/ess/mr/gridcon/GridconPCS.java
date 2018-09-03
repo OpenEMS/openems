@@ -1,5 +1,8 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import java.nio.ByteOrder;
+import java.time.LocalDateTime;
+import java.util.BitSet;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -18,6 +21,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
@@ -59,8 +63,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	protected static final float MAX_POWER_KW = 125 * 1000;
 	
-	private int controlWord_PCS = 0;
-	
 	enum PCSControlWordBits {
 		PLAY(0),
 		READY(1),
@@ -72,10 +74,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		MODE_SELECTION(7),
 		TRIGGER_SIA(8),
 		ACTIVATE_HARMONIC_COMPENSATION(9),		
-		ENABLE_IPU_4(28),
-		ENABLE_IPU_3(29),
-		ENABLE_IPU_2(27),
-		ENABLE_IPU_1(26),
+		DISABLE_IPU_4(28),
+		DISABLE_IPU_3(29),
+		DISABLE_IPU_2(30),
+		DISABLE_IPU_1(31),
 		;
 		
 		PCSControlWordBits(int value) {
@@ -142,27 +144,43 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO
 		// see Software manual chapter 5.1
 		
-//		if (isIdle()) {
-//			startSystem();
-//		} else if (isError()) {
-//			doErrorHandling();
-//		}
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.PLAY.bitPosition;
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.ENABLE_IPU_4.bitPosition;
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.SYNC_APPROVAL.bitPosition;
-		writeControlWord();
+		writeDateAndTime();
+		if (isIdle()) {
+			startSystem();
+		} else if (isError()) {
+			doErrorHandling();
+		}
 	}
 
 	
-	
-	private void writeControlWord() {
-		IntegerWriteChannel controlWordChannel = this.channel(ChannelId.PCS_COMMAND_CONTROL_WORD);
+
+
+	private void writeDateAndTime() {
+		LocalDateTime time = LocalDateTime.now();
+		byte dayOfWeek = (byte) time.getDayOfWeek().ordinal();
+		byte day = (byte) time.getDayOfMonth();
+		byte month = (byte) time.getMonth().getValue();
+		byte year = (byte) (time.getYear() - 2000);
+
+		Integer dateInteger = convertToInteger(BitSet.valueOf( new byte[]{ day, dayOfWeek, year, month }));
+		
+		
+		byte seconds = (byte) time.getSecond();
+		byte minutes = (byte) time.getMinute();
+		byte hours = (byte) time.getHour();
+
+		Integer timeInteger = convertToInteger(BitSet.valueOf( new byte[]{ seconds, 0, hours, minutes }));
+		
+		IntegerWriteChannel dateChannel = this.channel(ChannelId.PCS_COMMAND_TIME_SYNC_DATE);
+		IntegerWriteChannel timeChannel = this.channel(ChannelId.PCS_COMMAND_TIME_SYNC_TIME);
+		
 		try {
-			controlWordChannel.setNextWriteValue(controlWord_PCS);
+			dateChannel.setNextWriteValue(dateInteger);
+			timeChannel.setNextWriteValue(timeInteger);
 		} catch (OpenemsException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 	private boolean isError() {
@@ -198,14 +216,42 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 * 
 		 * "Normal mode" is reached now  
 		 */
-		if (! isDCDCConverterStarted() && isIdle()) {
-			startDCDCConverter();
-		}
-		if (isDCDCConverterStarted()) {
-			startIPUs();
-		}
+		
+		
+		//int controlWordMask = 0xFFFFFFFF;
+		
+		//  enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system should change state to "RUN" 
+		BitSet bitSet = new BitSet(32);
+		bitSet.set( PCSControlWordBits.PLAY.bitPosition, true);
+		bitSet.set( PCSControlWordBits.SYNC_APPROVAL.bitPosition, true);
+		bitSet.set( PCSControlWordBits.MODE_SELECTION.bitPosition, true);
+		
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_1.bitPosition, false);
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_2.bitPosition, false);
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_3.bitPosition, false);
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_4.bitPosition, false);
+		
+		IntegerWriteChannel controlWordChannel = this.channel(ChannelId.PCS_COMMAND_CONTROL_WORD);
+		try {
+			Integer value = convertToInteger(bitSet);
+			controlWordChannel.setNextWriteValue(value);
+		} catch (OpenemsException e) {
+			e.printStackTrace();
+		}		
+
+		writeIPUParameters();	
 	}
-	private void startDCDCConverter() {
+	
+	private Integer convertToInteger(BitSet bitSet) {
+		long[] l = bitSet.toLongArray();
+		
+		if (l.length == 0) {
+			return 0;
+		}
+		return (int) l[0];
+	}
+
+	private void writeIPUParameters() {
 		try {
 			((FloatWriteChannel) this.channel(ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT)).setNextWriteValue(800f);
 			((FloatWriteChannel) this.channel(ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A)).setNextWriteValue(1f);
@@ -226,12 +272,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			
 			((IntegerWriteChannel) this.channel(ChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE)).setNextWriteValue(0x3F80);
 			
-			//int controlWordMask = 0xFFFFFFFF;
 			
-			controlWord_PCS = controlWord_PCS | PCSControlWordBits.MODE_SELECTION.bitPosition;
-			controlWord_PCS = controlWord_PCS | PCSControlWordBits.SYNC_APPROVAL.bitPosition;
-			controlWord_PCS = controlWord_PCS | PCSControlWordBits.ENABLE_IPU_4.bitPosition;
-			controlWord_PCS = controlWord_PCS | PCSControlWordBits.PLAY.bitPosition;
 			
 			
 		} catch (OpenemsException e) {
@@ -240,13 +281,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		
 		
-	}
-
-	private void startIPUs() {
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.ENABLE_IPU_1.bitPosition;
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.ENABLE_IPU_2.bitPosition;
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.ENABLE_IPU_3.bitPosition;
-		controlWord_PCS = controlWord_PCS | PCSControlWordBits.PLAY.bitPosition;
 	}
 
 
@@ -618,34 +652,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridconPCS.ChannelId.CCU_FREQUENCY, new FloatDoublewordElement(32548)) //
 				)	
 				, new FC16WriteRegistersTask(32560,
-						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD, new UnsignedDoublewordElement(32560)), //
-//						bm(new UnsignedDoublewordElement(32560)) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_PLAY, 0) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_READY, 1) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE, 2) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_STOP, 3) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, 4) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_SYNC_APPROVAL, 5) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, 6) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_MODE_SELECTION, 7) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_TRIGGER_SIA, 8) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION, 9) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, 10) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, 11) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, 12) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, 13) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_4, 28) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_3, 29) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_2, 30) //
-//						.m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_1, 31) //
-//						.build(), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK, new UnsignedDoublewordElement(32562)), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, new UnsignedDoublewordElement(32564)), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, new UnsignedDoublewordElement(32566)), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, new UnsignedDoublewordElement(32568)), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, new UnsignedDoublewordElement(32570)), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_DATE, new UnsignedDoublewordElement(32572)), //
-						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_TIME, new UnsignedDoublewordElement(32574)) //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD, new UnsignedDoublewordElement(32560).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK, new UnsignedDoublewordElement(32562).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, new FloatDoublewordElement(32564).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, new FloatDoublewordElement(32566).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, new FloatDoublewordElement(32568).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, new FloatDoublewordElement(32570).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_DATE, new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_TIME, new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
 				)
 				, new FC16WriteRegistersTask(32592,
 						m(GridconPCS.ChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN, new FloatDoublewordElement(32592)), //
