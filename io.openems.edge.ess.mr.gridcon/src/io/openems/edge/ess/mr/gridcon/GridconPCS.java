@@ -1,6 +1,5 @@
 package io.openems.edge.ess.mr.gridcon;
 
-import java.nio.ByteOrder;
 import java.time.LocalDateTime;
 import java.util.BitSet;
 import java.util.Optional;
@@ -22,7 +21,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -37,15 +35,16 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-
 import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Power;
 
@@ -61,7 +60,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
-	protected static final float MAX_POWER_KW = 125 * 1000;
+	protected static final float MAX_POWER_W = 125 * 1000;
 	
 	enum PCSControlWordBits {
 		PLAY(0),
@@ -89,13 +88,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		public int getBitPosition() {
 			return bitPosition;
 		}
-
-		public int getBitMask() {
-			return (int) Math.pow(2, bitPosition);
-		}
 	}
 	
-	static final int MAX_APPARENT_POWER = (int) MAX_POWER_KW; // TODO Checkif correct
+	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 	private CircleConstraint maxApparentPowerConstraint = null;
 
 	@Reference
@@ -130,7 +125,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO adjust apparent power from modbus element
 		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 		
-		
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
 	}
@@ -144,6 +138,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO
 		// see Software manual chapter 5.1
 		
+		writeValuesBackInChannel(new ChannelId[] { 
+			ChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK,
+			ChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0,
+			ChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 
+			ChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF,
+			ChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF
+		});
+
+
 		writeDateAndTime();
 		if (isIdle()) {
 			startSystem();
@@ -152,8 +155,20 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	
-
+	void writeValuesBackInChannel(ChannelId[] ids) {
+		for (ChannelId id : ids) {
+			Value<?> value = this.channel(id).getNextValue();
+			Object writeValue = 0;
+			if (value.asOptional().isPresent()) {
+				writeValue = value.asOptional().get();
+			}
+			try {
+				((WriteChannel<?>) this.channel(id)).setNextWriteValueFromObject(writeValue);
+			} catch (OpenemsException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	private void writeDateAndTime() {
 		LocalDateTime time = LocalDateTime.now();
@@ -163,7 +178,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		byte year = (byte) (time.getYear() - 2000);
 
 		Integer dateInteger = convertToInteger(BitSet.valueOf( new byte[]{ day, dayOfWeek, year, month }));
-		
 		
 		byte seconds = (byte) time.getSecond();
 		byte minutes = (byte) time.getMinute();
@@ -179,8 +193,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			timeChannel.setNextWriteValue(timeInteger);
 		} catch (OpenemsException e) {
 			e.printStackTrace();
-		}
-		
+		}		
 	}
 
 	private boolean isError() {
@@ -272,17 +285,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			
 			((IntegerWriteChannel) this.channel(ChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE)).setNextWriteValue(0x3F80);
 			
-			
-			
-			
 		} catch (OpenemsException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
-
 
 	private boolean isDCDCConverterStarted() {
 		// TODO not completely correct, should work, bur for correct working the Status MCU should be read, status should be 14 = RUN
@@ -297,9 +304,31 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// disable IPUs, stopping system, then acknowledge errors, wait some seconds
 		// if no errors are shown, then try to start system
 //		stopSystem();
-//		acknowledgeErrors();
+		acknowledgeErrors();
 	}
 	
+	private void acknowledgeErrors() {
+		BitSet bitSet = new BitSet(32);
+		bitSet.set( PCSControlWordBits.ACKNOWLEDGE.bitPosition, true);
+		
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_1.bitPosition, false);
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_2.bitPosition, false);
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_3.bitPosition, false);
+		bitSet.set( PCSControlWordBits.DISABLE_IPU_4.bitPosition, false);
+		
+		bitSet.set( PCSControlWordBits.SYNC_APPROVAL.bitPosition, true);
+		bitSet.set( PCSControlWordBits.MODE_SELECTION.bitPosition, true);
+		
+		
+		IntegerWriteChannel controlWordChannel = this.channel(ChannelId.PCS_COMMAND_CONTROL_WORD);
+		try {
+			Integer value = convertToInteger(bitSet);
+			controlWordChannel.setNextWriteValue(value);
+		} catch (OpenemsException e) {
+			e.printStackTrace();
+		}		
+	}
+
 	@Override
 	public String debugLog() {
 		return "Current state: " + this.channel(ChannelId.SYSTEM_CURRENT_STATE).value().asOptionString();
@@ -311,13 +340,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {		
+	public void applyPower(int activePower, int reactivePower) {	
+		if (isIdle()) {
+			return;
+		}
 		FloatWriteChannel channelPRef = this.channel(ChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF);
 		FloatWriteChannel channelQRef = this.channel(ChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF);
-		
+		writeValuesBackInChannel(new ChannelId[] { ChannelId.PCS_COMMAND_CONTROL_WORD });
 		// !! signum		
-		float activePowerFactor = - activePower / MAX_POWER_KW;
-		float reactivePowerFactor = - reactivePower / MAX_POWER_KW;
+		float activePowerFactor = - activePower / MAX_POWER_W;
+		float reactivePowerFactor = - reactivePower / MAX_POWER_W;
 		try {
 			channelPRef.setNextWriteValue(activePowerFactor);
 			channelQRef.setNextWriteValue(reactivePowerFactor);
@@ -328,7 +360,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getPowerPrecision() {
-		return (int) (MAX_POWER_KW * 0.01);
+		return (int) (MAX_POWER_W * 0.0001);
 	}
 
 	@Override
@@ -661,6 +693,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_DATE, new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
 						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_TIME, new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
 				)
+				, new FC3ReadRegistersTask(32560, Priority.LOW,
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_WORD, new UnsignedDoublewordElement(32560).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK, new UnsignedDoublewordElement(32562).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, new FloatDoublewordElement(32564).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, new FloatDoublewordElement(32566).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, new FloatDoublewordElement(32568).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, new FloatDoublewordElement(32570).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_DATE, new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_COMMAND_TIME_SYNC_TIME, new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
+				)
 				, new FC16WriteRegistersTask(32592,
 						m(GridconPCS.ChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN, new FloatDoublewordElement(32592)), //
 						m(GridconPCS.ChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, new FloatDoublewordElement(32594)), //
@@ -680,44 +722,44 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridconPCS.ChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_ONE, new FloatDoublewordElement(32622)) //				
 				)
 				, new FC16WriteRegistersTask(32624,						
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32624)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT, new FloatDoublewordElement(32626)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32628)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32630)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32632)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32634)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32636)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32638)) //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32624).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT, new FloatDoublewordElement(32626).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32628).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32630).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32632).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32634).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32636).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32638).wordOrder(WordOrder.LSWMSW)) //
 				)
 				, new FC16WriteRegistersTask(32656,						
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32656)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT, new FloatDoublewordElement(32658)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32660)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32662)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32664)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32666)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32668)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32670)) //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32656).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT, new FloatDoublewordElement(32658).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32660).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32662).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32664).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32666).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32668).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32670).wordOrder(WordOrder.LSWMSW)) //
 				)
 				, new FC16WriteRegistersTask(32688,						
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32688)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT, new FloatDoublewordElement(32690)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32692)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32694)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32696)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32698)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32700)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32702)) //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32688).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT, new FloatDoublewordElement(32690).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32692).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32694).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32696).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, new FloatDoublewordElement(32698).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32700).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32702).wordOrder(WordOrder.LSWMSW)) //
 				)
 				, new FC16WriteRegistersTask(32720,
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32720)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, new FloatDoublewordElement(32722)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, new FloatDoublewordElement(32724)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, new FloatDoublewordElement(32726)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A, new FloatDoublewordElement(32728)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B, new FloatDoublewordElement(32730)), //
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, new FloatDoublewordElement(32732)), //	
-						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, new FloatDoublewordElement(32734)) //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32720).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, new FloatDoublewordElement(32722).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, new FloatDoublewordElement(32724).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, new FloatDoublewordElement(32726).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A, new FloatDoublewordElement(32728).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B, new FloatDoublewordElement(32730).wordOrder(WordOrder.LSWMSW)), //
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, new FloatDoublewordElement(32732).wordOrder(WordOrder.LSWMSW)), //	
+						m(GridconPCS.ChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, new FloatDoublewordElement(32734).wordOrder(WordOrder.LSWMSW)) //
 				)
 				
 			);
