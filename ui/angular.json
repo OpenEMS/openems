@@ -56,13 +56,14 @@
               "baseHref": "/m/",
               "outputPath": "target/backend",
               "optimization": true,
+              "aot": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
+              "serviceWorker": true,
               "buildOptimizer": true
             },
             "backend-dev-local": {
@@ -108,18 +109,6 @@
               ],
               "baseHref": "/",
               "outputPath": "target/edge"
-            },
-            "production": {
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "serviceWorker": true
             }
           }
         },
@@ -143,9 +132,6 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
-            },
-            "production": {
-              "browserTarget": "app:build:production"
             }
           }
         },
