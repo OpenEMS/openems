@@ -31,7 +31,7 @@ import com.ed.openems.centurio.datasource.api.EdComData;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
-@Designate(ocd = Config.class, factory = false)
+@Designate(ocd = Config.class, factory = true)
 @Component( //
 		name = "EnergyDepot.EdCom", //
 		immediate = true, //
