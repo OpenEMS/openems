@@ -10,6 +10,7 @@ import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.ShortReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -59,23 +60,30 @@ public class Utils {
 					case SYSTEM_ERROR_CODE:					
 					case PCS_CCU_ERROR_CODE:
 						
-					case PCS_IPU_1_STATUS_STATUS:
+					
 					case PCS_IPU_1_STATUS_FAN_SPEED_MAX:
 					case PCS_IPU_1_STATUS_FAN_SPEED_MIN:
-						
-					case PCS_IPU_2_STATUS_STATUS:						
+															
 					case PCS_IPU_2_STATUS_FAN_SPEED_MAX:
 					case PCS_IPU_2_STATUS_FAN_SPEED_MIN:
-						
-					case PCS_IPU_3_STATUS_STATUS:
+					
 					case PCS_IPU_3_STATUS_FAN_SPEED_MAX:
 					case PCS_IPU_3_STATUS_FAN_SPEED_MIN:
-						
-					case PCS_IPU_4_STATUS_STATUS:
+					
 					case PCS_IPU_4_STATUS_FAN_SPEED_MAX:
 					case PCS_IPU_4_STATUS_FAN_SPEED_MIN:
 						return new IntegerReadChannel(ess, channelId);
 
+					case PCS_IPU_1_STATUS_STATUS_STATE_MACHINE:
+					case PCS_IPU_1_STATUS_STATUS_MCU:
+					case PCS_IPU_2_STATUS_STATUS_STATE_MACHINE:
+					case PCS_IPU_2_STATUS_STATUS_MCU:
+					case PCS_IPU_3_STATUS_STATUS_STATE_MACHINE:
+					case PCS_IPU_3_STATUS_STATUS_MCU:	
+					case PCS_IPU_4_STATUS_STATUS_STATE_MACHINE:
+					case PCS_IPU_4_STATUS_STATUS_MCU:
+						return new ShortReadChannel(ess, channelId);
+						
 					case SYSTEM_SERVICE_MODE:
 					case SYSTEM_REMOTE_MODE:
 					case SYSTEM_MEASUREMENTS_LIFEBIT:
