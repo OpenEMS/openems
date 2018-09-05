@@ -1,11 +1,10 @@
 {
-  "name": "app",
-  "short_name": "app",
-  "theme_color": "#1976d2",
+  "name": "FENECON Energy Management System",
+  "short_name": "FEMS",
+  "theme_color": "#2d8fab",
   "background_color": "#fafafa",
   "display": "standalone",
-  "scope": "/",
-  "start_url": "/",
+  "start_url": "/m/",
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",
