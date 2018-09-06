@@ -15,6 +15,7 @@ import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(GridconPCS ess) {
@@ -50,16 +51,10 @@ public class Utils {
 						return new IntegerReadChannel(ess, channelId);
 					}
 					return null;
-				}), Arrays.stream(GridconPCS.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(GridConChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					
-					case SYSTEM_STATE_STATE_MACHINE:
-					case SYSTEM_CURRENT_PARAMETER_SET:
-					case SYSTEM_NUMBER_ERROR_WARNINGS:
-					case SYSTEM_UTILIZATION:
-					case SYSTEM_ERROR_CODE:					
+							
 					case PCS_CCU_ERROR_CODE:
-						
 					
 					case PCS_IPU_1_STATUS_FAN_SPEED_MAX:
 					case PCS_IPU_1_STATUS_FAN_SPEED_MIN:
@@ -83,11 +78,7 @@ public class Utils {
 					case PCS_IPU_4_STATUS_STATUS_STATE_MACHINE:
 					case PCS_IPU_4_STATUS_STATUS_MCU:
 						return new ShortReadChannel(ess, channelId);
-						
-					case SYSTEM_SERVICE_MODE:
-					case SYSTEM_REMOTE_MODE:
-					case SYSTEM_MEASUREMENTS_LIFEBIT:
-					case SYSTEM_CCU_LIFEBIT:
+		
 					case PCS_CCU_STATE_DERATING_HARMONICS:
 					case PCS_CCU_STATE_DERATING_POWER:
 					case PCS_CCU_STATE_ERROR:
@@ -239,9 +230,6 @@ public class Utils {
 					case PCS_IPU_4_STATUS_TEMPERATURE_MCU_BOARD:
 						return new FloatReadChannel(ess, channelId);
 					
-					case SYSTEM_COMMAND:					
-					case SYSTEM_PARAMETER_SET:
-					case SYSTEM_ERROR_ACKNOWLEDGE:
 					case PCS_COMMAND_ERROR_CODE_FALLBACK:
 					case PCS_COMMAND_TIME_SYNC_DATE:
 					case PCS_COMMAND_TIME_SYNC_TIME:
@@ -249,7 +237,6 @@ public class Utils {
 					case PCS_CONTROL_PARAMETER_P_CONTROL_MODE:
 						return new IntegerWriteChannel(ess, channelId);
 					
-					case SYSTEM_FIELDBUS_DEVICE_LIFEBIT:
 					case PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE:
 					case PCS_COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION:
 					case PCS_COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING:

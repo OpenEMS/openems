@@ -4,21 +4,11 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 
 //TODO Is this implemented according SunSpec?
+/**
+ *  This enum holds every possible channel id for a gridcon.
+ */
 public enum GridConChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-	SYSTEM_STATE_STATE_MACHINE(new Doc().options(CurrentState.values())),
-	SYSTEM_CURRENT_PARAMETER_SET(new Doc()),
-	SYSTEM_UTILIZATION(new Doc().unit(Unit.PERCENT)),
-	SYSTEM_SERVICE_MODE(new Doc().unit(Unit.ON_OFF)),
-	SYSTEM_REMOTE_MODE(new Doc().unit(Unit.ON_OFF)),
-	SYSTEM_MEASUREMENTS_LIFEBIT(new Doc().unit(Unit.ON_OFF)),
-	SYSTEM_CCU_LIFEBIT(new Doc().unit(Unit.ON_OFF)),
-	SYSTEM_NUMBER_ERROR_WARNINGS(new Doc().unit(Unit.NONE)),
-	SYSTEM_COMMAND(new Doc().options(Command.values())),
-	SYSTEM_PARAMETER_SET(new Doc()),
-	SYSTEM_FIELDBUS_DEVICE_LIFEBIT(new Doc().unit(Unit.ON_OFF)),
-	SYSTEM_ERROR_CODE(new Doc().unit(Unit.NONE)),
-	SYSTEM_ERROR_ACKNOWLEDGE(new Doc().unit(Unit.NONE)),
-
+	PCS_CCU_STATE(new Doc()),
 	PCS_CCU_STATE_IDLE(new Doc()),
 	PCS_CCU_STATE_PRE_CHARGE(new Doc()),
 	PCS_CCU_STATE_STOP_PRE_CHARGE(new Doc()),

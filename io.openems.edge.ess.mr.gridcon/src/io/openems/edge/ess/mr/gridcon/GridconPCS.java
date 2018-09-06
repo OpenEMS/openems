@@ -2,7 +2,9 @@ package io.openems.edge.ess.mr.gridcon;
 
 import java.time.LocalDateTime;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -34,6 +36,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.ChannelId;
@@ -48,6 +51,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
+import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Power;
 
@@ -77,12 +81,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setBatteries(Battery[] batteries) {
-		this.batteries = batteries;
-	}
-
-	private Battery[] batteries;
-
+	List<Battery> batteries = new CopyOnWriteArrayList<>();
+	
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
@@ -100,7 +100,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 		}
 
 		// update filter for 'battery'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Batteries", config.battery_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "batteries", config.battery_ids())) {
 			return;
 		}
 
@@ -166,6 +166,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 		}
 	}
 
+	/**
+	 * This writes the current time into the necessary channel for the communicationprotocol with the gridcon.
+	 */
 	private void writeDateAndTime() {
 		LocalDateTime time = LocalDateTime.now();
 		byte dayOfWeek = (byte) time.getDayOfWeek().ordinal();
@@ -370,7 +373,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 
 	@Override
 	public String debugLog() {
-		return "Current state: " + this.channel(GridConChannelId.SYSTEM_STATE_STATE_MACHINE).value().asOptionString();
+		return "Current state: " + getCurrentState();
+	}
+
+	private String getCurrentState() { //TODO 		
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_IDLE)).value().get()) {
+			return "IDLE";
+		}
+			
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_PRE_CHARGE)).value().get()) { return "PRE-CHARGE"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_STOP_PRE_CHARGE)).value().get()) { return "STOP-PRECHARGE"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_READY)).value().get()) { return "READY"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_PAUSE)).value().get()) { return "PAUSE"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_RUN)).value().get()) { return "RUN"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_ERROR)).value().get()) { return "ERROR"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_VOLTAGE_RAMPING_UP)).value().get()) { return "VOLTAGE RAMPING UP"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_OVERLOAD)).value().get()) { return "OVERLOAD"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_SHORT_CIRCUIT_DETECTED)).value().get()) { return "SHORT CIRCUIT DETECTED"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_DERATING_POWER)).value().get()) { return "DERATING POWER"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_DERATING_HARMONICS)).value().get()) { return "DERATING HARMONICS"; }
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_SIA_ACTIVE)).value().get()) { return "SIA ACTIVE"; }
+		
+		return "UNDEFINED";
 	}
 
 	@Override
@@ -423,26 +447,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(528, Priority.LOW, //
-						m(GridConChannelId.SYSTEM_STATE_STATE_MACHINE, new UnsignedWordElement(528)), //
-						m(GridConChannelId.SYSTEM_CURRENT_PARAMETER_SET, new UnsignedWordElement(529)), //
-						// TODO parameter set and utilization are separated in half bytes,how to handle?
-						bm(new UnsignedWordElement(530)) //
-								.m(GridConChannelId.SYSTEM_SERVICE_MODE, 1) //
-								.m(GridConChannelId.SYSTEM_REMOTE_MODE, 2) //
-								.m(GridConChannelId.SYSTEM_MEASUREMENTS_LIFEBIT, 6) //
-								.m(GridConChannelId.SYSTEM_CCU_LIFEBIT, 7) //
-								.build(), //
-						m(GridConChannelId.SYSTEM_NUMBER_ERROR_WARNINGS, new UnsignedWordElement(531)) //
-				), new FC16WriteRegistersTask(560, m(GridConChannelId.SYSTEM_COMMAND, new UnsignedWordElement(560)), //
-						m(GridConChannelId.SYSTEM_PARAMETER_SET, new UnsignedWordElement(561)), //
-						bm(new UnsignedWordElement(562)) //
-								.m(GridConChannelId.SYSTEM_FIELDBUS_DEVICE_LIFEBIT, 7) //
-								.build() //
-				), new FC3ReadRegistersTask(592, Priority.LOW, // )
-						m(GridConChannelId.SYSTEM_ERROR_CODE, new UnsignedDoublewordElement(592)) //
-				), new FC16WriteRegistersTask(624, //
-						m(GridConChannelId.SYSTEM_ERROR_ACKNOWLEDGE, new UnsignedDoublewordElement(624))),
 				new FC3ReadRegistersTask(2064, Priority.LOW, // )
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(2064)), //
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(2066)) //
@@ -683,7 +687,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 						m(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE, new FloatDoublewordElement(32700).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, new FloatDoublewordElement(32702).wordOrder(WordOrder.LSWMSW)) //
 				),
-				new FC16WriteRegistersTask(32720, m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32720).wordOrder(WordOrder.LSWMSW)), //
+				new FC16WriteRegistersTask(32720, 
+						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, new FloatDoublewordElement(32720).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, new FloatDoublewordElement(32722).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, new FloatDoublewordElement(32724).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, new FloatDoublewordElement(32726).wordOrder(WordOrder.LSWMSW)), //

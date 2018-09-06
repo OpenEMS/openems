@@ -3,10 +3,17 @@ package io.openems.edge.ess.mr.gridcon.enums;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum StatusIPUStateMachine implements OptionsEnum {
+	OFFLINE(0, "Offline"),
+	INIT(1, "Init"),
 	IDLE(2, "Idle"),
-	STATUS_3(3, "Unknown"),
-	STATUS_6(6, "Unknown"),
-	RUN(7, "Run");
+	PRECHARGE(3, "Precharge"),
+	GO_IDLE(3, "Go idle"),
+	READY(6, "Ready"),
+	RUN(7, "Run"),
+	ERROR(8, "Error"),
+	SIA(14, "SIA"),
+	FRT(15, "FRT"),
+	NOT_DEFINED(16, "Not defined");
 
 	int value;
 	String option;

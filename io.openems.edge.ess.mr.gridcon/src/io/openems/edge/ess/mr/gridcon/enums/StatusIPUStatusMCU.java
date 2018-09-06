@@ -3,10 +3,21 @@ package io.openems.edge.ess.mr.gridcon.enums;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum StatusIPUStatusMCU implements OptionsEnum {
+	FAN_MONITOR(1, "Fan monitor"),
+	HARD_TRIP(2, "Hard trip"),
+	WAIT_FOR_ENABLE(3, "Wait for enable"),
 	IDLE(4, "Idle"),
-	STATUS_8(8, "Unknown"),
-	STATUS_12(12, "Unknown"),
-	RUN(14, "Run");
+	WAIT_RPT(5, "Wait RPT"),
+	PRECHARGE(6, "Precharge wait for volatage"),
+	TRIP_PRECHG(7, "Trip, prechg"),
+	PRECHG_WAIT(8, "Prechg wait"),
+	PRECHG_CANCELED(9, "Prechg cancelled"),
+	HS_ON(10, "Hs on"),
+	HS_ON_POST(11, "Ha on post"),
+	READY(12, "Ready extern"),
+	READY_INTERN(13, "Ready intern"),
+	RUN(14, "Run extern"),
+	RUN_INTERN(15, "Run intern");
 
 	int value;
 	String option;
