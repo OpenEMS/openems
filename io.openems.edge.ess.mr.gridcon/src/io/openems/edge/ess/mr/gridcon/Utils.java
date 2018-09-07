@@ -85,12 +85,12 @@ public class Utils {
 					case PCS_CCU_STATE_IDLE:
 					case PCS_CCU_STATE_OVERLOAD:
 					case PCS_CCU_STATE_PAUSE:
-					case PCS_CCU_STATE_PRE_CHARGE:
+					case PCS_CCU_STATE_PRECHARGE:
 					case PCS_CCU_STATE_READY:
 					case PCS_CCU_STATE_RUN:
 					case PCS_CCU_STATE_SHORT_CIRCUIT_DETECTED:
 					case PCS_CCU_STATE_SIA_ACTIVE:
-					case PCS_CCU_STATE_STOP_PRE_CHARGE:
+					case PCS_CCU_STATE_STOP_PRECHARGE:
 					case PCS_CCU_STATE_VOLTAGE_RAMPING_UP:
 
 						return new BooleanReadChannel(ess, channelId);

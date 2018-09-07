@@ -12,7 +12,10 @@ public enum PCSControlWordBitPosition {
 	BLACKSTART_APPROVAL(4),
 	SYNC_APPROVAL(5),
 	ACTIVATE_SHORT_CIRCUIT_HANDLING(6),
-	MODE_SELECTION(7), // 1=current, 0=voltage
+	/**
+	 * 1 = current, 0 = voltage
+	 */
+	MODE_SELECTION(7),
 	TRIGGER_SIA(8),
 	ACTIVATE_HARMONIC_COMPENSATION(9),
 	/**

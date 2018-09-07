@@ -5,13 +5,13 @@ import io.openems.edge.common.channel.doc.Unit;
 
 //TODO Is this implemented according SunSpec?
 /**
- *  This enum holds every possible channel id for a gridcon.
+ * This enum holds every possible channel id for a gridcon.
  */
 public enum GridConChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 	PCS_CCU_STATE(new Doc()),
 	PCS_CCU_STATE_IDLE(new Doc()),
-	PCS_CCU_STATE_PRE_CHARGE(new Doc()),
-	PCS_CCU_STATE_STOP_PRE_CHARGE(new Doc()),
+	PCS_CCU_STATE_PRECHARGE(new Doc()),
+	PCS_CCU_STATE_STOP_PRECHARGE(new Doc()),
 	PCS_CCU_STATE_READY(new Doc()),
 	PCS_CCU_STATE_PAUSE(new Doc()),
 	PCS_CCU_STATE_RUN(new Doc()),
@@ -29,7 +29,13 @@ public enum GridConChannelId implements io.openems.edge.common.channel.doc.Chann
 	PCS_CCU_CURRENT_IL1(new Doc().unit(Unit.AMPERE)),
 	PCS_CCU_CURRENT_IL2(new Doc().unit(Unit.AMPERE)),
 	PCS_CCU_CURRENT_IL3(new Doc().unit(Unit.AMPERE)),
+	/**
+	 * active power
+	 */
 	PCS_CCU_POWER_P(new Doc().unit(Unit.WATT)),
+	/**
+	 * reactive power
+	 */
 	PCS_CCU_POWER_Q(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)),
 	PCS_CCU_FREQUENCY(new Doc().unit(Unit.HERTZ)),
 
@@ -194,9 +200,22 @@ public enum GridConChannelId implements io.openems.edge.common.channel.doc.Chann
 	PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_2(new Doc().unit(Unit.ON_OFF)),
 	PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_1(new Doc().unit(Unit.ON_OFF)),
 	PCS_COMMAND_ERROR_CODE_FALLBACK(new Doc()),
+	/**
+	 * Describes the voltage provided in a blackstart where 1 is mains voltage. 1 =>
+	 * 230V, 1.02 => 234.6V. Should be 0 when not using blackstart.
+	 */
 	PCS_COMMAND_CONTROL_PARAMETER_U0(new Doc()),
+	/**
+	 * Describes the frequency
+	 */
 	PCS_COMMAND_CONTROL_PARAMETER_F0(new Doc()),
+	/**
+	 * Describes the reactive power
+	 */
 	PCS_COMMAND_CONTROL_PARAMETER_Q_REF(new Doc()),
+	/**
+	 * Describes the active power
+	 */
 	PCS_COMMAND_CONTROL_PARAMETER_P_REF(new Doc()),
 	PCS_COMMAND_TIME_SYNC_DATE(new Doc()),
 	PCS_COMMAND_TIME_SYNC_TIME(new Doc()),
@@ -255,7 +274,6 @@ public enum GridConChannelId implements io.openems.edge.common.channel.doc.Chann
 	PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE(new Doc().unit(Unit.WATT)),;
 
 	private final Doc doc;
-
 
 	private GridConChannelId(Doc doc) {
 		this.doc = doc;
