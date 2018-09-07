@@ -34,6 +34,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int disChargeMaxCurrent;
 	private int chargeMaxCurrent;
 	private int SOC;
+	private int capacityKWh;
 
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -47,6 +48,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		disChargeMaxCurrent = config.disChargeMaxCurrent();
 		chargeMaxCurrent = config.chargeMaxCurrent();
 		SOC = config.SOC();
+		capacityKWh = config.capacityKWh();
 	}
 
 	@Override
@@ -64,6 +66,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		IntegerWriteChannel disChargeMaxCurrentChannel = this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT);
 		IntegerWriteChannel chargeMaxCurrentChannel = this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT);
 		IntegerWriteChannel socChannel = this.channel(Battery.ChannelId.SOC);
+		IntegerWriteChannel capacityChannel = this.channel(Battery.ChannelId.CAPACITY_KWH);
 
 		try {
 			disChargeMinVoltageChannel.setNextWriteValue(disChargeMinVoltage);
@@ -71,12 +74,13 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 			disChargeMaxCurrentChannel.setNextWriteValue(disChargeMaxCurrent);
 			chargeMaxCurrentChannel.setNextWriteValue(chargeMaxCurrent);
 			socChannel.setNextWriteValue(SOC);
-			
+			capacityChannel.setNextWriteValue(capacityKWh);
 			disChargeMinVoltageChannel.setNextValue(disChargeMinVoltage);
 			chargeMaxVoltageChannel.setNextValue(chargeMaxVoltage);
 			disChargeMaxCurrentChannel.setNextValue(disChargeMaxCurrent);
 			chargeMaxCurrentChannel.setNextValue(chargeMaxCurrent);
 			socChannel.setNextValue(SOC);
+			capacityChannel.setNextValue(capacityKWh);
 
 		} catch (OpenemsException e) {
 			log.error("Error occurred while writing channel values! " + e.getMessage());

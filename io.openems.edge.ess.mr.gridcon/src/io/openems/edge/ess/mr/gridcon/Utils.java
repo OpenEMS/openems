@@ -55,7 +55,7 @@ public class Utils {
 					switch (channelId) {
 							
 					case PCS_CCU_ERROR_CODE:
-					
+						
 					case PCS_IPU_1_STATUS_FAN_SPEED_MAX:
 					case PCS_IPU_1_STATUS_FAN_SPEED_MIN:
 															
@@ -315,6 +315,9 @@ public class Utils {
 					case PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C:	
 					case PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE:
 						return new FloatWriteChannel(ess, channelId); // TODO!!
+										
+					default:
+						break;
 			
 					}
 					return null;

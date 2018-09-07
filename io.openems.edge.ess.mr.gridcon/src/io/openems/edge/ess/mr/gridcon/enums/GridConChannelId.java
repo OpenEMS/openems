@@ -8,7 +8,6 @@ import io.openems.edge.common.channel.doc.Unit;
  * This enum holds every possible channel id for a gridcon.
  */
 public enum GridConChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-	PCS_CCU_STATE(new Doc()),
 	PCS_CCU_STATE_IDLE(new Doc()),
 	PCS_CCU_STATE_PRECHARGE(new Doc()),
 	PCS_CCU_STATE_STOP_PRECHARGE(new Doc()),

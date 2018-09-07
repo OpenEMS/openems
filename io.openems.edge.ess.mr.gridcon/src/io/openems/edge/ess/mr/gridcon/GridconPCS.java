@@ -30,19 +30,14 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.FloatWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.ChannelId;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.OptionsEnum;
-import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -81,8 +76,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	List<Battery> batteries = new CopyOnWriteArrayList<>();
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	List<Battery> batteries;
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -95,13 +90,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		// update filter for 'modbus'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "modbus", config.modbus_id())) {
-			return;
-		}
-
 		// update filter for 'battery'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "batteries", config.battery_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Batteries", config.battery_ids())) {
 			return;
 		}
 
@@ -379,44 +369,44 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 	}
 
 	private CCUState getCurrentState() { // TODO
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_IDLE)).value().get()) {
+		if ( ((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_IDLE)).value().asOptional().orElse(false) ) {
 			return CCUState.IDLE;
 		}
 
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_PRECHARGE)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_PRECHARGE)).value().asOptional().orElse(false)) {
 			return CCUState.PRECHARGE;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_STOP_PRECHARGE)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_STOP_PRECHARGE)).value().asOptional().orElse(false)) {
 			return CCUState.STOP_PRECHARGE;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_READY)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_READY)).value().asOptional().orElse(false)) {
 			return CCUState.READY;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_PAUSE)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_PAUSE)).value().asOptional().orElse(false)) {
 			return CCUState.PAUSE;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_RUN)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_RUN)).value().asOptional().orElse(false)) {
 			return CCUState.RUN;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_ERROR)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_ERROR)).value().asOptional().orElse(false)) {
 			return CCUState.ERROR;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_VOLTAGE_RAMPING_UP)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_VOLTAGE_RAMPING_UP)).value().asOptional().orElse(false)) {
 			return CCUState.VOLTAGE_RAMPING_UP;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_OVERLOAD)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_OVERLOAD)).value().asOptional().orElse(false)) {
 			return CCUState.OVERLOAD;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_SHORT_CIRCUIT_DETECTED)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_SHORT_CIRCUIT_DETECTED)).value().asOptional().orElse(false)) {
 			return CCUState.SHORT_CIRCUIT_DETECTED;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_DERATING_POWER)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_DERATING_POWER)).value().asOptional().orElse(false)) {
 			return CCUState.DERATING_POWER;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_DERATING_HARMONICS)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_DERATING_HARMONICS)).value().asOptional().orElse(false)) {
 			return CCUState.DERATING_HARMONICS;
 		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_SIA_ACTIVE)).value().get()) {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.PCS_CCU_STATE_SIA_ACTIVE)).value().asOptional().orElse(false)) {
 			return CCUState.SIA_ACTIVE;
 		}
 
@@ -430,6 +420,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
+		if (true)			
+			return;
 		if (isIdle()) {
 			return;
 		}
@@ -466,8 +458,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			handleStateMachine();
+			calculateSoC();
 			break;
 		}
+	}
+
+	private void calculateSoC() {
+		
+		double sumCapacity = 0;
+		double sumCurrentCapacity = 0;
+		for (Battery b : batteries) {
+			sumCapacity = sumCapacity + b.getCapacity().value().asOptional().orElse(0);
+			sumCurrentCapacity = sumCurrentCapacity + b.getCapacity().value().asOptional().orElse(0) * b.getSoc().value().orElse(0) / 100.0;
+		}
+		int soC = (int) (sumCurrentCapacity * 100 / sumCapacity);
+		this.getSoc().setNextValue(soC);
 	}
 
 	@Override
@@ -521,7 +526,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 						m(GridConChannelId.PCS_IPU_1_STATUS_TEMPERATURE_INVERTER_CHOKE, new FloatDoublewordElement(33192).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_1_STATUS_RESERVE_1, new FloatDoublewordElement(33194).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_1_STATUS_RESERVE_2, new FloatDoublewordElement(33196).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_IPU_1_STATUS_RESERVE_3, new UnsignedDoublewordElement(33198).wordOrder(WordOrder.LSWMSW)) //
+						m(GridConChannelId.PCS_IPU_1_STATUS_RESERVE_3, new FloatDoublewordElement(33198).wordOrder(WordOrder.LSWMSW)) //
 				), new FC3ReadRegistersTask(33200, Priority.LOW, //
 						byteMap(new UnsignedDoublewordElement(33200)) //
 								.mapByte(GridConChannelId.PCS_IPU_2_STATUS_STATUS_STATE_MACHINE, 0) //
@@ -541,7 +546,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 						m(GridConChannelId.PCS_IPU_2_STATUS_TEMPERATURE_INVERTER_CHOKE, new FloatDoublewordElement(33224).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_2_STATUS_RESERVE_1, new FloatDoublewordElement(33226).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_2_STATUS_RESERVE_2, new FloatDoublewordElement(33228).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_IPU_2_STATUS_RESERVE_3, new UnsignedDoublewordElement(33230).wordOrder(WordOrder.LSWMSW)) //
+						m(GridConChannelId.PCS_IPU_2_STATUS_RESERVE_3, new FloatDoublewordElement(33230).wordOrder(WordOrder.LSWMSW)) //
 				), new FC3ReadRegistersTask(33232, Priority.LOW, //
 						byteMap(new UnsignedDoublewordElement(33232)) //
 								.mapByte(GridConChannelId.PCS_IPU_3_STATUS_STATUS_STATE_MACHINE, 0) //
@@ -561,7 +566,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 						m(GridConChannelId.PCS_IPU_3_STATUS_TEMPERATURE_INVERTER_CHOKE, new FloatDoublewordElement(33256).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_3_STATUS_RESERVE_1, new FloatDoublewordElement(33258).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_3_STATUS_RESERVE_2, new FloatDoublewordElement(33260).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_IPU_3_STATUS_RESERVE_3, new UnsignedDoublewordElement(33262).wordOrder(WordOrder.LSWMSW)) //
+						m(GridConChannelId.PCS_IPU_3_STATUS_RESERVE_3, new FloatDoublewordElement(33262).wordOrder(WordOrder.LSWMSW)) //
 				), new FC3ReadRegistersTask(33264, Priority.LOW, //
 						byteMap(new UnsignedDoublewordElement(33264)) //
 								.mapByte(GridConChannelId.PCS_IPU_4_STATUS_STATUS_STATE_MACHINE, 0) //
@@ -581,7 +586,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent implements Manage
 						m(GridConChannelId.PCS_IPU_4_STATUS_TEMPERATURE_INVERTER_CHOKE, new FloatDoublewordElement(33288).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_4_STATUS_RESERVE_1, new FloatDoublewordElement(33290).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_4_STATUS_RESERVE_2, new FloatDoublewordElement(33292).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_IPU_4_STATUS_RESERVE_3, new UnsignedDoublewordElement(33294).wordOrder(WordOrder.LSWMSW)) // TODO: is this float?
+						m(GridConChannelId.PCS_IPU_4_STATUS_RESERVE_3, new FloatDoublewordElement(33294).wordOrder(WordOrder.LSWMSW)) // TODO: is this float?
 				), new FC3ReadRegistersTask(33488, Priority.LOW, //
 						m(GridConChannelId.PCS_IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A, new FloatDoublewordElement(33488).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B, new FloatDoublewordElement(33490).wordOrder(WordOrder.LSWMSW)), //

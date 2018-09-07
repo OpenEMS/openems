@@ -27,10 +27,13 @@ public class Utils {
 					case CHARGE_MAX_CURRENT:
 					case CHARGE_MAX_VOLTAGE:
 					case DISCHARGE_MAX_CURRENT:
-					case DISCHARGE_MIN_VOLTAGE:					
+					case DISCHARGE_MIN_VOLTAGE:
+					case CAPACITY_KWH:
 						return new IntegerWriteChannel(s, channelId);
 					case READY_FOR_WORKING:
 						return new BooleanReadChannel(s, channelId);
+					default:
+						break;
 										
 					}
 					return null;
