@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId;
 
 @ProviderType
 public interface SymmetricEss extends OpenemsComponent {
@@ -91,15 +92,17 @@ public interface SymmetricEss extends OpenemsComponent {
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
-		 * Max Active Power
+		 * Holds the currently maximum possible apparent power. This value is commonly
+		 * defined by the inverter limitations.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess
+		 * <li>Interface: Managed Symmetric Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
+		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
+		MAX_APPARENT_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
 		/**
 		 * Active Charge Energy
 		 * 
@@ -167,12 +170,12 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the maximum Active Power
+	 * Gets the Maximum Apparent Power in [VA], range ">= 0"
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getMaxActivePower() {
-		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	default Channel<Integer> getMaxApparentPower() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
 	}
 
 	/**

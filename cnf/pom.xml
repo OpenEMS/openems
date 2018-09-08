@@ -73,11 +73,6 @@
 		</dependency>
 		<!-- org.* -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.shell</artifactId>
 			<version>1.1.0</version>
@@ -101,6 +96,11 @@
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.xmlrpc-client</artifactId>
 			<version>3.1.3_1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.choco-solver</groupId>
+			<artifactId>choco-solver</artifactId>
+			<version>4.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>

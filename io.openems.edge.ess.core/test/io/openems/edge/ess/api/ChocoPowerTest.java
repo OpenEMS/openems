@@ -7,24 +7,37 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.junit.Test;
 
-import io.openems.edge.ess.core.power.LinearPower;
-import io.openems.edge.ess.power.api.CircleConstraint;
+import io.openems.edge.ess.core.power.ChocoPower;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
-public class LinearPowerTest {
+public class ChocoPowerTest {
 
 	public static final double DELTA_IN_PERCENT = 10; //
 
 	private static final double ZERO_TOLERANCE = 0;
 
-	Power sut;
+	@Test
+	public void testSymmetricActivePower() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(1000, activePower);
+			}
+		}.maxApparentPower(9999).allowedCharge(-9999).allowedDisharge(9999);
+
+		ChocoPower power = new ChocoPower();
+		ess0.addToPower(power);
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1000);
+
+		power.applyPower();
+	}
 
 	@Test
 	public void testSymmetric() throws Exception {
@@ -36,15 +49,15 @@ public class LinearPowerTest {
 			}
 		};
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 1000);
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 500);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1000);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 500);
 
 		power.applyPower();
 	}
-	
+
 	@Test
 	public void testQuadrantIII() throws Exception {
 		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
@@ -54,7 +67,7 @@ public class LinearPowerTest {
 			}
 		};
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 		new CircleConstraint(ess0, 10000);
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, -1000);
@@ -71,14 +84,14 @@ public class LinearPowerTest {
 			}
 		};
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 		new CircleConstraint(ess0, 10000);
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 1234);
 
 		power.applyPower();
 	}
-	
+
 	@Test
 	public void testAsymmetric() throws Exception {
 		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
@@ -90,7 +103,7 @@ public class LinearPowerTest {
 			}
 		};
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 1000);
@@ -122,7 +135,7 @@ public class LinearPowerTest {
 		};
 		EssClusterDummy ess0 = new EssClusterDummy(ess1, ess2);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess1.addToPower(power);
 		ess2.addToPower(power);
 		ess0.addToPower(power);
@@ -156,7 +169,7 @@ public class LinearPowerTest {
 		};
 		EssClusterDummy ess0 = new EssClusterDummy(ess1, ess2);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess1.addToPower(power);
 		ess2.addToPower(power);
 		ess0.addToPower(power);
@@ -186,7 +199,7 @@ public class LinearPowerTest {
 		};
 		EssClusterDummy ess0 = new EssClusterDummy(ess1, ess2);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess1.addToPower(power);
 		ess2.addToPower(power);
 		ess0.addToPower(power);
@@ -197,7 +210,6 @@ public class LinearPowerTest {
 		power.applyPower();
 	}
 
-	
 	@Test
 	public void testMaxActivePower() throws Exception {
 		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
@@ -207,7 +219,7 @@ public class LinearPowerTest {
 			}
 		};
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 
 		new CircleConstraint(ess0, 1000);
@@ -224,7 +236,7 @@ public class LinearPowerTest {
 			}
 		};
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 
 		new CircleConstraint(ess0, 1000);
@@ -239,7 +251,7 @@ public class LinearPowerTest {
 
 		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, ZERO_TOLERANCE);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess.addToPower(power);
 
 		ess.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 0);
@@ -255,7 +267,7 @@ public class LinearPowerTest {
 
 		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, ZERO_TOLERANCE);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess.addToPower(power);
 
 		ess.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, givenActivePower);
@@ -272,7 +284,7 @@ public class LinearPowerTest {
 
 		ManagedSymmetricEssDummy ess0 = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 
 		try {
@@ -297,9 +309,9 @@ public class LinearPowerTest {
 
 		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
 
-		LinearPower power = new LinearPower();
+		ChocoPower power = new ChocoPower();
 		ess.addToPower(power);
-		
+
 		try {
 			new CircleConstraint(ess, maxApparentPower);
 
