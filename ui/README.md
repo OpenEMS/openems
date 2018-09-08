@@ -1,7 +1,6 @@
 # OpenemsGui
 
-This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.4.
-Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yarn install`.
+This project was generated with [angular-cli](https://github.com/angular/angular-cli).
 
 ## Development server
 
@@ -17,28 +16,6 @@ Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yar
 
 	`ng serve`  (Expects openems-edge on `ws://localhost:8075`)
 
-## Build using maven
-
-Be sure to setup maven before - see description below.
-
-Build for OpenEMS Backend:
-
-`mvn package -P backend`
-
-Build for OpenEMS Edge:
-
-`mvn package -P edge`
-
-If you want to build despite "Cannot create the build number because you have local modifications", add `-Dmaven.buildNumber.doCheck=false` to the command line.
-
-### Setup Maven
-
-1. Download zip file from https://maven.apache.org/download.cgi
-
-2. Extract zip file somewhere (example: C:\bin\apache-maven-3.5.0)
-
-3. Add "C:\bin\apache-maven-3.5.0\bin" to global PATH (see https://maven.apache.org/install.html for details)
-
 ## Build using angular-cli
 
 Run `ng build` to build the project. The build artifacts will be stored in the `target` directory. Use the `-prod` flag for a production build.
@@ -50,6 +27,8 @@ Build for OpenEMS Backend:
 Build for OpenEMS Edge:
 
 `ng build -c edge`
+
+Be aware that there is currently a [bug](https://github.com/angular/angular-cli/issues/11208) in how angular-cli generates the service-worker configuration file (ngsw-config.json). After running the above command it is required to fix 'regex' statements in the file, replacing double '`\\`' by single '`\`' to avoid wrong escaping.
 
 ## Further help
 
