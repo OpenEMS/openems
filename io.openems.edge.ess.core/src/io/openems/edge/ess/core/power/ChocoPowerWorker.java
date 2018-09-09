@@ -24,9 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Goal;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 public class ChocoPowerWorker {
@@ -192,6 +195,46 @@ public class ChocoPowerWorker {
 		return solution;
 	}
 
+	private ArExpression getVar(SymmetricEss ess, Pwr pwr, Phase phase) {
+		if (ess instanceof MetaEss) {
+			// for MetaEss: call getVar recursively
+			ArExpression sum = null;
+			for (SymmetricEss e : ((MetaEss) ess).getEsss()) {
+				ArExpression var = this.getVar(e, pwr, phase);
+				sum = sum == null ? var : sum.add(var);
+			}
+			return sum;
+
+		} else {
+			EssWrapper wrapper = this.parent.esss.get(ess);
+			switch (pwr) {
+			case ACTIVE:
+				switch (phase) {
+				case ALL:
+					return wrapper.getP();
+				case L1:
+					return wrapper.getP_L1();
+				case L2:
+					return wrapper.getP_L2();
+				case L3:
+					return wrapper.getP_L3();
+				}
+			case REACTIVE:
+				switch (phase) {
+				case ALL:
+					return wrapper.getQ();
+				case L1:
+					return wrapper.getQ_L1();
+				case L2:
+					return wrapper.getQ_L2();
+				case L3:
+					return wrapper.getQ_L3();
+				}
+			}
+		}
+		throw new IllegalArgumentException("IntVar is null. This should never happen!");
+	}
+
 	private Stream<ReExpression> getConstraintsForChocoSolver(Model model) {
 		return this.parent.getAllConstraints() //
 				.filter(c -> c.getValue().isPresent()) //
@@ -200,57 +243,10 @@ public class ChocoPowerWorker {
 						ArExpression allExp = null;
 						for (Coefficient co : c.getCoefficients()) {
 							SymmetricEss ess = co.getEss();
-							EssWrapper wrapper = this.parent.esss.get(ess);
-							IntVar var = null;
-							switch (co.getPwr()) {
-							case ACTIVE:
-								switch (co.getPhase()) {
-								case ALL:
-									var = wrapper.getP();
-									break;
-								case L1:
-									var = wrapper.getP_L1();
-									break;
-								case L2:
-									var = wrapper.getP_L2();
-									break;
-								case L3:
-									var = wrapper.getP_L3();
-									break;
-								}
-								break;
-							case REACTIVE:
-								switch (co.getPhase()) {
-								case ALL:
-									var = wrapper.getQ();
-									break;
-								case L1:
-									var = wrapper.getQ_L1();
-									break;
-								case L2:
-									var = wrapper.getQ_L2();
-									break;
-								case L3:
-									var = wrapper.getQ_L3();
-									break;
-								}
-								break;
-							}
-							if (var == null) {
-								throw new IllegalArgumentException("IntVar is null. This should never happen!");
-							}
+							ArExpression var = this.getVar(ess, co.getPwr(), co.getPhase());
 							int value = co.getValue();
-							ArExpression exp;
-							if (value == 1) {
-								exp = var;
-							} else {
-								exp = var.mul(value);
-							}
-							if (allExp == null) {
-								allExp = exp;
-							} else {
-								allExp = allExp.add(exp);
-							}
+							ArExpression exp = value == 1 ? var : var.mul(value);
+							allExp = allExp == null ? exp : allExp.add(exp);
 						}
 
 						// initialize error from minPrecision

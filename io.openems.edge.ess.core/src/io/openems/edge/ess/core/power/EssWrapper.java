@@ -47,6 +47,7 @@ public class EssWrapper {
 	 * Is called before every Cycle
 	 */
 	public void initialize(Model model) {
+		// TODO add relation between P and Q <= maxApparent
 		int maxApparent = this.ess.getMaxApparentPower().value().orElse(0);
 		int allowedCharge = Math.max(maxApparent * -1, this.ess.getAllowedCharge().value().orElse(0));
 		int allowedDischarge = Math.min(maxApparent, this.ess.getAllowedDischarge().value().orElse(0));
@@ -56,8 +57,8 @@ public class EssWrapper {
 			 * ManagedAsymmetricEss
 			 */
 			// L1 + L2 + L3 = P
-			int min = allowedCharge / 3 - 1;
-			int max = allowedDischarge / 3 - 1;
+			int min = allowedCharge / 3;
+			int max = allowedDischarge / 3;
 			this.p_L1 = model.intVar(this.ess.id() + "P_L1", min, max, false);
 			this.p_L2 = model.intVar(this.ess.id() + "P_L2", min, max, false);
 			this.p_L3 = model.intVar(this.ess.id() + "P_L3", min, max, false);
@@ -257,5 +258,36 @@ public class EssWrapper {
 														this.getQ_L3().dist(this.getLastQ_L3()).div(precisionL).sqr() //
 												)));
 	};
+
+	/**
+	 * TODO The pError could be postive or negative according to this logic.
+	 * 
+	 * Round values to accuracy of inverter; following this logic:
+	 *
+	 * On Discharge (Power > 0)
+	 *
+	 * <ul>
+	 * <li>if SoC > 50 %: round up (more discharge)
+	 * <li>if SoC < 50 %: round down (less discharge)
+	 * </ul>
+	 *
+	 * On Charge (Power < 0)
+	 *
+	 * <ul>
+	 * <li>if SoC > 50 %: round down (less charge)
+	 * <li>if SoC < 50 %: round up (more discharge)
+	 * </ul>
+	 */
+//	public static int roundToInverterPrecision(ManagedSymmetricEss ess, double value) {
+//		Round round = Round.DOWN;
+//		int precision = ess.getPowerPrecision();
+//		int soc = ess.getSoc().value().orElse(0);
+//
+//		if (value > 0 && soc > 50 || value < 0 && soc < 50) {
+//			round = Round.UP;
+//		}
+//
+//		return IntUtils.roundToPrecision((float) value, round, precision);
+//	}
 
 }

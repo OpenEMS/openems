@@ -8,7 +8,6 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId;
 
 @ProviderType
 public interface SymmetricEss extends OpenemsComponent {

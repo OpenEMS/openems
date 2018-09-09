@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Goal;
@@ -115,6 +117,9 @@ public class ChocoPower implements Power {
 		if (hadAlreadyBeenAdded) {
 			return;
 		}
+		if (ess instanceof MetaEss) {
+			return; // do not add MetaEss
+		}
 		EssWrapper wrapper = new EssWrapper(ess);
 		this.esss.put(ess, wrapper);
 	}
@@ -151,7 +156,11 @@ public class ChocoPower implements Power {
 	 */
 	public synchronized Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase,
 			Pwr pwr, Relationship relationship, int value) {
-		return this.addConstraint(Utils.createSimpleConstraint(ess, type, phase, pwr, relationship, value));
+		return new Constraint( //
+				type, new Coefficient[] { //
+						new Coefficient(ess, phase, pwr, 1) }, //
+				relationship, //
+				value);
 	}
 
 	/**

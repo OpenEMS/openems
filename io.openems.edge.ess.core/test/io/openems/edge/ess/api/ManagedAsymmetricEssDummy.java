@@ -69,6 +69,24 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
 
+	public ManagedAsymmetricEssDummy maxApparentPower(int value) {
+		this.getMaxApparentPower().setNextValue(value);
+		this.getMaxApparentPower().nextProcessImage();
+		return this;
+	}
+
+	public ManagedAsymmetricEssDummy allowedCharge(int value) {
+		this.getAllowedCharge().setNextValue(value);
+		this.getAllowedCharge().nextProcessImage();
+		return this;
+	}
+
+	public ManagedAsymmetricEssDummy allowedDischarge(int value) {
+		this.getAllowedDischarge().setNextValue(value);
+		this.getAllowedDischarge().nextProcessImage();
+		return this;
+	}
+
 	@Override
 	public int getPowerPrecision() {
 		return 1;

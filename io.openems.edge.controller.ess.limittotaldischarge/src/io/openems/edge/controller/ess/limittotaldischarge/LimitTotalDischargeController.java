@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.limittotaldischarge;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -28,6 +27,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -162,7 +162,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				break;
 			}
 			// Deny further discharging: set Constraint for ActivePower <= 0
-			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, 0);
+			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 0);
 			break;
 		case FORCE_CHARGE_SOC:
 			/*
@@ -178,7 +178,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			}
 			// Force charge: set Constraint for ActivePower <= MAX_CHARGE / 5
 			int chargePower = this.ess.getPower().getMinActivePower() / 5;
-			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, chargePower);
+			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+					chargePower);
 			break;
 		}
 

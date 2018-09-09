@@ -59,7 +59,7 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 		return this;
 	}
 
-	public ManagedSymmetricEssDummy allowedDisharge(int value) {
+	public ManagedSymmetricEssDummy allowedDischarge(int value) {
 		this.getAllowedDischarge().setNextValue(value);
 		this.getAllowedDischarge().nextProcessImage();
 		return this;
