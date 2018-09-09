@@ -1,6 +1,5 @@
-<mat-card class="single">
+<!-- <mat-card class="single">
   <mat-card-header>
-    <!-- <mat-icon mat-card-avatar>announcement</mat-icon> -->
     <ion-icon mat-card-avatar color="primary" name="chatbubbles"></ion-icon>
     <mat-card-title>FEMS UI</mat-card-title>
     <mat-card-subtitle translate>About.UI</mat-card-subtitle>
@@ -20,7 +19,7 @@
       <!-- <li>
         <a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/2018.9">
           <span translate>About.Build</span>: 2018.9.0 (2018-07-20)</a>
-      </li> -->
+      </li>
       <li>
         <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
           <span translate>About.Build</span>: 2018.10.0-SNAPSHOT</a>
@@ -30,4 +29,47 @@
       <span [innerHTML]="'About.Contact' | translate:{value: 'fems@fenecon.de'}"></span>
     </p>
   </mat-card-content>
-</mat-card>
+</mat-card> -->
+
+<ion-grid>
+  <ion-row justify-content-center>
+    <ion-col size-xl="10" size-xs="12">
+      <ion-card padding>
+        <ion-item>
+          <ion-avatar>
+            <ion-icon slot="start" size="large" color="primary" name="information-circle-outline"></ion-icon>
+          </ion-avatar>
+          <ion-label text-wrap>
+            FEMS-UI
+            <ion-card-subtitle translate>About.UI</ion-card-subtitle>
+          </ion-label>
+        </ion-item>
+        <ion-card-content text-wrap>
+          <p translate>About.Developed</p>
+          <ul>
+            <li>
+              <a target="_blank" href="https://fenecon.de" translate>About.Fenecon</a>
+            </li>
+            <li>
+              <a target="_blank" href="https://fenecon.de/page/fems" translate>About.Fems</a>
+            </li>
+            <li>
+              <a target="_blank" href="https://github.com/OpenEMS/openems" translate>About.OpenEMS</a>
+            </li>
+            <!-- <li>
+              <a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/2018.9">
+              <span translate>About.Build</span>: 2018.9.0 (2018-07-20)</a>
+            </li> -->
+            <li>
+              <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
+                <span translate>About.Build</span>: 2018.10.0-SNAPSHOT</a>
+            </li>
+          </ul>
+          <p>
+            <span [innerHTML]="'About.Contact' | translate:{value: 'fems@fenecon.de'}"></span>
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

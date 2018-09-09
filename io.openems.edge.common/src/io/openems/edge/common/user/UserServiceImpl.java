@@ -60,7 +60,8 @@ public class UserServiceImpl implements UserService {
 				}
 			}
 		}
-		return Optional.empty();
+		// Try authenticating with password only
+		return authenticate(password);
 	}
 
 	@Override

@@ -9,13 +9,13 @@ public class Coefficient {
 	private final ManagedSymmetricEss ess;
 	private final Phase phase;
 	private final Pwr pwr;
-	private final double value;
+	private final int value;
 
-	public Coefficient(ManagedSymmetricEss ess, Pwr pwr, double value) {
+	public Coefficient(ManagedSymmetricEss ess, Pwr pwr, int value) {
 		this(ess, Phase.ALL, pwr, value);
 	}
 
-	public Coefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr, double value) {
+	public Coefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr, int value) {
 		this.ess = ess;
 		this.phase = phase;
 		this.pwr = pwr;
@@ -39,7 +39,7 @@ public class Coefficient {
 		return pwr;
 	}
 
-	public double getValue() {
+	public int getValue() {
 		return value;
 	}
 }
