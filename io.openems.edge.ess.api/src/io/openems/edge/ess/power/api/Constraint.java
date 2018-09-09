@@ -3,8 +3,6 @@ package io.openems.edge.ess.power.api;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.apache.commons.math3.optim.linear.Relationship;
-
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.ConstraintType;
 
@@ -26,17 +24,13 @@ public class Constraint {
 	private final Coefficient[] coefficients;
 	private final Relationship relationship;
 
-	private Optional<Double> value;
+	private Optional<Integer> value;
 
-	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, Double value) {
+	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, Integer value) {
 		this.type = type;
 		this.coefficients = coefficients;
 		this.relationship = relationship;
 		this.value = Optional.ofNullable(value);
-	}
-
-	public Constraint(ConstraintType type, Coefficient[] coefficients, Relationship relationship, Integer value) {
-		this(type, coefficients, relationship, value == null ? null : value.doubleValue());
 	}
 
 	@Override
@@ -66,19 +60,11 @@ public class Constraint {
 		return relationship;
 	}
 
-	public Optional<Double> getValue() {
+	public Optional<Integer> getValue() {
 		return this.value;
 	}
 
-	public void setDoubleValue(Double value) {
+	public void setValue(Integer value) {
 		this.value = Optional.ofNullable(value);
-	}
-
-	public void setIntValue(Integer value) {
-		if (value == null) {
-			this.value = Optional.empty();
-		} else {
-			this.value = Optional.ofNullable(value.doubleValue());
-		}
 	}
 }

@@ -9,7 +9,6 @@ Export-Package: \
 	io.openems.edge.ess.dccharger.api,\
 	io.openems.edge.ess.asymmetric.api,\
 	io.openems.edge.ess.core.power,\
-	org.apache.commons.math3.optim.linear,\
 	io.openems.edge.ess.power.api
 Require-Capability: \
 	compile-only
@@ -21,7 +20,7 @@ Require-Capability: \
 	io.openems.edge.common;version=latest,\
 	com.google.guava,\
 	io.openems.common;version=latest,\
-	org.apache.commons.math3;version=3.6
+	io.openems.wrapper.choco-solver;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
