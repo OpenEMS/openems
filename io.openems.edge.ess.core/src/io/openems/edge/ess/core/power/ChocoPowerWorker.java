@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.chocosolver.solver.Model;
@@ -122,26 +123,43 @@ public class ChocoPowerWorker {
 		// TODO make this smarter, e.g. taking AllowedCharge/Discharge in
 		// consideration when distributing. This is crucial for fast results.
 		Map<IntVar, Integer> targets = new HashMap<>();
-		int pEqualsTarget = 0;
-		Optional<io.openems.edge.ess.power.api.Constraint> eqConstraint = this.parent.getAllConstraints() //
-				.filter(c -> c.getRelationship() == Relationship.EQUALS) //
-				.findFirst(); //
-		if (eqConstraint.isPresent()) {
-			pEqualsTarget = eqConstraint.get().getValue().orElse(0);
-		}
+		final AtomicInteger pEqualsTarget = new AtomicInteger(0);
+		final AtomicInteger qEqualsTarget = new AtomicInteger(0);
+		this.parent.getAllConstraints() //
+				.filter(c -> c.getRelationship() == Relationship.EQUALS && c.getValue().isPresent()) //
+				.forEach(c -> {
+					for (Coefficient co : c.getCoefficients()) {
+						switch (co.getPwr()) {
+						case ACTIVE:
+							pEqualsTarget.set(c.getValue().get());
+							break;
+						case REACTIVE:
+							qEqualsTarget.set(c.getValue().get());
+							break;
+						}
+					}
+				});
 		int lastP = 0;
+		int lastQ = 0;
 		for (EssWrapper ess : this.parent.esss.values()) {
 			lastP += ess.getLastP();
+			lastQ += ess.getLastQ();
 		}
-		int avgPdelta = (pEqualsTarget - lastP) / this.parent.esss.size();
+		int avgPdelta = (pEqualsTarget.get() - lastP) / this.parent.esss.size();
+		int avgQdelta = (qEqualsTarget.get() - lastQ) / this.parent.esss.size();
 		for (EssWrapper ess : this.parent.esss.values()) {
 			if (ess.getEss() instanceof ManagedAsymmetricEss) {
 				int avgPLDelta = avgPdelta / 3;
 				targets.put(ess.getP_L1(), ess.getLastP_L1() + avgPLDelta);
 				targets.put(ess.getP_L2(), ess.getLastP_L2() + avgPLDelta);
 				targets.put(ess.getP_L3(), ess.getLastP_L3() + avgPLDelta);
+				int avgQLDelta = avgQdelta / 3;
+				targets.put(ess.getQ_L1(), ess.getLastQ_L1() + avgQLDelta);
+				targets.put(ess.getQ_L2(), ess.getLastQ_L2() + avgQLDelta);
+				targets.put(ess.getQ_L3(), ess.getLastQ_L3() + avgQLDelta);
 			} else {
 				targets.put(ess.getP(), ess.getLastP() + avgPdelta);
+				targets.put(ess.getQ(), ess.getLastQ() + avgQdelta);
 			}
 		}
 
@@ -158,7 +176,7 @@ public class ChocoPowerWorker {
 		IntVar objective = objectiveExp.intVar();
 
 		// initialize solver
-		List<IntVar> pVars = getImportantPVars();
+		List<IntVar> vars = getImportantVars();
 		solver.limitTime(TIMELIMIT);
 		solver.setSearch(Search.intVarSearch(
 				// variable selector
@@ -168,7 +186,7 @@ public class ChocoPowerWorker {
 				// remove value on branch, no split
 				DecisionOperatorFactory.makeIntEq(),
 				// variables to branch on
-				pVars.toArray(new IntVar[pVars.size()])));
+				vars.toArray(new IntVar[vars.size()])));
 
 		Solution solution = solver.findOptimalSolution(objective, Model.MINIMIZE);
 		return solution;
@@ -202,6 +220,20 @@ public class ChocoPowerWorker {
 								}
 								break;
 							case REACTIVE:
+								switch (co.getPhase()) {
+								case ALL:
+									var = wrapper.getQ();
+									break;
+								case L1:
+									var = wrapper.getQ_L1();
+									break;
+								case L2:
+									var = wrapper.getQ_L2();
+									break;
+								case L3:
+									var = wrapper.getQ_L3();
+									break;
+								}
 								break;
 							}
 							if (var == null) {
@@ -244,6 +276,11 @@ public class ChocoPowerWorker {
 				}).filter(c -> c != null);
 	}
 
+	private List<IntVar> getImportantVars() {
+		return Stream.concat(this.getImportantPVars().stream(), this.getImportantQVars().stream())
+				.collect(Collectors.toList());
+	}
+
 	private List<IntVar> getImportantPVars() {
 		// Get IntVars from Ess
 		List<IntVar> list = new ArrayList<>();
@@ -259,10 +296,26 @@ public class ChocoPowerWorker {
 		return list;
 	}
 
+	private List<IntVar> getImportantQVars() {
+		// Get IntVars from Ess
+		List<IntVar> list = new ArrayList<>();
+		for (EssWrapper ess : this.parent.esss.values()) {
+			if (ess.getEss() instanceof ManagedAsymmetricEss) {
+				list.add(ess.getQ_L1());
+				list.add(ess.getQ_L2());
+				list.add(ess.getQ_L3());
+			} else {
+				list.add(ess.getQ());
+			}
+		}
+		return list;
+	}
+
 	private List<ArExpression> createDiffToLastOptimizer() {
 		List<ArExpression> result = new ArrayList<>();
 		for (EssWrapper ess : this.parent.esss.values()) {
-			result.add(ess.createDiffToLastOptimizer());
+			result.add(ess.optimizePDiffToLast());
+			result.add(ess.optimizeQDiffToLast());
 		}
 		return result;
 	}

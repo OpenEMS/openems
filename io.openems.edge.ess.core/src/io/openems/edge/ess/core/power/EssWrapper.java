@@ -17,6 +17,10 @@ public class EssWrapper {
 	private IntVar p_L1 = null;
 	private IntVar p_L2 = null;
 	private IntVar p_L3 = null;
+	private IntVar q = null;
+	private IntVar q_L1 = null;
+	private IntVar q_L2 = null;
+	private IntVar q_L3 = null;
 
 	private int lastP = 0;
 	private int lastP_L1 = 0;
@@ -43,8 +47,9 @@ public class EssWrapper {
 	 * Is called before every Cycle
 	 */
 	public void initialize(Model model) {
-		int allowedCharge = this.ess.getAllowedCharge().value().orElse(0);
-		int allowedDischarge = this.ess.getAllowedDischarge().value().orElse(0);
+		int maxApparent = this.ess.getMaxApparentPower().value().orElse(0);
+		int allowedCharge = Math.max(maxApparent * -1, this.ess.getAllowedCharge().value().orElse(0));
+		int allowedDischarge = Math.min(maxApparent, this.ess.getAllowedDischarge().value().orElse(0));
 
 		if (this.ess instanceof ManagedAsymmetricEss) {
 			/*
@@ -59,6 +64,13 @@ public class EssWrapper {
 			// hold the error that happens when distributing "p / 3" to L1/L2/L3
 			BoolVar p_Lerror = model.boolVar(this.ess.id() + "p_Lerror");
 			this.p = this.p_L1.add(this.p_L2.add(this.p_L3.add(p_Lerror))).intVar();
+			// L1 + L2 + L3 = Q
+			this.q_L1 = model.intVar(this.ess.id() + "Q_L1", min, max, false);
+			this.q_L2 = model.intVar(this.ess.id() + "Q_L2", min, max, false);
+			this.q_L3 = model.intVar(this.ess.id() + "Q_L3", min, max, false);
+			// hold the error that happens when distributing "q / 3" to L1/L2/L3
+			BoolVar q_Lerror = model.boolVar(this.ess.id() + "q_Lerror");
+			this.q = this.q_L1.add(this.q_L2.add(this.q_L3.add(q_Lerror))).intVar();
 		} else {
 			/*
 			 * ManagedSymmetricEss
@@ -71,11 +83,16 @@ public class EssWrapper {
 				allValues[i] = (negative + i) * this.getPrecision();
 			}
 			this.p = model.intVar(this.ess.id() + "P", allValues);
-
 			// L1 = L2 = L3 = P / 3
 			this.p_L1 = this.p.div(3).intVar();
 			this.p_L2 = this.p_L1;
 			this.p_L3 = this.p_L1;
+			// Q
+			this.q = model.intVar(this.ess.id() + "Q", allValues);
+			// L1 = L2 = L3 = Q / 3
+			this.q_L1 = this.q.div(3).intVar();
+			this.q_L2 = this.q_L1;
+			this.q_L3 = this.q_L1;
 		}
 	}
 
@@ -88,6 +105,10 @@ public class EssWrapper {
 			this.lastP_L1 = 0;
 			this.lastP_L2 = 0;
 			this.lastP_L3 = 0;
+			this.lastQ = 0;
+			this.lastQ_L1 = 0;
+			this.lastQ_L2 = 0;
+			this.lastQ_L3 = 0;
 			this.ess.applyPower(0, 0);
 
 		} else if (this.ess instanceof ManagedAsymmetricEss) {
@@ -99,6 +120,10 @@ public class EssWrapper {
 			this.lastP_L2 = solution.getIntVal(this.p_L2);
 			this.lastP_L3 = solution.getIntVal(this.p_L3);
 			this.lastP = this.lastP_L1 + this.lastP_L2 + this.lastP_L3;
+			this.lastQ_L1 = solution.getIntVal(this.q_L1);
+			this.lastQ_L2 = solution.getIntVal(this.q_L2);
+			this.lastQ_L3 = solution.getIntVal(this.q_L3);
+			this.lastQ = this.lastQ_L1 + this.lastQ_L2 + this.lastQ_L3;
 
 			// set debug channels on Ess
 			ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(this.lastP);
@@ -113,11 +138,11 @@ public class EssWrapper {
 			// call Ess
 			e.applyPower( //
 					this.lastP_L1, //
-					0, //
+					this.lastQ_L1, //
 					this.lastP_L2, //
-					0, //
+					this.lastQ_L2, //
 					this.lastP_L3, //
-					0 //
+					this.lastQ_L3 //
 			);
 
 		} else {
@@ -128,6 +153,10 @@ public class EssWrapper {
 			this.lastP_L2 = solution.getIntVal(this.p_L2);
 			this.lastP_L3 = solution.getIntVal(this.p_L3);
 			this.lastP = this.lastP_L1 + this.lastP_L2 + this.lastP_L3;
+			this.lastQ_L1 = solution.getIntVal(this.q_L1);
+			this.lastQ_L2 = solution.getIntVal(this.q_L2);
+			this.lastQ_L3 = solution.getIntVal(this.q_L3);
+			this.lastQ = this.lastQ_L1 + this.lastQ_L2 + this.lastQ_L3;
 
 			// set debug channels on Ess
 			ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(this.lastP);
@@ -136,25 +165,25 @@ public class EssWrapper {
 			// call Ess
 			ess.applyPower( //
 					solution.getIntVal(this.p), //
-					0 //
+					solution.getIntVal(this.q) //
 			);
 		}
 	}
 
 	public IntVar getP() {
-		return p;
+		return this.p;
 	}
 
 	public IntVar getP_L1() {
-		return p_L1;
+		return this.p_L1;
 	}
 
 	public IntVar getP_L2() {
-		return p_L2;
+		return this.p_L2;
 	}
 
 	public IntVar getP_L3() {
-		return p_L3;
+		return this.p_L3;
 	}
 
 	public int getLastP() {
@@ -162,18 +191,50 @@ public class EssWrapper {
 	}
 
 	public int getLastP_L1() {
-		return lastP_L1;
+		return this.lastP_L1;
 	}
 
 	public int getLastP_L2() {
-		return lastP_L2;
+		return this.lastP_L2;
 	}
 
 	public int getLastP_L3() {
-		return lastP_L3;
+		return this.lastP_L3;
 	}
 
-	public ArExpression createDiffToLastOptimizer() {
+	public IntVar getQ() {
+		return this.q;
+	}
+
+	public IntVar getQ_L1() {
+		return this.q_L1;
+	}
+
+	public IntVar getQ_L2() {
+		return this.q_L2;
+	}
+
+	public IntVar getQ_L3() {
+		return this.q_L3;
+	}
+
+	public int getLastQ() {
+		return this.lastQ;
+	}
+
+	public int getLastQ_L1() {
+		return this.lastQ_L1;
+	}
+
+	public int getLastQ_L2() {
+		return this.lastQ_L2;
+	}
+
+	public int getLastQ_L3() {
+		return this.lastQ_L3;
+	}
+
+	public ArExpression optimizePDiffToLast() {
 		int precisionL = Math.max(this.getPrecision() / 3, 1); // at least "1"
 		return this.getP().dist(this.getLastP()).div(this.getPrecision()).sqr() //
 				.add( //
@@ -182,6 +243,18 @@ public class EssWrapper {
 										this.getP_L2().dist(this.getLastP_L2()).div(precisionL).sqr() //
 												.add( //
 														this.getP_L3().dist(this.getLastP_L3()).div(precisionL).sqr() //
+												)));
+	};
+
+	public ArExpression optimizeQDiffToLast() {
+		int precisionL = Math.max(this.getPrecision() / 3, 1); // at least "1"
+		return this.getQ().dist(this.getLastQ()).div(this.getPrecision()).sqr() //
+				.add( //
+						this.getQ_L1().dist(this.getLastQ_L1()).div(precisionL).sqr() //
+								.add( //
+										this.getQ_L2().dist(this.getLastQ_L2()).div(precisionL).sqr() //
+												.add( //
+														this.getQ_L3().dist(this.getLastQ_L3()).div(precisionL).sqr() //
 												)));
 	};
 

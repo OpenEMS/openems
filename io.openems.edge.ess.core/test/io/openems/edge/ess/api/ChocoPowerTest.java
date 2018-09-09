@@ -40,6 +40,23 @@ public class ChocoPowerTest {
 	}
 
 	@Test
+	public void testSymmetricReactivePower() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(1000, reactivePower);
+			}
+		}.maxApparentPower(9999).allowedCharge(-9999).allowedDisharge(9999);
+		
+		ChocoPower power = new ChocoPower();
+		ess0.addToPower(power);
+		
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 1000);
+		
+		power.applyPower();
+	}
+
+	@Test
 	public void testSymmetric() throws Exception {
 		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
 			@Override
