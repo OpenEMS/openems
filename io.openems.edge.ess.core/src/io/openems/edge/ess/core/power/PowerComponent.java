@@ -44,7 +44,8 @@ public class PowerComponent implements EventHandler, Power {
 	@Override
 	public Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase, Pwr pwr,
 			Relationship relationship, int value) {
-		return this.power.addSimpleConstraint(ess, type, phase, pwr, relationship, value);
+		return this.power.addConstraint( //
+				this.power.addSimpleConstraint(ess, type, phase, pwr, relationship, value));
 	}
 
 	@Override
