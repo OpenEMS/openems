@@ -26,6 +26,9 @@ public class Utils {
 				}), Arrays.stream(Battery.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
+					case SOH:
+					case BATTERY_TEMP:
+					case MAX_CAPACITY:
 						return new IntegerReadChannel(s, channelId);
 					case CHARGE_MAX_CURRENT:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_A);
@@ -37,8 +40,6 @@ public class Utils {
 						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);
 					case READY_FOR_WORKING:
 						return new BooleanReadChannel(s, channelId);
-					default:
-						break;
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
@@ -398,8 +399,6 @@ public class Utils {
 					case CLUSTER_1_MIN_CELL_VOLTAGE:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
 						return new IntegerReadChannel(s, channelId);					
-					default:
-						break;
 					}
 					return null;
 				}) //

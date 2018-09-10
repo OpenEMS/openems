@@ -77,6 +77,7 @@ public class Utils {
 					case TEMP_SF:
 					case COMMAND_ID_RES:
 					case RETURN_CODE:
+					case DEBUG_REQUESTED_STATE:
 						return new IntegerReadChannel(ess, channelId);
 					}
 					return null;
