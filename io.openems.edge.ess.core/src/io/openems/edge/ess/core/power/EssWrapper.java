@@ -237,25 +237,25 @@ public class EssWrapper {
 
 	public ArExpression optimizePDiffToLast() {
 		int precisionL = Math.max(this.getPrecision() / 3, 1); // at least "1"
-		return this.getP().dist(this.getLastP()).div(this.getPrecision()).sqr() //
+		return this.getP().dist(this.getLastP()).div(this.getPrecision()) //
 				.add( //
-						this.getP_L1().dist(this.getLastP_L1()).div(precisionL).sqr() //
+						this.getP_L1().dist(this.getLastP_L1()).div(precisionL) //
 								.add( //
-										this.getP_L2().dist(this.getLastP_L2()).div(precisionL).sqr() //
+										this.getP_L2().dist(this.getLastP_L2()).div(precisionL) //
 												.add( //
-														this.getP_L3().dist(this.getLastP_L3()).div(precisionL).sqr() //
+														this.getP_L3().dist(this.getLastP_L3()).div(precisionL) //
 												)));
 	};
 
 	public ArExpression optimizeQDiffToLast() {
 		int precisionL = Math.max(this.getPrecision() / 3, 1); // at least "1"
-		return this.getQ().dist(this.getLastQ()).div(this.getPrecision()).sqr() //
+		return this.getQ().dist(this.getLastQ()).div(this.getPrecision()) //
 				.add( //
-						this.getQ_L1().dist(this.getLastQ_L1()).div(precisionL).sqr() //
+						this.getQ_L1().dist(this.getLastQ_L1()).div(precisionL) //
 								.add( //
-										this.getQ_L2().dist(this.getLastQ_L2()).div(precisionL).sqr() //
+										this.getQ_L2().dist(this.getLastQ_L2()).div(precisionL) //
 												.add( //
-														this.getQ_L3().dist(this.getLastQ_L3()).div(precisionL).sqr() //
+														this.getQ_L3().dist(this.getLastQ_L3()).div(precisionL) //
 												)));
 	};
 
