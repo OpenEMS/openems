@@ -156,11 +156,12 @@ public class ChocoPower implements Power {
 	 */
 	public synchronized Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase,
 			Pwr pwr, Relationship relationship, int value) {
-		return new Constraint( //
-				type, new Coefficient[] { //
-						new Coefficient(ess, phase, pwr, 1) }, //
-				relationship, //
-				value);
+		return this.addConstraint(//
+				new Constraint( //
+						type, new Coefficient[] { //
+								new Coefficient(ess, phase, pwr, 1) }, //
+						relationship, //
+						value));
 	}
 
 	/**

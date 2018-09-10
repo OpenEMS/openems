@@ -1,6 +1,7 @@
 package io.openems.edge.ess.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,6 +31,28 @@ public class ChocoPowerTest {
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1000);
+
+		power.applyPower();
+	}
+
+	@Test
+	public void testCommercial40DischargeSymmetricActivePower() throws Exception {
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePower, int reactivePower) {
+				assertEquals(2760, activePower);
+				assertEquals(0, reactivePower);
+			}
+		}.maxApparentPower(40000).allowedCharge(0).allowedDischarge(40000);
+
+		ChocoPower power = new ChocoPower();
+		ess0.addToPower(power);
+
+		ess0.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GREATER_OR_EQUALS, -10000);
+		ess0.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 10000);
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 2760);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 
 		power.applyPower();
 	}
@@ -99,8 +122,8 @@ public class ChocoPowerTest {
 		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy() {
 			@Override
 			public void applyPower(int activePower, int reactivePower) {
-				assertEquals(500, activePower);
-				assertEquals(250, reactivePower);
+				assertTrue(activePower > 498 && activePower < 502);
+				assertTrue(reactivePower > 248 && reactivePower < 252);
 				totalActivePower.addAndGet(activePower);
 				totalReactivePower.addAndGet(reactivePower);
 			}
@@ -110,16 +133,18 @@ public class ChocoPowerTest {
 			@Override
 			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 					int activePowerL3, int reactivePowerL3) {
-				assertEquals(166, activePowerL1);
-				assertEquals(166, activePowerL2);
-				assertEquals(167, activePowerL3);
-				assertEquals(83, reactivePowerL1);
-				assertEquals(83, reactivePowerL2);
-				assertEquals(83, reactivePowerL3);
-				assertEquals(499 /* caused by rounding errors */, activePowerL1 + activePowerL2 + activePowerL3);
-				assertEquals(249 /* caused by rounding errors */, reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
-				totalActivePower.addAndGet(activePowerL1 + activePowerL2 + activePowerL3);
-				totalReactivePower.addAndGet(reactivePowerL1 + reactivePowerL2 + reactivePowerL3);
+				assertTrue(activePowerL1 > 165 && activePowerL1 < 168);
+				assertTrue(activePowerL2 > 165 && activePowerL2 < 168);
+				assertTrue(activePowerL3 > 165 && activePowerL3 < 168);
+				assertTrue(reactivePowerL1 > 81 && reactivePowerL1 < 84);
+				assertTrue(reactivePowerL2 > 81 && reactivePowerL2 < 84);
+				assertTrue(reactivePowerL3 > 81 && reactivePowerL3 < 84);
+				int pSum = activePowerL1 + activePowerL2 + activePowerL3;
+				assertTrue(pSum > 497 && pSum < 501);
+				int qSum = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
+				assertTrue(qSum > 247 && qSum < 251);
+				totalActivePower.addAndGet(pSum);
+				totalReactivePower.addAndGet(qSum);
 			}
 		}.maxApparentPower(9999).allowedCharge(-9999).allowedDischarge(9999);
 
@@ -166,6 +191,7 @@ public class ChocoPowerTest {
 		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
 
-		assertEquals(-1000, ess0.getPower().getMaxActivePower());
+		int min = ess0.getPower().getMinActivePower();
+		assertTrue(min > -1002 && min < -998);
 	}
 }
