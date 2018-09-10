@@ -14,7 +14,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Factor", description = "Each value in the csv-file is multiplied by this factor.")
-	float factor() default 1;
+	float factor() default 10_000;
 
 	@AttributeDefinition(name = "Time-Delta", description = "Time-Delta between two entries in the csv-file in seconds.")
 	int timeDelta() default 60;
