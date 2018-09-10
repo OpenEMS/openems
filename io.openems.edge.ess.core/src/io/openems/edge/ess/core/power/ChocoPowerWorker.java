@@ -2,8 +2,10 @@ package io.openems.edge.ess.core.power;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,9 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Goal;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -56,6 +61,11 @@ public class ChocoPowerWorker {
 	}
 
 	public synchronized int getActivePowerExtrema(Goal goal) {
+		// No Ess, no solution!
+		if (this.parent.esss.isEmpty()) {
+			return 0;
+		}
+
 		// initialize solver
 		final Model model = this.initializeModel();
 		final Solver solver = model.getSolver();
@@ -114,9 +124,9 @@ public class ChocoPowerWorker {
 		// initialize solver
 		final Model model = this.initializeModel();
 		final Solver solver = model.getSolver();
-		if (ChocoPower.DEBUG) {
-			solver.showDecisions();
-		}
+
+		// add Zero-Constraints
+		this.addZeroConstraints();
 
 		// Post all constraints
 		this.getConstraintsForChocoSolver(model) //
@@ -235,11 +245,100 @@ public class ChocoPowerWorker {
 		throw new IllegalArgumentException("IntVar is null. This should never happen!");
 	}
 
+	private static boolean coefficientIsCoveredBy(Coefficient co, SymmetricEss ess, Pwr pwr, Phase phase) {
+		if (ess instanceof MetaEss) {
+			// for MetaEss: call coefficientIsCoveredBy recursively
+			for (SymmetricEss subEss : ((MetaEss) ess).getEsss()) {
+				if (ChocoPowerWorker.coefficientIsCoveredBy(co, subEss, pwr, phase)) {
+					return true;
+				}
+			}
+			return false;
+
+		} else {
+			if (Objects.equals(co.getEss(), ess) //
+					&& co.getPwr() == pwr //
+					&& (phase == Phase.ALL //
+							|| co.getPhase() == phase //
+					)) {
+				return true;
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * Adds Zero-Constraint for every Coefficient that does not have an explicit
+	 * EQUALS constraint.
+	 * 
+	 * i.e. if there is no existing Constraint with ess0/L1/ACTIVE a constraint is
+	 * added so that ess0/L1/ACTIVE is required to be zero.
+	 */
+	private void addZeroConstraints() {
+		// Get Constraints for each Var to EQUALS zero
+		List<Coefficient> allVarsEqualZero = new ArrayList<>();
+		for (ManagedSymmetricEss ess : this.parent.esss.keySet()) {
+			for (Pwr pwr : Pwr.values()) {
+				for (Phase phase : Phase.values()) {
+					allVarsEqualZero.add(//
+							new Coefficient(ess, phase, pwr, 1));
+				}
+			}
+		}
+
+		// remove coefficient from 'allVarsEqualZero' that matches this coefficient
+		// this makes sure, that allVarsEqualZero sets all Coefficients to EQUALS ZERO
+		// that do not have a specific Constraint set.
+		this.parent.getAllConstraints() //
+				.filter(c -> c.getValue().isPresent() && c.getRelationship() == Relationship.EQUALS) //
+				.forEach(c -> {
+					for (Coefficient coSet : c.getCoefficients()) {
+						Iterator<Coefficient> coZeroIter = allVarsEqualZero.iterator();
+						while (coZeroIter.hasNext()) {
+							Coefficient coZero = coZeroIter.next();
+							if (ChocoPowerWorker.coefficientIsCoveredBy(coZero, coSet.getEss(), coSet.getPwr(),
+									coSet.getPhase())) {
+								coZeroIter.remove();
+							}
+						}
+					}
+				});
+
+		// Remove specific L1/L2/L3 coefficients if 'ALL' is existing
+		Iterator<Coefficient> coL123Iter = allVarsEqualZero.iterator();
+		while (coL123Iter.hasNext()) {
+			Coefficient coL123 = coL123Iter.next();
+			Phase phase = coL123.getPhase();
+			if (phase == Phase.L1 || phase == Phase.L2 || phase == Phase.L3) {
+				Iterator<Coefficient> coLPIter = allVarsEqualZero.iterator();
+				while (coLPIter.hasNext()) {
+					Coefficient coLP = coLPIter.next();
+					if (Objects.equals(coLP.getEss(), coL123.getEss()) //
+							&& coLP.getPhase() == Phase.ALL //
+							&& coLP.getPwr() == coL123.getPwr()) { //
+						coL123Iter.remove();
+						break;
+					}
+				}
+			}
+		}
+
+		// Add 'allVarsEqualZero' Constraints
+		for (Coefficient co : allVarsEqualZero) {
+			this.parent.addConstraint(new Constraint( //
+					ConstraintType.CYCLE, //
+					new Coefficient[] { co }, //
+					Relationship.EQUALS, //
+					0));
+		}
+	}
+
 	private Stream<ReExpression> getConstraintsForChocoSolver(Model model) {
-		return this.parent.getAllConstraints() //
-				.filter(c -> c.getValue().isPresent()) //
+		// Get all Constraints that were applied (using addConstraint)
+		return this.parent.getAllConstraints().filter(c -> c.getValue().isPresent()) //
 				.map(c -> {
 					try {
+						// create 'allExp' from all coefficients
 						ArExpression allExp = null;
 						for (Coefficient co : c.getCoefficients()) {
 							SymmetricEss ess = co.getEss();
@@ -254,7 +353,7 @@ public class ChocoPowerWorker {
 						for (EssWrapper ess : this.parent.esss.values()) {
 							minPrecision = Math.min(minPrecision, ess.getPrecision());
 						}
-						allExp.add(model.intVar("pError", 0, minPrecision - 1, false));
+						allExp = allExp.add(model.intVar("error", 0, minPrecision - 1, false));
 						int value = c.getValue().get(); // the stream was filtered before, so this call is save
 						switch (c.getRelationship()) {
 						case EQUALS:
@@ -315,5 +414,4 @@ public class ChocoPowerWorker {
 		}
 		return result;
 	}
-
 }

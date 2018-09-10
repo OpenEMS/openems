@@ -37,13 +37,20 @@ public class ChocoPowerTest {
 
 	@Test
 	public void testCommercial40DischargeSymmetricActivePower() throws Exception {
+		AtomicInteger runNo = new AtomicInteger(0);
+
 		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
 			@Override
 			public void applyPower(int activePower, int reactivePower) {
-				assertEquals(2760, activePower);
-				assertEquals(0, reactivePower);
+				if (runNo.get() == 0) {
+					assertEquals(600, activePower);
+					assertEquals(0, reactivePower);
+				} else if (runNo.get() == 1) {
+					assertEquals(-500, activePower);
+					assertEquals(0, reactivePower);
+				}
 			}
-		}.maxApparentPower(40000).allowedCharge(0).allowedDischarge(40000);
+		}.maxApparentPower(40000).allowedCharge(-26000).allowedDischarge(40000).precision(100);
 
 		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
@@ -51,7 +58,15 @@ public class ChocoPowerTest {
 		ess0.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GREATER_OR_EQUALS, -10000);
 		ess0.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 10000);
 
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 2760);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+
+		power.applyPower();
+
+		power.initializeNextCycle();
+		runNo.incrementAndGet();
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -500);
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 
 		power.applyPower();

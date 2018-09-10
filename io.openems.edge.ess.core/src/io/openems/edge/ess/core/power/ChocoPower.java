@@ -32,11 +32,6 @@ public class ChocoPower implements Power {
 
 	private final Logger log = LoggerFactory.getLogger(ChocoPower.class);
 
-	/**
-	 * Enable DEBUG mode for extensive logs
-	 */
-	protected final static boolean DEBUG = false;
-
 	/*
 	 * Holds a reference to the ChocoPowerWorker
 	 */
