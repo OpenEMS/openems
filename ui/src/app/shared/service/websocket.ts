@@ -50,7 +50,7 @@ export class Websocket {
   ) {
     // try to auto connect using token or session_id
     setTimeout(() => {
-      this.connect();
+      // this.connect();
     })
   }
 
@@ -339,6 +339,12 @@ export class Websocket {
     this.status = "waiting for authentication";
     this.service.removeToken();
     this.initialize();
+
+  }
+
+  public wpconnect() {
+    this.connect();
+
   }
 
   /**

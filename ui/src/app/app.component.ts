@@ -49,6 +49,11 @@ export class AppComponent {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(notification => {
       this.toaster.pop({ type: notification.type, body: notification.message });
     });
+
+    document.addEventListener("deviceready", function () {
+
+    }, false);
+
     // set initial backUrl
     this.updateBackUrl(window.location.pathname);
     // update backUrl on navigation events

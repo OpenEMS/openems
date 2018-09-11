@@ -53,7 +53,7 @@
                 }
               ],
               "baseHref": "/primus/",
-              "outputPath": "www",
+              "outputPath": "target/backend",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -64,7 +64,7 @@
               "vendorChunk": false,
               "buildOptimizer": true
             },
-			"app": {
+            "app": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -73,15 +73,15 @@
               ],
               "baseHref": "./",
               "outputPath": "www",
-              "optimization": true,
-              "outputHashing": "all",
+              "optimization": false,
+              "outputHashing": "none",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true
+              "buildOptimizer": false
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -105,8 +105,8 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-backend-dev-live.ts"
                 }
-				],
-				"baseHref": "/primus-dev/",
+              ],
+              "baseHref": "/primus-dev/",
               "outputPath": "target/backend-dev",
               "optimization": true,
               "outputHashing": "all",
@@ -117,7 +117,6 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true
-              
             },
             "edge": {
               "optimization": true,
@@ -191,7 +190,7 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
-              "styles.css",
+              "styles.css"
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"

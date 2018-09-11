@@ -28,6 +28,13 @@ import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+
+import { BrowserXhr, HttpModule } from '@angular/http';
+import { CustExtBrowserXhr } from './cust-ext-browser-xhr';
+import { Interceptor } from './interceptor';
+
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -45,13 +52,19 @@ import { RouteReuseStrategy } from '@angular/router';
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),
     PopoverPageModule,
+    HttpClientModule,
+    HttpModule
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: ErrorHandler, useExisting: Service },
-    { provide: LOCALE_ID, useValue: 'de' }
+    { provide: LOCALE_ID, useValue: 'de' },
+    //{ provide: BrowserXhr, useClass: CustExtBrowserXhr },
+    { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true }
+
+
   ],
   bootstrap: [AppComponent]
 })
