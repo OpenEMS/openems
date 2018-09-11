@@ -2,7 +2,6 @@ package io.openems.edge.simulator.ess.symmetric.reacting;
 
 import java.io.IOException;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -23,12 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.simulator.ess.EssUtils;
 
@@ -38,9 +32,6 @@ import io.openems.edge.simulator.ess.EssUtils;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class EssSymmetric extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
-
-	private Constraint allowedChargeConstraint;
-	private Constraint allowedDischargeConstraint;
 
 	/**
 	 * Current state of charge
@@ -72,7 +63,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 	@Reference
 	private Power power;
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected SimulatorDatasource datasource;
 
@@ -83,18 +74,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		this.soc = config.initialSoc();
 		this.capacity = config.capacity();
 		this.maxApparentPower = config.maxApparentPower();
-		this.getMaxActivePower().setNextValue(config.maxApparentPower());
-		/*
-		 * Initialize Power
-		 */
-		// Max Apparent Power
-		new CircleConstraint(this, this.maxApparentPower);
-		// Allowed Charge
-		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0 /* initial zero; is set later */);
-		// Allowed Discharge
-		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0 /* initial zero; is set later */);
+		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
 	}
 
 	@Deactivate
@@ -166,14 +146,14 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.allowedChargeConstraint.setIntValue(0);
+			this.getAllowedCharge().setNextValue(0);
 		} else {
-			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
+			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
 		}
 		if (this.soc == 0) {
-			this.allowedDischargeConstraint.setIntValue(0);
+			this.getAllowedDischarge().setNextValue(0);
 		} else {
-			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
+			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
 		}
 	}
 

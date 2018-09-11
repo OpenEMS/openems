@@ -55,7 +55,7 @@ public class Util {
 				}
 				// start reading the values, parse them to doubles and add them to the result
 				String[] values = line.split(SEPARATOR);
-				Float[] doubleValues = new Float[values.length];
+				float[] doubleValues = new float[values.length];
 				for (int i = 0; i < values.length; i++) {
 					doubleValues[i] = Float.parseFloat(values[i]) * multiplier;
 				}

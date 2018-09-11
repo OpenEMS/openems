@@ -50,8 +50,8 @@ export const TRANSLATION = {
                 ActivePower: "Active power",
                 GridMeter: "Grid meter",
                 ProductionMeter: "Production meter",
-                StorageDischarge: "Storage-Charge",
-                StorageCharge: "Storage-Discharge"
+                StorageDischarge: "Storage-Discharge",
+                StorageCharge: "Storage-Charge"
             },
             Energytable: {
                 Title: "Energytable",

@@ -29,8 +29,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class KostalPikoGridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, OpenemsComponent {
+public class KostalPikoGridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -69,5 +68,10 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.GRID;
+	}
+
+	@Override
+	public String debugLog() {
+		return "L:" + this.getActivePower().value().asString();
 	}
 }

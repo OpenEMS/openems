@@ -7,12 +7,12 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.core.power.LinearPower;
+import io.openems.edge.ess.core.power.ChocoPower;
 import io.openems.edge.ess.power.api.Power;
 
 public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss {
 
-	private LinearPower power;
+	private ChocoPower power;
 
 	public ManagedAsymmetricEssDummy() {
 		Stream.of( //
@@ -27,12 +27,12 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case MAX_ACTIVE_POWER:
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
+					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -48,6 +48,8 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(this, channelId);
@@ -67,9 +69,34 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
 
+	public ManagedAsymmetricEssDummy maxApparentPower(int value) {
+		this.getMaxApparentPower().setNextValue(value);
+		this.getMaxApparentPower().nextProcessImage();
+		return this;
+	}
+
+	public ManagedAsymmetricEssDummy allowedCharge(int value) {
+		this.getAllowedCharge().setNextValue(value);
+		this.getAllowedCharge().nextProcessImage();
+		return this;
+	}
+
+	public ManagedAsymmetricEssDummy allowedDischarge(int value) {
+		this.getAllowedDischarge().setNextValue(value);
+		this.getAllowedDischarge().nextProcessImage();
+		return this;
+	}
+	
+	private int precision = 1;
+	
+	public ManagedAsymmetricEssDummy precision(int value) {
+		this.precision = value;
+		return this;
+	}
+
 	@Override
 	public int getPowerPrecision() {
-		return 1;
+		return this.precision;
 	}
 
 	@Override
@@ -87,7 +114,7 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 		return true;
 	}
 
-	public void addToPower(LinearPower power) {
+	public void addToPower(ChocoPower power) {
 		this.power = power;
 		power.addEss(this);
 	}
