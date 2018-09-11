@@ -8,7 +8,7 @@ import java.util.Set;
 public class DataContainer {
 
 	private HashMap<String, Integer> keys = new HashMap<>();
-	private List<Float[]> records = new ArrayList<>();
+	private List<float[]> records = new ArrayList<>();
 	private int currentIndex = 0;
 
 	/**
@@ -36,7 +36,7 @@ public class DataContainer {
 	 * 
 	 * @param record
 	 */
-	public void addRecord(Float[] record) {
+	public void addRecord(float[] record) {
 		this.records.add(record);
 	}
 
@@ -45,7 +45,7 @@ public class DataContainer {
 	 * 
 	 * @return
 	 */
-	public Float[] getCurrentRecord() {
+	public float[] getCurrentRecord() {
 		return this.records.get(currentIndex);
 	}
 
@@ -55,7 +55,7 @@ public class DataContainer {
 	 * @param key
 	 * @return
 	 */
-	public Float getValue(String key) {
+	public float getValue(String key) {
 		return this.getCurrentRecord()[this.keys.get(key)];
 	}
 

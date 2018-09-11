@@ -2,7 +2,6 @@ package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
 import java.util.Optional;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -35,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
@@ -44,12 +44,12 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -66,14 +66,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	public static final int DEFAULT_UNIT_ID = 1;
 	protected static final int MAX_APPARENT_POWER = 52000;
 
-	private CircleConstraint maxApparentPowerConstraint = null;
-	private Constraint allowedCharge = null;
-	private Constraint allowedDischarge = null;
-
 	private int watchdogInterval = 0;
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
 	private int maxApparentPowerScaleFactor = 0;
+	private Constraint noPowerOnError;
 
 	@Reference
 	private Power power;
@@ -97,18 +94,19 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {		
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id()); //
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id()); //
 		// update filter for 'battery'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
 			return;
 		}
 
-		watchdogInterval = config.watchdoginterval();		
+		watchdogInterval = config.watchdoginterval();
 		doChannelMapping();
 		initializePower();
 	}
-	
+
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -118,10 +116,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		/*
 		 * Create Power Constraints
 		 */
-		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-		this.allowedCharge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GEQ, 0);
-		this.allowedDischarge = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ,
+		this.noPowerOnError = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
 				0);
+		this.noPowerOnError.setValue(null);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			// TODO unchecked cast
@@ -145,18 +142,17 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			refreshPower();
 		});
 	}
-	
+
 	private void refreshPower() {
 		maxApparentPower = maxApparentPowerUnscaled * maxApparentPowerScaleFactor;
 		if (maxApparentPower > 0) {
-			this.maxApparentPowerConstraint.setRadius(maxApparentPower);
-			this.channel(SymmetricEss.ChannelId.MAX_ACTIVE_POWER).setNextValue(maxApparentPower);
+			this.getMaxApparentPower().setNextValue(maxApparentPower);
 		}
 	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		
+
 		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
 		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
 
@@ -165,27 +161,29 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 			int scalefactor = wSetPctOpt.get();
 
-			int max = maxApparentPower; 
+			int max = maxApparentPower;
 			if (max == 0) {
 				max = MAX_APPARENT_POWER;
 			}
-			
+
 			/**
 			 * according to manual active power has to be set in % of maximum active power
-			 * with scale factor see page 10
-			 * WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled * 10^W_Max_SF * 10^WSetPct_SF)
+			 * with scale factor see page 10 WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled
+			 * * 10^W_Max_SF * 10^WSetPct_SF)
 			 */
 			int WSetPct = (int) ((activePower * 100) / (max * Math.pow(10, scalefactor)));
 
-			// If the battery system is not ready yet or inverter is not in grid (=normal) mode, set power to zero to avoid damaging or improper system states
-			if (! battery.getReadyForWorking().value().orElse(false) || !isSystemInGridmode()) {
+			// If the battery system is not ready yet or inverter is not in grid (=normal)
+			// mode, set power to zero to avoid damaging or improper system states
+			if (!battery.getReadyForWorking().value().orElse(false) || !isSystemInGridmode()) {
 				WSetPct = 0;
 			}
-			
+
 			try {
 				wSetPctChannel.setNextWriteValue(WSetPct);
 			} catch (OpenemsException e) {
-				log.error("EssKacoBlueplanetGridsave50.applyPower(): Problem occurred while trying so set active power" + e.getMessage());
+				log.error("EssKacoBlueplanetGridsave50.applyPower(): Problem occurred while trying so set active power"
+						+ e.getMessage());
 			}
 		}
 	}
@@ -238,13 +236,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doGridConnectedHandling() {
 		setWatchdog();
 		setBatteryRanges();
+		this.noPowerOnError.setValue(null);
 	}
-	
+
 	private void doErrorHandling() {
 		// find out the reason what is wrong an react
 		// for a first try, switch system off, it will be restarted
 		setWatchdog();
 		stopSystem();
+		this.noPowerOnError.setValue(0);
 	}
 
 	private void setBatteryRanges() {
@@ -256,12 +256,18 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
 		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
+		int batSoC = battery.getSoc().value().orElse(99);
+		int batSoH = battery.getSoh().value().orElse(98);
+		int batTemp = battery.getBatteryTemp().value().orElse(97);
 
 		// Update Power Constraints
-		this.logInfo(log,
-				"AllowedCharge [" + (chaMaxA * chaMaxV * -1) + "] AllowedDischarge [" + disMaxA * disMinV + "]");
-		this.allowedCharge.setIntValue(chaMaxA * chaMaxV * -1);
-		this.allowedDischarge.setIntValue(disMaxA * disMinV);
+		// TODO: The actual AC allowed charge and discharge should come from the KACO
+		// Blueplanet instead of calculating it from DC parameters.
+		final double EFFICIENCY_FACTOR = 0.9;
+		this.logInfo(log, "AllowedCharge [" + (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR) + "] AllowedDischarge ["
+				+ (disMaxA * disMinV * EFFICIENCY_FACTOR) + "]");
+		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
+		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
 
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
@@ -272,6 +278,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel chaMaxVChannel = this.channel(ChannelId.CHA_MAX_V);
 		IntegerWriteChannel chaMaxAChannel = this.channel(ChannelId.CHA_MAX_A);
 		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
+		// battery stats to display on inverter
+		IntegerWriteChannel batSoCChannel = this.channel(ChannelId.BAT_SOC);
+		IntegerWriteChannel batSoHChannel = this.channel(ChannelId.BAT_SOH);
+		IntegerWriteChannel batTempChannel = this.channel(ChannelId.BAT_TEMP);
 
 		try {
 			disMinVChannel.setNextWriteValue(disMinV);
@@ -279,6 +289,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			disMaxAChannel.setNextWriteValue(disMaxA);
 			chaMaxAChannel.setNextWriteValue(chaMaxA);
 			enLimitChannel.setNextWriteValue(1);
+
+			// battery stats to display on inverter
+			batSoCChannel.setNextWriteValue(batSoC);
+			batSoHChannel.setNextWriteValue(batSoH);
+			batTempChannel.setNextWriteValue(batTemp);
 		} catch (OpenemsException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
@@ -286,9 +301,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() // 
-				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() // 
-				;
+		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() //
+				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
+		;
 	}
 
 	@Override
@@ -358,9 +373,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			log.error("Watchdog timer could not be written!" + e.getMessage());
 		}
 	}
-	
+
 	/**
-	 *    writes current channel values to corresponding values of the channels given from interfaces 
+	 * writes current channel values to corresponding values of the channels given
+	 * from interfaces
 	 */
 	private void doChannelMapping() {
 		this.channel(ChannelId.CURRENT_STATE).onChange(value -> {
@@ -389,11 +405,21 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				break;
 			}
 		});
-		
+
 		this.battery.getSoc().onChange(value -> {
 			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(value.get());
 			this.channel(SymmetricEss.ChannelId.SOC).setNextValue(value.get());
+		});
+
+		this.battery.getSoh().onChange(value -> {
+			this.getSoc().setNextValue(value.get());
+			this.channel(ChannelId.BAT_SOH).setNextValue(value.get());
+		});
+
+		this.battery.getBatteryTemp().onChange(value -> {
+			this.getSoc().setNextValue(value.get());
+			this.channel(ChannelId.BAT_TEMP).setNextValue(value.get());
 		});
 	}
 
@@ -404,8 +430,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		ERROR(7, "Error"), // can be reached from every state, not directly addressable
 		PRECHARGE(9, "Precharge"), // State when system goes from OFF to STANDBY, not directly addressable
 		STARTING(3, "Starting"), // State from STANDBY to GRID_CONNECTED, not directly addressable
-		SHUTTING_DOWN(6, "Shutting down"), // State when system goes from GRID_CONNECTED to STANDBY, not directly addressable
-		CURRENTLY_UNKNOWN(10, "Currently not known"), // State appears sometimes, but currently there exists no documentation
+		SHUTTING_DOWN(6, "Shutting down"), // State when system goes from GRID_CONNECTED to STANDBY, not directly
+											// addressable
+		CURRENTLY_UNKNOWN(10, "Currently not known"), // State appears sometimes, but currently there exists no
+														// documentation
 		NO_ERROR_PENDING(12, "No error pending"), // State when system goes from ERROR to OFF, not directly addressable
 		THROTTLED(5, "Throttled"); // State that can occur when system is GRID_CONNECTED, not directly addressable
 
@@ -592,6 +620,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/*
+		 * DEBUG
+		 */
+		DEBUG_REQUESTED_STATE(new Doc()),
+		/*
 		 * SUNSPEC_103
 		 */
 		VENDOR_OPERATING_STATE(new Doc().options(ErrorCode.values())), // see error codes in user manual "10.10
@@ -604,8 +636,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		/*
 		 * SUNSPEC_64201
 		 */
-
-		REQUESTED_STATE(new Doc().options(RequestedState.values())), //
+		@SuppressWarnings("unchecked")
+		REQUESTED_STATE(new Doc().options(RequestedState.values()) //
+				// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+				.onInit(channel -> { //
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_REQUESTED_STATE).setNextValue(value);
+					});
+				})),
 		CURRENT_STATE(new Doc().options(CurrentState.values())), //
 		WATCHDOG(new Doc().unit(Unit.SECONDS)), //
 		W_SET_PCT(new Doc().unit(Unit.PERCENT)), //
@@ -632,7 +670,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		TEMP_SF(new Doc().unit(Unit.NONE)), //
 		BAT_SOC(new Doc().unit(Unit.PERCENT)), //
 		BAT_SOH(new Doc().unit(Unit.PERCENT)), //
-		BAT_TEMP(new Doc().unit(Unit.PERCENT)), //
+		BAT_TEMP(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		/*
 		 * SUNSPEC_64302
 		 */
@@ -661,12 +699,19 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private final static int SUNSPEC_64202 = 40877 - 1;
 	private final static int SUNSPEC_64203 = 40893 - 1;
 	private final static int SUNSPEC_64302 = 40931 - 1;
+	/*
+	 * private final static int SUNSPEC_103 = 40071; private final static int
+	 * SUNSPEC_121 = 40213; private final static int SUNSPEC_64201 = 40823; private
+	 * final static int SUNSPEC_64202 = 40877; private final static int
+	 * SUNSPEC_64203 = 40893; private final static int SUNSPEC_64302 = 40931;
+	 */
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(SUNSPEC_103 + 39,Priority.LOW, //
-						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE, new SignedWordElement(SUNSPEC_103 + 39))), //				
+				new FC3ReadRegistersTask(SUNSPEC_103 + 39, Priority.LOW, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE,
+								new SignedWordElement(SUNSPEC_103 + 39))), //
 				new FC3ReadRegistersTask(SUNSPEC_64201 + 35, Priority.HIGH,
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 35),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
@@ -687,7 +732,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(SUNSPEC_64201 + 9, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT, new SignedWordElement(SUNSPEC_64201 + 9))), //
 				new FC3ReadRegistersTask(SUNSPEC_64201 + 46, Priority.LOW, //
-						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT_SF, new SignedWordElement(SUNSPEC_64201 + 46))), //
+						m(EssKacoBlueplanetGridsave50.ChannelId.W_SET_PCT_SF,
+								new SignedWordElement(SUNSPEC_64201 + 46))), //
 				new FC3ReadRegistersTask(SUNSPEC_64202 + 6, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.V_SF, new SignedWordElement(SUNSPEC_64202 + 6)), //
 						m(EssKacoBlueplanetGridsave50.ChannelId.A_SF, new SignedWordElement(SUNSPEC_64202 + 7))), //
