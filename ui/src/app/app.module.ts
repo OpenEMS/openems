@@ -28,7 +28,7 @@ import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
-<<<<<<< HEAD
+
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { BrowserXhr, HttpModule } from '@angular/http';
@@ -36,10 +36,10 @@ import { CustExtBrowserXhr } from './cust-ext-browser-xhr';
 import { Interceptor } from './interceptor';
 
 
-=======
+
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
->>>>>>> fenecon/develop
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -57,12 +57,12 @@ import { environment } from '../environments/environment';
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),
     PopoverPageModule,
-<<<<<<< HEAD
+
     HttpClientModule,
     HttpModule
-=======
+
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
->>>>>>> fenecon/develop
+
   ],
   providers: [
     StatusBar,
