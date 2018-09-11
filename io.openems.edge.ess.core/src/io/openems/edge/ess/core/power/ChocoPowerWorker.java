@@ -39,7 +39,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class ChocoPowerWorker {
 
-	private final static int TIMELIMIT = 500;
+	private final static int TIMELIMIT = 5000;
 
 	private final Logger log = LoggerFactory.getLogger(ChocoPowerWorker.class);
 
@@ -348,12 +348,11 @@ public class ChocoPowerWorker {
 							allExp = allExp == null ? exp : allExp.add(exp);
 						}
 
-						// initialize error from minPrecision
-						int minPrecision = Integer.MAX_VALUE;
-						for (EssWrapper ess : this.parent.esss.values()) {
-							minPrecision = Math.min(minPrecision, ess.getPrecision());
-						}
-						allExp = allExp.add(model.intVar("error", 0, minPrecision - 1, false));
+						// add a rounding error for cases where the target value is not dividable by
+						// precision
+						// e.g. Ess has precision of 100 but target value is 2534.
+						allExp = allExp.add(this.getErrorVar(model));
+
 						int value = c.getValue().get(); // the stream was filtered before, so this call is save
 						switch (c.getRelationship()) {
 						case EQUALS:
@@ -369,6 +368,37 @@ public class ChocoPowerWorker {
 					}
 					return null;
 				}).filter(c -> c != null);
+	}
+
+	/**
+	 * Creates an IntVar that represents a rounding error for cases where the target
+	 * value is not dividable by precision e.g. Ess has precision of 100 but target
+	 * value is 2534.
+	 * 
+	 * The error variable is positive or negative according to the current average
+	 * state-of-charge, following this logic
+	 * 
+	 * <ul>
+	 * <li>if SoC > 50 %: error is negative (more discharge/less charge)
+	 * <li>if SoC < 50 %: error is positive (less discharge/more charge)
+	 * </ul>
+	 * 
+	 * @param model
+	 * @return
+	 */
+	private ArExpression getErrorVar(Model model) {
+		// get minPrecision and average state-of-charge of all Ess
+		int minPrecision = Integer.MAX_VALUE;
+		int socSum = 0;
+		for (EssWrapper wrapper : this.parent.esss.values()) {
+			minPrecision = Math.min(minPrecision, wrapper.getPrecision());
+			socSum += wrapper.getEss().getSoc().value().orElse(50);
+		}
+		if (socSum / this.parent.esss.values().size() > 49) {
+			return model.intVar("error", (minPrecision - 1) * -1, 0, false);
+		} else {
+			return model.intVar("error", 0, minPrecision - 1, false);
+		}
 	}
 
 	private List<IntVar> getImportantVars() {

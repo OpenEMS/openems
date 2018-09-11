@@ -42,15 +42,26 @@ public class ChocoPowerTest {
 		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy() {
 			@Override
 			public void applyPower(int activePower, int reactivePower) {
-				if (runNo.get() == 0) {
-					assertEquals(600, activePower);
+				switch (runNo.get()) {
+				case 0:
+					assertEquals(700, activePower);
 					assertEquals(0, reactivePower);
-				} else if (runNo.get() == 1) {
-					assertEquals(-500, activePower);
+					break;
+				case 1:
+					assertEquals(500, activePower);
 					assertEquals(0, reactivePower);
+					break;
+				case 2:
+					assertEquals(-400, activePower);
+					assertEquals(0, reactivePower);
+					break;
+				case 3:
+					assertEquals(-300, activePower);
+					assertEquals(0, reactivePower);
+					break;
 				}
 			}
-		}.maxApparentPower(40000).allowedCharge(-26000).allowedDischarge(40000).precision(100);
+		}.maxApparentPower(40000).allowedCharge(-26000).allowedDischarge(40000).precision(100).soc(50);
 
 		ChocoPower power = new ChocoPower();
 		ess0.addToPower(power);
@@ -65,8 +76,26 @@ public class ChocoPowerTest {
 
 		power.initializeNextCycle();
 		runNo.incrementAndGet();
+		ess0.soc(49);
 
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -500);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+
+		power.applyPower();
+
+		power.initializeNextCycle();
+		runNo.incrementAndGet();
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+
+		power.applyPower();
+
+		power.initializeNextCycle();
+		runNo.incrementAndGet();
+		ess0.soc(50);
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 
 		power.applyPower();
