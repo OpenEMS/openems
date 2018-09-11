@@ -2,12 +2,12 @@ package io.openems.edge.io.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
-public interface DigitalOutput extends OpenemsComponent {
+public interface DigitalInput extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		;
@@ -25,5 +25,5 @@ public interface DigitalOutput extends OpenemsComponent {
 	/**
 	 * Gets all Output Channels
 	 */
-	public WriteChannel<Boolean>[] digitalOutputChannels();
+	public Channel<Boolean>[] digitalInputChannels();
 }

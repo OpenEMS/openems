@@ -1,4 +1,4 @@
-package io.openems.edge.wago;
+package io.openems.edge.WagoTest;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
