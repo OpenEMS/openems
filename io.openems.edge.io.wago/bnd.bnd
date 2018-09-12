@@ -15,7 +15,8 @@ Export-Package: \
 	io.openems.common;version=latest,\
 	com.google.guava,\
 	io.openems.edge.meter.api;version=latest,\
-	io.openems.edge.bridge.modbus
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.io.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
