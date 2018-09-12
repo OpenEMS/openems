@@ -29,7 +29,17 @@
                 "glob": "**/*.svg",
                 "input": "node_modules/@ionic/angular/dist/ionic/svg",
                 "output": "./svg"
-              }
+              },
+              "src/android-chrome-192x192.png",
+              "src/android-chrome-512x512.png",
+              "src/apple-touch-icon.png",
+              "src/browserconfig.xml",
+              "src/favicon.ico",
+              "src/favicon-16x16.png",
+              "src/favicon-32x32.png",
+              "src/manifest.json",
+              "src/mstile-150x150.png",
+              "src/safari-pinned-tab.svg"
             ],
             "styles": [
               {
@@ -55,13 +65,14 @@
               "baseHref": "/m/",
               "outputPath": "target/backend",
               "optimization": true,
+              "aot": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
+              "serviceWorker": true,
               "buildOptimizer": true
             },
             "backend-dev-local": {
@@ -98,6 +109,7 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
+              "serviceWorker": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -106,17 +118,6 @@
               ],
               "baseHref": "/",
               "outputPath": "target/edge"
-            },
-            "production": {
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
             }
           }
         },
@@ -140,9 +141,6 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
-            },
-            "production": {
-              "browserTarget": "app:build:production"
             }
           }
         },
@@ -160,10 +158,7 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
-              "styles.css",
-            ],
-            "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
+              "styles.css"
             ],
             "scripts": [],
             "assets": [
@@ -176,7 +171,8 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
-              }
+              },
+              "src/manifest.json"
             ]
           }
         },

@@ -1,9 +1,10 @@
 package io.openems.edge.common.channel.merger;
 
-import java.util.NoSuchElementException;
-
 import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+
+import java.util.NoSuchElementException;
 
 public class SumInteger<C extends OpenemsComponent> extends ChannelsFunction<C, Integer> {
 
@@ -15,7 +16,11 @@ public class SumInteger<C extends OpenemsComponent> extends ChannelsFunction<C, 
 		return this.valueMap.values() //
 				.stream() //
 				.filter(v -> v.asOptional().isPresent()) //
-				.mapToDouble(v -> v.get()) //
+				.mapToDouble(Value::get) //
 				.sum();
 	}
+	
+//	protected boolean isDoubleCompatible() {
+//		
+//	}
 }

@@ -28,6 +28,8 @@ import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -45,6 +47,7 @@ import { RouteReuseStrategy } from '@angular/router';
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),
     PopoverPageModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
   ],
   providers: [
     StatusBar,

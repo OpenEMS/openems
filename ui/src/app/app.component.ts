@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ToasterService } from 'angular2-toaster';
 import { filter } from 'rxjs/operators';
 
-import { Platform, PopoverController } from '@ionic/angular';
+import { Platform, PopoverController, ToastController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
@@ -30,9 +30,9 @@ export class AppComponent {
     private statusBar: StatusBar,
     public websocket: Websocket,
     public service: Service,
-    private toaster: ToasterService,
     private popoverController: PopoverController,
-    public router: Router
+    public router: Router,
+    public toastController: ToastController
   ) {
     // this.initializeApp();
     service.setLang('de');
@@ -46,8 +46,15 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(notification => {
-      this.toaster.pop({ type: notification.type, body: notification.message });
+    this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
+      const toast = await this.toastController.create({
+        message: notification.message,
+        showCloseButton: true,
+        position: 'top',
+        closeButtonText: 'Ok',
+        duration: 2000
+      });
+      toast.present();
     });
     // set initial backUrl
     this.updateBackUrl(window.location.pathname);

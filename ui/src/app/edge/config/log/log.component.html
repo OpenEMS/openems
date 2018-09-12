@@ -15,25 +15,33 @@
         <ion-card-content>
           <ion-item>
             <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed"></ion-checkbox>
-            <ion-label translate>Edge.Config.Log.AutomaticUpdating</ion-label>
+            <ion-label translate text-wrap>Edge.Config.Log.AutomaticUpdating</ion-label>
           </ion-item>
         </ion-card-content>
 
         <ion-card-content>
-          <table class="full_width">
-            <ng-container *ngFor="let log of logs">
-              <tr style="font-family: monospace; font-size: small" style.color="black">
-                <td colspan="2">{{ log.time }}</td>
-                <td>{{ log.level }}</td>
-                <td style="word-break: break-all">{{ log.source }}</td>
-              </tr>
-              <tr style="font-family: monospace" [style.color]="log.color">
-                <td></td>
-                <td colspan="3">{{ log.message }}</td>
-              </tr>
-            </ng-container>
-          </table>
+          <ion-grid *ngFor="let log of logs">
+            <ion-row style="font-family: monospace; font-size: small" style.color="black">
+              <ion-col size-xl="3" size-sm="6">
+                {{log.time}}
+              </ion-col>
+              <ion-col size-xl="2" size-sm="6">
+                {{log.level}}
+              </ion-col>
+              <ion-col size-xl="7" size-sm="12">
+                {{log.source}}
+              </ion-col>
+            </ion-row>
+            <ion-row style="font-family: monospace" [style.color]="log.color">
+              <ion-col size-xl="3" size-sm="0">
+              </ion-col>
+              <ion-col size-xl="9" size-sm="12">
+                {{log.message}}
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </ion-card-content>
+
 
       </ion-card>
     </ion-col>
