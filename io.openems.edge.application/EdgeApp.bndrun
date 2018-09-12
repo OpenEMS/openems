@@ -23,23 +23,32 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.battery.soltaro)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.common)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.rest)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.ess.limittotaldischarge)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.cluster)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.core)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.kaco.blueplanet.gridsave50)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.carlo.gavazzi.em300)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.eastron.sdm630)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.socomec)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.wago)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.kostal.piko)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.allalphabetically)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.simulator)',\
@@ -68,10 +77,17 @@ JPM-Command:				openems-edge
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
+	io.openems.edge.ess.streetscooter;version=snapshot,\
+	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
+	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
+	io.openems.edge.meter.eastron.sdm630;version=snapshot,\
+	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
+	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
