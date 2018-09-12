@@ -184,7 +184,7 @@ public class ChocoPower implements Power {
 	public synchronized void applyPower() {
 		Solution solution = this.worker.solve();
 
-		if (solution == null) {
+		if (!this.esss.isEmpty() && solution == null) {
 			log.warn("Unable to find a Solution under the current constraints!");
 			this.esss.keySet().forEach(e -> {
 				log.warn("- Ess [" + e.id() + "]: " //
