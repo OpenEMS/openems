@@ -19,6 +19,7 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -31,7 +32,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbus, OpenemsComponent, EventHandler {
+public class BridgeModbusTcpImpl extends AbstractModbusBridge implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
 
 	// private final Logger log =
 	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);

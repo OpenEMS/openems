@@ -17,6 +17,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -29,7 +30,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class BridgeModbusSerial extends AbstractModbusBridge implements BridgeModbus, OpenemsComponent, EventHandler {
+public class BridgeModbusSerialImpl extends AbstractModbusBridge
+		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
 
 	// private final Logger log =
 	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
@@ -117,5 +119,30 @@ public class BridgeModbusSerial extends AbstractModbusBridge implements BridgeMo
 			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
 		}
 		return this._connection;
+	}
+
+	@Override
+	public int getBaudrate() {
+		return baudrate;
+	}
+
+	@Override
+	public int getDatabits() {
+		return databits;
+	}
+
+	@Override
+	public String getParity() {
+		return parity;
+	}
+
+	@Override
+	public String getPortName() {
+		return portName;
+	}
+
+	@Override
+	public String getStopbits() {
+		return stopbits;
 	}
 }
