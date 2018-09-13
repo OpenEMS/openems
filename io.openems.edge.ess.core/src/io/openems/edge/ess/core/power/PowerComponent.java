@@ -1,10 +1,11 @@
 package io.openems.edge.ess.core.power;
 
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -13,6 +14,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -30,8 +32,11 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
+@Designate(ocd = Config.class, factory = false)
 @Component( //
+		name = "ESS.Power", //
 		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
 				"id=_power", //
 				"enabled=true", //
@@ -39,6 +44,8 @@ import io.openems.edge.ess.power.api.Relationship;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		})
 public class PowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Power {
+
+	final static int DEFAULT_SOLVE_DURATION_LIMIT = 2000;
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -75,14 +82,17 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	private final ChocoPower power;
 
+	private final AtomicInteger solveDurationLimit = new AtomicInteger(DEFAULT_SOLVE_DURATION_LIMIT);
+
 	public PowerComponent() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 		this.power = new ChocoPower(this);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties) {
+	void activate(ComponentContext context, Config config) {
 		super.activate(context, "_power", "_power", true);
+		this.solveDurationLimit.set(config.solveDurationLimit());
 	}
 
 	@Deactivate
@@ -147,6 +157,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	protected IntegerReadChannel getSolveDurationChannel() {
 		return this.channel(ChannelId.SOLVE_DURATION);
+	}
+
+	public int getSolveDurationLimit() {
+		return solveDurationLimit.get();
 	}
 
 }
