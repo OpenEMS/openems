@@ -1,47 +1,49 @@
-<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayout="wrap">
-  <div fxFlex="100%">
-    <mat-card class="single">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>code</mat-icon>
-        <mat-card-title>System-Log</mat-card-title>
-        <mat-card-subtitle>{{ edge.name }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content fxLayout fxLayout="wrap">
-        <div fxFlex="100%">
-          <mat-form-field fxFlex>
-            <input type="text" #filter placeholder="Filter" value="" matInput>
-          </mat-form-field>
-          <mat-slide-toggle fxFlex="300px" (change)="toggleSubscribe($event)" [checked]="isSubscribed">
-            <span translate>Edge.Config.Log.AutomaticUpdating</span>
-          </mat-slide-toggle>
-        </div>
-        <table fxFlex="100%" class="full_width">
-          <tr>
-            <th>
-              <span translate>Edge.Config.Log.Timestamp</span>
-            </th>
-            <th>
-              <span translate>Edge.Config.Log.Level</span>
-            </th>
-            <th>
-              <span translate>Edge.Config.Log.Source</span>
-            </th>
-            <th>
-              <span translate>Edge.Config.Log.Message</span>
-            </th>
-          </tr>
-          <ng-container *ngFor="let log of logs">
-            <ng-container *ngIf="log.level.includes(filter.value) || log.source.includes(filter.value) || log.message.includes(filter.value)">
-              <tr style="font-family: monospace" [style.color]="log.color">
-                <td>{{ log.time }}</td>
-                <td>{{ log.level }}</td>
-                <td style="word-break: break-all">{{ log.source }}</td>
-                <td>{{ log.message }}</td>
-              </tr>
-            </ng-container>
-          </ng-container>
-        </table>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
+<ion-grid *ngIf="edge">
+  <ion-row>
+    <ion-col size="12">
+      <ion-card>
+        <ion-item>
+          <ion-icon slot="start" name="code-working" color="primary"></ion-icon>
+          <ion-label>
+            <ion-card-title>System-Log</ion-card-title>
+            <ion-card-subtitle text-wrap>
+              {{ edge.name }}
+            </ion-card-subtitle>
+          </ion-label>
+        </ion-item>
+
+        <ion-card-content>
+          <ion-item>
+            <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed"></ion-checkbox>
+            <ion-label translate text-wrap>Edge.Config.Log.AutomaticUpdating</ion-label>
+          </ion-item>
+        </ion-card-content>
+
+        <ion-card-content>
+          <ion-grid *ngFor="let log of logs">
+            <ion-row style="font-family: monospace; font-size: small" style.color="black">
+              <ion-col size-xl="3" size-sm="6">
+                {{log.time}}
+              </ion-col>
+              <ion-col size-xl="2" size-sm="6">
+                {{log.level}}
+              </ion-col>
+              <ion-col size-xl="7" size-sm="12">
+                {{log.source}}
+              </ion-col>
+            </ion-row>
+            <ion-row style="font-family: monospace" [style.color]="log.color">
+              <ion-col size-xl="3" size-sm="0">
+              </ion-col>
+              <ion-col size-xl="9" size-sm="12">
+                {{log.message}}
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+
+
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

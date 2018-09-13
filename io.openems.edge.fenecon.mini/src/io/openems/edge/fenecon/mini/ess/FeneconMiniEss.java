@@ -333,8 +333,8 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements Sy
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.HIGH, //
 						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
 						m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
@@ -593,7 +593,6 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements Sy
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() //
-				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|" + this.getGridMode().value().asOptionString();
+				+ "|L:" + this.getActivePower().value().asString(); //
 	}
 }

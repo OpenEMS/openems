@@ -24,7 +24,7 @@ public class EssUtils {
 				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
-					case MAX_ACTIVE_POWER:
+					case MAX_APPARENT_POWER:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 					case ACTIVE_CHARGE_ENERGY:
@@ -36,6 +36,8 @@ public class EssUtils {
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, 0);

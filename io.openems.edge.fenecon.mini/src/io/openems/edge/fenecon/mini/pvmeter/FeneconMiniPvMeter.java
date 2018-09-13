@@ -66,8 +66,8 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4006, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4006))), //
 				new FC3ReadRegistersTask(4036, Priority.HIGH, //
@@ -81,7 +81,7 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 
 	@Override
 	public String debugLog() {
-		return "|P:" + this.getActivePower().value().asString();
+		return "P:" + this.getActivePower().value().asString();
 	}
 
 }

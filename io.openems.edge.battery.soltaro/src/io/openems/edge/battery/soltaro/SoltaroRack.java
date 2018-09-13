@@ -33,7 +33,6 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.OptionsEnum;
@@ -636,8 +635,8 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2010,  //
 						m(SoltaroRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
 				) , //
@@ -1053,106 +1052,109 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		}
 	}
 
-	private void doNormalProcessing() {
-		// Try to react on possible errors
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)) {
-			handleCellVoltageHigh();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)) {
-			handleTotalVoltageHigh();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)) {
-			handleChargeCurrentHigh();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)) {
-			handleCellVoltageLow();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)) {
-			handleTotalVoltageLow();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)) {
-			handleDischargeCurrentHigh();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)) {
-			handleCellChargeTemperatureHigh();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)) {
-			handleCellChargeTemperatureLow();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)) {
-			handleInsulationLow();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)) {
-			handleCellDischargeTemperatureHigh();
-		}
-		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)) {
-			handleCellDischargeTemperatureLow();
-		}
-	}
+//	TODO unused
+//	private void doNormalProcessing() {
+//		// Try to react on possible errors
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)) {
+//			handleCellVoltageHigh();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)) {
+//			handleTotalVoltageHigh();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)) {
+//			handleChargeCurrentHigh();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)) {
+//			handleCellVoltageLow();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)) {
+//			handleTotalVoltageLow();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)) {
+//			handleDischargeCurrentHigh();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)) {
+//			handleCellChargeTemperatureHigh();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)) {
+//			handleCellChargeTemperatureLow();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)) {
+//			handleInsulationLow();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)) {
+//			handleCellDischargeTemperatureHigh();
+//		}
+//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)) {
+//			handleCellDischargeTemperatureLow();
+//		}
+//	}
 
-	private void handleFaults() {
-		Optional<Integer> state = getState().getNextValue().asOptional();
-		if (!state.isPresent()) {
-			return;
-		}
-		switch (state.get()) {
-		case 0: // SAMPLING_WIRE
-		case 1:// CONNECTOR_WIRE
-		case 2:// LTC6803
-		case 3:// VOLTAGE_SAMPLING
-		case 4:// TEMP_SAMPLING
-		case 5:// TEMP_SENSOR
-		case 8:// BALANCING_MODULE
-		case 9:// TEMP_SAMPLING_LINE
-		case 10:// INTRANET_COMMUNICATION
-		case 11:// EEPROM
-		case 12:// INITIALIZATION
-			stopSystem();
-			break;
-		}
-	}
+//	TODO unused
+//	private void handleFaults() {
+//		Optional<Integer> state = getState().getNextValue().asOptional();
+//		if (!state.isPresent()) {
+//			return;
+//		}
+//		switch (state.get()) {
+//		case 0: // SAMPLING_WIRE
+//		case 1:// CONNECTOR_WIRE
+//		case 2:// LTC6803
+//		case 3:// VOLTAGE_SAMPLING
+//		case 4:// TEMP_SAMPLING
+//		case 5:// TEMP_SENSOR
+//		case 8:// BALANCING_MODULE
+//		case 9:// TEMP_SAMPLING_LINE
+//		case 10:// INTRANET_COMMUNICATION
+//		case 11:// EEPROM
+//		case 12:// INITIALIZATION
+//			stopSystem();
+//			break;
+//		}
+//	}
 
-	private boolean checkForFault() {
-		Optional<Integer> state = getState().value().asOptional();
-		return (state.isPresent() && state.get() != 0);
-	}
-
-	private boolean isStateValueInChannelSet(ChannelId channelId) {
-		StateChannel channel = this.channel(channelId);
-		Optional<Boolean> valueOpt = channel.value().asOptional();
-		return valueOpt.isPresent() && valueOpt.get();
-	}
-
-	private void handleCellDischargeTemperatureLow() {
-	}
-
-	private void handleCellDischargeTemperatureHigh() {
-	}
-
-	private void handleInsulationLow() {
-	}
-
-	private void handleCellChargeTemperatureLow() {
-	}
-
-	private void handleCellChargeTemperatureHigh() {
-	}
-
-	private void handleDischargeCurrentHigh() {
-	}
-
-	private void handleTotalVoltageLow() {
-	}
-
-	private void handleCellVoltageLow() {
-	}
-
-	private void handleChargeCurrentHigh() {
-	}
-
-	private void handleTotalVoltageHigh() {
-	}
-
-	private void handleCellVoltageHigh() {
-	}
+//	TODO unused
+//	private boolean checkForFault() {
+//		Optional<Integer> state = getState().value().asOptional();
+//		return (state.isPresent() && state.get() != 0);
+//	}
+//
+//	private boolean isStateValueInChannelSet(ChannelId channelId) {
+//		StateChannel channel = this.channel(channelId);
+//		Optional<Boolean> valueOpt = channel.value().asOptional();
+//		return valueOpt.isPresent() && valueOpt.get();
+//	}
+//
+//	private void handleCellDischargeTemperatureLow() {
+//	}
+//
+//	private void handleCellDischargeTemperatureHigh() {
+//	}
+//
+//	private void handleInsulationLow() {
+//	}
+//
+//	private void handleCellChargeTemperatureLow() {
+//	}
+//
+//	private void handleCellChargeTemperatureHigh() {
+//	}
+//
+//	private void handleDischargeCurrentHigh() {
+//	}
+//
+//	private void handleTotalVoltageLow() {
+//	}
+//
+//	private void handleCellVoltageLow() {
+//	}
+//
+//	private void handleChargeCurrentHigh() {
+//	}
+//
+//	private void handleTotalVoltageHigh() {
+//	}
+//
+//	private void handleCellVoltageHigh() {
+//	}
 }

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 //import { Router, ActivatedRoute, Params } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subscription, Subject, fromEvent } from 'rxjs';
+import { takeUntil, debounceTime, delay } from 'rxjs/operators';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import { TranslateService } from '@ngx-translate/core';
@@ -35,8 +35,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
   public activePeriodText: string = "";
-  public showOtherPeriod = false;
   private dateRangePickerOptions: IMyDrpOptions = {
+    inline: true,
     showClearBtn: false,
     showApplyBtn: false,
     dateFormat: 'dd.mm.yyyy',
@@ -45,11 +45,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
     showWeekNumbers: true,
     showClearDateRangeBtn: false,
     editableDateRangeField: false,
-    openSelectorOnInputClick: true
+    openSelectorOnInputClick: true,
   };
-
-  private stopOnDestroy: Subject<void> = new Subject<void>();
-  private activePeriod: PeriodString = "today";
+  // sets the height for a chart. This is recalculated on every window resize.
+  public socChartHeight: string = "250px";
+  public energyChartHeight: string = "250px";
+  private ngUnsubscribe: Subject<void> = new Subject<void>();
+  public activePeriod: PeriodString = "today";
 
   constructor(
     public websocket: Websocket,
@@ -57,19 +59,18 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private translate: TranslateService,
     private service: Service,
   ) {
-    this.service.setBackUrlOverview(this.route);
   }
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .pipe(takeUntil(this.stopOnDestroy))
+      .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(edge => {
         this.edge = edge;
         if (edge == null) {
           this.config = null;
         } else {
           edge.config
-            .pipe(takeUntil(this.stopOnDestroy))
+            .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe(config => {
               this.config = config;
               if (config) {
@@ -83,6 +84,35 @@ export class HistoryComponent implements OnInit, OnDestroy {
         }
       });
     this.setPeriod("today");
+
+    // adjust chart size in the beginning and on window resize
+    setTimeout(() => this.updateOnWindowResize(), 200);
+    const source = fromEvent(window, 'resize', null, null);
+    const subscription = source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
+      this.updateOnWindowResize();
+    });
+  }
+
+  updateOnWindowResize() {
+    //console.log(window.innerHeight, window.innerWidth);
+    let ref = /* fix proportions */ Math.min(window.innerHeight - 150,
+      /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
+    this.socChartHeight =
+      /* minimum size */ Math.max(150,
+      /* maximium size */ Math.min(250, ref)
+      ) + "px";
+    this.energyChartHeight =
+      /* minimum size */ Math.max(300,
+      /* maximium size */ Math.min(600, ref)
+      ) + "px";
+  }
+
+  clickOtherPeriod() {
+    if (this.activePeriod === 'otherPeriod') {
+      this.setPeriod("today");
+    } else {
+      this.setPeriod("otherPeriod", this.YESTERDAY, this.TODAY);
+    }
   }
 
   onDateRangeChanged(event: IMyDateRangeModel) {
@@ -107,11 +137,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
    * @param from
    * @param to
    */
-  private setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
+  setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
     this.activePeriod = period;
-    if (period != "otherPeriod") {
-      this.showOtherPeriod = false;
-    }
     switch (period) {
       case "yesterday": {
         let yesterday = subDays(new Date(), 1);
@@ -124,11 +151,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
           toDate = fromDate;
         }
         this.setDateRange(fromDate, toDate);
-        this.activePeriodText = this.translate.instant('Edge.History.Period') + ", "
-          + this.translate.instant('General.PeriodFromTo', {
-            value1: format(fromDate, this.translate.instant('General.DateFormat')),
-            value2: format(toDate, this.translate.instant('General.DateFormat'))
-          });
+        this.activePeriodText = this.translate.instant('General.PeriodFromTo', {
+          value1: format(fromDate, this.translate.instant('General.DateFormat')),
+          value2: format(toDate, this.translate.instant('General.DateFormat'))
+        });
         break;
       case "today":
       default:
@@ -152,164 +178,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
   }
 
-  // start with loading "today"
-  // if (this.activePeriod == null) {
-  //   this.setPeriod("today");
-  // }
-  // edge.historykWh.subscribe((newkWh) => {
-  //   if (newkWh != null) {
-  //     let kWhGridBuy = {
-  //       name: "",
-  //       value: 0
-  //     }
-  //     let kWhGridSell = {
-  //       name: "",
-  //       value: 0
-  //     }
-  //     let kWhProduction = {
-  //       name: "Erzeugung",
-  //       value: 0
-  //     }
-  //     let kWhStorageCharge = {
-  //       name: "",
-  //       value: 0
-  //     }
-  //     let kWhStorageDischarge = {
-  //       name: "",
-  //       value: 0
-  //     }
-  //     for (let type in newkWh) {
-  //       if (newkWh[type].type == "production") {
-  //         let production = newkWh[type].value != null ? newkWh[type].value : 0;
-  //         kWhProduction.value = Math.round(production);
-  //       } else if (newkWh[type].type == "grid") {
-  //         let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
-  //         kWhGridBuy.name = "Netzbezug";
-  //         kWhGridBuy.value = Math.round(gridBuy);
-  //         let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
-  //         kWhGridSell.name = "Netzeinspeiung";
-  //         kWhGridSell.value = Math.round((gridSell * (-1)));
-  //       } else {
-  //         let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
-  //         kWhStorageCharge.name = "Batteriebeladung";
-  //         kWhStorageCharge.value = Math.round((storageCharge * (-1)));
-  //         let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
-  //         kWhStorageDischarge.name = "Batterieentladung";
-  //         kWhStorageDischarge.value = Math.round(storageDischarge);
-  //       }
-  //     }
-  //     this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
-  //   }
-  // })
-  // edge.historyData.subscribe((newData) => {
-  //   if (newData != null) {
-  //     let dataSoc = {
-  //       name: "Ladezustand",
-  //       series: []
-  //     }
-  //     let dataEnergy = {
-  //       name: "Erzeugung",
-  //       series: []
-  //     }
-  //     let dataConsumption = {
-  //       name: "Verbrauch",
-  //       series: []
-  //     }
-  //     let dataToGrid = {
-  //       name: "Netzeinspeisung",
-  //       series: []
-  //     }
-  //     let dataFromGrid = {
-  //       name: "Netzbezug",
-  //       series: []
-  //     }
-  //     for (let newDatum of newData) {
-  //       let timestamp = moment(newDatum["time"]);
-  //       let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
-  //       dataSoc.series.push({ name: timestamp, value: soc });
-  //       let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
-  //       dataEnergy.series.push({ name: timestamp, value: production });
-  //       let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
-  //       dataConsumption.series.push({ name: timestamp, value: consumption });
-  //       let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
-  //       if (newDatum.summary.grid.activePower < 0) {
-  //         dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
-  //       } else {
-  //         dataFromGrid.series.push({ name: timestamp, value: grid });
-  //       }
-  //     }
-  //     this.dataSoc = [dataSoc];
-  //     this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
-  //   }
-  // })
-
-  /**
-   * later: needed data for energychart.component.ts
-   * current: storage ActivePower is shown on energychart.component.ts
-   */
-  // private dataEnergy = [
-  //   {
-  //     "name": "Eigene PV-Produktion",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 47.0 }, { name: "2017-03-21T15:22", value: 47.0 }, { name: "2017-03-21T15:23", value: 63.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Durchschnittliche PV-Produktion",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 25.0 }, { name: "2017-03-21T15:22", value: 35.0 }, { name: "2017-03-21T15:23", value: 30.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Eigener Verbrauch",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 50.0 }, { name: "2017-03-21T15:22", value: 70.0 }, { name: "2017-03-21T15:23", value: 60.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Durchschnittlicher Verbrauch",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 12.0 }, { name: "2017-03-21T15:22", value: 15.0 }, { name: "2017-03-21T15:23", value: 17.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Eigene Netzeinspeisung",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 15.0 }, { name: "2017-03-21T15:22", value: 20.0 }, { name: "2017-03-21T15:23", value: 25.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Durchschnittliche Netzeinspeisung",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 17.0 }, { name: "2017-03-21T15:22", value: 21.0 }, { name: "2017-03-21T15:23", value: 23.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Eigener Netzbezug",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 5.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 15.0 }
-  //     ]
-  //   },
-  //   {
-  //     "name": "Durchschnittlicher Netzbezug",
-  //     "series": [
-  //       { name: "2017-03-21T15:21", value: 7.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 12.0 }
-  //     ]
-  //   }
-  // ];
-
-
-
-  // private setTimespan(from: any, to: any) {
-  //   if (from != "" || to != "") {
-  //     this.setPeriod('otherTimespan', from, to);
-  //   }
-  // }
-
   ngOnDestroy() {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
-
-
 }

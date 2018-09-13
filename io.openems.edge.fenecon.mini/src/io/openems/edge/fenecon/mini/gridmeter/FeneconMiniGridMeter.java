@@ -60,8 +60,8 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4004, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4004),
 								ElementToChannelConverter.INVERT)), //

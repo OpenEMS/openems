@@ -1,15 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 public interface Task {
-
-	/**
-	 * Sets the modbus unit id
-	 * 
-	 * @param unitId
-	 */
-	void setUnitId(int unitId);
 
 	/**
 	 * Gets the ModbusElements
@@ -24,5 +18,12 @@ public interface Task {
 	 * @return
 	 */
 	int getStartAddress();
+
+	/**
+	 * Sets the parent
+	 * 
+	 * @return
+	 */
+	void setParent(AbstractOpenemsModbusComponent parent);
 
 }

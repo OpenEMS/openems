@@ -27,8 +27,9 @@ public class Utils {
 					case REACTIVE_POWER:
 					case ACTIVE_DISCHARGE_ENERGY:
 					case ACTIVE_CHARGE_ENERGY:
-					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case MAX_APPARENT_POWER:
+						return new IntegerReadChannel(c, channelId, 3000);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
 					}

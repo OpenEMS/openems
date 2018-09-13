@@ -27,12 +27,12 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Přehled",
+        Index: "Přehled",
         AboutUI: "About FEMS-UI",
         Settings: 'Obecné Nastavení',
         Logout: 'Odhlásit'
     },
-    Overview: {
+    Index: {
         AllConnected: "Všechna připojení aktivní.",
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
@@ -40,7 +40,7 @@ export const TRANSLATION = {
         IsOffline: "FEMS je ve stavu offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Monitoring energetických toků",
                 ConsumptionWarning: "Spotřeba & neznámá výroba",
@@ -81,7 +81,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Zvolené období: ",
-            OtherPeriod: "Další období:",
+            OtherPeriod: "Další období",
             Period: "Období",
             Today: "Dnes",
             Yesterday: "Včera",
@@ -91,7 +91,7 @@ export const TRANSLATION = {
             Go: "Jdi!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Připojená zařízení",
                 Scheduler: "Plánovač aplikací",
                 Controller: "Aplikace",
