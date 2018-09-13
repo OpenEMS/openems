@@ -32,6 +32,8 @@ public class ChocoPower implements Power {
 
 	private final Logger log = LoggerFactory.getLogger(ChocoPower.class);
 
+	protected final PowerComponent parent;
+	
 	/*
 	 * Holds a reference to the ChocoPowerWorker
 	 */
@@ -54,8 +56,9 @@ public class ChocoPower implements Power {
 	 */
 	private final List<Constraint> staticConstraints = new ArrayList<>();
 
-	public ChocoPower() {
+	public ChocoPower(PowerComponent parent) {
 		this.worker = new ChocoPowerWorker(this);
+		this.parent = parent;
 	}
 
 	/**

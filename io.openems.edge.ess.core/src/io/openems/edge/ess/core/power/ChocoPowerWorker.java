@@ -39,7 +39,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class ChocoPowerWorker {
 
-	private final static int TIMELIMIT = 5000;
+	private final static int TIMELIMIT = 2000;
 
 	private final Logger log = LoggerFactory.getLogger(ChocoPowerWorker.class);
 
@@ -96,6 +96,8 @@ public class ChocoPowerWorker {
 
 		// initialize solver
 		solver.limitTime(TIMELIMIT);
+		// TODO add smart stop Criterion that stops the search early if the solutions
+		// are not anymore improving significantly
 		solver.setSearch(Search.intVarSearch(
 				// variable selector
 				new MaxRegret(),
@@ -120,6 +122,9 @@ public class ChocoPowerWorker {
 		if (this.parent.esss.isEmpty()) {
 			return null;
 		}
+
+		// measure duration
+		long startTime = System.nanoTime();
 
 		// initialize solver
 		final Model model = this.initializeModel();
@@ -202,6 +207,11 @@ public class ChocoPowerWorker {
 				vars.toArray(new IntVar[vars.size()])));
 
 		Solution solution = solver.findOptimalSolution(objective, Model.MINIMIZE);
+
+		// store debug channels
+		this.parent.parent.getSolvedChannel().setNextValue(solution != null);
+		this.parent.parent.getSolveDurationChannel().setNextValue((System.nanoTime() - startTime) / 1_000_000);
+
 		return solution;
 	}
 
