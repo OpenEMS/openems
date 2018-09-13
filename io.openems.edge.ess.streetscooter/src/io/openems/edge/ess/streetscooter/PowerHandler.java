@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -11,21 +12,19 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.InverterMode;
 
 public class PowerHandler implements BiConsumer<Integer, Integer> {
 
 	private static final int MINUTES_TO_WAIT_FOR_2ND_TRY = 30;
-	private OpenemsComponent parent;
-	private Logger log;
+	private AbstractEssStreetscooter parent;
+	private final Logger log = LoggerFactory.getLogger(PowerHandler.class);
 	private LocalDateTime lastRestartAfterFault;
 	private int attempsToRestart;
 
-	public PowerHandler(OpenemsComponent parent, Logger log) {
+	public PowerHandler(AbstractEssStreetscooter parent) {
 		this.parent = parent;
-		this.log = log;
 	}
 
 	@Override
@@ -47,12 +46,6 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		if (isRunning() && !isEnabled()) {
 			setEnabled(true);
 		}
-
-		log.info(parent.id() //
-				+ " is" + (isEnabled() ? "" : " NOT") + " Enabled." //
-				+ " is" + (isRunning() ? "" : " NOT") + " Running. " //
-				+ " inverter mode [" + parent.channel(ChannelId.INVERTER_MODE).value() + "]." //
-				+ " set power [" + activePower + "]");
 
 		if (isRunning() && isEnabled() && isInverterInNormalMode()) {
 			writeActivePower(activePower);
@@ -76,13 +69,13 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 			attempsToRestart = 1;
 			setRunning(true);
 			setEnabled(true);
-			log.info("Try to restart the system for the first time after detecting fault");
+			this.parent.logInfo(this.log, "Try to restart the system for the first time after detecting fault");
 		} else {
 			if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart == 1) {
 				attempsToRestart++;
 				setRunning(true);
 				setEnabled(true);
-				log.info("Try to restart the system for the second time after detecting fault");
+				this.parent.logInfo(this.log, "Try to restart the system for the second time after detecting fault");
 			} else if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart > 1) {
 				// Do nothing, let system in fault mode
 				StringWriteChannel errorChannel = parent.channel(ChannelId.SYSTEM_STATE_INFORMATION);
@@ -96,7 +89,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 			IntegerWriteChannel setActivePowerChannel = parent.channel(ChannelId.INVERTER_SET_ACTIVE_POWER);
 			setActivePowerChannel.setNextWriteValue(activePower);
 		} catch (OpenemsException e) {
-			log.error("Unable to set ActivePower: " + e.getMessage());
+			this.parent.logError(this.log, "Unable to set ActivePower: " + e.getMessage());
 		}
 	}
 
@@ -117,7 +110,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_ENABLED);
 			channel.setNextWriteValue(value);
 		} catch (Exception e) {
-			log.error("Unable to set icu enabled: " + e.getMessage());
+			this.parent.logError(this.log, "Unable to set icu enabled: " + e.getMessage());
 		}
 	}
 
@@ -126,7 +119,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_RUN);
 			channel.setNextWriteValue(value);
 		} catch (Exception e) {
-			log.error("Unable to set icu run: " + e.getMessage());
+			this.parent.logError(this.log, "Unable to set icu run: " + e.getMessage());
 		}
 	}
 

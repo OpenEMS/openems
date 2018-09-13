@@ -11,8 +11,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -24,7 +22,8 @@ import io.openems.edge.ess.power.api.Power;
 @Designate(ocd = Config0.class, factory = true)
 @Component(name = "Ess0.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
-public class Ess0Streetscooter extends AbstractEssStreetscooter implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+public class Ess0Streetscooter extends AbstractEssStreetscooter
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	private static final int INVERTER_0_MODE_ADDRESS = 2056;
 	private static final int ICU_0_SET_POWER_ADDRESS = 4000;
@@ -39,18 +38,18 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter implements Manag
 
 	@Reference
 	private Power power;
-	
+
 	@Reference
 	private ConfigurationAdmin cm;
 
-	public Ess0Streetscooter() {		
-		super();		
+	public Ess0Streetscooter() {
+		super();
 	}
 
 	@Activate
 	protected void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), config0.readonly(), UNIT_ID, this.cm, "Modbus",
-				config0.modbus_id());
+		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), config0.readonly(), UNIT_ID,
+				this.cm, "Modbus", config0.modbus_id());
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -102,14 +101,9 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter implements Manag
 	protected int getIcuRunstateAddress() {
 		return ICU_0_RUNSTATE_ADDRESS;
 	}
-	
+
 	@Override
 	public Power getPower() {
 		return this.power;
-	}
-
-	@Override
-	protected Logger initializeLogger() {
-		return LoggerFactory.getLogger(Ess0Streetscooter.class);
 	}
 }

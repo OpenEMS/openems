@@ -29,26 +29,23 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	protected static final int UNIT_ID = 100;
-	protected static final int MAX_APPARENT_POWER = 4000;
+	protected static final int MAX_APPARENT_POWER = 12000;
 
 	private static final int POWER_PRECISION = 100;
 	private static final int ICU_RUN_ADDRESS = 4002;
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-	protected final Logger log;
+//	private final Logger log = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
 
 	private final PowerHandler powerHandler;
 
 	private boolean readonly = false;
 
 	public AbstractEssStreetscooter() {
-		log = initializeLogger();
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel((Channel<?>) channel));
-		this.powerHandler = new PowerHandler(this, this.log);
+		this.powerHandler = new PowerHandler(this);
 	}
-
-	protected abstract Logger initializeLogger();
 
 	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, boolean readonly,
 			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
@@ -329,4 +326,14 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	protected abstract int getIcuRunstateAddress();
 
 	protected abstract int getInverterModeAddress();
+	
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+	
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
 }
