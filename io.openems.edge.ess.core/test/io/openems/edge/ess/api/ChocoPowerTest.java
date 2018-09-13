@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 import io.openems.edge.ess.core.power.ChocoPower;
+import io.openems.edge.ess.core.power.PowerComponent;
 import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -27,7 +28,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(9999).allowedCharge(-9999).allowedDischarge(9999);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1000);
@@ -63,7 +65,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(40000).allowedCharge(-26000).allowedDischarge(40000).precision(100).soc(50);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GREATER_OR_EQUALS, -10000);
@@ -111,7 +114,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(9999).allowedCharge(-9999).allowedDischarge(9999);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 1000);
@@ -129,7 +133,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(9999).allowedCharge(-9999).allowedDischarge(9999);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1000);
@@ -149,7 +154,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(9999).allowedCharge(-9999).allowedDischarge(9999);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1000);
@@ -194,7 +200,8 @@ public class ChocoPowerTest {
 
 		EssClusterDummy ess0 = new EssClusterDummy(ess1, ess2);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess1.addToPower(power);
 		ess2.addToPower(power);
 		ess0.addToPower(power);
@@ -217,7 +224,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(2000).allowedCharge(-9999).allowedDischarge(1000);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		assertEquals(999 /* caused by rounding errors */, ess0.getPower().getMaxActivePower());
@@ -232,7 +240,8 @@ public class ChocoPowerTest {
 			}
 		}.maxApparentPower(2000).allowedCharge(-1000).allowedDischarge(9999);
 
-		ChocoPower power = new ChocoPower();
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
 		ess0.addToPower(power);
 
 		int min = ess0.getPower().getMinActivePower();

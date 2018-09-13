@@ -314,8 +314,8 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				/*
 				 * For Read: Read Coils
 				 */

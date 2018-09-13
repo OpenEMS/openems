@@ -89,12 +89,12 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
+	protected ModbusProtocol defineModbusProtocol() {
 		/*
 		 * We are using the FLOAT registers from the modbus table, because they are all
 		 * reachable within one ReadMultipleRegistersRequest.
 		 */
-		return new ModbusProtocol(unitId, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),

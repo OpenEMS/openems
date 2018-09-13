@@ -32,6 +32,8 @@ public class ChocoPower implements Power {
 
 	private final Logger log = LoggerFactory.getLogger(ChocoPower.class);
 
+	protected final PowerComponent parent;
+	
 	/*
 	 * Holds a reference to the ChocoPowerWorker
 	 */
@@ -54,8 +56,9 @@ public class ChocoPower implements Power {
 	 */
 	private final List<Constraint> staticConstraints = new ArrayList<>();
 
-	public ChocoPower() {
+	public ChocoPower(PowerComponent parent) {
 		this.worker = new ChocoPowerWorker(this);
+		this.parent = parent;
 	}
 
 	/**
@@ -184,7 +187,7 @@ public class ChocoPower implements Power {
 	public synchronized void applyPower() {
 		Solution solution = this.worker.solve();
 
-		if (solution == null) {
+		if (!this.esss.isEmpty() && solution == null) {
 			log.warn("Unable to find a Solution under the current constraints!");
 			this.esss.keySet().forEach(e -> {
 				log.warn("- Ess [" + e.id() + "]: " //
