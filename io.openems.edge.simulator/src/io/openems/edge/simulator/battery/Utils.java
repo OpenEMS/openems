@@ -24,6 +24,9 @@ public class Utils {
 				}), Arrays.stream(Battery.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
+					case SOH:
+					case BATTERY_TEMP:
+					case MAX_CAPACITY:
 					case CHARGE_MAX_CURRENT:
 					case CHARGE_MAX_VOLTAGE:
 					case DISCHARGE_MAX_CURRENT:

@@ -43,7 +43,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				 * Fill Max Actual Power channel
 				 */
 				if (value.asOptional().isPresent()) {
-					int newValue = (int) value.get();
+					int newValue = (int) (Integer) value.get();
 					Channel<Integer> maxActualPowerChannel = channel.getComponent().channel(ChannelId.MAX_ACTUAL_POWER);
 					int maxActualPower = maxActualPowerChannel.value().orElse(0);
 					int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);

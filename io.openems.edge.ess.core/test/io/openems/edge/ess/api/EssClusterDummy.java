@@ -9,13 +9,13 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.core.power.LinearPower;
+import io.openems.edge.ess.core.power.ChocoPower;
 import io.openems.edge.ess.power.api.Power;
 
 public class EssClusterDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss, MetaEss {
 
 	private final List<ManagedSymmetricEss> managedEsss = new ArrayList<>();
-	private LinearPower power;
+	private ChocoPower power;
 
 	public EssClusterDummy(SymmetricEss... esss) {
 		Stream.of( //
@@ -30,9 +30,9 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case MAX_ACTIVE_POWER:
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
+					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
 						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
@@ -51,6 +51,8 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(this, channelId);
@@ -110,7 +112,7 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
 	}
 
-	public void addToPower(LinearPower power) {
+	public void addToPower(ChocoPower power) {
 		this.power = power;
 		power.addEss(this);
 	}

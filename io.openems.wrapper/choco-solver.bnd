@@ -1,0 +1,116 @@
+Bundle-Name: choco-solver
+Bundle-Description: Choco-Solver
+Bundle-DocURL: https://github.com/chocoteam/choco-solver/
+Bundle-License: https://github.com/chocoteam/choco-solver/blob/master/LICENSE
+Bundle-Version: 4.0.8
+
+Include-Resource: @choco-solver-4.0.8.jar
+
+Import-Package: \
+	com.google.inject;resolution:=optional, \
+	junit.framework;resolution:=optional, \
+	org.apache.bsf;resolution:=optional, \
+	org.apache.bsf.util;resolution:=optional, \
+	org.apache.tools.ant;resolution:=optional, \
+	org.apache.tools.ant.taskdefs;resolution:=optional, \
+	org.apache.tools.ant.types;resolution:=optional, \
+	org.apache.tools.ant.types.resources;resolution:=optional, \
+	org.apache.tools.ant.types.selectors;resolution:=optional, \
+	org.junit;resolution:=optional, \
+	org.junit.runner;resolution:=optional, \
+	org.junit.runner.manipulation;resolution:=optional, \
+	org.junit.runner.notification;resolution:=optional, \
+	org.yaml.snakeyaml;resolution:=optional, \
+	org.yaml.snakeyaml.constructor;resolution:=optional, \
+	org.yaml.snakeyaml.nodes;resolution:=optional, \
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-exportcontents: \
+	org.chocosolver.cutoffseq, \
+	org.chocosolver.solver, \
+	org.chocosolver.solver.constraints, \
+	org.chocosolver.solver.constraints.binary, \
+	org.chocosolver.solver.constraints.extension, \
+	org.chocosolver.solver.constraints.nary.cumulative, \
+	org.chocosolver.solver.constraints.nary.alldifferent, \
+	org.chocosolver.solver.constraints.nary.alldifferent.algo, \
+	org.chocosolver.solver.constraints.nary.alldifferent.conditions, \
+	org.chocosolver.solver.constraints.nary.automata.FA, \
+	org.chocosolver.solver.constraints.nary.automata.FA.utils, \
+	org.chocosolver.solver.constraints.nary.circuit, \
+	org.chocosolver.solver.constraints.nary.cnf, \
+	org.chocosolver.solver.constraints.nary.nogood, \
+	org.chocosolver.solver.constraints.real, \
+	org.chocosolver.solver.exception, \
+	org.chocosolver.solver.explanations, \
+	org.chocosolver.solver.expression.continuous.arithmetic, \
+	org.chocosolver.solver.expression.continuous.relational, \
+	org.chocosolver.solver.expression.discrete.arithmetic, \
+	org.chocosolver.solver.expression.discrete.relational, \
+	org.chocosolver.solver.objective, \
+	org.chocosolver.solver.propagation, \
+	org.chocosolver.solver.search, \
+	org.chocosolver.solver.search.limits, \
+	org.chocosolver.solver.search.loop, \
+	org.chocosolver.solver.search.loop.learn, \
+	org.chocosolver.solver.search.loop.lns, \
+	org.chocosolver.solver.search.loop.lns.neighbors, \
+	org.chocosolver.solver.search.loop.monitors, \
+	org.chocosolver.solver.search.loop.move, \
+	org.chocosolver.solver.search.loop.propagate, \
+	org.chocosolver.solver.search.measure, \
+	org.chocosolver.solver.search.strategy, \
+	org.chocosolver.solver.search.strategy.alignments, \
+	org.chocosolver.solver.search.strategy.assignments, \
+	org.chocosolver.solver.search.strategy.decision, \
+	org.chocosolver.solver.search.strategy.selectors, \
+	org.chocosolver.solver.search.strategy.selectors.values, \
+	org.chocosolver.solver.search.strategy.selectors.variables, \
+	org.chocosolver.solver.search.strategy.strategy, \
+	org.chocosolver.solver.variables, \
+	org.chocosolver.solver.variables.delta, \
+	org.chocosolver.solver.variables.delta.monitor, \
+	org.chocosolver.solver.variables.events, \
+	org.chocosolver.solver.variables.impl, \
+	org.chocosolver.solver.variables.view, \
+	org.chocosolver.solver.trace, \
+	org.chocosolver.memory, \
+	org.chocosolver.memory.structure, \
+	org.chocosolver.memory.trailing, \
+	org.chocosolver.memory.trailing.trail, \
+	org.chocosolver.sat, \
+	org.chocosolver.util, \
+	org.chocosolver.util.criteria, \
+	org.chocosolver.util.graphOperations, \
+	org.chocosolver.util.graphOperations.dominance, \
+	org.chocosolver.util.iterators, \
+	org.chocosolver.util.objects, \
+	org.chocosolver.util.objects.graphs, \
+	org.chocosolver.util.objects.queues, \
+	org.chocosolver.util.objects.setDataStructures, \
+	org.chocosolver.util.objects.setDataStructures.bitset, \
+	org.chocosolver.util.objects.setDataStructures.iterable, \
+	org.chocosolver.util.procedure, \
+	org.chocosolver.util.sort, \
+	gnu.trove, \
+	gnu.trove.function, \
+	gnu.trove.impl.hash, \
+	gnu.trove.iterator, \
+	gnu.trove.iterator.hash, \
+	gnu.trove.list, \
+	gnu.trove.list.array, \
+	gnu.trove.map, \
+	gnu.trove.map.hash, \
+	gnu.trove.procedure, \
+	gnu.trove.set, \
+	gnu.trove.set.hash, \
+	gnu.trove.strategy, \
+	gnu.trove.stack, \
+	gnu.trove.stack.array, \
+	dk.brics.automaton
+	
+-sources: false

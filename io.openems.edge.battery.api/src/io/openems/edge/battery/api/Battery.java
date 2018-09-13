@@ -24,6 +24,27 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		/*
+		 * State of Health
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: %
+		 * <li>Range: 0..100
+		 * </ul>
+		 */
+		SOH(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		/**
+		 * Max capacity
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		MAX_CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		/**
 		 * Min voltage for discharging
 		 * 
@@ -65,6 +86,17 @@ public interface Battery extends OpenemsComponent {
 		 */
 		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
 		/**
+		 * Battery Temperature
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: Celsius
+		 * <li>Range: (-50)..100
+		 * </ul>
+		 */
+		BATTERY_TEMP(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		/**
 		 * Indicates that the battery has started and is ready for charging/discharging
 		 * 
 		 * <ul>
@@ -94,6 +126,33 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getSoc() {
 		return this.channel(ChannelId.SOC);
+	}
+
+	/**
+	 * Gets the State of Health in [%], range 0..100 %
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getSoh() {
+		return this.channel(ChannelId.SOH);
+	}
+
+	/**
+	 * Gets the maximum capacity
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getMaxCapacity() {
+		return this.channel(ChannelId.MAX_CAPACITY);
+	}
+
+	/**
+	 * Gets the Battery Temperature in [degC], range (-50)..100
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getBatteryTemp() {
+		return this.channel(ChannelId.BATTERY_TEMP);
 	}
 
 	/**

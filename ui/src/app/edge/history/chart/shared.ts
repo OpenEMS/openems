@@ -133,8 +133,8 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         axis: 'x',
         callbacks: {
             title(tooltipItems: TooltipItem[], data: Data): string {
-                return format(tooltipItems[0].xLabel, "LLLL", { locale: deLocale });
-                // TODO translate locale
+                let date = new Date(tooltipItems[0].xLabel);
+                return date.toLocaleDateString() + " " + date.toLocaleTimeString();
             }
         }
     }

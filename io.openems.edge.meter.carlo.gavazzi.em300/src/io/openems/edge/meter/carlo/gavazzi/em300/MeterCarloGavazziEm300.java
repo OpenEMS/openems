@@ -113,13 +113,13 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
+	protected ModbusProtocol defineModbusProtocol() {
 		final int OFFSET = 300000 + 1;
 		/**
 		 * See Modbus definition PDF-file in doc directory and
 		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
 		 */
-		return new ModbusProtocol(unitId, //
+		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(300001 - OFFSET, Priority.LOW, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
 								new SignedDoublewordElement(300001 - OFFSET).wordOrder(WordOrder.LSWMSW),

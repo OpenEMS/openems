@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
 
 import { DefaultTypes } from './defaulttypes';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable()
 export class Service implements ErrorHandler {

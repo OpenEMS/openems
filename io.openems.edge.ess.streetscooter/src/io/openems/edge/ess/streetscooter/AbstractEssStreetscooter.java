@@ -1,11 +1,9 @@
 package io.openems.edge.ess.streetscooter;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
@@ -24,21 +22,15 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	protected static final int UNIT_ID = 100;
 	protected static final int MAX_APPARENT_POWER = 4000;
-	
+
 	private static final int POWER_PRECISION = 100;
 	private static final int ICU_RUN_ADDRESS = 4002;
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
@@ -62,30 +54,9 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		this.readonly = readonly;
 
-		/*
-		 * Initialize Power
-		 */
 		if (readonly) {
-			// Do not allow Power
-			this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 0);
-			this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.EQ, 0);
-		} else {
-			// max Apparent
-			new CircleConstraint(this, MAX_APPARENT_POWER);
-			// Allowed Charge
-//			Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-//					Relationship.GEQ, 0);
-//			this.channel(ChannelId.BATTERY_BMS_PWR_RGN_MAX).onChange(value -> {
-//				this.logInfo(log, "Update AllowedCharge [" + value + "]");
-//				allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-//			});
-//			// Allowed Discharge
-//			Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL,
-//					Pwr.ACTIVE, Relationship.LEQ, 0);
-//			this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
-//				this.logInfo(log, "Update AllowedDischarge [" + value + "]");
-//				allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-//			});
+			// Do not allow Power in read-only mode
+			this.getMaxApparentPower().setNextValue(0);
 		}
 
 		super.activate(context, servicePid, id, enabled, unitId, cm, modbusReference, modbusId);
@@ -112,11 +83,11 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
+	protected ModbusProtocol defineModbusProtocol() {
 		int batteryInfoStartAddress = BATTERY_INFO_START_ADDRESS + getAdressOffsetForBattery();
 		int inverterInfoStartAddress = INVERTER_INFO_START_ADDRESS + getAdressOffsetForInverter();
 
-		return new ModbusProtocol(unitId, //
+		return new ModbusProtocol(this, //
 				new FC1ReadCoilsTask(getIcuRunAddress(), Priority.HIGH,
 						m(ChannelId.ICU_RUN, new CoilElement(getIcuRunAddress()))),
 				new FC5WriteCoilTask(getIcuRunAddress(), m(ChannelId.ICU_RUN, new CoilElement(getIcuRunAddress()))),
@@ -135,9 +106,9 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(batteryInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_I_ACT,
 								new FloatDoublewordElement(batteryInfoStartAddress + 2).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.BATTERY_BMS_PWR_CHRG_MAX,
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
 								new FloatDoublewordElement(batteryInfoStartAddress + 4).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX,
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 								new FloatDoublewordElement(batteryInfoStartAddress + 6).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_PWR_RGN_MAX,
 								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW)),

@@ -1,14 +1,12 @@
 package io.openems.edge.ess.power.api;
 
-import org.apache.commons.math3.optim.linear.Relationship;
-
 public class ConstraintBuilder {
 
 	private final Power parent;
 	private ConstraintType type = ConstraintType.CYCLE;
 	private Coefficient[] coefficients;
-	private Relationship relationship = Relationship.EQ;
-	private double value = 0;
+	private Relationship relationship = Relationship.EQUALS;
+	private int value = 0;
 
 	/**
 	 * Creates a Constraint. Make sure to call 'build()' to actually apply the
@@ -41,7 +39,7 @@ public class ConstraintBuilder {
 		return this;
 	}
 
-	public ConstraintBuilder value(double value) {
+	public ConstraintBuilder value(int value) {
 		this.value = value;
 		return this;
 	}

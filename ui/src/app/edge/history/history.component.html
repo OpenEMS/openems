@@ -1,54 +1,44 @@
-<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayout="wrap">
-  <div fxFlex.xs="100%" fxFlex.sm="50%" fxFlex.md="35%" fxFlex.lg="25%" fxFlex.gt-lg="20%">
-    <mat-card class="single">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>account_circle</mat-icon>
-        <!-- <ion-icon size="small" color="primary" name="contact"></ion-icon> -->
-        <mat-card-title>{{ edge.websocket.name }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div fxLayout fxLayout="wrap row" fxFlex>
-          <button mat-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
-            <span translate>Edge.History.Period</span>
-          </button>
-          <button mat-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
-            <span translate>Edge.History.Today</span>
-          </button>
-          <button mat-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
-            <span translate>Edge.History.Yesterday</span>
-          </button>
-          <button [class.activated]="activePeriod == 'otherPeriod'" (click)="showOtherPeriod = !showOtherPeriod" mat-raised-button
-            fxFlex="100%">
-            <span translate>Edge.History.OtherPeriod</span>
-          </button>
-          <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
-          <div *ngIf="showOtherPeriod" style="margin-top: 20px" fxLayout fxLayout="wrap" fxFlex="100%">
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-  <div fxFlex.lt-md="100%" fxFlex.md="65%" fxFlex.lg="75%" fxFlex.gt-lg="80%" fxLayout fxLayout="wrap">
-    <!--<div fxFlex="100%">
-      <mat-card class="single">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>event</mat-icon>
-          <mat-card-title style="font-size: 16px">{{ timespanText }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <progressbar-kwh [result]="datakWh"></progressbar-kwh>
-        </mat-card-content>
-      </mat-card>
-    </div>-->
-    <div fxFlex="100%">
-      <mat-card class="single">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>event</mat-icon>
-          <mat-card-title>
-            <span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div style="height: 250px">
+<ion-grid>
+  <ion-row>
+
+    <!-- TODO: move date selection to modal view -->
+    <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
+      <ion-card>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-sm="6">
+              <ion-button expand="block" [class.activated]="activePeriod === 'today'" (click)="setPeriod('today')">
+                <span translate>Edge.History.Today</span>
+              </ion-button>
+            </ion-col>
+            <ion-col size="12" size-sm="6">
+              <ion-button expand="block" [class.activated]="activePeriod === 'yesterday'" (click)="setPeriod('yesterday')">
+                <span translate>Edge.History.Yesterday</span>
+              </ion-button>
+            </ion-col>
+            <ion-col size="12" *ngIf="activePeriod !== 'otherPeriod'">
+              <ion-button expand="block" [class.activated]="activePeriod === 'otherPeriod'" (click)="clickOtherPeriod()"><span
+                  translate>Edge.History.OtherPeriod</span></ion-button>
+            </ion-col>
+            <ion-col size="12" *ngIf="activePeriod === 'otherPeriod'" style="text-align:center">
+              <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="12" size-md="7" size-lg="8" size-xl="9">
+      <ion-card>
+        <ion-item>
+          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
+          <ion-label>
+            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}</ion-card-title>
+          </ion-label>
+        </ion-item>
+
+        <ion-card-content>
+          <div [style.height]="socChartHeight">
             <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
               <socchart-2018-8 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-8>
             </ng-container>
@@ -56,11 +46,13 @@
               <socchart-2018-7 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-7>
             </ng-template>
           </div>
-          <div style="height: 500px">
+          <div [style.height]="energyChartHeight">
             <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></energychart>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-</div>
+        </ion-card-content>
+
+      </ion-card>
+    </ion-col>
+
+  </ion-row>
+</ion-grid>

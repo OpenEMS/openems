@@ -85,8 +85,8 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						cm(new UnsignedDoublewordElement(0xc558)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
