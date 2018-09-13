@@ -34,14 +34,14 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 					/*
 					 * First try
 					 */
-					this.writeCoil(bridge, this.getUnitId(), this.getStartAddress(), valueOpt.get());
+					this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), valueOpt.get());
 				} catch (OpenemsException | ModbusException e) {
 					/*
 					 * Second try: with new connection
 					 */
 					bridge.closeModbusConnection();
 					try {
-						this.writeCoil(bridge, this.getUnitId(), this.getStartAddress(), valueOpt.get());
+						this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), valueOpt.get());
 					} catch (ModbusException e2) {
 						throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 					}
@@ -54,10 +54,10 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
-		
-		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);	
+
+		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
-		
+
 		if (!(response instanceof WriteCoilResponse)) {
 			throw new OpenemsException("Unexpected Modbus response. Expected [WriteCoilResponse], got ["
 					+ response.getClass().getSimpleName() + "]");

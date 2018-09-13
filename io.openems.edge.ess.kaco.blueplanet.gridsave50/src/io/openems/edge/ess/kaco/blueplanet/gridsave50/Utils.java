@@ -63,7 +63,6 @@ public class Utils {
 					case COMMAND_ID_REQ:
 					case REQ_PARAM_0:
 					case COMMAND_ID_REQ_ENA:
-
 						return new IntegerWriteChannel(ess, channelId);
 					case A_SF:
 					case V_SF:
@@ -78,6 +77,11 @@ public class Utils {
 					case COMMAND_ID_RES:
 					case RETURN_CODE:
 					case DEBUG_REQUESTED_STATE:
+					case DEBUG_CHA_MAX_A:
+					case DEBUG_CHA_MAX_V:
+					case DEBUG_DIS_MAX_A:
+					case DEBUG_DIS_MIN_V:
+					case DEBUG_EN_LIMIT:
 						return new IntegerReadChannel(ess, channelId);
 					}
 					return null;

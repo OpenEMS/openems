@@ -113,6 +113,10 @@ public enum Unit {
 	 * Unit of Time in Seconds [s]
 	 */
 	SECONDS("sec"),
+	/**
+	 * Unit of Frequency [mHz]
+	 */
+	MILLISECONDS("ms", SECONDS, -3),
 	
 	/*
 	 * Resistance

@@ -190,9 +190,10 @@ public class MeterEastronSDM630 extends AbstractOpenemsModbusComponent
     }
 
     @Override
-    protected ModbusProtocol defineModbusProtocol(int unitId) {
+    protected ModbusProtocol defineModbusProtocol() {
         final int OFFSET = 30000;
-        return new ModbusProtocol(unitId, new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
+        return new ModbusProtocol(this, //
+        		new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
                 // VOLTAGE
                 // Overall Voltage
                 // measured from L1

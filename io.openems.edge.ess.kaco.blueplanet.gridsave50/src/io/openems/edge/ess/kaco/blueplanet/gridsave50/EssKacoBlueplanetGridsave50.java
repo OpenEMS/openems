@@ -189,14 +189,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleStateMachine() {
+		setBatteryRanges();
+		setWatchdog();
+
 		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
 		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
 		if (!currentStateOpt.isPresent()) {
 			return;
 		}
-
 		CurrentState currentState = (CurrentState) currentStateOpt.get();
-
 		switch (currentState) {
 		case OFF:
 			doOffHandling();
@@ -222,27 +223,20 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void doStandbyHandling() {
-		setWatchdog();
-		setBatteryRanges();
 		startGridMode();
 	}
 
 	private void doOffHandling() {
-		setWatchdog();
 		startSystem();
-		setBatteryRanges();
 	}
 
 	private void doGridConnectedHandling() {
-		setWatchdog();
-		setBatteryRanges();
 		this.noPowerOnError.setValue(null);
 	}
 
 	private void doErrorHandling() {
 		// find out the reason what is wrong an react
 		// for a first try, switch system off, it will be restarted
-		setWatchdog();
 		stopSystem();
 		this.noPowerOnError.setValue(0);
 	}
@@ -252,20 +246,19 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			return;
 		}
 
+		// Read some Channels from Battery
 		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
 		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
 		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
-		int batSoC = battery.getSoc().value().orElse(99);
-		int batSoH = battery.getSoh().value().orElse(98);
-		int batTemp = battery.getBatteryTemp().value().orElse(97);
+		int batSoC = battery.getSoc().value().orElse(0);
+		int batSoH = battery.getSoh().value().orElse(0);
+		int batTemp = battery.getBatteryTemp().value().orElse(0);
 
 		// Update Power Constraints
 		// TODO: The actual AC allowed charge and discharge should come from the KACO
 		// Blueplanet instead of calculating it from DC parameters.
 		final double EFFICIENCY_FACTOR = 0.9;
-		this.logInfo(log, "AllowedCharge [" + (chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR) + "] AllowedDischarge ["
-				+ (disMaxA * disMinV * EFFICIENCY_FACTOR) + "]");
 		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
 		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
 
@@ -273,27 +266,18 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
 		}
 
-		IntegerWriteChannel disMinVChannel = this.channel(ChannelId.DIS_MIN_V);
-		IntegerWriteChannel disMaxAChannel = this.channel(ChannelId.DIS_MAX_A);
-		IntegerWriteChannel chaMaxVChannel = this.channel(ChannelId.CHA_MAX_V);
-		IntegerWriteChannel chaMaxAChannel = this.channel(ChannelId.CHA_MAX_A);
-		IntegerWriteChannel enLimitChannel = this.channel(ChannelId.EN_LIMIT);
-		// battery stats to display on inverter
-		IntegerWriteChannel batSoCChannel = this.channel(ChannelId.BAT_SOC);
-		IntegerWriteChannel batSoHChannel = this.channel(ChannelId.BAT_SOH);
-		IntegerWriteChannel batTempChannel = this.channel(ChannelId.BAT_TEMP);
-
+		// Set Battery values to inverter
 		try {
-			disMinVChannel.setNextWriteValue(disMinV);
-			chaMaxVChannel.setNextWriteValue(chaMaxV);
-			disMaxAChannel.setNextWriteValue(disMaxA);
-			chaMaxAChannel.setNextWriteValue(chaMaxA);
-			enLimitChannel.setNextWriteValue(1);
+			this.getDischargeMinVoltageChannel().setNextWriteValue(disMinV);
+			this.getChargeMaxVoltageChannel().setNextWriteValue(chaMaxV);
+			this.getDischargeMaxAmpereChannel().setNextWriteValue(disMaxA);
+			this.getChargeMaxAmpereChannel().setNextWriteValue(chaMaxA);
+			this.getEnLimitChannel().setNextWriteValue(1);
 
 			// battery stats to display on inverter
-			batSoCChannel.setNextWriteValue(batSoC);
-			batSoHChannel.setNextWriteValue(batSoH);
-			batTempChannel.setNextWriteValue(batTemp);
+			this.getBatterySocChannel().setNextWriteValue(batSoC);
+			this.getBatterySohChannel().setNextWriteValue(batSoH);
+			this.getBatteryTempChannel().setNextWriteValue(batTemp);
 		} catch (OpenemsException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
@@ -302,8 +286,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() //
-				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
-		;
+				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString(); //
 	}
 
 	@Override
@@ -654,13 +637,53 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		 */
 		V_SF(new Doc().unit(Unit.NONE)), //
 		A_SF(new Doc().unit(Unit.NONE)), //
-		DIS_MIN_V(new Doc().unit(Unit.VOLT)), //
-		DIS_MAX_A(new Doc().unit(Unit.AMPERE)), //
+		DEBUG_DIS_MIN_V(new Doc().unit(Unit.VOLT)), //
+		@SuppressWarnings("unchecked")
+		DIS_MIN_V(new Doc().unit(Unit.VOLT) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIS_MIN_V).setNextValue(value);
+					});
+				})), //
+		DEBUG_DIS_MAX_A(new Doc().unit(Unit.AMPERE)), //
+		@SuppressWarnings("unchecked")
+		DIS_MAX_A(new Doc().unit(Unit.AMPERE) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIS_MAX_A).setNextValue(value);
+					});
+				})), //
 //		DIS_CUTOFF_A(new Doc().text("Disconnect if discharge current lower than DisCutoffA")), // TODO scale factor
-		CHA_MAX_V(new Doc().unit(Unit.VOLT)), //
-		CHA_MAX_A(new Doc().unit(Unit.AMPERE)), //
+		DEBUG_CHA_MAX_V(new Doc().unit(Unit.VOLT)), //
+		@SuppressWarnings("unchecked")
+		CHA_MAX_V(new Doc().unit(Unit.VOLT) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_CHA_MAX_V).setNextValue(value);
+					});
+				})),
+		DEBUG_CHA_MAX_A(new Doc().unit(Unit.AMPERE)), //
+		@SuppressWarnings("unchecked")
+		CHA_MAX_A(new Doc().unit(Unit.AMPERE) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_CHA_MAX_A).setNextValue(value);
+					});
+				})),
 //		CHA_CUTOFF_A(new Doc().text("Disconnect if charge current lower than ChaCuttoffA")), // TODO scale factor
-		EN_LIMIT(new Doc().text("new battery limits are activated when EnLimit is 1")), //
+		DEBUG_EN_LIMIT(new Doc()), //
+		@SuppressWarnings("unchecked")
+		EN_LIMIT(new Doc().text("new battery limits are activated when EnLimit is 1") //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Integer>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_EN_LIMIT).setNextValue(value);
+					});
+				})),
 
 		/*
 		 * SUNSPEC_64203
@@ -707,8 +730,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	 */
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_103 + 39, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE,
 								new SignedWordElement(SUNSPEC_103 + 39))), //
@@ -771,4 +794,37 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 						m(EssKacoBlueplanetGridsave50.ChannelId.RETURN_CODE,
 								new SignedWordElement(SUNSPEC_64302 + 31)))); //
 	}
+
+	private IntegerWriteChannel getDischargeMinVoltageChannel() {
+		return this.channel(ChannelId.DIS_MIN_V);
+	}
+
+	private IntegerWriteChannel getDischargeMaxAmpereChannel() {
+		return this.channel(ChannelId.DIS_MAX_A);
+	}
+
+	private IntegerWriteChannel getChargeMaxVoltageChannel() {
+		return this.channel(ChannelId.CHA_MAX_V);
+	}
+
+	private IntegerWriteChannel getChargeMaxAmpereChannel() {
+		return this.channel(ChannelId.CHA_MAX_A);
+	}
+
+	private IntegerWriteChannel getEnLimitChannel() {
+		return this.channel(ChannelId.EN_LIMIT);
+	}
+
+	private IntegerWriteChannel getBatterySocChannel() {
+		return this.channel(ChannelId.BAT_SOC);
+	}
+
+	private IntegerWriteChannel getBatterySohChannel() {
+		return this.channel(ChannelId.BAT_SOH);
+	}
+
+	private IntegerWriteChannel getBatteryTempChannel() {
+		return this.channel(ChannelId.BAT_TEMP);
+	}
+
 }

@@ -17,9 +17,9 @@ public class ModbusProtocol {
 	private final Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
 
 	/**
-	 * The Unit-ID for this Modbus connection
+	 * The Parent component
 	 */
-	private final int unitId;
+	private final AbstractOpenemsModbusComponent parent;
 
 	/**
 	 * TaskManager for ReadTasks
@@ -31,20 +31,16 @@ public class ModbusProtocol {
 	 */
 	private final TaskManager<WriteTask> writeTaskManager = new TaskManager<>();
 
-	public ModbusProtocol(int unitId, Task... tasks) {
-		this.unitId = unitId;
+	public ModbusProtocol(AbstractOpenemsModbusComponent parent, Task... tasks) {
+		this.parent = parent;
 		for (Task task : tasks) {
 			addTask(task);
 		}
 	}
 
-	public int getUnitId() {
-		return unitId;
-	}
-
 	public synchronized void addTask(Task task) {
-		// add the unitId to the abstractTask
-		task.setUnitId(this.unitId);
+		// add the the parent to the Task
+		task.setParent(this.parent);
 		// check abstractTask for plausibility
 		this.checkTask(task);
 		/*
