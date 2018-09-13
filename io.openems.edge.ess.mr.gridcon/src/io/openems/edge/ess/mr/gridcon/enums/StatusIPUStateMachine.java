@@ -7,7 +7,7 @@ public enum StatusIPUStateMachine implements OptionsEnum {
 	INIT(1, "Init"),
 	IDLE(2, "Idle"),
 	PRECHARGE(3, "Precharge"),
-	GO_IDLE(3, "Go idle"),
+	GO_IDLE(4, "Go idle"), //TODO are values right?
 	READY(6, "Ready"),
 	RUN(7, "Run"),
 	ERROR(8, "Error"),
