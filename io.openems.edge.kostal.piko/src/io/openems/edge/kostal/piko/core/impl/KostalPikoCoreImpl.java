@@ -80,7 +80,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 
 	private KostalPikoGridMeter meter = null;
 
-	/* NETZ */
 	@Override
 	public void setGridMeter(KostalPikoGridMeter meter) {
 		this.meter = meter;
@@ -106,8 +105,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				/*
 				 * ONCE
 				 */
-				// TODO: many of the following channels can change in time (like
-				// HOME_CONSUMPTION_GRID)! Please check again!
 				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
 				new ReadTask(this, KostalPikoCore.ChannelId.ARTICLE_NUMBER, Priority.ONCE, FieldType.STRING,
 						0x01000100), //
@@ -223,7 +220,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L1, Priority.LOW, FieldType.FLOAT, 0x05000402), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L2, Priority.LOW, FieldType.FLOAT, 0x05000502), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L3, Priority.LOW, FieldType.FLOAT, 0x05000602), //
-
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_TOTAL_POWER, Priority.LOW, FieldType.FLOAT,
 						0x05000700), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
@@ -260,14 +256,14 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 						0x02000401), //
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_CURRENT_STRING_3, Priority.LOW, FieldType.FLOAT,
 						0x02000501), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID, Priority.HIGH, FieldType.FLOAT,
-						0x05000300), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L1, Priority.LOW,
 						FieldType.FLOAT, 0x05000401), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L2, Priority.LOW,
 						FieldType.FLOAT, 0x05000501), //
 				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L3, Priority.LOW,
 						FieldType.FLOAT, 0x05000601), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID, Priority.HIGH, FieldType.FLOAT,
+						0x05000300), //
 
 				/*
 				 * ESS
@@ -276,9 +272,9 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 						0x04000100), //
 				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_CURRENT_DIRECTION, Priority.LOW, FieldType.FLOAT,
 						0x02000706), //
-				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x04000201), //
-				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L2, Priority.LOW, FieldType.FLOAT, 0x04000301), //
-				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L3, Priority.LOW, FieldType.FLOAT, 0x04000401), //
+				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L1, Priority.HIGH, FieldType.FLOAT, 0x04000201), //
+				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L2, Priority.HIGH, FieldType.FLOAT, 0x04000301), //
+				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L3, Priority.HIGH, FieldType.FLOAT, 0x04000401), //
 
 				// HIGH
 				new ReadTask(this, KostalPikoCore.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200), //
@@ -347,7 +343,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			// calculate ESS ActivePower
 			Channel<Float> gridAcPTotalChannel = this.channel(KostalPikoCore.ChannelId.GRID_AC_P_TOTAL);
 			float gridAcPTotal = gridAcPTotalChannel.value().orElse(0f);
-			float essActivPower = (gridAcPTotal - pvPower);
+			float essActivPower = (pvPower - gridAcPTotal);
 			this.ess.channel(SymmetricEss.ChannelId.ACTIVE_POWER).setNextValue(essActivPower);
 
 			// calculate Meter ActivePower
@@ -372,10 +368,4 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		}
 
 	}
-
-	@Override
-	public String debugLog() {
-		return "P:" + this.charger.getActualPower().value().asString();
-	}
-
 }

@@ -260,16 +260,16 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		this.getMinActivePower().setNextValue(minActivePowerConfig);
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
-
-		this.getMinActivePower().onChange(value -> {
-			if (value.get() != minActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", value.get());
-			}
-		});
-		this.getMaxActivePower().onChange(value -> {
-			if (value.get() != maxActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", value.get());
-			}
-		});
+		// TODO: use a "StorageChannel" service for this; the following was never properly working
+//		this.getMinActivePower().onChange(value -> {
+//			if ((Float)value.get() != (float) minActivePowerConfig) {
+//				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());
+//			}
+//		});
+//		this.getMaxActivePower().onChange(value -> {
+//			if ((Float) value.get() != (float) maxActivePowerConfig) {
+//				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", ((Float) value.get()).intValue());
+//			}
+//		});
 	}
 }

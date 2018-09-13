@@ -2,12 +2,12 @@
   "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
   "version": 1,
   "defaultProject": "app",
-  "newProjectRoot": "projects",
   "projects": {
     "app": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
+      "prefix": "app",
       "schematics": {},
       "architect": {
         "build": {
@@ -30,8 +30,16 @@
                 "input": "node_modules/@ionic/angular/dist/ionic/svg",
                 "output": "./svg"
               },
-              "src/assets",
-              "src/favicon.ico"
+              "src/android-chrome-192x192.png",
+              "src/android-chrome-512x512.png",
+              "src/apple-touch-icon.png",
+              "src/browserconfig.xml",
+              "src/favicon.ico",
+              "src/favicon-16x16.png",
+              "src/favicon-32x32.png",
+              "src/manifest.json",
+              "src/mstile-150x150.png",
+              "src/safari-pinned-tab.svg"
             ],
             "styles": [
               {
@@ -40,10 +48,7 @@
               {
                 "input": "src/global.scss"
               },
-              "src/styles.css",
-              "node_modules/material-design-icons-iconfont/dist/material-design-icons.css",
-              "node_modules/angular2-toaster/toaster.css",
-              "src/theme.scss"
+              "src/styles.css"
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"
@@ -60,13 +65,14 @@
               "baseHref": "/m/",
               "outputPath": "target/backend",
               "optimization": true,
+              "aot": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
+              "serviceWorker": true,
               "buildOptimizer": true
             },
             "backend-dev-local": {
@@ -103,6 +109,7 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
+              "serviceWorker": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -111,17 +118,6 @@
               ],
               "baseHref": "/",
               "outputPath": "target/edge"
-            },
-            "production": {
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
             }
           }
         },
@@ -145,9 +141,6 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
-            },
-            "production": {
-              "browserTarget": "app:build:production"
             }
           }
         },
@@ -165,28 +158,21 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
-              "styles.css",
-              "src/styles.css",
-              "node_modules/material-design-icons-iconfont/dist/material-design-icons.css",
-              "node_modules/angular2-toaster/toaster.css",
-              "src/theme.scss"
+              "styles.css"
             ],
-            "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
-            ],
+            "scripts": [],
             "assets": [
               {
                 "glob": "favicon.ico",
                 "input": "src/",
                 "output": "/"
               },
-              "src/assets",
-              "src/favicon.ico",
               {
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
-              }
+              },
+              "src/manifest.json"
             ]
           }
         },
@@ -260,13 +246,6 @@
     },
     "@ionic/schematics-angular:page": {
       "styleext": "scss"
-    },
-    "@schematics/angular:component": {
-      "prefix": "app",
-      "styleext": "css"
-    },
-    "@schematics/angular:directive": {
-      "prefix": "app"
     }
   }
 }

@@ -41,26 +41,21 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Call this method from Component implementations activate().
 	 * 
-	 * @param context
-	 *            ComponentContext of this component. Receive it from parameter
-	 *            for @Activate
-	 * @param servicePid
-	 *            The service_pid of this Component. Typically
-	 *            'config.service_pid()'
-	 * @param id
-	 *            ID of this component. Typically 'config.id()'
-	 * @param enabled
-	 *            Whether the component should be enabled. Typically
-	 *            'config.enabled()'
-	 * @param unitId
-	 *            Unit-ID of the Modbus target
-	 * @param cm
-	 *            An instance of ConfigurationAdmin. Receive it using @Reference
-	 * @param modbusReference
-	 *            The name of the @Reference setter method for the Modbus bridge -
-	 *            e.g. 'Modbus' if you have a setModbus()-method
-	 * @param modbusId
-	 *            The ID of the Modbus brige. Typically 'config.modbus_id()'
+	 * @param context         ComponentContext of this component. Receive it from
+	 *                        parameter for @Activate
+	 * @param servicePid      The service_pid of this Component. Typically
+	 *                        'config.service_pid()'
+	 * @param id              ID of this component. Typically 'config.id()'
+	 * @param enabled         Whether the component should be enabled. Typically
+	 *                        'config.enabled()'
+	 * @param unitId          Unit-ID of the Modbus target
+	 * @param cm              An instance of ConfigurationAdmin. Receive it
+	 *                        using @Reference
+	 * @param modbusReference The name of the @Reference setter method for the
+	 *                        Modbus bridge - e.g. 'Modbus' if you have a
+	 *                        setModbus()-method
+	 * @param modbusId        The ID of the Modbus brige. Typically
+	 *                        'config.modbus_id()'
 	 */
 	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
@@ -113,18 +108,16 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		if (protocol != null) {
 			return protocol;
 		}
-		this.protocol = defineModbusProtocol(unitId);
+		this.protocol = this.defineModbusProtocol();
 		return this.protocol;
 	}
 
 	/**
 	 * Defines the Modbus protocol
 	 * 
-	 * @param unitId
-	 * 
 	 * @return
 	 */
-	protected abstract ModbusProtocol defineModbusProtocol(int unitId);
+	protected abstract ModbusProtocol defineModbusProtocol();
 
 	/**
 	 * Maps an Element to one or more ModbusChannels using converters, that convert

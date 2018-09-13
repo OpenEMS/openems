@@ -26,280 +26,227 @@ import java.nio.ByteOrder;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Microcare.SDM630", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
-        implements OpenemsComponent, AsymmetricMeter, SymmetricMeter {
+		implements OpenemsComponent, AsymmetricMeter, SymmetricMeter {
 
-    private MeterType meterType = MeterType.PRODUCTION;
+	private MeterType meterType = MeterType.PRODUCTION;
 
-    @Reference
-    protected ConfigurationAdmin cm;
+	@Reference
+	protected ConfigurationAdmin cm;
 
-    public MeterMicrocareSDM630() {
-        Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-    }
+	public MeterMicrocareSDM630() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
-    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 
-    protected void setModbus(BridgeModbus modbus) {
-        super.setModbus(modbus);
-    }
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
-    private String name;
+	@Activate
+	void activate(ComponentContext context, Config config) {
+		this.meterType = config.type();
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
+		this._initializeMinMaxActivePower(this.cm, // Initialize Min/MaxActivePower channels
+				config.service_pid(), config.minActivePower(), config.maxActivePower());
+	}
 
-    @Activate
-    void activate(ComponentContext context, Config config) {
-        this.meterType = config.type();
-        super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-                "Modbus", config.modbus_id());
-        this._initializeMinMaxActivePower(this.cm, // Initialize Min/MaxActivePower channels
-                config.service_pid(), config.minActivePower(), config.maxActivePower());
-    }
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
 
-    @Deactivate
-    protected void deactivate() {
-        super.deactivate();
-    }
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		APPARENT_POWER_L1(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE)), //
+		APPARENT_POWER_L2(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE)), //
+		APPARENT_POWER_L3(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE)), //
+		APPARENT_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE)), //
+		FREQUENCY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.HERTZ)), //
+		ACTIVE_PRODUCTION_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS)), //
+		REACTIVE_PRODUCTION_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS)), //
+		ACTIVE_CONSUMPTION_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS)), //
+		REACTIVE_CONSUMPTION_ENERGY(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS)), //
+		;
+		private final Doc doc;
 
-    public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-        APPARENT_POWER_L1(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.VOLT_AMPERE)), //
-        APPARENT_POWER_L2(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.VOLT_AMPERE)), //
-        APPARENT_POWER_L3(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.VOLT_AMPERE)), //
-        APPARENT_POWER(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.VOLT_AMPERE)), //
-        FREQUENCY(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.HERTZ)), //
-        ACTIVE_PRODUCTION_ENERGY(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.KILOWATT_HOURS)), //
-        REACTIVE_PRODUCTION_ENERGY(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.KILOWATT_HOURS)), //
-        ACTIVE_CONSUMPTION_ENERGY(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.KILOWATT_HOURS)), //
-        REACTIVE_CONSUMPTION_ENERGY(new Doc() //
-                .type(OpenemsType.INTEGER) //
-                .unit(Unit.KILOWATT_HOURS)), //
-        ;
-        private final Doc doc;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
 
-        private ChannelId(Doc doc) {
-            this.doc = doc;
-        }
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
-        public Doc doc() {
-            return this.doc;
-        }
-    }
+	@Override
+	public MeterType getMeterType() {
+		return this.meterType;
+	}
 
-    @Override
-    public MeterType getMeterType() {
-        return this.meterType;
-    }
+	@Override
+	protected ModbusProtocol defineModbusProtocol() {
+		final int OFFSET = 30001;
+		return new ModbusProtocol(this, new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
+				// VOLTAGE
+				// Overall Voltage
+				// measured from L1
+				m(SymmetricMeter.ChannelId.VOLTAGE,
+						new FloatDoublewordElement(30001 - OFFSET).wordOrder(WordOrder.MSWLSW)
+								.byteOrder(ByteOrder.BIG_ENDIAN),
+						ElementToChannelConverter.SCALE_FACTOR_3)),
+				new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
+						// Phase 1 voltage
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
+								new FloatDoublewordElement(30001 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						// Phase 2 voltage
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
+								new FloatDoublewordElement(30003 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						// Phase 3 voltage
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
+								new FloatDoublewordElement(30005 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3)),
+				new FC4ReadInputRegistersTask(30007 - OFFSET, Priority.HIGH,
+						// CURRENT
+						// Phase 1 current
+						m(AsymmetricMeter.ChannelId.CURRENT_L1,
+								new FloatDoublewordElement(30007 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						// Phase 2 current
+						m(AsymmetricMeter.ChannelId.CURRENT_L2,
+								new FloatDoublewordElement(30009 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						// Phase 3 current
+						m(AsymmetricMeter.ChannelId.CURRENT_L3,
+								new FloatDoublewordElement(30011 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						// APPARENT POWER
+						// phase 1 VA
+						m(ChannelId.APPARENT_POWER_L1,
+								new FloatDoublewordElement(30013 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// phase 2 VA
+						m(ChannelId.APPARENT_POWER_L2,
+								new FloatDoublewordElement(30015 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// phase 3 VA
+						m(ChannelId.APPARENT_POWER_L3,
+								new FloatDoublewordElement(30017 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// ACTIVE POWER
+						// phase 1 active power
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
+								new FloatDoublewordElement(30019 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// phase 2 active power
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
+								new FloatDoublewordElement(30021 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// phase 3 active power
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
+								new FloatDoublewordElement(30023 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						new DummyRegisterElement(30025 - OFFSET, 30030 - OFFSET),
+						// REACTIVE POWER
+						// phase 1 VAr
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
+								new FloatDoublewordElement(30031 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// phase 2 VAr
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
+								new FloatDoublewordElement(30033 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// phase 3 VAr
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
+								new FloatDoublewordElement(30035 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						new DummyRegisterElement(30037 - OFFSET, 30048 - OFFSET),
+						// Overall Current
+						m(SymmetricMeter.ChannelId.CURRENT,
+								new FloatDoublewordElement(30049 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						new DummyRegisterElement(30051 - OFFSET, 30052 - OFFSET),
+						// total system VA
+						m(ChannelId.APPARENT_POWER,
+								new FloatDoublewordElement(30053 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						new DummyRegisterElement(30055 - OFFSET, 30056 - OFFSET),
+						// total system active power
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+								new FloatDoublewordElement(30057 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						new DummyRegisterElement(30059 - OFFSET, 30060 - OFFSET),
+						// total system VAr
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
+								new FloatDoublewordElement(30061 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1)),
+				new FC4ReadInputRegistersTask(30071 - OFFSET, Priority.LOW,
+						// frequency
+						m(ChannelId.FREQUENCY,
+								new FloatDoublewordElement(30071 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// active energy import/export
+						m(ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								new FloatDoublewordElement(30073 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						m(ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+								new FloatDoublewordElement(30075 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						// reactive energy import/export
+						m(ChannelId.REACTIVE_PRODUCTION_ENERGY,
+								new FloatDoublewordElement(30077 - OFFSET).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						m(ChannelId.REACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(30079 - OFFSET)
+								.wordOrder(WordOrder.MSWLSW).byteOrder(ByteOrder.BIG_ENDIAN),
+								ElementToChannelConverter.DIRECT_1_TO_1)));
+	}
 
-    @Override
-    protected ModbusProtocol defineModbusProtocol(int unitId) {
-        final int OFFSET = 30001;
-        return new ModbusProtocol(unitId,
-                new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
-                        // VOLTAGE
-                        // Overall Voltage
-                        // measured from L1
-                        m(SymmetricMeter.ChannelId.VOLTAGE,
-                                new FloatDoublewordElement(30001 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3)),
-                new FC4ReadInputRegistersTask(30001 - OFFSET, Priority.LOW,
-                        // Phase 1 voltage
-                        m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
-                                new FloatDoublewordElement(30001 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3),
-                        // Phase 2 voltage
-                        m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
-                                new FloatDoublewordElement(30003 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3),
-                        // Phase 3 voltage
-                        m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
-                                new FloatDoublewordElement(30005 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3)),
-                new FC4ReadInputRegistersTask(30007 - OFFSET, Priority.HIGH,
-                        // CURRENT
-                        // Phase 1 current
-                        m(AsymmetricMeter.ChannelId.CURRENT_L1,
-                                new FloatDoublewordElement(30007 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3),
-                        // Phase 2 current
-                        m(AsymmetricMeter.ChannelId.CURRENT_L2,
-                                new FloatDoublewordElement(30009 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3),
-                        // Phase 3 current
-                        m(AsymmetricMeter.ChannelId.CURRENT_L3,
-                                new FloatDoublewordElement(30011 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3),
-                        // APPARENT POWER
-                        // phase 1 VA
-                        m(ChannelId.APPARENT_POWER_L1,
-                                new FloatDoublewordElement(30013 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // phase 2 VA
-                        m(ChannelId.APPARENT_POWER_L2,
-                                new FloatDoublewordElement(30015 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // phase 3 VA
-                        m(ChannelId.APPARENT_POWER_L3,
-                                new FloatDoublewordElement(30017 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // ACTIVE POWER
-                        // phase 1 active power
-                        m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
-                                new FloatDoublewordElement(30019 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // phase 2 active power
-                        m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
-                                new FloatDoublewordElement(30021 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // phase 3 active power
-                        m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
-                                new FloatDoublewordElement(30023 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        new DummyRegisterElement(30025 - OFFSET, 30030 - OFFSET),
-                        // REACTIVE POWER
-                        // phase 1 VAr
-                        m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
-                                new FloatDoublewordElement(30031 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // phase 2 VAr
-                        m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
-                                new FloatDoublewordElement(30033 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // phase 3 VAr
-                        m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
-                                new FloatDoublewordElement(30035 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        new DummyRegisterElement(30037 - OFFSET, 30048 - OFFSET),
-                        // Overall Current
-                        m(SymmetricMeter.ChannelId.CURRENT,
-                                new FloatDoublewordElement(30049 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.SCALE_FACTOR_3),
-                        new DummyRegisterElement(30051 - OFFSET, 30052 - OFFSET),
-                        // total system VA
-                        m(ChannelId.APPARENT_POWER,
-                                new FloatDoublewordElement(30053 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        new DummyRegisterElement(30055 - OFFSET, 30056 - OFFSET),
-                        // total system active power
-                        m(SymmetricMeter.ChannelId.ACTIVE_POWER,
-                                new FloatDoublewordElement(30057 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        new DummyRegisterElement(30059 - OFFSET, 30060 - OFFSET),
-                        // total system VAr
-                        m(SymmetricMeter.ChannelId.REACTIVE_POWER,
-                                new FloatDoublewordElement(30061 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1)),
-                new FC4ReadInputRegistersTask(30071 - OFFSET, Priority.LOW,
-                        // frequency
-                        m(ChannelId.FREQUENCY, new FloatDoublewordElement(30071 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // active energy import/export
-                        m(ChannelId.ACTIVE_PRODUCTION_ENERGY,
-                                new FloatDoublewordElement(30073 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        m(ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-                                new FloatDoublewordElement(30075 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        // reactive energy import/export
-                        m(ChannelId.REACTIVE_PRODUCTION_ENERGY,
-                                new FloatDoublewordElement(30077 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1),
-                        m(ChannelId.REACTIVE_CONSUMPTION_ENERGY,
-                                new FloatDoublewordElement(30079 - OFFSET)
-                                        .wordOrder(WordOrder.MSWLSW
-                                        )
-                                        .byteOrder(ByteOrder.BIG_ENDIAN),
-                                ElementToChannelConverter.DIRECT_1_TO_1)));
-    }
-
-    @Override
-    public String debugLog() {
-        return "L:" + this.getActivePower().value().asString();
-    }
+	@Override
+	public String debugLog() {
+		return "L:" + this.getActivePower().value().asString();
+	}
 
 }

@@ -71,7 +71,7 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 	/**
 	 * Fills sortedControllers using the order of controller_ids config property
 	 */
-	private void updateSortedControllers() {
+	private synchronized void updateSortedControllers() {
 		this.sortedControllers.clear();
 		for (String id : this.controllersIds) {
 			Controller controller = this._controllers.get(id);
