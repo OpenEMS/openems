@@ -68,11 +68,11 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
+	protected ModbusProtocol defineModbusProtocol() {
 		int batteryInfoStartAddress = getBatteryInfoStartAddress() + getAdressOffsetForBattery();
 		int inverterInfoStartAddress = getInverterInfoStartAddress() + getAdressOffsetForInverter();
 
-		return new ModbusProtocol(unitId, //
+		return new ModbusProtocol(this, //
 				new FC1ReadCoilsTask(getIcuRunAddress(), Priority.HIGH,
 						m(ChannelId.ICU_RUN, new CoilElement(getIcuRunAddress()))),
 				new FC5WriteCoilTask(getIcuRunAddress(), m(ChannelId.ICU_RUN, new CoilElement(getIcuRunAddress()))),

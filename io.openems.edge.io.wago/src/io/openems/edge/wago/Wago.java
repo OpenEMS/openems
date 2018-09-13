@@ -203,8 +203,8 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		this.protocol = new ModbusProtocol(unitId);
+	protected ModbusProtocol defineModbusProtocol() {
+		this.protocol = new ModbusProtocol(this);
 		return protocol;
 	}
 

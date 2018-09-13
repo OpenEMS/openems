@@ -150,8 +150,8 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		ModbusProtocol protocol = new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0xA130, Priority.LOW, //
 						m(ChannelId.BMS_DCDC0_OUTPUT_VOLTAGE, new SignedWordElement(0xA130),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
