@@ -230,7 +230,7 @@ public class Utils {
 					case PCS_IPU_4_STATUS_TEMPERATURE_MCU_BOARD:
 						return new FloatReadChannel(ess, channelId);
 					
-					case PCS_COMMAND_ERROR_CODE_FALLBACK:
+					case PCS_COMMAND_ERROR_CODE_FEEDBACK:
 					case PCS_COMMAND_TIME_SYNC_DATE:
 					case PCS_COMMAND_TIME_SYNC_TIME:
 					case PCS_COMMAND_CONTROL_WORD:

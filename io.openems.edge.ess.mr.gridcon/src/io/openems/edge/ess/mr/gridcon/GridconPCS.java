@@ -32,7 +32,6 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -131,64 +130,91 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO
 		// see Software manual chapter 5.1
 
-		writeValuesBackInChannel(//
-				GridConChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK, //
-				GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, //
-				GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF //
-		);
 
-		writeDateAndTime();
+		if (isOnGridMode()) {
+			
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
+			/**
+			 * Always write values for frequency and voltage to gridcon, because in case of
+			 * blackstart mode if we write '0' to gridcon the systems tries to regulate
+			 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
+			 */
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+			writeDateAndTime();
+			
+
+			writeCCUControlParameters();
+			
+			float pMaxCharge = 86000;
+			float pMaxDischarge = 86000;
+			writeIPUParameters(1f, 1f, 1f, pMaxDischarge, pMaxDischarge, pMaxDischarge, pMaxCharge, pMaxCharge, pMaxCharge);
+			
+					
 		
-		float pMaxCharge = 86000;
-		float pMaxDischarge = 86000;
-		writeIPUParameters(1f, 1f, 1f, pMaxDischarge, pMaxDischarge, pMaxDischarge, pMaxCharge, pMaxCharge, pMaxCharge);
-	
-		writeCCUControlParameters();
-
-		if (isGridMode()) {
-			writeNormalizedVoltageAndCurrent();
-			if (isIdle()) {
-				startSystem();
-			} else if (isError()) {
-				doErrorHandling();
-			}
+		switch ( getCurrentState() ) {
+		case DERATING_HARMONICS:
+			break;
+		case DERATING_POWER:
+			break;
+		case ERROR:
+			doErrorHandling();
+			break;
+		case IDLE:
+			startSystem();
+			break;
+		case OVERLOAD:
+			break;
+		case PAUSE:
+			break;
+		case PRECHARGE:
+			break;
+		case READY:
+			break;
+		case RUN:
+			break;
+		case SHORT_CIRCUIT_DETECTED:
+			break;
+		case SIA_ACTIVE:
+			break;
+		case STOP_PRECHARGE:
+			break;
+		case UNDEFINED:
+			break;
+		case VOLTAGE_RAMPING_UP:
+			break;
+		default:
+			break;
+		
+		}
 		}
 	}
 
 	private void writeCCUControlParameters() {
-		writeZeroValuesToChannel(
-		GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN,
-		GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN,
-		GridConChannelId.PCS_CONTROL_PARAMETER_F_P_DRROP_MAIN,
-		GridConChannelId.PCS_CONTROL_PARAMETER_F_P_DROOP_T1_MAIN,
-		GridConChannelId.PCS_CONTROL_PARAMETER_Q_U_DROOP_MAIN,
-		GridConChannelId.PCS_CONTROL_PARAMETER_Q_U_DEAD_BAND,
-		GridConChannelId.PCS_CONTROL_PARAMETER_Q_LIMIT,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_F_DROOP_MAIN,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_F_DEAD_BAND,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_U_DROOP,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_U_DEAD_BAND,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_U_MAX_CHARGE,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_U_MAX_DISCHARGE,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_TWO,
-		GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_ONE
-		);
-		
-		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE, PControlMode.ACTIVE_POWER_CONTROL.getFloatValue());
-	}
 
-	/**
-	 * Always write values for frequency and voltage to gridcon, because in case of
-	 * blackstart mode if we write '0' to gridcon the systems tries to regulate
-	 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
-	 */
-	private void writeNormalizedVoltageAndCurrent() {
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);		
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_F_P_DRROP_MAIN, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_F_P_DROOP_T1_MAIN, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_Q_U_DROOP_MAIN, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_Q_U_DEAD_BAND, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_Q_LIMIT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_F_DROOP_MAIN, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_F_DEAD_BAND, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_U_DROOP, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_U_DEAD_BAND, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_U_MAX_CHARGE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_U_MAX_DISCHARGE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_TWO, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_ONE, 0f);
+		// the only relevant parameter is 'P Control Mode' which is set to 'Active power control' n case of on grid usage 
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE, PControlMode.ACTIVE_POWER_CONTROL.getFloatValue()); //
 	}
 
 	// Normal mode with current control
-	private boolean isGridMode() {
+	private boolean isOnGridMode() {
 		// TODO component gets the information from "Netztrennschalter"
 		return true;
 	}
@@ -208,18 +234,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (value.asOptional().isPresent()) {
 				writeValue = value.asOptional().get();
 			}
-			try {
-				((WriteChannel<?>) this.channel(id)).setNextWriteValueFromObject(writeValue);
-			} catch (OpenemsException e) {
-				// TODO: errorhandling
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	void writeZeroValuesToChannel(GridConChannelId... ids) {
-		for (GridConChannelId id : ids) {
-			Object writeValue = 0;
 			try {
 				((WriteChannel<?>) this.channel(id)).setNextWriteValueFromObject(writeValue);
 			} catch (OpenemsException e) {
@@ -249,8 +263,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// second byte is unused
 		Integer timeInteger = convertToInteger(BitSet.valueOf(new byte[] { seconds, 0, hours, minutes }));
 
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_TIME_SYNC_DATE, dateInteger);		
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_TIME_SYNC_TIME, timeInteger);		
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_TIME_SYNC_DATE, dateInteger);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_TIME_SYNC_TIME, timeInteger);
 
 	}
 
@@ -312,9 +326,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
 
 		Integer value = convertToInteger(bitSet);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);		
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
 
-		}
+	}
 
 	private void stopSystem() {
 		// TODO
@@ -355,63 +369,60 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return (int) l[0];
 	}
 
-	
 	/**
-	 * Max charge/discharge power for IPUs always in absolute values
+	 * Writes parameters to all 4 IPUs Max charge/discharge power for IPUs always in
+	 * absolute values
 	 */
-	private void writeIPUParameters(float weightA, float weightB, float weightC, float pMaxDischargeIPU1, float pMaxDischargeIPU2, float pMaxDischargeIPU3, float pMaxChargeIPU1, float pMaxChargeIPU2, float pMaxChargeIPU3) {
+	private void writeIPUParameters(float weightA, float weightB, float weightC, float pMaxDischargeIPU1,
+			float pMaxDischargeIPU2, float pMaxDischargeIPU3, float pMaxChargeIPU1, float pMaxChargeIPU2,
+			float pMaxChargeIPU3) {
 
-		writeZeroValuesToChannel(
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_F0_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE,
-						GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_U0_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_F0_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE,
-						GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_U0_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_F0_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE,
-						GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C,
-						GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE
-				);
-		
-		
-		
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 800f);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, weightA);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, weightB);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, weightC);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 73f);
-			
-			// Gridcon needs negative values for discharge values 
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU2);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU3);
-			// Gridcon needs positive values for charge values
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU1);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU2);
-			writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU3);			
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, 0f);
+
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, 0f);
+
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_F0_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE, 0f);
+
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, 0f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 0f); //
+
+		// The value of 800 Volt are given by MR as a good reference value
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 800f);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, weightA);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, weightB);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, weightC);
+		// The value '73' implies that all 3 strings are in weighting mode
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 73f); //
+
+		// Gridcon needs negative values for discharge values
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU2);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU3);
+		// Gridcon needs positive values for charge values
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU1);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU2);
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU3);
 	}
 
 	private void doErrorHandling() {
@@ -429,7 +440,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doHardRestart() {
-		//TODO Here we ned a component that allows us to switch off the power  
+		// TODO Here we ned a component that allows us to switch off the power
 	}
 
 	private boolean isHardwareTrip() {
@@ -439,15 +450,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	LocalDateTime lastTimeAcknowledgeCommandoWasSent;
 	long ACKNOWLEDGE_TIME_SECONDS = 5;
+
 	/**
 	 * This sends an ACKNOWLEDGE message. This does not fix the error. If the error
 	 * was fixed previously the system should continue operating normally. If not a
 	 * manual restart may be necessary.
 	 */
 	private void acknowledgeErrors() {
-		
+
 //		if (lastTimeAcknowledgeCommandoWasSent == null || LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
-			
+
 		BitSet bitSet = new BitSet(32);
 		bitSet.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 
@@ -464,7 +476,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		String bits = Integer.toBinaryString(value);
 		log.debug("bits in control word: " + bits);
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
-		
+
 		lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
 //		} else {
 //			
@@ -541,7 +553,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		if ( getCurrentState() != CCUState.RUN ) {
+		if (getCurrentState() != CCUState.RUN) {
 			return;
 		}
 		writeValuesBackInChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD);
@@ -554,7 +566,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 */
 		float activePowerFactor = -activePower / MAX_POWER_W;
 		float reactivePowerFactor = -reactivePower / MAX_POWER_W;
-		
+
 		if (Math.abs(activePowerFactor) > 0.05) {
 			log.error("ACTIVE POWER TOO HIGH FOR TESTIING!!!! ");
 			activePowerFactor = (float) (Math.signum(activePowerFactor) * 0.1);
@@ -563,7 +575,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			log.error("REACTIVE POWER TOO HIGH FOR TESTIING!!!! ");
 			reactivePowerFactor = (float) (Math.signum(reactivePowerFactor) * 0.1);
 		}
-		
+
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, activePowerFactor);
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, reactivePowerFactor);
 	}
@@ -573,7 +585,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		int weight1 = 0;
 		int weight2 = 0;
-		int weight3 = 0;		
+		int weight3 = 0;
 
 		// weight strings according to max allowed current
 		// use values for discharging
@@ -588,26 +600,32 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 
 		// TODO discuss if this is correct!
-		int maxChargePower1 = battery1.getChargeMaxCurrent().value().asOptional().orElse(0) * battery1.getChargeMaxVoltage().value().asOptional().orElse(0);
-		int maxChargePower2 = battery2.getChargeMaxCurrent().value().asOptional().orElse(0) * battery2.getChargeMaxVoltage().value().asOptional().orElse(0);
-		int maxChargePower3 = battery3.getChargeMaxCurrent().value().asOptional().orElse(0) * battery3.getChargeMaxVoltage().value().asOptional().orElse(0);
-		
-		int maxDischargePower1 = battery1.getDischargeMaxCurrent().value().asOptional().orElse(0) * battery1.getDischargeMinVoltage().value().asOptional().orElse(0);
-		int maxDischargePower2 = battery2.getDischargeMaxCurrent().value().asOptional().orElse(0) * battery2.getDischargeMinVoltage().value().asOptional().orElse(0);
-		int maxDischargePower3 = battery3.getDischargeMaxCurrent().value().asOptional().orElse(0) * battery3.getDischargeMinVoltage().value().asOptional().orElse(0);
-		
-		writeIPUParameters(weight1, weight2, weight3, maxDischargePower1, maxDischargePower2, maxDischargePower3, maxChargePower1, maxChargePower2, maxChargePower3);
+		int maxChargePower1 = battery1.getChargeMaxCurrent().value().asOptional().orElse(0)
+				* battery1.getChargeMaxVoltage().value().asOptional().orElse(0);
+		int maxChargePower2 = battery2.getChargeMaxCurrent().value().asOptional().orElse(0)
+				* battery2.getChargeMaxVoltage().value().asOptional().orElse(0);
+		int maxChargePower3 = battery3.getChargeMaxCurrent().value().asOptional().orElse(0)
+				* battery3.getChargeMaxVoltage().value().asOptional().orElse(0);
+
+		int maxDischargePower1 = battery1.getDischargeMaxCurrent().value().asOptional().orElse(0)
+				* battery1.getDischargeMinVoltage().value().asOptional().orElse(0);
+		int maxDischargePower2 = battery2.getDischargeMaxCurrent().value().asOptional().orElse(0)
+				* battery2.getDischargeMinVoltage().value().asOptional().orElse(0);
+		int maxDischargePower3 = battery3.getDischargeMaxCurrent().value().asOptional().orElse(0)
+				* battery3.getDischargeMinVoltage().value().asOptional().orElse(0);
+
+		writeIPUParameters(weight1, weight2, weight3, maxDischargePower1, maxDischargePower2, maxDischargePower3,
+				maxChargePower1, maxChargePower2, maxChargePower3);
 	}
 
-	
-	/** Writes the given value into the channel */ 
+	/** Writes the given value into the channel */
 	void writeValueToChannel(GridConChannelId channelId, Object value) {
 		try {
 			((WriteChannel<?>) this.channel(channelId)).setNextWriteValueFromObject(value);
-		} catch (OpenemsException e) {			
+		} catch (OpenemsException e) {
 			e.printStackTrace();
 			log.error("Problem occurred during writing '" + value + "' to channel " + channelId.name());
-		} 
+		}
 	}
 
 	@Override
@@ -644,7 +662,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(32528, Priority.LOW, // )
+				new FC3ReadRegistersTask(32528, Priority.LOW, // CCU state
 						bm(new UnsignedDoublewordElement(32528)) //
 								.m(GridConChannelId.PCS_CCU_STATE_IDLE, 0) //
 								.m(GridConChannelId.PCS_CCU_STATE_PRECHARGE, 1) //
@@ -680,7 +698,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32546).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CCU_FREQUENCY,
 								new FloatDoublewordElement(32548).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(33168, Priority.LOW, //
+				), new FC3ReadRegistersTask(33168, Priority.LOW, // IPU 1 state
 						byteMap(new UnsignedDoublewordElement(33168)) //
 								.mapByte(GridConChannelId.PCS_IPU_1_STATUS_STATUS_STATE_MACHINE, 0) //
 								.mapByte(GridConChannelId.PCS_IPU_1_STATUS_STATUS_MCU, 1) //
@@ -715,7 +733,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33196).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_1_STATUS_RESERVE_3,
 								new FloatDoublewordElement(33198).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(33200, Priority.LOW, //
+				), new FC3ReadRegistersTask(33200, Priority.LOW, // // IPU 2 state
 						byteMap(new UnsignedDoublewordElement(33200)) //
 								.mapByte(GridConChannelId.PCS_IPU_2_STATUS_STATUS_STATE_MACHINE, 0) //
 								.mapByte(GridConChannelId.PCS_IPU_2_STATUS_STATUS_MCU, 1) //
@@ -751,7 +769,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridConChannelId.PCS_IPU_2_STATUS_RESERVE_3,
 								new FloatDoublewordElement(33230).wordOrder(WordOrder.LSWMSW)) //
 				), new FC3ReadRegistersTask(33232, Priority.LOW, //
-						byteMap(new UnsignedDoublewordElement(33232)) //
+						byteMap(new UnsignedDoublewordElement(33232)) // // IPU 3 state
 								.mapByte(GridConChannelId.PCS_IPU_3_STATUS_STATUS_STATE_MACHINE, 0) //
 								.mapByte(GridConChannelId.PCS_IPU_3_STATUS_STATUS_MCU, 1) //
 								.build().wordOrder(WordOrder.LSWMSW), //
@@ -785,7 +803,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33260).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_3_STATUS_RESERVE_3,
 								new FloatDoublewordElement(33262).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(33264, Priority.LOW, //
+				), new FC3ReadRegistersTask(33264, Priority.LOW, // // IPU 4 state
 						byteMap(new UnsignedDoublewordElement(33264)) //
 								.mapByte(GridConChannelId.PCS_IPU_4_STATUS_STATUS_STATE_MACHINE, 0) //
 								.mapByte(GridConChannelId.PCS_IPU_4_STATUS_STATUS_MCU, 1) //
@@ -820,7 +838,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33292).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_4_STATUS_RESERVE_3,
 								new FloatDoublewordElement(33294).wordOrder(WordOrder.LSWMSW)) // TODO: is this float?
-				), new FC3ReadRegistersTask(33488, Priority.LOW, //
+				), new FC3ReadRegistersTask(33488, Priority.LOW, // // IPU 1 measurements
 						m(GridConChannelId.PCS_IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A,
 								new FloatDoublewordElement(33488).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B,
@@ -853,7 +871,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33516).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_1_DC_DC_MEASUREMENTS_RESERVE_2,
 								new FloatDoublewordElement(33518).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(33520, Priority.LOW, //
+				), new FC3ReadRegistersTask(33520, Priority.LOW, // IPU 2 measurements
 						m(GridConChannelId.PCS_IPU_2_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A,
 								new FloatDoublewordElement(33520).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_2_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B,
@@ -886,7 +904,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33548).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_2_DC_DC_MEASUREMENTS_RESERVE_2,
 								new FloatDoublewordElement(33550).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(33552, Priority.LOW, //
+				), new FC3ReadRegistersTask(33552, Priority.LOW, // IPU 3 measurements
 						m(GridConChannelId.PCS_IPU_3_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A,
 								new FloatDoublewordElement(33552).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_3_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B,
@@ -919,7 +937,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33580).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_3_DC_DC_MEASUREMENTS_RESERVE_2,
 								new FloatDoublewordElement(33582).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(33584, Priority.LOW, //
+				), new FC3ReadRegistersTask(33584, Priority.LOW, // IPU 4 measurements
 						m(GridConChannelId.PCS_IPU_4_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A,
 								new FloatDoublewordElement(33584).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_4_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B,
@@ -952,15 +970,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(33612).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_IPU_4_DC_DC_MEASUREMENTS_RESERVE_2,
 								new FloatDoublewordElement(33614).wordOrder(WordOrder.LSWMSW)) //
-				), new FC16WriteRegistersTask(32560, //
+				), new FC16WriteRegistersTask(32560, // Commands
 						m(GridConChannelId.PCS_COMMAND_CONTROL_WORD,
 								new UnsignedDoublewordElement(32560).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK,
+						m(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32562).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0,
-								new FloatDoublewordElement(32564).wordOrder(WordOrder.LSWMSW)), //
+								new FloatDoublewordElement(32564).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
 						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0,
-								new FloatDoublewordElement(32566).wordOrder(WordOrder.LSWMSW)), //
+								new FloatDoublewordElement(32566).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
 						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF,
 								new FloatDoublewordElement(32568).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF,
@@ -969,24 +987,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_COMMAND_TIME_SYNC_TIME,
 								new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
-				), new FC3ReadRegistersTask(32560, Priority.LOW, //
-						m(GridConChannelId.PCS_COMMAND_CONTROL_WORD,
-								new UnsignedDoublewordElement(32560).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_ERROR_CODE_FALLBACK,
-								new UnsignedDoublewordElement(32562).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0,
-								new FloatDoublewordElement(32564).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0,
-								new FloatDoublewordElement(32566).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF,
-								new FloatDoublewordElement(32568).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF,
-								new FloatDoublewordElement(32570).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_TIME_SYNC_DATE,
-								new UnsignedDoublewordElement(32572).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.PCS_COMMAND_TIME_SYNC_TIME,
-								new UnsignedDoublewordElement(32574).wordOrder(WordOrder.LSWMSW)) //
-				), new FC16WriteRegistersTask(32592, //
+				), new FC16WriteRegistersTask(32592, // Control parameters
 						m(GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN,
 								new FloatDoublewordElement(32592).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN,
@@ -1019,7 +1020,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32620).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_ONE,
 								new FloatDoublewordElement(32622).wordOrder(WordOrder.LSWMSW)) //
-				), new FC16WriteRegistersTask(32624, //
+				), new FC16WriteRegistersTask(32624, // IPU 1 control parameters
 						m(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT,
 								new FloatDoublewordElement(32624).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT,
@@ -1036,7 +1037,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32636).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE,
 								new FloatDoublewordElement(32638).wordOrder(WordOrder.LSWMSW)) //
-				), new FC16WriteRegistersTask(32656, //
+				), new FC16WriteRegistersTask(32656, // IPU 2 control parameters
 						m(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT,
 								new FloatDoublewordElement(32656).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT,
@@ -1053,7 +1054,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32668).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE,
 								new FloatDoublewordElement(32670).wordOrder(WordOrder.LSWMSW)) //
-				), new FC16WriteRegistersTask(32688, //
+				), new FC16WriteRegistersTask(32688, // IPU 3 control parameters
 						m(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT,
 								new FloatDoublewordElement(32688).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT,
@@ -1070,8 +1071,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32700).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE,
 								new FloatDoublewordElement(32702).wordOrder(WordOrder.LSWMSW)) //
-				),
-				new FC16WriteRegistersTask(32720,
+				), new FC16WriteRegistersTask(32720, // IPU 4 control parameters
 						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT,
 								new FloatDoublewordElement(32720).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A,

@@ -198,10 +198,10 @@ public enum GridConChannelId implements io.openems.edge.common.channel.doc.Chann
 	PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_3(new Doc().unit(Unit.ON_OFF)),
 	PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_2(new Doc().unit(Unit.ON_OFF)),
 	PCS_COMMAND_CONTROL_WORD_ENABLE_IPU_1(new Doc().unit(Unit.ON_OFF)),
-	PCS_COMMAND_ERROR_CODE_FALLBACK(new Doc()),
+	PCS_COMMAND_ERROR_CODE_FEEDBACK(new Doc()),
 	/**
 	 * Describes the voltage provided in a blackstart where 1 is mains voltage. 1 =>
-	 * 230V, 1.02 => 234.6V. Should be 0 when not using blackstart.
+	 * 230V, 1.02 => 234.6V. Should be 1 when not using blackstart, because when system runs into blackstart mode
 	 */
 	PCS_COMMAND_CONTROL_PARAMETER_U0(new Doc()),
 	/**
