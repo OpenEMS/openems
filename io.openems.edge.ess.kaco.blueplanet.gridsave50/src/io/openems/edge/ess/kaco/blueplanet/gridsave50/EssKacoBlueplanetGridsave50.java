@@ -188,6 +188,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleStateMachine() {
+		// by default: block Power
+		this.noPowerOnError.setValue(0);
+		
+		// do always
 		setBatteryRanges();
 		setWatchdog();
 
@@ -210,8 +214,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		case GRID_CONNECTED:
 			doGridConnectedHandling();
 			break;
-		case PRECHARGE:
 		case NO_ERROR_PENDING:
+			doErrorHandling();
+		case PRECHARGE:
 		case SHUTTING_DOWN:
 		case STARTING:
 		case THROTTLED:
@@ -228,7 +233,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doOffHandling() {
 		startSystem();
 	}
-
+	
 	private void doGridConnectedHandling() {
 		this.noPowerOnError.setValue(null);
 	}
@@ -237,7 +242,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// find out the reason what is wrong an react
 		// for a first try, switch system off, it will be restarted
 		stopSystem();
-		this.noPowerOnError.setValue(0);
 	}
 
 	private void setBatteryRanges() {

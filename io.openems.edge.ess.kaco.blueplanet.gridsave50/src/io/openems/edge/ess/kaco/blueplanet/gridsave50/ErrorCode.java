@@ -114,7 +114,7 @@ public enum ErrorCode implements OptionsEnum {
 			"Battery disconnected Connection to the battery disconnected. Check connection. The battery voltage may be outside the parameterised battery limits."),
 	BATTERY_CONSTRAINTS_MISSING(199, "Battery constraints are missing // Batteriegrenzen nicht vorhanden"),
 	WAITING_FOR_FAULT_ACKNOWLEDGEMENT(215,
-			"Waiting for fault acknowledgement Waiting for fault acknowledgement by EMS"),
+			"Waiting for fault acknowledgement by EMS"),
 	PRECHARGE_UNIT_FAULT(218, "Precharge unit fault Precharge unit: Group fault for precharge unit"),
 	READY_FOR_PRECHARGING(219, "Ready for precharging Precharge unit: Ready for precharging"),
 	PRECHARGE_PRECHARGE_UNIT(220, "Precharge Precharge unit: Precharge process being carried out"),
