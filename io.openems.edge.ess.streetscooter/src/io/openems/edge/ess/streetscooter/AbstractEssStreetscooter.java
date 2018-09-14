@@ -5,6 +5,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -103,12 +104,12 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(batteryInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_I_ACT,
 								new FloatDoublewordElement(batteryInfoStartAddress + 2).wordOrder(WordOrder.LSWMSW)),
-						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+						m(ChannelId.BATTERY_BMS_PWR_CHRG_MAX,
 								new FloatDoublewordElement(batteryInfoStartAddress + 4).wordOrder(WordOrder.LSWMSW)),
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 								new FloatDoublewordElement(batteryInfoStartAddress + 6).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.BATTERY_BMS_PWR_RGN_MAX,
-								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW)),
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW), ElementToChannelConverter.INVERT),
 						m(SymmetricEss.ChannelId.SOC,
 								new FloatDoublewordElement(batteryInfoStartAddress + 10).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_SOH,
@@ -242,8 +243,6 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		BATTERY_BMS_ERR(new Doc().unit(Unit.NONE)), //
 		BATTERY_BMS_I_ACT(new Doc().unit(Unit.AMPERE)), //
 		BATTERY_BMS_PWR_CHRG_MAX(new Doc().unit(Unit.WATT)), //
-		BATTERY_BMS_PWR_D_CHA_MAX(new Doc().unit(Unit.WATT)), //
-		BATTERY_BMS_PWR_RGN_MAX(new Doc().unit(Unit.WATT)), //
 		BATTERY_BMS_SOH(new Doc().unit(Unit.PERCENT)), //
 		BATTERY_BMS_ST_BAT(new Doc().unit(Unit.NONE)), //
 		BATTERY_BMS_T_MAX_PACK(new Doc().unit(Unit.DEGREE_CELSIUS)), //

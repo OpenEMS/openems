@@ -52,8 +52,6 @@ public class Utils {
 					case BATTERY_BMS_I_ACT:
 					case BATTERY_BMS_ERR:
 					case BATTERY_BMS_PWR_CHRG_MAX:
-					case BATTERY_BMS_PWR_D_CHA_MAX:
-					case BATTERY_BMS_PWR_RGN_MAX:
 					case BATTERY_BMS_SOH:
 					case BATTERY_BMS_ST_BAT:
 					case BATTERY_BMS_T_MAX_PACK:
