@@ -169,12 +169,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		}
 
 		if (cc == ContactorControl.ON_GRID) {
-			// Currently there is no error handling or prevention is system gets too hot or s.th. else 
-//			if (checkForFault()) {
-//				handleFaults();
-//			} else {
-//				doNormalProcessing();
-//			}
+			// TODO: Implement error handling or prevention on system temperature errors/ low voltage/...
 		}
 	}
 
@@ -1051,110 +1046,4 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}
-
-//	TODO unused
-//	private void doNormalProcessing() {
-//		// Try to react on possible errors
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)) {
-//			handleCellVoltageHigh();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)) {
-//			handleTotalVoltageHigh();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)) {
-//			handleChargeCurrentHigh();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)) {
-//			handleCellVoltageLow();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)) {
-//			handleTotalVoltageLow();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)) {
-//			handleDischargeCurrentHigh();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)) {
-//			handleCellChargeTemperatureHigh();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)) {
-//			handleCellChargeTemperatureLow();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)) {
-//			handleInsulationLow();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)) {
-//			handleCellDischargeTemperatureHigh();
-//		}
-//		if (isStateValueInChannelSet(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)) {
-//			handleCellDischargeTemperatureLow();
-//		}
-//	}
-
-//	TODO unused
-//	private void handleFaults() {
-//		Optional<Integer> state = getState().getNextValue().asOptional();
-//		if (!state.isPresent()) {
-//			return;
-//		}
-//		switch (state.get()) {
-//		case 0: // SAMPLING_WIRE
-//		case 1:// CONNECTOR_WIRE
-//		case 2:// LTC6803
-//		case 3:// VOLTAGE_SAMPLING
-//		case 4:// TEMP_SAMPLING
-//		case 5:// TEMP_SENSOR
-//		case 8:// BALANCING_MODULE
-//		case 9:// TEMP_SAMPLING_LINE
-//		case 10:// INTRANET_COMMUNICATION
-//		case 11:// EEPROM
-//		case 12:// INITIALIZATION
-//			stopSystem();
-//			break;
-//		}
-//	}
-
-//	TODO unused
-//	private boolean checkForFault() {
-//		Optional<Integer> state = getState().value().asOptional();
-//		return (state.isPresent() && state.get() != 0);
-//	}
-//
-//	private boolean isStateValueInChannelSet(ChannelId channelId) {
-//		StateChannel channel = this.channel(channelId);
-//		Optional<Boolean> valueOpt = channel.value().asOptional();
-//		return valueOpt.isPresent() && valueOpt.get();
-//	}
-//
-//	private void handleCellDischargeTemperatureLow() {
-//	}
-//
-//	private void handleCellDischargeTemperatureHigh() {
-//	}
-//
-//	private void handleInsulationLow() {
-//	}
-//
-//	private void handleCellChargeTemperatureLow() {
-//	}
-//
-//	private void handleCellChargeTemperatureHigh() {
-//	}
-//
-//	private void handleDischargeCurrentHigh() {
-//	}
-//
-//	private void handleTotalVoltageLow() {
-//	}
-//
-//	private void handleCellVoltageLow() {
-//	}
-//
-//	private void handleChargeCurrentHigh() {
-//	}
-//
-//	private void handleTotalVoltageHigh() {
-//	}
-//
-//	private void handleCellVoltageHigh() {
-//	}
 }
