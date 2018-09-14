@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
+import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { format } from 'date-fns';
 
 import { Edge } from '../../../shared/edge/edge';
@@ -29,15 +29,15 @@ export class LogComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.websocket.setCurrentEdge(this.route)
-      .takeUntil(this.stopOnDestroy)
+      .pipe(takeUntil(this.stopOnDestroy))
       .subscribe(edge => {
         this.edge = edge;
         this.subscribeLog();
       });
   }
 
-  public toggleSubscribe($event: any /*MdSlideToggleChange*/) {
-    if ($event.checked) {
+  public toggleSubscribe(event: CustomEvent) {
+    if (event.detail['checked']) {
       this.subscribeLog();
     } else {
       this.unsubscribeLog();
@@ -56,11 +56,15 @@ export class LogComponent implements OnInit, OnDestroy {
       });
     }
 
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+    this.stopOnDestroy = new Subject<void>();
+
     if (this.edge != null) {
       const result = this.edge.subscribeLog();
       this.messageId = result.messageId;
-      result.logs.takeUntil(this.stopOnDestroy).subscribe(log => {
-        log.time = format(new Date(<number>log.time * 1000), "DD.MM.YYYY HH:mm:ss");
+      result.logs.pipe(takeUntil(this.stopOnDestroy)).subscribe(log => {
+        log.time = new Date(<number>log.time).toLocaleString();
         switch (log.level) {
           case 'INFO':
             log.color = 'green';

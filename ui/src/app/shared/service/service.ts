@@ -1,11 +1,10 @@
 import { Injectable, ErrorHandler } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
 
-import { Websocket } from './websocket';
-import { Edge } from '../edge/edge';
 import { DefaultTypes } from './defaulttypes';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable()
 export class Service implements ErrorHandler {

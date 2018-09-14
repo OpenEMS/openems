@@ -5,78 +5,90 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
-import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.kostal.piko.charger.KostalPikoCharger;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 import io.openems.edge.kostal.piko.ess.KostalPikoEss;
 import io.openems.edge.kostal.piko.gridmeter.KostalPikoGridMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
 		name = "Kostal.Piko.Core", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
+		})
 public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		implements KostalPikoCore, OpenemsComponent, EventHandler {
 
 	protected final static int MAX_ACTUAL_POWER = 6600;
-	protected final static int MAX_APPARENT_POWER = 2300;
+	protected final static int MAX_APPARENT_POWER = 6000;
 	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+
+	/* INVERTER, BATTERY */
+	private KostalPikoEss ess = null;
+
 	@Override
 	public void setEss(KostalPikoEss ess) {
+		this.ess = ess;
 		this.readTasksManager.addTasks( //
-				new ReadTask(ess, SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.INTEGER, 0x02000705), //
-				new ReadTask(ess, AsymmetricEss.ChannelId.ACTIVE_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000203), //
-				new ReadTask(ess, AsymmetricEss.ChannelId.ACTIVE_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
-				new ReadTask(ess, AsymmetricEss.ChannelId.ACTIVE_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403), //
-				new ReadTask(ess, SymmetricEss.ChannelId.ACTIVE_POWER, Priority.HIGH, FieldType.FLOAT, 0x04000100) //
+				new ReadTask(ess, SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705) //
 		);
 	}
 
 	@Override
 	public void unsetEss(KostalPikoEss ess) {
+		this.ess = null;
 		this.unsetComponent(ess);
 	}
 
+	/* PV */
+	private KostalPikoCharger charger = null;
+
 	@Override
 	public void setCharger(KostalPikoCharger charger) {
-		this.readTasksManager.addTasks( //
-				new ReadTask(charger, EssDcCharger.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200) //
-		);
+		this.charger = charger;
 	}
 
 	@Override
 	public void unsetCharger(KostalPikoCharger charger) {
+		this.charger = null;
 		this.unsetComponent(charger);
 	}
 
+	private KostalPikoGridMeter meter = null;
+
 	@Override
-	public void setGridMeter(KostalPikoGridMeter charger) {
-		this.readTasksManager.addTasks( //
-				// TODO
-		);
+	public void setGridMeter(KostalPikoGridMeter meter) {
+		this.meter = meter;
 	}
 
 	@Override
-	public void unsetGridMeter(KostalPikoGridMeter charger) {
-		this.unsetComponent(charger);
+	public void unsetGridMeter(KostalPikoGridMeter meter) {
+		this.meter = null;
+		this.unsetComponent(meter);
 	}
 
 	private void unsetComponent(OpenemsComponent component) {
@@ -93,8 +105,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				/*
 				 * ONCE
 				 */
-				// TODO: many of the following channels can change in time (like
-				// HOME_CONSUMPTION_GRID)! Please check again!
 				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
 				new ReadTask(this, KostalPikoCore.ChannelId.ARTICLE_NUMBER, Priority.ONCE, FieldType.STRING,
 						0x01000100), //
@@ -109,8 +119,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				new ReadTask(this, KostalPikoCore.ChannelId.PARAMETER_VERSION, Priority.ONCE, FieldType.STRING,
 						0x01000901), //
 				new ReadTask(this, KostalPikoCore.ChannelId.COUNTRY_NAME, Priority.ONCE, FieldType.STRING, 0x01000902), //
-				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_OPERATING_STATUS, Priority.ONCE, FieldType.STRING,
-						0X08000105), //
 				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_TYPE_NAME, Priority.ONCE, FieldType.STRING,
 						0x01000D00), //
 				new ReadTask(this, KostalPikoCore.ChannelId.NUMBER_OF_STRING, Priority.ONCE, FieldType.INTEGER,
@@ -118,21 +126,9 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				new ReadTask(this, KostalPikoCore.ChannelId.NUMBER_OF_PHASES, Priority.ONCE, FieldType.INTEGER,
 						0x01000600), //
 				new ReadTask(this, KostalPikoCore.ChannelId.POWER_ID, Priority.ONCE, FieldType.INTEGER, 0x01000400), //
-				new ReadTask(this, KostalPikoCore.ChannelId.PRESENT_ERROR_EVENT_CODE_1, Priority.ONCE,
-						FieldType.INTEGER, 0x08000300), //
-				new ReadTask(this, KostalPikoCore.ChannelId.PRESENT_ERROR_EVENT_CODE_2, Priority.ONCE,
-						FieldType.INTEGER, 0x08000400), //
 				new ReadTask(this, KostalPikoCore.ChannelId.FEED_IN_TIME, Priority.ONCE, FieldType.INTEGER, 0x0F000100), //
-				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_STATUS, Priority.ONCE, FieldType.INTEGER,
-						0x01000B00), //
 				new ReadTask(this, KostalPikoCore.ChannelId.BAUDRATE_INDEX_MODBUS_RTU, Priority.ONCE,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000206), //
-				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_TEMPERATURE, Priority.ONCE, FieldType.FLOAT,
-						0x02000703), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ISOLATION_RESISTOR, Priority.ONCE, FieldType.FLOAT,
-						0x06000100), //
-				new ReadTask(this, KostalPikoCore.ChannelId.GRID_FREQUENCY, Priority.ONCE, FieldType.FLOAT, 0x04000600), //
-				new ReadTask(this, KostalPikoCore.ChannelId.COSINUS_PHI, Priority.ONCE, FieldType.FLOAT, 0x04000700), //
 				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP1, Priority.ONCE,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000102), //
 				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP2, Priority.ONCE,
@@ -161,55 +157,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x0700010F), //
 				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_2, Priority.ONCE,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000110), //
-				new ReadTask(this, KostalPikoCore.ChannelId.POWER_LIMITATION_OF_EVU, Priority.LOW, FieldType.FLOAT,
-						0x04000500), //
-				new ReadTask(this, KostalPikoCore.ChannelId.MAX_RESIDUAL_CURRENT, Priority.LOW, FieldType.FLOAT,
-						0x06000301), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_1, Priority.LOW, FieldType.FLOAT,
-						0x0A000101), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_2, Priority.LOW, FieldType.FLOAT,
-						0x0A000201), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_3, Priority.LOW, FieldType.FLOAT,
-						0x0A000301), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_4, Priority.LOW, FieldType.FLOAT,
-						0x0A000401), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_RATE_TOTAL, Priority.LOW, FieldType.FLOAT,
-						0x0F000410), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_RATE_DAY, Priority.LOW, FieldType.FLOAT,
-						0x0F00040E), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DEGREE_OF_SELF_SUFFICIENCY_DAY, Priority.LOW,
-						FieldType.FLOAT, 0x0F00040F), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DEGREE_OF_SELF_SUFFICIENCY_TOTAL, Priority.LOW,
-						FieldType.FLOAT, 0x0F000411), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L1, Priority.LOW, FieldType.FLOAT, 0x05000402), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L2, Priority.LOW, FieldType.FLOAT, 0x05000502), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L3, Priority.LOW, FieldType.FLOAT, 0x05000602), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID, Priority.LOW, FieldType.FLOAT,
-						0x05000300), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_PV, Priority.LOW, FieldType.FLOAT,
-						0x05000100), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_TOTAL_POWER, Priority.LOW, FieldType.FLOAT,
-						0x05000700), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
-						0x05000800), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_L1, Priority.LOW, FieldType.FLOAT,
-						0x05000403), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_L2, Priority.LOW, FieldType.FLOAT,
-						0x05000503), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_L3, Priority.LOW, FieldType.FLOAT,
-						0x05000603), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
-						0x0F000301), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT,
-						0x0F000302), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_BATTERY, Priority.LOW, FieldType.FLOAT,
-						0x05000200), //
-				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000701), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
-						0x0F000401), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT,
-						0x0F000402), //
-				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_VOLTAGE, Priority.LOW, FieldType.FLOAT, 0x02000702), //
 				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_3, Priority.ONCE,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000111), //
 				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_4, Priority.ONCE,
@@ -236,16 +183,71 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				/*
 				 * LOW
 				 */
+				new ReadTask(this, KostalPikoCore.ChannelId.GRID_FREQUENCY, Priority.LOW, FieldType.FLOAT, 0x04000600), //
+				new ReadTask(this, KostalPikoCore.ChannelId.COSINUS_PHI, Priority.LOW, FieldType.FLOAT, 0x04000700), //
+				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_OPERATING_STATUS, Priority.LOW, FieldType.STRING,
+						0X08000105), //
+				new ReadTask(this, KostalPikoCore.ChannelId.PRESENT_ERROR_EVENT_CODE_1, Priority.LOW, FieldType.INTEGER,
+						0x08000300), //
+				new ReadTask(this, KostalPikoCore.ChannelId.PRESENT_ERROR_EVENT_CODE_2, Priority.LOW, FieldType.INTEGER,
+						0x08000400), //
+				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_STATUS, Priority.LOW, FieldType.INTEGER,
+						0x01000B00), //
+				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_TEMPERATURE, Priority.LOW, FieldType.FLOAT,
+						0x02000703), //
+				new ReadTask(this, KostalPikoCore.ChannelId.ISOLATION_RESISTOR, Priority.LOW, FieldType.FLOAT,
+						0x06000100), //
+				new ReadTask(this, KostalPikoCore.ChannelId.POWER_LIMITATION_OF_EVU, Priority.LOW, FieldType.FLOAT,
+						0x04000500), //
+				new ReadTask(this, KostalPikoCore.ChannelId.MAX_RESIDUAL_CURRENT, Priority.LOW, FieldType.FLOAT,
+						0x06000301), //
+				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_1, Priority.LOW, FieldType.FLOAT,
+						0x0A000101), //
+				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_2, Priority.LOW, FieldType.FLOAT,
+						0x0A000201), //
+				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_3, Priority.LOW, FieldType.FLOAT,
+						0x0A000301), //
+				new ReadTask(this, KostalPikoCore.ChannelId.ANALOG_INPUT_CH_4, Priority.LOW, FieldType.FLOAT,
+						0x0A000401), //
+				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_RATE_TOTAL, Priority.LOW, FieldType.FLOAT,
+						0x0F000410), //
+				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_RATE_DAY, Priority.LOW, FieldType.FLOAT,
+						0x0F00040E), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DEGREE_OF_SELF_SUFFICIENCY_DAY, Priority.LOW,
+						FieldType.FLOAT, 0x0F00040F), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DEGREE_OF_SELF_SUFFICIENCY_TOTAL, Priority.LOW,
+						FieldType.FLOAT, 0x0F000411), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L1, Priority.LOW, FieldType.FLOAT, 0x05000402), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L2, Priority.LOW, FieldType.FLOAT, 0x05000502), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_POWER_L3, Priority.LOW, FieldType.FLOAT, 0x05000602), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_TOTAL_POWER, Priority.LOW, FieldType.FLOAT,
+						0x05000700), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
+						0x05000800), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_L1, Priority.LOW, FieldType.FLOAT,
+						0x05000403), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_L2, Priority.LOW, FieldType.FLOAT,
+						0x05000503), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_L3, Priority.LOW, FieldType.FLOAT,
+						0x05000603), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
+						0x0F000301), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT,
+						0x0F000302), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_BATTERY, Priority.LOW, FieldType.FLOAT,
+						0x05000200), //
+				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT,
+						0x0F000401), //
+				new ReadTask(this, KostalPikoCore.ChannelId.SELF_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT,
+						0x0F000402), //
 				new ReadTask(this, KostalPikoCore.ChannelId.FEED_IN_STATUS, Priority.LOW, FieldType.BOOLEAN,
 						0x01000A00),
-
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_VOLTAGE_STRING_1, Priority.LOW, FieldType.FLOAT,
 						0x02000302), //
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_VOLTAGE_STRING_2, Priority.LOW, FieldType.FLOAT,
 						0x02000402), //
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_VOLTAGE_STRING_3, Priority.LOW, FieldType.FLOAT,
 						0x02000502), //
-
 				new ReadTask(this, KostalPikoCore.ChannelId.OVERALL_DC_CURRENT, Priority.LOW, FieldType.FLOAT,
 						0x02000100), //
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_CURRENT_STRING_1, Priority.LOW, FieldType.FLOAT,
@@ -254,37 +256,45 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 						0x02000401), //
 				new ReadTask(this, KostalPikoCore.ChannelId.DC_CURRENT_STRING_3, Priority.LOW, FieldType.FLOAT,
 						0x02000501), //
-
-				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_1, Priority.LOW, FieldType.FLOAT,
-						0x02000303), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_2, Priority.LOW, FieldType.FLOAT,
-						0x02000403), //
-				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_3, Priority.LOW, FieldType.FLOAT,
-						0x02000503), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L1, Priority.LOW,
+						FieldType.FLOAT, 0x05000401), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L2, Priority.LOW,
+						FieldType.FLOAT, 0x05000501), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_FROM_EXT_SENSOR_L3, Priority.LOW,
+						FieldType.FLOAT, 0x05000601), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID, Priority.HIGH, FieldType.FLOAT,
+						0x05000300), //
 
 				/*
 				 * ESS
 				 */
+				new ReadTask(this, KostalPikoCore.ChannelId.GRID_AC_P_TOTAL, Priority.HIGH, FieldType.FLOAT,
+						0x04000100), //
 				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_CURRENT_DIRECTION, Priority.LOW, FieldType.FLOAT,
 						0x02000706), //
-				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x04000201), //
-				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L2, Priority.LOW, FieldType.FLOAT, 0x04000301), //
-				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L3, Priority.LOW, FieldType.FLOAT, 0x04000401), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x05000401), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_L2, Priority.LOW, FieldType.FLOAT, 0x05000501), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CURRENT_L3, Priority.LOW, FieldType.FLOAT, 0x05000601), //
+				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L1, Priority.HIGH, FieldType.FLOAT, 0x04000201), //
+				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L2, Priority.HIGH, FieldType.FLOAT, 0x04000301), //
+				new ReadTask(this, KostalPikoCore.ChannelId.AC_CURRENT_L3, Priority.HIGH, FieldType.FLOAT, 0x04000401), //
+
 				// HIGH
-
-				// TODO Energy Related with cycles check it again
-				// new ReadTask(EssDcCharger.KostalPikoCore.ChannelId.ACTUAL_ENERGY,
-				// Priority.HIGH,
-				// FieldType.INTEGER_UNSIGNED_BYTE, 0x02000704),//
-
+				new ReadTask(this, KostalPikoCore.ChannelId.ACTUAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x02000200), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_1, Priority.HIGH, FieldType.FLOAT,
+						0x02000303), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_2, Priority.HIGH, FieldType.FLOAT,
+						0x02000403), //
+				new ReadTask(this, KostalPikoCore.ChannelId.DC_POWER_STRING_3, Priority.HIGH, FieldType.FLOAT,
+						0x02000503), //
+				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_VOLTAGE, Priority.HIGH, FieldType.FLOAT,
+						0x02000702), //
+				new ReadTask(this, KostalPikoCore.ChannelId.HOME_CONSUMPTION_PV, Priority.HIGH, FieldType.FLOAT,
+						0x05000100), //
+				new ReadTask(this, KostalPikoCore.ChannelId.BATTERY_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000701), //
 				new ReadTask(this, KostalPikoCore.ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000202), //
 				new ReadTask(this, KostalPikoCore.ChannelId.AC_VOLTAGE_L2, Priority.HIGH, FieldType.FLOAT, 0x04000302), //
 				new ReadTask(this, KostalPikoCore.ChannelId.AC_VOLTAGE_L3, Priority.HIGH, FieldType.FLOAT, 0x04000402), //
 				new ReadTask(this, KostalPikoCore.ChannelId.YIELD_DAY, Priority.HIGH, FieldType.FLOAT, 0x0F000202), //
 				new ReadTask(this, KostalPikoCore.ChannelId.YIELD_TOTAL, Priority.HIGH, FieldType.FLOAT, 0x0F000201)//
+
 		);
 	}
 
@@ -314,9 +324,48 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.worker.triggerNextCycle();
+			this.calculateDerivedChannelValues();
+			break;
 		}
 	}
 
+	private void calculateDerivedChannelValues() {
+		if (this.ess != null && this.charger != null && this.meter != null) {
+
+			// calculate Charger ActivePower
+			Channel<Float> pvPower1 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_1);
+			Channel<Float> pvPower2 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_2);
+			float pvPower = pvPower1.value().orElse(0f) + pvPower2.value().orElse(0f);
+			this.charger.channel(EssDcCharger.ChannelId.ACTUAL_POWER).setNextValue(pvPower);
+
+			// calculate ESS ActivePower
+			Channel<Float> gridAcPTotalChannel = this.channel(KostalPikoCore.ChannelId.GRID_AC_P_TOTAL);
+			float gridAcPTotal = gridAcPTotalChannel.value().orElse(0f);
+			float essActivPower = (pvPower - gridAcPTotal);
+			this.ess.channel(SymmetricEss.ChannelId.ACTIVE_POWER).setNextValue(essActivPower);
+
+			// calculate Meter ActivePower
+			Channel<Float> homeConsumptionBattery = this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_BATTERY);
+			Channel<Float> homeConsumptionGrid = this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_GRID);
+			// Channel<Float> homeConsumptionPv =
+			// this.channel(KostalPikoCore.ChannelId.HOME_CONSUMPTION_PV);
+			float homeConsmBatttery = homeConsumptionBattery.value().orElse(0f);
+			float homeConsmGrid = homeConsumptionGrid.value().orElse(0f);
+			// float homeConsmPv = homeConsumptionPv.value().orElse(0f);
+
+			Channel<Float> homePowerL1 = this.channel(KostalPikoCore.ChannelId.HOME_POWER_L1);
+			Channel<Float> homePowerL2 = this.channel(KostalPikoCore.ChannelId.HOME_POWER_L2);
+			Channel<Float> homePowerL3 = this.channel(KostalPikoCore.ChannelId.HOME_POWER_L3);
+
+			float homePwL1 = homePowerL1.value().orElse(0f);
+			float homePwL2 = homePowerL2.value().orElse(0f);
+			float homePwL3 = homePowerL3.value().orElse(0f);
+
+			float load = homeConsmBatttery + homeConsmGrid + homePwL1 + homePwL2 + homePwL3;
+			this.meter.channel(SymmetricMeter.ChannelId.ACTIVE_POWER).setNextValue(load - gridAcPTotal);
+		}
+
+	}
 }

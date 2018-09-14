@@ -15,7 +15,7 @@ export const TRANSLATION = {
         ChargePower: "Nabíjecí výkon",
         DischargePower: "Vybíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
-        DateFormat: "DD.MM.YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
+        DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -27,10 +27,12 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Přehled",
-        AboutUI: "About FEMS-UI"
+        Index: "Přehled",
+        AboutUI: "About FEMS-UI",
+        Settings: 'Obecné Nastavení',
+        Logout: 'Odhlásit'
     },
-    Overview: {
+    Index: {
         AllConnected: "Všechna připojení aktivní.",
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
@@ -38,7 +40,7 @@ export const TRANSLATION = {
         IsOffline: "FEMS je ve stavu offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Monitoring energetických toků",
                 ConsumptionWarning: "Spotřeba & neznámá výroba",
@@ -49,12 +51,37 @@ export const TRANSLATION = {
                 ProductionMeter: "Elektroměr - Výroba"
             },
             Energytable: {
-                Title: "Tabulka hodnot"
+                Title: "Tabulka hodnot",
+                LoadingDC: "Načítání DC",
+                ProductionDC: "Generování DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Nabíjecí stanice",
+                    Status: "Postavení",
+                    Starting: "Začínající",
+                    NotReadyForCharging: "Není připraven k nabíjení",
+                    ReadyForCharging: "Připraven k nabíjení",
+                    Charging: "Se nabíjí",
+                    Error: "Chyba",
+                    NotAuthorized: "Neautorizovaný",
+                    Unplugged: "Odpojena",
+                    ChargingStationPluggedIn: "Nabíjecí stanice zapojena",
+                    ChargingStationPluggedInLocked: "Nabíjecí stanice zapojena + uzamčena",
+                    ChargingStationPluggedInEV: "Nabíjecí stanice + e-car připojené",
+                    ChargingStationPluggedInEVLocked: "Nabíjecí stanice + e-car připojené + uzamčena",
+                    ChargingLimit: "Omezení nabíjení",
+                    ChargingPower: "Nabíjecí výkon",
+                    CurrentCharge: "Aktuální nabíjení",
+                    TotalCharge: "Celkový poplatek",
+                    EnforceCharging: "Prosazování poplatků",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
             SelectedPeriod: "Zvolené období: ",
-            OtherPeriod: "Další období:",
+            OtherPeriod: "Další období",
             Period: "Období",
             Today: "Dnes",
             Yesterday: "Včera",
@@ -64,7 +91,7 @@ export const TRANSLATION = {
             Go: "Jdi!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Připojená zařízení",
                 Scheduler: "Plánovač aplikací",
                 Controller: "Aplikace",
@@ -73,6 +100,7 @@ export const TRANSLATION = {
                 Log: "Log",
                 LiveLog: "Live log systému",
                 ManualControl: "Manuální ovládání",
+                DataStorage: "Ukládání dat"
             },
             More: {
                 ManualCommand: "Manuální příkaz ",

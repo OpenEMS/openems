@@ -1,0 +1,46 @@
+Bundle-Name: OpenEMS Edge Controller Api REST/JSON
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: io.openems.edge.controller.api
+Private-Package:  \
+	io.openems.edge.controller.api.rest, \
+	io.openems.edge.controller.api.rest.route
+
+-includeresource: @org.restlet-2.4.0.jar, @org.restlet.ext.slf4j-2.4.0.jar, {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	com.google.gson,\
+	io.openems.edge.controller.api.core;version=latest,\
+	io.openems.edge.timedata.api;version=latest,\
+	org.restlet.jse:org.restlet,\
+	org.restlet.jse:org.restlet.ext.slf4j
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
+-exportcontents: \
+	org.restlet, \
+	org.restlet.ext.slf4j, \
+	org.restlet.routing, \
+	org.restlet.data, \
+	org.restlet.util, \
+	org.restlet.security, \
+	org.restlet.resource, \
+	org.restlet.representation, \
+	org.restlet.service, \
+	org.restlet.engine, \
+	org.restlet.engine.adapter, \
+	org.restlet.engine.application, \
+	org.restlet.engine.converter, \
+	org.restlet.engine.log, \
+	org.restlet.engine.header, \
+	org.restlet.engine.connector, \
+	org.restlet.engine.resource, \
+	org.restlet.engine.security, \
+	org.restlet.engine.io

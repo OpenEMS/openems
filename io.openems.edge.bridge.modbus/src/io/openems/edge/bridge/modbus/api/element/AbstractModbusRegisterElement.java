@@ -1,16 +1,14 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import java.nio.ByteOrder;
-import java.util.Optional;
-
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
+import java.nio.ByteOrder;
+import java.util.Optional;
 
 public abstract class AbstractModbusRegisterElement<T> extends AbstractModbusElement<T>
 		implements ModbusRegisterElement<T> {
@@ -43,7 +41,7 @@ public abstract class AbstractModbusRegisterElement<T> extends AbstractModbusEle
 	/*
 	 * ByteOrder of the input registers
 	 */
-	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	protected ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
 	public ByteOrder getByteOrder() {
 		return byteOrder;

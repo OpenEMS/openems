@@ -60,7 +60,7 @@ public class ProductionMeter extends AbstractOpenemsComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "datasource", config.datasource_id())) {
 			return;
 		}
 
@@ -97,7 +97,7 @@ public class ProductionMeter extends AbstractOpenemsComponent
 		 * get and store Simulated Active Power
 		 */
 		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
-		
+
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
 		this.getActivePower().setNextValue(simulatedActivePower);

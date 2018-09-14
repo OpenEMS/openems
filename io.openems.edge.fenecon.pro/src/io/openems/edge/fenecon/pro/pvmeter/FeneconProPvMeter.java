@@ -78,8 +78,8 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		ModbusProtocol protocol = new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(121, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -110,9 +110,9 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 		ACTIVE_ENERGY_L1(new Doc().unit(Unit.WATT_HOURS)), //
 		ACTIVE_ENERGY_L2(new Doc().unit(Unit.WATT_HOURS)), //
-		ACTIVE_ENERGY_L3(new Doc().unit(Unit.WATT_HOURS)), //
-
+		ACTIVE_ENERGY_L3(new Doc().unit(Unit.WATT_HOURS)) //
 		;
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -128,5 +128,10 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
+	}
+
+	@Override
+	public String debugLog() {
+		return "L:" + this.getActivePower().value().asString();
 	}
 }

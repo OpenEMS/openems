@@ -1,0 +1,251 @@
+{
+  "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
+  "version": 1,
+  "defaultProject": "app",
+  "projects": {
+    "app": {
+      "root": "",
+      "sourceRoot": "src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "progress": false,
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/@ionic/angular/dist/ionic/svg",
+                "output": "./svg"
+              },
+              "src/android-chrome-192x192.png",
+              "src/android-chrome-512x512.png",
+              "src/apple-touch-icon.png",
+              "src/browserconfig.xml",
+              "src/favicon.ico",
+              "src/favicon-16x16.png",
+              "src/favicon-32x32.png",
+              "src/manifest.json",
+              "src/mstile-150x150.png",
+              "src/safari-pinned-tab.svg"
+            ],
+            "styles": [
+              {
+                "input": "src/theme/variables.scss"
+              },
+              {
+                "input": "src/global.scss"
+              },
+              "src/styles.css"
+            ],
+            "scripts": [
+              "node_modules/chart.js/dist/Chart.min.js"
+            ]
+          },
+          "configurations": {
+            "backend": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/openems-backend.ts"
+                }
+              ],
+              "baseHref": "/m/",
+              "outputPath": "target/backend",
+              "optimization": true,
+              "aot": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "serviceWorker": true,
+              "buildOptimizer": true
+            },
+            "backend-dev-local": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/openems-backend-dev-local.ts"
+                }
+              ]
+            },
+            "backend-local-server": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/openems-backend-LocalServer.ts"
+                }
+              ]
+            },
+            "backend-dev-live": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/openems-backend-dev-live.ts"
+                }
+              ]
+            },
+            "edge": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "serviceWorker": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/openems-edge.ts"
+                }
+              ],
+              "baseHref": "/",
+              "outputPath": "target/edge"
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "app:build"
+          },
+          "configurations": {
+            "backend": {
+              "browserTarget": "app:build:backend"
+            },
+            "backend-dev-local": {
+              "browserTarget": "app:build:backend-dev-local"
+            },
+            "backend-local-server": {
+              "browserTarget": "app:build:backend-local-server"
+            },
+            "backend-dev-live": {
+              "browserTarget": "app:build:backend-dev-live"
+            },
+            "edge": {
+              "browserTarget": "app:build:edge"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "app:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.spec.json",
+            "karmaConfig": "src/karma.conf.js",
+            "styles": [
+              "styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              {
+                "glob": "favicon.ico",
+                "input": "src/",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets"
+              },
+              "src/manifest.json"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "src/tsconfig.app.json",
+              "src/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "ionic-cordova-build": {
+          "builder": "@ionic/ng-toolkit:cordova-build",
+          "options": {
+            "browserTarget": "app:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "app:build:production"
+            }
+          }
+        },
+        "ionic-cordova-serve": {
+          "builder": "@ionic/ng-toolkit:cordova-serve",
+          "options": {
+            "cordovaBuildTarget": "app:ionic-cordova-build",
+            "devServerTarget": "app:serve"
+          },
+          "configurations": {
+            "production": {
+              "cordovaBuildTarget": "app:ionic-cordova-build:production",
+              "devServerTarget": "app:serve:production"
+            }
+          }
+        }
+      }
+    },
+    "app-e2e": {
+      "root": "e2e/",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "e2e/protractor.conf.js",
+            "devServerTarget": "app:serve"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": "e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "defaultCollection": "@ionic/schematics-angular"
+  },
+  "schematics": {
+    "@ionic/schematics-angular:component": {
+      "styleext": "scss"
+    },
+    "@ionic/schematics-angular:page": {
+      "styleext": "scss"
+    }
+  }
+}

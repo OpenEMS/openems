@@ -15,7 +15,7 @@ export const TRANSLATION = {
         ChargePower: "Laad vermogen",
         DischargePower: "Ontlaad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
-        DateFormat: "DD-MM-YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
+        DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -27,10 +27,12 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Overzicht",
-        AboutUI: "Over FEMS- UI"
+        Index: "Overzicht",
+        AboutUI: "Over FEMS- UI",
+        Settings: 'Algemene instellingen',
+        Logout: 'Uitloggen'
     },
-    Overview: {
+    Index: {
         AllConnected: "Alle verbindingen gemaakt.",
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
@@ -38,7 +40,7 @@ export const TRANSLATION = {
         IsOffline: "FEMS is offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Energiemonitor",
                 ConsumptionWarning: "Verbruik & onbekende producenten",
@@ -49,12 +51,37 @@ export const TRANSLATION = {
                 ProductionMeter: "Productiemeter"
             },
             Energytable: {
-                Title: "Energie tabel"
+                Title: "Energie tabel",
+                LoadingDC: "DC laden",
+                ProductionDC: "Generatie DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Laadstation",
+                    Status: "Staat",
+                    Starting: "Beginnend",
+                    NotReadyForCharging: "Niet klaar voor opladen",
+                    ReadyForCharging: "Klaar om op te laden",
+                    Charging: "Is aan het laden",
+                    Error: "Fout",
+                    NotAuthorized: "Geen bevoegdheid",
+                    Unplugged: "Unplugged",
+                    CharingStationPluggedIn: "Laadstation aangesloten",
+                    ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
+                    ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
+                    ChargingStationPluggedInEVLocked: "Laadstation + E-Auto aangesloten + op slot",
+                    ChargingLimit: "Laadlimiet",
+                    ChargingPower: "Oplaadvermogen",
+                    CurrentCharge: "Huidige lading",
+                    TotalCharge: "Totale lading",
+                    EnforceCharging: "Handhaaf het laden",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
             SelectedPeriod: "Geselecteerde periode: ",
-            OtherPeriod: "Andere periode: ",
+            OtherPeriod: "Andere periode",
             Period: "Periode",
             Today: "Vandaag",
             Yesterday: "Gisteren",
@@ -64,7 +91,7 @@ export const TRANSLATION = {
             Go: "Ga!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Verbindingen en apparaten",
                 Scheduler: "Toepassingsschema",
                 Controller: "Toepassingen",
@@ -72,7 +99,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulatie uitvoeren",
                 Log: "Log",
                 LiveLog: "Live System log",
-                ManualControl: "Handmatige bediening"
+                ManualControl: "Handmatige bediening",
+                DataStorage: "Gegevensopslag"
             },
             More: {
                 ManualCommand: "Handmatig commando",

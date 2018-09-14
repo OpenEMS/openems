@@ -26,5 +26,4 @@ public interface DigitalOutput extends OpenemsComponent {
 	 * Gets all Output Channels
 	 */
 	public WriteChannel<Boolean>[] digitalOutputChannels();
-
 }

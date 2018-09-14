@@ -51,7 +51,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
 
-	protected final static int MAX_APPARENT_POWER = 40000;
+	protected final static int MAX_APPARENT_POWER = 9000;
 	private final static int UNIT_ID = 4;
 
 	private String modbusBridgeId;
@@ -69,27 +69,20 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) {
-		IntegerWriteChannel setActivePowerChannelL1 = this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L1);
-		IntegerWriteChannel setActivePowerChannelL2 = this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L2);
-		IntegerWriteChannel setActivePowerChannelL3 = this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L3);
-		IntegerWriteChannel setReactivePowerChannelL1 = this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L1);
-		IntegerWriteChannel setReactivePowerChannelL2 = this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L2);
-		IntegerWriteChannel setReactivePowerChannelL3 = this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
 		try {
-			setActivePowerChannelL1.setNextWriteValue(activePowerL1);
-			setActivePowerChannelL2.setNextWriteValue(activePowerL2);
-			setActivePowerChannelL3.setNextWriteValue(activePowerL3);
+			this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
+			this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
+			this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
 		} catch (OpenemsException e) {
 			log.error("Unable to set ActivePower: " + e.getMessage());
 		}
 		try {
-			setReactivePowerChannelL1.setNextWriteValue(reactivePowerL1);
-			setReactivePowerChannelL2.setNextWriteValue(reactivePowerL2);
-			setReactivePowerChannelL3.setNextWriteValue(reactivePowerL3);
+			this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
+			this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
+			this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 		} catch (OpenemsException e) {
 			log.error("Unable to set ReactivePower: " + e.getMessage());
 		}
-
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -113,9 +106,10 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		return modbusBridgeId;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		ModbusProtocol protocol = new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.HIGH, //
 						m(FeneconProEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
 						m(FeneconProEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
@@ -169,8 +163,9 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 						// TODO Allowed Apparent is for one phase; multiply with 3
 						m(FeneconProEss.ChannelId.ALLOWED_APPARENT, new UnsignedWordElement(134)), //
 						new DummyRegisterElement(135, 140), //
-						m(FeneconProEss.ChannelId.ALLOWED_CHARGE, new UnsignedWordElement(141)), //
-						m(FeneconProEss.ChannelId.ALLOWED_DISCHARGE, new UnsignedWordElement(142)), //
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(141),
+								ElementToChannelConverter.INVERT), //
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(142)), //
 						new DummyRegisterElement(143, 149)), //
 				new FC3ReadRegistersTask(150, Priority.LOW, //
 						bm(new UnsignedWordElement(150))//
@@ -380,12 +375,12 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(200, //
 						m(FeneconProEss.ChannelId.SET_WORK_STATE, new UnsignedWordElement(200))), //
 				new FC16WriteRegistersTask(206, //
-						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L1, new UnsignedWordElement(206)), //
-						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L1, new UnsignedWordElement(207)), //
-						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L2, new UnsignedWordElement(208)), //
-						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L2, new UnsignedWordElement(209)), //
-						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L3, new UnsignedWordElement(210)), //
-						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3, new UnsignedWordElement(211))), //
+						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(206)), //
+						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L1, new SignedWordElement(207)), //
+						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(208)), //
+						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L2, new SignedWordElement(209)), //
+						m(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(210)), //
+						m(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3, new SignedWordElement(211))), //
 
 				new FC3ReadRegistersTask(3020, Priority.LOW, //
 						m(FeneconProEss.ChannelId.BATTERY_VOLTAGE_SECTION_1, new UnsignedWordElement(3020)), //
@@ -440,16 +435,16 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		new ChannelMergerSumInteger( //
 				/* target */ this.getActivePower(), //
 				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.<Channel<Integer>>channel(AsymmetricEss.ChannelId.ACTIVE_POWER_L1), //
-						this.<Channel<Integer>>channel(AsymmetricEss.ChannelId.ACTIVE_POWER_L2), //
-						this.<Channel<Integer>>channel(AsymmetricEss.ChannelId.ACTIVE_POWER_L3) //
+						this.getActivePowerL1(), //
+						this.getActivePowerL2(), //
+						this.getActivePowerL3() //
 				});
 		new ChannelMergerSumInteger( //
 				/* target */ this.getReactivePower(), //
 				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.<Channel<Integer>>channel(AsymmetricEss.ChannelId.REACTIVE_POWER_L1), //
-						this.<Channel<Integer>>channel(AsymmetricEss.ChannelId.REACTIVE_POWER_L2), //
-						this.<Channel<Integer>>channel(AsymmetricEss.ChannelId.REACTIVE_POWER_L3) //
+						this.getReactivePowerL1(), //
+						this.getReactivePowerL2(), //
+						this.getReactivePowerL3() //
 				});
 
 		return protocol;
@@ -459,8 +454,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).value().asStringWithoutUnit() + ";"
-				+ this.channel(ChannelId.ALLOWED_DISCHARGE).value().asString();
+				+ "|Allowed:" + this.getAllowedCharge().value().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischarge().value().asString();
 	}
 
 	private enum SetWorkState {
@@ -509,8 +504,6 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		VOLTAGE_L1(new Doc().unit(Unit.MILLIVOLT)), //
 		VOLTAGE_L2(new Doc().unit(Unit.MILLIVOLT)), //
 		VOLTAGE_L3(new Doc().unit(Unit.MILLIVOLT)), //
-		ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
-		ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
 		FREQUENCY_L1(new Doc().unit(Unit.MILLIHERTZ)), //
 		FREQUENCY_L2(new Doc().unit(Unit.MILLIHERTZ)), //
 		FREQUENCY_L3(new Doc().unit(Unit.MILLIHERTZ)), //
@@ -797,6 +790,30 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 100;
+	}
+
+	private IntegerWriteChannel getSetActivePowerL1Channel() {
+		return this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L1);
+	}
+
+	private IntegerWriteChannel getSetActivePowerL2Channel() {
+		return this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L2);
+	}
+
+	private IntegerWriteChannel getSetActivePowerL3Channel() {
+		return this.channel(FeneconProEss.ChannelId.SET_ACTIVE_POWER_L3);
+	}
+
+	private IntegerWriteChannel getSetReactivePowerL1Channel() {
+		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L1);
+	}
+
+	private IntegerWriteChannel getSetReactivePowerL2Channel() {
+		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L2);
+	}
+
+	private IntegerWriteChannel getSetReactivePowerL3Channel() {
+		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
 	}
 
 }

@@ -269,7 +269,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	private final Consumer<Value<Integer>> calculateMaxConsumption = ignoreValue -> {
 		int ess = 0;
 		for (SymmetricEss e : this.esss) {
-			ess += e.getMaxActivePower().getNextValue().orElse(0);
+			ess += e.getMaxApparentPower().getNextValue().orElse(0);
 		}
 		int grid = this.getGridMaxActivePower().getNextValue().orElse(0);
 		int production = this.getProductionMaxActivePower().getNextValue().orElse(0);
@@ -386,8 +386,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		final Consumer<Value<Integer>> calculateConsumption = ignoreValue -> {
 			int ess = this.getEssActivePower().getNextValue().orElse(0);
 			int grid = this.getGridActivePower().getNextValue().orElse(0);
-			int productionAc = this.getProductionAcActivePower().getNextValue().orElse(0);
-			int consumption = ess + grid + productionAc;
+			int productionActivePower = this.getProductionActivePower().getNextValue().orElse(0);
+			int consumption = ess + grid + productionActivePower;
 			this.getConsumptionActivePower().setNextValue(consumption);
 		};
 		this.getEssActivePower().onSetNextValue(calculateConsumption);

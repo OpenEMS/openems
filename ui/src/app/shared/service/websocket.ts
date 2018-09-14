@@ -1,17 +1,11 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Injectable } from '@angular/core';
+import { Subject, BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/timeout';
-import 'rxjs/add/operator/takeUntil';
+import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
+import { map, retryWhen, takeUntil, filter, first, delay } from 'rxjs/operators';
 
 import { environment as env } from '../../../environments';
 import { Service } from './service';
-import { Utils } from './utils';
 import { Edge } from '../edge/edge';
 import { Role } from '../type/role';
 import { DefaultTypes } from '../service/defaulttypes';
@@ -65,16 +59,16 @@ export class Websocket {
    */
   public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
     let onTimeout = () => {
-      // Timeout: redirect to overview
-      this.router.navigate(['/overview']);
+      // Timeout: redirect to index
+      this.router.navigate(['/index']);
       subscription.unsubscribe();
     }
 
     let edgeName = route.snapshot.params["edgeName"];
     let subscription = this.edges
-      .filter(edges => edgeName in edges)
-      .first()
-      .map(edges => edges[edgeName])
+      .pipe(filter(edges => edgeName in edges),
+        first(),
+        map(edges => edges[edgeName]))
       .subscribe(edge => {
         if (edge == null || !edge.online) {
           onTimeout();
@@ -114,7 +108,7 @@ export class Websocket {
       console.info("Websocket connect to URL [" + env.url + "]");
     }
 
-    this.socket = WebSocketSubject.create({
+    this.socket = webSocket({
       url: env.url,
       openObserver: {
         next: (value) => {
@@ -144,134 +138,165 @@ export class Websocket {
       }
     });
 
-    this.socket.retryWhen(errors => {
-      console.warn("Websocket was interrupted. Retrying in 2 seconds.");
-      return errors.delay(2000);
-    }).subscribe(message => {
-      // called on every receive of message from server
-      if (env.debugMode) {
-        console.info("RECV", message);
-      }
+    // this.socket = WebSocketSubject.create({
+    //   url: env.url,
+    //   openObserver: {
+    //     next: (value) => {
+    //       if (env.debugMode) {
+    //         console.info("Websocket connection opened");
+    //       }
+    //       this.isWebsocketConnected.next(true);
+    //       if (this.status == 'online') {
+    //         this.service.notify({
+    //           message: "Connection lost. Trying to reconnect.", // TODO translate
+    //           type: 'warning'
+    //         });
+    //         // TODO show spinners everywhere
+    //         this.status = 'connecting';
+    //       } else {
+    //         this.status = 'waiting for authentication';
+    //       }
+    //     }
+    //   },
+    //   closeObserver: {
+    //     next: (value) => {
+    //       if (env.debugMode) {
+    //         console.info("Websocket connection closed");
+    //       }
+    //       this.isWebsocketConnected.next(false);
+    //     }
+    //   }
+    // });
 
-      /*
-       * Authenticate
-       */
-      if ("authenticate" in message && "mode" in message.authenticate) {
-        let mode = message.authenticate.mode;
+    this.socket.pipe(
+      retryWhen(errors => {
+        console.warn("Websocket was interrupted. Retrying in 2 seconds.");
+        return errors.pipe(delay(2000));
+      })).subscribe(message => {
+        // called on every receive of message from server
+        if (env.debugMode) {
+          console.info("RECV", message);
+        }
 
-        if (mode === "allow") {
-          // authentication successful
-          this.status = "online";
+        /*
+         * Authenticate
+         */
+        if ("authenticate" in message && "mode" in message.authenticate) {
+          let mode = message.authenticate.mode;
 
-          if ("token" in message.authenticate) {
-            // received login token -> save in cookie
-            this.service.setToken(message.authenticate.token);
-          }
+          if (mode === "allow") {
+            // authentication successful
+            this.status = "online";
 
-        } else {
-          // authentication denied -> close websocket
-          this.status = "failed";
-          this.service.removeToken();
-          this.initialize();
-          if (env.backend === "OpenEMS Backend") {
-            if (env.production) {
-              window.location.href = "/web/login?redirect=/m/overview";
-            } else {
-              console.info("would redirect...");
+            if ("token" in message.authenticate) {
+              // received login token -> save in cookie
+              this.service.setToken(message.authenticate.token);
             }
-          } else if (env.backend === "OpenEMS Edge") {
-            this.router.navigate(['/overview']);
-          }
-        }
-      }
 
-      /*
-       * Query reply
-       */
-      if ("messageId" in message && "ui" in message.messageId) {
-        // Receive a reply with a message id -> find edge and forward to edges' replyStream
-        let messageId = message.messageId.ui;
-        for (let edgeName in this.replyStreams) {
-          if (messageId in this.replyStreams[edgeName]) {
-            this.replyStreams[edgeName][messageId].next(message);
-            break;
+          } else {
+            // authentication denied -> close websocket
+            this.status = "failed";
+            this.service.removeToken();
+            this.initialize();
+            if (env.backend === "OpenEMS Backend") {
+              if (env.production) {
+                window.location.href = "/web/login?redirect=/m/index";
+              } else {
+                console.info("would redirect...");
+              }
+            } else if (env.backend === "OpenEMS Edge") {
+              this.router.navigate(['/index']);
+            }
           }
         }
-      }
 
-      /*
-       * Metadata
-       */
-      if ("metadata" in message) {
-        if ("edges" in message.metadata) {
-          let edges = <DefaultTypes.MessageMetadataEdge[]>message.metadata.edges;
-          let newEdges = {};
-          for (let edge of edges) {
-            let replyStream: { [messageId: string]: Subject<any> } = {};
-            this.replyStreams[edge.name] = replyStream;
-            let newEdge = new Edge(
-              edge.id,
-              edge.name,
-              edge.comment,
-              edge.producttype,
-              ("version" in edge) ? edge["version"] : "0.0.0",
-              Role.getRole(edge.role),
-              edge.online,
-              replyStream,
-              this
-            );
-            newEdges[newEdge.name] = newEdge;
+        /*
+         * Query reply
+         */
+        if ("messageId" in message && "ui" in message.messageId) {
+          // Receive a reply with a message id -> find edge and forward to edges' replyStream
+          let messageId = message.messageId.ui;
+          for (let edgeName in this.replyStreams) {
+            if (messageId in this.replyStreams[edgeName]) {
+              this.replyStreams[edgeName][messageId].next(message);
+              break;
+            }
           }
-          this.edges.next(newEdges);
         }
-      }
 
-      /*
-       * receive notification
-       */
-      if ("notification" in message) {
-        let notification = message.notification;
-        let n: DefaultTypes.Notification;
-        let notify: boolean = true;
-        if ("code" in notification) {
-          // handle specific notification codes - see Java source for details
-          let code = notification.code;
-          let params = notification.params;
-          if (code == 100 /* edge disconnected -> mark as offline */) {
-            let edgeId = params[0];
-            if (edgeId in this.edges.getValue()) {
-              this.edges.getValue()[edgeId].setOnline(false);
+        /*
+         * Metadata
+         */
+        if ("metadata" in message) {
+          if ("edges" in message.metadata) {
+            let edges = <DefaultTypes.MessageMetadataEdge[]>message.metadata.edges;
+            let newEdges = {};
+            for (let edge of edges) {
+              let replyStream: { [messageId: string]: Subject<any> } = {};
+              this.replyStreams[edge.name] = replyStream;
+              let newEdge = new Edge(
+                edge.id,
+                edge.name,
+                edge.comment,
+                edge.producttype,
+                ("version" in edge) ? edge["version"] : "0.0.0",
+                Role.getRole(edge.role),
+                edge.online,
+                replyStream,
+                this
+              );
+              newEdges[newEdge.name] = newEdge;
             }
-          } else if (code == 101 /* edge reconnected -> mark as online */) {
-            let edgeId = params[0];
-            if (edgeId in this.edges.getValue()) {
-              let edge = this.edges.getValue()[edgeId];
-              edge.setOnline(true);
-            }
-          } else if (code == 103 /* authentication by token failed */) {
-            let token: string = params[0];
-            if (token !== "") {
-              // remove old token
-              this.service.removeToken();
-            }
-            // ask for authentication info
-            this.status = "waiting for authentication";
-            notify = false;
-            setTimeout(() => {
-              this.clearCurrentEdge();
-              this.router.navigate(["/overview"]);
-            });
+            this.edges.next(newEdges);
           }
         }
-        if (notify) {
-          this.service.notify(<DefaultTypes.Notification>notification);
+
+        /*
+         * receive notification
+         */
+        if ("notification" in message) {
+          let notification = message.notification;
+          let n: DefaultTypes.Notification;
+          let notify: boolean = true;
+          if ("code" in notification) {
+            // handle specific notification codes - see Java source for details
+            let code = notification.code;
+            let params = notification.params;
+            if (code == 100 /* edge disconnected -> mark as offline */) {
+              let edgeId = params[0];
+              if (edgeId in this.edges.getValue()) {
+                this.edges.getValue()[edgeId].setOnline(false);
+              }
+            } else if (code == 101 /* edge reconnected -> mark as online */) {
+              let edgeId = params[0];
+              if (edgeId in this.edges.getValue()) {
+                let edge = this.edges.getValue()[edgeId];
+                edge.setOnline(true);
+              }
+            } else if (code == 103 /* authentication by token failed */) {
+              let token: string = params[0];
+              if (token !== "") {
+                // remove old token
+                this.service.removeToken();
+              }
+              // ask for authentication info
+              this.status = "waiting for authentication";
+              notify = false;
+              setTimeout(() => {
+                this.clearCurrentEdge();
+                this.router.navigate(["/index"]);
+              });
+            }
+          }
+          if (notify) {
+            this.service.notify(<DefaultTypes.Notification>notification);
+          }
         }
-      }
-    }, error => {
-      console.error("Websocket error", error);
-    }, () => {
-      console.info("Websocket finished");
-    })
+      }, error => {
+        console.error("Websocket error", error);
+      }, () => {
+        console.info("Websocket finished");
+      })
     return this.isWebsocketConnected;
   }
 
@@ -294,9 +319,9 @@ export class Websocket {
     } else {
       // websocket was NOT connected
       this.connect()
-        .takeUntil(this.stopOnInitialize)
-        .filter(isConnected => isConnected)
-        .first()
+        .pipe(takeUntil(this.stopOnInitialize),
+          filter(isConnected => isConnected),
+          first())
         .subscribe(isConnected => {
           setTimeout(() => {
             this.send(DefaultMessages.authenticateLogin(password))
@@ -323,6 +348,6 @@ export class Websocket {
     if (env.debugMode) {
       console.info("SEND: ", message);
     }
-    this.socket.socket.send(JSON.stringify(message));
+    this.socket.next(message);
   }
 }

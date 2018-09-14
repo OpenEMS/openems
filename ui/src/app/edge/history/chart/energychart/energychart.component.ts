@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -9,7 +9,6 @@ import { DefaultTypes } from '../../../../shared/service/defaulttypes';
 import { Dataset, EMPTY_DATASET } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
-import { CurrentDataAndSummary } from '../../../../shared/edge/currentdata';
 import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
 import { CurrentDataAndSummary_2018_8 } from '../../../../shared/edge/currentdata.2018.8';
 import { ConfigImpl_2018_8 } from '../../../../shared/edge/config.2018.8';

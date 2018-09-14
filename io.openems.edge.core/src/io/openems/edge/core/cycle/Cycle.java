@@ -131,7 +131,7 @@ public class Cycle extends AbstractWorker {
 							controller.run();
 						} catch (Exception e) {
 							log.warn("Error in Controller. " + e.getClass().getSimpleName() + ": " + e.getMessage());
-							if (e instanceof ClassCastException || e instanceof NullPointerException) {
+							if (e instanceof ClassCastException || e instanceof NullPointerException || e instanceof IllegalArgumentException) {
 								e.printStackTrace();
 							}
 						}

@@ -8,8 +8,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -19,20 +19,34 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		name = "Bms.Simulated", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-				property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
 public class BatteryDummy extends AbstractOpenemsComponent implements Battery, OpenemsComponent, EventHandler {
 
-	private int capacity_kWh;
-	
+//	private final Logger log = LoggerFactory.getLogger(BatteryDummy.class);
+
+	private int disChargeMinVoltage;
+	private int chargeMaxVoltage;
+	private int disChargeMaxCurrent;
+	private int chargeMaxCurrent;
+	private int soc;
+	private int soh;
+	private int temperature;
+
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		this.capacity_kWh = config.capacity_kWh();
+		disChargeMinVoltage = config.disChargeMinVoltage();
+		chargeMaxVoltage = config.chargeMaxVoltage();
+		disChargeMaxCurrent = config.disChargeMaxCurrent();
+		chargeMaxCurrent = config.chargeMaxCurrent();
+		soc = config.soc();
+		soh = config.soh();
+		temperature = config.temperature();
 	}
 
 	@Override
@@ -45,14 +59,21 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	private void updateChannels() {
-		this.getChargeMaxCurrent();
-		this.getChargeMaxVoltage();
-		this.getDischargeMaxCurrent();
-		this.getDischargeMinVoltage();
-		this.getGridMode();
-		this.getMaxCapacity().setNextValue(capacity_kWh);;
-		this.getSoc().setNextValue(50);;
-		this.getState();
+		IntegerWriteChannel disChargeMinVoltageChannel = this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE);
+		IntegerWriteChannel chargeMaxVoltageChannel = this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE);
+		IntegerWriteChannel disChargeMaxCurrentChannel = this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT);
+		IntegerWriteChannel chargeMaxCurrentChannel = this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT);
+		IntegerWriteChannel socChannel = this.channel(Battery.ChannelId.SOC);
+		IntegerWriteChannel sohChannel = this.channel(Battery.ChannelId.SOH);
+		IntegerWriteChannel tempChannel = this.channel(Battery.ChannelId.BATTERY_TEMP);
+
+		disChargeMinVoltageChannel.setNextValue(disChargeMinVoltage);
+		chargeMaxVoltageChannel.setNextValue(chargeMaxVoltage);
+		disChargeMaxCurrentChannel.setNextValue(disChargeMaxCurrent);
+		chargeMaxCurrentChannel.setNextValue(chargeMaxCurrent);
+		socChannel.setNextValue(soc);
+		sohChannel.setNextValue(soh);
+		tempChannel.setNextValue(temperature);
 	}
 
 }

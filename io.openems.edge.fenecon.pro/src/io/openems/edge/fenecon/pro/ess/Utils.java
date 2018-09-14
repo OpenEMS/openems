@@ -31,17 +31,19 @@ public class Utils {
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
-					case MAX_ACTIVE_POWER:
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+					case MAX_APPARENT_POWER:
+						return new IntegerReadChannel(c, channelId, FeneconProEss.MAX_APPARENT_POWER);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
-
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -89,8 +91,6 @@ public class Utils {
 					case FREQUENCY_L2:
 					case FREQUENCY_L3:
 					case ALLOWED_APPARENT:
-					case ALLOWED_CHARGE:
-					case ALLOWED_DISCHARGE:
 					case BATTERY_TEMPERATURE_SECTION_1:
 					case BATTERY_TEMPERATURE_SECTION_10:
 					case BATTERY_TEMPERATURE_SECTION_11:
