@@ -13,8 +13,9 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -35,7 +36,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 )
 public class PeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-//		private final Logger log = LoggerFactory.getLogger(PeakShaving.class);
+	private final Logger log = LoggerFactory.getLogger(PeakShaving.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -66,7 +67,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
 			return;
 		}
-		
+
 		this.peakShavingPower = config.peakShavingPower();
 		this.rechargePower = config.rechargePower();
 	}
@@ -82,47 +83,52 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		super.deactivate();
 	}
 
-	/**
-	 * Calculates required charge/discharge power
-	 * 
-	 * @throws InvalidValueException
-	 */
-	private int calculateRequiredPower() {
-		return this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ this.ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
-	}
-
 	@Override
 	public void run() {
 		/*
-		 * Check that we are On-Grid
+		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
 		Optional<Enum<?>> gridMode = this.ess.getGridMode().value().asEnumOptional();
-		if (gridMode.orElse(SymmetricEss.GridMode.ON_GRID) != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) == SymmetricEss.GridMode.UNDEFINED) {
+			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
+		}
+		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) != SymmetricEss.GridMode.ON_GRID) {
 			return;
 		}
 
-		/*
-		 * Calculates required charge/discharge power
-		 */
-		int requiredPower = this.calculateRequiredPower();
-		if (requiredPower >= this.peakShavingPower) {
-			requiredPower -= this.peakShavingPower;
-		} else if (requiredPower <= this.rechargePower) {
-			requiredPower -= this.rechargePower;
+		// Calculate 'real' grid-power (without current ESS charge/discharge)
+		int gridPower = this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
+				+ this.ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
+
+		int nextEssPower;
+		if (gridPower >= this.peakShavingPower) {
+			/*
+			 * Peak-Shaving
+			 */
+			nextEssPower = gridPower -= this.peakShavingPower;
+
+		} else if (gridPower <= this.rechargePower) {
+			/*
+			 * Recharge
+			 */
+			nextEssPower = gridPower -= this.rechargePower;
+
 		} else {
-			requiredPower = 0;
+			/*
+			 * Do nothing
+			 */
+			nextEssPower = 0;
 		}
-		
+
 		Power power = ess.getPower();
-		if (requiredPower > 0) {
+		if (nextEssPower > 0) {
 			/*
 			 * Discharge
 			 */
 			// fit into max possible discharge power
 			int maxDischargePower = power.getMaxActivePower();
-			if (requiredPower > maxDischargePower) {
-				requiredPower = maxDischargePower;
+			if (nextEssPower > maxDischargePower) {
+				nextEssPower = maxDischargePower;
 			}
 
 		} else {
@@ -131,14 +137,14 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 			 */
 			// fit into max possible discharge power
 			int maxChargePower = power.getMinActivePower();
-			if (requiredPower < maxChargePower) {
-				requiredPower = maxChargePower;
+			if (nextEssPower < maxChargePower) {
+				nextEssPower = maxChargePower;
 			}
 		}
 
 		/*
 		 * set result
 		 */
-		this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, requiredPower); //
+		this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, nextEssPower); //
 	}
 }
