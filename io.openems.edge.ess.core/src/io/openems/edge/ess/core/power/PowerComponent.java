@@ -1,5 +1,6 @@
 package io.openems.edge.ess.core.power;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.osgi.service.component.ComponentContext;
@@ -46,6 +47,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class PowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Power {
 
 	final static int DEFAULT_SOLVE_DURATION_LIMIT = 2000;
+	final static boolean DEFAULT_SYMMETRIC_MODE = false;
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -83,6 +85,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private final ChocoPower power;
 
 	private final AtomicInteger solveDurationLimit = new AtomicInteger(DEFAULT_SOLVE_DURATION_LIMIT);
+	private final AtomicBoolean symmetricMode = new AtomicBoolean(DEFAULT_SYMMETRIC_MODE);
 
 	public PowerComponent() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -93,6 +96,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, "_power", "_power", true);
 		this.solveDurationLimit.set(config.solveDurationLimit());
+		this.symmetricMode.set(config.symmetricMode());
 	}
 
 	@Deactivate
@@ -163,4 +167,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		return solveDurationLimit.get();
 	}
 
+	public boolean isSymmetricMode() {
+		return symmetricMode.get();
+	}
 }

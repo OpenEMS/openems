@@ -201,7 +201,7 @@ public class ChocoPower implements Power {
 		}
 
 		this.esss.values().forEach(wrapper -> {
-			wrapper.applyPower(solution);
+			wrapper.applyPower(this, solution);
 		});
 	}
 
