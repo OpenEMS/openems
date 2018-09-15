@@ -160,8 +160,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(FeneconProEss.ChannelId.FREQUENCY_L3, new UnsignedWordElement(133),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
-						// TODO Allowed Apparent is for one phase; multiply with 3
-						m(FeneconProEss.ChannelId.ALLOWED_APPARENT, new UnsignedWordElement(134)), //
+						m(FeneconProEss.ChannelId.SINGLE_PHASE_ALLOWED_APPARENT, new UnsignedWordElement(134)), //
 						new DummyRegisterElement(135, 140), //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(141),
 								ElementToChannelConverter.INVERT), //
@@ -474,12 +473,32 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 				.option(2, "Economy")//
 				.option(6, "Remote")//
 				.option(8, "Timing")), //
+		@SuppressWarnings("unchecked")
 		SYSTEM_STATE(new Doc() //
 				.option(0, "STANDBY") //
 				.option(1, "Start Off-Grid") //
 				.option(2, "START") //
 				.option(3, "FAULT") //
-				.option(4, "Off-Grd PV")), //
+				.option(4, "Off-Grd PV") //
+				.onInit(channel -> { //
+					// on each update set Grid-Mode channel
+					((Channel<Integer>) channel).onChange(value -> {
+						Channel<Integer> gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
+						switch (value.orElse(0)) {
+						case 0:
+						case 2:
+						case 3:
+							gridMode.setNextValue(SymmetricEss.GridMode.ON_GRID);
+							break;
+						case 1:
+						case 4:
+							gridMode.setNextValue(SymmetricEss.GridMode.OFF_GRID);
+							break;
+						default:
+							gridMode.setNextValue(SymmetricEss.GridMode.UNDEFINED);
+						}
+					});
+				})), //
 		CONTROL_MODE(new Doc()//
 				.option(1, "Remote")//
 				.option(2, "Local")), //
@@ -507,8 +526,15 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 		FREQUENCY_L1(new Doc().unit(Unit.MILLIHERTZ)), //
 		FREQUENCY_L2(new Doc().unit(Unit.MILLIHERTZ)), //
 		FREQUENCY_L3(new Doc().unit(Unit.MILLIHERTZ)), //
-		ALLOWED_APPARENT(new Doc().unit(Unit.VOLT_AMPERE)), //
-
+		@SuppressWarnings("unchecked")
+		SINGLE_PHASE_ALLOWED_APPARENT(new Doc().unit(Unit.VOLT_AMPERE) //
+				.onInit(channel -> { //
+					// on each update -> update MaxApparentPower to 3 x Single Phase Apparent Power
+					((Channel<Integer>) channel).onChange(value -> {
+						channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
+								.setNextValue(value.orElse(0) * 3);
+					});
+				})), //
 		SET_ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
 		SET_ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
 		SET_ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
@@ -789,7 +815,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getPowerPrecision() {
-		return 100;
+		return 1;
 	}
 
 	private IntegerWriteChannel getSetActivePowerL1Channel() {
