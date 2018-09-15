@@ -16,13 +16,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -52,6 +55,11 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	/**
+	 * Subtracts 10.000 between Element and Channel
+	 */
+	public final static ElementToChannelConverter MINUS_10000_CONVERTER = new ElementToChannelOffsetConverter(-10000);
+
 	public FeneconProPvMeter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
@@ -77,6 +85,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		return modbusBridgeId;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
@@ -92,17 +101,36 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L1, new UnsignedDoublewordElement(2035),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2037, 2065), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066))), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
+								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2135, Priority.HIGH, // //
 						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L2, new UnsignedDoublewordElement(2135)), //
 						new DummyRegisterElement(2137, 2165), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166))), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
+								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2235, Priority.HIGH, // //
 						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L3, new UnsignedDoublewordElement(2235)), //
 						new DummyRegisterElement(2237, 2265), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266)))//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
+								MINUS_10000_CONVERTER))//
 
-		); //
+		);
+
+		new ChannelMergerSumInteger( //
+				/* target */ this.getActivePower(), //
+				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
+						this.getActivePowerL1(), //
+						this.getActivePowerL2(), //
+						this.getActivePowerL3() //
+				});
+		new ChannelMergerSumInteger( //
+				/* target */ this.getReactivePower(), //
+				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
+						this.getReactivePowerL1(), //
+						this.getReactivePowerL2(), //
+						this.getReactivePowerL3() //
+				});
+
 		return protocol;
 	}
 
