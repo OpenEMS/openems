@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "FENECON MINI PV-Meter", //
-		description = "The pv-meter implementation of a FENECON MINI.")
+		name = "FENECON Mini PV-Meter", //
+		description = "The pv-meter implementation of a FENECON Mini.")
 @interface Config {
 	String service_pid();
 
