@@ -3,7 +3,6 @@ package com.ed.openems.centurio.ess;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -40,6 +39,7 @@ import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -77,7 +77,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
-		this.getMaxActivePower().setNextValue(config.maxP());
+		//this.getMaxApparentPower().setNextValue(config.maxP());
 		
 		/*
 		 * Initialize Power
@@ -85,10 +85,10 @@ public class CenturioEss extends AbstractOpenemsComponent
 		
 		// Allowed Charge
 		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0 /* initial zero; is set later */);
+				Relationship.GREATER_OR_EQUALS, 0 /* initial zero; is set later */);
 		// Allowed Discharge
 		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0 /* initial zero; is set later */);		
+				Relationship.LESS_OR_EQUALS, 0 /* initial zero; is set later */);		
 
 	
 	}
@@ -260,16 +260,16 @@ public class CenturioEss extends AbstractOpenemsComponent
 			
 		
 		if (soc == 100) {
-			this.allowedChargeConstraint.setIntValue(0);
+			this.allowedChargeConstraint.setValue(0);;
 			
 		} else {
-			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
+			this.allowedChargeConstraint.setValue(this.maxApparentPower * -1);
 		}
 		if (soc == 0) {
-			this.allowedDischargeConstraint.setIntValue(0);
+			this.allowedDischargeConstraint.setValue(0);
 			
 		} else {
-			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
+			this.allowedDischargeConstraint.setValue(this.maxApparentPower);
 		}
 		float old = settings.getPacSetPoint();
 		if(old != activePower) {

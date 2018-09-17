@@ -23,6 +23,7 @@ import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 
+
 public class OnMessage extends AbstractOnMessage {
 
 	private final Logger log = LoggerFactory.getLogger(OnMessage.class);
@@ -34,6 +35,9 @@ public class OnMessage extends AbstractOnMessage {
 	}
 
 	protected void run(WebSocket websocket, JsonObject jMessage) {
+		
+	
+		
 		// get current User
 		WebsocketData data = websocket.getAttachment();
 		Integer userId = data.getUserId();
@@ -137,6 +141,8 @@ public class OnMessage extends AbstractOnMessage {
 			}
 		}
 	}
+
+	
 
 	/**
 	 * Handle current data subscriptions

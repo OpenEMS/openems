@@ -14,7 +14,6 @@ JPM-Command:				openems-backend
 	bnd.identity;id='io.openems.backend.edgewebsocket.impl',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
-	bnd.identity;id='io.openems.backend.uiwebsocket.impl',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='osgi.enroute.webconsole.xray.provider',\
 	bnd.identity;id='io.openems.backend.metadata.energydepot',\
@@ -52,7 +51,6 @@ JPM-Command:				openems-backend
 	io.openems.backend.edgewebsocket.impl;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
-	io.openems.backend.uiwebsocket.impl;version=snapshot,\
 	json;version='[20160212.0.0,20160212.0.1)',\
 	org.apache.commons.fileupload;version='[1.3.2,1.3.3)',\
 	org.apache.commons.io;version='[2.5.0,2.5.1)',\

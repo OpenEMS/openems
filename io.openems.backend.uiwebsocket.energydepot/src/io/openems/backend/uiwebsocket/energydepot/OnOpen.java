@@ -1,6 +1,7 @@
 package io.openems.backend.uiwebsocket.energydepot;
 
 import java.util.Map.Entry;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,15 +39,20 @@ public class OnOpen extends AbstractOnOpen {
 		websocket.setAttachment(attachment);
 
 		User user;
-
+		
 		// login using session_id from the cookie
 		Optional<String> sessionIdOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "wordpress_logged_in_c92c39b1a6e355483164923c7de6f7b7");
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID
+				log.info("WP COOKIE: " + sessionIdOpt.get());
 				user = this.parent.parent.metadataService.authenticate(sessionIdOpt.get());
 			} else {
 				// authenticate without Session-ID
+				for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext();) {
+					log.info("WP COOKIE not found: " + iter.next());
+				}
+				
 				user = this.parent.parent.metadataService.authenticate();
 			}
 		} catch (OpenemsException e) {

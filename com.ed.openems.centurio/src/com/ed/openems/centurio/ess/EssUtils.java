@@ -31,7 +31,7 @@ public class EssUtils {
 			case ACTIVE_CHARGE_ENERGY:
 			case ACTIVE_DISCHARGE_ENERGY:
 				return new IntegerReadChannel(c, channelId);
-			case MAX_ACTIVE_POWER:
+			case MAX_APPARENT_POWER:
 				return new IntegerReadChannel(c, channelId, CenturioEss.MAX_APPARENT_POWER);
 			
 			}
