@@ -57,4 +57,9 @@ public interface ModbusElement<T> {
 	 * @throws OpenemsException
 	 */
 	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException;
+
+	/**
+	 * resets the value in case if value could not be read from the modbus device
+	 */
+	public void invalidate();
 }
