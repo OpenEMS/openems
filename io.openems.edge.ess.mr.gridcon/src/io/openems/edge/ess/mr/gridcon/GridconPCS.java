@@ -2,7 +2,6 @@ package io.openems.edge.ess.mr.gridcon;
 
 import java.time.LocalDateTime;
 import java.util.BitSet;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -61,12 +60,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	protected static final float MAX_POWER_W = 125 * 1000;
-	
 	protected static final float MAX_CHARGE_W = 86 * 1000;
 	protected static final float MAX_DISCHARGE_W = 86 * 1000;
 
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 //	private CircleConstraint maxApparentPowerConstraint = null;
+
+	BitSet commandControlWord = new BitSet(32);
 
 	@Reference
 	private Power power;
@@ -132,62 +132,64 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO
 		// see Software manual chapter 5.1
 
-
 		if (isOnGridMode()) {
-					
-		switch ( getCurrentState() ) {
-		case DERATING_HARMONICS:
-			break;
-		case DERATING_POWER:
-			break;
-		case ERROR:
-			doErrorHandling();
-			break;
-		case IDLE:
-			startSystem();
-			break;
-		case OVERLOAD:
-			break;
-		case PAUSE:
-			break;
-		case PRECHARGE:
-			break;
-		case READY:
-			break;
-		case RUN:
-			break;
-		case SHORT_CIRCUIT_DETECTED:
-			break;
-		case SIA_ACTIVE:
-			break;
-		case STOP_PRECHARGE:
-			break;
-		case UNDEFINED:
-			break;
-		case VOLTAGE_RAMPING_UP:
-			break;
-		default:
-			break;
-		
-		}
-		
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
-		/**
-		 * Always write values for frequency and voltage to gridcon, because in case of
-		 * blackstart mode if we write '0' to gridcon the systems tries to regulate
-		 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
-		 */
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
-		writeDateAndTime();
-		
 
-		writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
-		writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W, MAX_CHARGE_W, MAX_CHARGE_W);
-		
-		
+			switch (getCurrentState()) {
+			case DERATING_HARMONICS:
+				break;
+			case DERATING_POWER:
+				break;
+			case ERROR:
+				doErrorHandling();
+				break;
+			case IDLE:
+				startSystem();
+				break;
+			case OVERLOAD:
+				break;
+			case PAUSE:
+				break;
+			case PRECHARGE:
+				break;
+			case READY:
+				break;
+			case RUN:
+				break;
+			case SHORT_CIRCUIT_DETECTED:
+				break;
+			case SIA_ACTIVE:
+				break;
+			case STOP_PRECHARGE:
+				break;
+			case UNDEFINED:
+				break;
+			case VOLTAGE_RAMPING_UP:
+				break;
+			default:
+				break;
+
+			}
+
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
+			/**
+			 * Always write values for frequency and voltage to gridcon, because in case of
+			 * blackstart mode if we write '0' to gridcon the systems tries to regulate
+			 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
+			 */
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+			writeDateAndTime();
+
+			Integer value = convertToInteger(commandControlWord);
+			String bits = Integer.toBinaryString(value);
+			System.out.println("bits in control word: " + bits);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
+
+			writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
+			writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W,
+					MAX_CHARGE_W, MAX_CHARGE_W);
 		}
 	}
 
@@ -208,7 +210,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_U_MAX_DISCHARGE, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_TWO, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_ONE, 0f);
-		// the only relevant parameter is 'P Control Mode' which should be set to 'Active power control' in case of on grid usage 
+		// the only relevant parameter is 'P Control Mode' which should be set to
+		// 'Active power control' in case of on grid usage
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE, mode.getFloatValue()); //
 	}
 
@@ -291,22 +294,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 * "Normal mode" is reached now
 		 */
 
-
 		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
 		// should change state to "RUN"
-		BitSet bitSet = new BitSet(32);
-		bitSet.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
 
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
 
-		Integer value = convertToInteger(bitSet);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
-
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
 	}
 
 	private void stopSystem() {
@@ -315,20 +313,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
 		// system should change state to "IDLE"
-		BitSet bitSet = new BitSet(32);
-		bitSet.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
 
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
-
-		Integer value = convertToInteger(bitSet);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
 	}
 
 	/**
@@ -348,8 +342,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Writes parameters to all 4 IPUs 
-	 * !! Max charge/discharge power for IPUs always in absolute values !!
+	 * Writes parameters to all 4 IPUs !! Max charge/discharge power for IPUs always
+	 * in absolute values !!
 	 */
 	private void writeIPUParameters(float weightA, float weightB, float weightC, float pMaxDischargeIPU1,
 			float pMaxDischargeIPU2, float pMaxDischargeIPU3, float pMaxChargeIPU1, float pMaxChargeIPU2,
@@ -383,7 +377,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, 0f);
-		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 0f); //
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
+				0f); //
 
 		// The value of 800 Volt is given by MR as a good reference value
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 800f);
@@ -391,7 +386,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, weightB);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, weightC);
 		// The value '73' implies that all 3 strings are in weighting mode
-		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 73f); //
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
+				73f); //
 
 		// Gridcon needs negative values for discharge values
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
@@ -435,29 +431,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * manual restart may be necessary.
 	 */
 	private void acknowledgeErrors() {
-		
-		BitSet bitSet = new BitSet(32);
-
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
-		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
-		
-		bitSet.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
-		bitSet.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-		
-		if (lastTimeAcknowledgeCommandoWasSent == null || LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
-			bitSet.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
+		if (lastTimeAcknowledgeCommandoWasSent == null || LocalDateTime.now()
+				.isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
+			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
-		} else {
-			
 		}
-
-		Integer value = convertToInteger(bitSet);
-		String bits = Integer.toBinaryString(value);
-		System.out.println("bits in control word: " + bits);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
-
 	}
 
 	@Override
@@ -533,7 +511,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (getCurrentState() != CCUState.RUN) {
 			return;
 		}
-		writeValuesBackInChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD);
 		doStringWeighting(activePower, reactivePower);
 		/*
 		 * !! signum, MR calculates negative values as discharge, positive as charge.
@@ -1064,11 +1041,104 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32732).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
 								new FloatDoublewordElement(32734).wordOrder(WordOrder.LSWMSW)) //
+				)
+				// Mirror values to check
+				, new FC3ReadRegistersTask(32880, Priority.LOW, // Commands
+						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD,
+								new UnsignedDoublewordElement(32880).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_COMMAND_ERROR_CODE_FEEDBACK,
+								new UnsignedDoublewordElement(32882).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_U0,
+								new FloatDoublewordElement(32884).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
+						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_F0,
+								new FloatDoublewordElement(32886).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
+						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_Q_REF,
+								new FloatDoublewordElement(32888).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_P_REF,
+								new FloatDoublewordElement(32890).wordOrder(WordOrder.LSWMSW)) //
+				),
+				new FC3ReadRegistersTask(32912, Priority.LOW,
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN,
+								new FloatDoublewordElement(32912).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN,
+								new FloatDoublewordElement(32914).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_F_P_DRROP_MAIN,
+								new FloatDoublewordElement(32916).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_F_P_DROOP_T1_MAIN,
+								new FloatDoublewordElement(32918).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_Q_U_DROOP_MAIN,
+								new FloatDoublewordElement(32920).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_Q_U_DEAD_BAND,
+								new FloatDoublewordElement(32922).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_Q_LIMIT,
+								new FloatDoublewordElement(32924).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_P_F_DROOP_MAIN,
+								new FloatDoublewordElement(32926).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_P_F_DEAD_BAND,
+								new FloatDoublewordElement(32928).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_PARAMETER_P_U_DROOP,
+								new FloatDoublewordElement(32930).wordOrder(WordOrder.LSWMSW)) //
+				),
+				new FC3ReadRegistersTask(32944, Priority.LOW,
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT,
+								new FloatDoublewordElement(32944).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT,
+								new FloatDoublewordElement(32946).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32948).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_1_PARAMETERS_F0_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32950).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_1_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32952).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32954).wordOrder(WordOrder.LSWMSW)) //
+				),
+				new FC3ReadRegistersTask(32976, Priority.LOW,
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT,
+								new FloatDoublewordElement(32976).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT,
+								new FloatDoublewordElement(32978).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_2_PARAMETERS_U0_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32980).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_2_PARAMETERS_F0_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32982).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_2_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32984).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_2_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(32986).wordOrder(WordOrder.LSWMSW)) //
+				),
+				new FC3ReadRegistersTask(33008, Priority.LOW,
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT,
+								new FloatDoublewordElement(33008).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT,
+								new FloatDoublewordElement(33010).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_3_PARAMETERS_U0_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(33012).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_3_PARAMETERS_F0_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(33014).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_3_PARAMETERS_Q_REF_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(33016).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_3_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE,
+								new FloatDoublewordElement(33018).wordOrder(WordOrder.LSWMSW)) //
+				),
+				new FC3ReadRegistersTask(33040, Priority.LOW,
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT,
+								new FloatDoublewordElement(33040).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A,
+								new FloatDoublewordElement(33042).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B,
+								new FloatDoublewordElement(33044).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C,
+								new FloatDoublewordElement(33046).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A,
+								new FloatDoublewordElement(33048).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B,
+								new FloatDoublewordElement(33050).wordOrder(WordOrder.LSWMSW)) //
 				));
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return defineModbusProtocol(0);
-		}
+	}
 }
