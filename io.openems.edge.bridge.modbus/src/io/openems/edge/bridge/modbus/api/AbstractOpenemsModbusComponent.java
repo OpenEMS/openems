@@ -71,6 +71,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 	}
 
+	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
+		throw new IllegalArgumentException("Use the other activate() for Modbus compoenents!");
+	}
+	
 	@Override
 	protected void deactivate() {
 		super.deactivate();

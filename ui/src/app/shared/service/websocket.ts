@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { WebSocketSubject, webSocket } from 'rxjs/websocket';
+import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 import { map, retryWhen, takeUntil, filter, first, delay } from 'rxjs/operators';
 
 import { environment as env } from '../../../environments';

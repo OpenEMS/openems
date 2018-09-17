@@ -47,7 +47,7 @@ public class ChocoPowerTest {
 				switch (runNo.get()) {
 				case 0:
 					assertEquals(700, activePower);
-					assertEquals(0, reactivePower);
+					assertEquals(200, reactivePower);
 					break;
 				case 1:
 					assertEquals(500, activePower);
@@ -59,6 +59,10 @@ public class ChocoPowerTest {
 					break;
 				case 3:
 					assertEquals(-300, activePower);
+					assertEquals(0, reactivePower);
+					break;
+				case 4:
+					assertEquals(-2000, activePower);
 					assertEquals(0, reactivePower);
 					break;
 				}
@@ -73,7 +77,7 @@ public class ChocoPowerTest {
 		ess0.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 10000);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 110);
 
 		power.applyPower();
 
@@ -82,7 +86,6 @@ public class ChocoPowerTest {
 		ess0.soc(49);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 
 		power.applyPower();
 
@@ -90,7 +93,6 @@ public class ChocoPowerTest {
 		runNo.incrementAndGet();
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 
 		power.applyPower();
 
@@ -99,7 +101,41 @@ public class ChocoPowerTest {
 		ess0.soc(50);
 
 		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
-		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+
+		power.applyPower();
+
+		power.initializeNextCycle();
+		runNo.incrementAndGet();
+		ess0.soc(50);
+
+		// force Charge
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+
+		power.applyPower();
+	}
+
+	@Test
+	public void testPro9_12() throws Exception {
+		AtomicInteger runNo = new AtomicInteger(0);
+
+		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
+			@Override
+			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+					int activePowerL3, int reactivePowerL3) {
+				switch (runNo.get()) {
+				case 0:
+					assertEquals(263, activePowerL1);
+					assertEquals(263, activePowerL2);
+					break;
+				}
+			}
+		}.maxApparentPower(9000).allowedCharge(-12000).allowedDischarge(12000).precision(100).soc(50);
+
+		PowerComponent c = new PowerComponent();
+		ChocoPower power = new ChocoPower(c);
+		ess0.addToPower(power);
+
+		ess0.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 810);
 
 		power.applyPower();
 	}
