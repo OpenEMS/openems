@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -31,7 +33,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Balancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-//	private final Logger log = LoggerFactory.getLogger(Balancing.class);
+	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -73,13 +75,15 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	@Override
 	public void run() {
 		/*
-		 * Check that we are On-Grid
+		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
 		Optional<Enum<?>> gridMode = this.ess.getGridMode().value().asEnumOptional();
-		if (gridMode.orElse(SymmetricEss.GridMode.ON_GRID) != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) == SymmetricEss.GridMode.UNDEFINED) {
+			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
+		}
+		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) != SymmetricEss.GridMode.ON_GRID) {
 			return;
 		}
-
 		/*
 		 * Calculates required charge/discharge power
 		 */

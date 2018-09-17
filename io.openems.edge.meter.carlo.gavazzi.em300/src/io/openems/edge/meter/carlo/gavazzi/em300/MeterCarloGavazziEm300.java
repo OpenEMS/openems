@@ -19,8 +19,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.doc.Doc;
@@ -156,7 +154,7 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 								new SignedDoublewordElement(300027 - OFFSET).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L3,
-								new SignedDoublewordElement(300028 - OFFSET).wordOrder(WordOrder.LSWMSW),
+								new SignedDoublewordElement(300029 - OFFSET).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
 								new SignedDoublewordElement(300031 - OFFSET).wordOrder(WordOrder.LSWMSW),
@@ -176,23 +174,24 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
 								new SignedDoublewordElement(300045 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC4ReadInputRegistersTask(300052 - OFFSET, Priority.LOW, //
-						m(MeterCarloGavazziEm300.ChannelId.FREQUENCY, new SignedWordElement(300052 - OFFSET),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(MeterCarloGavazziEm300.ChannelId.ACTIVE_ENERGY_POSITIVE,
-								new UnsignedDoublewordElement(300053 - OFFSET),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(MeterCarloGavazziEm300.ChannelId.REACTIVE_ENERGY_POSITIVE,
-								new UnsignedDoublewordElement(300055 - OFFSET),
-								ElementToChannelConverter.SCALE_FACTOR_1)),
-				new FC4ReadInputRegistersTask(300079 - OFFSET, Priority.LOW, //
-						m(MeterCarloGavazziEm300.ChannelId.ACTIVE_ENERGY_NEGATIVE,
-								new UnsignedDoublewordElement(300079 - OFFSET),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(MeterCarloGavazziEm300.ChannelId.REACTIVE_ENERGY_NEGATIVE,
-								new UnsignedDoublewordElement(300081 - OFFSET),
-								ElementToChannelConverter.SCALE_FACTOR_1)));
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1))
+				);
+//				new FC4ReadInputRegistersTask(300052 - OFFSET, Priority.LOW, //
+//						m(MeterCarloGavazziEm300.ChannelId.FREQUENCY, new SignedWordElement(300052 - OFFSET),
+//								ElementToChannelConverter.SCALE_FACTOR_2),
+//						m(MeterCarloGavazziEm300.ChannelId.ACTIVE_ENERGY_POSITIVE,
+//								new UnsignedDoublewordElement(300053 - OFFSET),
+//								ElementToChannelConverter.SCALE_FACTOR_1),
+//						m(MeterCarloGavazziEm300.ChannelId.REACTIVE_ENERGY_POSITIVE,
+//								new UnsignedDoublewordElement(300055 - OFFSET),
+//								ElementToChannelConverter.SCALE_FACTOR_1)),
+//				new FC4ReadInputRegistersTask(300079 - OFFSET, Priority.LOW, //
+//						m(MeterCarloGavazziEm300.ChannelId.ACTIVE_ENERGY_NEGATIVE,
+//								new UnsignedDoublewordElement(300079 - OFFSET),
+//								ElementToChannelConverter.SCALE_FACTOR_1),
+//						m(MeterCarloGavazziEm300.ChannelId.REACTIVE_ENERGY_NEGATIVE,
+//								new UnsignedDoublewordElement(300081 - OFFSET),
+//								ElementToChannelConverter.SCALE_FACTOR_1)));
 	}
 
 	@Override

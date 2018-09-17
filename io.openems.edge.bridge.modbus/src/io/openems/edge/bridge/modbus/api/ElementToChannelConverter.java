@@ -66,6 +66,24 @@ public class ElementToChannelConverter {
 			StaticConverters.INVERT);
 
 	/**
+	 * Depending on the given parameter:
+	 * <ul>
+	 * <li>true: invert value
+	 * <li>false: keep value (1-to-1)
+	 * </ul>
+	 * 
+	 * @param invert
+	 * @return
+	 */
+	public static ElementToChannelConverter INVERT_IF_TRUE(boolean invert) {
+		if(invert) {
+			return INVERT;
+		} else {
+			return DIRECT_1_TO_1;
+		}
+	}
+	
+	/**
 	 * Converts only negative values from Element to Channel and inverts them (makes
 	 * the value positive)
 	 */

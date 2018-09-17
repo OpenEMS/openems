@@ -52,7 +52,7 @@ public class ChocoPowerWorker {
 
 		// initialize every EssWrapper
 		for (EssWrapper ess : this.parent.esss.values()) {
-			ess.initialize(model);
+			ess.initialize(this.parent, model);
 		}
 
 		return model;
@@ -161,21 +161,23 @@ public class ChocoPowerWorker {
 			lastP += ess.getLastP();
 			lastQ += ess.getLastQ();
 		}
-		int avgPdelta = (pEqualsTarget.get() - lastP) / this.parent.esss.size();
-		int avgQdelta = (qEqualsTarget.get() - lastQ) / this.parent.esss.size();
+		int avgPDelta = (pEqualsTarget.get() - lastP) / this.parent.esss.size();
+		int avgQDelta = (qEqualsTarget.get() - lastQ) / this.parent.esss.size();
 		for (EssWrapper ess : this.parent.esss.values()) {
-			if (ess.getEss() instanceof ManagedAsymmetricEss) {
-				int avgPLDelta = avgPdelta / 3;
+			if (ess.getEss() instanceof ManagedAsymmetricEss && !this.parent.parent.isSymmetricMode()) {
+				int avgPLDelta = avgPDelta / 3;
 				targets.put(ess.getP_L1(), ess.getLastP_L1() + avgPLDelta);
 				targets.put(ess.getP_L2(), ess.getLastP_L2() + avgPLDelta);
 				targets.put(ess.getP_L3(), ess.getLastP_L3() + avgPLDelta);
-				int avgQLDelta = avgQdelta / 3;
+				targets.put(ess.getP(), ess.getLastP() + avgPDelta);
+				int avgQLDelta = avgQDelta / 3;
 				targets.put(ess.getQ_L1(), ess.getLastQ_L1() + avgQLDelta);
 				targets.put(ess.getQ_L2(), ess.getLastQ_L2() + avgQLDelta);
 				targets.put(ess.getQ_L3(), ess.getLastQ_L3() + avgQLDelta);
+				targets.put(ess.getQ(), ess.getLastQ() + avgQDelta);
 			} else {
-				targets.put(ess.getP(), ess.getLastP() + avgPdelta);
-				targets.put(ess.getQ(), ess.getLastQ() + avgQdelta);
+				targets.put(ess.getP(), ess.getLastP() + avgPDelta);
+				targets.put(ess.getQ(), ess.getLastQ() + avgQDelta);
 			}
 		}
 
@@ -296,9 +298,18 @@ public class ChocoPowerWorker {
 
 		// remove coefficient from 'allVarsEqualZero' that matches this coefficient
 		// this makes sure, that allVarsEqualZero sets all Coefficients to EQUALS ZERO
-		// that do not have a specific Constraint set.
+		// that do not have a specific Constraint set. Specific means that the
+		// coefficient has a value (i.e. it is not Optional.empty) and one of the
+		// following is true:
+		// <ul>
+		// <li>Any constraint with Relationship EQUALS
+		// <li>Cycle constraint with any relationship
+		// </ul>
 		this.parent.getAllConstraints() //
-				.filter(c -> c.getValue().isPresent() && c.getRelationship() == Relationship.EQUALS) //
+				.filter(c -> c.getValue().isPresent() && (//
+				c.getRelationship() == Relationship.EQUALS //
+						|| c.getType() == ConstraintType.CYCLE //
+				)) //
 				.forEach(c -> {
 					for (Coefficient coSet : c.getCoefficients()) {
 						Iterator<Coefficient> coZeroIter = allVarsEqualZero.iterator();
@@ -418,10 +429,11 @@ public class ChocoPowerWorker {
 		// Get IntVars from Ess
 		List<IntVar> list = new ArrayList<>();
 		for (EssWrapper ess : this.parent.esss.values()) {
-			if (ess.getEss() instanceof ManagedAsymmetricEss) {
+			if (ess.getEss() instanceof ManagedAsymmetricEss && !this.parent.parent.isSymmetricMode()) {
 				list.add(ess.getP_L1());
 				list.add(ess.getP_L2());
 				list.add(ess.getP_L3());
+				list.add(ess.getP());
 			} else {
 				list.add(ess.getP());
 			}
@@ -433,10 +445,11 @@ public class ChocoPowerWorker {
 		// Get IntVars from Ess
 		List<IntVar> list = new ArrayList<>();
 		for (EssWrapper ess : this.parent.esss.values()) {
-			if (ess.getEss() instanceof ManagedAsymmetricEss) {
+			if (ess.getEss() instanceof ManagedAsymmetricEss && !this.parent.parent.isSymmetricMode()) {
 				list.add(ess.getQ_L1());
 				list.add(ess.getQ_L2());
 				list.add(ess.getQ_L3());
+				list.add(ess.getQ());
 			} else {
 				list.add(ess.getQ());
 			}

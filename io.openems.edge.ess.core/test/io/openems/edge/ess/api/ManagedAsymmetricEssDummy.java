@@ -87,6 +87,12 @@ public abstract class ManagedAsymmetricEssDummy extends AbstractOpenemsComponent
 		return this;
 	}
 	
+	public ManagedAsymmetricEssDummy soc(int value) {
+		this.getSoc().setNextValue(value);
+		this.getSoc().nextProcessImage();
+		return this;
+	}
+	
 	private int precision = 1;
 	
 	public ManagedAsymmetricEssDummy precision(int value) {

@@ -27,7 +27,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
 
-	private volatile Value<T> nextValue = null; // TODO add timeout for nextValue validity
+	private volatile Value<T> nextValue = null;
 	private volatile Value<T> activeValue = null;
 
 	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId) {

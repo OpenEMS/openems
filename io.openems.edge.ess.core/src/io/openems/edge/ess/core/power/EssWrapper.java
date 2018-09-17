@@ -45,14 +45,17 @@ public class EssWrapper {
 
 	/**
 	 * Is called before every Cycle
+	 * 
+	 * @param power
+	 * @param model
 	 */
-	public void initialize(Model model) {
+	public void initialize(ChocoPower power, Model model) {
 		// TODO add relation between P and Q <= maxApparent
 		int maxApparent = this.ess.getMaxApparentPower().value().orElse(0);
 		int allowedCharge = Math.max(maxApparent * -1, this.ess.getAllowedCharge().value().orElse(0));
 		int allowedDischarge = Math.min(maxApparent, this.ess.getAllowedDischarge().value().orElse(0));
 
-		if (this.ess instanceof ManagedAsymmetricEss) {
+		if (this.ess instanceof ManagedAsymmetricEss && !power.parent.isSymmetricMode()) {
 			/*
 			 * ManagedAsymmetricEss
 			 */
@@ -97,7 +100,7 @@ public class EssWrapper {
 		}
 	}
 
-	public void applyPower(Solution solution) {
+	public void applyPower(ChocoPower power, Solution solution) {
 		if (solution == null) {
 			/*
 			 * No Solution
@@ -112,7 +115,7 @@ public class EssWrapper {
 			this.lastQ_L3 = 0;
 			this.ess.applyPower(0, 0);
 
-		} else if (this.ess instanceof ManagedAsymmetricEss) {
+		} else if (this.ess instanceof ManagedAsymmetricEss && !power.parent.isSymmetricMode()) {
 			/*
 			 * ManagedAsymmetricEss
 			 */
