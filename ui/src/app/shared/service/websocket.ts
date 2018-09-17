@@ -330,6 +330,24 @@ export class Websocket {
     }
   }
 
+  public wpLogIn(wpcookie: string) {
+    if (this.isWebsocketConnected.getValue()) {
+      // websocket was connected
+      this.send(DefaultMessages.authenticateLogin(wpcookie));
+    } else {
+      // websocket was NOT connected
+      this.connect()
+        .pipe(takeUntil(this.stopOnInitialize),
+          filter(isConnected => isConnected),
+          first())
+        .subscribe(isConnected => {
+          setTimeout(() => {
+            this.send(DefaultMessages.authenticateLogin(wpcookie));
+          }, 500);
+        });
+    }
+  }
+
   /**
    * Logs out and closes the websocket
    */
@@ -343,6 +361,7 @@ export class Websocket {
   }
 
   public wpconnect() {
+    console.info("WP CONNECT");
     this.connect();
 
   }

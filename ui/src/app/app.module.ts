@@ -59,9 +59,10 @@ import { environment } from '../environments/environment';
     PopoverPageModule,
 
     HttpClientModule,
-    HttpModule
+    HttpModule,
 
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
+
 
   ],
   providers: [

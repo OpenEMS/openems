@@ -29,7 +29,8 @@
                 "glob": "**/*.svg",
                 "input": "node_modules/@ionic/angular/dist/ionic/svg",
                 "output": "./svg"
-              }
+              },
+              "src/manifest.json"
             ],
             "styles": [
               {
@@ -81,7 +82,8 @@
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": false
+              "buildOptimizer": false,
+              "serviceWorker": true
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -146,7 +148,8 @@
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true
+              "buildOptimizer": true,
+              "serviceWorker": true
             }
           }
         },
@@ -192,9 +195,6 @@
             "styles": [
               "styles.css"
             ],
-            "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
-            ],
             "scripts": [],
             "assets": [
               {
@@ -206,7 +206,8 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
-              }
+              },
+              "src/manifest.json"
             ]
           }
         },

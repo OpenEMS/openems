@@ -70,13 +70,18 @@ export class Service implements ErrorHandler {
     public setWPCookies(cookie_name: string, cookie: string) {
         Cookie.set("wpcookie", cookie);
         Cookie.set(cookie, cookie_name);
-        localStorage.setItem(cookie, cookie_name);
-        sessionStorage.setItem(cookie, cookie_name);
+        // localStorage.setItem(cookie, cookie_name);
+        //sessionStorage.setItem(cookie, cookie_name);
         console.info('COOKIES: ' + Cookie.get(cookie));
     }
 
     public getWPCookieParam(): string {
         let cookie: string = Cookie.get("wpcookie");
-        return cookie + "=" + Cookie.get(cookie);
+        if (cookie.length > 10) {
+            return cookie + "=" + Cookie.get(cookie) + ";";
+        } else {
+            return "";
+        }
+
     }
 }

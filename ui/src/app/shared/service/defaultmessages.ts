@@ -16,6 +16,17 @@ export class DefaultMessages {
         return m;
     };
 
+    public static authenticateWPLogin(wpcookie: string) {
+        let m = {
+            authenticate: {
+                mode: "wplogin",
+                wpcookie: wpcookie
+            }
+        };
+
+        return m;
+    };
+
     public static authenticateLogout() {
         return {
             authenticate: {
