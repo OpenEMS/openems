@@ -62,6 +62,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	protected static final float MAX_POWER_W = 125 * 1000;
+	
+	protected static final float MAX_CHARGE_W = 86 * 1000;
+	protected static final float MAX_DISCHARGE_W = 86 * 1000;
 
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 	private CircleConstraint maxApparentPowerConstraint = null;
@@ -132,28 +135,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 
 		if (isOnGridMode()) {
-			
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
-			/**
-			 * Always write values for frequency and voltage to gridcon, because in case of
-			 * blackstart mode if we write '0' to gridcon the systems tries to regulate
-			 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
-			 */
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
-			writeDateAndTime();
-			
-
-			writeCCUControlParameters();
-			
-			float pMaxCharge = 86000;
-			float pMaxDischarge = 86000;
-			writeIPUParameters(1f, 1f, 1f, pMaxDischarge, pMaxDischarge, pMaxDischarge, pMaxCharge, pMaxCharge, pMaxCharge);
-			
 					
-		
 		switch ( getCurrentState() ) {
 		case DERATING_HARMONICS:
 			break;
@@ -189,10 +171,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			break;
 		
 		}
+		
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
+		/**
+		 * Always write values for frequency and voltage to gridcon, because in case of
+		 * blackstart mode if we write '0' to gridcon the systems tries to regulate
+		 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
+		 */
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+		writeDateAndTime();
+		
+
+		writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
+		writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W, MAX_CHARGE_W, MAX_CHARGE_W);
+		
+		
 		}
 	}
 
-	private void writeCCUControlParameters() {
+	private void writeCCUControlParameters(PControlMode mode) {
 
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_MAIN, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, 0f);
@@ -209,8 +209,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_U_MAX_DISCHARGE, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_TWO, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_LIM_ONE, 0f);
-		// the only relevant parameter is 'P Control Mode' which is set to 'Active power control' n case of on grid usage 
-		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE, PControlMode.ACTIVE_POWER_CONTROL.getFloatValue()); //
+		// the only relevant parameter is 'P Control Mode' which should be set to 'Active power control' in case of on grid usage 
+		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE, mode.getFloatValue()); //
 	}
 
 	// Normal mode with current control
@@ -268,29 +268,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	}
 
-	private boolean isError() {
-		BooleanReadChannel stateErrorChannel = this.channel(GridConChannelId.PCS_CCU_STATE_ERROR);
-		Optional<Boolean> valueOpt = stateErrorChannel.getNextValue().asOptional();
-		return valueOpt.isPresent() && valueOpt.get();
-	}
-
-	/**
-	 * Checks if the system is currently in the IDLE state. Note a READY, ERROR or
-	 * PAUSE state will return also false.
-	 * 
-	 * @return true if this system is idle.
-	 */
-	private boolean isIdle() {
-		BooleanReadChannel stateIdleChannel = this.channel(GridConChannelId.PCS_CCU_STATE_IDLE);
-		Optional<Boolean> valueOpt = stateIdleChannel.getNextValue().asOptional();
-		return valueOpt.isPresent() && valueOpt.get();
-	}
-
 	/**
 	 * This turns on the system by enabling ALL IPUs.
 	 */
 	private void startSystem() {
-		// TODO
 		log.info("Try to start system");
 		/*
 		 * Coming from state idle first write 800V to IPU4 voltage setpoint, set "73" to
@@ -311,7 +292,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 * "Normal mode" is reached now
 		 */
 
-		// int controlWordMask = 0xFFFFFFFF;
 
 		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
 		// should change state to "RUN"
@@ -335,8 +315,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		log.info("Try to stop system");
 
 		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
-		// system
-		// should change state to "IDLE"
+		// system should change state to "IDLE"
 		BitSet bitSet = new BitSet(32);
 		bitSet.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
 		bitSet.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
@@ -370,8 +349,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Writes parameters to all 4 IPUs Max charge/discharge power for IPUs always in
-	 * absolute values
+	 * Writes parameters to all 4 IPUs 
+	 * !! Max charge/discharge power for IPUs always in absolute values !!
 	 */
 	private void writeIPUParameters(float weightA, float weightB, float weightC, float pMaxDischargeIPU1,
 			float pMaxDischargeIPU2, float pMaxDischargeIPU3, float pMaxChargeIPU1, float pMaxChargeIPU2,
@@ -407,7 +386,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, 0f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 0f); //
 
-		// The value of 800 Volt are given by MR as a good reference value
+		// The value of 800 Volt is given by MR as a good reference value
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 800f);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, weightA);
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, weightB);
@@ -457,30 +436,29 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * manual restart may be necessary.
 	 */
 	private void acknowledgeErrors() {
-
-//		if (lastTimeAcknowledgeCommandoWasSent == null || LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
-
+		
 		BitSet bitSet = new BitSet(32);
-		bitSet.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 
-		// TODO: writebackintochannel method better?
 		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
 		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
 		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
 		bitSet.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
-
+		
 		bitSet.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
 		bitSet.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
+		
+		if (lastTimeAcknowledgeCommandoWasSent == null || LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
+			bitSet.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
+			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
+		} else {
+			
+		}
 
 		Integer value = convertToInteger(bitSet);
 		String bits = Integer.toBinaryString(value);
-		log.debug("bits in control word: " + bits);
+		System.out.println("bits in control word: " + bits);
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
 
-		lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
-//		} else {
-//			
-//		}
 	}
 
 	@Override
