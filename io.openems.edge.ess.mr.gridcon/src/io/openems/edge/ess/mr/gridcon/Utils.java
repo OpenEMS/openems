@@ -34,7 +34,7 @@ public class Utils {
 					case ACTIVE_CHARGE_ENERGY:						
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(ess, channelId);
-					case MAX_ACTIVE_POWER:
+					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(ess, channelId, GridconPCS.MAX_APPARENT_POWER);
 					case GRID_MODE:
 						return new IntegerReadChannel(ess, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
@@ -48,6 +48,8 @@ public class Utils {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(ess, channelId);
 					}
 					return null;

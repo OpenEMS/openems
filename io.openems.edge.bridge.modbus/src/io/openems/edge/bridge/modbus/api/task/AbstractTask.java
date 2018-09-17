@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
@@ -20,7 +21,7 @@ public abstract class AbstractTask implements Task {
 	protected final Logger log;
 
 	private ModbusElement<?>[] elements;
-	private int unitId; // this is always set by ModbusProtocol.addTask()
+	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 
 	public AbstractTask(int startAddress, AbstractModbusElement<?>... elements) {
 		log = LoggerFactory.getLogger(getClass());
@@ -48,12 +49,12 @@ public abstract class AbstractTask implements Task {
 		return startAddress;
 	}
 
-	public void setUnitId(int unitId) {
-		this.unitId = unitId;
+	public void setParent(AbstractOpenemsModbusComponent parent) {
+		this.parent = parent;
 	}
-
-	public int getUnitId() {
-		return unitId;
+	
+	public AbstractOpenemsModbusComponent getParent() {
+		return parent;
 	}
 
 	@Override
@@ -61,6 +62,10 @@ public abstract class AbstractTask implements Task {
 		StringBuffer sb = new StringBuffer();
 		sb.append(getActiondescription());
 		sb.append(" [");
+		sb.append(this.parent.id());
+		sb.append(";unitid=");
+		sb.append(this.parent.getUnitId());
+		sb.append(";ref=");
 		sb.append(this.getStartAddress());
 		sb.append("/0x");
 		sb.append(Integer.toHexString(this.getStartAddress()));

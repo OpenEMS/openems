@@ -1,19 +1,3 @@
-<!-- <mat-card class="single">
-    <mat-card-header>
-        <ion-icon mat-card-avatar color="primary" name="chatbubbles"></ion-icon>
-        <mat-card-title>FEMS UI</mat-card-title>
-        <mat-card-subtitle translate>About.UI</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-        <ul>
-            <select #langSelect (change)="translate.use(langSelect.value)">
-                <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
-            </select>
-        </ul>
-    </mat-card-content>
-</mat-card> -->
-
-
 <ion-grid>
     <ion-row justify-content-center>
         <ion-col size-xl="6" size-xs="12">
@@ -31,9 +15,30 @@
                         Sprache:
                         <!-- TODO translate -->
                         <select #langSelect (change)="translate.use(langSelect.value)">
-                            <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
+                            <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{
+                                lang }}</option>
                         </select>
                     </ul>
+                </ion-card-content>
+            </ion-card>
+        </ion-col>
+        <ion-col size-xl="6" size-xs="12">
+            <ion-card padding>
+                <ion-item>
+                    <ion-avatar slot="start">
+                        <ion-icon color="primary" name="build" size="large"></ion-icon>
+                    </ion-avatar>
+                    <ion-label text-wrap translate>
+                        Debug Mode
+                    </ion-label>
+                </ion-item>
+                <ion-card-content>
+                    <ion-list>
+                        <ion-item>
+                            <ion-checkbox (ionChange)="toggleDebugMode($event)" slot="start" [(ngModel)]="env.debugMode"></ion-checkbox>
+                            <ion-label translate>Debug-Mode</ion-label>
+                        </ion-item>
+                    </ion-list>
                 </ion-card-content>
             </ion-card>
         </ion-col>

@@ -1,0 +1,13 @@
+#
+# io.openems.edge.meter.microcare.sdm630 DEBUG LAUNCH SPECFICATION
+#
+
+-include: ~io.openems.edge.meter.microcare.sdm630.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

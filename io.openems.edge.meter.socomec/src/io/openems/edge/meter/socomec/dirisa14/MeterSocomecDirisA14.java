@@ -85,8 +85,8 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						cm(new UnsignedDoublewordElement(0xc558)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
@@ -103,16 +103,24 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A), ElementToChannelConverter.SCALE_FACTOR_1), //
 						// TODO: add ApparentPower here
 						new DummyRegisterElement(0xc56C, 0xc56F), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A), ElementToChannelConverter.SCALE_FACTOR_1) //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A),
+								ElementToChannelConverter.SCALE_FACTOR_1) //
 //				), new FC3ReadRegistersTask(0xC702, Priority.LOW, //
-//						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),  ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+//						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(0xC702),
+//								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 //						new DummyRegisterElement(0xC704, 0xC707), // PRODUCTION_REACTIVE_ENERGY
-//						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708), ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+//						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(0xC708),
+//								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				));
 	}
 

@@ -507,7 +507,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_controller_2">4.5. Controller</a>
 <ul class="sectlevel3">
-<li><a href="#_existing_controllers">4.5.1. Existing Controllers</a></li>
+<li><a href="#_existing_controllers">4.5.1. Existing Controllers</a>
+<ul class="sectlevel4">
+<li><a href="#_api_backend_controller">4.5.1.1. Api Backend Controller</a></li>
+<li><a href="#_api_rest_json_controller">4.5.1.2. Api REST/JSON Controller</a></li>
+<li><a href="#_api_websocket_controller">4.5.1.3. Api Websocket Controller</a></li>
+<li><a href="#_channel_threshold_controller">4.5.1.4. Channel-Threshold Controller</a></li>
+<li><a href="#_debug_detailed_log_controller">4.5.1.5. Debug Detailed-Log Controller</a></li>
+<li><a href="#_debug_log_controller">4.5.1.6. Debug Log Controller</a></li>
+<li><a href="#_ess_limit_total_discharge">4.5.1.7. Ess Limit Total Discharge</a></li>
+<li><a href="#_symmetric_balancing_controller">4.5.1.8. Symmetric Balancing Controller</a></li>
+<li><a href="#_symmetric_fix_active_power_controller">4.5.1.9. Symmetric Fix-Active-Power Controller</a></li>
+<li><a href="#_symmetric_fix_reactive_power_controller">4.5.1.10. Symmetric Fix-Reactive-Power Controller</a></li>
+</ul>
+</li>
 <li><a href="#_developing_a_controller">4.5.2. Developing a Controller</a></li>
 </ul>
 </li>
@@ -2417,7 +2430,98 @@ public String debugLog() {
 <h3 id="_controller_2">4.5. Controller</h3>
 <div class="sect3">
 <h4 id="_existing_controllers">4.5.1. Existing Controllers</h4>
-
+<div class="sect4">
+<h5 id="_api_backend_controller">4.5.1.1. Api Backend Controller</h5>
+<div class="paragraph">
+<p>Establishes the connection to OpenEMS Backend.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_api_rest_json_controller">4.5.1.2. Api REST/JSON Controller</h5>
+<div class="paragraph">
+<p>Provides a REST-Api for external access to OpenEMS Edge. The default port for the server is <strong>8084</strong>; so the default base address for REST calls is <code><a href="http://x:&lt;PASSWORD&gt;@&lt;IP&gt;:8084/rest" class="bare">http://x:&lt;PASSWORD&gt;@&lt;IP&gt;:8084/rest</a></code>, where</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>"http" is the protocol</p>
+</li>
+<li>
+<p>"x" is the user. Authentification in OpenEMS is via password only, so username can be anything.</p>
+</li>
+<li>
+<p>"&lt;PASSWORD&gt;" is the user password. If no specifi settings have been made, try 'user' or 'admin' here.</p>
+</li>
+<li>
+<p>"8084" is the configured port</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A good way to test REST-Api calls is via the Chrome extension <a href="https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm">Restlet</a></p>
+</div>
+<div class="paragraph">
+<p>Api-Endpoints:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>/channel/&lt;ThingId&gt;/&lt;ChannelName&gt;</code></p>
+<div class="paragraph">
+<p>Provides access to a channel value. Example: use a GET request to <a href="http://x:user@localhost:8084/rest/_sum/EssSoC" class="bare">http://x:user@localhost:8084/rest/_sum/EssSoC</a> to get the current average state of charge.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_api_websocket_controller">4.5.1.3. Api Websocket Controller</h5>
+<div class="paragraph">
+<p>Server for connection from OpenEMS UI to OpenEMS Edge.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_channel_threshold_controller">4.5.1.4. Channel-Threshold Controller</h5>
+<div class="paragraph">
+<p>Switch I/Os according to Channel-Value, e.g. State-of-Charge of the battery.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_debug_detailed_log_controller">4.5.1.5. Debug Detailed-Log Controller</h5>
+<div class="paragraph">
+<p>Output detailed debug information about specific Components on the console.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_debug_log_controller">4.5.1.6. Debug Log Controller</h5>
+<div class="paragraph">
+<p>Output generic information about every Component on every cycle.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ess_limit_total_discharge">4.5.1.7. Ess Limit Total Discharge</h5>
+<div class="paragraph">
+<p>Avoid total discharge of an energy storage system (ESS). Allows to define a Min-SoC and Force-Charge-SoC.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_symmetric_balancing_controller">4.5.1.8. Symmetric Balancing Controller</h5>
+<div class="paragraph">
+<p>Symmetric self-consumption optimization.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_symmetric_fix_active_power_controller">4.5.1.9. Symmetric Fix-Active-Power Controller</h5>
+<div class="paragraph">
+<p>Allows setting of a fixed Active-Power value for an ESS.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_symmetric_fix_reactive_power_controller">4.5.1.10. Symmetric Fix-Reactive-Power Controller</h5>
+<div class="paragraph">
+<p>Allows setting of a fixed Reactive-Power value for an ESS.</p>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_developing_a_controller">4.5.2. Developing a Controller</h4>
@@ -2850,7 +2954,7 @@ WantedBy=multi-user.target</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-08-19 18:40:20 DST
+Last updated 2018-08-24 15:45:59 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

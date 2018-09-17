@@ -6,6 +6,5 @@ package io.openems.edge.bridge.modbus.api.element;
  * MSWLSW =  Most significant word, least significant word
  */
 public enum WordOrder {
-	LSWMSW,  
-	MSWLSW
+	LSWMSW, MSWLSW
 }

@@ -27,12 +27,12 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Overzicht",
+        Index: "Overzicht",
         AboutUI: "Over FEMS- UI",
         Settings: 'Algemene instellingen',
         Logout: 'Uitloggen'
     },
-    Overview: {
+    Index: {
         AllConnected: "Alle verbindingen gemaakt.",
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
@@ -40,7 +40,7 @@ export const TRANSLATION = {
         IsOffline: "FEMS is offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Energiemonitor",
                 ConsumptionWarning: "Verbruik & onbekende producenten",
@@ -81,7 +81,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Geselecteerde periode: ",
-            OtherPeriod: "Andere periode: ",
+            OtherPeriod: "Andere periode",
             Period: "Periode",
             Today: "Vandaag",
             Yesterday: "Gisteren",
@@ -91,7 +91,7 @@ export const TRANSLATION = {
             Go: "Ga!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Verbindingen en apparaten",
                 Scheduler: "Toepassingsschema",
                 Controller: "Toepassingen",

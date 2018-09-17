@@ -1,46 +1,59 @@
-<ion-header>
-  <ion-toolbar color=primary>
-    <ion-buttons slot="start">
-      <ion-button *ngIf="service.backUrl" [routerLink]="service.backUrl">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons slot="end">
-      <nav *ngIf="(websocket.currentEdge | async) as currentEdge">
-        <ion-button routerLink="/device/{{ currentEdge.name }}/config/overview">
-          <ion-icon name="settings" size="large"></ion-icon>
+<ion-app>
+  <ion-header>
+    <ion-toolbar color=primary>
+      <ion-buttons *ngIf="backUrl" slot="start">
+        <ion-button [routerLink]="backUrl">
+          <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
-      </nav>
-      <ion-button (click)="presentPopover($event)">
-        <ion-icon size="large" name="more"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge" routerLink="/device/{{ currentEdge.name }}/overview">
-      <button mat-button>
-        Energiemonitor
-        <!-- TODO translate -->
-        <small>({{ currentEdge.name }})</small>
-      </button>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <nav *ngIf="(websocket.currentEdge | async) as currentEdge">
+          <ion-button routerLink="/device/{{ currentEdge.name }}/config/index">
+            <ion-icon name="settings" size="large"></ion-icon>
+          </ion-button>
+        </nav>
+        <ion-button (click)="presentPopover($event)">
+          <ion-icon size="large" name="more"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
 
+  <ion-content>
 
+    <!-- Show Websocket Status -->
+    <ion-grid>
+      <ion-row justify-content-center>
 
-<!--   -->
-<div *ngIf="websocket.status == 'connecting'" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
-  <span>Trying to reconnect...</span>
-  <!-- TODO translate -->
-</div>
-<ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
-  <div *ngIf="!currentEdge.online" fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="font-family: sans-serif; background-color: yellow">
-    <span>Device not connected.</span>
-    <!-- TODO translate -->
-  </div>
-</ng-container>
-<div fxLayout fxLayoutAlign="center start" fxLayout="wrap" style="overflow: auto">
-  <div fxFlex="100%">
+        <ion-col *ngIf="websocket.status == 'connecting'" size="12" size-md="6">
+          <ion-card>
+            <ion-item>
+              <ion-icon slot="start" name="wifi"></ion-icon>
+              <ion-label text-wrap>
+                <h2>Verbindung wird aufgebaut...</h2>
+                <p color="light">{{ env.url }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+
+        <ion-col *ngIf="websocket.status == 'failed'" size="12" size-md="6">
+          <ion-card>
+            <ion-item>
+              <ion-icon slot="start" name="close-circle"></ion-icon>
+              <ion-label text-wrap>
+                <h2 translate [translateParams]="{value: 'FEMS'}">Index.ConnectionFailed</h2>
+                <p color="light">{{ env.url }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Show Sub-Views -->
     <router-outlet></router-outlet>
-  </div>
-</div>
-<toaster-container></toaster-container>
+    <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
+
+  </ion-content>
+</ion-app>

@@ -1,7 +1,5 @@
 package io.openems.edge.meter.api;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -9,6 +7,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Represents a Symmetric Meter.
@@ -84,7 +83,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 						 * Fill Min/Max Active Power channels
 						 */
 						if (value.asOptional().isPresent()) {
-							int newValue = (int) value.get();
+							int newValue = (Integer) value.get();
 							{
 								Channel<Integer> minActivePowerChannel = channel.getComponent()
 										.channel(ChannelId.MIN_ACTIVE_POWER);
@@ -261,16 +260,16 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		this.getMinActivePower().setNextValue(minActivePowerConfig);
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
-
-		this.getMinActivePower().onChange(value -> {
-			if (value.get() != minActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", value.get());
-			}
-		});
-		this.getMaxActivePower().onChange(value -> {
-			if (value.get() != maxActivePowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", value.get());
-			}
-		});
+		// TODO: use a "StorageChannel" service for this; the following was never properly working
+//		this.getMinActivePower().onChange(value -> {
+//			if ((Float)value.get() != (float) minActivePowerConfig) {
+//				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());
+//			}
+//		});
+//		this.getMaxActivePower().onChange(value -> {
+//			if ((Float) value.get() != (float) maxActivePowerConfig) {
+//				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", ((Float) value.get()).intValue());
+//			}
+//		});
 	}
 }

@@ -131,7 +131,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * @return
 	 */
 	default Channel<Integer> getActivePowerL2() {
-		return this.channel(ChannelId.ACTIVE_POWER_L1);
+		return this.channel(ChannelId.ACTIVE_POWER_L2);
 	}
 
 	/**

@@ -43,7 +43,6 @@ import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Power;
 
 /**
@@ -67,7 +66,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected static final float MAX_DISCHARGE_W = 86 * 1000;
 
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
-	private CircleConstraint maxApparentPowerConstraint = null;
+//	private CircleConstraint maxApparentPowerConstraint = null;
 
 	@Reference
 	private Power power;
@@ -115,7 +114,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 */
 		// Max Apparent
 		// TODO adjust apparent power from modbus element
-		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+//		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
@@ -637,9 +636,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getSoc().setNextValue(soC);
 	}
 
-	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(32528, Priority.LOW, // CCU state
 						bm(new UnsignedDoublewordElement(32528)) //
 								.m(GridConChannelId.PCS_CCU_STATE_IDLE, 0) //
@@ -1068,4 +1066,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32734).wordOrder(WordOrder.LSWMSW)) //
 				));
 	}
+
+	@Override
+	protected ModbusProtocol defineModbusProtocol() {
+		return defineModbusProtocol(0);
+		}
 }

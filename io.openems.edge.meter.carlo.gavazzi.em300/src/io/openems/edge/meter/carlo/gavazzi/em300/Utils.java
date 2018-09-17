@@ -52,8 +52,7 @@ public class Utils {
 					return null;
 				}), Arrays.stream(MeterCarloGavazziEm300.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case APPARENT_POWER:
-					case ACTIVE_ENERGY_NEGATIVE:
+					case APPARENT_POWER:					
 					case ACTIVE_ENERGY_POSITIVE:
 					case APPARENT_POWER_L1:
 					case APPARENT_POWER_L2:
@@ -61,6 +60,7 @@ public class Utils {
 					case FREQUENCY:
 					case REACTIVE_ENERGY_NEGATIVE:
 					case REACTIVE_ENERGY_POSITIVE:
+					case ACTIVE_ENERGY_NEGATIVE:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;

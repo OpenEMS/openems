@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import java.nio.ByteBuffer;
-
 import io.openems.common.types.OpenemsType;
+
+import java.nio.ByteBuffer;
 
 public class SignedDoublewordElement extends AbstractDoubleWordElement<Long> {
 

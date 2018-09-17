@@ -31,16 +31,18 @@ public class Utils {
 					case ACTIVE_CHARGE_ENERGY: // TODO ACTIVE_CHARGE_ENERGY
 					case ACTIVE_DISCHARGE_ENERGY: // TODO ACTIVE_DISCHARGE_ENERGY
 						return new IntegerReadChannel(c, channelId);
-					case MAX_ACTIVE_POWER:
+					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, AbstractEssStreetscooter.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.ON_GRID);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
@@ -50,8 +52,6 @@ public class Utils {
 					case BATTERY_BMS_I_ACT:
 					case BATTERY_BMS_ERR:
 					case BATTERY_BMS_PWR_CHRG_MAX:
-					case BATTERY_BMS_PWR_D_CHA_MAX:
-					case BATTERY_BMS_PWR_RGN_MAX:
 					case BATTERY_BMS_SOH:
 					case BATTERY_BMS_ST_BAT:
 					case BATTERY_BMS_T_MAX_PACK:
@@ -86,6 +86,7 @@ public class Utils {
 					case INVERTER_V_AC_3:
 					case INVERTER_V_DC_1:
 					case INVERTER_V_DC_2:
+					case DEBUG_INVERTER_SET_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case INVERTER_SET_ACTIVE_POWER:
 						return new IntegerWriteChannel(c, channelId);
@@ -96,6 +97,8 @@ public class Utils {
 					case BATTERY_OVERLOAD:
 					case ICU_RUNSTATE:
 					case INVERTER_CONNECTED:
+					case DEBUG_ICU_ENABLED:
+					case DEBUG_ICU_RUN:
 						return new BooleanReadChannel(c, channelId);
 					case SYSTEM_STATE_INFORMATION:
 						return new StringWriteChannel(c, channelId);

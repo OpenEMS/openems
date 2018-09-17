@@ -1,0 +1,131 @@
+<ion-grid>
+  <ion-row justify-content-center>
+    <ion-col size="12" size-md="6">
+      <!-- Waiting for authentication -->
+      <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'" padding>
+        <ion-item>
+          <ion-icon slot="start" name="contact" color="primary"></ion-icon>
+          <ion-label>
+            <ion-card-title>Login</ion-card-title>
+            <ion-card-subtitle text-wrap>
+              Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
+            </ion-card-subtitle>
+          </ion-label>
+        </ion-item>
+
+        <ion-card-content>
+          <ion-item>
+            <form [formGroup]="form" (ngSubmit)="doLogin()" (keyup.enter)="doLogin()">
+              <ion-label position="floating">Passwort</ion-label>
+              <ion-input formControlName="password" required type="password" placeholder="Passwort"></ion-input>
+            </form>
+          </ion-item>
+          <!-- Messages -->
+          <ion-item>
+            {{ (websocket.event | async)?.message }}
+          </ion-item>
+          <ion-button float-right (click)="doLogin()">
+            <ion-icon slot="icon-only" name="log-in"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+
+  <ng-container *ngIf="utils.values(websocket.edges | async).length > 0">
+    <ion-row justify-content-center>
+      <ion-col size="12" size-sm="6" size-md="4">
+        <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
+      </ion-col>
+    </ion-row>
+
+    <ion-row justify-content-center>
+      <ion-col size="12" size-sm="6" size-md="4">
+        <ion-list lines="full">
+          <!-- Unfortunately this does not refresh on changes. Most likely an Ionic bug 
+            <ion-virtual-scroll [items]="edges" approxItemHeight="100px">
+            <ion-item *virtualItem="let edge" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
+              <ion-label>
+                <h2>{{ edge.comment }}</h2>
+                <p *ngIf="!edge.online">Das Gerät ist nicht verbunden!</p>
+              </ion-label>
+              <ion-label>
+                <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                  <p>ID: {{ edge.name }}</p>
+                  <p>Typ: {{ edge.producttype }}</p>
+                </ng-container>
+                <p>Angemeldet als: {{ edge.role }}.</p>
+              </ion-label>
+              <ion-icon *ngIf="edge.online" slot="end" name="play" color="primary"></ion-icon>
+              <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
+            </ion-item>
+          </ion-virtual-scroll> -->
+
+          <ion-item *ngFor="let edge of edges" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
+            <ion-label>
+              <h2 text-wrap>{{ edge.comment }}</h2>
+              <p *ngIf="!edge.online" text-wrap>Das Gerät ist nicht verbunden!</p>
+            </ion-label>
+            <ion-label>
+              <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+                <p>ID: {{ edge.name }}</p>
+                <p text-wrap>Typ: {{ edge.producttype }}</p>
+              </ng-container>
+              <p text-wrap>Angemeldet als: {{ edge.role }}.</p>
+            </ion-label>
+            <ion-icon *ngIf="edge.online" slot="end" name="play" color="primary"></ion-icon>
+            <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
+          </ion-item>
+
+          <ion-item *ngIf="filteredTruncated">
+            <ion-label>
+              <p text-wrap>Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.</p>
+            </ion-label>
+          </ion-item>
+
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ng-container>
+
+  <!-- List of edges -->
+  <!-- <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
+        <mat-card class="single">
+          <mat-card-content fxLayout fxLayout="wrap">
+            <mat-form-field fxFlex="100%" [formGroup]="filter">
+              <input type="text" formControlName="filter" placeholder="Filter" matInput autofocus>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+
+
+      <ng-container *ngFor="let edge of utils.values(websocket.edges | async)">
+        <ng-container *ngIf="env.backend === 'OpenEMS Edge' || edge.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || edge.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
+          <mat-card class="single">
+            <mat-card-header>
+              <ion-icon *ngIf="edge.online" mat-card-avatar name="tv" color="primary"></ion-icon>
+              <ion-icon *ngIf="!edge.online" mat-card-avatar name="bug"></ion-icon>
+              <mat-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Index.ToEnergymonitor</mat-card-title>
+              <mat-card-title *ngIf="env.backend === 'OpenEMS Backend'">
+                <span>{{ edge.comment }}
+                  <span *ngIf="!edge.online">
+                    <br/>
+                    <span translate>Index.IsOffline</span>
+                  </span>
+                </span>
+              </mat-card-title>
+              <mat-card-subtitle>
+                <p *ngIf="env.backend === 'OpenEMS Backend'">{{ edge.name }}: {{ edge.producttype }}</p>
+                <p>Angemeldet als '{{ edge.role }}'.</p>
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="edge.online">
+              <ion-button routerLink="/device/{{ edge.name }}">
+                <ion-icon name="arrow-forward"></ion-icon>
+              </ion-button>
+            </mat-card-actions>
+          </mat-card>
+        </ng-container>
+      </ng-container> -->
+</ion-grid>

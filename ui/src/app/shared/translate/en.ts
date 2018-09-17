@@ -28,12 +28,12 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Overview",
+        Index: "Index",
         AboutUI: "About FEMS-UI",
         Settings: 'General Settings',
         Logout: 'Sign Out'
     },
-    Overview: {
+    Index: {
         AllConnected: "All connections established.",
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
@@ -41,7 +41,7 @@ export const TRANSLATION = {
         IsOffline: "FEMS is offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Energymonitor",
                 ConsumptionWarning: "Consumption & unknown producers",
@@ -50,8 +50,8 @@ export const TRANSLATION = {
                 ActivePower: "Active power",
                 GridMeter: "Grid meter",
                 ProductionMeter: "Production meter",
-                StorageDischarge: "Storage-Charge",
-                StorageCharge: "Storage-Discharge"
+                StorageDischarge: "Storage-Discharge",
+                StorageCharge: "Storage-Charge"
             },
             Energytable: {
                 Title: "Energytable",
@@ -84,7 +84,7 @@ export const TRANSLATION = {
         },
         History: {
             SelectedPeriod: "Selected period: ",
-            OtherPeriod: "Other period:",
+            OtherPeriod: "Other period",
             Period: "Period",
             Today: "Today",
             Yesterday: "Yesterday",
@@ -94,7 +94,7 @@ export const TRANSLATION = {
             Go: "Go!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Connections and devices",
                 Scheduler: "Applicationplanner",
                 Controller: "Applications",
