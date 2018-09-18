@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -31,9 +32,8 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -43,11 +43,9 @@ import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * This class handles the communication between ems and a gridcon.
@@ -68,9 +66,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected static final float MAX_CHARGE_W = 86 * 1000;
 	protected static final float MAX_DISCHARGE_W = 86 * 1000;
 
+	private Channel<Boolean> inputChannel = null;
+	private int gridFreq;
+	private int gridVolt;
+	private float essFreq;
+	private float essVolt;
+	private int freqDiff;
+	private int voltDiff;
+	private boolean DI2 = false;
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 //	private CircleConstraint maxApparentPowerConstraint = null;
-
 	BitSet commandControlWord = new BitSet(32);
 
 	@Reference
@@ -81,6 +86,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	Battery battery1;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	SymmetricMeter meter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	Battery battery2;
@@ -97,8 +105,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private DigitalInput inputComponent = null;
+
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		// update filter for 'battery1'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery1", config.battery1_id())) {
 			return;
@@ -113,7 +124,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery3", config.battery3_id())) {
 			return;
 		}
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Janitza96Meter", config.meter())) {
+			return;
+		}
 
+		ChannelAddress inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputComponent",
+				inputChannelAddress.getComponentId())) {
+			return;
+		}
+		this.inputChannel = this.inputComponent.channel(inputChannelAddress.getChannelId());
 		/*
 		 * Initialize Power
 		 */
@@ -126,6 +147,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// Max Apparent
 		// TODO adjust apparent power from modbus element
 //		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
+
+		this.inputChannel = this.inputComponent.channel(inputChannelAddress.getChannelId());
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
@@ -207,14 +230,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			writeDateAndTime();
 
 			Integer value = convertToInteger(commandControlWord);
-			String bits = Integer.toBinaryString(value);
-			System.out.println("bits in control word: " + bits);
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
 
 			writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
 			writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W,
 					MAX_CHARGE_W, MAX_CHARGE_W);
-			
+
 //			//TODO This is to make the choco solver working, where should we put this?
 			((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
 			((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
@@ -302,7 +323,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
 		// should change state to "RUN"
 		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-		
+
 		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
@@ -440,15 +461,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				.isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
 			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
-		} 
+		}
 	}
 
 	@Override
 	public String debugLog() {
-		int mirrorControlWord = ((IntegerReadChannel) this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD)).value().asOptional().orElse(0);
-		int errorCode = ((IntegerReadChannel) this.channel(GridConChannelId.PCS_CCU_ERROR_CODE)).value().asOptional().orElse(-1);
-		
-		return "Current state: " + getCurrentState().toString() + "; Mirror control word: " + Integer.toBinaryString(mirrorControlWord) + "; Error code: " + Integer.toBinaryString(errorCode);
+		return "Current state: " + getCurrentState().toString() //
+				+ "essFreq: " + this.essFreq //
+				+ "gridFrq: " + this.gridFreq;
 	}
 
 	private CCUState getCurrentState() {
@@ -604,8 +624,36 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			handleStateMachine();
 			calculateSoC();
+			frequencySynch();
 			break;
 		}
+	}
+
+	private void frequencySynch() {
+		// Measured by Janitza96, grid Values
+		this.gridFreq = this.meter.getFrequency().value().asOptional().orElse(0);
+		this.gridVolt = this.meter.getVoltage().value().asOptional().orElse(0);
+
+		// MR Inverter values
+		Channel<Float> inverterFrequency = this.channel(GridConChannelId.PCS_CCU_FREQUENCY);
+		Channel<Float> inverterVoltage = this.channel(GridConChannelId.PCS_CCU_VOLTAGE_U12);
+		this.essFreq = inverterFrequency.value().asOptional().orElse(0f);
+		this.essVolt = inverterVoltage.value().asOptional().orElse(0f);
+		this.freqDiff = gridFreq - (int) (essFreq * 50000);
+		this.voltDiff = gridVolt - (int) (essVolt * 230000);
+//		if (voltDiff < 10 || voltDiff > -5) {
+//			System.out.println("freqDiff : " + freqDiff + "----volt DIff : " + voltDiff);
+//
+//			String currentState = getCurrentState().toString();
+//			// TODO put condition for emergency mode
+//
+//			if (!this.DI2 && gridFreq != 0) {
+//
+//			}
+//		}
+		this.DI2 = inputChannel.getNextValue().get();
+		System.out.println("DI2 : " + DI2);
+
 	}
 
 	private void calculateSoC() {
