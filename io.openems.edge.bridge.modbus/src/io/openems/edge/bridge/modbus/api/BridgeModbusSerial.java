@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+
 @ProviderType
 public interface BridgeModbusSerial extends BridgeModbus {
 
@@ -38,6 +39,6 @@ public interface BridgeModbusSerial extends BridgeModbus {
 	 *  
 	 * @return
 	 */
-	public String getParity();
+	public Parity getParity();
 
 }
