@@ -31,6 +31,7 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -42,7 +43,11 @@ import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 /**
  * This class handles the communication between ems and a gridcon.
@@ -112,6 +117,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		/*
 		 * Initialize Power
 		 */
+//		int max = 5000;
+//		int min = -5000;
+//		
+//		this.getPower().addSimpleConstraint(this, ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, max);
+//		this.getPower().addSimpleConstraint(this, ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, min);
+//		
 		// Max Apparent
 		// TODO adjust apparent power from modbus element
 //		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
@@ -133,6 +144,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// see Software manual chapter 5.1
 
 		if (isOnGridMode()) {
+			commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
+			commandControlWord.set(PCSControlWordBitPosition.READY.getBitPosition(), false);
+			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), false);
+			commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), false);
+
+			commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
+			commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
+			commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
+
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
 
 			switch (getCurrentState()) {
 			case DERATING_HARMONICS:
@@ -190,6 +214,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
 			writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W,
 					MAX_CHARGE_W, MAX_CHARGE_W);
+			
+//			//TODO This is to make the choco solver working, where should we put this?
+			((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
+			((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+//			
 		}
 	}
 
@@ -219,30 +248,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private boolean isOnGridMode() {
 		// TODO component gets the information from "Netztrennschalter"
 		return true;
-	}
-
-	/**
-	 * In order to correctly communicate with a gridcon every bit in the protocol
-	 * has to be sent. To ensure that all bits are set, this method sets the last
-	 * value set in the channel as the next value to be written. If there was no
-	 * last value 0 is set into the channel instead.
-	 * 
-	 * @param ids the channels which should retain their value
-	 */
-	void writeValuesBackInChannel(GridConChannelId... ids) {
-		for (GridConChannelId id : ids) {
-			Value<?> value = this.channel(id).getNextValue();
-			Object writeValue = 0;
-			if (value.asOptional().isPresent()) {
-				writeValue = value.asOptional().get();
-			}
-			try {
-				((WriteChannel<?>) this.channel(id)).setNextWriteValueFromObject(writeValue);
-			} catch (OpenemsException e) {
-				// TODO: errorhandling
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**
@@ -296,10 +301,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
 		// should change state to "RUN"
-
 		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
+		
 		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
 
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
@@ -313,7 +319,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
 		// system should change state to "IDLE"
-		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
@@ -435,12 +440,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				.isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
 			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
-		}
+		} 
 	}
 
 	@Override
 	public String debugLog() {
-		return "Current state: " + getCurrentState().toString();
+		int mirrorControlWord = ((IntegerReadChannel) this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD)).value().asOptional().orElse(0);
+		int errorCode = ((IntegerReadChannel) this.channel(GridConChannelId.PCS_CCU_ERROR_CODE)).value().asOptional().orElse(-1);
+		
+		return "Current state: " + getCurrentState().toString() + "; Mirror control word: " + Integer.toBinaryString(mirrorControlWord) + "; Error code: " + Integer.toBinaryString(errorCode);
 	}
 
 	private CCUState getCurrentState() {
