@@ -1,6 +1,8 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.BitSet;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -73,7 +75,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private float essVolt;
 	private int freqDiff;
 	private int voltDiff;
-	private boolean DI2 = false;
+	private boolean DI2;
+	private boolean DI1 = true;
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 //	private CircleConstraint maxApparentPowerConstraint = null;
 	BitSet commandControlWord = new BitSet(32);
@@ -124,6 +127,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery3", config.battery3_id())) {
 			return;
 		}
+		// update filter for 'Janitza96 Meter'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Janitza96Meter", config.meter())) {
 			return;
 		}
@@ -165,6 +169,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private void handleStateMachine() {
 		// TODO
 		// see Software manual chapter 5.1
+
+		Integer value = convertToInteger(commandControlWord);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
 
 		if (isOnGridMode()) {
 			commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
@@ -229,9 +236,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
 			writeDateAndTime();
 
-			Integer value = convertToInteger(commandControlWord);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
-
 			writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
 			writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W,
 					MAX_CHARGE_W, MAX_CHARGE_W);
@@ -268,7 +272,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	// Normal mode with current control
 	private boolean isOnGridMode() {
 		// TODO component gets the information from "Netztrennschalter"
-		return true;
+		return false;
 	}
 
 	/**
@@ -639,25 +643,48 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		Channel<Float> inverterVoltage = this.channel(GridConChannelId.PCS_CCU_VOLTAGE_U12);
 		this.essFreq = inverterFrequency.value().asOptional().orElse(0f);
 		this.essVolt = inverterVoltage.value().asOptional().orElse(0f);
+
+		// Taking the differencess of values
+		// Needs to consider; volt difference must be in interval of (-5, 15)
+		// normally we are taking 230V and gridVolt-essVol could be min 225V or max 245V
 		this.freqDiff = gridFreq - (int) (essFreq * 50000);
 		this.voltDiff = gridVolt - (int) (essVolt * 230000);
-//		if (voltDiff < 10 || voltDiff > -5) {
-//			System.out.println("freqDiff : " + freqDiff + "----volt DIff : " + voltDiff);
-//
-//			String currentState = getCurrentState().toString();
-//			// TODO put condition for emergency mode
-//
-//			if (!this.DI2 && gridFreq != 0) {
-//
-//			}
-//		}
-		this.DI2 = inputChannel.getNextValue().get();
+		// TODO Check Emergency Mode!!!!
+		this.DI2 = inputChannel.value().get();
 		System.out.println("DI2 : " + DI2);
+
+		if (voltDiff < 15 && voltDiff > -5) {
+			// TODO needs to change value
+			float addFreq = (this.freqDiff / 2 + this.essFreq * 50) / 50;
+			System.out.println("addFreq : " + addFreq);
+//			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, addFreq);
+
+			// TODO needs to make Cable connection to read something from left
+			// switch(syncDevice Switch)
+			System.out.println("freqDiff : " + freqDiff + "----volt DIff : " + voltDiff);
+
+			// If Main switch was not closed after 10 min, set the freq=50Hz and volt=230V
+			LocalDateTime currentTime = LocalDateTime.now(ZoneId.of("UTC"));
+			LocalDateTime nextTime = currentTime.plusSeconds(600);
+
+			// TODO DI1 didnt implemented just initialized
+			// We can read Main switch position with DI1
+			if (!currentTime.isBefore(nextTime) && !this.DI1) {
+				writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
+				writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+			}
+
+			// iF DI2=1 make sync, DI2=0 run until grid come back, when its back
+			// stopSystem();
+			if (!this.DI2 && gridFreq != 0) {
+				stopSystem();
+			}
+//		    
+		}
 
 	}
 
 	private void calculateSoC() {
-
 		double sumCapacity = 0;
 		double sumCurrentCapacity = 0;
 		for (Battery b : new Battery[] { battery1, battery2, battery3 }) {
