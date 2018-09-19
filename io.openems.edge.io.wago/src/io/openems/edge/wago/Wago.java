@@ -243,12 +243,34 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	@Override
 	public Channel<Boolean>[] digitalInputChannels() {
-		return null; // TODO
+		List<BooleanReadChannel> channels = new ArrayList<>();
+		for (FieldbusModule module : this.modules) {
+			for (BooleanReadChannel channel : module.getChannels()) {
+				channels.add(channel);
+			}
+		}
+		BooleanReadChannel[] result = new BooleanReadChannel[channels.size()];
+		for (int i = 0; i < channels.size(); i++) {
+			result[i] = channels.get(i);
+		}
+		return result;
 	}
 
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
-		return null; // TODO
+		List<BooleanWriteChannel> channels = new ArrayList<>();
+		for (FieldbusModule module : this.modules) {
+			for (BooleanReadChannel channel : module.getChannels()) {
+				if (channel instanceof BooleanWriteChannel) {
+					channels.add((BooleanWriteChannel) channel);
+				}
+			}
+		}
+		BooleanWriteChannel[] result = new BooleanWriteChannel[channels.size()];
+		for (int i = 0; i < channels.size(); i++) {
+			result[i] = channels.get(i);
+		}
+		return result;
 	}
 
 	protected void addChannel(Channel<?> channel) {
