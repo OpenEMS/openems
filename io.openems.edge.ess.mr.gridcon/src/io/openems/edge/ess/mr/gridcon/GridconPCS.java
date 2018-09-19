@@ -75,8 +75,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private float essVolt;
 	private int freqDiff;
 	private int voltDiff;
-	private boolean DI2;
-	private boolean DI1 = true;
+	private boolean bridgeContactorRead;
+	private boolean bridgeContactorWrite;
+	private boolean mainSwitch = true;
+	LocalDateTime currentTime;
+	LocalDateTime nextTime;
+
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 //	private CircleConstraint maxApparentPowerConstraint = null;
 	BitSet commandControlWord = new BitSet(32);
@@ -244,6 +248,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
 			((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
 //			
+		} else {
+			frequencySynch();
 		}
 	}
 
@@ -628,7 +634,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			handleStateMachine();
 			calculateSoC();
-			frequencySynch();
 			break;
 		}
 	}
@@ -650,36 +655,40 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.freqDiff = gridFreq - (int) (essFreq * 50000);
 		this.voltDiff = gridVolt - (int) (essVolt * 230000);
 		// TODO Check Emergency Mode!!!!
-		this.DI2 = inputChannel.value().get();
-		System.out.println("DI2 : " + DI2);
+		this.bridgeContactorRead = inputChannel.value().get();
+		System.out.println("bridgeContactor : " + bridgeContactorRead);
 
-		if (voltDiff < 15 && voltDiff > -5) {
+		if (voltDiff < 15 && voltDiff > -5 && gridFreq != 0) {
 			// TODO needs to change value
 			float addFreq = (this.freqDiff / 2 + this.essFreq * 50) / 50;
 			System.out.println("addFreq : " + addFreq);
-//			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, addFreq);
 
-			// TODO needs to make Cable connection to read something from left
-			// switch(syncDevice Switch)
+			// Setting the frequency to MR
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0004f);
+
+			// Bridge Contactor Normall Closed(NC)
+			// iF DI2=1(bridge Contactor) make sync, DI2=0 run until grid come back, when
+			// its back
+			// Open Switch with controlling DI2
+			if (!this.bridgeContactorRead && gridFreq != 0) {
+				// Bridge Contactor Write = DO1
+				// set DO1 =1
+			}
+
 			System.out.println("freqDiff : " + freqDiff + "----volt DIff : " + voltDiff);
-
 			// If Main switch was not closed after 10 min, set the freq=50Hz and volt=230V
-			LocalDateTime currentTime = LocalDateTime.now(ZoneId.of("UTC"));
-			LocalDateTime nextTime = currentTime.plusSeconds(600);
+			this.currentTime = LocalDateTime.now(ZoneId.of("UTC"));
+			if (this.nextTime == null) {
+				this.nextTime = currentTime.plusSeconds(600);
+			}
 
 			// TODO DI1 didnt implemented just initialized
 			// We can read Main switch position with DI1
-			if (!currentTime.isBefore(nextTime) && !this.DI1) {
+			if (!currentTime.isBefore(nextTime) && !this.mainSwitch) {
 				writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
 				writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
 			}
 
-			// iF DI2=1 make sync, DI2=0 run until grid come back, when its back
-			// stopSystem();
-			if (!this.DI2 && gridFreq != 0) {
-				stopSystem();
-			}
-//		    
 		}
 
 	}
