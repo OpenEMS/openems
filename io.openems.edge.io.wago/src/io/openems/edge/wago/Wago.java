@@ -10,6 +10,10 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,6 +30,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -52,7 +58,7 @@ import io.openems.edge.io.api.DigitalOutput;
 @Component(name = "IO.WAGO", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutput, DigitalInput, OpenemsComponent {
 
-//	private final Logger log = LoggerFactory.getLogger(Wago.class);
+	private final Logger log = LoggerFactory.getLogger(Wago.class);
 
 	private final static int UNIT_ID = 1;
 
@@ -73,6 +79,9 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		this.ipAddress = modbus.getIpAddress();
 	}
 
+	private final ScheduledExecutorService configExecutor = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> configFuture = null;
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
@@ -80,7 +89,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		/*
 		 * Async Create Channels dynamically from ea-config.xml file
 		 */
-		new Thread(() -> {
+		this.configFuture = configExecutor.schedule(() -> {
 			try {
 				Document doc = Wago.downloadEaConfigXml(this.ipAddress, config.username(), config.password());
 				this.modules.addAll(this.parseXml(doc));
@@ -88,7 +97,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 			} catch (SAXException | IOException | ParserConfigurationException e) {
 				e.printStackTrace();
 			}
-		}).start();
+		}, 2, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -211,6 +220,23 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+
+		// Shutdown executor
+		if (this.configExecutor != null) {
+			this.configFuture.cancel(true);
+		}
+		try {
+			configExecutor.shutdown();
+			configExecutor.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			this.logWarn(this.log, "tasks interrupted");
+		} finally {
+			if (!configExecutor.isTerminated()) {
+				this.logWarn(this.log, "cancel non-finished tasks");
+			}
+			configExecutor.shutdownNow();
+		}
+
 	}
 
 	@Override
@@ -220,18 +246,14 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		}
 		StringBuilder b = new StringBuilder();
 		for (int i = 0; i < this.modules.size(); i++) {
+			b.append("M" + i + " ");
 			BooleanReadChannel[] channels = this.modules.get(i).getChannels();
 			for (int j = 0; j < channels.length; j++) {
-				String valueText;
 				Optional<Boolean> valueOpt = channels[j].value().asOptional();
 				if (valueOpt.isPresent()) {
-					valueText = valueOpt.get() ? "x" : "-";
+					b.append(valueOpt.get() ? "x" : "-");
 				} else {
-					valueText = "?";
-				}
-				b.append(i + valueText);
-				if (j < channels.length - 1) {
-					b.append(" ");
+					b.append("?");
 				}
 			}
 			if (i < this.modules.size() - 1) {
