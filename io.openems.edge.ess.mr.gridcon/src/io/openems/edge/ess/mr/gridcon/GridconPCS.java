@@ -178,6 +178,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
 
 		if (isOnGridMode()) {
+			// Bridge Contactor Normall Closed(NC)
+			// iF DI2=1(bridge Contactor) make sync, DI2=0 run until grid come back, when
+			// its back
+			// Open Switch with controlling DI2
+			if (!this.bridgeContactorRead && gridFreq != 0) {
+				// Bridge Contactor Write = DO1
+				// set DO1 =1
+			}
+
 			commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
 			commandControlWord.set(PCSControlWordBitPosition.READY.getBitPosition(), false);
 			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), false);
@@ -665,15 +674,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 			// Setting the frequency to MR
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0004f);
-
-			// Bridge Contactor Normall Closed(NC)
-			// iF DI2=1(bridge Contactor) make sync, DI2=0 run until grid come back, when
-			// its back
-			// Open Switch with controlling DI2
-			if (!this.bridgeContactorRead && gridFreq != 0) {
-				// Bridge Contactor Write = DO1
-				// set DO1 =1
-			}
 
 			System.out.println("freqDiff : " + freqDiff + "----volt DIff : " + voltDiff);
 			// If Main switch was not closed after 10 min, set the freq=50Hz and volt=230V
