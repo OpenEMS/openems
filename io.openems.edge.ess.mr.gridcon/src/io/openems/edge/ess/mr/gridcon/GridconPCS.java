@@ -36,6 +36,8 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -189,6 +191,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private GridMode getOnOffGrid() {
+//		return GridMode.ON_GRID;
 		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
 				.channel(this.inputNAProtection1.getChannelId());
 		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
@@ -211,13 +214,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleStateMachine() {
+		log.info("handleStateMachine");
 		this.prepareGeneralCommands();
 
-		switch (this.getOnOffGrid()) {
+		GridMode gridMode = this.getOnOffGrid();
+		switch (gridMode) {
 		case ON_GRID:
+			log.info("handleOnGridState");
 			this.handleOnGridState();
 			break;
 		case OFF_GRID:
+			log.info("handleOffGridState");
 			this.handleOffGridState();
 			break;
 		case UNDEFINED:
@@ -252,7 +259,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
 		 */
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.035f);
 		writeDateAndTime();
 
 		writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
@@ -487,7 +494,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (isHardwareTrip()) {
 			doHardRestart();
 		} else {
-
+			log.info("try to acknowledge errors");
 			acknowledgeErrors();
 		}
 
@@ -521,11 +528,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
 		}
+		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.PCS_CCU_ERROR_CODE);
+		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
+		log.info("Errorcode: " + errorCodeOpt);
+		if (errorCodeOpt.isPresent()) {
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, errorCodeOpt.get());
+		}
+		
 	}
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
+		return "State:" + this.getCurrentState().toString() + "," +
+				"L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
 				+ "," + this.getOnOffGrid().name();
 	}
 
@@ -679,20 +694,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private void handleOffGridState() {
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
+		log.info("Set K3 ON");
 		this.setOutputSyncDeviceBridge(true);
 		// TODO check if OutputSyncDeviceBridge was actually set to ON via
 		// inputSyncDeviceBridgeComponent. On Error switch off the MR.
 
 		// Measured by Grid-Meter, grid Values
-		int gridFreq = this.gridMeter.getFrequency().value().orElse(0);
-		int gridVolt = this.gridMeter.getVoltage().value().orElse(0);
+		int gridFreq = this.gridMeter.getFrequency().value().orElse(-1);
+		int gridVolt = this.gridMeter.getVoltage().value().orElse(-1);
 
+		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
+		
 		// Always set Voltage Control Mode + Blackstart Approval
 		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), false);
 
 		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
-				gridVolt == 0 || gridVolt < 215 || gridVolt > 245) {
+				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
+			log.info("Off-Grid -> F/U 1");
 			/*
 			 * Off-Grid
 			 */
@@ -704,9 +723,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			 * Going On-Grid
 			 */
 			int invSetFreq = gridFreq + 20; // add 20 mHz
-			int invSetVolt = gridVolt + 5; // add 5 V
+			int invSetVolt = gridVolt + 5_000; // add 5 V
 			float invSetFreqNormalized = invSetFreq / 50_000f;
-			float invSetVoltNormalized = invSetVolt / 230f;
+			float invSetVoltNormalized = invSetVolt / 230_000f;
+			log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", " + invSetVoltNormalized);
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, invSetVoltNormalized);
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, invSetFreqNormalized);
 		}

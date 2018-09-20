@@ -227,7 +227,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Voltage in [V]. VOLTAGE.
+	 * Gets the Voltage in [mV].
 	 * 
 	 * @return
 	 */
