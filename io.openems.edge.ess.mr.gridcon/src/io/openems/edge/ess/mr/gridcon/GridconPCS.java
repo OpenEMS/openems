@@ -3,6 +3,7 @@ package io.openems.edge.ess.mr.gridcon;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.BitSet;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -37,8 +38,6 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.merger.ChannelMergerSumFloat;
-import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -79,8 +78,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private float essVolt;
 	private int freqDiff;
 	private int voltDiff;
-	private boolean bridgeContactorRead;
-	private boolean bridgeContactorWrite;
+	private boolean syncDeviceBridgeContactorRead;
 	private boolean mainSwitch = true;
 	LocalDateTime currentTime;
 	LocalDateTime nextTime;
@@ -95,17 +93,30 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	ChannelAddress inputNAProtection1 = null;
+	ChannelAddress inputNAProtection2 = null;
+	ChannelAddress inputSyncDeviceBridge = null;
+	ChannelAddress outputSyncDeviceBridge = null;
+	ChannelAddress outputMRHardReset = null;
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	Battery battery1;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	SymmetricMeter meter;
-
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	Battery battery2;
-
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	Battery battery3;
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	SymmetricMeter gridMeter;
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput inputNAProtection1Component;
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput inputNAProtection2Component;
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput inputSyncDeviceBridgeComponent;
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput outputSyncDeviceBridgeComponent;
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput outputMRHardResetComponent;
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -125,27 +136,49 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery1", config.battery1_id())) {
 			return;
 		}
-
 		// update filter for 'battery2'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery2", config.battery2_id())) {
 			return;
 		}
-
 		// update filter for 'battery3'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery3", config.battery3_id())) {
 			return;
 		}
-		// update filter for 'Janitza96 Meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Janitza96Meter", config.meter())) {
+		// update filter for 'Grid-Meter'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "GridMeter", config.meter())) {
 			return;
 		}
-		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+		// update filter for 'inputNAProtection1'
+		this.inputNAProtection1 = ChannelAddress.fromString(config.inputNAProtection1());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputNAProtection1Component",
+				this.inputNAProtection1.getComponentId())) {
+			return;
+		}
+		// update filter for 'inputNAProtection2'
+		this.inputNAProtection2 = ChannelAddress.fromString(config.inputNAProtection1());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputNAProtection2Component",
+				this.inputNAProtection2.getComponentId())) {
+			return;
+		}
+		// update filter for 'inputSyncDeviceBridge'
+		this.inputSyncDeviceBridge = ChannelAddress.fromString(config.inputSyncDeviceBridge());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputSyncDeviceBridgeComponent",
+				this.inputSyncDeviceBridge.getComponentId())) {
+			return;
+		}
+		// update filter for 'outputSyncDeviceBridgeComponent'
+		this.outputSyncDeviceBridge = ChannelAddress.fromString(config.outputSyncDeviceBridge());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputSyncDeviceBridgeComponent",
+				this.outputSyncDeviceBridge.getComponentId())) {
+			return;
+		}
+		// update filter for 'outputMRHardReset'
+		this.outputMRHardReset = ChannelAddress.fromString(config.outputMRHardReset());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputMRHardResetComponent",
+				this.outputMRHardReset.getComponentId())) {
+			return;
+		}
 
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputComponent",
-				this.inputChannelAddress.getComponentId())) {
-			return;
-		}
-//		
 		/*
 		 * Initialize Power
 		 */
@@ -159,7 +192,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO adjust apparent power from modbus element
 //		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 
-
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
 	}
@@ -169,99 +201,121 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	
-	
-	/**
-	 * This method tries to turn on the gridcon/ set it in a RUN state.
-	 */
-	private void handleStateMachine() {
-		// TODO
-		// see Software manual chapter 5.1
-		
-		if (isOnGridMode()) {
-			// Bridge Contactor Normall Closed(NC)
-			// iF DI2=1(bridge Contactor) make sync, DI2=0 run until grid come back, when
-			// its back
-			// Open Switch with controlling DI2
-			if (!this.bridgeContactorRead && gridFreq != 0) {
-				// Bridge Contactor Write = DO1
-				// set DO1 =1
-			}
+	enum GridMode {
+		ON_GRID, OFF_GRID, UNDEFINED;
+	}
 
-			commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
-			commandControlWord.set(PCSControlWordBitPosition.READY.getBitPosition(), false);
-			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), false);
-			commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), false);
+	private GridMode getOnOffGrid() {
+		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
+				.channel(this.inputNAProtection1.getChannelId());
+		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
+				.channel(this.inputNAProtection1.getChannelId());
 
-			commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
-			commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-			commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
-
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
-			
-			switch (getCurrentState()) {
-			case DERATING_HARMONICS:
-				break;
-			case DERATING_POWER:
-				break;
-			case ERROR:
-				doErrorHandling();
-				break;
-			case IDLE:
-				startSystem();
-				break;
-			case OVERLOAD:
-				break;
-			case PAUSE:
-				break;
-			case PRECHARGE:
-				break;
-			case READY:
-				break;
-			case RUN:
-				break;
-			case SHORT_CIRCUIT_DETECTED:
-				break;
-			case SIA_ACTIVE:
-				break;
-			case STOP_PRECHARGE:
-				break;
-			case UNDEFINED:
-				break;
-			case VOLTAGE_RAMPING_UP:
-				break;
-			}
-
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
-			/**
-			 * Always write values for frequency and voltage to gridcon, because in case of
-			 * blackstart mode if we write '0' to gridcon the systems tries to regulate
-			 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
-			 */
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
-			writeDateAndTime();
-
-			writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
-			writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W,
-					MAX_CHARGE_W, MAX_CHARGE_W);
-
-//			//TODO This is to make the choco solver working, where should we put this?
-			((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
-			((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
-			
-			Integer value = convertToInteger(commandControlWord);
-			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
-
-//			
-		} else {
-			frequencySynch();
+		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
+			return GridMode.UNDEFINED;
 		}
+		if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
+			return GridMode.ON_GRID;
+		} else {
+			return GridMode.OFF_GRID;
+		}
+	}
+
+	private void handleStateMachine() {
+		switch (this.getOnOffGrid()) {
+		case ON_GRID:
+			this.handleOnGridState();
+			break;
+		case OFF_GRID:
+			this.handleOffGridState();
+			break;
+		case UNDEFINED:
+			break;
+		}
+		// TODO see Software manual chapter 5.1
+	}
+
+	private void handleOnGridState() {
+		// Bridge Contactor Normall Closed(NC)
+		// iF DI2=1(bridge Contactor) make sync, DI2=0 run until grid come back, when
+		// its back
+		// Open Switch with controlling DI2
+		if (!this.syncDeviceBridgeContactorRead && gridFreq != 0) {
+			// Bridge Contactor Write = DO1
+			// set DO1 =1
+		}
+
+		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.READY.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), false);
+
+		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
+
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+
+		switch (getCurrentState()) {
+		case DERATING_HARMONICS:
+			break;
+		case DERATING_POWER:
+			break;
+		case ERROR:
+			doErrorHandling();
+			break;
+		case IDLE:
+			startSystem();
+			break;
+		case OVERLOAD:
+			break;
+		case PAUSE:
+			break;
+		case PRECHARGE:
+			break;
+		case READY:
+			break;
+		case RUN:
+			break;
+		case SHORT_CIRCUIT_DETECTED:
+			break;
+		case SIA_ACTIVE:
+			break;
+		case STOP_PRECHARGE:
+			break;
+		case UNDEFINED:
+			break;
+		case VOLTAGE_RAMPING_UP:
+			break;
+		}
+
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, 0);
+		/**
+		 * Always write values for frequency and voltage to gridcon, because in case of
+		 * blackstart mode if we write '0' to gridcon the systems tries to regulate
+		 * frequency and voltage to zero which would be bad for Mr. Gridcon's health
+		 */
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, 1.0f);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+		writeDateAndTime();
+
+		writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
+		writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W, MAX_CHARGE_W,
+				MAX_CHARGE_W);
+
+//		//TODO This is to make the choco solver working, where should we put this?
+		((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
+		((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+
+		Integer value = convertToInteger(commandControlWord);
+		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
 	}
 
 	private void writeCCUControlParameters(PControlMode mode) {
@@ -284,12 +338,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// the only relevant parameter is 'P Control Mode' which should be set to
 		// 'Active power control' in case of on grid usage
 		writeValueToChannel(GridConChannelId.PCS_CONTROL_PARAMETER_P_CONTROL_MODE, mode.getFloatValue()); //
-	}
-
-	// Normal mode with current control
-	private boolean isOnGridMode() {
-		// TODO component gets the information from "Netztrennschalter"
-		return true;
 	}
 
 	/**
@@ -450,7 +498,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (isHardwareTrip()) {
 			doHardRestart();
 		} else {
-			
+
 			acknowledgeErrors();
 		}
 
@@ -571,7 +619,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		float activePowerFactor = -activePower / MAX_POWER_W;
 		float reactivePowerFactor = -reactivePower / MAX_POWER_W;
 
-
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, activePowerFactor);
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, reactivePowerFactor);
 	}
@@ -642,10 +689,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private void frequencySynch() {
+	private void handleOffGridState() {
 		// Measured by Janitza96, grid Values
-		this.gridFreq = this.meter.getFrequency().value().asOptional().orElse(0);
-		this.gridVolt = this.meter.getVoltage().value().asOptional().orElse(0);
+		this.gridFreq = this.gridMeter.getFrequency().value().asOptional().orElse(0);
+		this.gridVolt = this.gridMeter.getVoltage().value().asOptional().orElse(0);
 
 		// MR Inverter values
 		Channel<Float> inverterFrequency = this.channel(GridConChannelId.PCS_CCU_FREQUENCY);
@@ -659,10 +706,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.freqDiff = gridFreq - (int) (essFreq * 50000);
 		this.voltDiff = gridVolt - (int) (essVolt * 230000);
 		// TODO Check Emergency Mode!!!!
-		
+
 		BooleanReadChannel inputChannel = this.inputComponent.channel(this.inputChannelAddress.getChannelId());
-		this.bridgeContactorRead = inputChannel.value().get();
-		System.out.println("bridgeContactor : " + bridgeContactorRead);
+		this.syncDeviceBridgeContactorRead = inputChannel.value().get();
+		System.out.println("bridgeContactor : " + syncDeviceBridgeContactorRead);
 
 		if (voltDiff < 15 && voltDiff > -5 && gridFreq != 0) {
 			// TODO needs to change value
@@ -702,7 +749,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getSoc().setNextValue(soC);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(32528, Priority.HIGH, // CCU state
@@ -1225,7 +1271,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B,
 								new FloatDoublewordElement(33050).wordOrder(WordOrder.LSWMSW)) //
 				));
-		
+
 		// Calculate Total Active Power
 		FloatReadChannel ap1 = this.channel(GridConChannelId.PCS_IPU_1_STATUS_DC_LINK_ACTIVE_POWER);
 		FloatReadChannel ap2 = this.channel(GridConChannelId.PCS_IPU_2_STATUS_DC_LINK_ACTIVE_POWER);
@@ -1239,7 +1285,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		ap1.onSetNextValue(calculateActivePower);
 		ap2.onSetNextValue(calculateActivePower);
 		ap3.onSetNextValue(calculateActivePower);
-		
+
 		return protocol;
 	}
 
