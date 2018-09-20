@@ -1,9 +1,9 @@
 package io.openems.edge.ess.mr.gridcon;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.BitSet;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -35,7 +35,11 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.merger.ChannelMergerSumFloat;
+import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -57,7 +61,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		name = "Ess.MR.Gridcon", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
@@ -68,7 +72,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected static final float MAX_CHARGE_W = 86 * 1000;
 	protected static final float MAX_DISCHARGE_W = 86 * 1000;
 
-	private Channel<Boolean> inputChannel = null;
+	private ChannelAddress inputChannelAddress = null;
 	private int gridFreq;
 	private int gridVolt;
 	private float essFreq;
@@ -135,14 +139,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Janitza96Meter", config.meter())) {
 			return;
 		}
-
-		ChannelAddress inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputComponent",
-				inputChannelAddress.getComponentId())) {
+				this.inputChannelAddress.getComponentId())) {
 			return;
 		}
-		this.inputChannel = this.inputComponent.channel(inputChannelAddress.getChannelId());
+//		
 		/*
 		 * Initialize Power
 		 */
@@ -156,7 +159,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// TODO adjust apparent power from modbus element
 //		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 
-		this.inputChannel = this.inputComponent.channel(inputChannelAddress.getChannelId());
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
@@ -167,16 +169,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
+	
+	
 	/**
 	 * This method tries to turn on the gridcon/ set it in a RUN state.
 	 */
 	private void handleStateMachine() {
 		// TODO
 		// see Software manual chapter 5.1
-
-		Integer value = convertToInteger(commandControlWord);
-		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
-
+		
 		if (isOnGridMode()) {
 			// Bridge Contactor Normall Closed(NC)
 			// iF DI2=1(bridge Contactor) make sync, DI2=0 run until grid come back, when
@@ -200,7 +201,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
-
+			
 			switch (getCurrentState()) {
 			case DERATING_HARMONICS:
 				break;
@@ -232,9 +233,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				break;
 			case VOLTAGE_RAMPING_UP:
 				break;
-			default:
-				break;
-
 			}
 
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
@@ -256,6 +254,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //			//TODO This is to make the choco solver working, where should we put this?
 			((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
 			((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+			
+			Integer value = convertToInteger(commandControlWord);
+			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_WORD, value);
+
 //			
 		} else {
 			frequencySynch();
@@ -287,7 +289,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	// Normal mode with current control
 	private boolean isOnGridMode() {
 		// TODO component gets the information from "Netztrennschalter"
-		return false;
+		return true;
 	}
 
 	/**
@@ -448,6 +450,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (isHardwareTrip()) {
 			doHardRestart();
 		} else {
+			
 			acknowledgeErrors();
 		}
 
@@ -568,14 +571,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		float activePowerFactor = -activePower / MAX_POWER_W;
 		float reactivePowerFactor = -reactivePower / MAX_POWER_W;
 
-		if (Math.abs(activePowerFactor) > 0.05) {
-			log.error("ACTIVE POWER TOO HIGH FOR TESTIING!!!! ");
-			activePowerFactor = (float) (Math.signum(activePowerFactor) * 0.1);
-		}
-		if (Math.abs(reactivePowerFactor) > 0.05) {
-			log.error("REACTIVE POWER TOO HIGH FOR TESTIING!!!! ");
-			reactivePowerFactor = (float) (Math.signum(reactivePowerFactor) * 0.1);
-		}
 
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_P_REF, activePowerFactor);
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, reactivePowerFactor);
@@ -640,7 +635,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			handleStateMachine();
 			calculateSoC();
 			break;
@@ -664,6 +659,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.freqDiff = gridFreq - (int) (essFreq * 50000);
 		this.voltDiff = gridVolt - (int) (essVolt * 230000);
 		// TODO Check Emergency Mode!!!!
+		
+		BooleanReadChannel inputChannel = this.inputComponent.channel(this.inputChannelAddress.getChannelId());
 		this.bridgeContactorRead = inputChannel.value().get();
 		System.out.println("bridgeContactor : " + bridgeContactorRead);
 
@@ -705,9 +702,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getSoc().setNextValue(soC);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(32528, Priority.LOW, // CCU state
+		ModbusProtocol protocol = new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(32528, Priority.HIGH, // CCU state
 						bm(new UnsignedDoublewordElement(32528)) //
 								.m(GridConChannelId.PCS_CCU_STATE_IDLE, 0) //
 								.m(GridConChannelId.PCS_CCU_STATE_PRECHARGE, 1) //
@@ -1146,7 +1144,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(32886).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
 						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_Q_REF,
 								new FloatDoublewordElement(32888).wordOrder(WordOrder.LSWMSW)), //
-						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_P_REF,
+						m(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_PARAMETER_P_REFERENCE,
 								new FloatDoublewordElement(32890).wordOrder(WordOrder.LSWMSW)) //
 				),
 				new FC3ReadRegistersTask(32912, Priority.LOW,
@@ -1227,6 +1225,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridConChannelId.MIRROR_PCS_CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B,
 								new FloatDoublewordElement(33050).wordOrder(WordOrder.LSWMSW)) //
 				));
+		
+		// Calculate Total Active Power
+		FloatReadChannel ap1 = this.channel(GridConChannelId.PCS_IPU_1_STATUS_DC_LINK_ACTIVE_POWER);
+		FloatReadChannel ap2 = this.channel(GridConChannelId.PCS_IPU_2_STATUS_DC_LINK_ACTIVE_POWER);
+		FloatReadChannel ap3 = this.channel(GridConChannelId.PCS_IPU_3_STATUS_DC_LINK_ACTIVE_POWER);
+		final Consumer<Value<Float>> calculateActivePower = ignoreValue -> {
+			float ipu1 = ap1.getNextValue().orElse(0f);
+			float ipu2 = ap2.getNextValue().orElse(0f);
+			float ipu3 = ap3.getNextValue().orElse(0f);
+			this.getActivePower().setNextValue((ipu1 + ipu2 + ipu3) * -1);
+		};
+		ap1.onSetNextValue(calculateActivePower);
+		ap2.onSetNextValue(calculateActivePower);
+		ap3.onSetNextValue(calculateActivePower);
+		
+		return protocol;
 	}
 
 	@Override
