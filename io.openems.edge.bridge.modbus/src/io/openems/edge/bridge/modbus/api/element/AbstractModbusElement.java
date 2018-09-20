@@ -75,6 +75,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 			callback.accept(value);
 		}
 	}
+	
+	@Override
+	public void invalidate() {		
+		this.setValue(null); 
+	}
 
 	/*
 	 * Enable Debug mode for this Element. Activates verbose logging.

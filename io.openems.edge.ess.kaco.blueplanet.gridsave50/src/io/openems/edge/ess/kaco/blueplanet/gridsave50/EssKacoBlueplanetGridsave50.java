@@ -120,7 +120,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		this.noPowerOnError.setValue(null);
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
-			// TODO unchecked cast
 			@SuppressWarnings("unchecked")
 			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
 			if (!valueOpt.isPresent()) {
@@ -130,7 +129,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			refreshPower();
 		});
 		this.channel(ChannelId.W_MAX_SF).onChange(value -> {
-//			TODO unchecked cast
 			@SuppressWarnings("unchecked")
 			Optional<Integer> valueOpt = (Optional<Integer>) value.asOptional();
 			if (!valueOpt.isPresent()) {

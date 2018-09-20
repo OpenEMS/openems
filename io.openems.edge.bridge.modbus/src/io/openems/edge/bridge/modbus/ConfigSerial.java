@@ -3,6 +3,8 @@ package io.openems.edge.bridge.modbus;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.bridge.modbus.api.Parity;
+
 @ObjectClassDefinition( //
 		name = "Bridge Modbus/RTU Serial", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/RTU device.")
@@ -23,9 +25,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Stopbits", description = "The number of stopbits - '1', '1.5' or '2'")
 	String stopbits() default "1";
 
-	// TODO make selectable via enum
 	@AttributeDefinition(name = "Parity", description = "The parity - 'none', 'even', 'odd', 'mark' or 'space'")
-	String parity() default "none";
+	Parity parity() default Parity.NONE;
 
 	boolean enabled() default true;
 
