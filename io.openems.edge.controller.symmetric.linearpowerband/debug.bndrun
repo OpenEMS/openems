@@ -1,0 +1,13 @@
+#
+# io.openems.edge.controller.symmetric.linearpowerband DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.controller.symmetric.linearpowerband.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
