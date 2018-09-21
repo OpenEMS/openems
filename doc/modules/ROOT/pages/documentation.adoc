@@ -1,17 +1,17 @@
+ifndef::backend-pdf[]
 = Documentation
-ifndef::env-site,env-github[]
-include::_attributes.adoc[]
 endif::[]
-// Settings
-:idprefix:
-:idseparator: -
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
 
-PLATZHALTER FÜR DOCS BESCHREIBUNG
+== Concept
 
-== Documentation Concept
+== Edit
 
-
-== Edit the Docs
-
-
-== Build the Docs
+== Build
