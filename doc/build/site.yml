@@ -6,7 +6,7 @@ site:
 content:
   sources:
     - url: https://github.com/OpenEMS/openems
-      branches: 'feature/Antora'
+      branches: 'develop'
       start_path: doc
 
 ui:
