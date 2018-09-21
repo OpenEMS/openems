@@ -1,0 +1,17 @@
+= Documentation
+ifndef::env-site,env-github[]
+include::_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+
+PLATZHALTER FÜR DOCS BESCHREIBUNG
+
+== Documentation Concept
+
+
+== Edit the Docs
+
+
+== Build the Docs
