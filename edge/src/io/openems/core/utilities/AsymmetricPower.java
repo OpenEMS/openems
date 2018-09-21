@@ -348,8 +348,8 @@ public class AsymmetricPower {
 					setReactivePower[i].pushWrite(reactivePower[i]);
 				}
 			}
-		} catch (WriteChannelException e1) {
-			log.error("Failed to reduce and set Power!", e1);
+		} catch (WriteChannelException e) {
+			log.error("Failed to reduce and set Power: " + e.getMessage());
 		}
 		activePowerValid = false;
 		activePower[0] = 0;
