@@ -11,5 +11,5 @@ content:
 
 ui:
   bundle:
-    url: https://github.com/OpenEMS/openems/blob/feature/Antora/doc/uibundle_openems.zip?raw=true
+    url: https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true
     snapshot: true
