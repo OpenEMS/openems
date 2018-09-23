@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -22,8 +21,6 @@ public class Utils {
 					switch (channelId) {
 					case SOLVED:
 						return new BooleanReadChannel(c, channelId);
-					case SOLVE_DURATION:
-						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}) //

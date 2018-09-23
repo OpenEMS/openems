@@ -1,5 +1,8 @@
 package io.openems.edge.ess.api;
 
+import java.util.List;
+
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
@@ -7,11 +10,9 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedSymmetricEss extends SymmetricEss {
@@ -128,18 +129,22 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public int getPowerPrecision();
 
 	/**
-	 * Adds a Power constraint.
+	 * Gets static Constraints for this Ess.
 	 * 
-	 * @param type         Whether this Constraint is STATIC or for one CYCLE only.
-	 * @param phase        Apply Constraint on Phase L1, L2, L3 or on ALL Phases
-	 * @param pwr          Constraint for ACTIVE or REACTIVE Power
-	 * @param relationship Is the Constraint EQ (Equal), GEQ (Greater or Equal) or
-	 *                     LEQ (Less or Equal)?
-	 * @param value        The Constraint value (right side of the equation)
-	 * @return the added Constraint
+	 * @return
 	 */
-	public default Constraint addPowerConstraint(ConstraintType type, Phase phase, Pwr pwr, Relationship relationship,
-			int value) {
-		return this.getPower().addSimpleConstraint(this, type, phase, pwr, relationship, value);
+	public List<Constraint> getStaticConstraints();
+
+	/**
+	 * Adds a Power Constraint
+	 * 
+	 * @param ess
+	 * @param phase
+	 * @param pwr
+	 * @param relationship
+	 * @param value
+	 */
+	public default void addPowerConstraint(Phase phase, Pwr pwr, Relationship relationship, double value) {
+		this.getPower().addConstraint(this.getPower().createSimpleConstraint(this, phase, pwr, relationship, value));
 	}
 }

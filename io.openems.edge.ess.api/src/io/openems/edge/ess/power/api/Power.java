@@ -1,6 +1,9 @@
 package io.openems.edge.ess.power.api;
 
+import org.apache.commons.math3.optim.linear.Relationship;
+
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.coefficient.Coefficient;
 
 public interface Power {
 
@@ -13,17 +16,16 @@ public interface Power {
 	public Constraint addConstraint(Constraint constraint);
 
 	/**
-	 * Adds a Constraint using a ConstraintBuilder. Make sure to call 'build()' once
-	 * finished.
+	 * Adds a Constraint if the problem is still solvable afterwards.
 	 * 
-	 * @return
+	 * @param type
+	 * @param constraint
+	 * @throws PowerException
 	 */
-	public default ConstraintBuilder addConstraint() {
-		return new ConstraintBuilder(this);
-	}
+	public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException;
 
 	/**
-	 * Adds a simple constraint
+	 * Creates a simple constraint
 	 * 
 	 * @param ess
 	 * @param type
@@ -33,8 +35,8 @@ public interface Power {
 	 * @param value
 	 * @return
 	 */
-	public Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase, Pwr pwr,
-			Relationship relationship, int value);
+	public Constraint createSimpleConstraint(ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
+			double value);
 
 	/**
 	 * Removes a Constraint.
@@ -53,4 +55,16 @@ public interface Power {
 	 * Gets the minimum possible total Active Power under the active Constraints.
 	 */
 	public int getMinActivePower();
+
+	/**
+	 * Gets the Coefficient singleton for a specific combination of ess, phase and
+	 * pwr
+	 * 
+	 * @param ess
+	 * @param phase
+	 * @param pwr
+	 * @return
+	 */
+	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
+
 }

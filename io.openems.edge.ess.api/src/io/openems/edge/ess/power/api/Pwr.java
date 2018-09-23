@@ -1,15 +1,15 @@
 package io.openems.edge.ess.power.api;
 
 public enum Pwr {
-	ACTIVE(0), REACTIVE(1);
+	ACTIVE("P"), REACTIVE("Q");
 
-	private final int offset;
+	private final String symbol;
 
-	Pwr(int offset) {
-		this.offset = offset;
+	Pwr(String symbol) {
+		this.symbol = symbol;
 	}
-	
-	public int getOffset() {
-		return offset;
+
+	public String getSymbol() {
+		return symbol;
 	}
 }

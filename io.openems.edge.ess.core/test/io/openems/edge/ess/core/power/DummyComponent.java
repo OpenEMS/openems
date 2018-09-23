@@ -1,20 +1,29 @@
-package io.openems.edge.ess.api;
+package io.openems.edge.ess.core.power;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.core.power.ChocoPower;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Power;
 
-public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent implements ManagedSymmetricEss {
+public abstract class DummyComponent<T> extends AbstractOpenemsComponent implements ManagedSymmetricEss {
 
-	private ChocoPower power = null;
+	private final String id;
 
-	public ManagedSymmetricEssDummy() {
+	private PowerComponent power;
+
+	public DummyComponent(String id) {
+		this.id = id;
 		Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
@@ -35,6 +44,17 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
 					}
 					return null;
+				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTIVE_POWER_L1:
+					case ACTIVE_POWER_L2:
+					case ACTIVE_POWER_L3:
+					case REACTIVE_POWER_L1:
+					case REACTIVE_POWER_L2:
+					case REACTIVE_POWER_L3:
+						return new IntegerReadChannel(this, channelId);
+					}
+					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case ALLOWED_CHARGE_POWER:
@@ -44,38 +64,49 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 						return new IntegerReadChannel(this, channelId);
 					}
 					return null;
+				}), Arrays.stream(ManagedAsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case DEBUG_SET_ACTIVE_POWER_L1:
+					case DEBUG_SET_ACTIVE_POWER_L2:
+					case DEBUG_SET_ACTIVE_POWER_L3:
+					case DEBUG_SET_REACTIVE_POWER_L1:
+					case DEBUG_SET_REACTIVE_POWER_L2:
+					case DEBUG_SET_REACTIVE_POWER_L3:
+						return new IntegerReadChannel(this, channelId);
+					}
+					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
 
-	public ManagedSymmetricEssDummy maxApparentPower(int value) {
+	public T maxApparentPower(int value) {
 		this.getMaxApparentPower().setNextValue(value);
 		this.getMaxApparentPower().nextProcessImage();
-		return this;
+		return this.self();
 	}
 
-	public ManagedSymmetricEssDummy allowedCharge(int value) {
+	public T allowedCharge(int value) {
 		this.getAllowedCharge().setNextValue(value);
 		this.getAllowedCharge().nextProcessImage();
-		return this;
+		return this.self();
 	}
 
-	public ManagedSymmetricEssDummy allowedDischarge(int value) {
+	public T allowedDischarge(int value) {
 		this.getAllowedDischarge().setNextValue(value);
 		this.getAllowedDischarge().nextProcessImage();
-		return this;
+		return this.self();
 	}
 
-	public ManagedSymmetricEssDummy soc(int value) {
+	public T soc(int value) {
 		this.getSoc().setNextValue(value);
 		this.getSoc().nextProcessImage();
-		return this;
+		return this.self();
 	}
 
 	private int precision = 1;
 
-	public ManagedSymmetricEssDummy precision(int value) {
+	public T precision(int value) {
 		this.precision = value;
-		return this;
+		return this.self();
 	}
 
 	@Override
@@ -85,7 +116,7 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 
 	@Override
 	public String id() {
-		return "dummy";
+		return this.id;
 	}
 
 	@Override
@@ -98,7 +129,7 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 		return true;
 	}
 
-	public void addToPower(ChocoPower power) {
+	public void addToPower(PowerComponent power) {
 		this.power = power;
 		power.addEss(this);
 	}
@@ -108,4 +139,10 @@ public abstract class ManagedSymmetricEssDummy extends AbstractOpenemsComponent 
 		return this.power;
 	}
 
+	@Override
+	public List<Constraint> getStaticConstraints() {
+		return new ArrayList<>();
+	}
+
+	protected abstract T self();
 }

@@ -1,8 +1,8 @@
 package io.openems.edge.ess.core.power;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
+import org.apache.commons.math3.optim.linear.Relationship;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,19 +19,17 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.power.api.coefficient.Coefficient;
 
 @Designate(ocd = Config.class, factory = false)
 @Component( //
@@ -46,21 +44,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		})
 public class PowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Power {
 
-	final static int DEFAULT_SOLVE_DURATION_LIMIT = 2000;
-	final static boolean DEFAULT_SYMMETRIC_MODE = false;
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		/**
-		 * The duration needed for solving the Power
-		 * 
-		 * <ul>
-		 * <li>Interface: PowerComponent
-		 * <li>Type: Integer
-		 * <li>Unit: milliseconds
-		 * <li>Range: positive
-		 * </ul>
-		 */
-		SOLVE_DURATION(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
 		/**
 		 * Whether the Power problem could be solved
 		 * 
@@ -82,21 +66,25 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		}
 	}
 
-	private final ChocoPower power;
+	final static boolean DEFAULT_SYMMETRIC_MODE = false;
 
-	private final AtomicInteger solveDurationLimit = new AtomicInteger(DEFAULT_SOLVE_DURATION_LIMIT);
-	private final AtomicBoolean symmetricMode = new AtomicBoolean(DEFAULT_SYMMETRIC_MODE);
+	private final Data data;
+	private final Solver solver;
 
 	public PowerComponent() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.power = new ChocoPower(this);
+		this.data = new Data();
+		this.solver = new Solver(data);
+
+		this.solver.onSolved(wasSolved -> {
+			this.getSolvedChannel().setNextValue(wasSolved);
+		});
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, "_power", "_power", true);
-		this.solveDurationLimit.set(config.solveDurationLimit());
-		this.symmetricMode.set(config.symmetricMode());
+		this.data.setSymmetricMode(config.symmetricMode());
 	}
 
 	@Deactivate
@@ -110,64 +98,71 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
-		this.power.addEss(ess);
+		this.data.addEss(ess);
 	}
 
 	protected synchronized void removeEss(ManagedSymmetricEss ess) {
-		this.power.removeEss(ess);
+		this.data.removeEss(ess);
 	}
 
 	@Override
-	public Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase, Pwr pwr,
-			Relationship relationship, int value) {
-		return this.power.addSimpleConstraint(ess, type, phase, pwr, relationship, value);
+	public synchronized Constraint addConstraint(Constraint constraint) {
+		this.data.addConstraint(constraint);
+		return constraint;
 	}
 
 	@Override
-	public Constraint addConstraint(Constraint constraint) {
-		return this.power.addConstraint(constraint);
+	public synchronized Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
+		this.data.addConstraint(constraint);
+		if (!this.solver.isSolvable()) {
+			this.data.removeConstraint(constraint);
+			throw new PowerException(new NoFeasibleSolutionException());
+		}
+		return constraint;
+	}
+
+	/*
+	 * Helpers to create Constraints
+	 */
+	@Override
+	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+		return this.data.getCoefficient(ess, phase, pwr);
+	}
+
+	@Override
+	public Constraint createSimpleConstraint(ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
+			double value) {
+		return this.data.createSimpleConstraint("", ess, phase, pwr, relationship, value);
 	}
 
 	@Override
 	public void removeConstraint(Constraint constraint) {
-		this.power.removeConstraint(constraint);
+		this.data.removeConstraint(constraint);
 	}
 
 	@Override
 	public int getMaxActivePower() {
-		return this.power.getMaxActivePower();
+		return this.solver.getActivePowerExtrema(GoalType.MAXIMIZE);
 	}
 
 	@Override
 	public int getMinActivePower() {
-		return this.power.getMinActivePower();
+		return this.solver.getActivePowerExtrema(GoalType.MINIMIZE);
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
-			this.power.applyPower();
+			this.solver.solve();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-			this.power.initializeNextCycle();
+			this.data.initializeCycle();
 			break;
 		}
 	}
 
 	protected BooleanReadChannel getSolvedChannel() {
 		return this.channel(ChannelId.SOLVED);
-	}
-
-	protected IntegerReadChannel getSolveDurationChannel() {
-		return this.channel(ChannelId.SOLVE_DURATION);
-	}
-
-	public int getSolveDurationLimit() {
-		return solveDurationLimit.get();
-	}
-
-	public boolean isSymmetricMode() {
-		return symmetricMode.get();
 	}
 }
