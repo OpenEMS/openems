@@ -45,6 +45,29 @@ public class SolverTest {
 	}
 
 	@Test
+	public void testStrSctr() throws Exception {
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1") //
+				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2") //
+				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000);
+		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3") //
+				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000);
+		ManagedSymmetricEssDummy ess4 = new ManagedSymmetricEssDummy("ess4") //
+				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000);
+		ManagedSymmetricEssDummy ess5 = new ManagedSymmetricEssDummy("ess5") //
+				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000);
+		ManagedSymmetricEssDummy ess6 = new ManagedSymmetricEssDummy("ess6") //
+				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000);
+		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2, ess3, ess4, ess5, ess6); //
+		Data d = prepareData(ess0, ess1, ess2, ess3, ess4, ess5, ess6);
+		Solver s = new Solver(d);
+
+		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 20000);
+		ess1.expectP(12000);
+		s.solve();
+	}
+
+	@Test
 	public void testCommercial40DischargeSymmetricActivePower() throws Exception {
 		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").maxApparentPower(40000)
 				.allowedCharge(-26000).allowedDischarge(40000).precision(100).soc(51);

@@ -10,7 +10,8 @@ Export-Package: \
 	io.openems.edge.ess.asymmetric.api,\
 	io.openems.edge.ess.core.power,\
 	io.openems.edge.ess.power.api,\
-	io.openems.edge.ess.power.api.coefficient
+	io.openems.edge.ess.power.api.coefficient,\
+	io.openems.edge.ess.power.api.inverter
 Require-Capability: \
 	compile-only
 

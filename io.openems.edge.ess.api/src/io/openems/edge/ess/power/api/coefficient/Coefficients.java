@@ -3,6 +3,7 @@ package io.openems.edge.ess.power.api.coefficient;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -15,7 +16,7 @@ public class Coefficients {
 
 	private int noOfCoefficients = 0;
 
-	public synchronized void initialize(List<ManagedSymmetricEss> esss) {
+	public synchronized void initialize(Set<ManagedSymmetricEss> esss) {
 		this.coefficients.clear();
 		int index = 0;
 		for (ManagedSymmetricEss ess : esss) {
