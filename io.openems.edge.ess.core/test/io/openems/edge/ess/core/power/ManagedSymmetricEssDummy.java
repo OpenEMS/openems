@@ -14,14 +14,16 @@ public class ManagedSymmetricEssDummy extends DummyComponent<ManagedSymmetricEss
 
 	Optional<Integer> expectP = Optional.empty();
 
-	public void expectP(int value) {
+	public ManagedSymmetricEssDummy expectP(int value) {
 		this.expectP = Optional.of(value);
+		return this;
 	}
 
 	Optional<Integer> expectQ = Optional.empty();
 
-	public void expectQ(int value) {
+	public ManagedSymmetricEssDummy expectQ(int value) {
 		this.expectQ = Optional.of(value);
+		return this;
 	}
 
 	@Override

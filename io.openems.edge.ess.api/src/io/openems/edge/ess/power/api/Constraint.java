@@ -1,7 +1,6 @@
 package io.openems.edge.ess.power.api;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 

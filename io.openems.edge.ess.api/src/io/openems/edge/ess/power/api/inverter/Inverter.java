@@ -22,60 +22,28 @@ public abstract class Inverter {
 		}
 	}
 
-//	/**
-//	 * Holds the last set P
-//	 * 
-//	 * @param activePower
-//	 * @param reactivePower
-//	 */
-//	protected int lastP = 0;
-//
-//	/**
-//	 * Holds the weight of this ESS in relation to other ESSs
-//	 */
-//	public int weight = 0;
-//
-//	/**
-//	 * Holds the target P that the Solver is trying to approach (e.g. to optimize
-//	 * efficiency)
-//	 */
-//	protected float targetP = 0;
-//
-//	/**
-//	 * Holds the learning rate towards the target
-//	 */
-//	protected float learningRate = 0;
-//
-//	/**
-//	 * Holds a temporary value for nextP as a float
-//	 */
-//	protected float floatNextP = 0;
-//
-//	/**
-//	 * Holds the value that should be set as next P
-//	 */
-//	public int nextP = 0;
-//
-//	/**
-//	 * Holds the maximum allowed discharge P
-//	 */
-//	public int maxP = 0;
-//
-//	/**
-//	 * Holds the minimum allowed charge P
-//	 */
-//	public int minP = 0;
-
 	private final ManagedSymmetricEss ess;
 	private final Phase phase;
+
+	/**
+	 * Holds the weight of this Inverter in relation to other Inverters. Range
+	 * [1-100]
+	 */
+	// TODO setWeight() that limits range to 1-100
+	public int weight = 0;
+
+	/**
+	 * Holds the last set P
+	 */
+	public int lastP = 0;
 
 	protected Inverter(ManagedSymmetricEss ess, Phase phase) {
 		this.ess = ess;
 		this.phase = phase;
 	}
 
-	public final void applyPower() {
-//		this.lastP = this.nextP;
+	public final void storeLastPower(int p, int q) {
+		this.lastP = p;
 		// this.lastQ = this.nextQ;
 	}
 
@@ -90,6 +58,4 @@ public abstract class Inverter {
 	public String toString() {
 		return this.getEss().id() + phase.getSymbol();
 	}
-
-	public abstract void updateMinMax(int minP, int maxP);
 }
