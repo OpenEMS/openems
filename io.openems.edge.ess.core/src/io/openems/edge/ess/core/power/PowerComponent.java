@@ -1,7 +1,7 @@
 package io.openems.edge.ess.core.power;
 
-import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
-import org.apache.commons.math3.optim.linear.Relationship;
+import java.util.List;
+
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,6 +16,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -24,12 +26,13 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.coefficient.Coefficient;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = false)
 @Component( //
@@ -66,10 +69,15 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		}
 	}
 
-	final static boolean DEFAULT_SYMMETRIC_MODE = false;
+	private final Logger log = LoggerFactory.getLogger(PowerComponent.class);
+
+	protected final static boolean DEFAULT_SYMMETRIC_MODE = false;
+	protected final static boolean DEFAULT_DEBUG_MODE = false;
 
 	private final Data data;
 	private final Solver solver;
+
+	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
 	public PowerComponent() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -85,6 +93,8 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, "_power", "_power", true);
 		this.data.setSymmetricMode(config.symmetricMode());
+		this.debugMode = config.debugMode();
+		this.solver.setDebugMode(config.debugMode());
 	}
 
 	@Deactivate
@@ -114,9 +124,18 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	@Override
 	public synchronized Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
 		this.data.addConstraint(constraint);
-		if (!this.solver.isSolvable()) {
+		try {
+			this.solver.isSolvableOrError();
+		} catch (PowerException e) {
 			this.data.removeConstraint(constraint);
-			throw new PowerException(new NoFeasibleSolutionException());
+			if (this.debugMode) {
+				List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
+				PowerComponent.debugLogConstraints(this.log, "Unable to validate with following constraints:",
+						allConstraints);
+				this.log.info("Failed to add Constraint: " + constraint);
+			}
+			e.setReason(constraint);
+			throw e;
 		}
 		return constraint;
 	}
@@ -130,9 +149,9 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	@Override
-	public Constraint createSimpleConstraint(ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
-			double value) {
-		return this.data.createSimpleConstraint("", ess, phase, pwr, relationship, value);
+	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			Relationship relationship, double value) {
+		return this.data.createSimpleConstraint(description, ess, phase, pwr, relationship, value);
 	}
 
 	@Override
@@ -141,13 +160,13 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	@Override
-	public int getMaxActivePower() {
-		return this.solver.getActivePowerExtrema(GoalType.MAXIMIZE);
+	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+		return this.solver.getActivePowerExtrema(ess, phase, pwr, GoalType.MAXIMIZE);
 	}
 
 	@Override
-	public int getMinActivePower() {
-		return this.solver.getActivePowerExtrema(GoalType.MINIMIZE);
+	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+		return this.solver.getActivePowerExtrema(ess, phase, pwr, GoalType.MINIMIZE);
 	}
 
 	@Override
@@ -164,5 +183,22 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	protected BooleanReadChannel getSolvedChannel() {
 		return this.channel(ChannelId.SOLVED);
+	}
+
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	/**
+	 * Prints all Constraints to the system log
+	 * 
+	 * @param title
+	 * @param constraints
+	 */
+	public static void debugLogConstraints(Logger log, String title, List<Constraint> constraints) {
+		log.info(title);
+		for (Constraint c : constraints) {
+			log.info("- " + c);
+		}
 	}
 }

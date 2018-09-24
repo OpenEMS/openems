@@ -11,21 +11,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-
-import org.apache.commons.math3.optim.linear.Relationship;
-
 import com.google.common.collect.Streams;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.power.api.Coefficient;
+import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Inverter;
+import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.coefficient.Coefficient;
-import io.openems.edge.ess.power.api.coefficient.Coefficients;
-import io.openems.edge.ess.power.api.coefficient.LinearCoefficient;
-import io.openems.edge.ess.power.api.inverter.Inverter;
+import io.openems.edge.ess.power.api.Relationship;
 
 public class Data {
 
@@ -103,9 +101,9 @@ public class Data {
 		this.constraints.remove(constraint);
 	}
 
-	public void addSimpleConstraint(ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
+	public void addSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
 			double value) {
-		this.constraints.add(this.createSimpleConstraint("", ess, phase, pwr, relationship, value));
+		this.constraints.add(this.createSimpleConstraint(description, ess, phase, pwr, relationship, value));
 	}
 
 	public Coefficients getCoefficients() {
@@ -164,7 +162,7 @@ public class Data {
 			Phase phase = inverter.getPhase();
 			for (Pwr pwr : Pwr.values()) {
 				result.add(this.createSimpleConstraint(ess.id() + ": Disable " + pwr.getSymbol() + phase.getSymbol(),
-						ess, phase, pwr, Relationship.EQ, 0));
+						ess, phase, pwr, Relationship.EQUALS, 0));
 			}
 		}
 		return result;
@@ -177,15 +175,20 @@ public class Data {
 	public List<Constraint> createGenericEssConstraints() {
 		List<Constraint> result = new ArrayList<>();
 		for (ManagedSymmetricEss ess : this.esss) {
+			if(ess instanceof MetaEss) {
+				// ignore
+				continue;
+			}
+			
 			Optional<Integer> allowedCharge = ess.getAllowedCharge().value().asOptional();
 			if (allowedCharge.isPresent()) {
 				result.add(this.createSimpleConstraint(ess.id() + ": Allowed Charge", ess, Phase.ALL, Pwr.ACTIVE,
-						Relationship.GEQ, allowedCharge.get()));
+						Relationship.GREATER_OR_EQUALS, allowedCharge.get()));
 			}
 			Optional<Integer> allowedDischarge = ess.getAllowedDischarge().value().asOptional();
 			if (allowedDischarge.isPresent()) {
 				result.add(this.createSimpleConstraint(ess.id() + ": Allowed Discharge", ess, Phase.ALL, Pwr.ACTIVE,
-						Relationship.LEQ, allowedDischarge.get()));
+						Relationship.LESS_OR_EQUALS, allowedDischarge.get()));
 			}
 			Optional<Integer> maxApparentPower = ess.getMaxApparentPower().value().asOptional();
 			if (maxApparentPower.isPresent()) {
@@ -196,19 +199,19 @@ public class Data {
 							continue; // do not add Max Apparent Power Constraint for ALL phases
 						}
 						result.add(this.createSimpleConstraint(ess.id() + phase.getSymbol() + ": Max Apparent Power",
-								ess, phase, Pwr.ACTIVE, Relationship.GEQ, maxApparentPowerPerPhase * -1));
+								ess, phase, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, maxApparentPowerPerPhase * -1));
 						result.add(this.createSimpleConstraint(ess.id() + phase.getSymbol() + ": Max Apparent Power",
-								ess, phase, Pwr.ACTIVE, Relationship.LEQ, maxApparentPowerPerPhase));
+								ess, phase, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, maxApparentPowerPerPhase));
 						result.add(this.createSimpleConstraint(ess.id() + phase.getSymbol() + ": Max Apparent Power",
-								ess, phase, Pwr.REACTIVE, Relationship.EQ, 0));
+								ess, phase, Pwr.REACTIVE, Relationship.EQUALS, 0));
 					}
 				} else {
 					result.add(this.createSimpleConstraint(ess.id() + ": Max Apparent Power", ess, Phase.ALL,
-							Pwr.ACTIVE, Relationship.GEQ, maxApparentPower.get() * -1));
+							Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, maxApparentPower.get() * -1));
 					result.add(this.createSimpleConstraint(ess.id() + ": Max Apparent Power", ess, Phase.ALL,
-							Pwr.ACTIVE, Relationship.LEQ, maxApparentPower.get()));
+							Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, maxApparentPower.get()));
 					result.add(this.createSimpleConstraint(ess.id() + ": Max Apparent Power", ess, Phase.ALL,
-							Pwr.REACTIVE, Relationship.EQ, 0));
+							Pwr.REACTIVE, Relationship.EQUALS, 0));
 					// TODO add circular constraint for ReactivePower
 				}
 			}
@@ -248,10 +251,14 @@ public class Data {
 						List<LinearCoefficient> cos = new ArrayList<>();
 						cos.add(new LinearCoefficient(this.coefficients.of(ess, phase, pwr), 1));
 						for (ManagedSymmetricEss subEss : e.getEsss()) {
+							if(!subEss.isEnabled()) {
+								// ignore disabled Sub-ESS
+								continue;
+							}
 							cos.add(new LinearCoefficient(this.coefficients.of(subEss, phase, pwr), -1));
 						}
 						Constraint c = new Constraint(ess.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos,
-								Relationship.EQ, 0);
+								Relationship.EQUALS, 0);
 						result.add(c);
 					}
 				}
@@ -306,7 +313,7 @@ public class Data {
 						cos.add(new LinearCoefficient(this.coefficients.of(ess, Phase.L3, pwr), -1));
 					}
 					result.add(new Constraint(ess.id() + ": " + pwr.getSymbol() + "=L1+L2+L3",
-							cos.toArray(new LinearCoefficient[cos.size()]), Relationship.EQ, 0));
+							cos.toArray(new LinearCoefficient[cos.size()]), Relationship.EQUALS, 0));
 				}
 			}
 		}
@@ -330,11 +337,11 @@ public class Data {
 					result.add(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
 							new LinearCoefficient(this.coefficients.of(ess, Phase.L1, pwr), 1), //
 							new LinearCoefficient(this.coefficients.of(ess, Phase.L2, pwr), -1) //
-					}, Relationship.EQ, 0));
+					}, Relationship.EQUALS, 0));
 					result.add(new Constraint(ess.id() + ": Symmetric L1/L3", new LinearCoefficient[] { //
 							new LinearCoefficient(this.coefficients.of(ess, Phase.L1, pwr), 1), //
 							new LinearCoefficient(this.coefficients.of(ess, Phase.L3, pwr), -1) //
-					}, Relationship.EQ, 0));
+					}, Relationship.EQUALS, 0));
 				}
 			}
 		}
@@ -356,11 +363,11 @@ public class Data {
 
 			}
 		}
-		Constraint c = new Constraint("Sum of P > 0", cos, Relationship.GEQ, 0);
+		Constraint c = new Constraint("Sum of P > 0", cos, Relationship.GREATER_OR_EQUALS, 0);
 		result.add(c);
 		return result;
 	}
-	
+
 	/**
 	 * Creates a simple Constraint with only one Coefficient.
 	 * 

@@ -1,8 +1,5 @@
 package io.openems.edge.ess.power.api;
 
-import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
-import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
-
 import io.openems.common.exceptions.OpenemsException;
 
 public class PowerException extends OpenemsException {
@@ -15,17 +12,23 @@ public class PowerException extends OpenemsException {
 
 	private final Type type;
 
-	public PowerException(NoFeasibleSolutionException e) {
-		super("No Feasible Solution");
-		this.type = Type.NO_FEASIBLE_SOLUTION;
-	}
+	private Constraint reason = null;
 
-	public PowerException(UnboundedSolutionException e) {
-		super("Unbounded Solution");
-		this.type = Type.UNBOUNDED_SOLUTION;
+	public PowerException(Type type) {
+		super(type == Type.NO_FEASIBLE_SOLUTION ? "No Feasible Solution" : "Unbounded Solution");
+		this.type = type;
 	}
 
 	public Type getType() {
 		return type;
+	}
+
+	public void setReason(Constraint reason) {
+		this.reason = reason;
+	}
+
+	@Override
+	public String getMessage() {
+		return super.getMessage() + (this.reason != null ? " [" + this.reason.toString() + "]" : "");
 	}
 }

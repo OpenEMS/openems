@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power.api.coefficient;
+package io.openems.edge.ess.power.api;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class Coefficients {
 
@@ -35,8 +33,8 @@ public class Coefficients {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException(
-				"Coefficient for [" + ess + "," + phase + "," + pwr + "] was not found. Forgot to call initialize()?");
+		throw new IllegalArgumentException("Coefficient for [" + ess.id() + "," + phase + "," + pwr
+				+ "] was not found. Forgot to call initialize()?");
 	}
 
 	public List<Coefficient> getAll() {

@@ -15,5 +15,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Symmetric Mode", description = "Keeps asymmetric ESS phases symmetric")
 	boolean symmetricMode() default PowerComponent.DEFAULT_SYMMETRIC_MODE;
 
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default PowerComponent.DEFAULT_DEBUG_MODE;
+
 	String webconsole_configurationFactory_nameHint() default "ESS Power";
 }

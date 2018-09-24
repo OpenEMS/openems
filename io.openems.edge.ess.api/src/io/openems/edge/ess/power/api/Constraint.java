@@ -4,10 +4,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.math3.optim.linear.Relationship;
-
-import io.openems.edge.ess.power.api.coefficient.LinearCoefficient;
-
 /**
  * Creates a constraint with following settings:
  * <ul>

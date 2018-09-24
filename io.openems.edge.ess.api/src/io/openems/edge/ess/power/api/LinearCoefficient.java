@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power.api.coefficient;
+package io.openems.edge.ess.power.api;
 
 import java.text.DecimalFormat;
 

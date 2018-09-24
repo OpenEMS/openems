@@ -1,8 +1,5 @@
 package io.openems.edge.ess.api;
 
-import java.util.List;
-
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
@@ -12,7 +9,9 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedSymmetricEss extends SymmetricEss {
@@ -129,14 +128,17 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public int getPowerPrecision();
 
 	/**
-	 * Gets static Constraints for this Ess.
+	 * Gets static Constraints for this Ess. Override this method to provide
+	 * specific Constraints for this Ess on every Cycle.
 	 * 
 	 * @return
 	 */
-	public List<Constraint> getStaticConstraints();
+	public default Constraint[] getStaticConstraints() {
+		return new Constraint[] {};
+	}
 
 	/**
-	 * Adds a Power Constraint
+	 * Creates a Power Constraint
 	 * 
 	 * @param ess
 	 * @param phase
@@ -144,7 +146,42 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @param relationship
 	 * @param value
 	 */
-	public default void addPowerConstraint(Phase phase, Pwr pwr, Relationship relationship, double value) {
-		this.getPower().addConstraint(this.getPower().createSimpleConstraint(this, phase, pwr, relationship, value));
+	public default Constraint createPowerConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
+			double value) {
+		return this.getPower().createSimpleConstraint(description, this, phase, pwr, relationship, value);
+	}
+
+	/**
+	 * Adds a Power Constraint for the current Cycle.
+	 * 
+	 * To add a Constraint on every Cycle, use getStaticConstraints()
+	 * 
+	 * @param ess
+	 * @param phase
+	 * @param pwr
+	 * @param relationship
+	 * @param value
+	 */
+	public default Constraint addPowerConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
+			double value) {
+		return this.getPower().addConstraint(this.createPowerConstraint(description, phase, pwr, relationship, value));
+	}
+
+	/**
+	 * Adds a Power Constraint for the current Cycle.
+	 * 
+	 * To add a Constraint on every Cycle, use getStaticConstraints()
+	 * 
+	 * @param ess
+	 * @param phase
+	 * @param pwr
+	 * @param relationship
+	 * @param value
+	 * @throws PowerException
+	 */
+	public default Constraint addPowerConstraintAndValidate(String description, Phase phase, Pwr pwr,
+			Relationship relationship, double value) throws PowerException {
+		return this.getPower()
+				.addConstraintAndValidate(this.createPowerConstraint(description, phase, pwr, relationship, value));
 	}
 }

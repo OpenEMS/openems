@@ -5,15 +5,15 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.junit.Test;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.Solver.TargetDirection;
+import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.inverter.Inverter;
-import io.openems.edge.ess.power.api.inverter.ThreePhaseInverter;
+import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.power.api.ThreePhaseInverter;
 
 public class SolverTest {
 
@@ -59,10 +59,10 @@ public class SolverTest {
 		Data d = prepareDataAndSetSymmetricMode(false, ess0, ess1, ess2);
 		Solver s = new Solver(d);
 
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 5000);
+		d.addSimpleConstraint("", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
 		s.solve();
 		d.initializeCycle();
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, -9000);
+		d.addSimpleConstraint("", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -9000);
 		s.solve();
 	}
 
@@ -85,7 +85,7 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 30000);
+		d.addSimpleConstraint("#1", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 30000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(9864).expectQ(0); // third largest SoC
 		ess3.expectP(0).expectQ(0);
@@ -96,7 +96,7 @@ public class SolverTest {
 
 		// #2
 		d.initializeCycle();
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 25000);
+		d.addSimpleConstraint("#2", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 25000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(8113).expectQ(0);
 		ess3.expectP(0).expectQ(0);
@@ -107,7 +107,7 @@ public class SolverTest {
 
 		// #3
 		d.initializeCycle();
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 5000);
+		d.addSimpleConstraint("#3", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(1569).expectQ(0);
 		ess3.expectP(0).expectQ(0);
@@ -116,10 +116,20 @@ public class SolverTest {
 		ess6.expectP(1601).expectQ(0);
 		s.solve();
 
-		System.out.println("--");
-
+		// #4
 		d.initializeCycle();
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 5000);
+		d.addSimpleConstraint("#4", ess1, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess2, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess3, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess4, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess5, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess6, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		ess1.expectP(-2000).expectQ(0);
+		ess2.expectP(-2000).expectQ(0);
+		ess3.expectP(-2000).expectQ(0);
+		ess4.expectP(-2000).expectQ(0);
+		ess5.expectP(-2000).expectQ(0);
+		ess6.expectP(-2000).expectQ(0);
 		s.solve();
 
 	}
@@ -132,35 +142,35 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 610);
+		d.addSimpleConstraint("#1", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
 		ess0.expectP(700);
 		s.solve();
 
 		// #2
 		d.initializeCycle();
 		ess0.soc(49);
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 590);
+		d.addSimpleConstraint("#2", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
 		ess0.expectP(500);
 		s.solve();
 
 		// #3
 		d.initializeCycle();
 		ess0.soc(49);
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, -310);
+		d.addSimpleConstraint("#3", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.expectP(-400);
 		s.solve();
 
 		// #4
 		d.initializeCycle();
 		ess0.soc(51);
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQ, -310);
+		d.addSimpleConstraint("#4", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.expectP(-300);
 		s.solve();
 
 		// #4 force charge
 		d.initializeCycle();
 		ess0.soc(50);
-		d.addSimpleConstraint(ess0, Phase.ALL, Pwr.ACTIVE, Relationship.LEQ, -2000);
+		d.addSimpleConstraint("#5", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess0.expectP(-2000);
 		s.solve();
 	}
@@ -238,12 +248,12 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint(esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQ, 0);
+		d.addSimpleConstraint("", esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
 		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
 		d.initializeCycle();
 
 		// #2
-		d.addSimpleConstraint(esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQ, -1);
+		d.addSimpleConstraint("", esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
 		assertEquals(TargetDirection.CHARGE, s.getTargetDirection());
 	}
 }

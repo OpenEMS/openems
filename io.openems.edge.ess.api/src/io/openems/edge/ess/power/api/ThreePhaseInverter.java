@@ -1,7 +1,6 @@
-package io.openems.edge.ess.power.api.inverter;
+package io.openems.edge.ess.power.api;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 
 public class ThreePhaseInverter extends Inverter {
 

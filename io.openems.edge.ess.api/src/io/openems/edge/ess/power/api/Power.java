@@ -1,9 +1,6 @@
 package io.openems.edge.ess.power.api;
 
-import org.apache.commons.math3.optim.linear.Relationship;
-
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.coefficient.Coefficient;
 
 public interface Power {
 
@@ -35,8 +32,8 @@ public interface Power {
 	 * @param value
 	 * @return
 	 */
-	public Constraint createSimpleConstraint(ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
-			double value);
+	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			Relationship relationship, double value);
 
 	/**
 	 * Removes a Constraint.
@@ -47,14 +44,14 @@ public interface Power {
 	public void removeConstraint(Constraint constraint);
 
 	/**
-	 * Gets the maximum possible total Active Power under the active Constraints.
+	 * Gets the maximum possible Power under the active Constraints.
 	 */
-	public int getMaxActivePower();
+	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
 
 	/**
-	 * Gets the minimum possible total Active Power under the active Constraints.
+	 * Gets the minimum possible possible Power under the active Constraints.
 	 */
-	public int getMinActivePower();
+	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
 
 	/**
 	 * Gets the Coefficient singleton for a specific combination of ess, phase and
@@ -67,4 +64,33 @@ public interface Power {
 	 */
 	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
 
+	/**
+	 * Adjusts the given value so that it fits into Min/MaxActivePower.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public default int fitValueIntoMinMaxActivePower(ManagedSymmetricEss ess, Phase phase, Pwr pwr, int value) {
+		if (value > 0) {
+			/*
+			 * Discharge
+			 */
+			// fit into max possible discharge power
+			int maxDischargePower = this.getMaxPower(ess, phase, pwr);
+			if (value > maxDischargePower) {
+				value = maxDischargePower;
+			}
+
+		} else {
+			/*
+			 * Charge
+			 */
+			// fit into max possible discharge power
+			int maxChargePower = this.getMinPower(ess, phase, pwr);
+			if (value < maxChargePower) {
+				value = maxChargePower;
+			}
+		}
+		return value;
+	}
 }

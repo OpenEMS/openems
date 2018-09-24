@@ -1,8 +1,6 @@
-package io.openems.edge.ess.power.api.coefficient;
+package io.openems.edge.ess.power.api;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class Coefficient {
 

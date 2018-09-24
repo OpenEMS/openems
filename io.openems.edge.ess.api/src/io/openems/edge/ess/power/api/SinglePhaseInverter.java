@@ -1,7 +1,6 @@
-package io.openems.edge.ess.power.api.inverter;
+package io.openems.edge.ess.power.api;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 
 public class SinglePhaseInverter extends Inverter {
 

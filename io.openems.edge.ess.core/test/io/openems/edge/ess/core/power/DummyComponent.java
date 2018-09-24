@@ -1,8 +1,6 @@
 package io.openems.edge.ess.core.power;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -13,7 +11,6 @@ import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Power;
 
 public abstract class DummyComponent<T> extends AbstractOpenemsComponent implements ManagedSymmetricEss {
@@ -137,11 +134,6 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 	@Override
 	public Power getPower() {
 		return this.power;
-	}
-
-	@Override
-	public List<Constraint> getStaticConstraints() {
-		return new ArrayList<>();
 	}
 
 	protected abstract T self();
