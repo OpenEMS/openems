@@ -1,0 +1,65 @@
+ifndef::backend-pdf[]
+= Edge Architecture
+endif::[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+OpenEMS is a modular platform for energy management applications.
+It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
+
+The OpenEMS Edge software architecture is carefully designed to abstract device communication and control algorithms in a way to provide maximum flexibility, predictability and stability, while simplifying the process of implementing new components.
+
+== Input-Process-Output
+
+OpenEMS Edge is built around the well-known IPO (input-process-output) model which defines the internal execution cycle.
+
+.Input-Process-Output model
+image::input-process-output.png[Input-Process-Output model]
+
+Input::
+During the input phase all relevant information - e.g. the current 'state of charge' of a battery - is collected and provided as a *process image*. This process image is guaranteed to never change during the cycle.
+
+Process::
+The process phase runs algorithms and tasks based on the process image - e.g. an algorithm uses the 'state of charge' information to evaluate whether a digital output should be turned on.
+
+Output::
+The output phase takes the results from the process phase and applies it - e.g. it turns the digital output on or off.
+
+== Scheduler and Controller
+
+During the 'process' phase different algorithms (Controllers) might try to access the same resources - e.g. two Controllers try to switch the same digital output. It is therefor necessary to prioritize their execution and restrict access according to priority.
+
+OpenEMS Edge uses Scheduler implementations to receive a sorted list of Controllers. The Controllers are then executed in order. Later executed Controllers are not allowed to overwrite a previously written result. 
+
+.IPO model with Scheduler and Controllers
+image::input-process-scheduler-output.png[IPO model with Scheduler and Controllers]
+
+== Cycle
+
+The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.core/src/io/openems/edge/core/cycle/Cycle.java[Cycle component icon:code[]]. It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.  
+
+.OpenEMS Edge Cycle
+image::edge-cycle.png[OpenEMS Edge Cycle]
+
+== Asynchronous threads and Cycle synchronization
+
+Communication with external hardware and services needs to be executed in asynchronous threads to not block the system. At the same time, those threads need to synchronize with the Cycle.
+
+The following example shows, how the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/AbstractModbusBridge.java[Modbus implementation icon:code[]] uses Cycle Events to synchronize with the Cycle:
+
+.Synchronize Cycle with Modbus read/write 
+image::cycle-modbus.png[Synchronize Cycle with Modbus read/write]
+
+== Architecture scheme
+
+The following scheme shows the abstraction of hardware via Channels, Natures and Devices as well as the execution of control algorithms via Scheduler and Controllers.
+
+.Architecture scheme 
+image::device-nature-channel-scheduler-controller.png[Architecture scheme]
+image::device-nature-channel-scheduler-controller.png[Architecture scheme]

@@ -1,0 +1,46 @@
+ifndef::backend-pdf[]
+= Build OpenEMS Edge
+endif::[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+This chapter explains, how OpenEMS Edge can be compiled to a JAR file that can be executed outside of an IDE.
+
+== Build using Eclipse IDE
+
+. Inside Eclipse IDE open the *io.openems.edge.application* project and open the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.application/EdgeApp.bndrun[EdgeApp.bndrun icon:code[]] file.
++
+.Eclipse IDE EdgeApp.bndrun
+image::eclipse-edgeapp-bndrun.png[Eclipse IDE EdgeApp.bndrun]
+
+. Press btn:[Export] to start the *Export Wizard Selection* assistant.
+
+. Select btn:[Executable JAR] and press btn:[Next >].
++
+.Eclipse Export Wizard Selection assistant
+image::eclipse-bnd-file-export.png[Eclipse Export Wizard Selection assistant]
+
+. Select a *Destination* for *Export to JAR*.
++
+.Eclipse Export Destination
+image::eclipse-bnd-file-export-destination.png[Eclipse Export Destination]
+
+. Press btn:[Finish]
+
+This creates a so called Fat-JAR-file including all bundles. It can be executed by running `java -jar openems.jar` in a console.
+
+== Build using bnd from command line
+
+. Install bnd on the command line. See https://github.com/bndtools/bnd/wiki/Install-bnd-on-the-command-line[bnd wiki icon:external-link[]] for details. (Following I assume that you download the biz.aQute.bnd.jar file to the parent directory of your repository.)
+
+. Open a console and change to your repository directory.
+
+. Execute `java -jar biz.aQute.bnd.jar package -o openems.jar io.openems.edge.application\EdgeApp.bndrun`
+
+. This creates a Fat-JAR 'openems.jar' in the base directory of the repository.

@@ -146,9 +146,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 					} catch (IllegalArgumentException e) {
 						throw new IllegalArgumentException("Conversion for [" + channel.channelId() + "] failed", e);
 					}
-					if (convertedValue != null) {
 						channel.setNextValue(convertedValue);
-					}
 				});
 			});
 		}

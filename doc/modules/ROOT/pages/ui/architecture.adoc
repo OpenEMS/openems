@@ -1,0 +1,13 @@
+ifndef::backend-pdf[]
+= Architecture
+endif::[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+== Architecture

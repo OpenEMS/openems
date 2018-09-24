@@ -18,6 +18,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
+import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -59,7 +60,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	/**
 	 * The configured parity
 	 */
-	private String parity;
+	private Parity parity;
 
 	@Activate
 	void activate(ComponentContext context, ConfigSerial config) {
@@ -104,7 +105,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setBaudRate(this.baudrate);
 			params.setDatabits(this.databits);
 			params.setStopbits(this.stopbits);
-			params.setParity(this.parity);
+			params.setParity(this.parity.getParity());			
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			SerialConnection connection = new SerialConnection(params);
@@ -132,7 +133,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	}
 
 	@Override
-	public String getParity() {
+	public Parity getParity() {
 		return parity;
 	}
 

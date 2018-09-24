@@ -1,0 +1,77 @@
+ifndef::backend-pdf[]
+= Core concepts & terminology 
+endif::[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+This chapter describes some of the core concepts and commonly used terms in OpenEMS:
+
+== OSGi Bundle
+
+OpenEMS Edge is using the https://en.wikipedia.org/wiki/OSGi[OSGi icon:external-link[]] platform to provide a completely modular and dynamic service oriented system.
+
+Logical groups of source code are put into one OSGi Bundle. Every directory in the source code root directory starting with 'io.openems.*' is a bundle. 
+
+== OpenEMS Component
+
+OpenEMS Edge is built of Components, i.e. every main component implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.common/src/io/openems/edge/common/component/OpenemsComponent.java[OpenemsComponent interface icon:code[]]. 
+
+By definition each Component has a unique ID. Those *Component-IDs* are typically:
+
+* `ess0` for the first storage system or battery inverter
+* `ess1` for the second storage system or battery inverter
+* ...
+* `meter0` for the first meter in the system
+* ...
+
+If you receive your OpenEMS together with a FENECON energy storage system, you will find the following Component-IDs:
+
+* FENECON Pro
+** `ess0`: FENECON Pro Ess
+// TODO link:https://github.com/OpenEMS/openems/blob/develop/edge/src/io/openems/impl/device/pro/FeneconProEss.java[FENECON Pro Ess icon:code[]]
+** `meter0`: Socomec grid meter
+// TODO link:https://github.com/OpenEMS/openems/blob/develop/edge/src/io/openems/impl/device/socomec/SocomecMeter.java[Socomec grid meter icon:code[]]
+** `meter1`: FENECON Pro production meter 
+// TODO link:https://github.com/OpenEMS/openems/blob/develop/edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java[FENECON Pro production meter icon:code[]]
+
+* FENECON Mini
+** `ess0`: FENECON Mini
+// TODO link:https://github.com/OpenEMS/openems/blob/develop/edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java[FENECON Mini icon:code[]]
+** `meter0`: FENECON Mini grid meter
+// TODO link:https://github.com/OpenEMS/openems/blob/develop/edge/src/io/openems/impl/device/minireadonly/FeneconMiniGridMeter.java[FENECON Mini grid meter icon:code[]]
+** `meter1`: FENECON Mini production meter
+// TODO link:https://github.com/OpenEMS/openems/blob/develop/edge/src/io/openems/impl/device/minireadonly/FeneconMiniProductionMeter.java[FENECON Mini production meter icon:code[]]
+
+== Channel
+
+Each OpenemsComponent provides a number of Channels. Each represents a single piece of information. Each Channel implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.common/src/io/openems/edge/common/channel/Channel.java[Channel interface icon:code[]]. By definition each Channel has a unique ID within its parent Component.
+
+== Nature
+
+Natures extend normal Java interfaces with 'Channels'. If a Component implements a Nature it also needs to provide the required Channels. For example the Energy Storage System (ESS) Simulator link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.simulator/src/io/openems/edge/simulator/ess/symmetric/reacting/EssSymmetric.java[Simulator.EssSymmetric.Reacting icon:code[]] implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[Ess interface icon:code[]] and therefor needs to provide a `Soc` Channel that provides the current 'State of Charge' of the battery.
+
+xref:edge/controller.adoc[Controllers] are written against Nature implementations. Example: A Controller can be used with any ESS, because it can be sure that it provides all the data the Controller requires for its algorithm.
+
+// TODO: add link to all Natures below. Existing Nature implementations are described below.
+
+== Channel Address
+
+By combining the unique *Component-ID* and *Channel-ID* each Channel in the system can be addressed by a distinct 'Channel Address' in the form `Component-ID/Channel-ID`.
+
+Example: the state of charge ("Soc") of the first energy storage system ("ess0") has the channel address `ess0/Soc`.
+
+== Scheduler
+
+The Scheduler handles the order, in which Controllers are executed. For details see xref:edge/controller.adoc[Scheduler and Controller] below.
+
+// TODO: add link to all Schedulers below. Existing Scheduler implementations are described below.
+
+== Controller
+
+The actual business logic or algorithms are wrapped as 'Controllers'. i.e. they implement the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.api/src/io/openems/edge/controller/api/Controller.java[Controller interface icon:code[]]. Each Controller holds one specific, encapsulated task.
