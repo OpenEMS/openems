@@ -21,7 +21,7 @@ public class EssUtils {
 				return new StateCollectorChannel(c, channelId);
 			}
 			return null;
-		}),Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+		}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case GRID_MODE:
 				return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
@@ -33,7 +33,7 @@ public class EssUtils {
 				return new IntegerReadChannel(c, channelId);
 			case MAX_APPARENT_POWER:
 				return new IntegerReadChannel(c, channelId, CenturioEss.MAX_APPARENT_POWER);
-			
+
 			}
 			return null;
 		}), Arrays.stream(CenturioEss.ChannelId.values()).map(channelId -> {
@@ -90,7 +90,10 @@ public class EssUtils {
 			switch (channelId) {
 			case DEBUG_SET_ACTIVE_POWER:
 			case DEBUG_SET_REACTIVE_POWER:
+			case ALLOWED_CHARGE_POWER:
+			case ALLOWED_DISCHARGE_POWER:
 				return new IntegerReadChannel(c, channelId);
+
 			}
 			return null;
 		})).flatMap(channel -> channel);

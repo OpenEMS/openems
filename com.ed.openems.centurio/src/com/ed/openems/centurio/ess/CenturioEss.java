@@ -228,6 +228,8 @@ public class CenturioEss extends AbstractOpenemsComponent
 			
 			
 		}
+		
+		log.info("Edcom connected: " + this.datasource.isConnected());
 
 	}
 
