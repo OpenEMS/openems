@@ -12,6 +12,14 @@ endif::[]
 
 == Concept
 
+The OpenEMS Documentation is built with https://antora.org/[Antora icon:external-link[]].
+
+OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are seperated on two different repositories.
+
+The https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true[UI icon:external-link[]] was slighty modified to fit our needs.
+
 == Edit
+
+
 
 == Build

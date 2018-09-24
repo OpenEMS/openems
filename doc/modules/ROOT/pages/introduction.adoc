@@ -1,5 +1,5 @@
 image::OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400, align="left"]
-== Open Energy Management System
+= Open Energy Management System
 :experimental:
 :keywords: AsciiDoc
 :source-highlighter: highlight.js

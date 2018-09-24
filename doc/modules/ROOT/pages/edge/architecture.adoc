@@ -1,5 +1,5 @@
 ifndef::backend-pdf[]
-= OpenEMS Edge
+= Edge Architecture
 endif::[]
 :sectnums:
 :sectnumlevels: 4
@@ -12,8 +12,6 @@ endif::[]
 
 OpenEMS is a modular platform for energy management applications.
 It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
-
-== Architecture
 
 The OpenEMS Edge software architecture is carefully designed to abstract device communication and control algorithms in a way to provide maximum flexibility, predictability and stability, while simplifying the process of implementing new components.
 
