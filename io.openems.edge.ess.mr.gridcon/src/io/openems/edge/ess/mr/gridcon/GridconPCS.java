@@ -37,7 +37,6 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -762,8 +761,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								.m(GridConChannelId.PCS_CCU_STATE_DERATING_HARMONICS, 11) //
 								.m(GridConChannelId.PCS_CCU_STATE_SIA_ACTIVE, 12) //
 								.build().wordOrder(WordOrder.LSWMSW), //
-						m(GridConChannelId.PCS_CCU_ERROR_CODE,
-								new UnsignedDoublewordElement(32530).wordOrder(WordOrder.LSWMSW)), //
+						m(GridConChannelId.PCS_CCU_ERROR_CODE, new UnsignedDoublewordElement(32530).wordOrder(WordOrder.LSWMSW)), //
+						
 						m(GridConChannelId.PCS_CCU_VOLTAGE_U12,
 								new FloatDoublewordElement(32532).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CCU_VOLTAGE_U23,
