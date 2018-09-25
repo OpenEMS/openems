@@ -16,7 +16,7 @@ The OpenEMS Documentation is built with https://antora.org/[Antora icon:external
 
 OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are seperated on two different repositories.
 
-The https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true[UI icon:external-link[]] was slighty modified to fit our needs.
+The https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true[UI icon:external-link[]] was slightly modified to fit our needs.
 
 NOTE: For more Information regarding https://asciidoctor.org/docs/asciidoc-writers-guide/[AsciiDoc icon:external-link[]] and https://docs.antora.org/antora/1.1/[Antora icon:external-link[]] see their Docs.
 
@@ -26,7 +26,7 @@ If you want to edit a Docs - Page just click on 'Edit this Page' in the upper ri
 
 Edit the Page according to your ideas and commit your changes.
 
-You will see the changes you made after our frequent Docs - Update.
+You will see the changes you have made after our frequent Docs - Update.
 
 
 == Add a page

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.api;
+package io.openems.edge.ess.core.power;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,17 +7,19 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.core.power.ChocoPower;
-import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.api.SymmetricEss;
 
-public class EssClusterDummy extends AbstractOpenemsComponent implements ManagedAsymmetricEss, MetaEss {
+public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements ManagedAsymmetricEss, MetaEss {
 
 	private final List<ManagedSymmetricEss> managedEsss = new ArrayList<>();
-	private ChocoPower power;
 
-	public EssClusterDummy(SymmetricEss... esss) {
+	public EssClusterDummy(String id, SymmetricEss... esss) {
+		super(id);
 		Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
@@ -82,26 +84,6 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 	}
 
 	@Override
-	public int getPowerPrecision() {
-		return 1;
-	}
-
-	@Override
-	public String id() {
-		return "dummy";
-	}
-
-	@Override
-	public String servicePid() {
-		return "no_service_pid";
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
-
-	@Override
 	public List<ManagedSymmetricEss> getEsss() {
 		return this.managedEsss;
 	}
@@ -112,13 +94,8 @@ public class EssClusterDummy extends AbstractOpenemsComponent implements Managed
 		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
 	}
 
-	public void addToPower(ChocoPower power) {
-		this.power = power;
-		power.addEss(this);
-	}
-
 	@Override
-	public Power getPower() {
-		return this.power;
+	protected EssClusterDummy self() {
+		return this;
 	}
 }

@@ -44,7 +44,6 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -69,14 +68,20 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private int maxApparentPower = 0;
 	private int maxApparentPowerUnscaled = 0;
 	private int maxApparentPowerScaleFactor = 0;
-	private Constraint noPowerOnError;
+
+	/*
+	 * Is Power allowed? This is set to false on error or if the inverter is not
+	 * fully initialized.
+	 */
+	private boolean isPowerAllowed = true;
 
 	@Reference
 	private Power power;
-	private Battery battery;
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	private Battery battery;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setBattery(Battery battery) {
@@ -112,12 +117,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void initializePower() {
-		/*
-		 * Create Power Constraints
-		 */
-		this.noPowerOnError = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				0);
-		this.noPowerOnError.setValue(null);
+		this.isPowerAllowed = true;
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			@SuppressWarnings("unchecked")
@@ -187,8 +187,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private void handleStateMachine() {
 		// by default: block Power
-		this.noPowerOnError.setValue(0);
-		
+		this.isPowerAllowed = false;
+
 		// do always
 		setBatteryRanges();
 		setWatchdog();
@@ -231,9 +231,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private void doOffHandling() {
 		startSystem();
 	}
-	
+
 	private void doGridConnectedHandling() {
-		this.noPowerOnError.setValue(null);
+		// Allow Power
+		this.isPowerAllowed = true;
 	}
 
 	private void doErrorHandling() {
@@ -363,33 +364,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	 * from interfaces
 	 */
 	private void doChannelMapping() {
-		this.channel(ChannelId.CURRENT_STATE).onChange(value -> {
-			Optional<Enum<?>> stateOpt = value.asEnumOptional();
-			if (!stateOpt.isPresent()) {
-				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.UNDEFINED.ordinal());
-				return;
-			}
-			CurrentState state = (CurrentState) stateOpt.get();
-			switch (state) {
-			case GRID_CONNECTED:
-				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.ON_GRID.ordinal());
-				break;
-			case ERROR:
-			case NO_ERROR_PENDING:
-			case OFF:
-			case PRECHARGE:
-			case SHUTTING_DOWN:
-			case STANDBY:
-			case STARTING:
-			case THROTTLED:
-			case CURRENTLY_UNKNOWN:
-				this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(SymmetricEss.GridMode.OFF_GRID.ordinal());
-				break;
-			default:
-				break;
-			}
-		});
-
 		this.battery.getSoc().onChange(value -> {
 			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_SOC).setNextValue(value.get());
@@ -631,6 +605,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private IntegerWriteChannel getBatteryTempChannel() {
 		return this.channel(ChannelId.BAT_TEMP);
+	}
+
+	@Override
+	public Constraint[] getStaticConstraints() {
+		if (this.isPowerAllowed) {
+			return new Constraint[] {};
+		} else {
+			return new Constraint[] { this.createPowerConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0) };
+		}
 	}
 
 }

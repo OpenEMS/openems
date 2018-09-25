@@ -19,8 +19,7 @@ Require-Capability: \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.common;version=latest,\
 	com.google.guava,\
-	io.openems.common;version=latest,\
-	io.openems.wrapper.choco-solver;version=latest
+	io.openems.common;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
