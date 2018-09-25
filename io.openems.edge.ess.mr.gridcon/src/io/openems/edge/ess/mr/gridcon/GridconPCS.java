@@ -167,6 +167,48 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 
+		this.channel(GridConChannelId.PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
+
+			if (value != null) {
+				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+				if (ctrlWordOpt.isPresent()) {
+					Integer ctrlWord = ctrlWordOpt.get();
+					String strCtrlWord = Integer.toBinaryString(ctrlWord);
+
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
+							GridConChannelId.PCS_COMMAND_CONTROL_WORD_PLAY);
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
+							GridConChannelId.PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
+							GridConChannelId.PCS_COMMAND_CONTROL_WORD_STOP);
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
+							GridConChannelId.PCS_COMMAND_CONTROL_WORD_READY);
+				}
+			}
+			;
+		});
+
+		this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
+
+			if (value != null) {
+				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+				if (ctrlWordOpt.isPresent()) {
+					Integer ctrlWord = ctrlWordOpt.get();
+					String strCtrlWord = Integer.toBinaryString(ctrlWord);
+
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
+							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_PLAY);
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
+							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
+							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_STOP);
+					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
+							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_READY);
+				}
+			}
+			;
+		});
+
 		/*
 		 * Initialize Power
 		 */
@@ -182,6 +224,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
+	}
+
+	private void mapToChannel(String bit, GridConChannelId id) {
+		this.channel(id).setNextValue(bit.equals("1"));
 	}
 
 	@Deactivate
@@ -533,13 +579,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (errorCodeOpt.isPresent()) {
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, errorCodeOpt.get());
 		}
-		
+
 	}
 
 	@Override
 	public String debugLog() {
-		return "State:" + this.getCurrentState().toString() + "," +
-				"L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
+		return "State:" + this.getCurrentState().toString() + "," + "L:"
+				+ this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
 				+ "," + this.getOnOffGrid().name();
 	}
 
@@ -703,7 +749,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		int gridVolt = this.gridMeter.getVoltage().value().orElse(-1);
 
 		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
-		
+
 		// Always set Voltage Control Mode + Blackstart Approval
 		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), false);
@@ -725,7 +771,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			int invSetVolt = gridVolt + 5_000; // add 5 V
 			float invSetFreqNormalized = invSetFreq / 50_000f;
 			float invSetVoltNormalized = invSetVolt / 230_000f;
-			log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", " + invSetVoltNormalized);
+			log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
+					+ invSetVoltNormalized);
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_U0, invSetVoltNormalized);
 			writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_F0, invSetFreqNormalized);
 		}
@@ -761,8 +808,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								.m(GridConChannelId.PCS_CCU_STATE_DERATING_HARMONICS, 11) //
 								.m(GridConChannelId.PCS_CCU_STATE_SIA_ACTIVE, 12) //
 								.build().wordOrder(WordOrder.LSWMSW), //
-						m(GridConChannelId.PCS_CCU_ERROR_CODE, new UnsignedDoublewordElement(32530).wordOrder(WordOrder.LSWMSW)), //
-						
+						m(GridConChannelId.PCS_CCU_ERROR_CODE,
+								new UnsignedDoublewordElement(32530).wordOrder(WordOrder.LSWMSW)), //
+
 						m(GridConChannelId.PCS_CCU_VOLTAGE_U12,
 								new FloatDoublewordElement(32532).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.PCS_CCU_VOLTAGE_U23,
