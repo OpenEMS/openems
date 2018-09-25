@@ -11,13 +11,15 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -25,7 +27,7 @@ import io.openems.edge.ess.power.api.Relationship;
 @Component(name = "Controller.Symmetric.LinearPowerBand", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-//	private final Logger log = LoggerFactory.getLogger(SymmetricLinearPowerBand.class);
+	private final Logger log = LoggerFactory.getLogger(SymmetricLinearPowerBand.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -82,8 +84,17 @@ public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implement
 			break;
 		}
 
-		// Apply Power
-		this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				this.currentPower);
+		// adjust value so that it fits into Min/MaxActivePower
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, this.currentPower);
+
+		/*
+		 * set result
+		 */
+		try {
+			this.ess.addPowerConstraintAndValidate("SymmetricLinearPowerBand", Phase.ALL, Pwr.ACTIVE,
+					Relationship.EQUALS, calculatedPower); //
+		} catch (PowerException e) {
+			this.logError(this.log, e.getMessage());
+		}
 	}
 }
