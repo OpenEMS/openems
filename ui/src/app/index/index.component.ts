@@ -10,7 +10,7 @@ import { environment } from '../../environments';
 import { Websocket, Utils, Service } from '../shared/shared';
 import { Edge } from '../shared/edge/edge';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 
 @Component({
@@ -50,11 +50,12 @@ export class IndexComponent {
       //Forwarding to device index if there is only 1 edge
       websocket.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
         let edgeIds = Object.keys(edges);
+        /*
         if (edgeIds.length == 1) {
           let edge = edges[edgeIds[0]];
           this.router.navigate(['/device', edge.name]);
         }
-
+        */
         this.updateFilteredEdges();
       })
   }
@@ -102,20 +103,12 @@ export class IndexComponent {
     let body = new FormData();
     body.append('log', username);
     body.append('pwd', password);
-    // this.http.post("https://www.energydepot.de/login/", body).subscribe((response: Response) => { if (response.status === 200) { console.info("RESPONSE"); this.websocket.wpconnect() } }, (error: Error) => this.websocket.wpconnect());
 
+    this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response") },
+      (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); } },
+      () => { this.websocket.wpconnect(); });
+    //this.websocket.wpconnect();
 
-    //this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response") }, (error) => { console.info(error); });
-    this.websocket.wpconnect();
-    /*
-    this.http.get('https://www.energydepot.de/api/auth/generate_auth_cookie/?username=' + username + '&password=' + password)
-
-      .subscribe(data => {
-        this.service.setWPCookies(data['cookie'], data['cookie_name']);
-        this.websocket.wpconnect();
-        //this.websocket.wpLogIn(data['cookie_name']);
-      });
-      */
 
 
 

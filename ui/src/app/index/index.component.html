@@ -42,7 +42,7 @@
         </ion-item>
         <ion-card-content>
           <ion-item>
-            <form [formGroup]="wpForm" (ngSubmit)="doWPLogin()">
+            <form [formGroup]="wpForm" (ngSubmit)="doWPLogin()" (keyup.enter)="doWPLogin()">
               <ion-label position="floating">Benutzername</ion-label>
               <ion-input formControlName="username" required placeholder="Benutzername"></ion-input>
               <ion-label position="floating">Passwort</ion-label>
