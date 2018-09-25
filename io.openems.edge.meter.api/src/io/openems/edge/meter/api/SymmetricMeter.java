@@ -91,7 +91,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 								int minNextActivePower = minActivePowerChannel.getNextValue().orElse(0);
 								if (newValue < Math.min(minActivePower, minNextActivePower)) {
 									// avoid getting called too often -> round to 100
-									newValue = IntUtils.roundToPrecision(newValue, Round.DOWN, 100);
+									newValue = IntUtils.roundToPrecision(newValue, Round.TOWARDS_ZERO, 100);
 									minActivePowerChannel.setNextValue(newValue);
 								}
 							}
@@ -102,7 +102,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 								int maxNextActivePower = maxActivePowerChannel.getNextValue().orElse(0);
 								if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
 									// avoid getting called too often -> round to 100
-									newValue = IntUtils.roundToPrecision(newValue, Round.UP, 100);
+									newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
 									maxActivePowerChannel.setNextValue(newValue);
 								}
 							}

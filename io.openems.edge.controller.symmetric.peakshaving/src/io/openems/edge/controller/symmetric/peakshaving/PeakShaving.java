@@ -21,9 +21,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -100,51 +100,37 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		int gridPower = this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
 				+ this.ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
 
-		int nextEssPower;
+		int calculatedPower;
 		if (gridPower >= this.peakShavingPower) {
 			/*
 			 * Peak-Shaving
 			 */
-			nextEssPower = gridPower -= this.peakShavingPower;
+			calculatedPower = gridPower -= this.peakShavingPower;
 
 		} else if (gridPower <= this.rechargePower) {
 			/*
 			 * Recharge
 			 */
-			nextEssPower = gridPower -= this.rechargePower;
+			calculatedPower = gridPower -= this.rechargePower;
 
 		} else {
 			/*
 			 * Do nothing
 			 */
-			nextEssPower = 0;
+			calculatedPower = 0;
 		}
 
 		Power power = ess.getPower();
-		if (nextEssPower > 0) {
-			/*
-			 * Discharge
-			 */
-			// fit into max possible discharge power
-			int maxDischargePower = power.getMaxActivePower();
-			if (nextEssPower > maxDischargePower) {
-				nextEssPower = maxDischargePower;
-			}
-
-		} else {
-			/*
-			 * Charge
-			 */
-			// fit into max possible discharge power
-			int maxChargePower = power.getMinActivePower();
-			if (nextEssPower < maxChargePower) {
-				nextEssPower = maxChargePower;
-			}
-		}
+		calculatedPower = power.fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result
 		 */
-		this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, nextEssPower); //
+		try {
+			this.ess.addPowerConstraintAndValidate("PeakShavingController", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
+					calculatedPower); //
+		} catch (PowerException e) {
+			this.logError(this.log, e.getMessage());
+		}
 	}
 }

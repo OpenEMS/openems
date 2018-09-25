@@ -1,15 +1,15 @@
 package io.openems.edge.ess.power.api;
 
 public enum Phase {
-	ALL(null), L1(0), L2(2), L3(4);
+	ALL(""), L1("L1"), L2("L2"), L3("L3");
 
-	Integer offset;
+	private final String symbol;
 
-	Phase(Integer offset) {
-		this.offset = offset;
+	private Phase(String symbol) {
+		this.symbol = symbol;
 	}
-	
-	public Integer getOffset() {
-		return offset;
+
+	public String getSymbol() {
+		return symbol;
 	}
 }

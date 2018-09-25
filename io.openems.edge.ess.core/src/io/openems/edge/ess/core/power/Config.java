@@ -12,11 +12,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 	String service_pid();
 
-	@AttributeDefinition(name = "Solve duration limit", description = "Solving a problem is limited to X milliseconds.")
-	int solveDurationLimit() default PowerComponent.DEFAULT_SOLVE_DURATION_LIMIT;
-
 	@AttributeDefinition(name = "Symmetric Mode", description = "Keeps asymmetric ESS phases symmetric")
 	boolean symmetricMode() default PowerComponent.DEFAULT_SYMMETRIC_MODE;
-	
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default PowerComponent.DEFAULT_DEBUG_MODE;
+
 	String webconsole_configurationFactory_nameHint() default "ESS Power";
 }

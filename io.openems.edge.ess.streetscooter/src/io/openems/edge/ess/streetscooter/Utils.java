@@ -49,6 +49,7 @@ public class Utils {
 				}), Arrays.stream(AbstractEssStreetscooter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case INVERTER_MODE:
+						return new IntegerReadChannel(c, channelId, InverterMode.UNDEFINED);
 					case BATTERY_BMS_I_ACT:
 					case BATTERY_BMS_ERR:
 					case BATTERY_BMS_PWR_CHRG_MAX:

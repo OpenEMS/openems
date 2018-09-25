@@ -24,8 +24,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -125,14 +125,16 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Override
 	public void run() {
-		Optional<Integer> socOpt = this.ess.getSoc().value().asOptional();
-
 		// Set to normal state and return if SoC is not available
+		Optional<Integer> socOpt = this.ess.getSoc().value().asOptional();
 		if (!socOpt.isPresent()) {
 			this.state = State.NORMAL;
 			return;
 		}
 		int soc = socOpt.get();
+
+		// initialice force Charge
+		Optional<Integer> calculatedPower = Optional.empty();
 
 		State nextState = this.state;
 		switch (this.state) {
@@ -162,7 +164,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				break;
 			}
 			// Deny further discharging: set Constraint for ActivePower <= 0
-			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 0);
+			calculatedPower = Optional.of(0);
 			break;
 		case FORCE_CHARGE_SOC:
 			/*
@@ -177,10 +179,19 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				break;
 			}
 			// Force charge: set Constraint for ActivePower <= MAX_CHARGE / 5
-			int chargePower = this.ess.getPower().getMinActivePower() / 5;
-			this.ess.addPowerConstraint(ConstraintType.CYCLE, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-					chargePower);
+			int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			calculatedPower = Optional.of(maxCharge / 5);
 			break;
+		}
+
+		// Apply Force-Charge if it was set
+		if (calculatedPower.isPresent()) {
+			try {
+				this.ess.addPowerConstraintAndValidate("LimitTotalDischarge", Phase.ALL, Pwr.ACTIVE,
+						Relationship.LESS_OR_EQUALS, calculatedPower.get());
+			} catch (PowerException e) {
+				this.logError(this.log, e.getMessage());
+			}
 		}
 
 		/*

@@ -42,7 +42,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -104,15 +104,6 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
-
-		/*
-		 * Initialize Power
-		 */
-		// ReactivePower limitations
-		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GREATER_OR_EQUALS,
-				MIN_REACTIVE_POWER);
-		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.LESS_OR_EQUALS,
-				MAX_REACTIVE_POWER);
 	}
 
 	@Deactivate
@@ -709,6 +700,16 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 100; // the modbus field for SetActivePower has the unit 0.1 kW
+	}
+
+	@Override
+	public Constraint[] getStaticConstraints() {
+		return new Constraint[] {
+				// ReactivePower limitations
+				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE, Relationship.GREATER_OR_EQUALS,
+						MIN_REACTIVE_POWER),
+				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE, Relationship.LESS_OR_EQUALS,
+						MAX_REACTIVE_POWER) };
 	}
 
 }
