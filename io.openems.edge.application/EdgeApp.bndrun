@@ -36,6 +36,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.limitactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.linearpowerband)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.peakshaving)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.randompower)',\
@@ -79,6 +80,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
+	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
