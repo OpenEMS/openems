@@ -290,9 +290,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
 
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
 
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_ERROR_CODE_FEEDBACK, 0);
 		writeValueToChannel(GridConChannelId.PCS_COMMAND_CONTROL_PARAMETER_Q_REF, 0);
@@ -344,6 +344,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case READY:
 			break;
 		case RUN:
+			doRunHandling();
 			break;
 		case SHORT_CIRCUIT_DETECTED:
 			break;
@@ -356,6 +357,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case VOLTAGE_RAMPING_UP:
 			break;
 		}
+	}
+
+	private void doRunHandling() {
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
 	}
 
 	private void writeCCUControlParameters(PControlMode mode) {
@@ -438,9 +446,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
 
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
 	}
 
 	// TODO Shutdown system
