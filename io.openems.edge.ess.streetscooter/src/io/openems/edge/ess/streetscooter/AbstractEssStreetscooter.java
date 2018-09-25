@@ -3,6 +3,7 @@ package io.openems.edge.ess.streetscooter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -19,12 +20,15 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
@@ -37,7 +41,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-//	private final Logger log = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
+	private final Logger log = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
 
 	private final PowerHandler powerHandler;
 
@@ -109,7 +113,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 								new FloatDoublewordElement(batteryInfoStartAddress + 6).wordOrder(WordOrder.LSWMSW)),
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
-								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW), ElementToChannelConverter.INVERT),
+								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.INVERT),
 						m(SymmetricEss.ChannelId.SOC,
 								new FloatDoublewordElement(batteryInfoStartAddress + 10).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_SOH,
@@ -189,37 +194,6 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ChannelId.BATTERY_CONNECTED, new CoilElement(getBatteryConnectedAddress()))),
 				new FC2ReadInputsTask(getBatteryOverloadAddress(), Priority.HIGH,
 						m(ChannelId.BATTERY_OVERLOAD, new CoilElement(getBatteryOverloadAddress()))));
-	}
-
-	public enum InverterMode implements OptionsEnum {
-		UNDEFINED(-1, "Undefined"), //
-		INITIAL(0, "Initial"), //
-		WAIT(1, "Wait"), //
-		START_UP(2, "Start up"), //
-		NORMAL(3, "Normal"), //
-		OFF_GRID(4, "Off grid"), //
-		FAULT(5, "Fault"), //
-		PERMANENT_FAULT(6, "Permanent fault"), //
-		UPDATE_MASTER(7, "Program update of master controller"), //
-		UPDATE_SLAVE(8, "Program update of slave controller");
-
-		private final int value;
-		private final String option;
-
-		private InverterMode(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
-		}
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -325,14 +299,39 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	protected abstract int getIcuRunstateAddress();
 
 	protected abstract int getInverterModeAddress();
-	
+
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
-	
+
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
+	}
+
+	@Override
+	/**
+	 * Disables Power Output if InverterMode is not NORMAL
+	 */
+	public Constraint[] getStaticConstraints() {
+		try {
+			@SuppressWarnings("unchecked")
+			Enum<InverterMode> inverterMode = (Enum<InverterMode>) this.channel(ChannelId.INVERTER_MODE).value()
+					.asEnum();
+			if (inverterMode != InverterMode.NORMAL
+//					|| this.powerHandler.handlingEwonFailureSince != null
+			) {
+				return new Constraint[] { //
+						this.createPowerConstraint("Wrong InverterMode: " + inverterMode.name(), Phase.ALL, Pwr.ACTIVE,
+								Relationship.EQUALS, 0), //
+						this.createPowerConstraint("Wrong InverterMode: " + inverterMode.name(), Phase.ALL,
+								Pwr.REACTIVE, Relationship.EQUALS, 0) //
+				};
+			}
+		} catch (Exception e) {
+			this.logError(this.log, e.getMessage());
+		}
+		return new Constraint[] {};
 	}
 }
