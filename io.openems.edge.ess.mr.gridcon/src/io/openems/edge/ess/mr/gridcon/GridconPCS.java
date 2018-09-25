@@ -236,7 +236,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private GridMode getOnOffGrid() {
-//		return GridMode.ON_GRID;
 		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
 				.channel(this.inputNAProtection1.getChannelId());
 		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
@@ -248,18 +247,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		SymmetricEss.GridMode gridMode;
 		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
 			gridMode = SymmetricEss.GridMode.UNDEFINED;
-		}
-		if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-			gridMode = SymmetricEss.GridMode.ON_GRID;
 		} else {
-			gridMode = SymmetricEss.GridMode.OFF_GRID;
+			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
+				gridMode = SymmetricEss.GridMode.ON_GRID;
+			} else {
+				gridMode = SymmetricEss.GridMode.OFF_GRID;
+			}
 		}
 		this.getGridMode().setNextValue(gridMode);
 		return gridMode;
 	}
 
 	private void handleStateMachine() {
-		log.info("handleStateMachine");
 		this.prepareGeneralCommands();
 
 		GridMode gridMode = this.getOnOffGrid();
