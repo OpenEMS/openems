@@ -167,47 +167,47 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.channel(GridConChannelId.PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
-
-			if (value != null) {
-				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
-				if (ctrlWordOpt.isPresent()) {
-					Integer ctrlWord = ctrlWordOpt.get();
-					String strCtrlWord = Integer.toBinaryString(ctrlWord);
-
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
-							GridConChannelId.PCS_COMMAND_CONTROL_WORD_PLAY);
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
-							GridConChannelId.PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
-							GridConChannelId.PCS_COMMAND_CONTROL_WORD_STOP);
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
-							GridConChannelId.PCS_COMMAND_CONTROL_WORD_READY);
-				}
-			}
-			;
-		});
-
-		this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
-
-			if (value != null) {
-				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
-				if (ctrlWordOpt.isPresent()) {
-					Integer ctrlWord = ctrlWordOpt.get();
-					String strCtrlWord = Integer.toBinaryString(ctrlWord);
-
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
-							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_PLAY);
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
-							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
-							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_STOP);
-					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
-							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_READY);
-				}
-			}
-			;
-		});
+//		this.channel(GridConChannelId.PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
+//
+//			if (value != null) {
+//				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+//				if (ctrlWordOpt.isPresent()) {
+//					Integer ctrlWord = ctrlWordOpt.get();
+//					String strCtrlWord = Integer.toBinaryString(ctrlWord);
+//
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
+//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_PLAY);
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
+//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
+//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_STOP);
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
+//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_READY);
+//				}
+//			}
+//			;
+//		});
+//
+//		this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
+//
+//			if (value != null) {
+//				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+//				if (ctrlWordOpt.isPresent()) {
+//					Integer ctrlWord = ctrlWordOpt.get();
+//					String strCtrlWord = Integer.toBinaryString(ctrlWord);
+//
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
+//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_PLAY);
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
+//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
+//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_STOP);
+//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
+//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_READY);
+//				}
+//			}
+//			;
+//		});
 
 		/*
 		 * Initialize Power
