@@ -88,7 +88,7 @@ public class Solver {
 		}
 	}
 
-	public int getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
+	public double getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
 		// prepare objective function
 		int index = this.data.getCoefficient(ess, phase, pwr).getIndex();
 		double[] cos = Solver.getEmptyCoefficients(data);
@@ -107,8 +107,7 @@ public class Solver {
 					constraints, //
 					goal, //
 					PivotSelectionRule.BLAND);
-			double result = solution.getPoint()[index];
-			return (int) result;
+			return solution.getPoint()[index];
 		} catch (UnboundedSolutionException e) {
 			if (this.debugMode) {
 				PowerComponent.debugLogConstraints(this.log, "No Constraints for " + goal.name() + " Active Power.",
