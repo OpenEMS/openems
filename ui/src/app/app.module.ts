@@ -35,7 +35,7 @@ import { BrowserXhr, HttpModule } from '@angular/http';
 import { CustExtBrowserXhr } from './cust-ext-browser-xhr';
 import { Interceptor } from './interceptor';
 
-
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
@@ -72,7 +72,8 @@ import { environment } from '../environments/environment';
     { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' },
     //{ provide: BrowserXhr, useClass: CustExtBrowserXhr },
-    { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
+    SpinnerDialog
 
 
   ],

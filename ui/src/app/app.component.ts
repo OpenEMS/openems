@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ToasterService } from 'angular2-toaster';
 import { filter } from 'rxjs/operators';
 
-import { Platform, PopoverController, ToastController } from '@ionic/angular';
+import { Platform, PopoverController, ToastController, IonicModule } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
@@ -57,10 +57,8 @@ export class AppComponent {
       toast.present();
     });
 
-    document.addEventListener("deviceready", function () {
 
-    }, false);
-
+    document.addEventListener("backbutton", (ev: Event) => { this.onBackDown(); }, false);
     // set initial backUrl
     this.updateBackUrl(window.location.pathname);
     // update backUrl on navigation events
@@ -72,7 +70,14 @@ export class AppComponent {
       this.updateBackUrl(url);
     })
   }
+  onBackDown() {
+    console.info("Back button pressed");
+    if (window.location.pathname === '/index') {
+      navigator['app'].exitApp();
+    }
+    else { window.history.back() }
 
+  };
   updateBackUrl(url: string) {
     // disable backUrl on initial 'index' page
     if (url === '/index') {
@@ -118,5 +123,7 @@ export class AppComponent {
     });
     return await popover.present();
   }
+
+
 
 }

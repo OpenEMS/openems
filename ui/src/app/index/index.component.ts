@@ -11,7 +11,7 @@ import { Websocket, Utils, Service } from '../shared/shared';
 import { Edge } from '../shared/edge/edge';
 
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from '@angular/common/http';
-
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 @Component({
   selector: 'index',
@@ -36,6 +36,7 @@ export class IndexComponent {
     private wpformBuilder: FormBuilder,
     private router: Router,
     private http: HttpClient,
+    private spinnerDialog: SpinnerDialog,
     private service: Service) {
     this.form = this.formBuilder.group({
       "password": this.formBuilder.control('user')
@@ -93,7 +94,7 @@ export class IndexComponent {
     if (this.wpForm.invalid) {
       return;
     }
-
+    this.spinnerDialog.show("Login", "Verbindung wird aufgebaut");
     let password: string = this.wpForm.value['password'];
     let username: string = this.wpForm.value['username'];
     let headers = new HttpHeaders();
@@ -104,9 +105,9 @@ export class IndexComponent {
     body.append('log', username);
     body.append('pwd', password);
 
-    this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response") },
-      (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); } },
-      () => { this.websocket.wpconnect(); });
+    this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.spinnerDialog.hide(); },
+      (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); this.spinnerDialog.hide(); } },
+      () => { this.websocket.wpconnect(); this.spinnerDialog.hide(); });
     //this.websocket.wpconnect();
 
 
