@@ -35,7 +35,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -84,11 +83,15 @@ public class CenturioEss extends AbstractOpenemsComponent
 		 */
 		
 		// Allowed Charge
+		/*
 		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GREATER_OR_EQUALS, 0 /* initial zero; is set later */);
-		// Allowed Discharge
+				Relationship.GREATER_OR_EQUALS, 0);
+		*/
+				// Allowed Discharge
+		/*
 		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LESS_OR_EQUALS, 0 /* initial zero; is set later */);		
+				Relationship.LESS_OR_EQUALS, 0);
+		*/
 
 	
 	}
@@ -262,16 +265,18 @@ public class CenturioEss extends AbstractOpenemsComponent
 			
 		
 		if (soc == 100) {
-			this.allowedChargeConstraint.setValue(0);;
-			
+			//this.allowedChargeConstraint.setValue(0);;
+			this.getAllowedCharge().setNextValue(0);
 		} else {
-			this.allowedChargeConstraint.setValue(this.maxApparentPower * -1);
+			//this.allowedChargeConstraint.setValue(this.maxApparentPower * -1);
+			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
 		}
 		if (soc == 0) {
-			this.allowedDischargeConstraint.setValue(0);
-			
+			//this.allowedDischargeConstraint.setValue(0);
+			this.getAllowedDischarge().setNextValue(0);
 		} else {
-			this.allowedDischargeConstraint.setValue(this.maxApparentPower);
+			//this.allowedDischargeConstraint.setValue(this.maxApparentPower);
+			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
 		}
 		float old = settings.getPacSetPoint();
 		if(old != activePower) {
