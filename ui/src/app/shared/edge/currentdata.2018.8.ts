@@ -45,7 +45,8 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 buyActivePower: null,
                 maxBuyActivePower: null,
                 sellActivePower: null,
-                maxSellActivePower: null
+                maxSellActivePower: null,
+                gridMode: null,
             }, consumption: {
                 powerRatio: null,
                 activePower: null

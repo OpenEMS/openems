@@ -121,7 +121,7 @@ export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config
                 // Ess
                 'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
                 // Grid
-                'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
+                'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower', 'gridMode',
                 // Production
                 'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
                 // Consumption
