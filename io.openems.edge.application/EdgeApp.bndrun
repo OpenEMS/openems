@@ -36,13 +36,15 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.limitactivepower)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.linearpowerband)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.peakshaving)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.randompower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.cluster)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.mini)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.pro)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.mr.gridcon)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.kaco.blueplanet.gridsave50)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.carlo.gavazzi.em300)',\
@@ -78,13 +80,15 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
+	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\
+	io.openems.edge.controller.symmetric.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.symmetric.peakshaving;version=snapshot,\
+	io.openems.edge.controller.symmetric.randompower;version=snapshot,\
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.fenecon.mini;version=snapshot,\
-	io.openems.edge.fenecon.pro;version=snapshot,\
+	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\

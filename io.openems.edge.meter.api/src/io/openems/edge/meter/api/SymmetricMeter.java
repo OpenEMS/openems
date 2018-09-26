@@ -218,7 +218,27 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Consumption Active Energy in [Wh]. This relates to negative ACTIVE_POWER.
+	 * Gets the Frequency in [mHz]. FREQUENCY
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getFrequency() {
+		return this.channel(ChannelId.FREQUENCY);
+	}
+
+	/**
+	 * Gets the Voltage in [mV].
+	 * 
+	 * @return
+	 */
+
+	default Channel<Integer> getVoltage() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Consumption Active Energy in [Wh]. This relates to negative
+	 * ACTIVE_POWER.
 	 * 
 	 * @return
 	 */
@@ -260,7 +280,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		this.getMinActivePower().setNextValue(minActivePowerConfig);
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
-		// TODO: use a "StorageChannel" service for this; the following was never properly working
+		// TODO: use a "StorageChannel" service for this; the following was never
+		// properly working
 //		this.getMinActivePower().onChange(value -> {
 //			if ((Float)value.get() != (float) minActivePowerConfig) {
 //				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());

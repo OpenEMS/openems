@@ -3,7 +3,7 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
-	io.openems.edge.common.channel,\
+	io.openems.edge.bridge.modbus.api,\
 	io.openems.edge.common.component,\
 	io.openems.edge.common.worker,\
 	io.openems.edge.common.channel.doc,\
@@ -11,6 +11,7 @@ Export-Package: \
 	io.openems.edge.common.channel.merger,\
 	io.openems.edge.common.converter,\
 	io.openems.edge.common.channel.value,\
+	io.openems.edge.common.channel,\
 	io.openems.edge.api.user,\
 	io.openems.edge.common.user,\
 	io.openems.edge.common.type,\

@@ -8,6 +8,10 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -23,7 +27,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 )
 public class BatteryDummy extends AbstractOpenemsComponent implements Battery, OpenemsComponent, EventHandler {
 
-//	private final Logger log = LoggerFactory.getLogger(BatteryDummy.class);
+	private final Logger log = LoggerFactory.getLogger(BatteryDummy.class);
 
 	private int disChargeMinVoltage;
 	private int chargeMaxVoltage;
@@ -32,6 +36,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int soc;
 	private int soh;
 	private int temperature;
+	private int capacityKWh;
 
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -47,6 +52,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		soc = config.soc();
 		soh = config.soh();
 		temperature = config.temperature();
+		capacityKWh = config.capacityKWh();
 	}
 
 	@Override
@@ -66,14 +72,26 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		IntegerWriteChannel socChannel = this.channel(Battery.ChannelId.SOC);
 		IntegerWriteChannel sohChannel = this.channel(Battery.ChannelId.SOH);
 		IntegerWriteChannel tempChannel = this.channel(Battery.ChannelId.BATTERY_TEMP);
+		IntegerWriteChannel capacityChannel = this.channel(Battery.ChannelId.CAPACITY_KWH);
 
-		disChargeMinVoltageChannel.setNextValue(disChargeMinVoltage);
-		chargeMaxVoltageChannel.setNextValue(chargeMaxVoltage);
-		disChargeMaxCurrentChannel.setNextValue(disChargeMaxCurrent);
-		chargeMaxCurrentChannel.setNextValue(chargeMaxCurrent);
-		socChannel.setNextValue(soc);
-		sohChannel.setNextValue(soh);
-		tempChannel.setNextValue(temperature);
+		try {
+			disChargeMinVoltageChannel.setNextWriteValue(disChargeMinVoltage);
+			chargeMaxVoltageChannel.setNextWriteValue(chargeMaxVoltage);
+			disChargeMaxCurrentChannel.setNextWriteValue(disChargeMaxCurrent);
+			chargeMaxCurrentChannel.setNextWriteValue(chargeMaxCurrent);
+			socChannel.setNextValue(soc);
+			sohChannel.setNextValue(soh);
+			tempChannel.setNextValue(temperature);
+			capacityChannel.setNextWriteValue(capacityKWh);
+		
+			disChargeMinVoltageChannel.setNextValue(disChargeMinVoltage);
+			chargeMaxVoltageChannel.setNextValue(chargeMaxVoltage);
+			disChargeMaxCurrentChannel.setNextValue(disChargeMaxCurrent);
+			chargeMaxCurrentChannel.setNextValue(chargeMaxCurrent);
+
+		} catch (OpenemsException e) {
+			log.error("Error occurred while writing channel values! " + e.getMessage());
+		}
 	}
 
 }
