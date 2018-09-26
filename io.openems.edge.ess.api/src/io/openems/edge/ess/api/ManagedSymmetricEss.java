@@ -134,7 +134,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @return
 	 */
 	public default Constraint[] getStaticConstraints() {
-		return new Constraint[] {};
+		return Power.NO_CONSTRAINTS;
 	}
 
 	/**
