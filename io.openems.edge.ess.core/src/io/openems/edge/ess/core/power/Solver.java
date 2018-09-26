@@ -142,11 +142,11 @@ public class Solver {
 		}
 		List<Inverter> allInverters = data.getInverters();
 
-		// Add Strict constraints if required
-		// this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters);
-
 		// Check if the Problem is solvable at all.
 		List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
+
+		// Add Strict constraints if required
+		this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
 
 		// Print log with currently active EQUALS != 0 Constraints
 //		for (Constraint c : allConstraints) {
@@ -194,6 +194,7 @@ public class Solver {
 			}
 		}
 
+		// Apply final Solution to Inverters
 		if (solution != null) {
 			// announce success
 			this.onSolved.accept(true);
@@ -205,9 +206,6 @@ public class Solver {
 
 			this.applySolution(this.getZeroSolution(allInverters));
 		}
-
-		// Apply final Solution to Inverters
-
 	}
 
 	/**
@@ -216,37 +214,83 @@ public class Solver {
 	 * 
 	 * @param allInverters
 	 */
-//	private void addConstraintsForNotStrictlyDefinedCoefficients(List<Inverter> allInverters) {
-//		for (Inverter inv : allInverters) {
-//			for (Pwr pwr : Pwr.values()) {
-//				double max = this.getActivePowerExtrema(inv.getEss(), inv.getPhase(), pwr, GoalType.MAXIMIZE);
-//				double min = this.getActivePowerExtrema(inv.getEss(), inv.getPhase(), pwr, GoalType.MINIMIZE);
-//
-//				if (min == max) {
-//					// Already strictly defined.
-//					continue;
-//				}
-//
-//				double target;
-//				if (0 < max && 0 > min) {
-//					// set to zero
-//					target = 0;
-//				} else if (Math.abs(max) < Math.abs(min)) {
-//					// set to smallest distance from zero -> max
-//					target = max;
-//				} else {
-//					// set to smallest distance from zero -> min
-//					target = min;
-//				}
-//
-//				Constraint c = this.data.createSimpleConstraint(inv.toString() + ": strictly define " + pwr.toString(),
-//						inv.getEss(), inv.getPhase(), pwr, Relationship.EQUALS, target);
-//				log.info("Add Constraint: " + c.toString());
-//				this.data.addConstraint(c);
-//			}
-//		}
-//
-//	}
+	private void addConstraintsForNotStrictlyDefinedCoefficients(List<Inverter> allInverters,
+			List<Constraint> allConstraints) {
+		LinearConstraintSet constraints = new LinearConstraintSet(
+				Solver.convertToLinearConstraints(this.data, allConstraints));
+
+		for (Pwr pwr : Pwr.values()) {
+			// prepare objective function
+			double[] cos = Solver.getEmptyCoefficients(data);
+			for (Inverter inv : allInverters) {
+				Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+				cos[c.getIndex()] = 1;
+			}
+			LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
+
+			// get Max value over all relevant Coefficients
+			double max;
+			try {
+				SimplexSolver solver = new SimplexSolver();
+				PointValuePair solution = solver.optimize( //
+						objectiveFunction, //
+						constraints, //
+						GoalType.MAXIMIZE, //
+						PivotSelectionRule.BLAND);
+				max = 0d;
+				for (Inverter inv : allInverters) {
+					Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+					max += solution.getPoint()[c.getIndex()];
+				}
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+				max = Double.MAX_VALUE;
+			}
+			// get Min value over all relevant Coefficients
+			double min;
+			try {
+				SimplexSolver solver = new SimplexSolver();
+				PointValuePair solution = solver.optimize( //
+						objectiveFunction, //
+						constraints, //
+						GoalType.MINIMIZE, //
+						PivotSelectionRule.BLAND);
+				min = 0d;
+				for (Inverter inv : allInverters) {
+					Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+					min += solution.getPoint()[c.getIndex()];
+				}
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+				min = Double.MIN_VALUE;
+			}
+
+			if (min == max) {
+				// Already strictly defined.
+				continue;
+			}
+
+			// find the best value to set for EQUALS constraint
+			double target;
+			if (0 < max && 0 > min) {
+				// set to zero
+				target = 0;
+			} else if (Math.abs(max) < Math.abs(min)) {
+				// set to smallest distance from zero -> max
+				target = max;
+			} else {
+				// set to smallest distance from zero -> min
+				target = min;
+			}
+
+			LinearCoefficient[] lcs = new LinearCoefficient[allInverters.size()];
+			for (int i = 0; i < allInverters.size(); i++) {
+				Inverter inv = allInverters.get(i);
+				Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+				lcs[i] = new LinearCoefficient(c, 1);
+			}
+			Constraint c = new Constraint("Strictly define " + pwr.name(), lcs, Relationship.EQUALS, target);
+			allConstraints.add(c);
+		}
+	}
 
 	/**
 	 * Tries to distribute power equally between inverters
