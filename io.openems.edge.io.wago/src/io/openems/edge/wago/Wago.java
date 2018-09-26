@@ -198,12 +198,16 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				this.protocol.addTask(writeCoilTask);
 			}
 		}
-		this.protocol.addTask( //
-				new FC1ReadCoilsTask(0, Priority.LOW,
-						readElements0.toArray(new AbstractModbusElement<?>[readElements0.size()])));
-		this.protocol.addTask( //
-				new FC1ReadCoilsTask(512, Priority.LOW,
-						readElements512.toArray(new AbstractModbusElement<?>[readElements512.size()])));
+		if (!readElements0.isEmpty()) {
+			this.protocol.addTask( //
+					new FC1ReadCoilsTask(0, Priority.LOW,
+							readElements0.toArray(new AbstractModbusElement<?>[readElements0.size()])));
+		}
+		if (!readElements512.isEmpty()) {
+			this.protocol.addTask( //
+					new FC1ReadCoilsTask(512, Priority.LOW,
+							readElements512.toArray(new AbstractModbusElement<?>[readElements512.size()])));
+		}
 	}
 
 	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.doc.ChannelId channelId,
@@ -246,7 +250,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		}
 		StringBuilder b = new StringBuilder();
 		for (int i = 0; i < this.modules.size(); i++) {
-			b.append("M" + i + " ");
+			b.append("M" + i + ":");
 			BooleanReadChannel[] channels = this.modules.get(i).getChannels();
 			for (int j = 0; j < channels.length; j++) {
 				Optional<Boolean> valueOpt = channels[j].value().asOptional();

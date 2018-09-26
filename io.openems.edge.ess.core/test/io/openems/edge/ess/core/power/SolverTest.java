@@ -116,7 +116,7 @@ public class SolverTest {
 		ess6.expectP(1601).expectQ(0);
 		s.solve();
 
-		// #4
+		// #4 not strictly defined force charge
 		d.initializeCycle();
 		d.addSimpleConstraint("#4", ess1, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		d.addSimpleConstraint("#4", ess2, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
@@ -167,7 +167,7 @@ public class SolverTest {
 		ess0.expectP(-300);
 		s.solve();
 
-		// #4 force charge
+		// #5 not strictly defined force charge
 		d.initializeCycle();
 		ess0.soc(50);
 		d.addSimpleConstraint("#5", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
@@ -232,7 +232,7 @@ public class SolverTest {
 		assertEquals("ess2", is.get(3).toString());
 
 		// #2 ess3 weight is clearly below ess0 -> resort
-		inv3.weight = 45;
+		inv3.weight = 35;
 		Data.invertersAdjustSortingByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());

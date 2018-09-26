@@ -30,7 +30,6 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -39,6 +38,7 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -60,6 +60,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	
 	private static final int SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS = 3;
 	private static final int MAX_TIME_FOR_INITIALIZATION_IN_SECONDS = 30;
+	public static final Integer CAPACITY_KWH = 50;
 	
 	private final Logger log = LoggerFactory.getLogger(SoltaroRack.class);
 	

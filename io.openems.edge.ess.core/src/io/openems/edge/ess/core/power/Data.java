@@ -432,5 +432,5 @@ public class Data {
 		}
 	}
 
-	private final static float SORT_FACTOR = 1.1f;
+	private final static float SORT_FACTOR = 1.3f;
 }
