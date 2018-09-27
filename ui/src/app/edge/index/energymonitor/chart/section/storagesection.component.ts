@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 import { interval } from 'rxjs';
@@ -10,10 +10,11 @@ import { interval } from 'rxjs';
     templateUrl: './section.component.html'
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
-
     constructor(translate: TranslateService) {
         super('Edge.Index.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
+
+
 
     ngOnInit() {
         interval(1000)
@@ -46,7 +47,21 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        return "storage.png";
+        if (this.valueText2 < "20") {
+            return "storage_20.png"
+        }
+        if (this.valueText2 < "30") {
+            return "storage_40.png"
+        }
+        if (this.valueText2 < "60") {
+            return "storage_60.png"
+        }
+        if (this.valueText2 < "90") {
+            return "storage_80.png"
+        }
+        if (this.valueText2 < "100") {
+            return "storage_100.png";
+        }
     }
 
     protected getValueText(value: number): string {
