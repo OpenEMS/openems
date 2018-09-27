@@ -75,7 +75,7 @@ export class AppComponent {
     if (window.location.pathname === '/index') {
       navigator['app'].exitApp();
     }
-    else { window.history.back() }
+    else { this.router.navigate([this.backUrl]); }
 
   };
   updateBackUrl(url: string) {

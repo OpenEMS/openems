@@ -2,7 +2,7 @@ import { Role } from '../type/role'
 
 export module DefaultTypes {
 
-  export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
+  export type Backend = "OpenEMS Backend" | "OpenEMS Edge" | "App";
 
   export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
 

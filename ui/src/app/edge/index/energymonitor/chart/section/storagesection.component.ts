@@ -34,7 +34,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             super.updateValue(0, 0, 0);
         }
         if (valueRatio != null) {
-            this.valueText2 = Math.round(valueRatio) + " %";
+            this.valueText2 = Math.round(valueRatio).toString();
         } else {
             this.valueText2 = "";
         }
@@ -47,19 +47,20 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        if (this.valueText2 < "20") {
+
+        if (parseInt(this.valueText2) < 20) {
             return "storage_20.png"
         }
-        if (this.valueText2 < "30") {
+        if (parseInt(this.valueText2) < 30) {
             return "storage_40.png"
         }
-        if (this.valueText2 < "60") {
+        if (parseInt(this.valueText2) < 60) {
             return "storage_60.png"
         }
-        if (this.valueText2 < "90") {
+        if (parseInt(this.valueText2) < 90) {
             return "storage_80.png"
         }
-        if (this.valueText2 < "100") {
+        if (parseInt(this.valueText2) <= 100) {
             return "storage_100.png";
         }
     }

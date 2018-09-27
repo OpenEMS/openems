@@ -30,7 +30,7 @@
         </ion-card-content>
 
       </ion-card>
-      <ion-card *ngIf="websocket.status != 'online'" padding>
+      <ion-card *ngIf="env.backend === 'App' && websocket.status != 'online'" padding>
         <ion-item>
           <ion-icon slot="start" name="contact" color="primary"></ion-icon>
           <ion-label>
@@ -94,7 +94,7 @@
               <p *ngIf="!edge.online" text-wrap>Das Gerät ist nicht verbunden!</p>
             </ion-label>
             <ion-label>
-              <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+              <ng-container *ngIf="env.backend === 'OpenEMS Backend' || env.backend === 'App'">
                 <p>ID: {{ edge.name }}</p>
                 <p text-wrap>Typ: {{ edge.producttype }}</p>
               </ng-container>

@@ -206,7 +206,7 @@ export class Websocket {
               } else {
                 console.info("would redirect...");
               }
-            } else if (env.backend === "OpenEMS Edge") {
+            } else if (env.backend === "OpenEMS Edge" || env.backend === "App") {
               this.router.navigate(['/index']);
             }
           }
