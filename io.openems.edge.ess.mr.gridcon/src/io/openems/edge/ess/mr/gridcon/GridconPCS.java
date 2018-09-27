@@ -167,47 +167,33 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-//		this.channel(GridConChannelId.PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
-//
-//			if (value != null) {
-//				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
-//				if (ctrlWordOpt.isPresent()) {
-//					Integer ctrlWord = ctrlWordOpt.get();
-//					String strCtrlWord = Integer.toBinaryString(ctrlWord);
-//
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
-//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_PLAY);
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
-//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
-//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_STOP);
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
-//							GridConChannelId.PCS_COMMAND_CONTROL_WORD_READY);
-//				}
-//			}
-//			;
-//		});
-//
-//		this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
-//
-//			if (value != null) {
-//				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
-//				if (ctrlWordOpt.isPresent()) {
-//					Integer ctrlWord = ctrlWordOpt.get();
-//					String strCtrlWord = Integer.toBinaryString(ctrlWord);
-//
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.PLAY.getBitPosition(), 1),
-//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_PLAY);
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), 1),
-//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.STOP.getBitPosition(), 1),
-//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_STOP);
-//					mapToChannel(strCtrlWord.substring(PCSControlWordBitPosition.READY.getBitPosition(), 1),
-//							GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_READY);
-//				}
-//			}
-//			;
-//		});
+		this.channel(GridConChannelId.PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
+			if (value != null) {
+				@SuppressWarnings("unchecked")
+				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+				if (ctrlWordOpt.isPresent()) {
+					Integer ctrlWord = ctrlWordOpt.get();
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.PLAY, GridConChannelId.PCS_COMMAND_CONTROL_WORD_PLAY);
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.ACKNOWLEDGE, GridConChannelId.PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.STOP, GridConChannelId.PCS_COMMAND_CONTROL_WORD_STOP);
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY, GridConChannelId.PCS_COMMAND_CONTROL_WORD_READY);
+				}
+			};
+		});
+
+		this.channel(GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD).onUpdate(value -> {
+			if (value != null) {
+				@SuppressWarnings("unchecked")
+				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+				if (ctrlWordOpt.isPresent()) {
+					Integer ctrlWord = ctrlWordOpt.get();
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.PLAY, GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_PLAY);
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.ACKNOWLEDGE, GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.STOP, GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_STOP);
+					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY, GridConChannelId.MIRROR_PCS_COMMAND_CONTROL_WORD_READY);
+				}
+			};
+		});
 
 		/*
 		 * Initialize Power
@@ -224,10 +210,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
-	}
-
-	private void mapToChannel(String bit, GridConChannelId id) {
-		this.channel(id).setNextValue(bit.equals("1"));
 	}
 
 	@Deactivate
@@ -795,6 +777,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		int soC = (int) (sumCurrentCapacity * 100 / sumCapacity);
 		this.getSoc().setNextValue(soC);
+	}
+	
+	// checks if bit at requested position is set and writes it to given channel id 
+	private void mapBitToChannel(Integer ctrlWord, PCSControlWordBitPosition bitPosition, GridConChannelId id) {				
+		boolean val = ((ctrlWord >> bitPosition.getBitPosition()) & 1) == 1;		
+		this.channel(id).setNextValue(val);
 	}
 
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
