@@ -10,6 +10,7 @@ import { interval } from 'rxjs';
     templateUrl: './section.component.html'
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
+    storagepath: string
     constructor(translate: TranslateService) {
         super('Edge.Index.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
@@ -35,10 +36,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         }
         if (valueRatio != null) {
             this.valueText2 = Math.round(valueRatio) + " %";
+            this.square.image.image = super.getSquare(this.innerRadius).image.image
         } else {
             this.valueText2 = "";
         }
-        this.square.image.image = this.getImagePath();
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -48,21 +49,23 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
+        if (this.valueText2 > "0" && this.valueText2 < "10") {
+            return "storage_20.png"
+        }
         if (this.valueText2 < "20") {
             return "storage_20.png"
         }
-        if (this.valueText2 < "30") {
+        if (this.valueText2 < "40") {
             return "storage_40.png"
         }
         if (this.valueText2 < "60") {
             return "storage_60.png"
         }
-        if (this.valueText2 < "90") {
+        if (this.valueText2 < "86") {
             return "storage_80.png"
         }
-        if (this.valueText2 < "100") {
-            return "storage_100.png";
-        }
+
+        else { return "storage_100.png" }
     }
 
     protected getValueText(value: number): string {
