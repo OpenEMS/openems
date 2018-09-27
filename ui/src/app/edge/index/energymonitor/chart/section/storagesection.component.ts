@@ -38,6 +38,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         } else {
             this.valueText2 = "";
         }
+        this.square.image.image = this.getImagePath();
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
