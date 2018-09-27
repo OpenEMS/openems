@@ -65,6 +65,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	private final Logger log = LoggerFactory.getLogger(SoltaroRack.class);
 	
 	private String modbusBridgeId;
+	private BatteryState batteryState;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -88,6 +89,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		
+		this.batteryState = config.batteryState();
 		initializeContactControlCallback();
 	}
 	
@@ -133,18 +135,33 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			checkSystemState();
+			handleBatteryState();			
 			break;
 		}
 	}
 
-	private void checkSystemState() {
+	private void handleBatteryState() {
 		// Avoid that commands are written to fast to the battery rack
 		if (lastCommandSent.plusSeconds(SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS).isAfter(LocalDateTime.now())) {
 			return;
 		} else {
 			lastCommandSent = LocalDateTime.now();
 		}
+		
+		switch (this.batteryState) {
+		case DEFAULT:
+			checkSystemState();
+			break;
+		case OFF:
+			stopSystem();
+			break;
+		case ON:
+			startSystem();
+			break;
+		}
+	}
+
+	private void checkSystemState() {
 		
 		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
