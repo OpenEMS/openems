@@ -13,7 +13,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
-import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.InverterMode;
 
 public class PowerHandler implements BiConsumer<Integer, Integer> {
 

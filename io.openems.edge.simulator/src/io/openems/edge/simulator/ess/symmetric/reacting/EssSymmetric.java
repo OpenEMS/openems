@@ -75,6 +75,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		this.capacity = config.capacity();
 		this.maxApparentPower = config.maxApparentPower();
 		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
+		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
+		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
 	}
 
 	@Deactivate

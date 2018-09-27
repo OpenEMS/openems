@@ -11,7 +11,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
-	// TODO State of Health, Temperature?
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
 		 * State of Charge
@@ -24,7 +23,7 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		/*
+		/**
 		 * State of Health
 		 *
 		 * <ul>
@@ -105,6 +104,16 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
+		
+		/**
+		 * Capacity of battery
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		CAPACITY_KWH(new Doc().type(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)),
 		;
 
 		private final Doc doc;
@@ -198,5 +207,14 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Boolean> getReadyForWorking() {
 		return this.channel(ChannelId.READY_FOR_WORKING);
+	}
+	
+	/**
+	 * Gets the capacity of this battery
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getCapacity() {
+		return this.channel(ChannelId.CAPACITY_KWH);
 	}
 }

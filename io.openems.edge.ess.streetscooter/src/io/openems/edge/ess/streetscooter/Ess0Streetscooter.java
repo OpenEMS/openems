@@ -25,7 +25,6 @@ import io.openems.edge.ess.power.api.Power;
 public class Ess0Streetscooter extends AbstractEssStreetscooter
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
-	private static final int INVERTER_0_MODE_ADDRESS = 2056;
 	private static final int ICU_0_SET_POWER_ADDRESS = 4000;
 	private static final int ICU_0_ENABLED_ADDRESS = 4000;
 	private static final int BATTERY_0_ADDRESS_OFFSET = 0;
@@ -60,11 +59,6 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 	@Override
 	protected int getIcuSetPowerAddress() {
 		return ICU_0_SET_POWER_ADDRESS;
-	}
-
-	@Override
-	protected int getInverterModeAddress() {
-		return INVERTER_0_MODE_ADDRESS;
 	}
 
 	@Override
@@ -106,4 +100,5 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 	public Power getPower() {
 		return this.power;
 	}
+
 }
