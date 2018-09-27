@@ -16,7 +16,7 @@ EnRoute-Application: io.openems.edge.application
 	io.openems.edge.scheduler.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	com.google.guava,\
-	io.openems.wrapper.sdnotify;version=latest
+	io.openems.wrapper.sdnotify;version=latest,\
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12
