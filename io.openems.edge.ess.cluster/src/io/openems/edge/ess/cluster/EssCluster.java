@@ -42,6 +42,8 @@ import io.openems.edge.ess.api.MetaEss;
 public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler {
 
+//	private final Logger log = LoggerFactory.getLogger(EssCluster.class);
+	
 	private final AverageInteger<SymmetricEss> soc;
 	private final SumInteger<SymmetricEss> activePower;
 	private final SumInteger<SymmetricEss> reactivePower;
@@ -68,7 +70,12 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEss(SymmetricEss ess) {
+		// Do not add myself
 		if (ess == this) {
+			return;
+		}
+		// Do not add disabled Ess
+		if(!ess.isEnabled()) {
 			return;
 		}
 

@@ -17,22 +17,27 @@ import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	protected static final int UNIT_ID = 100;
-	protected static final int MAX_APPARENT_POWER = 12000;
+	protected static final int MAX_APPARENT_POWER = 11600;
 
-	private static final int POWER_PRECISION = 100;
+	private static final int POWER_PRECISION = 1;
 	private static final int ICU_RUN_ADDRESS = 4002;
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
@@ -93,13 +98,10 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ChannelId.ICU_ENABLED, new CoilElement(getIcuEnabledAddress()))),
 				new FC5WriteCoilTask(getIcuEnabledAddress(),
 						m(ChannelId.ICU_ENABLED, new CoilElement(getIcuEnabledAddress()))),
-				new FC4ReadInputRegistersTask(getInverterModeAddress(), Priority.HIGH,
-						m(ChannelId.INVERTER_MODE,
-								new FloatDoublewordElement(getInverterModeAddress()).wordOrder(WordOrder.LSWMSW))),
 				new FC16WriteRegistersTask(getIcuSetPowerAddress(),
 						m(ChannelId.INVERTER_SET_ACTIVE_POWER,
 								new FloatDoublewordElement(getIcuSetPowerAddress()).wordOrder(WordOrder.LSWMSW))),
-				new FC4ReadInputRegistersTask(batteryInfoStartAddress, Priority.HIGH,
+				new FC4ReadInputRegistersTask(batteryInfoStartAddress, Priority.LOW,
 						m(ChannelId.BATTERY_BMS_ERR,
 								new FloatDoublewordElement(batteryInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_I_ACT,
@@ -109,7 +111,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 								new FloatDoublewordElement(batteryInfoStartAddress + 6).wordOrder(WordOrder.LSWMSW)),
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
-								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW), ElementToChannelConverter.INVERT),
+								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.INVERT),
 						m(SymmetricEss.ChannelId.SOC,
 								new FloatDoublewordElement(batteryInfoStartAddress + 10).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_SOH,
@@ -124,7 +127,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(batteryInfoStartAddress + 20).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_WRN,
 								new FloatDoublewordElement(batteryInfoStartAddress + 22).wordOrder(WordOrder.LSWMSW))),
-				new FC4ReadInputRegistersTask(inverterInfoStartAddress, Priority.HIGH,
+				new FC4ReadInputRegistersTask(inverterInfoStartAddress, Priority.LOW,
 						m(ChannelId.INVERTER_ACTIVE_POWER,
 								new FloatDoublewordElement(inverterInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_DC1_FAULT_VALUE,
@@ -179,47 +182,23 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(inverterInfoStartAddress + 50).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_V_DC_1,
 								new FloatDoublewordElement(inverterInfoStartAddress + 52).wordOrder(WordOrder.LSWMSW)),
+						// Ewon: 2055 / 3055
 						m(ChannelId.INVERTER_V_DC_2,
-								new FloatDoublewordElement(inverterInfoStartAddress + 54).wordOrder(WordOrder.LSWMSW))),
-				new FC2ReadInputsTask(getIcuRunstateAddress(), Priority.HIGH,
+								new FloatDoublewordElement(inverterInfoStartAddress + 54).wordOrder(WordOrder.LSWMSW)),
+						// Ewon: 2057 / 3057
+						m(ChannelId.INVERTER_MODE,
+								new FloatDoublewordElement(inverterInfoStartAddress + 56).wordOrder(WordOrder.LSWMSW)),
+						// Ewon: 2059 / 3059
+						m(ChannelId.ICU_STATUS,
+								new FloatDoublewordElement(inverterInfoStartAddress + 58).wordOrder(WordOrder.LSWMSW))),
+				new FC2ReadInputsTask(getIcuRunstateAddress(), Priority.LOW,
 						m(ChannelId.ICU_RUNSTATE, new CoilElement(getIcuRunstateAddress()))),
-				new FC2ReadInputsTask(getInverterConnectedAddress(), Priority.HIGH,
+				new FC2ReadInputsTask(getInverterConnectedAddress(), Priority.LOW,
 						m(ChannelId.INVERTER_CONNECTED, new CoilElement(getInverterConnectedAddress()))),
-				new FC2ReadInputsTask(getBatteryConnectedAddress(), Priority.HIGH,
+				new FC2ReadInputsTask(getBatteryConnectedAddress(), Priority.LOW,
 						m(ChannelId.BATTERY_CONNECTED, new CoilElement(getBatteryConnectedAddress()))),
-				new FC2ReadInputsTask(getBatteryOverloadAddress(), Priority.HIGH,
+				new FC2ReadInputsTask(getBatteryOverloadAddress(), Priority.LOW,
 						m(ChannelId.BATTERY_OVERLOAD, new CoilElement(getBatteryOverloadAddress()))));
-	}
-
-	public enum InverterMode implements OptionsEnum {
-		UNDEFINED(-1, "Undefined"), //
-		INITIAL(0, "Initial"), //
-		WAIT(1, "Wait"), //
-		START_UP(2, "Start up"), //
-		NORMAL(3, "Normal"), //
-		OFF_GRID(4, "Off grid"), //
-		FAULT(5, "Fault"), //
-		PERMANENT_FAULT(6, "Permanent fault"), //
-		UPDATE_MASTER(7, "Program update of master controller"), //
-		UPDATE_SLAVE(8, "Program update of slave controller");
-
-		private final int value;
-		private final String option;
-
-		private InverterMode(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
-		}
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -240,6 +219,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 					});
 				})), //
 		ICU_RUNSTATE(new Doc().unit(Unit.ON_OFF)), //
+		ICU_STATUS(new Doc()), //
 		BATTERY_BMS_ERR(new Doc().unit(Unit.NONE)), //
 		BATTERY_BMS_I_ACT(new Doc().unit(Unit.AMPERE)), //
 		BATTERY_BMS_PWR_CHRG_MAX(new Doc().unit(Unit.WATT)), //
@@ -247,7 +227,17 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		BATTERY_BMS_ST_BAT(new Doc().unit(Unit.NONE)), //
 		BATTERY_BMS_T_MAX_PACK(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		BATTERY_BMS_T_MIN_PACK(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BATTERY_BMS_U_PACK(new Doc().unit(Unit.VOLT)), //
+		BATTERY_BMS_U_PACK(new Doc().unit(Unit.VOLT) //
+				// onChange calculate new value for MaxApparentPower
+				.onInit(channel -> { //
+					((IntegerReadChannel) channel).onChange(value -> {
+						final int CHARGE_DISCHARGE_CURRENT = 40; // in ampere
+						int maxApparentPower = Math.min(value.orElse(Integer.MAX_VALUE) * CHARGE_DISCHARGE_CURRENT,
+								MAX_APPARENT_POWER);
+						channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
+								.setNextValue(maxApparentPower);
+					});
+				})), //
 		BATTERY_BMS_WRN(new Doc().unit(Unit.NONE)), //
 		BATTERY_CONNECTED(new Doc().unit(Unit.ON_OFF)), //
 		BATTERY_OVERLOAD(new Doc().unit(Unit.ON_OFF)), //
@@ -324,15 +314,55 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 
 	protected abstract int getIcuRunstateAddress();
 
-	protected abstract int getInverterModeAddress();
-	
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
-	
+
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
+
+	private int invalidIcuStatusCounter = 0;
+
+	@Override
+	public Constraint[] getStaticConstraints() {
+		/*
+		 * Increase the invalidIcuStatusCounter if the ICU_STATUS is not ok.
+		 */
+		IntegerReadChannel icuStatusChannel = this.channel(ChannelId.ICU_STATUS);
+		int icuStatus = icuStatusChannel.value().orElse(0);
+		switch (icuStatus) {
+		case 20:
+		case 21:
+		case 120:
+		case 122:
+		case 200:
+		case 201:
+			invalidIcuStatusCounter = 0;
+
+		case 0:
+		case 101:
+		default:
+			invalidIcuStatusCounter++;
+		}
+
+		/*
+		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok -> block any
+		 * charging/discharging
+		 */
+		if (this.readonly || invalidIcuStatusCounter > 10) {
+			return new Constraint[] { //
+					this.createPowerConstraint("Wrong ICU_STATUS or disabled: " + icuStatus, Phase.ALL, Pwr.ACTIVE,
+							Relationship.EQUALS, 0), //
+					this.createPowerConstraint("Wrong ICU_STATUS or disabled: " + icuStatus, Phase.ALL, Pwr.REACTIVE,
+							Relationship.EQUALS, 0) //
+			};
+
+		} else {
+			return Power.NO_CONSTRAINTS;
+		}
+	}
+
 }

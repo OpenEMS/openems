@@ -91,7 +91,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 								int minNextActivePower = minActivePowerChannel.getNextValue().orElse(0);
 								if (newValue < Math.min(minActivePower, minNextActivePower)) {
 									// avoid getting called too often -> round to 100
-									newValue = IntUtils.roundToPrecision(newValue, Round.DOWN, 100);
+									newValue = IntUtils.roundToPrecision(newValue, Round.TOWARDS_ZERO, 100);
 									minActivePowerChannel.setNextValue(newValue);
 								}
 							}
@@ -102,7 +102,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 								int maxNextActivePower = maxActivePowerChannel.getNextValue().orElse(0);
 								if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
 									// avoid getting called too often -> round to 100
-									newValue = IntUtils.roundToPrecision(newValue, Round.UP, 100);
+									newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
 									maxActivePowerChannel.setNextValue(newValue);
 								}
 							}
@@ -218,7 +218,27 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Consumption Active Energy in [Wh]. This relates to negative ACTIVE_POWER.
+	 * Gets the Frequency in [mHz]. FREQUENCY
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getFrequency() {
+		return this.channel(ChannelId.FREQUENCY);
+	}
+
+	/**
+	 * Gets the Voltage in [mV].
+	 * 
+	 * @return
+	 */
+
+	default Channel<Integer> getVoltage() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Consumption Active Energy in [Wh]. This relates to negative
+	 * ACTIVE_POWER.
 	 * 
 	 * @return
 	 */
@@ -260,7 +280,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		this.getMinActivePower().setNextValue(minActivePowerConfig);
 		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
-		// TODO: use a "StorageChannel" service for this; the following was never properly working
+		// TODO: use a "StorageChannel" service for this; the following was never
+		// properly working
 //		this.getMinActivePower().onChange(value -> {
 //			if ((Float)value.get() != (float) minActivePowerConfig) {
 //				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());

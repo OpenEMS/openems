@@ -6,10 +6,12 @@ import java.util.Optional;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.StringUtils;
 
-@Component(name = "Metadata.Dummy")
+@Designate(ocd = Config.class, factory = false)
+@Component(name = "Metadata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Dummy implements MetadataService {
 
 	private final Logger log = LoggerFactory.getLogger(Dummy.class);

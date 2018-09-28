@@ -1,0 +1,22 @@
+= Configuration
+ifndef::backend-pdf[]
+= Configuration
+endif::[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+OpenEMS Edge and Backend are configured using the standard OSGi configuration admin service. The easiest way to set a configuration is via the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]] as described in the xref:gettingstarted.adoc[Getting Started] guide above.
+
+.Apache Felix Web Console Configuration
+image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]
+
+Configuration via OpenEMS UI is currently not available due to the ongoing migration to xref:coreconcepts.adoc#_osgi_bundle[OSGi]. Once migration is finished, it is going to be possible to change every configuration using the settings menu in OpenEMS UI - directly to OpenEMS Edge and via Backend.
+
+.OpenEMS UI Configuration
+image::ui-config.png[OpenEMS UI Configuration]

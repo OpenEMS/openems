@@ -72,10 +72,10 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.websocket.clearCurrentEdge();
   }
 
-  private requiredSubscribes: { [componentId: string]: DefaultTypes.ChannelAddresses } = {};
+  private subscribes: { [id: string]: DefaultTypes.ChannelAddresses } = {};
 
-  onRequiredSubscribes(componentId: string, subscribes: DefaultTypes.ChannelAddresses) {
-    this.requiredSubscribes[componentId] = subscribes;
+  public addSubscribes(id: string, subscribes: DefaultTypes.ChannelAddresses) {
+    this.subscribes[id] = subscribes;
     this.subscribe();
   }
 
@@ -90,19 +90,18 @@ export class IndexComponent implements OnInit, OnDestroy {
       return;
     }
     // merge channels from requiredSubscribes
-    //let channels: DefaultTypes.ChannelAddresses = {} // TODO move getImportantChannels to sub-components + event
     let channels: DefaultTypes.ChannelAddresses = this.config.getImportantChannels();
-    for (let componentId in this.requiredSubscribes) {
-      let requiredSubscribe = this.requiredSubscribes[componentId];
-      for (let thingId in requiredSubscribe) {
+    for (let componentId in this.subscribes) {
+      let subscribe = this.subscribes[componentId];
+      for (let thingId in subscribe) {
         if (thingId in channels) {
-          for (let channelId of requiredSubscribe[thingId]) {
+          for (let channelId of subscribe[thingId]) {
             if (!channels[thingId].includes(channelId)) {
               channels[thingId].push(channelId);
             }
           }
         } else {
-          channels[thingId] = requiredSubscribe[thingId];
+          channels[thingId] = subscribe[thingId];
         }
       }
     }

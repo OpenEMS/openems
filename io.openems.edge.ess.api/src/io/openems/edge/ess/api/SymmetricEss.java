@@ -202,6 +202,6 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @return
 	 */
 	default Channel<Integer> getActiveDischargeEnergy() {
-		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
+		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 }

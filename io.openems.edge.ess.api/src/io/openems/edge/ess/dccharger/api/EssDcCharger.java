@@ -49,7 +49,7 @@ public interface EssDcCharger extends OpenemsComponent {
 					int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
 					if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
 						// avoid getting called too often -> round to 100
-						newValue = IntUtils.roundToPrecision(newValue, Round.UP, 100);
+						newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
 						maxActualPowerChannel.setNextValue(newValue);
 					}
 				}
