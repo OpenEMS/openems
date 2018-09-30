@@ -28,6 +28,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.fenecon.mini.FeneconMiniConstants;
 
@@ -38,7 +39,7 @@ import io.openems.edge.fenecon.mini.FeneconMiniConstants;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
-public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements SymmetricEss, OpenemsComponent {
+public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements SinglePhaseEss, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -56,6 +57,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent implements Sy
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
+		this.channel(Phase.phase).setNextValue(config.Phase());
 	}
 
 	@Deactivate
