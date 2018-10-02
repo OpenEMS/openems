@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -47,7 +47,7 @@ public class Solver {
 
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
-	private Consumer<Boolean> onSolved = (wasSolved) -> {
+	private BiConsumer<Boolean, Integer> onSolved = (wasSolved, duration) -> {
 	};
 
 	public Solver(Data data) {
@@ -55,7 +55,13 @@ public class Solver {
 
 	}
 
-	public void onSolved(Consumer<Boolean> onSolved) {
+	/**
+	 * Adds a callback for onSolved event, providing
+	 * 
+	 * @param boolean: was the problem solved?
+	 * @param long: duration for solving in milliseconds
+	 */
+	public void onSolved(BiConsumer<Boolean, Integer> onSolved) {
 		this.onSolved = onSolved;
 	}
 
@@ -136,8 +142,12 @@ public class Solver {
 	}
 
 	public void solve() {
+		// measure duration
+		long duration = System.nanoTime();
+
 		// No Inverters -> nothing to do
 		if (this.data.getInverters().isEmpty()) {
+			this.onSolved.accept(true, 0);
 			return;
 		}
 		List<Inverter> allInverters = data.getInverters();
@@ -149,11 +159,14 @@ public class Solver {
 		this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
 
 		// Print log with currently active EQUALS != 0 Constraints
-//		for (Constraint c : allConstraints) {
-//			if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
-//				log.info(c.toString());
-//			}
-//		}
+		if (this.debugMode) {
+			log.info("Currently active EQUALS contraints");
+			for (Constraint c : allConstraints) {
+				if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
+					log.info("- " + c.toString());
+				}
+			}
+		}
 
 		// Evaluates whether it is a CHARGE or DISCHARGE problem.
 		TargetDirection targetDirection = this.getTargetDirection();
@@ -165,12 +178,6 @@ public class Solver {
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
 			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
-
-			StringBuilder b = new StringBuilder("TargetInverters: ");
-			for (Inverter inv : targetInverters) {
-				b.append(inv.toString() + " ");
-			}
-			log.info(b.toString());
 
 			// Applies weights to move slowly towards only using Target-Inverters.
 			PointValuePair nextSolution = this.optimizeByMovingTowardsTarget(targetDirection, allInverters,
@@ -194,15 +201,18 @@ public class Solver {
 			}
 		}
 
+		// finish time measure (in milliseconds)
+		duration = (System.nanoTime() - duration) / 1_000_000;
+
 		// Apply final Solution to Inverters
 		if (solution != null) {
 			// announce success
-			this.onSolved.accept(true);
+			this.onSolved.accept(true, (int) duration);
 
 			this.applySolution(this.applyInverterPrecisions(allInverters, solution, targetDirection));
 		} else {
 			// announce failure
-			this.onSolved.accept(false);
+			this.onSolved.accept(false, (int) duration);
 
 			this.applySolution(this.getZeroSolution(allInverters));
 		}
@@ -607,8 +617,10 @@ public class Solver {
 
 		// Change target direction only once in a while
 		if (this.activeTargetDirection == null || targetDirectionChangedSince > 100) {
-			log.info("Change target direction from [" + this.activeTargetDirection + "] to [" + targetDirection
-					+ "] after [" + targetDirectionChangedSince + "]");
+			if (this.debugMode) {
+				log.info("Change target direction from [" + this.activeTargetDirection + "] to [" + targetDirection
+						+ "] after [" + targetDirectionChangedSince + "]");
+			}
 			this.activeTargetDirection = targetDirection;
 		}
 		if (this.activeTargetDirection != targetDirection) {
