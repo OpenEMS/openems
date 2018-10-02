@@ -73,9 +73,13 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
-
-		InverterData inverter = this.datasource.getInverterData();
-		this.getActivePower().setNextValue(Math.round(inverter.getPvPower() / 10) * 10);
+		if(this.datasource.isConnected()) {
+			InverterData inverter = this.datasource.getInverterData();
+			this.getActivePower().setNextValue(Math.round(inverter.getPvPower() / 10) * 10);
+		}else {
+			this.getActivePower().setNextValue(0);
+		}
+		
 
 	}
 

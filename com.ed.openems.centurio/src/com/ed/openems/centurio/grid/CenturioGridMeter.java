@@ -50,7 +50,7 @@ public class CenturioGridMeter extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
-		
+
 	}
 
 	@Deactivate
@@ -60,8 +60,7 @@ public class CenturioGridMeter extends AbstractOpenemsComponent
 
 	public CenturioGridMeter() {
 		MeterUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		
-		
+
 	}
 
 	@Override
@@ -75,26 +74,32 @@ public class CenturioGridMeter extends AbstractOpenemsComponent
 
 	private void updateChannels() {
 
-		InverterData inverter = this.datasource.getInverterData();
-		
-		int reaL1 = Math.round(inverter.getReactivPower(0)/10)*10;
-		int reaL2 = Math.round(inverter.getReactivPower(1)/10)*10;
-		int reaL3 = Math.round(inverter.getReactivPower(2)/10)*10;
-		
-		this.getReactivePowerL1().setNextValue(reaL1);
-		this.getReactivePowerL2().setNextValue(reaL2);
-		this.getReactivePowerL3().setNextValue(reaL3);
-		this.getReactivePower().setNextValue(reaL1 + reaL2 + reaL3);
-		
-		int acL1 = Math.round(inverter.getAcPower(0)/10) * -10;
-		int acL2 = Math.round(inverter.getAcPower(1)/10) * -10;
-		int acL3 = Math.round(inverter.getAcPower(2)/10) * -10;
-		
-		this.getActivePowerL1().setNextValue(acL1);
-		this.getActivePowerL2().setNextValue(acL2);
-		this.getActivePowerL3().setNextValue(acL3);
-		this.getActivePower().setNextValue(acL1 + acL2 + acL3);
+		if (this.datasource.isConnected()) {
 
+			InverterData inverter = this.datasource.getInverterData();
+
+			int reaL1 = Math.round(inverter.getReactivPower(0) / 10) * 10;
+			int reaL2 = Math.round(inverter.getReactivPower(1) / 10) * 10;
+			int reaL3 = Math.round(inverter.getReactivPower(2) / 10) * 10;
+
+			this.getReactivePowerL1().setNextValue(reaL1);
+			this.getReactivePowerL2().setNextValue(reaL2);
+			this.getReactivePowerL3().setNextValue(reaL3);
+			this.getReactivePower().setNextValue(reaL1 + reaL2 + reaL3);
+
+			int acL1 = Math.round(inverter.getAcPower(0) / 10) * -10;
+			int acL2 = Math.round(inverter.getAcPower(1) / 10) * -10;
+			int acL3 = Math.round(inverter.getAcPower(2) / 10) * -10;
+
+			this.getActivePowerL1().setNextValue(acL1);
+			this.getActivePowerL2().setNextValue(acL2);
+			this.getActivePowerL3().setNextValue(acL3);
+			this.getActivePower().setNextValue(acL1 + acL2 + acL3);
+		}
+		else {
+			this.getActivePower().setNextValue(0);
+			this.getReactivePower().setNextValue(0);
+		}
 	}
 
 	@Override

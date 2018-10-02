@@ -178,59 +178,69 @@ public class CenturioEss extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
-		BatteryData battery = this.datasource.getBatteryData();
-		Status status = this.datasource.getStatusData();
-		InverterData invdata = this.datasource.getInverterData();
-		EnergyMeter energy = this.datasource.getEnergyMeter();
-
 		
-		
-		this.getSoc().setNextValue((int)battery.getSOE());
-		this.getActivePower().setNextValue(Math.round(battery.getPower()/10) * -10);
+		if(this.datasource.isConnected()) {
+			BatteryData battery = this.datasource.getBatteryData();
+			Status status = this.datasource.getStatusData();
+			InverterData invdata = this.datasource.getInverterData();
+			//EnergyMeter energy = this.datasource.getEnergyMeter();
 
-		this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
-				+ Math.round(invdata.getReactivPower(2)/10) * (-10));
-	
-		try {
-			float ah = energy.getAhBattery(EnergyMeter.DAY);
-			float voltage = battery.getBmsVoltage();
-			
-			float kWh = voltage * ah;
-			
-			log.info("Energy Depot ESS (kWh): " + kWh);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			log.warn("Energy Depot ESS (kWh): " +e1.getMessage());
-		}
-		
-		
-		int invStatus = status.getInverterStatus();
-
-		switch (invStatus) {
-		case 12:
-			this.getGridMode().setNextValue(2);
-		case 13:
-		case 14:
-			this.getGridMode().setNextValue(1);
-		default:
-			this.getGridMode().setNextValue(0);
-		}
-
-		errors = status.getErrors().getErrorCodes();
-		for (String error : errors) {
 			
 			
-			ChannelId ch;
+			this.getSoc().setNextValue((int)battery.getSOE());
+			this.getActivePower().setNextValue(Math.round(battery.getPower()/10) * -10);
+
+			this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
+					+ Math.round(invdata.getReactivPower(2)/10) * (-10));
+			/*
 			try {
-				ch = CenturioEss.ChannelId.valueOf(error);
-				this.channel(ch).setNextValue(true);
-			} catch (Exception e) {
+				float ah = energy.getAhBattery(EnergyMeter.DAY);
+				float voltage = battery.getBmsVoltage();
+				
+				float kWh = voltage * ah;
+				
+				log.info("Energy Depot ESS (kWh): " + kWh);
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.warn("Energy Depot ESS (kWh): " +e1.getMessage());
+			}
+			*/
+			
+			int invStatus = status.getInverterStatus();
+
+			switch (invStatus) {
+			case 12:
+				this.getGridMode().setNextValue(2);
+			case 13:
+			case 14:
+				this.getGridMode().setNextValue(1);
+			default:
+				this.getGridMode().setNextValue(0);
+			}
+
+			errors = status.getErrors().getErrorCodes();
+			for (String error : errors) {
+				
+				
+				ChannelId ch;
+				try {
+					ch = CenturioEss.ChannelId.valueOf(error);
+					this.channel(ch).setNextValue(true);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
 			}
 			
+		}
+		else {
+			this.getSoc().setNextValue(0);
+			this.getActivePower().setNextValue(0);
 			
 		}
+		
 		
 		log.info("Edcom connected: " + this.datasource.isConnected());
 
@@ -251,6 +261,9 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
+		
+		/*
+		
 		Settings settings = this.datasource.getSettings();
 		
 		float soc = this.datasource.getBatteryData().getSOE();
@@ -283,7 +296,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 			System.out.println("Old power set for Centurio: " + old + " W; " + "New: " + activePower + " W");
 			settings.setPacSetPoint(activePower);
 		}
-		
+		*/
 	}
 
 	@Override
