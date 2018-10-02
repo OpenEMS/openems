@@ -67,140 +67,138 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		/*
 		 * Async initialize library and connection
 		 */
-		this.configFuture = configExecutor.schedule(() -> {
-			// TODO Static instance? What happens if we have more than one instance of this
-			// component? Is it really necessary as we set the userkey with setUserKey()
-			// later?
-			Util.getInstance().setUserName( //
-					"K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYm"
-							+ "BxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVv"
-							+ "n0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2Tpv"
-							+ "Z1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
-
-			InetAddress inverterAddress = null;
-
-			if (config.ip() != null) {
-				/*
-				 * IP address was set. No need for discovery.
-				 */
+		final InetAddress inverterAddress;
+		if (config.ip() == null) {
+			inverterAddress = null;
+		} else {
+			inverterAddress = InetAddress.getByName(config.ip());
+		}
+		Runnable initializeLibrary = () -> {
+			while (true) {
 				try {
-					inverterAddress = InetAddress.getByName(config.ip());
-				} catch (UnknownHostException e) {
-					log.error(e.getMessage());
-					e.printStackTrace();
-					return;
-				}
-
-			} else {
-				/*
-				 * No IP address was set. Use discovery.
-				 */
-				Enumeration<NetworkInterface> ifaces;
-				try {
-					ifaces = NetworkInterface.getNetworkInterfaces();
-				} catch (SocketException e) {
-					log.error(e.getMessage());
-					e.printStackTrace();
-					return;
-				}
-				for (NetworkInterface iface : Collections.list(ifaces)) {
-					// Initialize discovery
-					InetAddress localAddress = iface.getInetAddresses().nextElement();
-					log.info("Edcom start discovery on [" + iface.getDisplayName() + ", "
-							+ localAddress.getHostAddress() + "]");
-					Discovery discovery;
-					try {
-						discovery = Discovery.getInstance(localAddress);
-					} catch (IOException e) {
-						log.error(e.getMessage());
-						e.printStackTrace();
-						return;
-					}
-
-					// Start discovery
-					ServiceInfo inverter = null;
-					if (config.serialnumber() != null) {
-						// Search by serialnumber if it was configured
-						inverter = discovery.getBySerialNumber(config.serialnumber());
-					} else {
-						// Otherwise discover all and take first discovered inverter
-						ServiceInfo[] inverterList = discovery.refreshInverterList();
-						if (inverterList.length > 0) {
-							inverter = inverterList[0];
-						}
-					}
-
-					// Finalize discovery
-					try {
-						discovery.close();
-					} catch (IOException e) {
-						log.error(e.getMessage());
-					}
-
-					// Get inverterAddress
-					InetAddress[] addresses = inverter.getInetAddresses();
-					if (addresses.length > 0) {
-						inverterAddress = addresses[0]; // use the first address
-						break; // quit searching
-					}
-				}
-			}
-
-			// Initialize the Client
-			if (inverterAddress != null) {
-				InetAddress localAddress = EdCom.getMatchingLocalInetAddress(inverterAddress);
-				try {
-					this.client = new Client(inverterAddress, localAddress, 1);
+					this.initialize(inverterAddress, config.serialnumber(), config.userkey());
+					break; // stop forever loop
 				} catch (Exception e) {
-					log.error(e.getMessage());
+					this.logError(this.log, e.getMessage());
 					e.printStackTrace();
-					return;
+				}
+				try {
+					Thread.sleep(2000); // wait for next try
+				} catch (InterruptedException e) {
+					this.logError(this.log, e.getMessage());
 				}
 			}
+		};
+		this.configFuture = configExecutor.schedule(initializeLibrary, 0, TimeUnit.SECONDS);
+	}
 
-			// Initialize all Data classes
-			this.client.setUserKey(config.userkey());
+	private void initialize(InetAddress inverterAddress, String serialnumber, String userkey) throws Exception {
+		// TODO Static instance? What happens if we have more than one instance of this
+		// component? Is it really necessary as we set the userkey with setUserKey()
+		// later?
+		Util.getInstance().setUserName( //
+				"K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYm"
+						+ "BxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVv"
+						+ "n0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2Tpv"
+						+ "Z1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
 
-			try {
-				this.battery = new BatteryData();
-				this.battery.registerData(client);
-			} catch (Exception e) {
-				log.error("Unable to initialize 'Battery': " + e.getMessage());
-			}
-			try {
-				this.inverter = new InverterData();
-				this.inverter.registerData(client);
-			} catch (Exception e) {
-				log.error("Unable to initialize 'Inverter': " + e.getMessage());
-			}
-			try {
-				this.status = new Status();
-				this.status.registerData(client);
-			} catch (Exception e) {
-				log.error("Unable to initialize 'Status': " + e.getMessage());
-			}
-			try {
-				this.settings = new Settings();
-				this.settings.registerData(client);
-			} catch (Exception e) {
-				log.error("Unable to initialize 'Settings': " + e.getMessage());
-			}
-			try {
-				this.energy = new EnergyMeter();
-				this.energy.registerData(client);
-			} catch (Exception e) {
-				log.error("Unable to initialize 'EnergyMeter': " + e.getMessage());
-			}
-			try {
-				this.vectis = new VectisData();
-				this.vectis.registerData(client);
-			} catch (Exception e) {
-				log.error("Unable to initialize 'Vectis': " + e.getMessage());
-			}
+		if (inverterAddress != null) {
+			/*
+			 * IP address was set. No need for discovery.
+			 */
 
-			this.client.start();
+		} else {
+			/*
+			 * No IP address was set. Use discovery.
+			 */
+			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+			for (NetworkInterface iface : Collections.list(ifaces)) {
+				// Initialize discovery
+				InetAddress localAddress = iface.getInetAddresses().nextElement();
+				this.logInfo(this.log, "Edcom start discovery on [" + iface.getDisplayName() + ", "
+						+ localAddress.getHostAddress() + "]");
+				Discovery discovery = Discovery.getInstance(localAddress);
 
-		}, 0, TimeUnit.SECONDS);
+				// Start discovery
+				ServiceInfo inverter = null;
+				if (serialnumber != null) {
+					// Search by serialnumber if it was configured
+					inverter = discovery.getBySerialNumber(serialnumber);
+				} else {
+					// Otherwise discover all and take first discovered inverter
+					ServiceInfo[] inverterList = discovery.refreshInverterList();
+					if (inverterList.length > 0) {
+						inverter = inverterList[0];
+					}
+				}
+
+				// Finalize discovery
+				try {
+					discovery.close();
+				} catch (IOException e) {
+					this.logWarn(this.log, e.getMessage());
+				}
+
+				// Get inverterAddress
+				InetAddress[] addresses = inverter.getInetAddresses();
+				if (addresses.length > 0) {
+					inverterAddress = addresses[0]; // use the first address
+					break; // quit searching
+				}
+			}
+		}
+
+		// Initialize the Client
+		if (inverterAddress != null) {
+			InetAddress localAddress = EdCom.getMatchingLocalInetAddress(inverterAddress);
+			// FIXME: sometimes I receive a "java.lang.Exception: wrong parameters" here.
+			// Any idea why?
+			this.client = new Client(inverterAddress, localAddress, 1);
+		}
+
+		// Initialize all Data classes
+		this.client.setUserKey(userkey);
+
+		this.battery = new BatteryData();
+		this.battery.registerData(client);
+		this.inverter = new InverterData();
+		this.inverter.registerData(client);
+		this.status = new Status();
+		this.status.registerData(client);
+		this.settings = new Settings();
+		this.settings.registerData(client);
+		this.energy = new EnergyMeter();
+		this.energy.registerData(client);
+		this.vectis = new VectisData();
+		this.vectis.registerData(client);
+
+		this.client.start();
+
+		// Get User-Status
+		int userStatus;
+		do {
+			userStatus = this.client.getUserStatus();
+
+			switch (this.client.getUserStatus()) {
+			case -1: // not read
+				break;
+			case 0: // access denied
+				this.logWarn(this.log, "User Status: Access denied");
+				break;
+			case 1: // no password required
+				this.logInfo(this.log, "User Status: No password required");
+				break;
+			case 2: // password accepted
+				this.logInfo(this.log, "User Status: Password accepted");
+				break;
+			case 3: // energy depot
+				this.logInfo(this.log, "User Status: EnergyDepot");
+				break;
+			}
+			if (userStatus == -1 /* not read */) {
+				Thread.sleep(1000); // try again after 1 second
+			}
+		} while (userStatus == -1 /* not read */);
 	}
 
 	@Deactivate
@@ -209,7 +207,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			try {
 				this.client.close();
 			} catch (IOException e) {
-				log.error(e.getMessage());
+				this.logError(this.log, e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -241,7 +239,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 	@Override
 	public InverterData getInverterData() {
-		if (this.inverter.dataReady()) {
+		if (this.inverter != null && this.inverter.dataReady()) {
 			this.inverter.refresh();
 		}
 		return this.inverter;
@@ -249,7 +247,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 	@Override
 	public Status getStatusData() {
-		if (this.status.dataReady()) {
+		if (this.status != null && this.status.dataReady()) {
 			this.status.refresh();
 		}
 		return this.status;
@@ -262,7 +260,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 	@Override
 	public Settings getSettings() {
-		if (this.settings.dataReady()) {
+		if (this.settings != null && this.settings.dataReady()) {
 			this.settings.refresh();
 		}
 		return this.settings;
@@ -270,7 +268,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 	@Override
 	public VectisData getVectis() {
-		if (this.vectis.dataReady()) {
+		if (this.vectis != null && this.vectis.dataReady()) {
 			this.vectis.refresh();
 		}
 		return this.vectis;
@@ -278,7 +276,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 	@Override
 	public EnergyMeter getEnergyMeter() {
-		if (this.energy.dataReady()) {
+		if (this.energy != null && this.energy.dataReady()) {
 			this.energy.refresh();
 		}
 		return this.energy;
