@@ -13,6 +13,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
+	boolean readonly() default false;
+	
 	@AttributeDefinition(name = "EdCom-ID", description = "ID of EdCom Interface.")
 	String datasource_id() default "edcom0";
 	
