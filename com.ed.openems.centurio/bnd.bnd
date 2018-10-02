@@ -12,7 +12,8 @@ Private-Package: \
 	com.ed.openems.centurio.ess,\
 	com.ed.openems.centurio.grid,\
 	com.ed.openems.centurio.pv,\
-	com.ed.openems.centurio.vectis
+	com.ed.openems.centurio.vectis,\
+	com.ed.openems.centurio
 	
 -includeresource: {readme.md}
 

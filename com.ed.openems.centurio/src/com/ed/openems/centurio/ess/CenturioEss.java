@@ -24,6 +24,7 @@ import com.ed.data.BatteryData;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
+import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
 import io.openems.edge.common.channel.Channel;
@@ -168,7 +169,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 			if (battery != null) {
 				soc = Math.round(battery.getSOE());
-				activePower = this.roundToPowerPrecision(battery.getPower()) * -1; // invert
+				activePower = CenturioConstants.roundToPowerPrecision(battery.getPower()) * -1; // invert
 			}
 
 			if (status != null) {
@@ -195,9 +196,9 @@ public class CenturioEss extends AbstractOpenemsComponent
 			}
 
 			if (inverter != null) {
-				reactivePower = (this.roundToPowerPrecision(inverter.getReactivPower(0))
-						+ this.roundToPowerPrecision(inverter.getReactivPower(1))
-						+ this.roundToPowerPrecision(inverter.getReactivPower(2))) * -1;
+				reactivePower = (CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(0))
+						+ CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(1))
+						+ CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(2))) * -1;
 			}
 		}
 
@@ -264,12 +265,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Override
 	public int getPowerPrecision() {
-		return 10;
-	}
-
-	private final int roundToPowerPrecision(float value) {
-		int precision = this.getPowerPrecision();
-		return Math.round(value / precision * precision);
+		return CenturioConstants.POWER_PRECISION;
 	}
 
 }
