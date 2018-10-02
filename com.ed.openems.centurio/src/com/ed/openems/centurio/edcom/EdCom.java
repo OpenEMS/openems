@@ -1,10 +1,12 @@
 package com.ed.openems.centurio.edcom;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,23 +52,17 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	private final ScheduledExecutorService configExecutor = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> configFuture = null;
 
-	private InetAddress lHost = null;
-	private Client cl = null;
+	private Client client = null;
 	private BatteryData battery = null;
 	private InverterData inverter = null;
 	private Status status = null;
 	private Settings settings = null;
-	private ServiceInfo si = null;
-	private Discovery nd = null;
 	private VectisData vectis = null;
 	private EnergyMeter energy = null;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-
-		this.lHost = InetAddress.getLocalHost();
-		Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
 
 		/*
 		 * Async initialize library and connection
@@ -81,85 +77,141 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 							+ "n0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2Tpv"
 							+ "Z1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
 
-			/* Init library */
-			Util.getInstance().setUserName(
-					"K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYmBxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVvn0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2TpvZ1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
-
 			InetAddress inverterAddress = null;
-			boolean found = false;
 
-			while (found == false && eni.hasMoreElements()) {
+			if (config.ip() != null) {
+				/*
+				 * IP address was set. No need for discovery.
+				 */
 				try {
-
-					NetworkInterface ni = eni.nextElement();
-
-					this.lHost = ni.getInetAddresses().nextElement();
-
-					System.out.println("Edcom Interface: " + ni.getDisplayName() + ", " + this.lHost.getHostAddress());
-
-					this.nd = Discovery.getInstance(this.lHost);
-					if (!config.sn().trim().isEmpty() && config.sn() != null) {
-						this.si = nd.getBySerialNumber(config.sn());
-					}
-
-					this.nd.close();
-					if (this.si == null) {
-						inverterAddress = InetAddress.getByName(config.ip());
-					} else {
-						inverterAddress = InetAddress.getByName(this.si.getHostAddress());
-					}
-					if (inverterAddress != null) {
-						found = true;
-					}
-
-					this.cl = new Client(inverterAddress, this.lHost, 1);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					inverterAddress = InetAddress.getByName(config.ip());
+				} catch (UnknownHostException e) {
+					log.error(e.getMessage());
 					e.printStackTrace();
+					return;
+				}
+
+			} else {
+				/*
+				 * No IP address was set. Use discovery.
+				 */
+				Enumeration<NetworkInterface> ifaces;
+				try {
+					ifaces = NetworkInterface.getNetworkInterfaces();
+				} catch (SocketException e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+					return;
+				}
+				for (NetworkInterface iface : Collections.list(ifaces)) {
+					// Initialize discovery
+					InetAddress localAddress = iface.getInetAddresses().nextElement();
+					log.info("Edcom start discovery on [" + iface.getDisplayName() + ", "
+							+ localAddress.getHostAddress() + "]");
+					Discovery discovery;
+					try {
+						discovery = Discovery.getInstance(localAddress);
+					} catch (IOException e) {
+						log.error(e.getMessage());
+						e.printStackTrace();
+						return;
+					}
+
+					// Start discovery
+					ServiceInfo inverter = null;
+					if (config.serialnumber() != null) {
+						// Search by serialnumber if it was configured
+						inverter = discovery.getBySerialNumber(config.serialnumber());
+					} else {
+						// Otherwise discover all and take first discovered inverter
+						ServiceInfo[] inverterList = discovery.refreshInverterList();
+						if (inverterList.length > 0) {
+							inverter = inverterList[0];
+						}
+					}
+
+					// Finalize discovery
+					try {
+						discovery.close();
+					} catch (IOException e) {
+						log.error(e.getMessage());
+					}
+
+					// Get inverterAddress
+					InetAddress[] addresses = inverter.getInetAddresses();
+					if (addresses.length > 0) {
+						inverterAddress = addresses[0]; // use the first address
+						break; // quit searching
+					}
 				}
 			}
 
+			// Initialize the Client
+			if (inverterAddress != null) {
+				InetAddress localAddress = EdCom.getMatchingLocalInetAddress(inverterAddress);
+				try {
+					this.client = new Client(inverterAddress, localAddress, 1);
+				} catch (Exception e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+					return;
+				}
+			}
+
+			// Initialize all Data classes
+			this.client.setUserKey(config.userkey());
+
 			try {
-				this.cl.setUserKey(config.uk());
 				this.battery = new BatteryData();
-
-				this.inverter = new InverterData();
-
-				this.status = new Status();
-
-				this.settings = new Settings();
-
-				this.energy = new EnergyMeter();
-
-				this.vectis = new VectisData();
-
+				this.battery.registerData(client);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Unable to initialize 'Battery': " + e.getMessage());
 			}
-			this.battery.registerData(cl);
-			this.inverter.registerData(cl);
-			this.status.registerData(cl);
-			this.settings.registerData(cl);
-			this.vectis.registerData(cl);
-			this.energy.registerData(cl);
-			this.cl.start();
-			if (this.cl.isConnected()) {
-
-			} else {
-
+			try {
+				this.inverter = new InverterData();
+				this.inverter.registerData(client);
+			} catch (Exception e) {
+				log.error("Unable to initialize 'Inverter': " + e.getMessage());
 			}
+			try {
+				this.status = new Status();
+				this.status.registerData(client);
+			} catch (Exception e) {
+				log.error("Unable to initialize 'Status': " + e.getMessage());
+			}
+			try {
+				this.settings = new Settings();
+				this.settings.registerData(client);
+			} catch (Exception e) {
+				log.error("Unable to initialize 'Settings': " + e.getMessage());
+			}
+			try {
+				this.energy = new EnergyMeter();
+				this.energy.registerData(client);
+			} catch (Exception e) {
+				log.error("Unable to initialize 'EnergyMeter': " + e.getMessage());
+			}
+			try {
+				this.vectis = new VectisData();
+				this.vectis.registerData(client);
+			} catch (Exception e) {
+				log.error("Unable to initialize 'Vectis': " + e.getMessage());
+			}
+
+			this.client.start();
 
 		}, 0, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		try {
-			this.cl.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (this.client != null) {
+			try {
+				this.client.close();
+			} catch (IOException e) {
+				log.error(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 		super.deactivate();
 
@@ -216,7 +268,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 	@Override
 	public boolean isConnected() {
-		return this.cl != null && this.cl.isConnected();
+		return this.client != null && this.client.isConnected();
 	}
 
 	@Override
@@ -250,6 +302,26 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			return data;
 		} else {
 			return this.energy;
+		}
+	}
+
+	/**
+	 * Gets a local IP address which is able to access the given remote IP.
+	 * 
+	 * @param inetAddress
+	 * @return a local IP address or null if no match was found
+	 */
+	public static InetAddress getMatchingLocalInetAddress(InetAddress inetAddress) {
+		try (DatagramSocket socket = new DatagramSocket()) {
+			socket.connect(inetAddress, 0);
+			InetAddress localAddress = socket.getLocalAddress();
+			if (localAddress.isAnyLocalAddress()) {
+				return null;
+			} else {
+				return localAddress;
+			}
+		} catch (SocketException e) {
+			return null;
 		}
 	}
 
