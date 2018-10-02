@@ -233,37 +233,26 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	}
 
 	public BatteryData getBatteryData() {
-
-		if (this.battery.dataReady()) {
-			BatteryData data = this.battery;
+		if (this.battery != null && this.battery.dataReady()) {
 			this.battery.refresh();
-			return data;
-		} else {
-			return this.battery;
 		}
-
+		return this.battery;
 	}
 
 	@Override
 	public InverterData getInverterData() {
 		if (this.inverter.dataReady()) {
-			InverterData data = this.inverter;
 			this.inverter.refresh();
-			return data;
-		} else {
-			return this.inverter;
 		}
+		return this.inverter;
 	}
 
 	@Override
 	public Status getStatusData() {
 		if (this.status.dataReady()) {
-			Status data = this.status;
 			this.status.refresh();
-			return data;
-		} else {
-			return this.status;
 		}
+		return this.status;
 	}
 
 	@Override
@@ -274,35 +263,25 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	@Override
 	public Settings getSettings() {
 		if (this.settings.dataReady()) {
-			Settings data = this.settings;
 			this.settings.refresh();
-			return data;
-		} else {
-			return this.settings;
 		}
+		return this.settings;
 	}
 
 	@Override
 	public VectisData getVectis() {
 		if (this.vectis.dataReady()) {
-			VectisData data = this.vectis;
 			this.vectis.refresh();
-			return data;
-		} else {
-			return this.vectis;
 		}
-
+		return this.vectis;
 	}
 
 	@Override
 	public EnergyMeter getEnergyMeter() {
 		if (this.energy.dataReady()) {
-			EnergyMeter data = this.energy;
 			this.energy.refresh();
-			return data;
-		} else {
-			return this.energy;
 		}
+		return this.energy;
 	}
 
 	/**
