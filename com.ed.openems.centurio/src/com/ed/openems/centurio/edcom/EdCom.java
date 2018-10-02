@@ -140,10 +140,12 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 				}
 
 				// Get inverterAddress
-				InetAddress[] addresses = inverter.getInetAddresses();
-				if (addresses.length > 0) {
-					inverterAddress = addresses[0]; // use the first address
-					break; // quit searching
+				if (inverter != null) {
+					InetAddress[] addresses = inverter.getInetAddresses();
+					if (addresses.length > 0) {
+						inverterAddress = addresses[0]; // use the first address
+						break; // quit searching
+					}
 				}
 			}
 		}
