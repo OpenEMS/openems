@@ -14,13 +14,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Serial Number", description = "The serial number  of the Centurio inverter.", required = false)
-	String sn();
+	String serialnumber();
 
 	@AttributeDefinition(name = "IP", description = "The IP address of the Centurio inverter.", required = false)
 	String ip();
 
 	@AttributeDefinition(name = "Userkey", description = "The key / password for the Centurio inverter")
-	String uk();
+	String userkey();
 
 	String webconsole_configurationFactory_nameHint() default "Energy Depot EdCom [{id}]";
 }
