@@ -42,7 +42,7 @@ import io.openems.edge.ess.power.api.Power;
 		name = "EnergyDepot.CenturioEss", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class CenturioEss extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
@@ -88,7 +88,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
 			break;
 		}
