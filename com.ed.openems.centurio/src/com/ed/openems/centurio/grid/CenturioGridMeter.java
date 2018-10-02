@@ -18,6 +18,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ed.data.InverterData;
+import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -32,13 +33,14 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component( //
 		name = "EnergyDepot.CenturioMeter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
-				+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class CenturioGridMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected EdComData datasource;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -50,7 +52,6 @@ public class CenturioGridMeter extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
-
 	}
 
 	@Deactivate
@@ -60,7 +61,6 @@ public class CenturioGridMeter extends AbstractOpenemsComponent
 
 	public CenturioGridMeter() {
 		MeterUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-
 	}
 
 	@Override
@@ -73,47 +73,47 @@ public class CenturioGridMeter extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
+		Integer reactivePower = null;
+		Integer reactivePowerL1 = null;
+		Integer reactivePowerL2 = null;
+		Integer reactivePowerL3 = null;
+		Integer activePower = null;
+		Integer activePowerL1 = null;
+		Integer activePowerL2 = null;
+		Integer activePowerL3 = null;
 
 		if (this.datasource.isConnected()) {
-
 			InverterData inverter = this.datasource.getInverterData();
 
-			int reaL1 = Math.round(inverter.getReactivPower(0) / 10) * 10;
-			int reaL2 = Math.round(inverter.getReactivPower(1) / 10) * 10;
-			int reaL3 = Math.round(inverter.getReactivPower(2) / 10) * 10;
+			reactivePowerL1 = CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(0));
+			reactivePowerL2 = CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(1));
+			reactivePowerL3 = CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(2));
+			reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 
-			this.getReactivePowerL1().setNextValue(reaL1);
-			this.getReactivePowerL2().setNextValue(reaL2);
-			this.getReactivePowerL3().setNextValue(reaL3);
-			this.getReactivePower().setNextValue(reaL1 + reaL2 + reaL3);
-
-			int acL1 = Math.round(inverter.getAcPower(0) / 10) * -10;
-			int acL2 = Math.round(inverter.getAcPower(1) / 10) * -10;
-			int acL3 = Math.round(inverter.getAcPower(2) / 10) * -10;
-
-			this.getActivePowerL1().setNextValue(acL1);
-			this.getActivePowerL2().setNextValue(acL2);
-			this.getActivePowerL3().setNextValue(acL3);
-			this.getActivePower().setNextValue(acL1 + acL2 + acL3);
+			activePowerL1 = CenturioConstants.roundToPowerPrecision(inverter.getAcPower(0));
+			activePowerL2 = CenturioConstants.roundToPowerPrecision(inverter.getAcPower(1));
+			activePowerL3 = CenturioConstants.roundToPowerPrecision(inverter.getAcPower(2));
+			activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		}
-		else {
-			this.getActivePower().setNextValue(0);
-			this.getReactivePower().setNextValue(0);
-		}
+
+		this.getReactivePowerL1().setNextValue(reactivePowerL1);
+		this.getReactivePowerL2().setNextValue(reactivePowerL2);
+		this.getReactivePowerL3().setNextValue(reactivePowerL3);
+		this.getReactivePower().setNextValue(reactivePower);
+		this.getActivePowerL1().setNextValue(activePowerL1);
+		this.getActivePowerL2().setNextValue(activePowerL2);
+		this.getActivePowerL3().setNextValue(activePowerL3);
+		this.getActivePower().setNextValue(activePower);
 	}
 
 	@Override
 	public String debugLog() {
-
-		return "Active Power: " + this.getActivePowerL1().value().toString();
-
+		return "L:" + this.getActivePower().value().asString();
 	}
 
 	@Override
 	public MeterType getMeterType() {
-
 		return MeterType.GRID;
-
 	}
 
 }

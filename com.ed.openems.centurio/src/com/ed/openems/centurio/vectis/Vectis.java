@@ -18,6 +18,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ed.data.VectisData;
+import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -31,12 +32,14 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component( //
 		name = "EnergyDepot.Vectis", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
-				+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class Vectis extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected EdComData datasource;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -48,7 +51,6 @@ public class Vectis extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
-
 	}
 
 	@Deactivate
@@ -58,7 +60,6 @@ public class Vectis extends AbstractOpenemsComponent
 
 	public Vectis() {
 		VectisUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-
 	}
 
 	@Override
@@ -71,47 +72,46 @@ public class Vectis extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
-		
-		if(this.datasource.isConnected()) {
+		Integer reactivePower = null;
+		Integer reactivePowerL1 = null;
+		Integer reactivePowerL2 = null;
+		Integer reactivePowerL3 = null;
+		Integer activePower = null;
+		Integer activePowerL1 = null;
+		Integer activePowerL2 = null;
+		Integer activePowerL3 = null;
+
+		if (this.datasource.isConnected()) {
 			VectisData vectis = this.datasource.getVectis();
 
-			int reaL1 = Math.round(vectis.getReactivePower(0));
-			int reaL2 = Math.round(vectis.getReactivePower(1));
-			int reaL3 = Math.round(vectis.getReactivePower(2));
-			
-			this.getReactivePowerL1().setNextValue(reaL1);
-			this.getReactivePowerL2().setNextValue(reaL2);
-			this.getReactivePowerL3().setNextValue(reaL3);
-			this.getReactivePower().setNextValue(reaL1 + reaL2 + reaL3);
-			
-			int acL1 = Math.round(vectis.getACPower(0) /10) *10;
-			int acL2 = Math.round(vectis.getACPower(1)/10) *10;
-			int acL3 = Math.round(vectis.getACPower(2)/10)*10;
-			
-			this.getActivePowerL1().setNextValue(acL1);
-			this.getActivePowerL2().setNextValue(acL2);
-			this.getActivePowerL3().setNextValue(acL3);
-			this.getActivePower().setNextValue(acL1 + acL2 + acL3);
-		}
-		else {
-			this.getActivePower().setNextValue(0);
-			this.getReactivePower().setNextValue(0);
+			reactivePowerL1 = CenturioConstants.roundToPowerPrecision(vectis.getReactivePower(0));
+			reactivePowerL2 = CenturioConstants.roundToPowerPrecision(vectis.getReactivePower(1));
+			reactivePowerL3 = CenturioConstants.roundToPowerPrecision(vectis.getReactivePower(2));
+			reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
+
+			activePowerL1 = CenturioConstants.roundToPowerPrecision(vectis.getACPower(0));
+			activePowerL2 = CenturioConstants.roundToPowerPrecision(vectis.getACPower(1));
+			activePowerL3 = CenturioConstants.roundToPowerPrecision(vectis.getACPower(2));
+			activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		}
 
+		this.getReactivePowerL1().setNextValue(reactivePowerL1);
+		this.getReactivePowerL2().setNextValue(reactivePowerL2);
+		this.getReactivePowerL3().setNextValue(reactivePowerL3);
+		this.getReactivePower().setNextValue(reactivePower);
+		this.getActivePowerL1().setNextValue(activePowerL1);
+		this.getActivePowerL2().setNextValue(activePowerL2);
+		this.getActivePowerL3().setNextValue(activePowerL3);
+		this.getActivePower().setNextValue(activePower);
 	}
 
 	@Override
 	public String debugLog() {
-
-		return "Active Power: " + this.getActivePowerL1().value().toString()
-				+ this.getActivePowerL2().value().toString() + this.getActivePowerL3().value().toString();
-
+		return "L:" + this.getActivePower().value().asString();
 	}
 
 	@Override
 	public MeterType getMeterType() {
-
 		return MeterType.GRID;
-
 	}
 }

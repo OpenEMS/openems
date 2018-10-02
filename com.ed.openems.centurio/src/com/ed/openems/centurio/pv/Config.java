@@ -15,9 +15,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "EdCom-ID", description = "ID of EdCom Interface.")
 	String datasource_id() default "edcom0";
-	
+
 	@AttributeDefinition(name = "Max Power", description = "Maximum power of PV input.")
 	int maxP() default 12000;
-	
+
 	String webconsole_configurationFactory_nameHint() default "Energy Depot Centurio PV Meter[{id}]";
 }

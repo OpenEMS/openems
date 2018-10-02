@@ -13,7 +13,6 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterUtils {
 
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(CenturioGridMeter c) {
-		// TODO Auto-generated method stub
 		return Stream.of(Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case STATE:
@@ -32,7 +31,6 @@ public class MeterUtils {
 			case ACTIVE_PRODUCTION_ENERGY:
 			case ACTIVE_CONSUMPTION_ENERGY:
 				return new IntegerReadChannel(c, channelId);
-
 			}
 			return null;
 		}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
@@ -52,7 +50,6 @@ public class MeterUtils {
 			case VOLTAGE_L2:
 			case VOLTAGE_L3:
 				return new IntegerReadChannel(c, channelId, 0);
-
 			}
 			return null;
 		})).flatMap(channel -> channel);
