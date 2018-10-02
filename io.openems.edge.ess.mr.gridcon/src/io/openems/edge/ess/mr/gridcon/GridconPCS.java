@@ -55,6 +55,7 @@ import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
@@ -79,6 +80,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 //	private CircleConstraint maxApparentPowerConstraint = null;
 	BitSet commandControlWord = new BitSet(32);
+	LocalDateTime timestampMrGridconWasSwitchedOff;
 
 	@Reference
 	private Power power;
@@ -107,9 +109,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalInput inputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	DigitalInput outputSyncDeviceBridgeComponent;
+	DigitalOutput outputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	DigitalInput outputMRHardResetComponent;
+	DigitalOutput outputMRHardResetComponent;
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -172,17 +174,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		this.channel(GridConChannelId.COMMAND_CONTROL_WORD).onUpdate(value -> {
+		WriteChannel<Integer> commandControlWordChannel = this.channel(GridConChannelId.COMMAND_CONTROL_WORD);
+		commandControlWordChannel.onSetNextWrite(value -> {
 			if (value != null) {
-				@SuppressWarnings("unchecked")
-				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
-				if (ctrlWordOpt.isPresent()) {
-					Integer ctrlWord = ctrlWordOpt.get();
+					Integer ctrlWord = value;
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.PLAY, GridConChannelId.COMMAND_CONTROL_WORD_PLAY);
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.ACKNOWLEDGE, GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE);
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.STOP, GridConChannelId.COMMAND_CONTROL_WORD_STOP);
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY, GridConChannelId.COMMAND_CONTROL_WORD_READY);
-				}
 			};
 		});
 
@@ -311,6 +310,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
 		this.setOutputSyncDeviceBridge(false);
 
+		// a hardware restart has been executed, 
+		if (timestampMrGridconWasSwitchedOff != null) {
+			if (LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(15))) {
+				try {
+					// after 15 seconds switch Mr. Gridcon on again!
+					BooleanWriteChannel channelHardReset = outputMRHardResetComponent.channel(outputMRHardReset.getChannelId());
+					channelHardReset.setNextWriteValue(false);					
+				} catch (OpenemsException e) {
+					log.error("Problem occurred while deactivating hardware switch!");
+					e.printStackTrace();
+				}
+				timestampMrGridconWasSwitchedOff = null;
+			}
+			return;
+		}
+		
+		resetErrorCodes();
+		
 		switch (getCurrentState()) {
 		case DERATING_HARMONICS:
 			break;
@@ -346,6 +363,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	private void resetErrorCodes() {
+		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
+		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
+		log.debug("in resetErrorCodes: => Errorcode: " + errorCodeOpt);
+		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
+			writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, errorCodeOpt.get());
+		}		
+	}
+
 	private void doRunHandling() {
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
@@ -361,7 +387,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN, 0f);
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN, 0f);
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, 1f); // 0 -> limits Q to zero, 1 -> to max Q
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN, 0f);
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND, 0f);
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP, 0f);
@@ -538,9 +564,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private void doHardRestart() {		
-		// TODO Here we need a component that allows us to switch off the power
-		//if implemented directly, gridcon component is away when power is away?
+	private void doHardRestart() {	
+		try {				
+				if (timestampMrGridconWasSwitchedOff == null) {
+					BooleanWriteChannel channelHardReset = outputMRHardResetComponent.channel(outputMRHardReset.getChannelId());
+					channelHardReset.setNextWriteValue(true);
+					timestampMrGridconWasSwitchedOff = LocalDateTime.now();
+				}
+		} catch (OpenemsException e) {
+			log.error("Problem occurred while activating hardware switch to restart Mr. Gridcon!");
+			e.printStackTrace();
+		}
+		
 	}
 
 	private boolean isHardwareTrip() {
@@ -573,13 +608,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
 			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
 		}
-		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
-		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-		log.info("Errorcode: " + errorCodeOpt);
-		if (errorCodeOpt.isPresent()) {
-			writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, errorCodeOpt.get());
-		}
-
 	}
 
 	@Override
