@@ -237,6 +237,10 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
+		if (this.readonly) {
+			return;
+		}
+
 		Settings settings = this.datasource.getSettings();
 		if (settings == null) {
 			return;
