@@ -28,10 +28,10 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.rest)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.ess.limittotaldischarge)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.io.fixdigitaloutput)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
@@ -47,11 +47,13 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.mr.gridcon)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.kaco.blueplanet.gridsave50)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.mini)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.pro)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.carlo.gavazzi.em300)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.microcare.sdm630)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.socomec)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.wago)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.kostal.piko)',\
@@ -93,6 +95,8 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
+	io.openems.edge.fenecon.mini;version=snapshot,\
+	io.openems.edge.fenecon.pro;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\

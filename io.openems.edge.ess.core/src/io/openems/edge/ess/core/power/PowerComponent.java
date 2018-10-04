@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,6 +34,7 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.common.channel.doc.Unit;
 
 @Designate(ocd = Config.class, factory = false)
 @Component( //
@@ -48,6 +50,17 @@ import io.openems.edge.ess.power.api.Relationship;
 public class PowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Power {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * The duration needed for solving the Power
+		 * 
+		 * <ul>
+		 * <li>Interface: PowerComponent
+		 * <li>Type: Integer
+		 * <li>Unit: milliseconds
+		 * <li>Range: positive
+		 * </ul>
+		 */
+		SOLVE_DURATION(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
 		/**
 		 * Whether the Power problem could be solved
 		 * 
@@ -84,8 +97,9 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.data = new Data();
 		this.solver = new Solver(data);
 
-		this.solver.onSolved(wasSolved -> {
+		this.solver.onSolved((wasSolved, duration) -> {
 			this.getSolvedChannel().setNextValue(wasSolved);
+			this.getSolveDurationChannel().setNextValue(duration);
 		});
 	}
 
@@ -172,10 +186,14 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private int getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
 		double power = this.solver.getActivePowerExtrema(ess, phase, pwr, goal);
 		if (power > Integer.MIN_VALUE && power < Integer.MAX_VALUE) {
-			return (int) power;
+			if (goal == GoalType.MAXIMIZE) {
+				return (int) Math.floor(power);
+			} else {
+				return (int) Math.ceil(power);
+			}
 		} else {
 			log.error(goal.name() + " Power for [" + ess.toString() + "," + phase.toString() + "," + pwr.toString()
-					+ "=" + power + "] is out of bounds for Integer. Returning '0'");
+					+ "=" + power + "] is out of bounds. Returning '0'");
 			return 0;
 		}
 	}
@@ -194,6 +212,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	protected BooleanReadChannel getSolvedChannel() {
 		return this.channel(ChannelId.SOLVED);
+	}
+
+	protected IntegerReadChannel getSolveDurationChannel() {
+		return this.channel(ChannelId.SOLVE_DURATION);
 	}
 
 	public boolean isDebugMode() {

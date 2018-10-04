@@ -82,6 +82,8 @@ public class Utils {
 					case BMS_DCDC_WORK_STATE:
 					case AC_CHARGE_ENERGY:
 					case AC_DISCHARGE_ENERGY:
+					case ORIGINAL_ALLOWED_CHARGE_POWER:
+					case ORIGINAL_ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case SET_WORK_STATE:
 					case SET_ACTIVE_POWER:

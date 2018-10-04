@@ -16,7 +16,7 @@ import com.google.common.base.Strings;
 
 import io.openems.common.OpenemsConstants;
 
-@Component()
+@Component(immediate = true)
 public class BackendApp {
 
 	private final Logger log = LoggerFactory.getLogger(BackendApp.class);
