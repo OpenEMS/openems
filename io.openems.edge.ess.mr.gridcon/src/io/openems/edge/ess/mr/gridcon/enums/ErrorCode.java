@@ -896,24 +896,28 @@ public enum ErrorCode implements OptionsEnum {
 	public String autoAcknowledge;
 	public String level2;
 	public boolean needsHardReset;
-	
-	public static ErrorCode getErrorCodeFromCode(int mainCode, int bit, int b) {
-		for (ErrorCode e : ErrorCode.values()) {
-			if (e.mainCode == mainCode && e.bit == bit && e.b == b) {
-				return e;
-			}
-		}
-		return UNDEFINED;
-	}
 
 	@Override
-	public int getValue() {		
-		return this.mainCode << 24 | this.bit << 16 | this.b << 8   ;
+	public int getValue() {
+		if (this.iPU > 0) {
+			return this.mainCode << 24 | this.iPU << 20 | this.b << 16 | this.bit << 8  ;
+		} else {
+			return this.mainCode << 24 | this.b << 16 | this.bit << 8  ;
+		}
 	}
 
 	@Override
 	public String getOption() {
 		return this.text;
+	}
+
+	public static ErrorCode getErrorCodeFromCode(int code) {
+		for (ErrorCode e : ErrorCode.values()) {
+			if (e.getValue() == code) {
+				return e;
+			}
+		}
+		return UNDEFINED;
 	}
 
 }

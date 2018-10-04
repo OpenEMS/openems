@@ -78,7 +78,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected static final float MAX_DISCHARGE_W = 86 * 1000;
 
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
-//	private CircleConstraint maxApparentPowerConstraint = null;
 	BitSet commandControlWord = new BitSet(32);
 	LocalDateTime timestampMrGridconWasSwitchedOff;
 
@@ -262,7 +261,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 
 		this.writeGeneralCommands();
-		// TODO see Software manual chapter 5.1
 	}
 
 	private void prepareGeneralCommands() {
@@ -312,8 +310,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		// a hardware restart has been executed, 
 		if (timestampMrGridconWasSwitchedOff != null) {
+			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
 			if (LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(15))) {
 				try {
+					log.info("try to write to channel hardware reset, set it to 'false'");
 					// after 15 seconds switch Mr. Gridcon on again!
 					BooleanWriteChannel channelHardReset = outputMRHardResetComponent.channel(outputMRHardReset.getChannelId());
 					channelHardReset.setNextWriteValue(false);					
@@ -325,8 +325,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 			return;
 		}
-		
-		resetErrorCodes();
 		
 		switch (getCurrentState()) {
 		case DERATING_HARMONICS:
@@ -361,6 +359,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case VOLTAGE_RAMPING_UP:
 			break;
 		}
+		
+		resetErrorCodes();
 	}
 
 	private void resetErrorCodes() {
@@ -566,7 +566,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private void doHardRestart() {	
 		try {				
+			log.info("in doHardRestart");
 				if (timestampMrGridconWasSwitchedOff == null) {
+					log.info("timestampMrGridconWasSwitchedOff was not set yet! try to write 'true' to channelHardReset!");
 					BooleanWriteChannel channelHardReset = outputMRHardResetComponent.channel(outputMRHardReset.getChannelId());
 					channelHardReset.setNextWriteValue(true);
 					timestampMrGridconWasSwitchedOff = LocalDateTime.now();
@@ -582,13 +584,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		log.info("in isHardwareTrip");
 		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE); 
 		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();		
-		if (errorCodeOpt.isPresent()) {
+		if (errorCodeOpt.isPresent()) {			
 			int code = errorCodeOpt.get();
+			log.info("Error code is present --> " + code);
 			int mainCode = ( (code >> 24) & 255) ;
 			int bit = ( (code >> 16) & 255) ;
 			int b = ( (code >> 8) & 255) ;			
-			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(mainCode, bit, b);
-			log.debug("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
+			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
+			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
 			return errorCode.needsHardReset;
 		} 
 		return false;
