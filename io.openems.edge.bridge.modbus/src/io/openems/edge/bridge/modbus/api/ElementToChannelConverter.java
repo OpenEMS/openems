@@ -95,6 +95,12 @@ public class ElementToChannelConverter {
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_1, KEEP_POSITIVE);
+	
+	/**
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and INVERT
+	 */
+	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT = new ElementToChannelConverterChain(
+			SCALE_FACTOR_2,INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and
