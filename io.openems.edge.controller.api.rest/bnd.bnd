@@ -7,7 +7,7 @@ Private-Package:  \
 	io.openems.edge.controller.api.rest, \
 	io.openems.edge.controller.api.rest.route
 
--includeresource: @org.restlet-2.4.0.jar, @org.restlet.ext.slf4j-2.4.0.jar, {readme.md}
+-includeresource: {readme.md}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
@@ -17,8 +17,8 @@ Private-Package:  \
 	com.google.gson,\
 	io.openems.edge.controller.api.core;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
-	org.restlet.jse:org.restlet,\
-	org.restlet.jse:org.restlet.ext.slf4j
+	org.restlet.jse:org.restlet;version=latest,\
+	org.restlet.jse:org.restlet.ext.slf4j;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

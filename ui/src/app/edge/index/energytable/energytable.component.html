@@ -116,6 +116,13 @@
     </ion-item>
     <ion-card-content>
       <table *ngIf="currentData.summary.grid as sum" class="full_width">
+        <tr *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
+          <td translate>General.GridMode</td>
+          <ng-template>
+            <td class="align_right"></td>
+            <td></td>
+          </ng-template>
+        </tr>
         <tr>
           <td translate>General.GridBuy</td>
           <td></td>
