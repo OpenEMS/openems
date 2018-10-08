@@ -187,9 +187,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.channel(GridConChannelId.MIRROR_COMMAND_CONTROL_WORD).onUpdate(value -> {
 			if (value != null) {
 				@SuppressWarnings("unchecked")
-				Optional<Integer> ctrlWordOpt = (Optional<Integer>) value.asOptional();
+				Optional<Long> ctrlWordOpt = (Optional<Long>) value.asOptional();
 				if (ctrlWordOpt.isPresent()) {
-					Integer ctrlWord = ctrlWordOpt.get();
+					Long ctrlWord = ctrlWordOpt.get();
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.PLAY, GridConChannelId.MIRROR_COMMAND_CONTROL_WORD_PLAY);
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.ACKNOWLEDGE, GridConChannelId.MIRROR_COMMAND_CONTROL_WORD_ACKNOWLEDGE);
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.STOP, GridConChannelId.MIRROR_COMMAND_CONTROL_WORD_STOP);
@@ -819,6 +819,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		int soC = (int) (sumCurrentCapacity * 100 / sumCapacity);
 		this.getSoc().setNextValue(soC);
+	}
+	
+	// checks if bit at requested position is set and writes it to given channel id 
+	private void mapBitToChannel(Long ctrlWord, PCSControlWordBitPosition bitPosition, GridConChannelId id) {				
+		boolean val = ((ctrlWord >> bitPosition.getBitPosition()) & 1) == 1;		
+		this.channel(id).setNextValue(val);
 	}
 	
 	// checks if bit at requested position is set and writes it to given channel id 

@@ -10,6 +10,7 @@ import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.ShortReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -69,11 +70,12 @@ public class Utils {
 					
 					case IPU_4_STATUS_FAN_SPEED_MAX:
 					case IPU_4_STATUS_FAN_SPEED_MIN:
+											
+					case MIRROR_COMMAND_ERROR_CODE_FEEDBACK:						
+						return new IntegerReadChannel(ess, channelId);
 						
 					case MIRROR_COMMAND_CONTROL_WORD:
-					case MIRROR_COMMAND_ERROR_CODE_FEEDBACK:
-						
-						return new IntegerReadChannel(ess, channelId);
+						return new LongReadChannel(ess, channelId);
 
 					case IPU_1_STATUS_STATUS_STATE_MACHINE:
 					case IPU_1_STATUS_STATUS_MCU:
