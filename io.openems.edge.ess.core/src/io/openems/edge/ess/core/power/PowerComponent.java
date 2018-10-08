@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,6 +34,7 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.common.channel.doc.Unit;
 
 @Designate(ocd = Config.class, factory = false)
 @Component( //
@@ -48,6 +50,17 @@ import io.openems.edge.ess.power.api.Relationship;
 public class PowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Power {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * The duration needed for solving the Power
+		 * 
+		 * <ul>
+		 * <li>Interface: PowerComponent
+		 * <li>Type: Integer
+		 * <li>Unit: milliseconds
+		 * <li>Range: positive
+		 * </ul>
+		 */
+		SOLVE_DURATION(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
 		/**
 		 * Whether the Power problem could be solved
 		 * 
@@ -84,8 +97,9 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.data = new Data();
 		this.solver = new Solver(data);
 
-		this.solver.onSolved(wasSolved -> {
+		this.solver.onSolved((wasSolved, duration) -> {
 			this.getSolvedChannel().setNextValue(wasSolved);
+			this.getSolveDurationChannel().setNextValue(duration);
 		});
 	}
 
@@ -194,6 +208,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	protected BooleanReadChannel getSolvedChannel() {
 		return this.channel(ChannelId.SOLVED);
+	}
+
+	protected IntegerReadChannel getSolveDurationChannel() {
+		return this.channel(ChannelId.SOLVE_DURATION);
 	}
 
 	public boolean isDebugMode() {

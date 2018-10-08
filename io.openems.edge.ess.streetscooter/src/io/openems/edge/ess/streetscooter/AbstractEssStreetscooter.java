@@ -37,7 +37,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	protected static final int UNIT_ID = 100;
 	protected static final int MAX_APPARENT_POWER = 11600;
 
-	private static final int POWER_PRECISION = 100;
+	private static final int POWER_PRECISION = 1;
 	private static final int ICU_RUN_ADDRESS = 4002;
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
@@ -349,13 +349,14 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		}
 
 		/*
-		 * If the ICU_STATUS was repeatedly not ok -> block any charging/discharging
+		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok -> block any
+		 * charging/discharging
 		 */
-		if (invalidIcuStatusCounter > 10) {
+		if (this.readonly || invalidIcuStatusCounter > 10) {
 			return new Constraint[] { //
-					this.createPowerConstraint("Wrong ICU_STATUS: " + icuStatus, Phase.ALL, Pwr.ACTIVE,
+					this.createPowerConstraint("Wrong ICU_STATUS or disabled: " + icuStatus, Phase.ALL, Pwr.ACTIVE,
 							Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Wrong ICU_STATUS: " + icuStatus, Phase.ALL, Pwr.REACTIVE,
+					this.createPowerConstraint("Wrong ICU_STATUS or disabled: " + icuStatus, Phase.ALL, Pwr.REACTIVE,
 							Relationship.EQUALS, 0) //
 			};
 

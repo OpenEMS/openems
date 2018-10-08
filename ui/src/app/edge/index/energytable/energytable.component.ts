@@ -1,8 +1,9 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
 
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { CurrentDataAndSummary_2018_8 } from '../../../shared/edge/currentdata.2018.8';
+import { sum } from 'd3';
 
 @Component({
   selector: 'energytable-2018-8',
@@ -16,5 +17,30 @@ export class EnergytableComponent_2018_8 {
   @Input()
   public config: DefaultTypes.Config_2018_8;
 
+  @Output()
+  public subscribes = new EventEmitter<DefaultTypes.ChannelAddresses>();
+
   constructor(public utils: Utils) { }
+
+  ngOnInit() {
+    this.generateRequiredSubscribes();
+  }
+
+  /**
+   * Generates the requiredSubscribes.
+   */
+  private generateRequiredSubscribes() {
+    this.subscribes.next({
+      '_sum': [
+        // Ess
+        'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
+        // Grid
+        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower', 'GridMode',
+        // Production
+        'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
+        // Consumption
+        'ConsumptionActivePower', 'ConsumptionMaxActivePower',
+      ]
+    });
+  }
 }

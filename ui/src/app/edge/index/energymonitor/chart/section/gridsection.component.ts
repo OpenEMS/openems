@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
@@ -13,19 +13,29 @@ export class GridSectionComponent extends AbstractSection {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
-    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
+    private GridMode: number
+
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number, gridMode: number) {
         valueRatio = valueRatio / 2; // interval from -50 to 50
+        this.GridMode = gridMode
+
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
             super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
         } else if (sellAbsolute != null && sellAbsolute > 0) {
             this.name = this.translate.instant('General.GridSell');
             super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
-        } else {
+        }
+        else {
             this.name = this.translate.instant('General.Grid')
             super.updateValue(0, 0, 0);
         }
+
+        if (gridMode) {
+            this.square.image.image = super.getSquare(this.innerRadius).image.image
+        }
     }
+
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         let x = (innerRadius - 5) * (-1);
@@ -34,7 +44,12 @@ export class GridSectionComponent extends AbstractSection {
     }
 
     protected getImagePath(): string {
-        return "grid.png";
+        if (this.GridMode == 1) {
+            return "grid.png"
+        }
+        else {
+            return "offgrid.png"
+        }
     }
 
     public getValueRatio(value: number) {

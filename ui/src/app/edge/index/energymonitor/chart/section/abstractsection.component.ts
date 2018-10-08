@@ -115,6 +115,7 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
     protected lastValue = { valueAbsolute: 0, valueRatio: 0, sumRatio: 0 };
+    protected gridMode: number;
 
     constructor(
         translateName: string,

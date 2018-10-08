@@ -10,6 +10,7 @@ import { interval } from 'rxjs';
     templateUrl: './section.component.html'
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
+    storagepath: string
     constructor(translate: TranslateService) {
         super('Edge.Index.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
@@ -34,7 +35,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             super.updateValue(0, 0, 0);
         }
         if (valueRatio != null) {
-            this.valueText2 = Math.round(valueRatio).toString();
+            this.valueText2 = Math.round(valueRatio) + " %";
+            this.square.image.image = super.getSquare(this.innerRadius).image.image
         } else {
             this.valueText2 = "";
         }
@@ -47,22 +49,23 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-
-        if (parseInt(this.valueText2) < 20) {
+        if (this.valueText2 > "0" && this.valueText2 < "10") {
             return "storage_20.png"
         }
-        if (parseInt(this.valueText2) < 30) {
+        if (this.valueText2 < "20") {
+            return "storage_20.png"
+        }
+        if (this.valueText2 < "40") {
             return "storage_40.png"
         }
-        if (parseInt(this.valueText2) < 60) {
+        if (this.valueText2 < "60") {
             return "storage_60.png"
         }
-        if (parseInt(this.valueText2) < 90) {
+        if (this.valueText2 < "86") {
             return "storage_80.png"
         }
-        if (parseInt(this.valueText2) <= 100) {
-            return "storage_100.png";
-        }
+
+        else { return "storage_100.png" }
     }
 
     protected getValueText(value: number): string {
