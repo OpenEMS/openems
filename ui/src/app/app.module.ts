@@ -17,7 +17,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 // services
-import { Service } from './shared/shared';
+import { Service, Alerts } from './shared/shared';
 import { MyTranslateLoader } from './shared/translate/translate';
 
 // locale Data
@@ -41,6 +41,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
 
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [PopoverPage],
@@ -60,7 +61,6 @@ import { environment } from '../environments/environment';
 
     HttpClientModule,
     HttpModule,
-
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
 
 
@@ -73,7 +73,8 @@ import { environment } from '../environments/environment';
     { provide: LOCALE_ID, useValue: 'de' },
     //{ provide: BrowserXhr, useClass: CustExtBrowserXhr },
     { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
-    SpinnerDialog
+    SpinnerDialog,
+    Alerts
 
 
   ],

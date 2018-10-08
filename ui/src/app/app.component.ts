@@ -71,7 +71,7 @@ export class AppComponent {
     })
   }
   onBackDown() {
-    console.info("Back button pressed");
+
     if (window.location.pathname === '/index') {
       navigator['app'].exitApp();
     }

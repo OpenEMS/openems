@@ -3,15 +3,16 @@ import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
 
-import { Websocket, Utils, Service } from '../shared/shared';
+import { Websocket, Utils, Service, Alerts } from '../shared/shared';
 import { Edge } from '../shared/edge/edge';
 
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+
 
 @Component({
   selector: 'index',
@@ -28,6 +29,7 @@ export class IndexComponent {
   private edges: Edge[] = [];
   private filteredTruncated: boolean = false;
   private static maxFilteredEdges = 20;
+  translation;
 
   constructor(
     public websocket: Websocket,
@@ -37,6 +39,8 @@ export class IndexComponent {
     private router: Router,
     private http: HttpClient,
     private spinnerDialog: SpinnerDialog,
+    private alerts: Alerts,
+    public translate: TranslateService,
     private service: Service) {
     this.form = this.formBuilder.group({
       "password": this.formBuilder.control('user')
@@ -59,6 +63,13 @@ export class IndexComponent {
         */
         this.updateFilteredEdges();
       })
+  }
+  ngOnInit() {
+    this.translate.get('Index').subscribe(res => this.translation = res);
+
+    this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.translate.get('Index').subscribe(res => this.translation = res);
+    });
   }
 
   updateFilteredEdges() {
@@ -90,25 +101,39 @@ export class IndexComponent {
     this.websocket.logIn(password);
   }
 
-  doWPLogin() {
+  async doWPLogin() {
     if (this.wpForm.invalid) {
+      this.alerts.showError(this.translation.FormInvalid);
       return;
     }
-    this.spinnerDialog.show("Login", "Verbindung wird aufgebaut");
+    this.spinnerDialog.show("Login", this.translation.Connecting);
+
+
+
     let password: string = this.wpForm.value['password'];
     let username: string = this.wpForm.value['username'];
-    let headers = new HttpHeaders();
-    headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
-    headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
+    let valid = await this.validateWPLogin(username, password);
 
-    let body = new FormData();
-    body.append('log', username);
-    body.append('pwd', password);
+    if (valid['status'] === "ok") {
+      let headers = new HttpHeaders();
+      headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
+      headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
 
-    this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.spinnerDialog.hide(); },
-      (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); this.spinnerDialog.hide(); } },
-      () => { this.websocket.wpconnect(); this.spinnerDialog.hide(); });
-    //this.websocket.wpconnect();
+      let body = new FormData();
+      body.append('log', username);
+      body.append('pwd', password);
+
+      this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.spinnerDialog.hide(); },
+        (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); this.spinnerDialog.hide(); } },
+        () => { this.websocket.wpconnect(); this.spinnerDialog.hide(); });
+      //this.websocket.wpconnect();
+    } else {
+      this.spinnerDialog.hide();
+      this.alerts.showError(valid['error']);
+      return;
+    }
+
+
 
 
 
@@ -120,6 +145,24 @@ export class IndexComponent {
     return this.http.post("https://www.energydepot.de/login/", body);
   }
 
+  validateWPLogin(username: string, password: string): Promise<any> {
+
+    return this.http.get("https://www.energydepot.de/api/auth/generate_auth_cookie/?username=" + username + "&password=" + password).toPromise();
+    /*
+  .then((data) => {
+      if (data['status'] === "ok") {
+        return "ok";
+      }
+      if (data['status'] === "error") {
+        return data['error'];
+      }
+    });*/
+
+
+  }
+  retrievePwd() {
+    this.alerts.retrievePwd();
+  }
   onDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();

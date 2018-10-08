@@ -54,7 +54,7 @@
                 }
               ],
               "baseHref": "/primus/",
-              "outputPath": "target/backend",
+              "outputPath": "www",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -75,15 +75,14 @@
               "baseHref": "./",
               "outputPath": "www",
               "optimization": false,
-              "outputHashing": "none",
+              "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": false,
-              "serviceWorker": true
+              "buildOptimizer": true
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -109,7 +108,7 @@
                 }
               ],
               "baseHref": "/primus-dev/",
-              "outputPath": "target/backend-dev",
+              "outputPath": "www",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,

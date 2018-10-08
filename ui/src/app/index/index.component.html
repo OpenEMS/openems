@@ -35,18 +35,18 @@
           <ion-icon slot="start" name="contact" color="primary"></ion-icon>
           <ion-label>
             <ion-card-title>Login</ion-card-title>
-            <ion-card-subtitle text-wrap>
-              Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
+            <ion-card-subtitle text-wrap translate>
+              Index.PleaseLogin
             </ion-card-subtitle>
           </ion-label>
         </ion-item>
         <ion-card-content>
           <ion-item>
             <form [formGroup]="wpForm" (ngSubmit)="doWPLogin()" (keyup.enter)="doWPLogin()">
-              <ion-label position="floating">Benutzername</ion-label>
-              <ion-input formControlName="username" required placeholder="Benutzername"></ion-input>
-              <ion-label position="floating">Passwort</ion-label>
-              <ion-input formControlName="password" required type="password" placeholder="Passwort"></ion-input>
+              <ion-label position="stacked" translate>Index.Username</ion-label>
+              <ion-input formControlName="username" required placeholder="'Index.Username' | translate"></ion-input>
+              <ion-label position="stacked" translate>Index.Password</ion-label>
+              <ion-input formControlName="password" required type="password" placeholder="'Index.Password' | translate"></ion-input>
             </form>
           </ion-item>
           <!-- Messages -->
@@ -54,6 +54,7 @@
           <ion-button float-right (click)="doWPLogin()">
             <ion-icon slot="icon-only" name="log-in"></ion-icon>
           </ion-button>
+          <a href="javascript:void(0);" (click)="retrievePwd()" translate>Index.LostPassword</a>
         </ion-card-content>
       </ion-card>
     </ion-col>

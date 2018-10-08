@@ -5,13 +5,15 @@ import { Cookie } from 'ng2-cookies';
 
 import { DefaultTypes } from './defaulttypes';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class Service implements ErrorHandler {
     public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
     constructor(
-        public translate: TranslateService
+        public translate: TranslateService,
+        private http: HttpClient
     ) {
         // add language
         translate.addLangs(["de", "en", "cz", "nl"]);
@@ -82,6 +84,22 @@ export class Service implements ErrorHandler {
         } else {
             return "";
         }
+
+    }
+
+    public sendWPPasswordRetrieve(username: string): Promise<any> {
+
+        return this.http.get("https://www.energydepot.de/api/user/retrieve_password/?user_login=" + username).toPromise();
+        /*
+      .then((data) => {
+          if (data['status'] === "ok") {
+            return "ok";
+          }
+          if (data['status'] === "error") {
+            return data['error'];
+          }
+        });*/
+
 
     }
 }

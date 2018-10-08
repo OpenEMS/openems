@@ -50,7 +50,10 @@ export class Websocket {
   ) {
     // try to auto connect using token or session_id
     setTimeout(() => {
-      // this.connect();
+      if (env.backend === "OpenEMS Backend") {
+        this.connect();
+      }
+
     })
   }
 
@@ -309,6 +312,10 @@ export class Websocket {
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
     this.edges.next({});
+    if (env.backend === "App") {
+      this.socket = null;
+    }
+
   }
 
   /**
@@ -355,6 +362,7 @@ export class Websocket {
    */
   public logOut() {
     // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
+    this.router.navigate(['/']);
     this.send(DefaultMessages.authenticateLogout());
     this.status = "waiting for authentication";
     this.service.removeToken();
