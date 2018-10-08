@@ -3,7 +3,6 @@ import { Component, Input, OnDestroy, EventEmitter, Output } from '@angular/core
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { CurrentDataAndSummary_2018_8 } from '../../../shared/edge/currentdata.2018.8';
-import { sum } from 'd3';
 
 @Component({
   selector: 'energytable-2018-8',
