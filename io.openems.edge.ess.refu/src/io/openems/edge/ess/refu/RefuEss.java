@@ -1,8 +1,5 @@
 package io.openems.edge.ess.refu;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -67,8 +64,11 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	private final ErrorHandler errorHandler;
+
 	public RefuEss() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.errorHandler = new ErrorHandler(this);
 	}
 
 	@Override
@@ -442,13 +442,17 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Override
 	public String debugLog() {
+		// TODO print States/Errors
+		// String state = this.getState().listStates();
+		// + (state.isEmpty() ? "" : ";" + this.getState().listStates());
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:" + this.getAllowedCharge().value().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischarge().value().asString();
+				+ this.getAllowedDischarge().value().asString(); //
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		ERROR_HANDLER_STATE(new Doc()), //
 		SYSTEM_STATE(new Doc() //
 				.options(SystemState.values())),
 		INVERTER_ERROR_CODE(new Doc()), //
@@ -757,124 +761,18 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			systemStateHandling();
+			this.errorHandler.run();
 			break;
 		}
 	}
 
-	private enum SystemStateHandling {
-		GO_START, GO_ERROR_HANDLING, RESET_ERROR_ON, RESET_ERROR_OFF, RUNNING
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
-	private SystemStateHandling currentSystemStateHandling = SystemStateHandling.GO_START;
-	private LocalDateTime errorOccured = null;
-	private LocalDateTime lastErrorReset = LocalDateTime.MIN;
-
-	private void systemStateHandling() {
-		Optional<Enum<?>> systemStateOpt = this.channel(ChannelId.SYSTEM_STATE).value().asEnumOptional();
-		SystemState systemState;
-		if (systemStateOpt.isPresent()) {
-			systemState = (SystemState) systemStateOpt.get();
-		} else {
-			systemState = SystemState.UNDEFINED;
-		}
-		IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
-		IntegerWriteChannel systemErrorResetChannel = this.channel(ChannelId.SET_SYSTEM_ERROR_RESET);
-		this.logInfo(log,
-				"SystemState [" + systemState + "] StateHandling [" + this.currentSystemStateHandling
-						+ "] SetWorkState [" + setWorkStateChannel.value() + "] ErrorReset ["
-						+ systemErrorResetChannel.value() + "]");
-
-		switch (this.currentSystemStateHandling) {
-		case GO_START:
-			/**
-			 * Start the system, unless it is already running or has an error
-			 */
-			this.logInfo(this.log, "GO_START. Currently: " + systemState);
-			switch (systemState) {
-			case STANDBY:
-			case INIT:
-			case OFF:
-			case UNDEFINED:
-			case PRE_OPERATION:
-				try {
-					setWorkStateChannel.setNextWriteValue(StopStart.START.getValue());
-				} catch (OpenemsException e) {
-					this.logError(this.log, "Unable to Set Work-State to START");
-				}
-				break;
-			case OPERATION:
-				this.currentSystemStateHandling = SystemStateHandling.RUNNING;
-				break;
-			case ERROR:
-				this.currentSystemStateHandling = SystemStateHandling.GO_ERROR_HANDLING;
-				break;
-			}
-			break;
-
-		case RUNNING:
-			/**
-			 * System is running normally; otherwise start error handling
-			 */
-			switch (systemState) {
-			case OPERATION:
-				// do nothing
-				break;
-			case STANDBY:
-			case INIT:
-			case OFF:
-			case UNDEFINED:
-			case PRE_OPERATION:
-			case ERROR:
-				this.currentSystemStateHandling = SystemStateHandling.GO_START;
-			}
-			break;
-
-		case GO_ERROR_HANDLING:
-			this.logInfo(this.log, "GO_ERROR_HANDLING");
-			if (this.errorOccured == null) {
-				this.errorOccured = LocalDateTime.now();
-			}
-			try {
-				setWorkStateChannel.setNextWriteValue(StopStart.STOP.getValue());
-			} catch (OpenemsException e) {
-				this.logError(this.log, "Unable to Set Work-State to STOP");
-			}
-			if ( // error handling since 30 seconds
-			this.errorOccured.isBefore(LocalDateTime.now().minusSeconds(30))
-					// last reset more than 2 hours
-					&& this.lastErrorReset.isBefore(LocalDateTime.now().minusHours(2))) {
-				this.currentSystemStateHandling = SystemStateHandling.RESET_ERROR_ON;
-				this.errorOccured = null;
-			}
-			break;
-
-		case RESET_ERROR_ON:
-			this.logInfo(this.log, "RESET_ERROR_ON");
-			if (systemErrorResetChannel.value().orElse(StopStart.STOP.getValue()) == StopStart.START.getValue()) {
-				this.currentSystemStateHandling = SystemStateHandling.RESET_ERROR_OFF;
-			} else {
-				try {
-					systemErrorResetChannel.setNextWriteValue(StopStart.START.getValue());
-				} catch (OpenemsException e) {
-					this.logError(this.log, "Unable to Set System-Error-Reset to START");
-				}
-			}
-			break;
-
-		case RESET_ERROR_OFF:
-			this.logInfo(this.log, "RESET_ERROR_OFF");
-			if (systemErrorResetChannel.value().orElse(StopStart.START.getValue()) == StopStart.STOP.getValue()) {
-				this.currentSystemStateHandling = SystemStateHandling.GO_START;
-				this.lastErrorReset = LocalDateTime.now();
-			} else {
-				try {
-					systemErrorResetChannel.setNextWriteValue(StopStart.STOP.getValue());
-				} catch (OpenemsException e) {
-					this.logError(this.log, "Unable to Set System-Error-Reset to STOP");
-				}
-			}
-			break;
-		}
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
 	}
 }

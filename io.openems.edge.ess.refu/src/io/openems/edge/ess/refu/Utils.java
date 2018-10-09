@@ -286,6 +286,7 @@ public class Utils {
 					case ERROR_LOG_8:
 					case ERROR_LOG_9:
 					case INVERTER_ERROR_CODE:
+					case ERROR_HANDLER_STATE:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
