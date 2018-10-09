@@ -26,19 +26,21 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -52,8 +54,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(RefuEss.class);
 
-	// TODO
-	protected final static int MAX_APPARENT_POWER = 9000;
+	protected final static int MAX_APPARENT_POWER = 100_000;
 	private final static int UNIT_ID = 1;
 
 	@Reference
@@ -103,7 +104,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-	return  new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(0x100, Priority.HIGH, //
 						m(RefuEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x100)), //
 						bm(new UnsignedWordElement(0x101))//
@@ -116,18 +117,40 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 								.m(RefuEss.ChannelId.STATE_6, 6) //
 								.m(RefuEss.ChannelId.STATE_7, 7) //
 								.m(RefuEss.ChannelId.STATE_8, 8) //
-								.m(RefuEss.ChannelId.STATE_9, 9) //
-								.m(RefuEss.ChannelId.STATE_10, 10) //
+								.m(RefuEss.ChannelId.STATE_9, 9) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_10, 10) // TODO: 0: Error; 1:Ok
 								.build(), //
-						m(RefuEss.ChannelId.COMMUNICATION_INFORMATIONS, new UnsignedWordElement(0x102)), //
-						m(RefuEss.ChannelId.INVERTER_STATUS, new UnsignedWordElement(0x103)), //
-						bm(new UnsignedWordElement(0x104))//
-								.m(RefuEss.ChannelId.STATE_11, 0)//
-								.build(),
-						m(RefuEss.ChannelId.DCDC_STATUS, new UnsignedWordElement(0x105)), //
-						bm(new UnsignedWordElement(0x106))//
-								.m(RefuEss.ChannelId.STATE_12, 0)//
-								.build(),
+						bm(new UnsignedWordElement(0x102))//
+								.m(RefuEss.ChannelId.STATE_11, 0) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_12, 1) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_13, 2) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_14, 3) //
+								.m(RefuEss.ChannelId.STATE_15, 4) // TODO: 0: Error; 1:Ok
+								.build(), //
+						bm(new UnsignedWordElement(0x103))//
+								.m(RefuEss.ChannelId.INVERTER_STATE_0, 0) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_1, 1) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_2, 2) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_3, 3) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_7, 7) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_8, 8) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_9, 9) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_10, 10) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_11, 11) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_12, 12) //
+								.m(RefuEss.ChannelId.INVERTER_STATE_13, 13) //
+								.build(), //
+						m(RefuEss.ChannelId.INVERTER_ERROR_CODE, new UnsignedWordElement(0x104)), //
+						bm(new UnsignedWordElement(0x105))//
+								.m(RefuEss.ChannelId.DCDC_STATE_0, 0) //
+								.m(RefuEss.ChannelId.DCDC_STATE_1, 1) //
+								.m(RefuEss.ChannelId.DCDC_STATE_2, 2) //
+								.m(RefuEss.ChannelId.DCDC_STATE_3, 3) //
+								.m(RefuEss.ChannelId.DCDC_STATE_7, 7) //
+								.m(RefuEss.ChannelId.DCDC_STATE_8, 8) //
+								.m(RefuEss.ChannelId.DCDC_STATE_9, 9) //
+								.build(), //
+						m(RefuEss.ChannelId.DCDC_ERROR_CODE, new UnsignedWordElement(0x106)), //
 						m(RefuEss.ChannelId.BATTERY_CURRENT_PCS, new SignedWordElement(0x107),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(RefuEss.ChannelId.BATTERY_VOLTAGE_PCS, new SignedWordElement(0x108),
@@ -162,17 +185,20 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 						m(RefuEss.ChannelId.COS_PHI_L3, new SignedWordElement(0x118))),
 
 				new FC4ReadInputRegistersTask(0x11A, Priority.LOW, //
-
-						m(RefuEss.ChannelId.PCS_ALLOWED_CHARGE, new SignedWordElement(0x11A)), //
-						m(RefuEss.ChannelId.PCS_ALLOWED_DISCHARGE, new SignedWordElement(0x11B)), //
+						m(RefuEss.ChannelId.PCS_ALLOWED_CHARGE, new SignedWordElement(0x11A)), // TODO consider for
+																								// Power limitation
+						m(RefuEss.ChannelId.PCS_ALLOWED_DISCHARGE, new SignedWordElement(0x11B)), // TODO consider for
+																									// Power limitation
 						m(RefuEss.ChannelId.BATTERY_STATE, new UnsignedWordElement(0x11C)), //
 						m(RefuEss.ChannelId.BATTERY_MODE, new UnsignedWordElement(0x11D)), //
-						m(RefuEss.ChannelId.BATTERY_VOLTAGE, new SignedWordElement(0x11E)), //
+						m(RefuEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(0x11E)), //
 						m(RefuEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(0x11F)), //
 						m(RefuEss.ChannelId.BATTERY_POWER, new SignedWordElement(0x120)), //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x121)), //
 						m(RefuEss.ChannelId.ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(0x122),
-								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT), // need to check
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT), // TODO check if
+																						// SCALE_FACTOR_2_AND_INVERT
+																						// works
 						m(RefuEss.ChannelId.ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(0x123),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(0x124),
@@ -180,239 +206,186 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(0x125),
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(RefuEss.ChannelId.BATTERY_CHARGE_ENERGY,
-								new SignedDoublewordElement(0x126).wordOrder(WordOrder.LSWMSW)), // 
+								new SignedDoublewordElement(0x126).wordOrder(WordOrder.LSWMSW)), //
 						m(RefuEss.ChannelId.BATTERY_DISCHARGE_ENERGY,
-								new SignedDoublewordElement(0x128).wordOrder(WordOrder.LSWMSW)), // 
-
-						m(RefuEss.ChannelId.BATTERY_OPERATION_STATUS, new UnsignedWordElement(0x12A)), //
-
+								new SignedDoublewordElement(0x128).wordOrder(WordOrder.LSWMSW)), //
+						bm(new UnsignedWordElement(0x12A)) // for all: 0:Stop, 1:Operation
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_0, 0) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_1, 1) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_2, 2) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_3, 3) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_4, 4) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_5, 5) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_6, 6) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_7, 7) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_8, 8) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_9, 9) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_10, 10) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_11, 11) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_12, 12) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_13, 13) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_14, 14) //
+								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_15, 15) //
+								.build(), //
 						m(RefuEss.ChannelId.BATTERY_HIGHEST_VOLTAGE, new UnsignedWordElement(0x12B)), //
 						m(RefuEss.ChannelId.BATTERY_LOWEST_VOLTAGE, new UnsignedWordElement(0x12C)), //
 						m(RefuEss.ChannelId.BATTERY_HIGHEST_TEMPERATURE, new SignedWordElement(0x12D)), //
 						m(RefuEss.ChannelId.BATTERY_LOWEST_TEMPERATURE, new SignedWordElement(0x12E)), //
 						m(RefuEss.ChannelId.BATTERY_STOP_REQUEST, new UnsignedWordElement(0x12F)), //
-
 						bm(new UnsignedWordElement(0x130))//
-								.m(RefuEss.ChannelId.STATE_13, 0) //
-								.m(RefuEss.ChannelId.STATE_14, 1) //
-								.m(RefuEss.ChannelId.STATE_15, 2) //
-								.m(RefuEss.ChannelId.STATE_16, 3) //
-								.m(RefuEss.ChannelId.STATE_17, 4) //
-								.m(RefuEss.ChannelId.STATE_18, 5) //
-								.m(RefuEss.ChannelId.STATE_19, 6) //
-								.m(RefuEss.ChannelId.STATE_20, 7) //
-								.m(RefuEss.ChannelId.STATE_21, 8) //
-								.m(RefuEss.ChannelId.STATE_22, 9) //
-								.m(RefuEss.ChannelId.STATE_23, 10) //
-								.m(RefuEss.ChannelId.STATE_24, 11) //
-								.m(RefuEss.ChannelId.STATE_25, 12) //
-								.m(RefuEss.ChannelId.STATE_26, 13) //
-								.m(RefuEss.ChannelId.STATE_27, 14) //
+								.m(RefuEss.ChannelId.STATE_16, 0) //
+								.m(RefuEss.ChannelId.STATE_17, 1) //
+								.m(RefuEss.ChannelId.STATE_18, 2) //
+								.m(RefuEss.ChannelId.STATE_19, 3) //
+								.m(RefuEss.ChannelId.STATE_20, 4) //
+								.m(RefuEss.ChannelId.STATE_21, 5) //
+								.m(RefuEss.ChannelId.STATE_22, 6) //
+								.m(RefuEss.ChannelId.STATE_23, 7) //
+								.m(RefuEss.ChannelId.STATE_24, 8) //
+								.m(RefuEss.ChannelId.STATE_25, 9) //
+								.m(RefuEss.ChannelId.STATE_26, 10) //
+								.m(RefuEss.ChannelId.STATE_27, 11) //
+								.m(RefuEss.ChannelId.STATE_28, 12) //
+								.m(RefuEss.ChannelId.STATE_29, 13) //
+								.m(RefuEss.ChannelId.STATE_30, 14) //
 								.build(), //
-
 						bm(new UnsignedWordElement(0x131))//
-								.m(RefuEss.ChannelId.STATE_28, 0) //
-								.m(RefuEss.ChannelId.STATE_29, 1) //
-								.m(RefuEss.ChannelId.STATE_30, 5) //
-								.m(RefuEss.ChannelId.STATE_31, 7) //
+								.m(RefuEss.ChannelId.STATE_31, 0) //
+								.m(RefuEss.ChannelId.STATE_32, 1) //
+								.m(RefuEss.ChannelId.STATE_33, 5) //
+								.m(RefuEss.ChannelId.STATE_34, 7) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x132))//
-								.m(RefuEss.ChannelId.STATE_32, 0) //
-								.m(RefuEss.ChannelId.STATE_33, 1) //
-								.m(RefuEss.ChannelId.STATE_34, 2) //
-								.m(RefuEss.ChannelId.STATE_35, 3) //
+								.m(RefuEss.ChannelId.STATE_35, 0) //
+								.m(RefuEss.ChannelId.STATE_36, 1) //
+								.m(RefuEss.ChannelId.STATE_37, 2) //
+								.m(RefuEss.ChannelId.STATE_38, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x133))//
-								.m(RefuEss.ChannelId.STATE_36, 0) //
-								.m(RefuEss.ChannelId.STATE_37, 1) //
-								.m(RefuEss.ChannelId.STATE_38, 2) //
-								.m(RefuEss.ChannelId.STATE_39, 3) //
+								.m(RefuEss.ChannelId.STATE_39, 0) //
+								.m(RefuEss.ChannelId.STATE_40, 1) //
+								.m(RefuEss.ChannelId.STATE_41, 2) //
+								.m(RefuEss.ChannelId.STATE_42, 3) //
 								.build(),
-
 						new DummyRegisterElement(0x134), //
-
 						bm(new UnsignedWordElement(0x135))//
-								.m(RefuEss.ChannelId.STATE_40, 0) //
-								.m(RefuEss.ChannelId.STATE_41, 1) //
-								.m(RefuEss.ChannelId.STATE_42, 2) //
-								.m(RefuEss.ChannelId.STATE_43, 3) //
+								.m(RefuEss.ChannelId.STATE_43, 0) //
+								.m(RefuEss.ChannelId.STATE_44, 1) //
+								.m(RefuEss.ChannelId.STATE_45, 2) //
+								.m(RefuEss.ChannelId.STATE_46, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x136))//
-								.m(RefuEss.ChannelId.STATE_44, 0) //
-								.m(RefuEss.ChannelId.STATE_45, 1) //
-								.m(RefuEss.ChannelId.STATE_46, 2) //
-								.m(RefuEss.ChannelId.STATE_47, 3) //
+								.m(RefuEss.ChannelId.STATE_47, 0) //
+								.m(RefuEss.ChannelId.STATE_48, 1) //
+								.m(RefuEss.ChannelId.STATE_49, 2) //
+								.m(RefuEss.ChannelId.STATE_50, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x137))//
-								.m(RefuEss.ChannelId.STATE_48, 0) //
-								.m(RefuEss.ChannelId.STATE_49, 1) //
-								.m(RefuEss.ChannelId.STATE_50, 2) //
-								.m(RefuEss.ChannelId.STATE_51, 3) //
-								.m(RefuEss.ChannelId.STATE_52, 4) //
-								.m(RefuEss.ChannelId.STATE_53, 5) //
-								.m(RefuEss.ChannelId.STATE_54, 10) //
-								.m(RefuEss.ChannelId.STATE_55, 11) //
-								.m(RefuEss.ChannelId.STATE_56, 12) //
-								.m(RefuEss.ChannelId.STATE_57, 13) //
+								.m(RefuEss.ChannelId.STATE_51, 0) //
+								.m(RefuEss.ChannelId.STATE_52, 1) //
+								.m(RefuEss.ChannelId.STATE_53, 2) //
+								.m(RefuEss.ChannelId.STATE_54, 3) //
+								.m(RefuEss.ChannelId.STATE_55, 4) //
+								.m(RefuEss.ChannelId.STATE_56, 5) //
+								.m(RefuEss.ChannelId.STATE_57, 10) //
+								.m(RefuEss.ChannelId.STATE_58, 11) //
+								.m(RefuEss.ChannelId.STATE_59, 12) //
+								.m(RefuEss.ChannelId.STATE_60, 13) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x138))//
-								.m(RefuEss.ChannelId.STATE_58, 0) //
-								.m(RefuEss.ChannelId.STATE_59, 1) //
-								.m(RefuEss.ChannelId.STATE_60, 2) //
-								.m(RefuEss.ChannelId.STATE_61, 3) //
+								.m(RefuEss.ChannelId.STATE_61, 0) //
+								.m(RefuEss.ChannelId.STATE_62, 1) //
+								.m(RefuEss.ChannelId.STATE_63, 2) //
+								.m(RefuEss.ChannelId.STATE_64, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x139))//
-								.m(RefuEss.ChannelId.STATE_62, 0) //
-								.m(RefuEss.ChannelId.STATE_63, 1) //
-								.m(RefuEss.ChannelId.STATE_64, 2) //
-								.m(RefuEss.ChannelId.STATE_65, 3) //
+								.m(RefuEss.ChannelId.STATE_65, 0) //
+								.m(RefuEss.ChannelId.STATE_66, 1) //
+								.m(RefuEss.ChannelId.STATE_67, 2) //
+								.m(RefuEss.ChannelId.STATE_68, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x13A))//
-								.m(RefuEss.ChannelId.STATE_66, 0) //
-								.m(RefuEss.ChannelId.STATE_67, 1) //
-								.m(RefuEss.ChannelId.STATE_68, 2) //
-								.m(RefuEss.ChannelId.STATE_69, 3) //
+								.m(RefuEss.ChannelId.STATE_69, 0) //
+								.m(RefuEss.ChannelId.STATE_70, 1) //
+								.m(RefuEss.ChannelId.STATE_71, 2) //
+								.m(RefuEss.ChannelId.STATE_72, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x13B))//
-								.m(RefuEss.ChannelId.STATE_70, 0) //
-								.m(RefuEss.ChannelId.STATE_71, 1) //
-								.m(RefuEss.ChannelId.STATE_72, 2) //
-								.m(RefuEss.ChannelId.STATE_73, 3) //
+								.m(RefuEss.ChannelId.STATE_73, 0) //
+								.m(RefuEss.ChannelId.STATE_74, 1) //
+								.m(RefuEss.ChannelId.STATE_75, 2) //
+								.m(RefuEss.ChannelId.STATE_76, 3) //
 								.build(),
-
 						bm(new UnsignedWordElement(0x13C))//
-								.m(RefuEss.ChannelId.STATE_74, 0) //
-								.m(RefuEss.ChannelId.STATE_75, 1) //
-								.m(RefuEss.ChannelId.STATE_76, 2) //
-								.m(RefuEss.ChannelId.STATE_77, 3) //
+								.m(RefuEss.ChannelId.STATE_77, 0) //
+								.m(RefuEss.ChannelId.STATE_78, 1) //
+								.m(RefuEss.ChannelId.STATE_79, 2) //
+								.m(RefuEss.ChannelId.STATE_80, 3) //
 								.build(),
-
-						bm(new UnsignedWordElement(0x13D))//
-								.m(RefuEss.ChannelId.STATE_78, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x13E))//
-								.m(RefuEss.ChannelId.STATE_79, 0) //
-								.build(),
-
+						new DummyRegisterElement(0x13D), //
+						new DummyRegisterElement(0x13E), //
 						bm(new UnsignedWordElement(0x13F))//
-								.m(RefuEss.ChannelId.STATE_80, 2) //
-								.m(RefuEss.ChannelId.STATE_81, 3) //
-								.m(RefuEss.ChannelId.STATE_82, 4) //
-								.m(RefuEss.ChannelId.STATE_83, 6) //
-								.m(RefuEss.ChannelId.STATE_84, 9) //
-								.m(RefuEss.ChannelId.STATE_85, 10) //
-								.m(RefuEss.ChannelId.STATE_86, 11) //
-								.m(RefuEss.ChannelId.STATE_87, 12) //
-								.m(RefuEss.ChannelId.STATE_88, 13) //
-								.m(RefuEss.ChannelId.STATE_89, 14) //
-								.m(RefuEss.ChannelId.STATE_90, 15) //
+								.m(RefuEss.ChannelId.STATE_81, 2) //
+								.m(RefuEss.ChannelId.STATE_82, 3) //
+								.m(RefuEss.ChannelId.STATE_83, 4) //
+								.m(RefuEss.ChannelId.STATE_84, 6) //
+								.m(RefuEss.ChannelId.STATE_85, 9) //
+								.m(RefuEss.ChannelId.STATE_86, 10) //
+								.m(RefuEss.ChannelId.STATE_87, 11) //
+								.m(RefuEss.ChannelId.STATE_88, 12) //
+								.m(RefuEss.ChannelId.STATE_89, 13) //
+								.m(RefuEss.ChannelId.STATE_90, 14) //
+								.m(RefuEss.ChannelId.STATE_91, 15) //
 								.build(),
-						
 						bm(new UnsignedWordElement(0x140))//
-								.m(RefuEss.ChannelId.STATE_91, 2) //
-								.m(RefuEss.ChannelId.STATE_92, 3) //
-								.m(RefuEss.ChannelId.STATE_93, 7) //
-								.m(RefuEss.ChannelId.STATE_94, 8) //
-								.m(RefuEss.ChannelId.STATE_95, 10) //
-								.m(RefuEss.ChannelId.STATE_96, 11) //
-								.m(RefuEss.ChannelId.STATE_97, 12) //
-								.m(RefuEss.ChannelId.STATE_98, 13) //
-								.m(RefuEss.ChannelId.STATE_99, 14) //
+								.m(RefuEss.ChannelId.STATE_92, 2) //
+								.m(RefuEss.ChannelId.STATE_93, 3) //
+								.m(RefuEss.ChannelId.STATE_94, 7) //
+								.m(RefuEss.ChannelId.STATE_95, 8) //
+								.m(RefuEss.ChannelId.STATE_96, 10) //
+								.m(RefuEss.ChannelId.STATE_97, 11) //
+								.m(RefuEss.ChannelId.STATE_98, 12) //
+								.m(RefuEss.ChannelId.STATE_99, 13) //
+								.m(RefuEss.ChannelId.STATE_100, 14) //
 								.build(),
-						// TODO maybe normal integer
-						bm(new UnsignedWordElement(0x141))//
-								.m(RefuEss.ChannelId.STATE_100, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x142))//
-								.m(RefuEss.ChannelId.STATE_101, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x143))//
-								.m(RefuEss.ChannelId.STATE_102, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x144))//
-								.m(RefuEss.ChannelId.STATE_103, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x145))//
-								.m(RefuEss.ChannelId.STATE_104, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x146))//
-								.m(RefuEss.ChannelId.STATE_105, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x147))//
-								.m(RefuEss.ChannelId.STATE_106, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x148))//
-								.m(RefuEss.ChannelId.STATE_107, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x149))//
-								.m(RefuEss.ChannelId.STATE_108, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x14a))//
-								.m(RefuEss.ChannelId.STATE_109, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x14b))//
-								.m(RefuEss.ChannelId.STATE_110, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x14c))//
-								.m(RefuEss.ChannelId.STATE_111, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x14d))//
-								.m(RefuEss.ChannelId.STATE_112, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x14e))//
-								.m(RefuEss.ChannelId.STATE_113, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x14f))//
-								.m(RefuEss.ChannelId.STATE_114, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x150))//
-								.m(RefuEss.ChannelId.STATE_115, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x151))//
-								.m(RefuEss.ChannelId.STATE_116, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x152))//
-								.m(RefuEss.ChannelId.STATE_117, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x153))//
-								.m(RefuEss.ChannelId.STATE_118, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x154))//
-								.m(RefuEss.ChannelId.STATE_119, 0) //
-								.build(),
-
-						bm(new UnsignedWordElement(0x155))//
-								.m(RefuEss.ChannelId.STATE_120, 0) //
-								.build() //
-
+						new DummyRegisterElement(0x141), //
+						new DummyRegisterElement(0x142), //
+						new DummyRegisterElement(0x143), //
+						new DummyRegisterElement(0x144), //
+						bm(new UnsignedWordElement(0x145)) // for all: 1:Stop, 0:Operation
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_0, 0) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_1, 1) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_2, 2) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_3, 3) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_4, 4) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_5, 5) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_6, 6) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_7, 7) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_8, 8) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_9, 9) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_10, 10) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_11, 11) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_12, 12) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_13, 13) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_14, 14) //
+								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_15, 15) //
+								.build(), //
+						m(RefuEss.ChannelId.ERROR_LOG_0, new UnsignedWordElement(0x146)), //
+						m(RefuEss.ChannelId.ERROR_LOG_1, new UnsignedWordElement(0x147)), //
+						m(RefuEss.ChannelId.ERROR_LOG_2, new UnsignedWordElement(0x148)), //
+						m(RefuEss.ChannelId.ERROR_LOG_3, new UnsignedWordElement(0x149)), //
+						m(RefuEss.ChannelId.ERROR_LOG_4, new UnsignedWordElement(0x14A)), //
+						m(RefuEss.ChannelId.ERROR_LOG_5, new UnsignedWordElement(0x14B)), //
+						m(RefuEss.ChannelId.ERROR_LOG_6, new UnsignedWordElement(0x14C)), //
+						m(RefuEss.ChannelId.ERROR_LOG_7, new UnsignedWordElement(0x14D)), //
+						m(RefuEss.ChannelId.ERROR_LOG_8, new UnsignedWordElement(0x14E)), //
+						m(RefuEss.ChannelId.ERROR_LOG_9, new UnsignedWordElement(0x14F)), //
+						m(RefuEss.ChannelId.ERROR_LOG_10, new UnsignedWordElement(0x150)), //
+						m(RefuEss.ChannelId.ERROR_LOG_11, new UnsignedWordElement(0x151)), //
+						m(RefuEss.ChannelId.ERROR_LOG_12, new UnsignedWordElement(0x152)), //
+						m(RefuEss.ChannelId.ERROR_LOG_13, new UnsignedWordElement(0x153)), //
+						m(RefuEss.ChannelId.ERROR_LOG_14, new UnsignedWordElement(0x154)), //
+						m(RefuEss.ChannelId.ERROR_LOG_15, new UnsignedWordElement(0x155)) //
 				),
 
 				new FC16WriteRegistersTask(0x200, //
@@ -439,21 +412,6 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(RefuEss.ChannelId.SET_REACTIVE_POWER_L3, new SignedWordElement(0x20A),
 								ElementToChannelConverter.SCALE_FACTOR_2)));//
-
-//		new ChannelMergerSumInteger( //
-//				/* target */ this.getActivePower(), //
-//				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-//						this.getActivePowerL1(), //
-//						this.getActivePowerL2(), //
-//						this.getActivePowerL3() //
-//				});
-//		new ChannelMergerSumInteger( //
-//				/* target */ this.getReactivePower(), //
-//				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-//						this.getReactivePowerL1(), //
-//						this.getReactivePowerL2(), //
-//						this.getReactivePowerL3() //
-//				});
 	}
 
 	@Override
@@ -470,31 +428,14 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		SYSTEM_STATE(new Doc() //
-				.option(0, "STOP") //
+				.option(0, "Off") //
 				.option(1, "Init") //
 				.option(2, "Pre-operation") //
-				.option(3, "STANDBY") //
-				.option(4, "START") //
-				.option(4, "FAULT")), //
-
-		COMMUNICATION_INFORMATIONS(new Doc()//
-				.option(1, "Gateway Initialized")//
-				.option(2, "Modbus Slave Status")//
-				.option(4, "Modbus Master Status")//
-				.option(8, "CAN Timeout")//
-				.option(16, "First Communication Ok")), //
-
-		INVERTER_STATUS(new Doc()//
-				.option(1, "Ready to Power on")//
-				.option(2, "Ready for Operating")//
-				.option(4, "Enabled")//
-				.option(8, "Fault")//
-				.option(256, "Warning")//
-				.option(512, "Voltage/Current mode").option(1024, "Power mode")//
-				.option(2048, "AC relays close")//
-				.option(4096, "DC relays 1 close")//
-				.option(8192, "DC relays 2 close")//
-				.option(16384, "Mains OK")), //
+				.option(3, "Standby") //
+				.option(4, "Operation") //
+				.option(5, "Error")), //
+		INVERTER_ERROR_CODE(new Doc()), //
+		DCDC_ERROR_CODE(new Doc()), //
 
 		SET_WORK_STATE(new Doc() //
 				.option(0, SetWorkState.STOP)//
@@ -513,18 +454,18 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
 		BATTERY_VOLTAGE_PCS(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_CURRENT_PCS(new Doc().unit(Unit.MILLIAMPERE)), //
-		PCS_ALLOWED_CHARGE(new Doc().unit(Unit.KILOWATT)), //
-		PCS_ALLOWED_DISCHARGE(new Doc().unit(Unit.KILOWATT)), //
-		ALLOWED_CHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)),
-		ALLOWED_DISCHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)),
+		PCS_ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
+		PCS_ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
+		ALLOWED_CHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
+		ALLOWED_DISCHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 
-		
-
-		BATTERY_CHARGE_ENERGY(new Doc().unit(Unit.KILOWATT_HOURS)),
-		BATTERY_DISCHARGE_ENERGY(new Doc().unit(Unit.KILOWATT_HOURS)),
-		BATTERY_HIGHEST_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), BATTERY_LOWEST_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)),
-		BATTERY_HIGHEST_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_LOWEST_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), BATTERY_STOP_REQUEST(new Doc()),
+		BATTERY_CHARGE_ENERGY(new Doc().unit(Unit.KILOWATT_HOURS)), //
+		BATTERY_DISCHARGE_ENERGY(new Doc().unit(Unit.KILOWATT_HOURS)), //
+		BATTERY_HIGHEST_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		BATTERY_LOWEST_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		BATTERY_HIGHEST_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_LOWEST_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STOP_REQUEST(new Doc()), //
 		CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		CURRENT_L1(new Doc().unit(Unit.MILLIAMPERE)), //
 		CURRENT_L2(new Doc().unit(Unit.MILLIAMPERE)), //
@@ -538,14 +479,10 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 		SET_REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE)), //
 		SET_REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE)), //
 
-		COS_PHI_3P(new Doc()), COS_PHI_L1(new Doc()), COS_PHI_L2(new Doc()),
-		COS_PHI_L3(new Doc().unit(null)),
-
-		BATTERY_OPERATION_STATUS(new Doc() //
-				.option(1, "Battery group 1 operating")//
-				.option(2, "Battery group 2 operating")//
-				.option(4, "Battery group 3 operating")//
-				.option(8, "Battery group 4 operating")), //
+		COS_PHI_3P(new Doc()), //
+		COS_PHI_L1(new Doc()), //
+		COS_PHI_L2(new Doc()), //
+		COS_PHI_L3(new Doc()), //
 
 		BATTERY_STATE(new Doc() //
 				.option(0, "Initial")//
@@ -564,194 +501,226 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 
 		SET_OPERATION_MODE(new Doc()//
 				.option(0, "P/Q Set point")//
-				.option(1, "IAC / cosphi set point")), //
+				.option(1, "IAC/cosphi set point")), //
 
-		STATE_0(new Doc().level(Level.FAULT).text("BMSInError")), //
-		STATE_1(new Doc().level(Level.FAULT).text("BMSInErrorSecond")), //
-		STATE_2(new Doc().level(Level.FAULT).text("BMSUndervoltage")), //
-		STATE_3(new Doc().level(Level.FAULT).text("BMSOvercurrent")), //
-		STATE_4(new Doc().level(Level.FAULT).text("ErrorBMSLimitsNotInitialized")), //
-		STATE_5(new Doc().level(Level.FAULT).text("ConnectError")), //
-		STATE_6(new Doc().level(Level.FAULT).text("OvervoltageWarning")), //
-		STATE_7(new Doc().level(Level.FAULT).text("UndervoltageWarning")), //
-		STATE_8(new Doc().level(Level.FAULT).text("OvercurrentWarning")), //
-		STATE_9(new Doc().level(Level.FAULT).text("BMSReady")), //
-		STATE_10(new Doc().level(Level.FAULT).text("TREXReady")), //
+		STATE_0(new Doc().level(Level.FAULT).text("BMS In Error")), //
+		STATE_1(new Doc().level(Level.FAULT).text("BMS Overvoltage")), //
+		STATE_2(new Doc().level(Level.FAULT).text("BMS Undervoltage")), //
+		STATE_3(new Doc().level(Level.FAULT).text("BMS Overcurrent")), //
+		STATE_4(new Doc().level(Level.FAULT).text("Error BMS Limits Not Initialized")), //
+		STATE_5(new Doc().level(Level.FAULT).text("Connect Error")), //
+		STATE_6(new Doc().level(Level.FAULT).text("Overvoltage Warning")), //
+		STATE_7(new Doc().level(Level.FAULT).text("Undervoltage Warning")), //
+		STATE_8(new Doc().level(Level.FAULT).text("Overcurrent Warning")), //
+		STATE_9(new Doc().level(Level.FAULT).text("BMS Ready")), //
+		STATE_10(new Doc().level(Level.FAULT).text("TREX Ready")), //
 
-		STATE_11(new Doc().level(Level.WARNING).text("ErrorCode")), //
+		STATE_11(new Doc().level(Level.FAULT).text("Gateway Initialized")), //
+		STATE_12(new Doc().level(Level.FAULT).text("Modbus Slave Status")), //
+		STATE_13(new Doc().level(Level.FAULT).text("Modbus Master Status")), //
+		STATE_14(new Doc().level(Level.FAULT).text("CAN Timeout")), //
+		STATE_15(new Doc().level(Level.FAULT).text("First Communication Ok")), //
 
-		STATE_12(new Doc().level(Level.WARNING).text("DCDCError")), //
+		INVERTER_STATE_0(new Doc().level(Level.INFO).text("Ready to Power on")), //
+		INVERTER_STATE_1(new Doc().level(Level.INFO).text("Ready for Operating")), //
+		INVERTER_STATE_2(new Doc().level(Level.INFO).text("Enabled")), //
+		INVERTER_STATE_3(new Doc().level(Level.FAULT).text("Inverter Fault")), //
+		INVERTER_STATE_7(new Doc().level(Level.WARNING).text("Inverter Warning")), //
+		INVERTER_STATE_8(new Doc().level(Level.INFO).text("Voltage/Current mode")), //
+		INVERTER_STATE_9(new Doc().level(Level.INFO).text("Power mode")), //
+		INVERTER_STATE_10(new Doc().level(Level.INFO).text("Status AC relays (1:Close, 0:Open)")), //
+		INVERTER_STATE_11(new Doc().level(Level.INFO).text("Status DC relay 1 (1:Close, 0:Open)")), //
+		INVERTER_STATE_12(new Doc().level(Level.INFO).text("Status DC relay 2 (1:Close, 0:Open)")), //
+		INVERTER_STATE_13(new Doc().level(Level.INFO).text("Mains OK")), //
 
-		STATE_13(new Doc().level(Level.WARNING).text("NormalChargingOverCurrent")), //
-		STATE_14(new Doc().level(Level.WARNING).text("CharginigCurrentOverLimit")), //
-		STATE_15(new Doc().level(Level.WARNING).text("DischargingCurrentOverLimit")), //
-		STATE_16(new Doc().level(Level.WARNING).text("NormalHighVoltage")), //
-		STATE_17(new Doc().level(Level.WARNING).text("NormalLowVoltage")), //
-		STATE_18(new Doc().level(Level.WARNING).text("AbnormalVoltageVariation")), //
-		STATE_19(new Doc().level(Level.WARNING).text("NormalHighTemperature")), //
-		STATE_20(new Doc().level(Level.WARNING).text("NormalLowTemperature")), //
-		STATE_21(new Doc().level(Level.WARNING).text("AbnormalTemperatureVariation")), //
-		STATE_22(new Doc().level(Level.WARNING).text("SeriousHighVoltage")), //
-		STATE_23(new Doc().level(Level.WARNING).text("SeriousLowVoltage")), //
-		STATE_24(new Doc().level(Level.WARNING).text("SeriousLowTemperature")), //
-		STATE_25(new Doc().level(Level.WARNING).text("ChargingSeriousOverCurrent")), //
-		STATE_26(new Doc().level(Level.WARNING).text("DischargingSeriousOverCurrent")), //
-		STATE_27(new Doc().level(Level.WARNING).text("AbnormalCapacityAlarm")), //
+		DCDC_STATE_0(new Doc().level(Level.INFO).text("Ready to Power on")), //
+		DCDC_STATE_1(new Doc().level(Level.INFO).text("Ready for Operating")), //
+		DCDC_STATE_2(new Doc().level(Level.INFO).text("Enabled")), //
+		DCDC_STATE_3(new Doc().level(Level.FAULT).text("DCDC Fault")), //
+		DCDC_STATE_7(new Doc().level(Level.WARNING).text("DCDC Warning")), //
+		DCDC_STATE_8(new Doc().level(Level.INFO).text("Voltage/Current mode")), //
+		DCDC_STATE_9(new Doc().level(Level.INFO).text("Power mode")), //
 
-		STATE_28(new Doc().level(Level.WARNING).text("EEPROMParameterFailure")), //
-		STATE_29(new Doc().level(Level.WARNING).text("SwitchOfInsideCombinedCabinet")), //
-		STATE_30(new Doc().level(Level.WARNING).text("ShouldNotBeConnectedToGridDueToTheDCSideCondition")), //
-		STATE_31(new Doc().level(Level.WARNING).text("EmergencyStopRequireFromSystemController")), //
+		BATTERY_ON_GRID_STATE_0(new Doc().level(Level.INFO).text("On-grid status of battery group 0")), //
+		BATTERY_ON_GRID_STATE_1(new Doc().level(Level.INFO).text("On-grid status of battery group 1")), //
+		BATTERY_ON_GRID_STATE_2(new Doc().level(Level.INFO).text("On-grid status of battery group 2")), //
+		BATTERY_ON_GRID_STATE_3(new Doc().level(Level.INFO).text("On-grid status of battery group 3")), //
+		BATTERY_ON_GRID_STATE_4(new Doc().level(Level.INFO).text("On-grid status of battery group 4")), //
+		BATTERY_ON_GRID_STATE_5(new Doc().level(Level.INFO).text("On-grid status of battery group 5")), //
+		BATTERY_ON_GRID_STATE_6(new Doc().level(Level.INFO).text("On-grid status of battery group 6")), //
+		BATTERY_ON_GRID_STATE_7(new Doc().level(Level.INFO).text("On-grid status of battery group 7")), //
+		BATTERY_ON_GRID_STATE_8(new Doc().level(Level.INFO).text("On-grid status of battery group 8")), //
+		BATTERY_ON_GRID_STATE_9(new Doc().level(Level.INFO).text("On-grid status of battery group 9")), //
+		BATTERY_ON_GRID_STATE_10(new Doc().level(Level.INFO).text("On-grid status of battery group 10")), //
+		BATTERY_ON_GRID_STATE_11(new Doc().level(Level.INFO).text("On-grid status of battery group 11")), //
+		BATTERY_ON_GRID_STATE_12(new Doc().level(Level.INFO).text("On-grid status of battery group 12")), //
+		BATTERY_ON_GRID_STATE_13(new Doc().level(Level.INFO).text("On-grid status of battery group 13")), //
+		BATTERY_ON_GRID_STATE_14(new Doc().level(Level.INFO).text("On-grid status of battery group 14")), //
+		BATTERY_ON_GRID_STATE_15(new Doc().level(Level.INFO).text("On-grid status of battery group 15")), //
 
-		STATE_32(new Doc().level(Level.WARNING).text("BatteryGroup1EnableAndNotConnectedToGrid")), //
-		STATE_33(new Doc().level(Level.WARNING).text("BatteryGroup2EnableAndNotConnectedToGrid")), //
-		STATE_34(new Doc().level(Level.WARNING).text("BatteryGroup3EnableAndNotConnectedToGrid")), //
-		STATE_35(new Doc().level(Level.WARNING).text("BatteryGroup4EnableAndNotConnectedToGrid")), //
+		STATE_16(new Doc().level(Level.WARNING).text("Normal Charging Over Current")), //
+		STATE_17(new Doc().level(Level.WARNING).text("Charging Current Over Limit")), //
+		STATE_18(new Doc().level(Level.WARNING).text("Discharging Current Over Limit")), //
+		STATE_19(new Doc().level(Level.WARNING).text("Normal High Voltage")), //
+		STATE_20(new Doc().level(Level.WARNING).text("Normal Low Voltage")), //
+		STATE_21(new Doc().level(Level.WARNING).text("Abnormal Voltage Variation")), //
+		STATE_22(new Doc().level(Level.WARNING).text("Normal High Temperature")), //
+		STATE_23(new Doc().level(Level.WARNING).text("Normal Low Temperature")), //
+		STATE_24(new Doc().level(Level.WARNING).text("Abnormal Temperature Variation")), //
+		STATE_25(new Doc().level(Level.WARNING).text("Serious High Voltage")), //
+		STATE_26(new Doc().level(Level.WARNING).text("Serious Low Voltage")), //
+		STATE_27(new Doc().level(Level.WARNING).text("Serious Low Temperature")), //
+		STATE_28(new Doc().level(Level.WARNING).text("Charging Serious Over Current")), //
+		STATE_29(new Doc().level(Level.WARNING).text("Discharging Serious Over Current")), //
+		STATE_30(new Doc().level(Level.WARNING).text("Abnormal Capacity Alarm")), //
 
-		STATE_36(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup1Open")), //
-		STATE_37(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup2Open")), //
-		STATE_38(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup3Open")), //
-		STATE_39(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup4Open")), //
+		STATE_31(new Doc().level(Level.WARNING).text("EEPROM Parameter Failure")), //
+		STATE_32(new Doc().level(Level.WARNING).text("Switch Of Inside Combined Cabinet")), //
+		STATE_33(new Doc().level(Level.WARNING).text("Should Not Be Connected To Grid Due To The DC Side Condition")), //
+		STATE_34(new Doc().level(Level.WARNING).text("Emergency Stop Require From System Controller")), //
 
-		STATE_40(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup1")), //
-		STATE_41(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup2")), //
-		STATE_42(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup3")), //
-		STATE_43(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup4")), //
+		STATE_35(new Doc().level(Level.WARNING).text("Battery Group 1 Enable And Not Connected To Grid")), //
+		STATE_36(new Doc().level(Level.WARNING).text("Battery Group 2 Enable And Not Connected To Grid")), //
+		STATE_37(new Doc().level(Level.WARNING).text("Battery Group 3 Enable And Not Connected To Grid")), //
+		STATE_38(new Doc().level(Level.WARNING).text("Battery Group 4 Enable And Not Connected To Grid")), //
 
-		STATE_44(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup1")), //
-		STATE_45(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup2")), //
-		STATE_46(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup3")), //
-		STATE_47(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup4")), //
+		STATE_39(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup1Open")), //
+		STATE_40(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup2Open")), //
+		STATE_41(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup3Open")), //
+		STATE_42(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup4Open")), //
 
-		STATE_48(new Doc().level(Level.FAULT).text("NoEnableBateryGroupOrUsableBatteryGroup")), //
-		STATE_49(new Doc().level(Level.FAULT).text("NormalLeakageOfBatteryGroup")), //
-		STATE_50(new Doc().level(Level.FAULT).text("SeriousLeakageOfBatteryGroup")), //
-		STATE_51(new Doc().level(Level.FAULT).text("BatteryStartFailure")), //
-		STATE_52(new Doc().level(Level.FAULT).text("BatteryStopFailure")), //
-		STATE_53(new Doc().level(Level.FAULT).text("InterruptionOfCANCommunicationBetweenBatteryGroupAndController")), //
-		STATE_54(new Doc().level(Level.FAULT).text("EmergencyStopAbnormalOfAuxiliaryCollector")), //
-		STATE_55(new Doc().level(Level.FAULT).text("LeakageSelfDetectionOnNegative")), //
-		STATE_56(new Doc().level(Level.FAULT).text("LeakageSelfDetectionOnPositive")), //
-		STATE_57(new Doc().level(Level.FAULT).text("SelfDetectionFailureOnBattery")), //
+		STATE_43(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup1")), //
+		STATE_44(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup2")), //
+		STATE_45(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup3")), //
+		STATE_46(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup4")), //
 
-		STATE_58(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup1")), //
-		STATE_59(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup2")), //
-		STATE_60(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup3")), //
-		STATE_61(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup4")), //
+		STATE_47(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup1")), //
+		STATE_48(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup2")), //
+		STATE_49(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup3")), //
+		STATE_50(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup4")), //
 
-		STATE_62(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup1")), //
-		STATE_63(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup2")), //
-		STATE_64(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup3")), //
-		STATE_65(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup4")), //
+		STATE_51(new Doc().level(Level.FAULT).text("NoEnableBateryGroupOrUsableBatteryGroup")), //
+		STATE_52(new Doc().level(Level.FAULT).text("NormalLeakageOfBatteryGroup")), //
+		STATE_53(new Doc().level(Level.FAULT).text("SeriousLeakageOfBatteryGroup")), //
+		STATE_54(new Doc().level(Level.FAULT).text("BatteryStartFailure")), //
+		STATE_55(new Doc().level(Level.FAULT).text("BatteryStopFailure")), //
+		STATE_56(new Doc().level(Level.FAULT).text("InterruptionOfCANCommunicationBetweenBatteryGroupAndController")), //
+		STATE_57(new Doc().level(Level.FAULT).text("EmergencyStopAbnormalOfAuxiliaryCollector")), //
+		STATE_58(new Doc().level(Level.FAULT).text("LeakageSelfDetectionOnNegative")), //
+		STATE_59(new Doc().level(Level.FAULT).text("LeakageSelfDetectionOnPositive")), //
+		STATE_60(new Doc().level(Level.FAULT).text("SelfDetectionFailureOnBattery")), //
 
-		STATE_66(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup1")), //
-		STATE_67(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup2")), //
-		STATE_68(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup3")), //
-		STATE_69(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup4")), //
+		STATE_61(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup1")), //
+		STATE_62(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup2")), //
+		STATE_63(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup3")), //
+		STATE_64(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup4")), //
 
-		STATE_70(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup1")), //
-		STATE_71(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup2")), //
-		STATE_72(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup3")), //
-		STATE_73(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup4")), //
+		STATE_65(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup1")), //
+		STATE_66(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup2")), //
+		STATE_67(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup3")), //
+		STATE_68(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup4")), //
 
-		STATE_74(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup1")), //
-		STATE_75(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup2")), //
-		STATE_76(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup3")), //
-		STATE_77(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup4")), //
+		STATE_69(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup1")), //
+		STATE_70(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup2")), //
+		STATE_71(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup3")), //
+		STATE_72(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup4")), //
 
-		STATE_78(new Doc().level(Level.FAULT).text("BatteryFault7")), //
-		STATE_79(new Doc().level(Level.FAULT).text("BatteryFault8")), //
+		STATE_73(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup1")), //
+		STATE_74(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup2")), //
+		STATE_75(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup3")), //
+		STATE_76(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup4")), //
 
-		STATE_80(new Doc().level(Level.FAULT).text("SamplingCircuitAbnormalForBMU")), //
-		STATE_81(new Doc().level(Level.FAULT).text("PowerCableDisconnectFailure")), //
-		STATE_82(new Doc().level(Level.FAULT).text("SamplingCircuitDisconnectFailure")), //
-		STATE_83(new Doc().level(Level.FAULT).text("CANDisconnectForMasterAndSlave")), //
-		STATE_84(new Doc().level(Level.FAULT).text("SammplingCircuitFailure")), //
-		STATE_85(new Doc().level(Level.FAULT).text("SingleBatteryFailure")), //
-		STATE_86(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForMainContactor")), //
-		STATE_87(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForMainContactorSecond")), //
-		STATE_88(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForFancontactor")), //
-		STATE_89(new Doc().level(Level.FAULT).text("BMUPowerContactorCircuitDetectionAbnormal")), //
-		STATE_90(new Doc().level(Level.FAULT).text("CentralContactorCircuitDetectionAbnormal")), // 3
+		STATE_77(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup1")), //
+		STATE_78(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup2")), //
+		STATE_79(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup3")), //
+		STATE_80(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup4")), //
 
-		STATE_91(new Doc().level(Level.FAULT).text("SeriousTemperatureFault")), //
-		STATE_92(new Doc().level(Level.FAULT).text("CommunicationFaultForSystemController")), //
-		STATE_93(new Doc().level(Level.FAULT).text("FrogAlarm")), //
-		STATE_94(new Doc().level(Level.FAULT).text("FuseFault")), //
-		STATE_95(new Doc().level(Level.FAULT).text("NormalLeakage")), //
-		STATE_96(new Doc().level(Level.FAULT).text("SeriousLeakage")), //
-		STATE_97(new Doc().level(Level.FAULT).text("CANDisconnectionBetweenBatteryGroupAndBatteryStack")), //
-		STATE_98(new Doc().level(Level.FAULT).text("CentralContactorCircuitOpen")), //
-		STATE_99(new Doc().level(Level.FAULT).text("BMUPowerContactorOpen")), //
+		STATE_81(new Doc().level(Level.FAULT).text("SamplingCircuitAbnormalForBMU")), //
+		STATE_82(new Doc().level(Level.FAULT).text("PowerCableDisconnectFailure")), //
+		STATE_83(new Doc().level(Level.FAULT).text("SamplingCircuitDisconnectFailure")), //
+		STATE_84(new Doc().level(Level.FAULT).text("CANDisconnectForMasterAndSlave")), //
+		STATE_85(new Doc().level(Level.FAULT).text("SammplingCircuitFailure")), //
+		STATE_86(new Doc().level(Level.FAULT).text("SingleBatteryFailure")), //
+		STATE_87(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForMainContactor")), //
+		STATE_88(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForMainContactorSecond")), //
+		STATE_89(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForFancontactor")), //
+		STATE_90(new Doc().level(Level.FAULT).text("BMUPowerContactorCircuitDetectionAbnormal")), //
+		STATE_91(new Doc().level(Level.FAULT).text("CentralContactorCircuitDetectionAbnormal")), // 3
 
-		STATE_100(new Doc().level(Level.FAULT).text("BatteryFault11")), //
-		STATE_101(new Doc().level(Level.FAULT).text("BatteryFault12")), //
-		STATE_102(new Doc().level(Level.FAULT).text("BatteryFault13")), //
-		STATE_103(new Doc().level(Level.FAULT).text("BatteryFault14")), //
+		STATE_92(new Doc().level(Level.FAULT).text("SeriousTemperatureFault")), //
+		STATE_93(new Doc().level(Level.FAULT).text("CommunicationFaultForSystemController")), //
+		STATE_94(new Doc().level(Level.FAULT).text("FrogAlarm")), //
+		STATE_95(new Doc().level(Level.FAULT).text("FuseFault")), //
+		STATE_96(new Doc().level(Level.FAULT).text("NormalLeakage")), //
+		STATE_97(new Doc().level(Level.FAULT).text("SeriousLeakage")), //
+		STATE_98(new Doc().level(Level.FAULT).text("CANDisconnectionBetweenBatteryGroupAndBatteryStack")), //
+		STATE_99(new Doc().level(Level.FAULT).text("CentralContactorCircuitOpen")), //
+		STATE_100(new Doc().level(Level.FAULT).text("BMUPowerContactorOpen")), //
 
-		STATE_104(new Doc().level(Level.FAULT).text("BatteryGroupControlStatus")), //
+		BATTERY_CONTROL_STATE_0(new Doc().level(Level.INFO).text("Control Status Battery Group 0")), //
+		BATTERY_CONTROL_STATE_1(new Doc().level(Level.INFO).text("Control Status Battery Group 1")), //
+		BATTERY_CONTROL_STATE_2(new Doc().level(Level.INFO).text("Control Status Battery Group 2")), //
+		BATTERY_CONTROL_STATE_3(new Doc().level(Level.INFO).text("Control Status Battery Group 3")), //
+		BATTERY_CONTROL_STATE_4(new Doc().level(Level.INFO).text("Control Status Battery Group 4")), //
+		BATTERY_CONTROL_STATE_5(new Doc().level(Level.INFO).text("Control Status Battery Group 5")), //
+		BATTERY_CONTROL_STATE_6(new Doc().level(Level.INFO).text("Control Status Battery Group 6")), //
+		BATTERY_CONTROL_STATE_7(new Doc().level(Level.INFO).text("Control Status Battery Group 7")), //
+		BATTERY_CONTROL_STATE_8(new Doc().level(Level.INFO).text("Control Status Battery Group 8")), //
+		BATTERY_CONTROL_STATE_9(new Doc().level(Level.INFO).text("Control Status Battery Group 9")), //
+		BATTERY_CONTROL_STATE_10(new Doc().level(Level.INFO).text("Control Status Battery Group 10")), //
+		BATTERY_CONTROL_STATE_11(new Doc().level(Level.INFO).text("Control Status Battery Group 11")), //
+		BATTERY_CONTROL_STATE_12(new Doc().level(Level.INFO).text("Control Status Battery Group 12")), //
+		BATTERY_CONTROL_STATE_13(new Doc().level(Level.INFO).text("Control Status Battery Group 13")), //
+		BATTERY_CONTROL_STATE_14(new Doc().level(Level.INFO).text("Control Status Battery Group 14")), //
+		BATTERY_CONTROL_STATE_15(new Doc().level(Level.INFO).text("Control Status Battery Group 15")), //
 
-		STATE_105(new Doc().level(Level.WARNING).text("ErrorLog1")), //
-		STATE_106(new Doc().level(Level.WARNING).text("ErrorLog2")), //
-		STATE_107(new Doc().level(Level.WARNING).text("ErrorLog3")), //
-		STATE_108(new Doc().level(Level.WARNING).text("ErrorLog4")), //
-		STATE_109(new Doc().level(Level.WARNING).text("ErrorLog5")), //
-		STATE_110(new Doc().level(Level.WARNING).text("ErrorLog6")), //
-		STATE_111(new Doc().level(Level.WARNING).text("ErrorLog7")), //
-		STATE_112(new Doc().level(Level.WARNING).text("ErrorLog8")), //
-		STATE_113(new Doc().level(Level.WARNING).text("ErrorLog9")), //
-		STATE_114(new Doc().level(Level.WARNING).text("ErrorLog10")), //
-		STATE_115(new Doc().level(Level.WARNING).text("ErrorLog11")), //
-		STATE_116(new Doc().level(Level.WARNING).text("ErrorLog12")), //
-		STATE_117(new Doc().level(Level.WARNING).text("ErrorLog13")), //
-		STATE_118(new Doc().level(Level.WARNING).text("ErrorLog14")), //
-		STATE_119(new Doc().level(Level.WARNING).text("ErrorLog15")), //
-		STATE_120(new Doc().level(Level.WARNING).text("ErrorLog16")), //
-
+		ERROR_LOG_0(new Doc()), //
+		ERROR_LOG_1(new Doc()), //
+		ERROR_LOG_2(new Doc()), //
+		ERROR_LOG_3(new Doc()), //
+		ERROR_LOG_4(new Doc()), //
+		ERROR_LOG_5(new Doc()), //
+		ERROR_LOG_6(new Doc()), //
+		ERROR_LOG_7(new Doc()), //
+		ERROR_LOG_8(new Doc()), //
+		ERROR_LOG_9(new Doc()), //
+		ERROR_LOG_10(new Doc()), //
+		ERROR_LOG_11(new Doc()), //
+		ERROR_LOG_12(new Doc()), //
+		ERROR_LOG_13(new Doc()), //
+		ERROR_LOG_14(new Doc()), //
+		ERROR_LOG_15(new Doc()), //
 		; //
-		
+
 		// TODO
-				/*
-				 * this.power = new SymmetricPowerImpl(100000, setActivePower, setReactivePower, getParent().getBridge());
-				this.allowedChargeLimit = new PGreaterEqualLimitation(power);
-				this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
-				this.batFullLimit = new NoPBetweenLimitation(power);
-				this.power.addStaticLimitation(batFullLimit);
-				this.allowedCharge.addChangeListener(new ChannelChangeListener() {
-
-					@Override
-					public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-						allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
-						if (allowedCharge.isValuePresent()) {
-							if (allowedCharge.getValue() > -100) {
-								batFullLimit.setP(0L, 5000L);
-							} else {
-								batFullLimit.setP(null, null);
-							}
-						}
-					}
-				});
-				this.power.addStaticLimitation(this.allowedChargeLimit);
-				this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
-				this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
-				this.batEmptyLimit = new NoPBetweenLimitation(power);
-				this.power.addStaticLimitation(batEmptyLimit);
-				this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
-
-					@Override
-					public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-						allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
-						if (allowedDischarge.isValuePresent()) {
-							if(allowedDischarge.getValue() < 100) {
-								batEmptyLimit.setP(-5000L, 0L);
-							}else {
-								batEmptyLimit.setP(null, null);
-							}
-						}
-					}
-				});
-				return protocol;
-				 */
+		/*
+		 * this.power = new SymmetricPowerImpl(100000, setActivePower, setReactivePower,
+		 * getParent().getBridge()); this.allowedChargeLimit = new
+		 * PGreaterEqualLimitation(power);
+		 * this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
+		 * this.batFullLimit = new NoPBetweenLimitation(power);
+		 * this.power.addStaticLimitation(batFullLimit);
+		 * this.allowedCharge.addChangeListener(new ChannelChangeListener() {
+		 * 
+		 * @Override public void channelChanged(Channel channel, Optional<?> newValue,
+		 * Optional<?> oldValue) {
+		 * allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L)); if
+		 * (allowedCharge.isValuePresent()) { if (allowedCharge.getValue() > -100) {
+		 * batFullLimit.setP(0L, 5000L); } else { batFullLimit.setP(null, null); } } }
+		 * }); this.power.addStaticLimitation(this.allowedChargeLimit);
+		 * this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
+		 * this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(
+		 * 0L)); this.batEmptyLimit = new NoPBetweenLimitation(power);
+		 * this.power.addStaticLimitation(batEmptyLimit);
+		 * this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
+		 * 
+		 * @Override public void channelChanged(Channel channel, Optional<?> newValue,
+		 * Optional<?> oldValue) {
+		 * allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L)); if
+		 * (allowedDischarge.isValuePresent()) { if(allowedDischarge.getValue() < 100) {
+		 * batEmptyLimit.setP(-5000L, 0L); }else { batEmptyLimit.setP(null, null); } } }
+		 * }); return protocol;
+		 */
 
 		private final Doc doc;
 
@@ -765,10 +734,6 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private IntegerWriteChannel getSetActivePowerChannel() {
-		return this.channel(RefuEss.ChannelId.SET_ACTIVE_POWER);
-	}
-
 	private IntegerWriteChannel getSetActivePowerL1Channel() {
 		return this.channel(RefuEss.ChannelId.SET_ACTIVE_POWER_L1);
 	}
@@ -779,10 +744,6 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 
 	private IntegerWriteChannel getSetActivePowerL3Channel() {
 		return this.channel(RefuEss.ChannelId.SET_ACTIVE_POWER_L3);
-	}
-
-	private IntegerWriteChannel getSetReactivePowerChannel() {
-		return this.channel(RefuEss.ChannelId.SET_REACTIVE_POWER);
 	}
 
 	private IntegerWriteChannel getSetReactivePowerL1Channel() {
@@ -804,7 +765,35 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getPowerPrecision() {
-		return 1;
+		return 100;
 	}
 
+	@Override
+	public Constraint[] getStaticConstraints() {
+		int allowedCharge = this.getAllowedCharge().value().orElse(0);
+		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
+		if (allowedCharge > -100 && allowedDischarge < 100) {
+			// Both values are invalid
+			return new Constraint[] { //
+					this.createPowerConstraint("REFU no allowed charge/discharge", Phase.ALL, Pwr.ACTIVE,
+							Relationship.EQUALS, 0) };
+
+		} else if (allowedCharge > -100) {
+			// Battery is full
+			return new Constraint[] { //
+					this.createPowerConstraint("REFU full, no discharge between 0 and 5000", Phase.ALL, Pwr.ACTIVE,
+							Relationship.GREATER_OR_EQUALS, 5000) }; // TODO this should be either smaller 0 or bigger
+																		// 5000
+
+		} else if (allowedDischarge < 100) {
+			// Battery is empty
+			return new Constraint[] { //
+					this.createPowerConstraint("REFU empty, no charge between -5000 and 0", Phase.ALL, Pwr.ACTIVE,
+							Relationship.LESS_OR_EQUALS, -5000) }; // TODO this should be either bigger 0 or smaller
+																	// -5000
+
+		} else {
+			return Power.NO_CONSTRAINTS;
+		}
+	}
 }

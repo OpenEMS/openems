@@ -97,28 +97,8 @@ public class Utils {
 					case STATE_9:
 					case STATE_10:
 					case STATE_100:
-					case STATE_101:
-					case STATE_102:
-					case STATE_103:
-					case STATE_104:
-					case STATE_105:
-					case STATE_106:
-					case STATE_107:
-					case STATE_108:
-					case STATE_109:
 					case STATE_11:
-					case STATE_110:
-					case STATE_111:
-					case STATE_112:
-					case STATE_113:
-					case STATE_114:
-					case STATE_115:
-					case STATE_116:
-					case STATE_117:
-					case STATE_118:
-					case STATE_119:
 					case STATE_12:
-					case STATE_120:
 					case STATE_13:
 					case STATE_14:
 					case STATE_18:
@@ -206,24 +186,71 @@ public class Utils {
 					case STATE_15:
 					case STATE_16:
 					case STATE_17:
+					case BATTERY_CONTROL_STATE_0:
+					case BATTERY_CONTROL_STATE_1:
+					case BATTERY_CONTROL_STATE_10:
+					case BATTERY_CONTROL_STATE_11:
+					case BATTERY_CONTROL_STATE_12:
+					case BATTERY_CONTROL_STATE_13:
+					case BATTERY_CONTROL_STATE_14:
+					case BATTERY_CONTROL_STATE_15:
+					case BATTERY_CONTROL_STATE_2:
+					case BATTERY_CONTROL_STATE_3:
+					case BATTERY_CONTROL_STATE_4:
+					case BATTERY_CONTROL_STATE_5:
+					case BATTERY_CONTROL_STATE_6:
+					case BATTERY_CONTROL_STATE_7:
+					case BATTERY_CONTROL_STATE_8:
+					case BATTERY_CONTROL_STATE_9:
+					case BATTERY_ON_GRID_STATE_0:
+					case BATTERY_ON_GRID_STATE_1:
+					case BATTERY_ON_GRID_STATE_10:
+					case BATTERY_ON_GRID_STATE_11:
+					case BATTERY_ON_GRID_STATE_12:
+					case BATTERY_ON_GRID_STATE_13:
+					case BATTERY_ON_GRID_STATE_14:
+					case BATTERY_ON_GRID_STATE_15:
+					case BATTERY_ON_GRID_STATE_2:
+					case BATTERY_ON_GRID_STATE_3:
+					case BATTERY_ON_GRID_STATE_4:
+					case BATTERY_ON_GRID_STATE_5:
+					case BATTERY_ON_GRID_STATE_6:
+					case BATTERY_ON_GRID_STATE_7:
+					case BATTERY_ON_GRID_STATE_8:
+					case BATTERY_ON_GRID_STATE_9:
+					case DCDC_STATE_0:
+					case DCDC_STATE_1:
+					case DCDC_STATE_2:
+					case DCDC_STATE_3:
+					case DCDC_STATE_7:
+					case DCDC_STATE_8:
+					case DCDC_STATE_9:
+					case INVERTER_STATE_0:
+					case INVERTER_STATE_1:
+					case INVERTER_STATE_10:
+					case INVERTER_STATE_11:
+					case INVERTER_STATE_12:
+					case INVERTER_STATE_13:
+					case INVERTER_STATE_2:
+					case INVERTER_STATE_3:
+					case INVERTER_STATE_7:
+					case INVERTER_STATE_8:
+					case INVERTER_STATE_9:
 						return new StateChannel(c, channelId);
 
 					case SYSTEM_STATE:
 					case BATTERY_CURRENT:
 					case BATTERY_CURRENT_PCS:
 					case BATTERY_MODE:
-					case BATTERY_OPERATION_STATUS:
 					case BATTERY_POWER:
 					case BATTERY_STATE:
 					case BATTERY_VOLTAGE:
 					case BATTERY_VOLTAGE_PCS:
-					case COMMUNICATION_INFORMATIONS:
 					case CURRENT:
 					case CURRENT_L1:
 					case CURRENT_L2:
 					case CURRENT_L3:
 					case DCDC_STATUS:
-					case INVERTER_STATUS:
 					case PCS_ALLOWED_CHARGE:
 					case PCS_ALLOWED_DISCHARGE:
 					case ALLOWED_CHARGE_CURRENT:
@@ -239,8 +266,25 @@ public class Utils {
 					case BATTERY_LOWEST_TEMPERATURE:
 					case BATTERY_LOWEST_VOLTAGE:
 					case BATTERY_STOP_REQUEST:
+					case DCDC_ERROR_CODE:
+					case ERROR_LOG_0:
+					case ERROR_LOG_1:
+					case ERROR_LOG_10:
+					case ERROR_LOG_11:
+					case ERROR_LOG_12:
+					case ERROR_LOG_13:
+					case ERROR_LOG_14:
+					case ERROR_LOG_15:
+					case ERROR_LOG_2:
+					case ERROR_LOG_3:
+					case ERROR_LOG_4:
+					case ERROR_LOG_5:
+					case ERROR_LOG_6:
+					case ERROR_LOG_7:
+					case ERROR_LOG_8:
+					case ERROR_LOG_9:
+					case INVERTER_ERROR_CODE:
 						return new IntegerReadChannel(c, channelId);
-
 					}
 					return null;
 				})).flatMap(channel -> channel);
