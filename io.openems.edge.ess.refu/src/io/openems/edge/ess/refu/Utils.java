@@ -32,7 +32,7 @@ public class Utils {
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.ON_GRID);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, RefuEss.MAX_APPARENT_POWER);
 					}
@@ -239,6 +239,8 @@ public class Utils {
 						return new StateChannel(c, channelId);
 
 					case SYSTEM_STATE:
+						return new IntegerReadChannel(c, channelId, SystemState.UNDEFINED);
+
 					case BATTERY_CURRENT:
 					case BATTERY_CURRENT_PCS:
 					case BATTERY_MODE:

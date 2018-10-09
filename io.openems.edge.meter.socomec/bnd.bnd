@@ -9,7 +9,8 @@ Export-Package: \
 Private-Package: \
 	io.openems.edge.meter.socomec.dirisa14,\
 	io.openems.edge.meter.socomec.dirise24,\
-	io.openems.edge.meter.socomec.dirisa10
+	io.openems.edge.meter.socomec.dirisa10,\
+	io.openems.edge.meter.socomec.dirisb30
 
 -includeresource: {readme.md}
 

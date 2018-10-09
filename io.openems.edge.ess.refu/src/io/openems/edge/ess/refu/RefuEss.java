@@ -1,5 +1,8 @@
 package io.openems.edge.ess.refu;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -10,6 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,32 +31,30 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
 		name = "Refu.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 
-public class RefuEss extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, AsymmetricEss, ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent {
+public class RefuEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
+		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(RefuEss.class);
 
@@ -70,19 +74,38 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) {
+		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
+		int allowedCharge = this.getAllowedCharge().value().orElse(0);
+		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
+
+		/*
+		 * Specific handling for REFU to never be at -5000 < power < 5000 if battery is
+		 * full/empty
+		 */
+		if ( // Battery is full and discharge power < 5000
+		(allowedCharge > -100 && activePower > 0 && activePower < 5000)
+				// Battery is empty and charge power > -5000
+				|| (allowedDischarge < 100 && activePower < 0 && activePower > -5000)) {
+			activePowerL1 = 0;
+			activePowerL2 = 0;
+			activePowerL3 = 0;
+			reactivePowerL1 = 0;
+			reactivePowerL2 = 0;
+			reactivePowerL3 = 0;
+		}
 		try {
 			this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
 			this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
 			this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
 		} catch (OpenemsException e) {
-			log.error("Unable to set ActivePower: " + e.getMessage());
+			this.logError(this.log, "Unable to set ActivePower: " + e.getMessage());
 		}
 		try {
 			this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
 			this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
 			this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 		} catch (OpenemsException e) {
-			log.error("Unable to set ReactivePower: " + e.getMessage());
+			this.logError(this.log, "Unable to set ReactivePower: " + e.getMessage());
 		}
 	}
 
@@ -117,15 +140,15 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 								.m(RefuEss.ChannelId.STATE_6, 6) //
 								.m(RefuEss.ChannelId.STATE_7, 7) //
 								.m(RefuEss.ChannelId.STATE_8, 8) //
-								.m(RefuEss.ChannelId.STATE_9, 9) // TODO: 0: Error; 1:Ok
-								.m(RefuEss.ChannelId.STATE_10, 10) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_9, 9, BitConverter.INVERT) //
+								.m(RefuEss.ChannelId.STATE_10, 10, BitConverter.INVERT) //
 								.build(), //
 						bm(new UnsignedWordElement(0x102))//
-								.m(RefuEss.ChannelId.STATE_11, 0) // TODO: 0: Error; 1:Ok
-								.m(RefuEss.ChannelId.STATE_12, 1) // TODO: 0: Error; 1:Ok
-								.m(RefuEss.ChannelId.STATE_13, 2) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_11, 0, BitConverter.INVERT) //
+								.m(RefuEss.ChannelId.STATE_12, 1, BitConverter.INVERT) //
+								.m(RefuEss.ChannelId.STATE_13, 2, BitConverter.INVERT) //
 								.m(RefuEss.ChannelId.STATE_14, 3) //
-								.m(RefuEss.ChannelId.STATE_15, 4) // TODO: 0: Error; 1:Ok
+								.m(RefuEss.ChannelId.STATE_15, 4, BitConverter.INVERT) //
 								.build(), //
 						bm(new UnsignedWordElement(0x103))//
 								.m(RefuEss.ChannelId.INVERTER_STATE_0, 0) //
@@ -185,10 +208,10 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 						m(RefuEss.ChannelId.COS_PHI_L3, new SignedWordElement(0x118))),
 
 				new FC4ReadInputRegistersTask(0x11A, Priority.LOW, //
-						m(RefuEss.ChannelId.PCS_ALLOWED_CHARGE, new SignedWordElement(0x11A)), // TODO consider for
-																								// Power limitation
-						m(RefuEss.ChannelId.PCS_ALLOWED_DISCHARGE, new SignedWordElement(0x11B)), // TODO consider for
-																									// Power limitation
+						m(RefuEss.ChannelId.PCS_ALLOWED_CHARGE, new SignedWordElement(0x11A),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT),
+						m(RefuEss.ChannelId.PCS_ALLOWED_DISCHARGE, new SignedWordElement(0x11B),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(RefuEss.ChannelId.BATTERY_STATE, new UnsignedWordElement(0x11C)), //
 						m(RefuEss.ChannelId.BATTERY_MODE, new UnsignedWordElement(0x11D)), //
 						m(RefuEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(0x11E)), //
@@ -196,9 +219,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 						m(RefuEss.ChannelId.BATTERY_POWER, new SignedWordElement(0x120)), //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x121)), //
 						m(RefuEss.ChannelId.ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(0x122),
-								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT), // TODO check if
-																						// SCALE_FACTOR_2_AND_INVERT
-																						// works
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT),
 						m(RefuEss.ChannelId.ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(0x123),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(0x124),
@@ -388,6 +409,11 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 						m(RefuEss.ChannelId.ERROR_LOG_15, new UnsignedWordElement(0x155)) //
 				),
 
+				new FC3ReadRegistersTask(0x200, Priority.LOW, //
+						m(RefuEss.ChannelId.SET_WORK_STATE, new UnsignedWordElement(0x200)),
+						m(RefuEss.ChannelId.SET_SYSTEM_ERROR_RESET, new UnsignedWordElement(0x201)),
+						m(RefuEss.ChannelId.SET_OPERATION_MODE, new UnsignedWordElement(0x202))),
+
 				new FC16WriteRegistersTask(0x200, //
 						m(RefuEss.ChannelId.SET_WORK_STATE, new UnsignedWordElement(0x200)),
 						m(RefuEss.ChannelId.SET_SYSTEM_ERROR_RESET, new UnsignedWordElement(0x201)),
@@ -422,24 +448,14 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 				+ this.getAllowedDischarge().value().asString();
 	}
 
-	private enum SetWorkState {
-		STOP, START
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		SYSTEM_STATE(new Doc() //
-				.option(0, "Off") //
-				.option(1, "Init") //
-				.option(2, "Pre-operation") //
-				.option(3, "Standby") //
-				.option(4, "Operation") //
-				.option(5, "Error")), //
+				.options(SystemState.values())),
 		INVERTER_ERROR_CODE(new Doc()), //
 		DCDC_ERROR_CODE(new Doc()), //
 
 		SET_WORK_STATE(new Doc() //
-				.option(0, SetWorkState.STOP)//
-				.option(1, SetWorkState.START)), //
+				.options(StopStart.values())),
 
 		DCDC_STATUS(new Doc() //
 				.option(1, "Ready to Power on")//
@@ -496,8 +512,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 				.option(0, "Normal Mode")), //
 
 		SET_SYSTEM_ERROR_RESET(new Doc()//
-				.option(0, "OFF")//
-				.option(1, "ON")), //
+				.options(StopStart.values())),
 
 		SET_OPERATION_MODE(new Doc()//
 				.option(0, "P/Q Set point")//
@@ -692,36 +707,6 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 		ERROR_LOG_15(new Doc()), //
 		; //
 
-		// TODO
-		/*
-		 * this.power = new SymmetricPowerImpl(100000, setActivePower, setReactivePower,
-		 * getParent().getBridge()); this.allowedChargeLimit = new
-		 * PGreaterEqualLimitation(power);
-		 * this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
-		 * this.batFullLimit = new NoPBetweenLimitation(power);
-		 * this.power.addStaticLimitation(batFullLimit);
-		 * this.allowedCharge.addChangeListener(new ChannelChangeListener() {
-		 * 
-		 * @Override public void channelChanged(Channel channel, Optional<?> newValue,
-		 * Optional<?> oldValue) {
-		 * allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L)); if
-		 * (allowedCharge.isValuePresent()) { if (allowedCharge.getValue() > -100) {
-		 * batFullLimit.setP(0L, 5000L); } else { batFullLimit.setP(null, null); } } }
-		 * }); this.power.addStaticLimitation(this.allowedChargeLimit);
-		 * this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
-		 * this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(
-		 * 0L)); this.batEmptyLimit = new NoPBetweenLimitation(power);
-		 * this.power.addStaticLimitation(batEmptyLimit);
-		 * this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
-		 * 
-		 * @Override public void channelChanged(Channel channel, Optional<?> newValue,
-		 * Optional<?> oldValue) {
-		 * allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L)); if
-		 * (allowedDischarge.isValuePresent()) { if(allowedDischarge.getValue() < 100) {
-		 * batEmptyLimit.setP(-5000L, 0L); }else { batEmptyLimit.setP(null, null); } } }
-		 * }); return protocol;
-		 */
-
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -769,31 +754,127 @@ public class RefuEss extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
-		int allowedCharge = this.getAllowedCharge().value().orElse(0);
-		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
-		if (allowedCharge > -100 && allowedDischarge < 100) {
-			// Both values are invalid
-			return new Constraint[] { //
-					this.createPowerConstraint("REFU no allowed charge/discharge", Phase.ALL, Pwr.ACTIVE,
-							Relationship.EQUALS, 0) };
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			systemStateHandling();
+			break;
+		}
+	}
 
-		} else if (allowedCharge > -100) {
-			// Battery is full
-			return new Constraint[] { //
-					this.createPowerConstraint("REFU full, no discharge between 0 and 5000", Phase.ALL, Pwr.ACTIVE,
-							Relationship.GREATER_OR_EQUALS, 5000) }; // TODO this should be either smaller 0 or bigger
-																		// 5000
+	private enum SystemStateHandling {
+		GO_START, GO_ERROR_HANDLING, RESET_ERROR_ON, RESET_ERROR_OFF, RUNNING
+	}
 
-		} else if (allowedDischarge < 100) {
-			// Battery is empty
-			return new Constraint[] { //
-					this.createPowerConstraint("REFU empty, no charge between -5000 and 0", Phase.ALL, Pwr.ACTIVE,
-							Relationship.LESS_OR_EQUALS, -5000) }; // TODO this should be either bigger 0 or smaller
-																	// -5000
+	private SystemStateHandling currentSystemStateHandling = SystemStateHandling.GO_START;
+	private LocalDateTime errorOccured = null;
+	private LocalDateTime lastErrorReset = LocalDateTime.MIN;
 
+	private void systemStateHandling() {
+		Optional<Enum<?>> systemStateOpt = this.channel(ChannelId.SYSTEM_STATE).value().asEnumOptional();
+		SystemState systemState;
+		if (systemStateOpt.isPresent()) {
+			systemState = (SystemState) systemStateOpt.get();
 		} else {
-			return Power.NO_CONSTRAINTS;
+			systemState = SystemState.UNDEFINED;
+		}
+		IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
+		IntegerWriteChannel systemErrorResetChannel = this.channel(ChannelId.SET_SYSTEM_ERROR_RESET);
+		this.logInfo(log,
+				"SystemState [" + systemState + "] StateHandling [" + this.currentSystemStateHandling
+						+ "] SetWorkState [" + setWorkStateChannel.value() + "] ErrorReset ["
+						+ systemErrorResetChannel.value() + "]");
+
+		switch (this.currentSystemStateHandling) {
+		case GO_START:
+			/**
+			 * Start the system, unless it is already running or has an error
+			 */
+			this.logInfo(this.log, "GO_START. Currently: " + systemState);
+			switch (systemState) {
+			case STANDBY:
+			case INIT:
+			case OFF:
+			case UNDEFINED:
+			case PRE_OPERATION:
+				try {
+					setWorkStateChannel.setNextWriteValue(StopStart.START.getValue());
+				} catch (OpenemsException e) {
+					this.logError(this.log, "Unable to Set Work-State to START");
+				}
+				break;
+			case OPERATION:
+				this.currentSystemStateHandling = SystemStateHandling.RUNNING;
+				break;
+			case ERROR:
+				this.currentSystemStateHandling = SystemStateHandling.GO_ERROR_HANDLING;
+				break;
+			}
+			break;
+
+		case RUNNING:
+			/**
+			 * System is running normally; otherwise start error handling
+			 */
+			switch (systemState) {
+			case OPERATION:
+				// do nothing
+				break;
+			case STANDBY:
+			case INIT:
+			case OFF:
+			case UNDEFINED:
+			case PRE_OPERATION:
+			case ERROR:
+				this.currentSystemStateHandling = SystemStateHandling.GO_START;
+			}
+			break;
+
+		case GO_ERROR_HANDLING:
+			this.logInfo(this.log, "GO_ERROR_HANDLING");
+			if (this.errorOccured == null) {
+				this.errorOccured = LocalDateTime.now();
+			}
+			try {
+				setWorkStateChannel.setNextWriteValue(StopStart.STOP.getValue());
+			} catch (OpenemsException e) {
+				this.logError(this.log, "Unable to Set Work-State to STOP");
+			}
+			if ( // error handling since 30 seconds
+			this.errorOccured.isBefore(LocalDateTime.now().minusSeconds(30))
+					// last reset more than 2 hours
+					&& this.lastErrorReset.isBefore(LocalDateTime.now().minusHours(2))) {
+				this.currentSystemStateHandling = SystemStateHandling.RESET_ERROR_ON;
+				this.errorOccured = null;
+			}
+			break;
+
+		case RESET_ERROR_ON:
+			this.logInfo(this.log, "RESET_ERROR_ON");
+			if (systemErrorResetChannel.value().orElse(StopStart.STOP.getValue()) == StopStart.START.getValue()) {
+				this.currentSystemStateHandling = SystemStateHandling.RESET_ERROR_OFF;
+			} else {
+				try {
+					systemErrorResetChannel.setNextWriteValue(StopStart.START.getValue());
+				} catch (OpenemsException e) {
+					this.logError(this.log, "Unable to Set System-Error-Reset to START");
+				}
+			}
+			break;
+
+		case RESET_ERROR_OFF:
+			this.logInfo(this.log, "RESET_ERROR_OFF");
+			if (systemErrorResetChannel.value().orElse(StopStart.START.getValue()) == StopStart.STOP.getValue()) {
+				this.currentSystemStateHandling = SystemStateHandling.GO_START;
+				this.lastErrorReset = LocalDateTime.now();
+			} else {
+				try {
+					systemErrorResetChannel.setNextWriteValue(StopStart.STOP.getValue());
+				} catch (OpenemsException e) {
+					this.logError(this.log, "Unable to Set System-Error-Reset to STOP");
+				}
+			}
+			break;
 		}
 	}
 }
