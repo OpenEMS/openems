@@ -186,10 +186,14 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private int getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
 		double power = this.solver.getActivePowerExtrema(ess, phase, pwr, goal);
 		if (power > Integer.MIN_VALUE && power < Integer.MAX_VALUE) {
-			return (int) power;
+			if (goal == GoalType.MAXIMIZE) {
+				return (int) Math.floor(power);
+			} else {
+				return (int) Math.ceil(power);
+			}
 		} else {
 			log.error(goal.name() + " Power for [" + ess.toString() + "," + phase.toString() + "," + pwr.toString()
-					+ "=" + power + "] is out of bounds for Integer. Returning '0'");
+					+ "=" + power + "] is out of bounds. Returning '0'");
 			return 0;
 		}
 	}
