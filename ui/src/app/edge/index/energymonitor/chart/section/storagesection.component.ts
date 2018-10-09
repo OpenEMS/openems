@@ -30,13 +30,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         } else if (dischargeAbsolute != null && dischargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge')
             super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
+            this.square.image.image = super.getSquare(this.innerRadius).image.image
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateValue(0, 0, 0);
         }
         if (valueRatio != null) {
             this.valueText2 = Math.round(valueRatio) + " %";
-            this.square.image.image = super.getSquare(this.innerRadius).image.image
         } else {
             this.valueText2 = "";
         }
@@ -49,23 +49,21 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        if (this.valueText2 > "0" && this.valueText2 < "10") {
+        if (this.valueRatio < 20) {
             return "storage_20.png"
         }
-        if (this.valueText2 < "20") {
-            return "storage_20.png"
-        }
-        if (this.valueText2 < "40") {
+        else if (this.valueRatio < 40) {
             return "storage_40.png"
         }
-        if (this.valueText2 < "60") {
+        else if (this.valueRatio < 60) {
             return "storage_60.png"
         }
-        if (this.valueText2 < "86") {
+        else if (this.valueRatio < 86) {
             return "storage_80.png"
         }
-
-        else { return "storage_100.png" }
+        else {
+            return "storage_100.png"
+        }
     }
 
     protected getValueText(value: number): string {
