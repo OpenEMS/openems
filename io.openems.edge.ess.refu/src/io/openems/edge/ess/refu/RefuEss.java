@@ -1,5 +1,7 @@
 package io.openems.edge.ess.refu;
 
+import java.util.Optional;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -41,7 +43,11 @@ import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -442,13 +448,12 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Override
 	public String debugLog() {
-		// TODO print States/Errors
-		// String state = this.getState().listStates();
-		// + (state.isEmpty() ? "" : ";" + this.getState().listStates());
+//		String state = this.getState().listStates(Level.WARNING);
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:" + this.getAllowedCharge().value().asStringWithoutUnit() + ";"
 				+ this.getAllowedDischarge().value().asString(); //
+//				+ (state.isEmpty() ? "" : ";" + this.getState().listStates());
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -774,5 +779,40 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	@Override
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
+	}
+
+	public Constraint[] getStaticConstraints() {
+		Optional<Enum<?>> systemStateOpt = this.channel(ChannelId.SYSTEM_STATE).value().asEnumOptional();
+		SystemState systemState;
+		if (systemStateOpt.isPresent()) {
+			systemState = (SystemState) systemStateOpt.get();
+		} else {
+			systemState = SystemState.UNDEFINED;
+		}
+		switch (systemState) {
+		case ERROR:
+		case INIT:
+		case OFF:
+		case PRE_OPERATION:
+		case STANDBY:
+		case UNDEFINED:
+			return new Constraint[] {
+					this.power.createSimpleConstraint("Refu State: " + systemState, this, Phase.L1, Pwr.ACTIVE,
+							Relationship.EQUALS, 0),
+					this.power.createSimpleConstraint("Refu State: " + systemState, this, Phase.L2, Pwr.ACTIVE,
+							Relationship.EQUALS, 0),
+					this.power.createSimpleConstraint("Refu State: " + systemState, this, Phase.L3, Pwr.ACTIVE,
+							Relationship.EQUALS, 0),
+					this.power.createSimpleConstraint("Refu State: " + systemState, this, Phase.L3, Pwr.REACTIVE,
+							Relationship.EQUALS, 0),
+					this.power.createSimpleConstraint("Refu State: " + systemState, this, Phase.L3, Pwr.REACTIVE,
+							Relationship.EQUALS, 0),
+					this.power.createSimpleConstraint("Refu State: " + systemState, this, Phase.L3, Pwr.REACTIVE,
+							Relationship.EQUALS, 0) };
+
+		case OPERATION:
+			break;
+		}
+		return Power.NO_CONSTRAINTS;
 	}
 }

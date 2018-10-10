@@ -14,7 +14,8 @@ import io.openems.edge.ess.refu.RefuEss.ChannelId;
 public class ErrorHandler implements Runnable {
 
 	private enum State {
-		GO_START(1), GO_ERROR_HANDLING(2), RESET_ERROR_ON(3), RESET_ERROR_OFF(4), RUNNING(5);
+		GO_START(1), GO_ERROR_HANDLING(2), RESET_ERROR_ON(3), RESET_ERROR_OFF(4), RUNNING(5),
+		WAIT_TILL_NEXT_ERROR_HANDLING(6);
 
 		private int value;
 
@@ -55,17 +56,16 @@ public class ErrorHandler implements Runnable {
 		IntegerWriteChannel setWorkStateChannel = this.parent.channel(ChannelId.SET_WORK_STATE);
 		IntegerWriteChannel systemErrorResetChannel = this.parent.channel(ChannelId.SET_SYSTEM_ERROR_RESET);
 
-		this.parent.logInfo(log,
-				"SystemState [" + systemState + "] StateHandling [" + this.currentSystemStateHandling
-						+ "] SetWorkState [" + setWorkStateChannel.value() + "] ErrorReset ["
-						+ systemErrorResetChannel.value() + "]");
+//		this.parent.logInfo(log,
+//				"SystemState [" + systemState + "] StateHandling [" + this.currentSystemStateHandling
+//						+ "] SetWorkState [" + setWorkStateChannel.value() + "] ErrorReset ["
+//						+ systemErrorResetChannel.value() + "]");
 
 		switch (this.currentSystemStateHandling) {
 		case GO_START:
 			/**
 			 * Start the system, unless it is already running or has an error
 			 */
-			this.parent.logInfo(this.log, "GO_START. Currently: " + systemState);
 			switch (systemState) {
 			case STANDBY:
 			case INIT:
@@ -106,7 +106,6 @@ public class ErrorHandler implements Runnable {
 			break;
 
 		case GO_ERROR_HANDLING:
-			this.parent.logInfo(this.log, "GO_ERROR_HANDLING");
 			if (this.errorOccured == null) {
 				this.errorOccured = LocalDateTime.now();
 			}
@@ -115,17 +114,23 @@ public class ErrorHandler implements Runnable {
 			} catch (OpenemsException e) {
 				this.parent.logError(this.log, "Unable to Set Work-State to STOP");
 			}
-			if ( // error handling since 30 seconds
-			this.errorOccured.isBefore(LocalDateTime.now().minusSeconds(30))
-					// last reset more than 2 hours
-					&& this.lastErrorReset.isBefore(LocalDateTime.now().minusHours(2))) {
+			if (this.lastErrorReset.isAfter(LocalDateTime.now().minusHours(2))) {
+				// last reset more than 2 hours
+				this.currentSystemStateHandling = State.WAIT_TILL_NEXT_ERROR_HANDLING;
+			} else if (this.errorOccured.isBefore(LocalDateTime.now().minusSeconds(30))) {
+				// error handling since 30 seconds
 				this.currentSystemStateHandling = State.RESET_ERROR_ON;
 				this.errorOccured = null;
 			}
 			break;
 
+		case WAIT_TILL_NEXT_ERROR_HANDLING:
+			if (this.lastErrorReset.isBefore(LocalDateTime.now().minusHours(2))) {
+				this.currentSystemStateHandling = State.GO_ERROR_HANDLING;
+			}
+			break;
+
 		case RESET_ERROR_ON:
-			this.parent.logInfo(this.log, "RESET_ERROR_ON");
 			if (systemErrorResetChannel.value().orElse(StopStart.STOP.getValue()) == StopStart.START.getValue()) {
 				this.currentSystemStateHandling = State.RESET_ERROR_OFF;
 			} else {
@@ -138,7 +143,6 @@ public class ErrorHandler implements Runnable {
 			break;
 
 		case RESET_ERROR_OFF:
-			this.parent.logInfo(this.log, "RESET_ERROR_OFF");
 			if (systemErrorResetChannel.value().orElse(StopStart.START.getValue()) == StopStart.STOP.getValue()) {
 				this.currentSystemStateHandling = State.GO_START;
 				this.lastErrorReset = LocalDateTime.now();
