@@ -285,7 +285,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 					// Set Value to Channel
 					Channel<?> channel = channelWrapper.channel;
-					channel.setNextValue(true);
+					channel.setNextValue(setValue);
 				});
 			});
 		}
