@@ -13,6 +13,7 @@ import { Service, Websocket } from './shared/shared';
 
 import { PopoverPage } from './shared/popover/popover.component';
 import { Router, NavigationEnd } from '@angular/router';
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 @Component({
   selector: 'app-root',

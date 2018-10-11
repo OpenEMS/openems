@@ -6,6 +6,7 @@ import { Cookie } from 'ng2-cookies';
 import { DefaultTypes } from './defaulttypes';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -13,7 +14,8 @@ export class Service implements ErrorHandler {
 
     constructor(
         public translate: TranslateService,
-        private http: HttpClient
+        private http: HttpClient,
+        public spinnerDialog: SpinnerDialog
     ) {
         // add language
         translate.addLangs(["de", "en", "cz", "nl"]);

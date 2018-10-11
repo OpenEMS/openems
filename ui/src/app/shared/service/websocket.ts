@@ -50,7 +50,7 @@ export class Websocket {
   ) {
     // try to auto connect using token or session_id
     setTimeout(() => {
-      if (env.backend === "OpenEMS Backend") {
+      if (env.backend === "OpenEMS Backend" || env.backend === "OpenEMS Edge") {
         this.connect();
       }
 
@@ -373,7 +373,7 @@ export class Websocket {
   public wpconnect() {
     console.info("WP CONNECT");
     this.connect();
-
+    this.service.spinnerDialog.hide();
   }
 
   /**

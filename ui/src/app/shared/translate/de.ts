@@ -41,11 +41,12 @@ export const TRANSLATION = {
         ToEnergymonitor: "Zum Energiemonitor...",
         IsOffline: "PRIMUS ist offline!",
         PleaseLogin: "Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
-        Username: "Benutzername",
+        Username: "Benutzername / Email",
         Password: "Passwort",
         LostPassword: "Passwort vergessen",
         FormInvalid: "Bitte füllen Sie das Formular komplett aus.",
-        Connecting: "Verbindung wird aufgebaut."
+        Connecting: "Verbindung wird aufgebaut.",
+        LoginWrong: "Benutzername / Passwort falsch."
     },
     Edge: {
         Index: {
@@ -171,7 +172,7 @@ export const TRANSLATION = {
         Default: "Etwas is schief gelaufen. Bitte versuchen Sie es noch einmal.",
         RetrievePwdHeader: "Passwort vergessen",
         RetrievePwdMsg: "Bitte geben Sie Ihre(n) Email / Benutzernamen um ein neues Passwort zu erstellen.",
-        RetrievePWdPlaceholder: "Email/Benutzername",
+        RetrievePwdPlaceholder: "Email/Benutzername",
         Cancel: "Abbrechen",
         Send: "Senden",
         RetrievePwdSent: "Ein Link zur Wiederherstellung Ihres Passworts wurde an Sie gesendet. Bitte überprüfen Sie Ihre Emails.",

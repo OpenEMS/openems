@@ -9,7 +9,7 @@ import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 @Injectable()
 export class Alerts {
 
-    translation;
+
 
     constructor(
         private alertCtrl: AlertController,
@@ -19,19 +19,13 @@ export class Alerts {
 
     }
 
-    ngOnInit() {
-        this.translate.get('Alerts').subscribe(res => this.translation = res);
 
-        this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-            this.translate.get('Alerts').subscribe(res => this.translation = res);
-        });
-    }
     async defaultAlert() {
 
         const alert: HTMLIonAlertElement = await this.alertCtrl.create({
             buttons: ['Ok'],
-            message: this.translation.Default,
-            header: this.translation.Error
+            message: this.translate.instant('Alerts.Default'),
+            header: this.translate.instant('Alerts.Error')
 
         });
         await alert.present();
@@ -40,7 +34,7 @@ export class Alerts {
         const alert: HTMLIonAlertElement = await this.alertCtrl.create({
             buttons: ['Ok'],
             message: message,
-            header: this.translation.Error
+            header: this.translate.instant('Alerts.Error')
 
         });
         await alert.present();
@@ -58,28 +52,28 @@ export class Alerts {
 
     async retrievePwd() {
         const alert: HTMLIonAlertElement = await this.alertCtrl.create({
-            header: this.translation.RetrievePwdHeader,
-            message: this.translation.RetrievePwdMsg,
+            header: this.translate.instant('Alerts.RetrievePwdHeader'),
+            message: this.translate.instant('Alerts.RetrievePwdMsg'),
             inputs: [
                 {
                     name: 'user_login',
-                    placeholder: this.translation.RetrievePwdPlaceholder
+                    placeholder: this.translate.instant('Alerts.RetrievePwdPlaceholder')
                 }
             ],
             buttons: [
                 {
-                    text: this.translation.Cancel,
+                    text: this.translate.instant('Alerts.Cancel'),
                     role: 'cancel'
 
                 },
                 {
-                    text: this.translation.Send,
+                    text: this.translate.instant('Alerts.Send'),
                     handler: async data => {
                         let response = await this.service.sendWPPasswordRetrieve(data.user_login);
                         if (response['status'] === 'ok') {
-                            this.showMsg(this.translation.RetrievePwdSent);
+                            this.showMsg(this.translate.instant('Alerts.RetrievePwdSent'));
                         } else {
-                            this.showError(this.translation.RetrievePwdError);
+                            this.showError(this.translate.instant('Alerts.RetrievePwdError'));
                         }
                     }
                 }

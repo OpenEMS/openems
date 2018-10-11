@@ -44,9 +44,9 @@
           <ion-item>
             <form [formGroup]="wpForm" (ngSubmit)="doWPLogin()" (keyup.enter)="doWPLogin()">
               <ion-label position="stacked" translate>Index.Username</ion-label>
-              <ion-input formControlName="username" required placeholder="'Index.Username' | translate"></ion-input>
+              <ion-input formControlName="username" required placeholder="{{ 'Index.Username' | translate }}"></ion-input>
               <ion-label position="stacked" translate>Index.Password</ion-label>
-              <ion-input formControlName="password" required type="password" placeholder="'Index.Password' | translate"></ion-input>
+              <ion-input formControlName="password" required type="password" placeholder="{{ 'Index.Password' | translate }}"></ion-input>
             </form>
           </ion-item>
           <!-- Messages -->

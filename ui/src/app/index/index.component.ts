@@ -29,7 +29,7 @@ export class IndexComponent {
   private edges: Edge[] = [];
   private filteredTruncated: boolean = false;
   private static maxFilteredEdges = 20;
-  translation;
+
 
   constructor(
     public websocket: Websocket,
@@ -38,7 +38,7 @@ export class IndexComponent {
     private wpformBuilder: FormBuilder,
     private router: Router,
     private http: HttpClient,
-    private spinnerDialog: SpinnerDialog,
+
     private alerts: Alerts,
     public translate: TranslateService,
     private service: Service) {
@@ -64,13 +64,7 @@ export class IndexComponent {
         this.updateFilteredEdges();
       })
   }
-  ngOnInit() {
-    this.translate.get('Index').subscribe(res => this.translation = res);
 
-    this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.translate.get('Index').subscribe(res => this.translation = res);
-    });
-  }
 
   updateFilteredEdges() {
     let edges = this.websocket.edges.getValue();
@@ -103,10 +97,10 @@ export class IndexComponent {
 
   async doWPLogin() {
     if (this.wpForm.invalid) {
-      this.alerts.showError(this.translation.FormInvalid);
+      this.alerts.showError(this.translate.instant('Index.FormInvalid'));
       return;
     }
-    this.spinnerDialog.show("Login", this.translation.Connecting);
+    this.service.spinnerDialog.show("Login", this.translate.instant('Index.Connecting'));
 
 
 
@@ -123,13 +117,20 @@ export class IndexComponent {
       body.append('log', username);
       body.append('pwd', password);
 
-      this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.spinnerDialog.hide(); },
-        (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); this.spinnerDialog.hide(); } },
-        () => { this.websocket.wpconnect(); this.spinnerDialog.hide(); });
+      this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.service.spinnerDialog.hide(); },
+        (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); } },
+        () => { this.websocket.wpconnect(); });
       //this.websocket.wpconnect();
     } else {
-      this.spinnerDialog.hide();
-      this.alerts.showError(valid['error']);
+      this.service.spinnerDialog.hide();
+      if (valid['error'] === "Invalid username and/or password.") {
+        this.alerts.showError(this.translate.instant('Index.LoginWrong'));
+
+      }
+      else {
+        this.alerts.defaultAlert();
+      }
+
       return;
     }
 

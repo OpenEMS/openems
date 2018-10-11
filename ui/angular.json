@@ -74,7 +74,7 @@
               ],
               "baseHref": "./",
               "outputPath": "www",
-              "optimization": false,
+              "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
@@ -136,7 +136,7 @@
                 }
               ],
               "baseHref": "/",
-              "outputPath": "target/edge"
+              "outputPath": "www"
             },
             "production": {
               "optimization": true,
