@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Energy Depot Centurio Ess", //
+		name = "KACO Centurio Ess", //
 		description = "Implements the Energy Depot Centurio ess component.")
 @interface Config {
 	String service_pid();
@@ -22,5 +22,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "max Power", description = "The maximum power (W) of the Domus Battery")
 	int maxP() default 4000;
 
-	String webconsole_configurationFactory_nameHint() default "Energy Depot Centurio ess [{id}]";
+	String webconsole_configurationFactory_nameHint() default "KACO Centurio ess [{id}]";
 }

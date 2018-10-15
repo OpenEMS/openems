@@ -1,5 +1,5 @@
-Bundle-Name: OpenEMS Edge Energy Depot CENTURIO
-Bundle-Vendor: Energy Depot GmbH
+Bundle-Name: OpenEMS Edge KACO CENTURIO
+Bundle-Vendor: KACO new energy GmbH
 Bundle-License: PROPRIETARY
 Bundle-Version: 1.0.1.${tstamp}
 
@@ -10,9 +10,9 @@ Private-Package: \
 	com.ed.openems.centurio.datasource.api,\
 	com.ed.openems.centurio.edcom,\
 	com.ed.openems.centurio.ess,\
-	com.ed.openems.centurio.grid,\
 	com.ed.openems.centurio.pv,\
 	com.ed.openems.centurio.vectis,\
+	com.ed.openems.centurio.ess.charger,\
 	com.ed.openems.centurio
 	
 -includeresource: {readme.md}

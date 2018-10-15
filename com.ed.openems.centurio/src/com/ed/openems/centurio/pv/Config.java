@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Energy Depot Centurio PV Meter", //
-		description = "Implements the Energy Depot Centurio pv-meter component.")
+		name = "KACO Centurio PV Meter", //
+		description = "Implements KACO Centurio pv-meter component.")
 @interface Config {
 	String service_pid();
 
@@ -19,5 +19,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Max Power", description = "Maximum power of PV input.")
 	int maxP() default 12000;
 
-	String webconsole_configurationFactory_nameHint() default "Energy Depot Centurio PV Meter[{id}]";
+	String webconsole_configurationFactory_nameHint() default "KACO Centurio PV Meter[{id}]";
 }

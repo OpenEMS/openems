@@ -4,12 +4,12 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Energy Depot Vectis", //
-		description = "Implements the Energy Depot Vectis component.")
+		name = "KACO Vectis", //
+		description = "Implements the KACO Vectis component.")
 @interface Config {
 	String service_pid();
 
-	String id() default "meter2";
+	String id() default "meter0";
 
 	boolean enabled() default true;
 
@@ -18,5 +18,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	
 
-	String webconsole_configurationFactory_nameHint() default "Energy Depot Centurio Vectis[{id}]";
+	String webconsole_configurationFactory_nameHint() default "KACO Centurio Vectis[{id}]";
 }

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.mariadb.jdbc.Driver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -30,6 +32,8 @@ public class DBUtils {
 	private String dbuser;
 	private String dbname;
 	private String dburl;
+	
+	private final Logger log = LoggerFactory.getLogger(DBUtils.class);
 
 	public DBUtils(String dbuser, String p, String dbname, String dburl, String wpurl) {
 		this.password = p;
@@ -107,8 +111,10 @@ public class DBUtils {
 	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
 		MyUser user = null;
-
-		createUser(sessionId);
+		
+		if(createUser(sessionId) == false) {
+			log.warn("Error in createUser");
+		}
 
 		Statement stmt;
 		try {
@@ -150,11 +156,12 @@ public class DBUtils {
 
 		if (sessionId == null) {
 			return false;
+			
 		}
 
 		JsonObject j = getWPResponse("/user/get_user_meta/?cookie=" + sessionId);
 		if (j == null) {
-			return false;
+			throw new OpenemsException("no response from Wordpress");
 		}
 		String nick = j.get("nickname").getAsString();
 		String role = j.get("primusrole").getAsString();
@@ -163,7 +170,7 @@ public class DBUtils {
 
 		j = getWPResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
 		if (j == null) {
-			return false;
+			throw new OpenemsException("no response from Wordpress");
 		}
 		JsonObject userinfo = j.getAsJsonObject("user");
 
@@ -187,7 +194,7 @@ public class DBUtils {
 			while (result.next()) {
 				int id = result.getInt("user_id");
 				if (id == 0) {
-					return false;
+					throw new OpenemsException("error creating new User ID");
 				}
 				for (String edge_id : edges) {
 					sql = "INSERT INTO user_edges (user_id, edge_id) VALUES (" + id + ", " + edge_id + ")";
@@ -197,9 +204,9 @@ public class DBUtils {
 			return true;
 		} catch (SQLException e) {
 
-			return false;
+			log.warn(e.getMessage());
 		}
-
+			return false;
 	}
 
 	public JsonObject getWPResponse(String urlparams) throws OpenemsException {

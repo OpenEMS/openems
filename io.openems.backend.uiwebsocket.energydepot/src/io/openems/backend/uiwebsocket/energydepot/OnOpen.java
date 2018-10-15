@@ -48,10 +48,7 @@ public class OnOpen extends AbstractOnOpen {
 				log.info("WP COOKIE: " + sessionIdOpt.get());
 				user = this.parent.parent.metadataService.authenticate(sessionIdOpt.get());
 			} else {
-				// authenticate without Session-ID
-				for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext();) {
-					log.info("WP COOKIE not found: " + iter.next());
-				}
+				
 				
 				user = this.parent.parent.metadataService.authenticate();
 			}
@@ -60,6 +57,7 @@ public class OnOpen extends AbstractOnOpen {
 			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiLogoutReply());
 			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + e.getMessage()
 					+ "].");
+			e.printStackTrace();
 			websocket.closeConnection(CloseFrame.REFUSE, e.getMessage());
 			return;
 		}

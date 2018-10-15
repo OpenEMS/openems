@@ -24,6 +24,7 @@ import com.ed.data.BatteryData;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
+import com.ed.data.VectisData;
 import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
@@ -39,7 +40,7 @@ import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "EnergyDepot.CenturioEss", //
+		name = "KACO.CenturioEss", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
@@ -157,7 +158,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		Integer soc = null;
 		Integer activePower = null;
 		Integer reactivePower = null;
-		GridMode gridMode = GridMode.UNDEFINED;
+		SymmetricEss.GridMode gridMode = SymmetricEss.GridMode.UNDEFINED;
 
 		if (!this.datasource.isConnected()) {
 			this.logWarn(this.log, "Edcom is not connected!");
@@ -166,6 +167,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 			BatteryData battery = this.datasource.getBatteryData();
 			Status status = this.datasource.getStatusData();
 			InverterData inverter = this.datasource.getInverterData();
+			
 
 			if (battery != null) {
 				soc = Math.round(battery.getSOE());
@@ -175,15 +177,28 @@ public class CenturioEss extends AbstractOpenemsComponent
 			if (status != null) {
 				switch (status.getInverterStatus()) {
 				case 12:
-					gridMode = GridMode.OFF_GRID;
+					gridMode = SymmetricEss.GridMode.OFF_GRID;
 					break;
 				case 13:
 				case 14:
-					gridMode = GridMode.ON_GRID;
+					gridMode = SymmetricEss.GridMode.ON_GRID;
 					break;
-				default:
-					gridMode = GridMode.UNDEFINED;
+				
 				}
+				/*
+				switch (status.getVectisStatus()) {
+				case -1:
+					gridMode = SymmetricEss.GridMode.UNDEFINED;
+					break;
+				case 0:
+					gridMode = SymmetricEss.GridMode.ON_GRID;
+					break;
+				case 1:
+					gridMode = SymmetricEss.GridMode.OFF_GRID;
+					break;
+				
+				}
+				*/
 
 				// Set error channels
 				List<String> errors = status.getErrors().getErrorCodes();
@@ -193,6 +208,8 @@ public class CenturioEss extends AbstractOpenemsComponent
 						c.setNextValue(errors.contains(c.getErrorCode()));
 					}
 				}
+			}else {
+				log.warn("Centurio Status Object is null!");
 			}
 
 			if (inverter != null) {
@@ -248,6 +265,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 		// avoid setting active power to zero, because this activates 'compensator
 		// normal operation'
+		/*
 		if (activePower == 0) {
 			if (this.getSoc().value().orElse(0) > 50) {
 				activePower = 1; // > 50 % SoC: discharge
@@ -255,7 +273,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 				activePower = -1; // <= 50 % SoC: discharge
 			}
 		}
-
+		*/
 		// Log output on changed power
 		int lastActivePower = Math.round(settings.getPacSetPoint()) * -1;
 		if (lastActivePower != activePower) {
@@ -264,7 +282,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		}
 
 		// apply power
-		settings.setPacSetPoint(activePower * -1);
+		settings.setPacSetPoint(activePower);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "EnergyDepot.Vectis", //
+		name = "KACO.Vectis", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
@@ -80,6 +80,7 @@ public class Vectis extends AbstractOpenemsComponent
 		Integer activePowerL1 = null;
 		Integer activePowerL2 = null;
 		Integer activePowerL3 = null;
+		
 
 		if (this.datasource.isConnected()) {
 			VectisData vectis = this.datasource.getVectis();

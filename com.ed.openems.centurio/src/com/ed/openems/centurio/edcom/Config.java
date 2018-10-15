@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Energy Depot EdCom", //
+		name = "KACO EdCom", //
 		description = "Implements the Energy Depot EdCom library for communication with the Centurio system.")
 @interface Config {
 	String service_pid();
@@ -22,5 +22,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Userkey", description = "The key / password for the Centurio inverter")
 	String userkey();
 
-	String webconsole_configurationFactory_nameHint() default "Energy Depot EdCom [{id}]";
+	String webconsole_configurationFactory_nameHint() default "KACO EdCom [{id}]";
 }
