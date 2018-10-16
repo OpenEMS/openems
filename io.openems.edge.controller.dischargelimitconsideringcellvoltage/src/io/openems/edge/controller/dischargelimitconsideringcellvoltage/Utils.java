@@ -20,12 +20,9 @@ public class Utils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-//				}), Arrays.stream(Controller.ChannelId.values()).map(channelId -> {
-//					switch (channelId) {
-//					}
 				}), Arrays.stream(DischargeLimitConsideringCellVoltage.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case XY:
+					case STATE_MACHINE:
 						return new IntegerReadChannel(c, channelId);
 
 					default:

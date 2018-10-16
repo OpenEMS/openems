@@ -28,8 +28,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Min-SoC", description = "Discharging is blocked while State of Charge is below Min-SoC.")
 	int minSoc() default 5;
 
-	@AttributeDefinition(name = "Charge-SoC", description = "Charging until State of Charge is below Charge-SoC.")
-	int ChargeSoc() default 5;
+	@AttributeDefinition(name = "Charge-SoC", description = "Charging until State of Charge has reached Charge-SoC.")
+	int ChargeSoc() default 3;
 	
 	@AttributeDefinition(name = "Minimal total voltage", description = "Charging is forced if system voltage is lower than this value")
 	int minimalTotalVoltage() default 675;
@@ -41,7 +41,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int timeSpan() default 600;
 	
 	@AttributeDefinition(name = "Second cell voltage limit", description = "Charging is forced if this minimal cell voltage is lower than this value")
-	int secondCellVoltageLimit() default 0;
+	float secondCellVoltageLimit() default 2.8f;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Discharge Limit Considering Minimal Cell Voltage [{id}]";
 }
