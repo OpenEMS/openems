@@ -24,7 +24,7 @@ JPM-Command:				openems-backend
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel=DISABLED
 
 -runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
--runee: JavaSE-1.8
+-runee: JavaSE-10
 
 -runbundles: \
 	io.openems.common;version=snapshot,\
