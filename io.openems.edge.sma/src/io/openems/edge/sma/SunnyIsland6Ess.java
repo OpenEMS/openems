@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -32,18 +33,18 @@ import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "SMASunnyIsland6.0H", //
+		name = "Ess.SMA.SunnyIsland6.0H-11",
+		// TODO naming "Ess.SMA...."
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-
 public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		implements SymmetricEss, ManagedSymmetricEss, OpenemsComponent {
+
 	@Reference
 	private Power power;
 
-	private final static int UNIT_ID = 126;
-	private String modbusBridgeId;
+	protected final static int MAX_APPARENT_POWER = 4600;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -59,15 +60,29 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		this.setActivePowerChannel().setNextValue(activePower);
-		this.setReactivePowerChannel().setNextValue(reactivePower);
+		IntegerWriteChannel setBMSOperatingMode = this.channel(ChannelId.BMS_OPERATING_MODE);
+		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
+		IntegerWriteChannel setMaximumBatteryChargingPower = this.channel(ChannelId.MAXIMUM_BATTERY_CHARGING_POWER);
+		IntegerWriteChannel setMaximumBatteryDishargingPower = this
+				.channel(ChannelId.MAXIMUM_BATTERY_DISCHARGING_POWER);
+		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
+
+		try {
+			setMaximumBatteryChargingPower.setNextWriteValue(4600);
+			setBMSOperatingMode.setNextWriteValue(2289);
+			setMaximumBatteryDishargingPower.setNextWriteValue(4600);
+			setActivePowerChannel.setNextWriteValue(activePower);
+			setReactivePowerChannel.setNextWriteValue(reactivePower);
+		} catch (OpenemsException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, cm, config.modbus_id(),
-				config.id());
-		this.modbusBridgeId = config.modbus_id();
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
 	}
 
 	@Deactivate
@@ -75,55 +90,65 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public String getModbusBridgeId() {
-		return modbusBridgeId;
-	}
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(30201, Priority.HIGH, //
-						m(SunnyIsland6Ess.ChannelId.SYTEM_STATE, new UnsignedDoublewordElement(30201)), //
-						m(SunnyIsland6Ess.ChannelId.MAX_POWER, new UnsignedDoublewordElement(30203))), //
+						m(SunnyIsland6Ess.ChannelId.SYSTEM_STATE, new UnsignedDoublewordElement(30201))), //
+//						m(SunnyIsland6Ess.ChannelId.MAX_POWER, new UnsignedDoublewordElement(30203))), //
 				new FC3ReadRegistersTask(30775, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(30775)), //
 						new DummyRegisterElement(30777, 30802), //
 						m(SunnyIsland6Ess.ChannelId.FREQUENCY, new UnsignedDoublewordElement(30803)), //
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(30805),
 								ElementToChannelConverter.INVERT)), //
+				new FC3ReadRegistersTask(30825, Priority.HIGH, //
+						m(SunnyIsland6Ess.ChannelId.OPERATING_MODE_FOR_REACTIVE_POWER,
+								new UnsignedDoublewordElement(30825))), //
+				new FC3ReadRegistersTask(30835, Priority.HIGH, //
+						m(SunnyIsland6Ess.ChannelId.OPERATING_MODE_FOR_ACTIVE_POWER,
+								new UnsignedDoublewordElement(30835))), //
 				new FC3ReadRegistersTask(30843, Priority.HIGH, //
 						m(SunnyIsland6Ess.ChannelId.BATTERY_CURRENT, new SignedDoublewordElement(30843)),
 						m(SymmetricEss.ChannelId.SOC, new UnsignedDoublewordElement(30845)), //
-						new DummyRegisterElement(30848, 30848), //
+						new DummyRegisterElement(30847, 30848), //
 						m(SunnyIsland6Ess.ChannelId.BATTERY_TEMPERATURE, new SignedDoublewordElement(30849)), //
 						m(SunnyIsland6Ess.ChannelId.BATTERY_VOLTAGE, new UnsignedDoublewordElement(30851))), //
+//				new FC3ReadRegistersTask(30955, Priority.HIGH, //
+//						m(SunnyIsland6Ess.ChannelId.BATTERY_OPERATING_STATUS, new UnsignedDoublewordElement(30955))), //
 				new FC3ReadRegistersTask(40189, Priority.HIGH, //
-						m(SunnyIsland6Ess.ChannelId.ALLOWED_CHARGE, new UnsignedDoublewordElement(40189),
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedDoublewordElement(40189),
 								ElementToChannelConverter.INVERT), //
-						m(SunnyIsland6Ess.ChannelId.ALLOWED_DISCHARGE, new UnsignedDoublewordElement(40191))), //
-				new FC16WriteRegistersTask(40149, //
-						m(SunnyIsland6Ess.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)), //
-						m(SunnyIsland6Ess.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
-						m(SunnyIsland6Ess.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))), //
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedDoublewordElement(40191))), //
+//				new FC16WriteRegistersTask(40212, //
+//						m(SunnyIsland6Ess.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40212))), //
+//				new FC16WriteRegistersTask(40151,
+//						m(SunnyIsland6Ess.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
+//						m(SunnyIsland6Ess.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))), //
+				new FC16WriteRegistersTask(40236, //
+						m(SunnyIsland6Ess.ChannelId.BMS_OPERATING_MODE, new UnsignedDoublewordElement(40236))), //
 				new FC16WriteRegistersTask(40705,
 						m(SunnyIsland6Ess.ChannelId.MIN_SOC_POWER_ON, new UnsignedDoublewordElement(40705)), //
-						m(SunnyIsland6Ess.ChannelId.MIN_SOC_POWER_OFF, new UnsignedDoublewordElement(40707))), //
-				new FC16WriteRegistersTask(41187,
-						m(SunnyIsland6Ess.ChannelId.METER_SETTING, new UnsignedDoublewordElement(41187)))//
-		);
+						m(SunnyIsland6Ess.ChannelId.MIN_SOC_POWER_OFF, new UnsignedDoublewordElement(40707)))); //
+//				new FC16WriteRegistersTask(40795, //
+//						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_CHARGING_POWER,
+//								new UnsignedDoublewordElement(40795)), //
+//						new DummyRegisterElement(40797, 40798), //
+//						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_DISCHARGING_POWER,
+//								new UnsignedDoublewordElement(40799))));
 		return protocol;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SYTEM_STATE(new Doc()//
-				.option(35, "Fehler").option(303, "Aus").option(307, "OK").option(455, "Warnung")), //
-		MAX_POWER(new Doc().unit(Unit.WATT)), //
+		SYSTEM_STATE(new Doc()//
+				.option(35, "Fehler")//
+				.option(303, "Aus")//
+				.option(307, "OK")//
+				.option(455, "Warnung")), //
 		FREQUENCY(new Doc().unit(Unit.MILLIHERTZ)), //
 		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
-		ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
 		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		SET_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
 		MIN_SOC_POWER_ON(new Doc()), //
@@ -133,7 +158,12 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 				.option(803, "STOP")), // S
 		METER_SETTING(new Doc()//
 				.option(3053, "SMA Energy Meter")//
-				.option(3547, "Wechselrichter")),//
+				.option(3547, "Wechselrichter")), //
+		OPERATING_MODE_FOR_ACTIVE_POWER(new Doc()), //
+		OPERATING_MODE_FOR_REACTIVE_POWER(new Doc()), //
+		MAXIMUM_BATTERY_CHARGING_POWER(new Doc()), //
+		MAXIMUM_BATTERY_DISCHARGING_POWER(new Doc()), //
+		BMS_OPERATING_MODE(new Doc()),//
 		;
 		private final Doc doc;
 
@@ -155,14 +185,6 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 1;
-	}
-
-	private IntegerWriteChannel setActivePowerChannel() {
-		return this.channel(SunnyIsland6Ess.ChannelId.SET_ACTIVE_POWER);
-	}
-
-	private IntegerWriteChannel setReactivePowerChannel() {
-		return this.channel(SunnyIsland6Ess.ChannelId.SET_ACTIVE_POWER);
 	}
 
 }
