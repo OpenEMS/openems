@@ -40,7 +40,13 @@ public class Data {
 	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
 	private final Coefficients coefficients = new Coefficients();
 
+	private final ApparentPowerConstraintFactory apparentPowerConstraintFactory;
+
 	private boolean symmetricMode = PowerComponent.DEFAULT_SYMMETRIC_MODE;
+
+	public Data() {
+		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
+	}
 
 	public synchronized void addEss(ManagedSymmetricEss ess) {
 		this.esss.add(ess);
@@ -101,8 +107,8 @@ public class Data {
 		this.constraints.remove(constraint);
 	}
 
-	public void addSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr, Relationship relationship,
-			double value) {
+	public void addSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			Relationship relationship, double value) {
 		this.constraints.add(this.createSimpleConstraint(description, ess, phase, pwr, relationship, value));
 	}
 
@@ -175,11 +181,11 @@ public class Data {
 	public List<Constraint> createGenericEssConstraints() {
 		List<Constraint> result = new ArrayList<>();
 		for (ManagedSymmetricEss ess : this.esss) {
-			if(ess instanceof MetaEss) {
+			if (ess instanceof MetaEss) {
 				// ignore
 				continue;
 			}
-			
+
 			Optional<Integer> allowedCharge = ess.getAllowedCharge().value().asOptional();
 			if (allowedCharge.isPresent()) {
 				result.add(this.createSimpleConstraint(ess.id() + ": Allowed Charge", ess, Phase.ALL, Pwr.ACTIVE,
@@ -198,21 +204,13 @@ public class Data {
 						if (phase == Phase.ALL) {
 							continue; // do not add Max Apparent Power Constraint for ALL phases
 						}
-						result.add(this.createSimpleConstraint(ess.id() + phase.getSymbol() + ": Max Apparent Power",
-								ess, phase, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, maxApparentPowerPerPhase * -1));
-						result.add(this.createSimpleConstraint(ess.id() + phase.getSymbol() + ": Max Apparent Power",
-								ess, phase, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, maxApparentPowerPerPhase));
-						result.add(this.createSimpleConstraint(ess.id() + phase.getSymbol() + ": Max Apparent Power",
-								ess, phase, Pwr.REACTIVE, Relationship.EQUALS, 0));
+						result.addAll(//
+								this.apparentPowerConstraintFactory.getConstraints(ess, phase,
+										maxApparentPowerPerPhase));
 					}
 				} else {
-					result.add(this.createSimpleConstraint(ess.id() + ": Max Apparent Power", ess, Phase.ALL,
-							Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, maxApparentPower.get() * -1));
-					result.add(this.createSimpleConstraint(ess.id() + ": Max Apparent Power", ess, Phase.ALL,
-							Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, maxApparentPower.get()));
-					result.add(this.createSimpleConstraint(ess.id() + ": Max Apparent Power", ess, Phase.ALL,
-							Pwr.REACTIVE, Relationship.EQUALS, 0));
-					// TODO add circular constraint for ReactivePower
+					result.addAll(//
+							this.apparentPowerConstraintFactory.getConstraints(ess, Phase.ALL, maxApparentPower.get()));
 				}
 			}
 		}
@@ -251,7 +249,7 @@ public class Data {
 						List<LinearCoefficient> cos = new ArrayList<>();
 						cos.add(new LinearCoefficient(this.coefficients.of(ess, phase, pwr), 1));
 						for (ManagedSymmetricEss subEss : e.getEsss()) {
-							if(!subEss.isEnabled()) {
+							if (!subEss.isEnabled()) {
 								// ignore disabled Sub-ESS
 								continue;
 							}
