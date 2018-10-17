@@ -17,8 +17,8 @@ Private-Package:  \
 	com.google.gson,\
 	io.openems.edge.controller.api.core;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
-	org.restlet.jse:org.restlet;version=latest,\
-	org.restlet.jse:org.restlet.ext.slf4j;version=latest
+	org.restlet.jse:org.restlet;version=2.4,\
+	org.restlet.jse:org.restlet.ext.slf4j;version=2.4
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
