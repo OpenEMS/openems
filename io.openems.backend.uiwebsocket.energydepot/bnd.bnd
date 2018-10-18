@@ -3,10 +3,7 @@
 #
 
 Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.backend.uiwebsocket.energydepot. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.backend.uiwebsocket.energydepot/api.bnd}
+Bundle-Description: The provider bundle for io.openems.backend.uiwebsocket.energydepot.
 
 Export-Package:  \
 	io.openems.backend.uiwebsocket.api;
