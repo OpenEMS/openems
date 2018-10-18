@@ -64,19 +64,14 @@
 			},
 			{
 				"priority": 50,
-				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
-				"esss": "ess0",
+				"class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
+				"esss": "ess1",
 				"meter": "meter0"
 			},
 			{
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
-			},
-			{
-				"priority": 0,
-				"class": "io.openems.impl.controller.feneconprosetup.FeneconProSetupController",
-				"esss": "ess0"
 			},
 			{
 				"class": "io.openems.impl.controller.acisland.AcIsland",
