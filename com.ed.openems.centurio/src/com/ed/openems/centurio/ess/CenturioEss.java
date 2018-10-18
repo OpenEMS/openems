@@ -24,7 +24,6 @@ import com.ed.data.BatteryData;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
-import com.ed.data.VectisData;
 import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 

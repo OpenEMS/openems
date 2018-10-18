@@ -1,7 +1,6 @@
 package io.openems.backend.uiwebsocket.energydepot;
 
 import java.util.Map.Entry;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 

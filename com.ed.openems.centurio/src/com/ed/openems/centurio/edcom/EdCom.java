@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -114,7 +115,16 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
 			for (NetworkInterface iface : Collections.list(ifaces)) {
 				// Initialize discovery
-				InetAddress localAddress = iface.getInetAddresses().nextElement();
+				
+					InetAddress localAddress = null;
+					try {
+						localAddress = iface.getInetAddresses().nextElement();
+					} catch (NoSuchElementException e1) {
+						
+						
+						continue;
+					}
+				
 				this.logInfo(this.log, "Edcom start discovery on [" + iface.getDisplayName() + ", "
 						+ localAddress.getHostAddress() + "]");
 				Discovery discovery = Discovery.getInstance(localAddress);
@@ -144,6 +154,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 					InetAddress[] addresses = inverter.getInetAddresses();
 					if (addresses.length > 0) {
 						inverterAddress = addresses[0]; // use the first address
+						this.logInfo(this.log, "found inverter: " + inverterAddress.toString());
 						break; // quit searching
 					}
 				}
