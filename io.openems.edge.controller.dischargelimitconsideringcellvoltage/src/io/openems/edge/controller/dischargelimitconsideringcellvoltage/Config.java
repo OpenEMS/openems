@@ -37,10 +37,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "First cell voltage limit", description = "Charging is forced if minimal cell voltage is lower then this value for a certain time period")
 	float firstCellVoltageLimit() default 2.85f;
 	
-	@AttributeDefinition(name = "First limit time span", description = "Charging is forced if first cell voltage limit is lower than first limit longer than this time period in seconds")
+	@AttributeDefinition(name = "First limit time span", description = "Charging is forced if min cell voltage is lower than first limit longer than this time period in seconds")
 	int timeSpan() default 600;
 	
-	@AttributeDefinition(name = "Second cell voltage limit", description = "Charging is forced if this minimal cell voltage is lower than this value")
+	@AttributeDefinition(name = "Second cell voltage limit", description = "Charging is forced if minimal cell voltage is lower than this value")
 	float secondCellVoltageLimit() default 2.8f;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Discharge Limit Considering Minimal Cell Voltage [{id}]";
