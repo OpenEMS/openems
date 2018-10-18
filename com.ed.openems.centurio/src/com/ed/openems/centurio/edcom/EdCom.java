@@ -8,7 +8,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -65,6 +64,8 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
+		// System.setProperty("java.net.preferIPv4Stack" , "true");
+
 		/*
 		 * Async initialize library and connection
 		 */
@@ -115,49 +116,50 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
 			for (NetworkInterface iface : Collections.list(ifaces)) {
 				// Initialize discovery
-				
-					InetAddress localAddress = null;
+
+				InetAddress localAddress = null;
+				Enumeration<InetAddress> localAddresses = iface.getInetAddresses();
+				while (localAddresses.hasMoreElements()) {
+					localAddress = localAddresses.nextElement();
+					this.logInfo(this.log, "Edcom start discovery on [" + iface.getDisplayName() + ", "
+							+ localAddress.getHostAddress() + "]");
+					Discovery discovery = Discovery.getInstance(localAddress);
+
+					// Start discovery
+					ServiceInfo inverter = null;
+					if (serialnumber != null) {
+						// Search by serialnumber if it was configured
+						inverter = discovery.getBySerialNumber(serialnumber);
+					} else {
+						// Otherwise discover all and take first discovered inverter
+						ServiceInfo[] inverterList = discovery.refreshInverterList();
+						if (inverterList.length > 0) {
+							inverter = inverterList[0];
+						}
+					}
+
+					// Finalize discovery
 					try {
-						localAddress = iface.getInetAddresses().nextElement();
-					} catch (NoSuchElementException e1) {
-						
-						
-						continue;
+						discovery.close();
+					} catch (IOException e) {
+						this.logWarn(this.log, e.getMessage());
 					}
-				
-				this.logInfo(this.log, "Edcom start discovery on [" + iface.getDisplayName() + ", "
-						+ localAddress.getHostAddress() + "]");
-				Discovery discovery = Discovery.getInstance(localAddress);
 
-				// Start discovery
-				ServiceInfo inverter = null;
-				if (serialnumber != null) {
-					// Search by serialnumber if it was configured
-					inverter = discovery.getBySerialNumber(serialnumber);
-				} else {
-					// Otherwise discover all and take first discovered inverter
-					ServiceInfo[] inverterList = discovery.refreshInverterList();
-					if (inverterList.length > 0) {
-						inverter = inverterList[0];
+					// Get inverterAddress
+					if (inverter != null) {
+						InetAddress[] addresses = inverter.getInetAddresses();
+						if (addresses.length > 0) {
+							inverterAddress = addresses[0]; // use the first address
+							this.logInfo(this.log, "found inverter: " + inverterAddress.toString());
+							break; // quit searching
+						}
 					}
 				}
 
-				// Finalize discovery
-				try {
-					discovery.close();
-				} catch (IOException e) {
-					this.logWarn(this.log, e.getMessage());
+				if (inverterAddress != null) {
+					break;
 				}
 
-				// Get inverterAddress
-				if (inverter != null) {
-					InetAddress[] addresses = inverter.getInetAddresses();
-					if (addresses.length > 0) {
-						inverterAddress = addresses[0]; // use the first address
-						this.logInfo(this.log, "found inverter: " + inverterAddress.toString());
-						break; // quit searching
-					}
-				}
 			}
 		}
 
