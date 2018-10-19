@@ -33,6 +33,7 @@ export class GridSectionComponent extends AbstractSection {
             this.name = this.translate.instant('General.Grid')
             super.updateValue(0, 0, 0);
         }
+        console.log("GRID VALUE RATIO:", valueRatio)
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {

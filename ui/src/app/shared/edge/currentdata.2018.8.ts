@@ -76,13 +76,11 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 result.storage.dischargeActivePower = 0;
                 result.storage.chargeActivePower = essActivePower;
                 result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 9000 * 100);
-                console.log("Power Ratio", result.storage.powerRatio)
             }
             else {
                 result.storage.dischargeActivePower = essActivePower * -1;
                 result.storage.chargeActivePower = 0;
                 result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 9000 * -100);
-                console.log("Power Ratio", result.storage.powerRatio)
             }
 
         }
