@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 
+
 @Component({
     selector: '[gridsection]',
     templateUrl: './section.component.html'
@@ -13,12 +14,14 @@ export class GridSectionComponent extends AbstractSection {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
-    private GridMode: number
+    protected gridMode: number
 
     public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number, gridMode: number) {
         valueRatio = valueRatio / 2; // interval from -50 to 50
-        this.GridMode = gridMode
-
+        this.gridMode = gridMode
+        if (gridMode && this.square) {
+            this.square.image.image = "assets/img/" + this.getImagePath();
+        }
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
             super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
@@ -30,12 +33,7 @@ export class GridSectionComponent extends AbstractSection {
             this.name = this.translate.instant('General.Grid')
             super.updateValue(0, 0, 0);
         }
-
-        if (gridMode) {
-            this.square.image.image = super.getSquare(this.innerRadius).image.image
-        }
     }
-
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         let x = (innerRadius - 5) * (-1);
@@ -44,11 +42,11 @@ export class GridSectionComponent extends AbstractSection {
     }
 
     protected getImagePath(): string {
-        if (this.GridMode == 1) {
-            return "grid.png"
+        if (this.gridMode == 2 || this.gridMode == 0) {
+            return "offgrid.png"
         }
         else {
-            return "offgrid.png"
+            return "grid.png"
         }
     }
 

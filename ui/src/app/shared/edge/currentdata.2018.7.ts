@@ -30,7 +30,8 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
                 dischargeActivePowerACL2: null,
                 dischargeActivePowerACL3: null,
                 dischargeActivePowerDC: null,
-                maxDischargeActivePower: null
+                maxDischargeActivePower: null,
+                powerRatio: null
             }, production: {
                 isAsymmetric: false,
                 hasDC: false,
@@ -48,7 +49,7 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
                 maxBuyActivePower: null,
                 sellActivePower: null,
                 maxSellActivePower: null,
-                gridMode: null
+                gridMode: 1
             }, consumption: {
                 powerRatio: null,
                 activePower: null
