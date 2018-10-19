@@ -52,7 +52,6 @@ public class Solver {
 
 	public Solver(Data data) {
 		this.data = data;
-
 	}
 
 	/**
@@ -907,5 +906,4 @@ public class Solver {
 	protected void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
 	}
-
 }
