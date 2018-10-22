@@ -62,6 +62,8 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
              * < 0 => Charge
              */
             result.storage.soc = sum['EssSoc'];
+            result.storage.maxChargeActivePower = sum['MaxChargeActivePower'];
+            result.storage.maxDischargeActivePower = sum['MaxDischargeActivePower']
             const essActivePower: number = sum['EssActivePower'];
             result.storage.chargeActivePowerAC = essActivePower < 0 ? essActivePower * -1 : 0;
             result.storage.chargeActivePower = result.storage.chargeActivePowerAC; // TODO
@@ -75,12 +77,12 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             if (essActivePower > 0) {
                 result.storage.dischargeActivePower = 0;
                 result.storage.chargeActivePower = essActivePower;
-                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 9000 * 100);
+                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 3000 * 100);
             }
             else {
                 result.storage.dischargeActivePower = essActivePower * -1;
                 result.storage.chargeActivePower = 0;
-                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 9000 * -100);
+                result.storage.powerRatio = Math.round(result.storage.dischargeActivePower / 3000 * -100);
             }
 
         }
@@ -93,7 +95,7 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
              */
             const gridActivePower: number = sum['GridActivePower'];
             result.grid.maxBuyActivePower = sum['GridMaxActivePower'];
-            result.grid.maxSellActivePower = sum['GridMinActivePower'] * -1;
+            result.grid.maxSellActivePower = sum['GridMinActivePower'] * 1;
             if (gridActivePower > 0) {
                 result.grid.sellActivePower = 0;
                 result.grid.buyActivePower = gridActivePower;
@@ -101,7 +103,7 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             } else {
                 result.grid.sellActivePower = gridActivePower * -1;
                 result.grid.buyActivePower = 0;
-                result.grid.powerRatio = Math.round(result.grid.buyActivePower / result.grid.maxSellActivePower * -100);
+                result.grid.powerRatio = Math.round(result.grid.sellActivePower / result.grid.maxSellActivePower * -100) * -1;
             }
             result.grid.gridMode = sum['GridMode'];
         }

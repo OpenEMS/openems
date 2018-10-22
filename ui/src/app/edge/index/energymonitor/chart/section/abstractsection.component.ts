@@ -166,9 +166,8 @@ export abstract class AbstractSection {
      */
     protected updateStorage(valueAbsolute: number, valueRatio: number, sumRatio: number, powerRatio: number) {
         // TODO smoothly resize the arc
-        console.log("STORAGE POWER RATIO:", powerRatio)
         this.lastValue = { valueAbsolute: valueAbsolute, valueRatio: valueRatio, sumRatio: sumRatio };
-        this.valueRatio = this.getValueRatio(valueRatio);
+        this.valueRatio = this.getValueRatioStorageGrid(valueRatio);
         this.powerRatio = this.getPowerRatio(powerRatio)
         this.valueText = this.getValueText(valueAbsolute);
         let valueEndAngle = ((this.endAngle - this.startAngle) * this.powerRatio) / 100 + this.getStorageValueStartAngle();
@@ -190,6 +189,36 @@ export abstract class AbstractSection {
             svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
         }
         this.energyFlow.update(svgEnergyFlow);
+    }
+
+    /**
+    * This method is called on every change of values.
+    */
+    protected updateGrid(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+        // TODO smoothly resize the arc
+        this.lastValue = { valueAbsolute: valueAbsolute, valueRatio: valueRatio, sumRatio: sumRatio };
+        this.valueRatio = this.getValueRatioStorageGrid(valueRatio);
+        this.valueText = this.getValueText(valueAbsolute);
+        let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
+        let valueArc = this.getArc()
+            .startAngle(this.deg2rad(this.getValueStartAngle()))
+            .endAngle(this.deg2rad(valueEndAngle));
+        this.valuePath = valueArc();
+
+        let energyFlowValue = Math.abs(Math.round(sumRatio * 10));
+        if (energyFlowValue < -10) {
+            energyFlowValue = -10;
+        } else if (energyFlowValue > 10) {
+            energyFlowValue = 10;
+        }
+        let svgEnergyFlow;
+        if (isNaN(sumRatio) || isNaN(energyFlowValue)) {
+            svgEnergyFlow = null;
+        } else {
+            svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
+        }
+        this.energyFlow.update(svgEnergyFlow);
+        console.log("GridValueRatio2:", valueRatio)
     }
 
     /**
@@ -270,11 +299,23 @@ export abstract class AbstractSection {
         return valueRatio;
     }
 
-    protected getPowerRatio(powerRatio: number): number {
-        if (powerRatio > 100) {
-            return 100;
-        } else if (powerRatio < 0) {
+    public getValueRatioStorageGrid(valueRatio: number): number {
+        if (valueRatio > 50) {
+            return 50;
+        } else if (valueRatio < -50) {
+            return -50;
+        }
+        else if (valueRatio == null || Number.isNaN(valueRatio)) {
             return 0;
+        }
+        return valueRatio;
+    }
+
+    protected getPowerRatio(powerRatio: number): number {
+        if (powerRatio > 50) {
+            return 50;
+        } else if (powerRatio < -50) {
+            return -50;
         } else if (powerRatio == null || Number.isNaN(powerRatio)) {
             return 0;
         }

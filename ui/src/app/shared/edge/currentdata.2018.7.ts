@@ -167,9 +167,11 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
                 if (activePower > 0) {
                     result.storage.chargeActivePower = activePower;
                     result.storage.dischargeActivePower = 0;
+                    result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 3000 * 100);
                 } else {
                     result.storage.chargeActivePower = 0;
                     result.storage.dischargeActivePower = activePower * -1;
+                    result.storage.powerRatio = Math.round(result.storage.dischargeActivePower / 3000 * -100);
                 }
             }
         }
@@ -202,11 +204,11 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
                 if (activePower > 0) {
                     result.grid.sellActivePower = 0;
                     result.grid.buyActivePower = activePower;
-                    ratio = result.grid.buyActivePower / maxSell * 100;
+                    ratio = Math.round(result.grid.buyActivePower / maxSell * 100);
                 } else {
                     result.grid.sellActivePower = activePower * -1;
                     result.grid.buyActivePower = 0;
-                    ratio = result.grid.sellActivePower / maxSell * -100;
+                    ratio = Math.round(result.grid.sellActivePower / maxSell * -100) * -1;
                 }
             }
             result.grid.powerRatio = ratio;
