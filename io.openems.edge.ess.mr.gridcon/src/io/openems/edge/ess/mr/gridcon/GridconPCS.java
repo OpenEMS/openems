@@ -111,6 +111,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	DigitalOutput outputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
+	
+	int minSoC1;
+	int minSoC2;
+	int minSoC3;
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -172,6 +176,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				this.outputMRHardReset.getComponentId())) {
 			return;
 		}
+		
+		minSoC1 = config.minSoC1();
+		minSoC2 = config.minSoC2();
+		minSoC3 = config.minSoC3();
+		
 
 		WriteChannel<Integer> commandControlWordChannel = this.channel(GridConChannelId.COMMAND_CONTROL_WORD);
 		commandControlWordChannel.onSetNextWrite(value -> {
@@ -704,7 +713,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private void doStringWeighting(int activePower, int reactivePower) {
 		// weight according to battery ranges
-
+		
+		// weight considering SoC of the batteries...
+		
+		
 		int weight1 = 0;
 		int weight2 = 0;
 		int weight3 = 0;
@@ -715,6 +727,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			weight1 = battery1.getDischargeMaxCurrent().value().asOptional().orElse(0);
 			weight2 = battery2.getDischargeMaxCurrent().value().asOptional().orElse(0);
 			weight3 = battery3.getDischargeMaxCurrent().value().asOptional().orElse(0);
+			
+			//if minSoc is reached, do not allow further discharging
+			if (battery1.getSoc().value().asOptional().orElse(0) <= minSoC1) {
+				weight1 = 0;
+			}
+			if (battery2.getSoc().value().asOptional().orElse(0) <= minSoC2) {
+				weight2 = 0;
+			}
+			if (battery3.getSoc().value().asOptional().orElse(0) <= minSoC3) {
+				weight3 = 0;
+			}
+			
 		} else { // use values for charging
 			weight1 = battery1.getChargeMaxCurrent().value().asOptional().orElse(0);
 			weight2 = battery2.getChargeMaxCurrent().value().asOptional().orElse(0);

@@ -7,6 +7,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "ESS MR Gridcon PCS", //
 		description = "Implements the FENECON MR Gridcon PCS system")
 @interface Config {
+	
 	String service_pid();
 
 	String id() default "ess0";
@@ -27,6 +28,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Battery-ID3", description = "ID of Battery 3.")
 	String battery3_id();
+	
+	@AttributeDefinition(name = "MinSoC1", description = "Minimal SoC of Battery 1, if reached no further discharging is allowed")
+	int minSoC1() default 25;
+	
+	@AttributeDefinition(name = "MinSoC2", description = "Minimal SoC of Battery 2, if reached no further discharging is allowed")
+	int minSoC2() default 25;
+	
+	@AttributeDefinition(name = "MinSoC3", description = "Minimal SoC of Battery 3, if reached no further discharging is allowed")
+	int minSoC3() default 25;
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of Grid-Meter")
 	String meter() default "meter0";
