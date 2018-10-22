@@ -28,7 +28,8 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 dischargeActivePowerACL2: null,
                 dischargeActivePowerACL3: null,
                 dischargeActivePowerDC: null,
-                maxDischargeActivePower: null
+                maxDischargeActivePower: null,
+                powerRatio: null
             }, production: {
                 isAsymmetric: false,
                 hasDC: false,
@@ -70,6 +71,18 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 result.storage.chargeActivePowerDC = sum['ProductionDcActualPower'];
                 result.storage.hasDC = true;
             }
+
+            if (essActivePower > 0) {
+                result.storage.dischargeActivePower = 0;
+                result.storage.chargeActivePower = essActivePower;
+                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 9000 * 100);
+            }
+            else {
+                result.storage.dischargeActivePower = essActivePower * -1;
+                result.storage.chargeActivePower = 0;
+                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 9000 * -100);
+            }
+
         }
 
         {

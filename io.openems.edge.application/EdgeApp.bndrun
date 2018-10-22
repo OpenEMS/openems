@@ -28,9 +28,14 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.core)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.rest)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.balancingcosphi)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.phaserectification)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.fixactivepower)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.fixreactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.dischargelimitconsideringcellvoltage)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.ess.limittotaldischarge)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.io.fixdigitaloutput)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
@@ -47,6 +52,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.mr.gridcon)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.kaco.blueplanet.gridsave50)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.refu)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.mini)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.pro)',\
@@ -75,7 +81,12 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.api.core;version=snapshot,\
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
+	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
+	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
+	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
+	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
+	io.openems.edge.controller.dischargelimitconsideringcellvoltage;version=snapshot,\
 	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
@@ -94,6 +105,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
+	io.openems.edge.ess.refu;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\

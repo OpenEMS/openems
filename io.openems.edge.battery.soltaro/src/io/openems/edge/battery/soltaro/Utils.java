@@ -29,6 +29,8 @@ public class Utils {
 					case SOH:
 					case BATTERY_TEMP:
 					case MAX_CAPACITY:
+					case MINIMAL_CELL_VOLTAGE:
+					case VOLTAGE:
 						return new IntegerReadChannel(s, channelId);
 					case CHARGE_MAX_CURRENT:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_A);
