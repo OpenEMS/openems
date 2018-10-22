@@ -121,6 +121,7 @@ export class Edge {
     let obs = replyStream
       .pipe(map(message => (message as DefaultMessages.CurrentDataReply).currentData),
         combineLatest(this.config, (currentData, config) => {
+          console.log(currentData);
           if (this.isVersionAtLeast('2018.8')) {
             return new CurrentDataAndSummary_2018_8(this, currentData, <ConfigImpl_2018_8>config);
           } else {

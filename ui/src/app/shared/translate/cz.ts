@@ -141,8 +141,8 @@ export const TRANSLATION = {
     },
     About: {
         UI: "Uživatelské rozhraní pro PRIMUS a OpenEMS",
-        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností Energy Depot jako open-source software.",
-        Fenecon: "Více o společnosti Energy Depot",
+        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností KACO new energy jako open-source software.",
+        Fenecon: "Více o společnosti KACO new energy",
         Fems: "Více o PRIMUS",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",

@@ -48,7 +48,7 @@ export class GridSectionComponent extends AbstractSection {
             return "grid.png"
         }
         else {
-            return "offgrid.png"
+            return "grid.png"
         }
     }
 

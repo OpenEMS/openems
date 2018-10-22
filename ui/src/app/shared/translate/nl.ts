@@ -141,8 +141,8 @@ export const TRANSLATION = {
     },
     About: {
         UI: "Gebruikersinterface voor PRIMUS en OpenEMS",
-        Developed: "Deze gebruikersinterface is ontwikkeld door Energy Depot als open- source - software.",
-        Fenecon: "Meer over Energy Depot",
+        Developed: "Deze gebruikersinterface is ontwikkeld door KACO new energy als open- source - software.",
+        Fenecon: "Meer over KACO new energy",
         Fems: "Meer over PRIMUS",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",

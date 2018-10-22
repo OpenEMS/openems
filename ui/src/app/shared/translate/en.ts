@@ -151,8 +151,8 @@ export const TRANSLATION = {
     },
     About: {
         UI: "User interface for PRIMUS and OpenEMS",
-        Developed: "This user interface is developed by Energy Depot as open-source software.",
-        Fenecon: "More about Energy Depot",
+        Developed: "This user interface is developed by KACO new energy as open-source software.",
+        Fenecon: "More about KACO new energy",
         Fems: "More about PRIMUS",
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
