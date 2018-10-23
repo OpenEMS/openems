@@ -87,6 +87,7 @@ public class Utils {
 					case REACTIVE_POWER_L1:
 					case REACTIVE_POWER_L2:
 					case REACTIVE_POWER_L3:
+					case COSPHI_SET_POINT_READ:
 						return new IntegerReadChannel(c, channelId);
 					case BMS_OPERATING_MODE:
 					case MIN_SOC_POWER_ON:

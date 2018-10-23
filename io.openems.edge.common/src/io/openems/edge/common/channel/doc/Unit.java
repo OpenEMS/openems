@@ -57,7 +57,7 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
-	
+
 	/*
 	 * Current
 	 */
@@ -70,6 +70,15 @@ public enum Unit {
 	 * Unit of Current [mA]
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
+
+	/*
+	 * Electric Charge
+	 */
+
+	/**
+	 * Unit of Electric Charge
+	 */
+	AMPERE_HOURS("Ah"),
 
 	/*
 	 * Energy
@@ -100,7 +109,7 @@ public enum Unit {
 	/*
 	 * Temperature
 	 */
-	
+
 	/**
 	 * Unit of Temperature [�C]
 	 */
@@ -121,11 +130,11 @@ public enum Unit {
 	 * Unit of Frequency [mHz]
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
-	
+
 	/*
 	 * Resistance
 	 */
-	
+
 	/**
 	 * Unit of Resistance [Ohm]
 	 */

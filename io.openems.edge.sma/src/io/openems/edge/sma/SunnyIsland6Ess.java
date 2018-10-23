@@ -86,9 +86,6 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	protected void deactivate() {
 		super.deactivate();
 	}
-//TODO ENUM UNITS;
-	// 887 = disable
-	// rest of the Channels
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
@@ -159,15 +156,36 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(30825, Priority.HIGH, //
 						m(SunnyIsland6Ess.ChannelId.OPERATING_MODE_FOR_REACTIVE_POWER,
 								new UnsignedDoublewordElement(30825))), //
-				new FC3ReadRegistersTask(30835, Priority.HIGH, //
+				new FC3ReadRegistersTask(30831, Priority.HIGH, //
+						m(SunnyIsland6Ess.ChannelId.COSPHI_SET_POINT_READ, new SignedDoublewordElement(30831)), //
+						new DummyRegisterElement(30833, 30834), //
 						m(SunnyIsland6Ess.ChannelId.OPERATING_MODE_FOR_ACTIVE_POWER,
 								new UnsignedDoublewordElement(30835))), //
 				new FC3ReadRegistersTask(30843, Priority.HIGH, //
-						m(SunnyIsland6Ess.ChannelId.BATTERY_CURRENT, new SignedDoublewordElement(30843)),
+						m(SunnyIsland6Ess.ChannelId.BATTERY_CURRENT, new SignedDoublewordElement(30843)), //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedDoublewordElement(30845)), //
-						new DummyRegisterElement(30847, 30848), //
+						m(SunnyIsland6Ess.ChannelId.CURRENT_BATTERY_CAPACITY, new SignedDoublewordElement(30847)), //
 						m(SunnyIsland6Ess.ChannelId.BATTERY_TEMPERATURE, new SignedDoublewordElement(30849)), //
-						m(SunnyIsland6Ess.ChannelId.BATTERY_VOLTAGE, new UnsignedDoublewordElement(30851))), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_VOLTAGE, new UnsignedDoublewordElement(30851)), //
+						m(SunnyIsland6Ess.ChannelId.ACTIVE_BATTERY_CHARGING_MODE, new UnsignedDoublewordElement(30853)), //
+						m(SunnyIsland6Ess.ChannelId.CURRENT_BATTERY_CHARGING_SET_VOLTAGE,
+								new UnsignedDoublewordElement(30855)), //
+						m(SunnyIsland6Ess.ChannelId.NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS,
+								new SignedDoublewordElement(30857)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_MAINT_SOC, new UnsignedDoublewordElement(30859)), //
+						m(SunnyIsland6Ess.ChannelId.LOAD_POWER, new SignedDoublewordElement(30861)), //
+						new DummyRegisterElement(30863, 30864), //
+						m(SunnyIsland6Ess.ChannelId.POWER_GRID_REFERENCE, new SignedDoublewordElement(30865)), //
+						m(SunnyIsland6Ess.ChannelId.POWER_GRID_FEED_IN, new SignedDoublewordElement(30867)), //
+						m(SunnyIsland6Ess.ChannelId.PV_POWER_GENERATED, new SignedDoublewordElement(30869)), //
+						m(SunnyIsland6Ess.ChannelId.CURRENT_SELF_CONSUMPTION, new UnsignedDoublewordElement(30871)), //
+						m(SunnyIsland6Ess.ChannelId.CURRENT_RISE_IN_SELF_CONSUMPTION,
+								new SignedDoublewordElement(30873)), //
+						m(SunnyIsland6Ess.ChannelId.MULTIFUNCTION_RELAY_STATUS, new UnsignedDoublewordElement(30875)), //
+						m(SunnyIsland6Ess.ChannelId.POWER_SUPPLY_STATUS, new UnsignedDoublewordElement(30877))
+
+				// TODO .------------------------------------
+				), //
 				new FC3ReadRegistersTask(40189, Priority.HIGH, //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedDoublewordElement(40189),
 								ElementToChannelConverter.INVERT), //
@@ -198,7 +216,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		DEVICE_TYPE(new Doc()), //
 		SERIAL_NUMBER(new Doc()), //
 		SOFTWARE_PACKAGE(new Doc()), //
-		WAITING_TIME_UNTIL_FEED_IN(new Doc()), //
+		WAITING_TIME_UNTIL_FEED_IN(new Doc().unit(Unit.SECONDS)), //
 		MESSAGE(new Doc()), //
 		SYSTEM_STATE(new Doc()//
 				.option(35, "Fehler")//
@@ -212,31 +230,94 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		NUMBER_OF_EVENT_FOR_INSTALLER(new Doc()), //
 		NUMBER_OF_EVENT_FOR_SERVICE(new Doc()), //
 		NUMBER_OF_GENERATORS_STARTS(new Doc()), //
-		AMP_HOURS_COUNTER_FOR_BATTERY_CHARGE(new Doc()), //
-		AMP_HOURS_COUNTER_FOR_BATTERY_DISCHARGE(new Doc()), //
-		METER_READING_CONSUMPTION_METER(new Doc()), //
-		ENERGY_CONSUMED_FROM_GRID(new Doc()), //
-		ENERGY_FED_INTO_GRID(new Doc()), //
-		GRID_REFERENCE_COUNTER_READING(new Doc()), //
-		GRID_FEED_IN_COUNTER_READING(new Doc()), //
-		POWER_OUTAGE(new Doc()), //
-		RISE_IN_SELF_CONSUMPTION(new Doc()), //
-		RISE_IN_SELF_CONSUMPTION_TODAY(new Doc()), //
-		ABSORBED_ENERGY(new Doc()), //
-		RELEASED_ENERGY(new Doc()), //
+		AMP_HOURS_COUNTER_FOR_BATTERY_CHARGE(new Doc().unit(Unit.AMPERE_HOURS)), //
+		AMP_HOURS_COUNTER_FOR_BATTERY_DISCHARGE(new Doc().unit(Unit.AMPERE_HOURS)), //
+		METER_READING_CONSUMPTION_METER(new Doc().unit(Unit.WATT_HOURS)), //
+		ENERGY_CONSUMED_FROM_GRID(new Doc().unit(Unit.WATT_HOURS)), //
+		ENERGY_FED_INTO_GRID(new Doc().unit(Unit.WATT_HOURS)), //
+		GRID_REFERENCE_COUNTER_READING(new Doc().unit(Unit.WATT_HOURS)), //
+		GRID_FEED_IN_COUNTER_READING(new Doc().unit(Unit.WATT_HOURS)), //
+		POWER_OUTAGE(new Doc().unit(Unit.SECONDS)), //
+		RISE_IN_SELF_CONSUMPTION(new Doc().unit(Unit.WATT_HOURS)), //
+		RISE_IN_SELF_CONSUMPTION_TODAY(new Doc().unit(Unit.WATT_HOURS)), //
+		ABSORBED_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
+		RELEASED_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
 		NUMBER_OF_GRID_CONNECTIONS(new Doc()), //
-		ACTIVE_POWER_L1(new Doc()), //
-		ACTIVE_POWER_L2(new Doc()), //
-		ACTIVE_POWER_L3(new Doc()), //
-		GRID_VOLTAGE_L1(new Doc()), //
-		GRID_VOLTAGE_L2(new Doc()), //
-		GRID_VOLTAGE_L3(new Doc()), //
-		FREQUENCY(new Doc().unit(Unit.MILLIHERTZ)), //
-		REACTIVE_POWER_L1(new Doc()), //
-		REACTIVE_POWER_L2(new Doc()), //
-		REACTIVE_POWER_L3(new Doc()), //
-		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
+		ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
+		ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
+		GRID_VOLTAGE_L1(new Doc().unit(Unit.VOLT)), //
+		GRID_VOLTAGE_L2(new Doc().unit(Unit.VOLT)), //
+		GRID_VOLTAGE_L3(new Doc().unit(Unit.VOLT)), //
+		FREQUENCY(new Doc().unit(Unit.HERTZ)), //
+		REACTIVE_POWER_L1(new Doc().unit(Unit.VOLT_AMPERE)), //
+		REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE)), //
+		REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE)), //
+		COSPHI_SET_POINT_READ(new Doc()), //
+		BATTERY_CURRENT(new Doc().unit(Unit.AMPERE)), //
+		CURRENT_BATTERY_CAPACITY(new Doc().unit(Unit.PERCENT)), //
+		ACTIVE_BATTERY_CHARGING_MODE(new Doc()), //
+		CURRENT_BATTERY_CHARGING_SET_VOLTAGE(new Doc().unit(Unit.VOLT)), //
+		NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS(new Doc()), //
+		BATTERY_MAINT_SOC(new Doc()), //
+		LOAD_POWER(new Doc().unit(Unit.WATT)), //
+		POWER_GRID_REFERENCE(new Doc().unit(Unit.WATT)), //
+		POWER_GRID_FEED_IN(new Doc().unit(Unit.WATT)), //
+		PV_POWER_GENERATED(new Doc().unit(Unit.WATT)), //
+		CURRENT_SELF_CONSUMPTION(new Doc().unit(Unit.WATT)), //
+		CURRENT_RISE_IN_SELF_CONSUMPTION(new Doc().unit(Unit.WATT)), //
+		MULTIFUNCTION_RELAY_STATUS(new Doc()//
+				.option(51, "Closed")//
+				.option(311, "Open")), //
+		POWER_SUPPLY_STATUS(new Doc()//
+				.option(303, "Off")//
+				.option(1461, "Utility Grid Connected")//
+				.option(1462, "Backup Not Available")//
+				.option(1463, "Backup")), //
+		REASON_FOR_GENERATOR_REQUEST(new Doc()//
+				.option(1773, "No Request")//
+				.option(1774, "Load")//
+				.option(1775, "Time Control")//
+				.option(1776, "Manual One Hour")//
+				.option(1777, "Manual Start")//
+				.option(1778, "External Source")), //
+		PV_MAINS_CONNECTION(new Doc()//
+				.option(1779, "Disconnected")//
+				.option(1780, "Utility Grid")//
+				.option(1781, "Stand-Alone Grid")), //
+
+		STATUS_OF_UTILITY_GRID(new Doc()//
+				.option(303, "Off")//
+				.option(1394, "Waiting For Valid AC Utility Grid")//
+				.option(1461, "Utility Grid Connection")//
+				.option(1466, "Waiting")//
+				.option(1787, "Initialization")//
+				.option(2183, "Grid Operation Without Feed-Back")//
+				.option(2184, "Energy Saving In The Utility Grid")//
+				.option(2185, "End Energy Saving In The Utility Grid")//
+				.option(2186, "Start Energy Saving In The Utility Grid")), //
+
+		GRID_FREQ_OF_EXTERNAL_POWER_CONNECTION(new Doc().unit(Unit.HERTZ)), //
+		VOLTAGE_EXTERNAL_POWER_CONNECTION_PHASE_A(new Doc().unit(Unit.VOLT)), //
+		VOLTAGE_EXTERNAL_POWER_CONNECTION_PHASE_B(new Doc().unit(Unit.VOLT)), //
+		VOLTAGE_EXTERNAL_POWER_CONNECTION_PHASE_C(new Doc().unit(Unit.VOLT)), //
+		CURRENT_EXTERNAL_POWER_CONNECTION_PHASE_A(new Doc().unit(Unit.AMPERE)), //
+		CURRENT_EXTERNAL_POWER_CONNECTION_PHASE_B(new Doc().unit(Unit.AMPERE)), //
+		CURRENT_EXTERNAL_POWER_CONNECTION_PHASE_C(new Doc().unit(Unit.AMPERE)), //
+		GENERATOR_STATUS(new Doc()//
+				.option(303, "Off")//
+				.option(1392, "Error")//
+				.option(1787, "Initialization")//
+				.option(1788, "Ready")//
+				.option(1789, "Warm-Up")//
+				.option(1790, "Synchronize").option(1791, "Activated")//
+				.option(1792, "Re-Synchronize")//
+				.option(1793, "Generator Seperation")//
+				.option(1794, "Shut-Off Delay")//
+				.option(1795, "Blocked")//
+				.option(1796, "Blocked After Error")), //
+		// TODO
+		BATTERY_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		BATTERY_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		SET_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
