@@ -362,11 +362,13 @@ export class Websocket {
    */
   public logOut() {
     // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
-    this.router.navigate(['/']);
-    this.send(DefaultMessages.authenticateLogout());
-    this.status = "waiting for authentication";
-    this.service.removeToken();
-    this.initialize();
+    this.router.navigate(['/']).then(() => {
+      this.send(DefaultMessages.authenticateLogout());
+      this.status = "waiting for authentication";
+      this.service.removeToken();
+      this.initialize();
+    });
+
 
   }
 

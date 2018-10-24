@@ -40,13 +40,18 @@ export const TRANSLATION = {
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
         IsOffline: "PRIMUS is offline!",
-        PleaseLogin: "Please enter your access data or confirm to log in as a guest.",
+        PleaseLogin: "Please enter your access data or confirm to log in.",
         Username: "Username/email",
         Password: "Password",
         LostPassword: "Password lost",
         FormInvalid: "Please fill out the form completely",
         Connecting: "Connecting...",
-        LoginWrong: "Wrong username / password."
+        LoginWrong: "Wrong username / password.",
+        NotOnline: "The device is not connected.",
+        Type: "Type:",
+        ConnectedAs: "Connected as:",
+        MoreDevices: "There are more devices... Please adjust the filter.",
+        SaveLogin: "Save login data."
     },
     Edge: {
         Index: {

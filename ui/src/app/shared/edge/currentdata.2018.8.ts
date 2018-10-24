@@ -74,15 +74,15 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 result.storage.hasDC = true;
             }
 
-            if (essActivePower > 0) {
-                result.storage.dischargeActivePower = 0;
-                result.storage.chargeActivePower = essActivePower;
-                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 3000 * 100);
-            }
-            else {
-                result.storage.dischargeActivePower = essActivePower * -1;
+            if (essActivePower > 0) { //Discharge
+                result.storage.dischargeActivePower = essActivePower;
                 result.storage.chargeActivePower = 0;
                 result.storage.powerRatio = Math.round(result.storage.dischargeActivePower / 3000 * -100);
+            }
+            else {
+                result.storage.dischargeActivePower = 0;
+                result.storage.chargeActivePower = essActivePower * -1;
+                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / 3000 * 100);
             }
 
         }

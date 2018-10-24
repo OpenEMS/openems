@@ -82,4 +82,27 @@ export class Alerts {
         await alert.present();
     }
 
+    async confirmLoginDelete() {
+        const alert: HTMLIonAlertElement = await this.alertCtrl.create({
+            header: this.translate.instant('Alerts.ClearLoginHeader'),
+            message: this.translate.instant('Alerts.ClearLoginMsg'),
+            buttons: [
+                {
+                    text: this.translate.instant('Alerts.Cancel'),
+                    role: 'cancel'
+
+                },
+                {
+                    text: "Ok",
+                    handler: () => {
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("password");
+                        this.showMsg(this.translate.instant('Alerts.ClearLoginDone'));
+                    }
+                }
+            ]
+        });
+        await alert.present();
+    }
+
 }

@@ -82,7 +82,8 @@
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true
+              "buildOptimizer": true,
+              "serviceWorker": true
             },
             "backend-dev-local": {
               "fileReplacements": [

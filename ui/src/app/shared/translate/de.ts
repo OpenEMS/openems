@@ -40,13 +40,18 @@ export const TRANSLATION = {
         ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
         IsOffline: "PRIMUS ist offline!",
-        PleaseLogin: "Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
+        PleaseLogin: "Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich anzumelden.",
         Username: "Benutzername / Email",
         Password: "Passwort",
         LostPassword: "Passwort vergessen",
         FormInvalid: "Bitte füllen Sie das Formular komplett aus.",
         Connecting: "Verbindung wird aufgebaut.",
-        LoginWrong: "Benutzername / Passwort falsch."
+        LoginWrong: "Benutzername / Passwort falsch.",
+        NotOnline: "Das Gerät ist nicht verbunden.",
+        Type: "Typ:",
+        ConnectedAs: "Angemeldet als:",
+        MoreDevices: "Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.",
+        SaveLogin: "Login Daten speichern"
     },
     Edge: {
         Index: {
@@ -176,6 +181,9 @@ export const TRANSLATION = {
         Cancel: "Abbrechen",
         Send: "Senden",
         RetrievePwdSent: "Ein Link zur Wiederherstellung Ihres Passworts wurde an Sie gesendet. Bitte überprüfen Sie Ihre Emails.",
-        RetrievePwdError: "Bei der Wiederherstellung Ihres Passworts is ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Eingabe und versuchen es erneut."
+        RetrievePwdError: "Bei der Wiederherstellung Ihres Passworts is ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Eingabe und versuchen es erneut.",
+        ClearLoginHeader: "Login Daten löschen",
+        ClearLoginMsg: "Wenn Sie Ihre Login Daten löschen, müssen Sie Ihren Benutzernamen und Ihr Passwort bei der nächsten Anmeldung erneut eingeben. Jetz Login Daten löschen?",
+        ClearLoginDone: "Login Daten gelöscht."
     }
 }

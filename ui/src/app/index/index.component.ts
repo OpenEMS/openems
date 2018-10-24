@@ -48,7 +48,8 @@ export class IndexComponent {
 
     this.wpForm = this.wpformBuilder.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      saveAccount: [false]
     }),
 
 
@@ -65,6 +66,11 @@ export class IndexComponent {
       })
   }
 
+  ngOnInit() {
+    if (localStorage.getItem("username") != null) {
+      this.wpForm.setValue({ username: localStorage.getItem("username"), password: localStorage.getItem("password"), saveAccount: false });
+    }
+  }
 
   updateFilteredEdges() {
     let edges = this.websocket.edges.getValue();
@@ -117,10 +123,18 @@ export class IndexComponent {
       body.append('log', username);
       body.append('pwd', password);
 
+
+
       this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.service.spinnerDialog.hide(); },
         (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); } },
         () => { this.websocket.wpconnect(); });
       //this.websocket.wpconnect();
+      if (this.wpForm.value['saveAccount']) {
+        localStorage.setItem("username", username);
+        localStorage.setItem("password", password);
+        console.info("Account saved.");
+      }
+
     } else {
       this.service.spinnerDialog.hide();
       if (valid['error'] === "Invalid username and/or password.") {
