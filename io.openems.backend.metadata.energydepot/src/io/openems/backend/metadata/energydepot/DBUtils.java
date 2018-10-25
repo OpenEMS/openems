@@ -184,13 +184,20 @@ public class DBUtils {
 			reconnect();
 			Statement stmt;
 			stmt = this.conn.createStatement();
+			String sql_get = "SELECT * FROM users WHERE login = '" + nick + "'";
+			ResultSet userexists = stmt.executeQuery(sql_get);
+			if(userexists.next()) {
+				
+				return false;
+			}
+			
 
 			String sql = "INSERT INTO users (role,edge_id,name,email,login) VALUES ('" + role + "', '" + edges[0]
 					+ "', '" + name + "', '" + email + "', '" + nick + "')";
 			stmt.executeUpdate(sql);
-			sql = "SELECT * FROM users WHERE login = '" + nick + "'";
+			
 
-			ResultSet result = stmt.executeQuery(sql);
+			ResultSet result = stmt.executeQuery(sql_get);
 			while (result.next()) {
 				int id = result.getInt("user_id");
 				if (id == 0) {
