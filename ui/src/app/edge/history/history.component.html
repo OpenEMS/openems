@@ -23,6 +23,13 @@
             <ion-col size="12" *ngIf="activePeriod === 'otherPeriod'" style="text-align:center">
               <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
             </ion-col>
+            <ion-col>
+              <ion-item>
+                <ion-label translate>Edge.History.Cumulative
+                  <ion-checkbox [checked]="cumulative" (change)="cumulative = !cumulative"></ion-checkbox>
+                </ion-label>
+              </ion-item>
+            </ion-col>
           </ion-row>
         </ion-grid>
       </ion-card>
@@ -33,7 +40,8 @@
         <ion-item>
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
           <ion-label>
-            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}</ion-card-title>
+            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}<span
+                *ngIf="cumulative">, {{ 'Edge.History.Cumulative' | translate }}</span></ion-card-title>
           </ion-label>
         </ion-item>
 
@@ -47,7 +55,8 @@
             </ng-template>
           </div>
           <div [style.height]="energyChartHeight">
-            <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></energychart>
+            <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"
+              [cumulative]="cumulative"></energychart>
           </div>
         </ion-card-content>
 

@@ -26,6 +26,7 @@ export class EnergyChartComponent implements OnChanges {
   @Input() private channels: DefaultTypes.ChannelAddresses;
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
+  @Input() private cumulative: boolean;
 
   @ViewChild('energyChart') private chart: BaseChartDirective;
 
@@ -99,7 +100,7 @@ export class EnergyChartComponent implements OnChanges {
       return;
     }
     this.loading = true;
-    this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
+    this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels, this.cumulative).then(historicData => {
       // prepare datas array and prefill with each device
 
       // prepare datasets and labels

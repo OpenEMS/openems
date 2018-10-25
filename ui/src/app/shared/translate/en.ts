@@ -104,7 +104,8 @@ export const TRANSLATION = {
             LastWeek: "Last week",
             LastMonth: "Last month",
             LastYear: "Last year",
-            Go: "Go!"
+            Go: "Go!",
+            Cumulative: "Cumulated data"
         },
         Config: {
             Index: {

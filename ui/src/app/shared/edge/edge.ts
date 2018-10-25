@@ -143,9 +143,9 @@ export class Edge {
    * Query data
    */
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  public historicDataQuery(fromDate: Date, toDate: Date, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
+  public historicDataQuery(fromDate: Date, toDate: Date, channels: DefaultTypes.ChannelAddresses, cumulative: boolean): Promise<DefaultTypes.HistoricData> {
     let timezone = new Date().getTimezoneOffset() * 60;
-    let replyStream = this.sendMessageWithReply(DefaultMessages.historicDataQuery(this.edgeId, fromDate, toDate, timezone, channels));
+    let replyStream = this.sendMessageWithReply(DefaultMessages.historicDataQuery(this.edgeId, fromDate, toDate, timezone, channels, cumulative));
     // wait for reply
     return new Promise((resolve, reject) => {
       replyStream.pipe(first()).subscribe(reply => {
