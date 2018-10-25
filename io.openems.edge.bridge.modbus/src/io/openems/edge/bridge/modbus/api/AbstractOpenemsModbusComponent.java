@@ -251,10 +251,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
 				this.channels.forEach((bitIndex, channel) -> {
-					if (value << ~bitIndex < 0) {
-						channel.setNextValue(true);
-					} else {
-						channel.setNextValue(false);
+					if (value != null && bitIndex != null && channel != null) {
+						if (value << ~bitIndex < 0) {
+							channel.setNextValue(true);
+						} else {
+							channel.setNextValue(false);
+						}
 					}
 				});
 			});
@@ -298,7 +300,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
 				this.channels.forEach((bitIndex, channel) -> {
-					channel.setNextValue(value << ~bitIndex < 0);
+					if (value != null && bitIndex != null && channel != null) {
+						channel.setNextValue(value << ~bitIndex < 0);
+					}
 				});
 			});
 		}

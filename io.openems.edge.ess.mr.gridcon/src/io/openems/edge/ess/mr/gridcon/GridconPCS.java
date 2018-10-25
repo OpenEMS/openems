@@ -890,7 +890,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern inside the
+	 * Creates a DoubleWordErrorCodeChannelMapper that can be used with builder pattern inside the
 	 * protocol definition.
 	 * 
 	 * @param element
@@ -1336,9 +1336,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						m(GridConChannelId.MIRROR_COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32882).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.MIRROR_COMMAND_CONTROL_PARAMETER_U0,
-								new FloatDoublewordElement(32884).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
+								new FloatDoublewordElement(32884).wordOrder(WordOrder.LSWMSW)),
 						m(GridConChannelId.MIRROR_COMMAND_CONTROL_PARAMETER_F0,
-								new FloatDoublewordElement(32886).wordOrder(WordOrder.LSWMSW)), // TODO Check word order
+								new FloatDoublewordElement(32886).wordOrder(WordOrder.LSWMSW)),
 						m(GridConChannelId.MIRROR_COMMAND_CONTROL_PARAMETER_Q_REF,
 								new FloatDoublewordElement(32888).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.MIRROR_COMMAND_CONTROL_PARAMETER_P_REFERENCE,
