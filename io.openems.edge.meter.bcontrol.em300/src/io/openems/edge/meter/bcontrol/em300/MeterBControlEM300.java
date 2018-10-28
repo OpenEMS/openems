@@ -20,9 +20,9 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -35,12 +35,11 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "io.openems.edge.meter.bcontrol.em300", //
+@Component(name = "Meter.BControl.EM300", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
 ) //
-
 public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
@@ -117,116 +116,94 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 		// Update values here?
 
 		return new ModbusProtocol(this, //
-				// Read active power +/-
 				new FC3ReadRegistersTask(0, Priority.HIGH, //
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_POS, new UnsignedDoublewordElement(0),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(2, Priority.HIGH, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_NEG, new UnsignedDoublewordElement(2),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-				// Read active power +/- L1-L3
-
-				), new FC3ReadRegistersTask(40, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(42, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(42),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-
-				new FC3ReadRegistersTask(80, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(82, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(82),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-
-				new FC3ReadRegistersTask(120, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(122, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(122),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
-
-				// Read reactive power +/-
-				), new FC3ReadRegistersTask(4, Priority.HIGH, //
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_POS, new UnsignedDoublewordElement(4),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(6, Priority.HIGH, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, new UnsignedDoublewordElement(6),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-				// Read reactive power +/- L1-L3
+						new DummyRegisterElement(8, 15), //
+						new DummyRegisterElement(16, 19), // Apparent Power
+						new DummyRegisterElement(20, 23), //
+						new DummyRegisterElement(24, 25), // Power Factor
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(26)),
+						new DummyRegisterElement(28, 39), //
 
-				), new FC3ReadRegistersTask(44, Priority.HIGH, //
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(42),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(44),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(46, Priority.HIGH, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(46),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-				new FC3ReadRegistersTask(84, Priority.HIGH, //
+						new DummyRegisterElement(48, 55), //
+						new DummyRegisterElement(56, 59), // Apparent Power L1
+
+						cm(new UnsignedDoublewordElement(60)) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build(), //
+
+						cm(new UnsignedDoublewordElement(62)) //
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.build(), //
+
+						new DummyRegisterElement(64, 65), // Power Factor L1
+						new DummyRegisterElement(66, 79), //
+
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(82),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(84),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(86, Priority.HIGH, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(86),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-				new FC3ReadRegistersTask(124, Priority.HIGH, //
+						new DummyRegisterElement(88, 95), //
+						new DummyRegisterElement(96, 99), // Apparent Power L2
+
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
+
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102)),
+
+						new DummyRegisterElement(104, 105), // Power Factor L2
+						new DummyRegisterElement(106, 119), //
+
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(122),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(124),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				new FC3ReadRegistersTask(126, Priority.HIGH, //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(126),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-				// Read Voltage L1-L3
+						new DummyRegisterElement(128, 135), //
+						new DummyRegisterElement(136, 139), // Apparent Power L3
 
-				), new FC3ReadRegistersTask(62, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62),
-								ElementToChannelConverter.SCALE_FACTOR_1)),
-				new FC3ReadRegistersTask(62, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(62),
-								ElementToChannelConverter.SCALE_FACTOR_1)),
-				new FC3ReadRegistersTask(102, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102),
-								ElementToChannelConverter.SCALE_FACTOR_1)),
-				new FC3ReadRegistersTask(142, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142),
-								ElementToChannelConverter.SCALE_FACTOR_1)
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
 
-				// Read Current L1-L3
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142)),
 
-				), new FC3ReadRegistersTask(60, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60),
-								ElementToChannelConverter.DIRECT_1_TO_1)),
-				new FC3ReadRegistersTask(60, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(60),
-								ElementToChannelConverter.DIRECT_1_TO_1)),
-				new FC3ReadRegistersTask(100, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100),
-								ElementToChannelConverter.DIRECT_1_TO_1)),
-				new FC3ReadRegistersTask(140, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140),
-								ElementToChannelConverter.DIRECT_1_TO_1)
+						new DummyRegisterElement(144, 145)), // Power Factor L3
 
-				// Read Frequency
-
-				), new FC3ReadRegistersTask(40085, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(40085),
-								ElementToChannelConverter.SCALE_FACTOR_1)
-
-				// Read Active Production Energy
-				), new FC3ReadRegistersTask(516, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
-								ElementToChannelConverter.SCALE_FACTOR_1)
-
-				// Read Active Consumption Energy
-
-				), new FC3ReadRegistersTask(512, Priority.HIGH, //
+				new FC3ReadRegistersTask(512, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
-								ElementToChannelConverter.SCALE_FACTOR_1)
-
-				));
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
+								ElementToChannelConverter.SCALE_FACTOR_1)));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////
