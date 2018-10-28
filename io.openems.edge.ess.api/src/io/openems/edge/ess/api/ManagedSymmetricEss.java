@@ -1,11 +1,17 @@
 package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -15,6 +21,8 @@ import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedSymmetricEss extends SymmetricEss {
+
+	public static final Logger log = LoggerFactory.getLogger(ManagedSymmetricEss.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -41,6 +49,29 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * </ul>
 		 */
 		ALLOWED_DISCHARGE_POWER(new Doc().unit(Unit.WATT)), //
+		/**
+		 * Sets a fixed Active Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_ACTIVE_POWER_EQUALS(new Doc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(channel -> { //
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+						try {
+							((ManagedSymmetricEss) channel.getComponent()).addPowerConstraintAndValidate(
+									"Channel SetActivePowerEquals", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, value);
+						} catch (PowerException e) {
+							log.error("Unable to set ActivePowerEquals: " + e.getMessage());
+						} //
+					});
+				})), //
 		/**
 		 * Holds settings of Active Power for debugging
 		 * 
@@ -78,6 +109,14 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, 100) //
+				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
+				.build();
 	}
 
 	/**
