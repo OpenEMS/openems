@@ -140,7 +140,7 @@ public interface OpenemsComponent {
 
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, 80) //
-				.record(0, ChannelId.STATE, ModbusType.UINT16) //
+				.channel(0, ChannelId.STATE, ModbusType.UINT16) //
 				.build();
 	}
 

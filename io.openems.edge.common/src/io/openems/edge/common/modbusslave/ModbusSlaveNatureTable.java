@@ -9,27 +9,63 @@ import io.openems.edge.common.channel.doc.ChannelId;
 public final class ModbusSlaveNatureTable {
 
 	public static class Builder {
-		private final int natureHash;
+		private final short natureHash;
 		private final int length;
-		private final List<ModbusChannelMap> maps = new ArrayList<>();
+		private final List<ModbusRecord> maps = new ArrayList<>();
+
+		private int nextOffset = 0;
 
 		public Builder(Class<?> nature, int length) {
-			this.natureHash = nature.getSimpleName().hashCode();
+			this.natureHash = (short) nature.getSimpleName().hashCode();
 			this.length = length;
 		}
 
-		public Builder record(int offset, ChannelId channelId, ModbusType type) {
-			// TODO validate that this 'offset' is not already used (e.g. by float32)
-			this.maps.add(new ModbusChannelMap(offset, channelId, type));
+		public Builder channel(int offset, ChannelId channelId, ModbusType type) {
+			this.add(new ModbusRecordChannel(offset, type, channelId));
 			return this;
+		}
+
+		public Builder uint16(int offset, short value) {
+			this.add(new ModbusRecordUint16(offset, value));
+			return this;
+		}
+
+		public Builder uint16Reserved(int offset) {
+			this.add(new ModbusRecordUint16Reserved(offset));
+			return this;
+		}
+
+		public Builder float32(int offset, float value) {
+			this.add(new ModbusRecordFloat32(offset, value));
+			return this;
+		}
+
+		public Builder float32Reserved(int offset) {
+			this.add(new ModbusRecordFloat32Reserved(offset));
+			return this;
+		}
+
+		public Builder string16(int offset, String value) {
+			this.add(new ModbusRecordString16(offset, value));
+			return this;
+		}
+
+		private void add(ModbusRecord record) throws IllegalArgumentException {
+			if (record.getOffset() != this.nextOffset) {
+				throw new IllegalArgumentException("Expected offset [" + this.nextOffset + "] but got ["
+						+ record.getOffset() + "] for Record [" + record + "]");
+			}
+			this.nextOffset += record.getType().getWords();
+			// TODO validate that this 'offset' is not already used (e.g. by float32)
+			this.maps.add(record);
 		}
 
 		public ModbusSlaveNatureTable build() {
 			Collections.sort(this.maps, (m1, m2) -> {
-				return Integer.compare(m1.offset, m2.offset);
+				return Integer.compare(m1.getOffset(), m2.getOffset());
 			});
 			return new ModbusSlaveNatureTable(natureHash, length,
-					this.maps.toArray(new ModbusChannelMap[this.maps.size()]));
+					this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
 	}
 
@@ -37,17 +73,17 @@ public final class ModbusSlaveNatureTable {
 		return new Builder(nature, length);
 	}
 
-	private final int natureHash;
+	private final short natureHash;
 	private final int length;
-	private final ModbusChannelMap[] modbusChannelMaps;
+	private final ModbusRecord[] modbusRecords;
 
-	private ModbusSlaveNatureTable(int natureHash, int length, ModbusChannelMap[] modbusChannelMaps) {
+	private ModbusSlaveNatureTable(short natureHash, int length, ModbusRecord[] modbusRecords) {
 		this.natureHash = natureHash;
 		this.length = length;
-		this.modbusChannelMaps = modbusChannelMaps;
+		this.modbusRecords = modbusRecords;
 	}
 
-	public int getNatureHash() {
+	public short getNatureHash() {
 		return natureHash;
 	}
 
@@ -55,7 +91,7 @@ public final class ModbusSlaveNatureTable {
 		return length;
 	}
 
-	public ModbusChannelMap[] getModbusChannelMaps() {
-		return modbusChannelMaps;
+	public ModbusRecord[] getModbusRecords() {
+		return modbusRecords;
 	}
 }

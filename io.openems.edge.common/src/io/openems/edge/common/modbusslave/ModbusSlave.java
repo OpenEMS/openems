@@ -1,6 +1,8 @@
 package io.openems.edge.common.modbusslave;
 
-public interface ModbusSlave {
+import io.openems.edge.common.component.OpenemsComponent;
+
+public interface ModbusSlave extends OpenemsComponent {
 
 	public ModbusSlaveTable getModbusSlaveTable();
 

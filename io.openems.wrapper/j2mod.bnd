@@ -17,7 +17,9 @@ Include-Resource: @j2mod-2.5.0.jar
 	com.ghgande.j2mod.modbus.io, \
 	com.ghgande.j2mod.modbus.net, \
 	com.ghgande.j2mod.modbus.util, \
-	com.ghgande.j2mod.modbus.msg
+	com.ghgande.j2mod.modbus.msg, \
+	com.ghgande.j2mod.modbus.slave
+
 -sources: false
 
 # TODO latest version of j2mod should soon support OSGi. https://github.com/steveohara/j2mod/pull/67
