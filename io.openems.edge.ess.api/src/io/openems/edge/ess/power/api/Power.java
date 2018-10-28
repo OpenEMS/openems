@@ -4,6 +4,8 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public interface Power {
 
+	public static Constraint[] NO_CONSTRAINTS = new Constraint[] {};
+
 	/**
 	 * Adds a Constraint.
 	 * 

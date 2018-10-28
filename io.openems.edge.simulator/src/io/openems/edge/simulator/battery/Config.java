@@ -19,12 +19,19 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int disChargeMaxCurrent();
 	
 	int chargeMaxCurrent();
-	
 	int soc() default 50;
 	
 	int soh() default 95;
 	
 	int temperature() default 30;
+
+	int capacityKWh() default 50;
+	
+	int voltage() default 700;
+
+	int minCellVoltage_mV() default 3300;
 	
 	String webconsole_configurationFactory_nameHint() default "BMS Simulated [{id}]";
+
+
 }

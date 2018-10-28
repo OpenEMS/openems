@@ -104,6 +104,36 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
+		
+		/**
+		 * Capacity of battery
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		CAPACITY_KWH(new Doc().type(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)),
+		
+		/**
+		 * Voltage of battery
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		
+		/**
+		 * Minimal cell voltage
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		MINIMAL_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
 		;
 
 		private final Doc doc;
@@ -197,5 +227,32 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Boolean> getReadyForWorking() {
 		return this.channel(ChannelId.READY_FOR_WORKING);
+	}
+	
+	/**
+	 * Gets the capacity of this battery
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getCapacity() {
+		return this.channel(ChannelId.CAPACITY_KWH);
+	}
+	
+	/**
+	 * Gets the total voltage of this battery system
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getVoltage() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+	
+	/**
+	 * Gets the minimal cell voltage of this battery
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMinimalCellVoltage() {
+		return this.channel(ChannelId.MINIMAL_CELL_VOLTAGE);
 	}
 }

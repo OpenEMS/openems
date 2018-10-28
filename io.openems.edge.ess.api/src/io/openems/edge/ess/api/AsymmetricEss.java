@@ -6,6 +6,8 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface AsymmetricEss extends SymmetricEss {
@@ -112,6 +114,14 @@ public interface AsymmetricEss extends SymmetricEss {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(AsymmetricEss.class, 100) //
+				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.build();
 	}
 
 	/**

@@ -30,7 +30,6 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -39,6 +38,7 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -60,10 +60,12 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	
 	private static final int SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS = 3;
 	private static final int MAX_TIME_FOR_INITIALIZATION_IN_SECONDS = 30;
+	public static final Integer CAPACITY_KWH = 50;
 	
 	private final Logger log = LoggerFactory.getLogger(SoltaroRack.class);
 	
 	private String modbusBridgeId;
+	private BatteryState batteryState;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -87,7 +89,8 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		
-		initializeContactControlCallback();
+		this.batteryState = config.batteryState();
+		initializeCallbacks();
 	}
 	
 	@Deactivate
@@ -95,7 +98,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		super.deactivate();
 	}
 
-	private void initializeContactControlCallback() {
+	private void initializeCallbacks() {
 		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange(value -> {
 			Optional<Enum<?>> ccOpt = value.asEnumOptional();
 			if (!ccOpt.isPresent()) {
@@ -122,6 +125,26 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				break;			
 			}			
 		});
+		
+		this.channel(ChannelId.CLUSTER_1_VOLTAGE).onChange(value -> {
+			@SuppressWarnings("unchecked")
+			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			if (!vOpt.isPresent()) {
+				return;
+			}
+			int voltage_millivolt = vOpt.get();
+			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_millivolt * 1000);
+		});
+		
+		this.channel(ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
+			@SuppressWarnings("unchecked")
+			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			if (!vOpt.isPresent()) {
+				return;
+			}
+			int voltage_millivolt = vOpt.get();
+			this.channel(Battery.ChannelId.MINIMAL_CELL_VOLTAGE).setNextValue(voltage_millivolt);
+		});
 	}
 	
 	@Override
@@ -132,18 +155,33 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			checkSystemState();
+			handleBatteryState();			
 			break;
 		}
 	}
 
-	private void checkSystemState() {
+	private void handleBatteryState() {
 		// Avoid that commands are written to fast to the battery rack
 		if (lastCommandSent.plusSeconds(SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS).isAfter(LocalDateTime.now())) {
 			return;
 		} else {
 			lastCommandSent = LocalDateTime.now();
 		}
+		
+		switch (this.batteryState) {
+		case DEFAULT:
+			checkSystemState();
+			break;
+		case OFF:
+			stopSystem();
+			break;
+		case ON:
+			startSystem();
+			break;
+		}
+	}
+
+	private void checkSystemState() {
 		
 		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 

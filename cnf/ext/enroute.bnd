@@ -25,17 +25,22 @@ test-cases: 			${classes;NAMED;*Test}
 		pom=${build}/pom.xml; \
 		name=Central; \
 		location=${build}/cache/enroute-pom.xml
-	        
+
+# Restlet requires its own Maven repository
+-plugin.5.Restlet:  \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		releaseUrls=http://maven.restlet.com; \
+		pom=${build}/pom-restlet.xml; \
+		name=Restlet; \
+		location=${build}/cache/enroute-restlet.xml
+
 -plugin.6.Local: \
         aQute.bnd.deployer.repository.LocalIndexedRepo; \
             name                =       Local ; \
             pretty              =       true ; \
             local               =       ${build}/local
 
-	        
-
 -plugin.9.Release: \
-\
         aQute.bnd.deployer.repository.LocalIndexedRepo; \
             name                =       Release ; \
             pretty              =       true ; \

@@ -56,7 +56,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 				}
 			}
 		} else {
-			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!");
+			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!"); // TODO is this not possible for DoubleWords?
 		}
 	}
 

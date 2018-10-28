@@ -1,7 +1,5 @@
 package io.openems.backend.timedata.influx;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -22,45 +20,32 @@ public class Utils {
 	 * @param value
 	 * @return
 	 */
-	protected static Optional<Object> parseValue(String channel, Object value) {
-		if (value == null) {
+	protected static Optional<Object> parseValue(String channel, JsonElement jValueElement) {
+		if (jValueElement == null) {
 			return Optional.empty();
 		}
-		// convert JsonElement
-		if (value instanceof JsonElement) {
-			JsonElement jValueElement = (JsonElement) value;
-			if (jValueElement.isJsonPrimitive()) {
-				JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
-				if (jValue.isNumber()) {
+		if (jValueElement.isJsonPrimitive()) {
+			JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
+			if (jValue.isNumber()) {
+				try {
+					return Optional.of(Long.parseLong(jValue.toString()));
+				} catch (NumberFormatException e1) {
 					try {
-						// Avoid GSONs LazilyParsedNumber
-						value = NumberFormat.getInstance().parse(jValue.toString());
-					} catch (ParseException e) {
-						log.error("Unable to parse Number: " + e.getMessage());
-						value = jValue.getAsNumber();
+						return Optional.of(Double.parseDouble(jValue.toString()));
+					} catch (NumberFormatException e2) {
+						log.error("Unable to parse Number: " + e2.getMessage());
+						return Optional.of(jValue.getAsNumber());
 					}
-				} else if (jValue.isBoolean()) {
-					value = jValue.getAsBoolean();
-				} else if (jValue.isString()) {
-					value = jValue.getAsString();
 				}
-			}
-		}
-		if (value instanceof Number) {
-			Number numberValue = (Number) value;
-			if (numberValue instanceof Integer) {
-				return Optional.of(numberValue.intValue());
-			} else if (numberValue instanceof Double) {
-				return Optional.of(numberValue.doubleValue());
+			} else if (jValue.isBoolean()) {
+				return Optional.of(jValue.getAsBoolean());
+			} else if (jValue.isString()) {
+				return Optional.of(jValue.getAsString());
 			} else {
-				return Optional.of(numberValue);
+				return Optional.of(jValueElement.toString());
 			}
-		} else if (value instanceof Boolean) {
-			return Optional.of((Boolean) value);
-		} else if (value instanceof String) {
-			return Optional.of((String) value);
+		} else {
+			return Optional.of(jValueElement.toString());
 		}
-		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
-		return Optional.empty();
 	}
 }

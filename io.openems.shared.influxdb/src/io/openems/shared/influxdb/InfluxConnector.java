@@ -61,6 +61,7 @@ public class InfluxConnector {
 			try {
 				InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
 						this.password);
+				// TODO try to create database
 				influxDB.setDatabase(this.database);
 				influxDB.enableBatch(BatchOptions.DEFAULTS);
 				this._influxDB = influxDB;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -39,21 +39,28 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class Solver {
 
+	private final static double LEARNING_RATE = 0.1;
+
 	private final Logger log = LoggerFactory.getLogger(Solver.class);
 
 	private final Data data;
 
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
-	private Consumer<Boolean> onSolved = (wasSolved) -> {
+	private BiConsumer<Boolean, Integer> onSolved = (wasSolved, duration) -> {
 	};
 
 	public Solver(Data data) {
 		this.data = data;
-
 	}
 
-	public void onSolved(Consumer<Boolean> onSolved) {
+	/**
+	 * Adds a callback for onSolved event, providing
+	 * 
+	 * @param boolean: was the problem solved?
+	 * @param long: duration for solving in milliseconds
+	 */
+	public void onSolved(BiConsumer<Boolean, Integer> onSolved) {
 		this.onSolved = onSolved;
 	}
 
@@ -88,9 +95,15 @@ public class Solver {
 		}
 	}
 
-	public int getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
+	public double getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
 		// prepare objective function
-		int index = this.data.getCoefficient(ess, phase, pwr).getIndex();
+		int index;
+		try {
+			index = this.data.getCoefficient(ess, phase, pwr).getIndex();
+		} catch (IllegalArgumentException e) {
+			log.error(e.getMessage());
+			return 0d;
+		}
 		double[] cos = Solver.getEmptyCoefficients(data);
 		cos[index] = 1;
 		LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
@@ -107,8 +120,7 @@ public class Solver {
 					constraints, //
 					goal, //
 					PivotSelectionRule.BLAND);
-			double result = solution.getPoint()[index];
-			return (int) result;
+			return solution.getPoint()[index];
 		} catch (UnboundedSolutionException e) {
 			if (this.debugMode) {
 				PowerComponent.debugLogConstraints(this.log, "No Constraints for " + goal.name() + " Active Power.",
@@ -135,86 +147,270 @@ public class Solver {
 	}
 
 	public void solve() {
+		// measure duration
+		long duration = System.nanoTime();
+
 		// No Inverters -> nothing to do
 		if (this.data.getInverters().isEmpty()) {
+			this.onSolved.accept(true, 0);
 			return;
 		}
-
-		// Add Strict constraints if required
-		// this.addConstraintsForNotStrictlyDefinedCoefficients();
+		List<Inverter> allInverters = data.getInverters();
 
 		// Check if the Problem is solvable at all.
 		List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
 
-		Map<Inverter, PowerTuple> finalSolution;
-		List<Inverter> allInverters = data.getInverters();
-		try {
-			PointValuePair solution = this.solveWithConstraints(allConstraints);
-			// announce success
-			this.onSolved.accept(true);
+		// Add Strict constraints if required
+		this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
 
-			// Evaluates whether it is a CHARGE or DISCHARGE problem.
-			TargetDirection targetDirection = this.getTargetDirection();
+		// Print log with currently active EQUALS != 0 Constraints
+		if (this.debugMode) {
+			log.info("Currently active EQUALS contraints");
+			for (Constraint c : allConstraints) {
+				if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
+					log.info("- " + c.toString());
+				}
+			}
+		}
+
+		// Evaluates whether it is a CHARGE or DISCHARGE problem.
+		TargetDirection targetDirection = this.getTargetDirection();
+
+		PointValuePair solution = null;
+		try {
+			solution = this.solveWithConstraints(allConstraints);
 
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
 			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
 
 			// Applies weights to move slowly towards only using Target-Inverters.
-			solution = this.applyWeights(targetDirection, allInverters, targetInverters, solution, allConstraints);
+			PointValuePair nextSolution = this.optimizeByMovingTowardsTarget(targetDirection, allInverters,
+					targetInverters, allConstraints);
+			if (nextSolution != null) {
+				solution = nextSolution;
 
-			// Apply precisions of Inverters
-			finalSolution = this.applyInverterPrecisions(allInverters, solution, targetDirection);
-
+			} else {
+				nextSolution = optimizeByKeepingTargetDirectionAndMaximizingInOrder(allInverters, targetInverters,
+						allConstraints, targetDirection);
+				if (nextSolution != null) {
+					solution = nextSolution;
+				}
+			}
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-			// announce failure
-			this.onSolved.accept(false);
-
 			if (this.debugMode) {
 				PowerComponent.debugLogConstraints(this.log,
 						"[" + e.getMessage() + "] Unable to solve under the following constraints:", allConstraints);
 			} else {
 				this.log.warn("Power-Solver: Unable to solve under constraints!");
 			}
-
-			// get Zero-Solution as fallback
-			finalSolution = this.getZeroSolution(allInverters);
 		}
 
+		// finish time measure (in milliseconds)
+		duration = (System.nanoTime() - duration) / 1_000_000;
+
 		// Apply final Solution to Inverters
-		this.applySolution(finalSolution);
+		if (solution != null) {
+			// announce success
+			this.onSolved.accept(true, (int) duration);
+
+			this.applySolution(this.applyInverterPrecisions(allInverters, solution, targetDirection));
+		} else {
+			// announce failure
+			this.onSolved.accept(false, (int) duration);
+
+			this.applySolution(this.getZeroSolution(allInverters));
+		}
 	}
 
 	/**
-	 * TODO Adds Constraints for not strictly defined Coefficients, e.g. if only a P <= X
+	 * Adds Constraints for not strictly defined Coefficients, e.g. if only a P <= X
 	 * is defined, but no P = X.
+	 * 
+	 * @param allInverters
 	 */
-//	private void addConstraintsForNotStrictlyDefinedCoefficients() {
-//		int maxP = this.getActivePowerExtrema(GoalType.MAXIMIZE);
-//		int minP = this.getActivePowerExtrema(GoalType.MINIMIZE);
-//		if (minP == maxP) {
-//			// Already strictly defined.
-//			return;
+	private void addConstraintsForNotStrictlyDefinedCoefficients(List<Inverter> allInverters,
+			List<Constraint> allConstraints) {
+		LinearConstraintSet constraints = new LinearConstraintSet(
+				Solver.convertToLinearConstraints(this.data, allConstraints));
+
+		for (Pwr pwr : Pwr.values()) {
+			// prepare objective function
+			double[] cos = Solver.getEmptyCoefficients(data);
+			for (Inverter inv : allInverters) {
+				Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+				cos[c.getIndex()] = 1;
+			}
+			LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
+
+			// get Max value over all relevant Coefficients
+			double max;
+			try {
+				SimplexSolver solver = new SimplexSolver();
+				PointValuePair solution = solver.optimize( //
+						objectiveFunction, //
+						constraints, //
+						GoalType.MAXIMIZE, //
+						PivotSelectionRule.BLAND);
+				max = 0d;
+				for (Inverter inv : allInverters) {
+					Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+					max += solution.getPoint()[c.getIndex()];
+				}
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+				max = Double.MAX_VALUE;
+			}
+			// get Min value over all relevant Coefficients
+			double min;
+			try {
+				SimplexSolver solver = new SimplexSolver();
+				PointValuePair solution = solver.optimize( //
+						objectiveFunction, //
+						constraints, //
+						GoalType.MINIMIZE, //
+						PivotSelectionRule.BLAND);
+				min = 0d;
+				for (Inverter inv : allInverters) {
+					Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+					min += solution.getPoint()[c.getIndex()];
+				}
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+				min = Double.MIN_VALUE;
+			}
+
+			if (min == max) {
+				// Already strictly defined.
+				continue;
+			}
+
+			// find the best value to set for EQUALS constraint
+			double target;
+			if (0 < max && 0 > min) {
+				// set to zero
+				target = 0;
+			} else if (Math.abs(max) < Math.abs(min)) {
+				// set to smallest distance from zero -> max
+				target = max;
+			} else {
+				// set to smallest distance from zero -> min
+				target = min;
+			}
+
+			LinearCoefficient[] lcs = new LinearCoefficient[allInverters.size()];
+			for (int i = 0; i < allInverters.size(); i++) {
+				Inverter inv = allInverters.get(i);
+				Coefficient c = this.data.getCoefficient(inv.getEss(), inv.getPhase(), pwr);
+				lcs[i] = new LinearCoefficient(c, 1);
+			}
+			Constraint c = new Constraint("Strictly define " + pwr.name(), lcs, Relationship.EQUALS, target);
+			allConstraints.add(c);
+		}
+	}
+
+	/**
+	 * Tries to distribute power equally between inverters
+	 * 
+	 * @param targetInverters
+	 * @param allConstraints
+	 * @return
+	 */
+//	private PointValuePair optimizeByDistributingEqually(List<Inverter> targetInverters,
+//			List<Constraint> allConstraints) {
+//
+//		double[] weights = new double[targetInverters.size()];
+//		for (int invIndex = 1; invIndex < targetInverters.size(); invIndex++) {
+//			for (double weight = 1; weight > 0; weight -= LEARNING_RATE) {
+//			}
 //		}
 //
-//		int targetP;
-//		if (0 < maxP && 0 > minP) {
-//			targetP = 0;
-//		} else if (Math.abs(maxP) < Math.abs(minP)) {
-//			targetP = maxP;
-//		} else {
-//			targetP = minP;
+//		List<Constraint> constraints = new ArrayList<>(allConstraints);
+//		for (int i = 1; i < targetInverters.size(); i++) {
+//			Inverter inv0 = targetInverters.get(0);
+//			Inverter inv1 = targetInverters.get(i);
+//			constraints.add(new Constraint(inv0.toString() + "/" + inv1.toString() + ": distribute equally",
+//					new LinearCoefficient[] { //
+//							new LinearCoefficient(this.data.getCoefficient(inv0.getEss(), inv0.getPhase(), Pwr.ACTIVE),
+//									1), //
+//							new LinearCoefficient(this.data.getCoefficient(inv1.getEss(), inv1.getPhase(), Pwr.ACTIVE),
+//									1) //
+//					}, Relationship.EQUALS, 0));
 //		}
-//		List<LinearCoefficient> cos = new ArrayList<>();
-//		this.data.getCoefficients().getAll().forEach(c -> {
-//			if (!(c.getEss() instanceof MetaEss) // no MetaEss
-//					&& c.getPhase() != Phase.ALL // only ALL phase
-//					&& c.getPwr() == Pwr.ACTIVE) { // only ACTIVE power
-//				cos.add(new LinearCoefficient(c, 1));
-//			}
-//		});
-//		this.data.addConstraint(new Constraint("Strictly define Active Power", cos, Relationship.EQUALS, targetP));
+//
+//		try {
+//			return this.solveWithConstraints(constraints);
+//		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+//			log.warn("Unable to solve with optimizeByDistributingEqually()");
+//			return null;
+//		}
 //	}
+
+	/**
+	 * Tries to keep all Target Inverters in the right TargetDirection; then
+	 * maximizes them in order
+	 * 
+	 * @param targetInverters
+	 * @param allConstraints
+	 * @return
+	 */
+	private PointValuePair optimizeByKeepingTargetDirectionAndMaximizingInOrder(List<Inverter> allInverters,
+			List<Inverter> targetInverters, List<Constraint> allConstraints, TargetDirection targetDirection) {
+		PointValuePair result = null;
+		List<Constraint> constraints = new ArrayList<>(allConstraints);
+
+		// Add Zero-Constraint for all Inverters that are not Target
+		for (Inverter inv : allInverters) {
+			if (!targetInverters.contains(inv)) {
+				constraints.add(this.data.createSimpleConstraint(inv.toString() + ": is not a target inverter",
+						inv.getEss(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0));
+				constraints.add(this.data.createSimpleConstraint(inv.toString() + ": is not a target inverter",
+						inv.getEss(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, 0));
+			}
+		}
+
+		for (Inverter inv : targetInverters) {
+			// Create Constraint to force Ess positive/negative according to targetDirection
+			Relationship relationship;
+			if (targetDirection == TargetDirection.CHARGE) {
+				relationship = Relationship.LESS_OR_EQUALS;
+			} else {
+				relationship = Relationship.GREATER_OR_EQUALS;
+			}
+			Constraint c = this.data.createSimpleConstraint(inv.toString() + ": Force " + targetDirection.name(),
+					inv.getEss(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
+			constraints.add(c);
+			// Try to solve with Constraint
+			try {
+				result = this.solveWithConstraints(constraints);
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+				// If solving fails: remove the Constraints
+				constraints.remove(c);
+			}
+		}
+
+		// Try maximizing all inverters in order in target direction
+		for (Inverter inv : targetInverters) {
+			GoalType goal;
+			if (targetDirection == TargetDirection.CHARGE) {
+				goal = GoalType.MINIMIZE;
+			} else {
+				goal = GoalType.MAXIMIZE;
+			}
+			double target = this.getActivePowerExtrema(inv.getEss(), inv.getPhase(), Pwr.ACTIVE, goal);
+			Constraint c = this.data.createSimpleConstraint(inv.toString() + ": Set " + goal.name() + " value",
+					inv.getEss(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, target);
+			constraints.add(c);
+
+			// Try to solve with Constraint
+			try {
+				result = this.solveWithConstraints(constraints);
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+				// If solving fails: remove the Constraints
+				constraints.remove(c);
+			}
+		}
+
+		return result;
+	}
 
 	/**
 	 * Tries to adjust the weights used in last applyPower() towards the target
@@ -228,8 +424,8 @@ public class Solver {
 	 * @param allConstraints
 	 * @return
 	 */
-	private PointValuePair applyWeights(TargetDirection targetDirection, List<Inverter> allInverters,
-			List<Inverter> targetInverters, PointValuePair existingSolution, List<Constraint> allConstraints) {
+	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
+			List<Inverter> targetInverters, List<Constraint> allConstraints) {
 		// find weight with max distance from zero
 		int maxDistance = 0;
 		for (Inverter inverter : allInverters) {
@@ -305,7 +501,7 @@ public class Solver {
 
 			// no inverters left? -> nothing to optimize
 			if (inverters.isEmpty()) {
-				return existingSolution;
+				return null;
 			}
 
 			// Create weighted Constraint between first inverter and every other inverter
@@ -325,7 +521,8 @@ public class Solver {
 			}
 
 			try {
-				return this.solveWithConstraints(constraints);
+				PointValuePair solution = this.solveWithConstraints(constraints);
+				return solution;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// log.warn("[" + Math.round(i / LEARNING_RATE) + "] Unable to solve with next
 				// weights. Next try!");
@@ -340,10 +537,8 @@ public class Solver {
 		// TODO if we reached here, we should try to approach existingWeights in the
 		// same way as above. This could still improve existingSolution.
 
-		return existingSolution;
+		return null;
 	}
-
-	private final static double LEARNING_RATE = 0.1;
 
 	/**
 	 * Rounds each solution value to the Inverter precision; following this logic:
@@ -408,6 +603,9 @@ public class Solver {
 		return result;
 	}
 
+	private TargetDirection activeTargetDirection = null;
+	private int targetDirectionChangedSince = 0;
+
 	/**
 	 * Finds the target Inverters, i.e. the Inverters that are minimally required to
 	 * fulfill all Constraints.
@@ -422,11 +620,26 @@ public class Solver {
 	private List<Inverter> getTargetInverters(List<Inverter> allInverters, TargetDirection targetDirection) {
 		List<Inverter> disabledInverters = new ArrayList<>();
 
+		// Change target direction only once in a while
+		if (this.activeTargetDirection == null || targetDirectionChangedSince > 100) {
+			if (this.debugMode) {
+				log.info("Change target direction from [" + this.activeTargetDirection + "] to [" + targetDirection
+						+ "] after [" + targetDirectionChangedSince + "]");
+			}
+			this.activeTargetDirection = targetDirection;
+		}
+		if (this.activeTargetDirection != targetDirection) {
+			this.targetDirectionChangedSince++;
+		} else {
+			this.targetDirectionChangedSince = 0;
+		}
+
 		// For CHARGE take list as it is; for DISCHARGE reverse it. This prefers
 		// high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight
 		// inverters (e.g. low state-of-charge) on CHARGE.
 		List<Inverter> allInvertersTargetDirection;
-		if (targetDirection == TargetDirection.DISCHARGE) {
+		// TODO disabled for now
+		if (this.activeTargetDirection == TargetDirection.DISCHARGE) {
 			allInvertersTargetDirection = Lists.reverse(allInverters);
 		} else {
 			allInvertersTargetDirection = allInverters;
@@ -536,6 +749,17 @@ public class Solver {
 	 * @param finalSolution
 	 */
 	private void applySolution(Map<Inverter, PowerTuple> finalSolution) {
+		// Info-Log
+		StringBuilder b = new StringBuilder("Apply Power: ");
+		List<Inverter> inverters = new ArrayList<>(finalSolution.keySet());
+		inverters.sort((i1, i2) -> {
+			return i1.toString().compareTo(i2.toString());
+		});
+		for (Inverter inv : inverters) {
+			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
+		}
+		log.info(b.toString());
+
 		// store last value inside Inverter
 		finalSolution.forEach((inv, powerTuple) -> {
 			inv.storeLastPower(powerTuple.getActivePower(), powerTuple.getReactivePower());
@@ -682,5 +906,4 @@ public class Solver {
 	protected void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
 	}
-
 }
