@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -84,7 +85,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws ModbusException {
+	void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
 		// update filter for 'components'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Component",
 				config.component_ids())) {
@@ -115,9 +116,13 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 					config.maxConcurrentConnections());
 			slave.addProcessImage(UNIT_ID, this.processImage);
 			slave.open();
+			String error = slave.getError();
+			if (error != null) {
+				throw new OpenemsException(error);
+			}
 			log.info("Modbus/TCP Api started on port [" + config.port() + "] with UnitId [" + ModbusTcpApi.UNIT_ID
 					+ "].");
-		} catch (ModbusException e) {
+		} catch (ModbusException | OpenemsException e) {
 			this.logError(this.log,
 					"Unable to start Modbus/TCP Api on port [" + config.port() + "]: " + e.getMessage());
 			throw e;
