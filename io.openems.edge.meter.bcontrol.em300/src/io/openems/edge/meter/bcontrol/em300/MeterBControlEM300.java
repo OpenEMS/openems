@@ -44,8 +44,6 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
-	private int counter = 0;
-
 	private MeterType meterType = MeterType.PRODUCTION;
 
 	@Reference
@@ -78,43 +76,22 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_L1_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_L1_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_L2_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_L2_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_L3_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		ACTIVE_POWER_L3_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_L1_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_L1_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_L2_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_L2_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
 		REACTIVE_POWER_L3_POS(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L3_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		VOLTAGE_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
-		VOLTAGE_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
-		VOLTAGE_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
-		CURRENT_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
-		CURRENT_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
-		CURRENT_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
-		ACTIVE_CONSUMPTION_ENERGY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		ACTIVE_PRODUCTION_ENERGY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
-		FREQUENCY(new Doc().type(OpenemsType.INTEGER).unit(Unit.HERTZ)),
-		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		MIN_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
+		REACTIVE_POWER_L3_NEG(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE));
 
 		private final Doc doc;
 
@@ -205,31 +182,31 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 				// Read Voltage L1-L3
 
 				), new FC3ReadRegistersTask(62, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62),
 								ElementToChannelConverter.SCALE_FACTOR_1)),
 				new FC3ReadRegistersTask(62, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.VOLTAGE, new UnsignedDoublewordElement(62),
+						m(SymmetricMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(62),
 								ElementToChannelConverter.SCALE_FACTOR_1)),
 				new FC3ReadRegistersTask(102, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102),
 								ElementToChannelConverter.SCALE_FACTOR_1)),
 				new FC3ReadRegistersTask(142, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142),
 								ElementToChannelConverter.SCALE_FACTOR_1)
 
 				// Read Current L1-L3
 
 				), new FC3ReadRegistersTask(60, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60),
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60),
 								ElementToChannelConverter.DIRECT_1_TO_1)),
 				new FC3ReadRegistersTask(60, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.CURRENT, new UnsignedDoublewordElement(60),
+						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(60),
 								ElementToChannelConverter.DIRECT_1_TO_1)),
 				new FC3ReadRegistersTask(100, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100),
 								ElementToChannelConverter.DIRECT_1_TO_1)),
 				new FC3ReadRegistersTask(140, Priority.HIGH, //
-						m(MeterBControlEM300.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140),
 								ElementToChannelConverter.DIRECT_1_TO_1)
 
 				// Read Frequency
@@ -255,10 +232,6 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	///////////////////////////////////////////////////////////////////////////////////////
 	// Channel get methods
 	///////////////////////////////////////////////////////////
-
-	Channel<Integer> getCurrent() {
-		return this.channel(ChannelId.CURRENT);
-	}
 
 	Channel<Integer> getActivePowerPos() {
 		return this.channel(ChannelId.ACTIVE_POWER_POS);
@@ -322,30 +295,6 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 
 	Channel<Integer> getReactivePowerL3Neg() {
 		return this.channel(ChannelId.REACTIVE_POWER_L3_NEG);
-	}
-
-	Channel<Integer> getCurrentL1() {
-		return this.channel(ChannelId.CURRENT_L1);
-	}
-
-	Channel<Integer> getCurrentL2() {
-		return this.channel(ChannelId.CURRENT_L2);
-	}
-
-	Channel<Integer> getCurrentL3() {
-		return this.channel(ChannelId.CURRENT_L3);
-	}
-
-	Channel<Integer> getVoltageL1() {
-		return this.channel(ChannelId.VOLTAGE_L1);
-	}
-
-	Channel<Integer> getVoltageL2() {
-		return this.channel(ChannelId.VOLTAGE_L2);
-	}
-
-	Channel<Integer> getVoltageL3() {
-		return this.channel(ChannelId.VOLTAGE_L3);
 	}
 
 	@Override
