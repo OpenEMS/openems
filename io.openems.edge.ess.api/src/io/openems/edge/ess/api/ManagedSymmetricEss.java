@@ -113,8 +113,9 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
 		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, 100) //
-				.record(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
-				.record(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
+				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
 				.build();
 	}
 

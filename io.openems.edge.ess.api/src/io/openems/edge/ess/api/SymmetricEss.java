@@ -144,8 +144,8 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, 100) //
-				.record(0, ChannelId.SOC, ModbusType.UINT16) //
-				.record(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
+				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
+				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
 				.build();
 	}
 

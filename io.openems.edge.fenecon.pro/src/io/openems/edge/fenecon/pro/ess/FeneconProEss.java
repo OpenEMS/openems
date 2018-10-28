@@ -847,7 +847,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable() {
-		return new ModbusSlaveTable(this.id(), //
+		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(), //
 				SymmetricEss.getModbusSlaveNatureTable(), //
 				AsymmetricEss.getModbusSlaveNatureTable(), //

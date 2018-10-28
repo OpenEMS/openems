@@ -118,9 +118,9 @@ public interface AsymmetricEss extends SymmetricEss {
 
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
 		return ModbusSlaveNatureTable.of(AsymmetricEss.class, 100) //
-				.record(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
-				.record(2, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
-				.record(4, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.build();
 	}
 
