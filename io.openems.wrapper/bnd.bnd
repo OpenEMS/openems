@@ -1,6 +1,5 @@
 -sub: *.bnd
 -buildpath: \
-	com.ghgande:j2mod,\
 	com.squareup.retrofit2:retrofit,\
 	com.squareup.retrofit2:converter-moshi,\
 	info.faljse:SDNotify,\

@@ -32,6 +32,9 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -46,8 +49,8 @@ import io.openems.edge.ess.power.api.Power;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 
-public class FeneconProEss extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, AsymmetricEss, ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent {
+public class FeneconProEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
+		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
 
@@ -840,6 +843,18 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 
 	private IntegerWriteChannel getSetReactivePowerL3Channel() {
 		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				AsymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(FeneconProEss.class, 300) //
+						.build());
 	}
 
 }
