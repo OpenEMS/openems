@@ -5,13 +5,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-
-@ObjectClassDefinition(
+@ObjectClassDefinition( //
 		name = "Meter B-Control EM300", //
 		description = "Implements the B-Control EM300 meter.")
-
 @interface Config {
-	
 	String service_pid();
 
 	String id() default "meter0";
@@ -20,7 +17,7 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
-	
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id();
 
@@ -37,6 +34,4 @@ import io.openems.edge.meter.api.MeterType;
 	int maxActivePower();
 
 	String webconsole_configurationFactory_nameHint() default "Meter B-Control EM300 [{id}]";
-
-
 }
