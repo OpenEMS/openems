@@ -33,11 +33,6 @@ public class MyProcessImage implements ProcessImage {
 	}
 
 	@Override
-	public int getUnitID() {
-		return ModbusTcpApi.UNIT_ID;
-	}
-
-	@Override
 	public synchronized InputRegister[] getInputRegisterRange(int offset, int count) throws MyIllegalAddressException {
 		Register[] registers = this.getRegisterRange(offset, count);
 		Register[] result = new Register[registers.length];

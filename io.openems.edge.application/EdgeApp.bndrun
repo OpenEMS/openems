@@ -124,7 +124,6 @@ JPM-Command:				openems-edge
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
-	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
 	io.openems.wrapper.msgpack;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
@@ -132,6 +131,7 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\
 	com.fazecast.jSerialComm;version='[2.2.0,2.2.1)',\
+	com.ghgande.j2mod;version=latest,\
 	json;version='[20160212.0.0,20160212.0.1)',\
 	org.apache.commons.math3;version='[3.6.0,4.0.0)',\
 	org.apache.commons.fileupload;version='[1.3.2,1.3.3)',\
