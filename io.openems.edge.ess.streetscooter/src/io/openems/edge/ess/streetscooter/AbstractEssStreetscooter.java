@@ -19,6 +19,7 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -280,7 +281,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		INVERTER_V_DC_1(new Doc().unit(Unit.VOLT)), //
 		INVERTER_V_DC_2(new Doc().unit(Unit.VOLT)), //
 		INVERTER_CONNECTED(new Doc().unit(Unit.ON_OFF)),
-		SYSTEM_STATE_INFORMATION(new Doc().setWritable().unit(Unit.NONE));
+		SYSTEM_STATE_INFORMATION(new Doc().accessMode(AccessMode.READ_WRITE).unit(Unit.NONE));
 
 		private final Doc doc;
 
@@ -349,8 +350,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		}
 
 		/*
-		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok -> block any
-		 * charging/discharging
+		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok ->
+		 * block any charging/discharging
 		 */
 		if (this.readonly || invalidIcuStatusCounter > 10) {
 			return new Constraint[] { //
