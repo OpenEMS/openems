@@ -90,7 +90,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		this.modbusBridgeId = config.modbus_id();
 		
 		this.batteryState = config.batteryState();
-		initializeContactControlCallback();
+		initializeCallbacks();
 	}
 	
 	@Deactivate
@@ -98,7 +98,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		super.deactivate();
 	}
 
-	private void initializeContactControlCallback() {
+	private void initializeCallbacks() {
 		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange(value -> {
 			Optional<Enum<?>> ccOpt = value.asEnumOptional();
 			if (!ccOpt.isPresent()) {
@@ -124,6 +124,26 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 			default:
 				break;			
 			}			
+		});
+		
+		this.channel(ChannelId.CLUSTER_1_VOLTAGE).onChange(value -> {
+			@SuppressWarnings("unchecked")
+			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			if (!vOpt.isPresent()) {
+				return;
+			}
+			int voltage_millivolt = vOpt.get();
+			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_millivolt * 1000);
+		});
+		
+		this.channel(ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
+			@SuppressWarnings("unchecked")
+			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
+			if (!vOpt.isPresent()) {
+				return;
+			}
+			int voltage_millivolt = vOpt.get();
+			this.channel(Battery.ChannelId.MINIMAL_CELL_VOLTAGE).setNextValue(voltage_millivolt);
 		});
 	}
 	

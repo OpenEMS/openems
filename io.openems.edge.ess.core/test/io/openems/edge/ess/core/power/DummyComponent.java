@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -59,6 +60,8 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(this, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
 				}), Arrays.stream(ManagedAsymmetricEss.ChannelId.values()).map(channelId -> {

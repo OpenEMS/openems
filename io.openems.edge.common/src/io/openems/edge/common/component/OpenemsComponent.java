@@ -12,6 +12,8 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.channel.doc.Level;
 
 /**
@@ -134,6 +136,12 @@ public interface OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(OpenemsComponent.class, 80) //
+				.channel(0, ChannelId.STATE, ModbusType.UINT16) //
+				.build();
 	}
 
 	default StateCollectorChannel getState() {
