@@ -8,9 +8,10 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.Meta;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(Meta c) {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(MetaImpl c) {
 		return Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
