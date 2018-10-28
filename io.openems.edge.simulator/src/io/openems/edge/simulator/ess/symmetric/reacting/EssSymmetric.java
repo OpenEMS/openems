@@ -2,6 +2,7 @@ package io.openems.edge.simulator.ess.symmetric.reacting;
 
 import java.io.IOException;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -69,8 +70,17 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected SimulatorDatasource datasource;
 
+	@Reference
+	protected ConfigurationAdmin cm;
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
+		// update filter for 'datasource'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "datasource",
+				config.datasource_id())) {
+			return;
+		}
+
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 		this.getSoc().setNextValue(config.initialSoc());
 		this.soc = config.initialSoc();
