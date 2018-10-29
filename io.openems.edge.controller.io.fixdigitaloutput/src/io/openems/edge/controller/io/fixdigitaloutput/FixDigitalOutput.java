@@ -22,7 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.FixDitigalOutput", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "Controller.Io.FixDigitalOutput", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class FixDigitalOutput extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(FixDigitalOutput.class);

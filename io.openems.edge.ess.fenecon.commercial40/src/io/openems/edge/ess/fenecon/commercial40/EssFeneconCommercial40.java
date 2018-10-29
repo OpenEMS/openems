@@ -1,6 +1,7 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -125,25 +126,44 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
 					// delta of max 500
-					((IntegerReadChannel) channel).onChange(nextAllowedChargeValue -> {
-						int nextAllowedCharge = nextAllowedChargeValue.orElse(0);
-						IntegerReadChannel allowedChargeChannel = channel.getComponent()
+					((IntegerReadChannel) channel).onChange(originalValueChannel -> {
+						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						int currentAllowedCharge = allowedChargeChannel.value().orElse(0);
-						allowedChargeChannel.setNextValue(Math.max(nextAllowedCharge, currentAllowedCharge - 500));
+						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
+						int value;
+						if (!originalValue.isPresent() && !currentValue.isPresent()) {
+							value = 0;
+						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+							value = originalValue.get();
+						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+							value = currentValue.get();
+						} else {
+							value = Math.max(originalValue.get(), currentValue.get() - 500);
+						}
+						currentValueChannel.setNextValue(value);
 					});
 				})), //
 		ORIGINAL_ALLOWED_DISCHARGE_POWER(new Doc() //
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
-					((IntegerReadChannel) channel).onChange(nextAllowedDischargeValue -> {
-						int nextAllowedDischarge = nextAllowedDischargeValue.orElse(0);
-						IntegerReadChannel allowedDischargeChannel = channel.getComponent()
+					((IntegerReadChannel) channel).onChange(originalValueChannel -> {
+						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						int currentAllowedDischarge = allowedDischargeChannel.value().orElse(0);
-						allowedDischargeChannel
-								.setNextValue(Math.min(nextAllowedDischarge, currentAllowedDischarge + 500));
+						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
+						int value;
+						if (!originalValue.isPresent() && !currentValue.isPresent()) {
+							value = 0;
+						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+							value = originalValue.get();
+						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+							value = currentValue.get();
+						} else {
+							value = Math.min(originalValue.get(), currentValue.get() + 500);
+						}
+						currentValueChannel.setNextValue(value);
 					});
 				})), //
 		SYSTEM_STATE(new Doc() //
