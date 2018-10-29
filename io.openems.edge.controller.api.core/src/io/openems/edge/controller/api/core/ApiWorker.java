@@ -93,7 +93,7 @@ public class ApiWorker {
 				WriteObject writeObject = entry.getValue();
 				try {
 					log.info("Set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]");
-					writeObject.pushWrite(channel);
+					writeObject.setNextWriteValue(channel);
 					writeObject.notifySuccess();
 				} catch (OpenemsException e) {
 					log.error("Unable to set Channel [" + channel.address() + "] to Value ["
