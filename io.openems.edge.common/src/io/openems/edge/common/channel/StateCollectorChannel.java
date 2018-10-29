@@ -20,11 +20,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 
 	/**
-	 * Holds all Channels that are connected to and collected by this StateCollectorChannel
+	 * Holds all Channels that are connected to and collected by this
+	 * StateCollectorChannel
 	 */
-    private final Map<io.openems.edge.common.channel.doc.ChannelId, Channel<?>> channels = Collections
-            .synchronizedMap(new HashMap<>());
-	
+	private final Map<io.openems.edge.common.channel.doc.ChannelId, Channel<?>> channels = Collections
+			.synchronizedMap(new HashMap<>());
+
 	/**
 	 * Holds Channels that have an active (true) value.
 	 */
@@ -36,7 +37,7 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 
 	public void addChannel(StateChannel channel) {
 		this.channels.put(channel.channelId(), channel);
-		
+
 		channel.onChange(value -> {
 			/*
 			 * update activeStates
@@ -49,7 +50,7 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 				// Value is false or unknown -> remove from activeStates
 				this.activeStates.remove(channelLevel, channel.channelId());
 			}
-			
+
 			/*
 			 * Set my own next value according to activeStates.
 			 * 
@@ -64,17 +65,25 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 			this.setNextValue(nextValue);
 		});
 	}
-	
+
 	public String listStates() {
+		return this.listStates(Level.INFO);
+	}
+
+	public String listStates(Level fromLevel) {
 		StringBuilder result = new StringBuilder();
 		for (Level level : Level.values()) {
+			if (level.ordinal() < fromLevel.ordinal()) {
+				// filter levels below 'fromLevel'
+				continue;
+			}
 			Collection<ChannelId> channelIds = this.activeStates.get(level);
 			if (channelIds.size() > 0) {
-				if(result.length() > 0) {
+				if (result.length() > 0) {
 					result.append("| ");
 				}
 				result.append(level.name() + ": ");
-				for(ChannelId channelId : channelIds) {
+				for (ChannelId channelId : channelIds) {
 					result.append(this.parent.channel(channelId).channelDoc().getText() + ",");
 				}
 			}

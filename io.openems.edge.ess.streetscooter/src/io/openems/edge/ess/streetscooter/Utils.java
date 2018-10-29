@@ -44,6 +44,8 @@ public class Utils {
 					case ALLOWED_CHARGE_POWER:
 					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AbstractEssStreetscooter.ChannelId.values()).map(channelId -> {

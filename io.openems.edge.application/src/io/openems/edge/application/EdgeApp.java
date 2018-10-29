@@ -27,7 +27,7 @@ public class EdgeApp {
 
 	@Activate
 	void activate() {
-		String message = "OpenEMS version [" + OpenemsConstants.OPENEMS_VERSION + "] started";
+		String message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
 		String line = Strings.repeat("=", message.length());
 		log.info(line);
 		log.info(message);
