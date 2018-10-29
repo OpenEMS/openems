@@ -7,9 +7,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "FENECON Mini ESS", //
 		description = "The energy storage system implementation of a FENECON Mini.")
 @interface Config {
+
 	String service_pid();
 
 	String id() default "ess0";
+
+	String Phase() default "L1";
 
 	boolean enabled() default true;
 

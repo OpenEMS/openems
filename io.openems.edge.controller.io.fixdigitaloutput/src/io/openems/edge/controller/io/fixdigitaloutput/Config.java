@@ -4,12 +4,12 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Controller IO FixDitigalOutput", //
+		name = "Controller IO FixDigitalOutput", //
 		description = "This controller sets a digital output channel according to the given value")
 @interface Config {
 	String service_pid();
 
-	String id() default "ctrlIoFixDitalOutput";
+	String id() default "ctrlIoFixDigitalOutput0";
 
 	boolean enabled() default true;
 
