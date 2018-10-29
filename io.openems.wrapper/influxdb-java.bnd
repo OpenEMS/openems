@@ -2,9 +2,9 @@ Bundle-Name: influxdb-java
 Bundle-Description: Java client for InfluxDB
 Bundle-DocURL: https://github.com/influxdata/influxdb-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 2.12
+Bundle-Version: 2.14
 
-Include-Resource: @influxdb-java-2.12.jar
+Include-Resource: @influxdb-java-2.14.jar
 
 -dsannotations: *
 
