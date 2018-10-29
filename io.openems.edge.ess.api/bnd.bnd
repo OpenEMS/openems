@@ -18,7 +18,7 @@ Require-Capability: \
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.edge.common;version=latest,\
-	com.google.guava,\
+	com.google.guava;version=27,\
 	io.openems.common;version=latest
 
 -testpath: \

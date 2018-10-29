@@ -52,7 +52,6 @@ public class Solver {
 
 	public Solver(Data data) {
 		this.data = data;
-
 	}
 
 	/**
@@ -98,7 +97,13 @@ public class Solver {
 
 	public double getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
 		// prepare objective function
-		int index = this.data.getCoefficient(ess, phase, pwr).getIndex();
+		int index;
+		try {
+			index = this.data.getCoefficient(ess, phase, pwr).getIndex();
+		} catch (IllegalArgumentException e) {
+			log.error(e.getMessage());
+			return 0d;
+		}
 		double[] cos = Solver.getEmptyCoefficients(data);
 		cos[index] = 1;
 		LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
@@ -901,5 +906,4 @@ public class Solver {
 	protected void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
 	}
-
 }
