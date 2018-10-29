@@ -30,7 +30,7 @@ Export-Package: io.openems.edge.ess.api,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
-	com.google.guava,\
+	com.google.guava;version=27,\
 	io.openems.edge.battery.api;version=latest
 
 -testpath: \

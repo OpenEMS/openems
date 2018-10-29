@@ -25,7 +25,7 @@ public class ElementToChannelConverter {
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
-	
+
 	/**
 	 * Applies a scale factor of 1.
 	 * 
@@ -76,13 +76,13 @@ public class ElementToChannelConverter {
 	 * @return
 	 */
 	public static ElementToChannelConverter INVERT_IF_TRUE(boolean invert) {
-		if(invert) {
+		if (invert) {
 			return INVERT;
 		} else {
 			return DIRECT_1_TO_1;
 		}
 	}
-	
+
 	/**
 	 * Converts only negative values from Element to Channel and inverts them (makes
 	 * the value positive)
@@ -95,6 +95,12 @@ public class ElementToChannelConverter {
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_1, KEEP_POSITIVE);
+
+	/**
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and INVERT
+	 */
+	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT = new ElementToChannelConverterChain(
+			SCALE_FACTOR_2, INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and

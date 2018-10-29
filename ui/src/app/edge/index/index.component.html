@@ -9,7 +9,7 @@
     <!-- Energytable -->
     <ion-col size="12" size-md="8" size-lg="4">
       <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-        <energytable-2018-8 [currentData]="currentData" [config]="config"></energytable-2018-8>
+        <energytable-2018-8 [currentData]="currentData" [config]="config" (subscribes)="addSubscribes('energytable', $event)"></energytable-2018-8>
       </ng-container>
       <ng-template #version_2018_7>
         <energytable-2018-7 [currentData]="currentData" [config]="config"></energytable-2018-7>
@@ -30,7 +30,8 @@
         <ng-template #version_2018_7>
           <ion-col size="12" size-md="8" size-lg="4">
             <evcs-2018-7 *ngIf="widget == 'EVCS'" [edge]="edge" [currentData]="currentData" [config]="config"></evcs-2018-7>
-            <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData" [config]="config"></channelthreshold-2018-7>
+            <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
+              [config]="config"></channelthreshold-2018-7>
           </ion-col>
         </ng-template>
       </ng-container>
