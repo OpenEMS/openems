@@ -11,7 +11,7 @@ Private-Package: io.openems.backend.edgewebsocket.impl
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.wrapper.websocket;version=latest,\
-	com.google.guava,\
+	com.google.guava;version=27,\
 	io.openems.common;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\
 	io.openems.backend.common;version=latest,\

@@ -16,7 +16,7 @@ import com.google.common.base.Strings;
 
 import io.openems.common.OpenemsConstants;
 
-@Component()
+@Component(immediate = true)
 public class BackendApp {
 
 	private final Logger log = LoggerFactory.getLogger(BackendApp.class);
@@ -26,7 +26,7 @@ public class BackendApp {
 
 	@Activate
 	void activate() {
-		String message = "OpenEMS Backend version [" + OpenemsConstants.OPENEMS_VERSION + "] started";
+		String message = "OpenEMS Backend version [" + OpenemsConstants.VERSION + "] started";
 		String line = Strings.repeat("=", message.length());
 		log.info(line);
 		log.info(message);

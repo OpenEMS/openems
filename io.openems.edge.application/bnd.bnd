@@ -15,7 +15,7 @@ EnRoute-Application: io.openems.edge.application
 	io.openems.common;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
 	io.openems.edge.common;version=latest,\
-	com.google.guava,\
+	com.google.guava;version=27,\
 	io.openems.wrapper.sdnotify;version=latest
 
 -testpath: \
