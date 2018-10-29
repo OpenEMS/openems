@@ -4,6 +4,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -22,7 +23,7 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		SET_CHARGE_POWER(new Doc().setWritable().type(OpenemsType.INTEGER).unit(Unit.WATT)),
+		SET_CHARGE_POWER(new Doc().accessMode(AccessMode.READ_WRITE).type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		/**
 		 * Set Display Text
 		 * 
@@ -32,7 +33,7 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		SET_DISPLAY_TEXT(new Doc().setWritable().type(OpenemsType.STRING));
+		SET_DISPLAY_TEXT(new Doc().accessMode(AccessMode.READ_WRITE).type(OpenemsType.STRING));
 
 		// TODO add debug channel for set charge power
 

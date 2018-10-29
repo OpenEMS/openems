@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -41,6 +42,8 @@ public class Utils {
 					case ALLOWED_CHARGE_POWER:
 					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {

@@ -5,6 +5,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 
 @ProviderType
 public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss {
@@ -99,6 +100,11 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(ManagedAsymmetricEss.class, 100) //
+				.build();
 	}
 
 	@Override
