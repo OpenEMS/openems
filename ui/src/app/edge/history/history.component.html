@@ -26,7 +26,7 @@
             <ion-col>
               <ion-item>
                 <ion-label translate>Edge.History.Cumulative
-                  <ion-checkbox [checked]="cumulative" (change)="cumulative = !cumulative"></ion-checkbox>
+                  <ion-checkbox [(ngModel)]="cumulative"></ion-checkbox>
                 </ion-label>
               </ion-item>
             </ion-col>
