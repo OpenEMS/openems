@@ -77,7 +77,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
 		throw new IllegalArgumentException("Use the other activate() for Modbus compoenents!");
 	}
-	
+
 	@Override
 	protected void deactivate() {
 		super.deactivate();
@@ -149,7 +149,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 					} catch (IllegalArgumentException e) {
 						throw new IllegalArgumentException("Conversion for [" + channel.channelId() + "] failed", e);
 					}
-						channel.setNextValue(convertedValue);
+					channel.setNextValue(convertedValue);
 				});
 			});
 		}
@@ -239,35 +239,70 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				.build();
 	}
 
+	public enum BitConverter {
+		DIRECT_1_TO_1, INVERT
+	}
+
 	/**
 	 * Private subclass to handle Channels that are mapping to one bit of a Modbus
 	 * Unsigned Word element
 	 */
 	public class BitChannelMapper {
+		private class ChannelWrapper {
+			private final Channel<?> channel;
+			private final BitConverter converter;
+
+			protected ChannelWrapper(Channel<?> channel, BitConverter converter) {
+				this.channel = channel;
+				this.converter = converter;
+			}
+		}
+
 		private final UnsignedWordElement element;
-		private final Map<Integer, Channel<?>> channels = new HashMap<>();
+		private final Map<Integer, ChannelWrapper> channels = new HashMap<>();
 
 		public BitChannelMapper(UnsignedWordElement element) {
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
-				this.channels.forEach((bitIndex, channel) -> {
+				this.channels.forEach((bitIndex, channelWrapper) -> {
+					// Get value for this Channel
+					boolean setValue;
 					if (value << ~bitIndex < 0) {
-						channel.setNextValue(true);
+						setValue = true;
 					} else {
-						channel.setNextValue(false);
+						setValue = false;
 					}
+
+					// Apply Bit-Conversion
+					BitConverter converter = channelWrapper.converter;
+					switch (converter) {
+					case DIRECT_1_TO_1:
+						break;
+					case INVERT:
+						setValue = !setValue;
+						break;
+					}
+
+					// Set Value to Channel
+					Channel<?> channel = channelWrapper.channel;
+					channel.setNextValue(setValue);
 				});
 			});
 		}
 
-		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
+		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex,
+				BitConverter converter) {
 			Channel<?> channel = channel(channelId);
 			if (channel.getType() != OpenemsType.BOOLEAN) {
 				throw new IllegalArgumentException(
 						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
 			}
-			this.channels.put(bitIndex, channel);
+			this.channels.put(bitIndex, new ChannelWrapper(channel, converter));
 			return this;
+		}
+
+		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
+			return m(channelId, bitIndex, BitConverter.DIRECT_1_TO_1);
 		}
 
 		public UnsignedWordElement build() {
@@ -285,10 +320,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected final BitChannelMapper bm(UnsignedWordElement element) {
 		return new BitChannelMapper(element);
 	}
-	
+
 	/**
-	 * Handles channels that are mapping to one bit of a 
-	 * modbus unsigned double word element
+	 * Handles channels that are mapping to one bit of a modbus unsigned double word
+	 * element
 	 */
 	public class DoubleWordBitChannelMapper {
 		private final UnsignedDoublewordElement element;
@@ -319,8 +354,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern inside the
-	 * protocol definition.
+	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern
+	 * inside the protocol definition.
 	 * 
 	 * @param element
 	 * @return
@@ -328,11 +363,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected final DoubleWordBitChannelMapper bm(UnsignedDoublewordElement element) {
 		return new DoubleWordBitChannelMapper(element);
 	}
-	
-	
+
 	/**
-	 * Handles channels that are mapping two bytes of a 
-	 * modbus unsigned double word element
+	 * Handles channels that are mapping two bytes of a modbus unsigned double word
+	 * element
 	 */
 	public class DoubleWordByteChannelMapper {
 		private final UnsignedDoublewordElement element;
@@ -342,25 +376,24 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
 				this.channels.forEach((index, channel) -> {
-					
+
 					Integer val = value.intValue();
-					
+
 					Short valueToSet = convert(val, index);
-					
+
 					channel.setNextValue(valueToSet);
 				});
 			});
 		}
-		
-
 
 		/**
 		 * 
 		 * @param channelId
-		 * @param upperBytes  1 = upper two bytes, 0 = lower two bytes
+		 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
 		 * @return
 		 */
-		public DoubleWordByteChannelMapper mapByte(io.openems.edge.common.channel.doc.ChannelId channelId, int upperBytes) {
+		public DoubleWordByteChannelMapper mapByte(io.openems.edge.common.channel.doc.ChannelId channelId,
+				int upperBytes) {
 			Channel<?> channel = channel(channelId);
 			if (channel.getType() != OpenemsType.SHORT) {
 				throw new IllegalArgumentException(
@@ -377,8 +410,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern inside the
-	 * protocol definition.
+	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern
+	 * inside the protocol definition.
 	 * 
 	 * @param element
 	 * @return
@@ -386,26 +419,26 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected final DoubleWordByteChannelMapper byteMap(UnsignedDoublewordElement element) {
 		return new DoubleWordByteChannelMapper(element);
 	}
-	
+
 	/**
 	 * 
 	 * @param value
-	 * @param upperBytes  1 = upper two bytes, 0 = lower two bytes
+	 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
 	 * @return
 	 */
 	public static Short convert(int value, int upperBytes) {
 		ByteBuffer b = ByteBuffer.allocate(4);
 		b.order(ByteOrder.LITTLE_ENDIAN);
 		b.putInt(value);
-			
+
 		byte byte0 = b.get(upperBytes * 2);
 		byte byte1 = b.get(upperBytes * 2 + 1);
-		
+
 		ByteBuffer shortBuf = ByteBuffer.allocate(2);
 		shortBuf.order(ByteOrder.LITTLE_ENDIAN);
 		shortBuf.put(0, byte0);
 		shortBuf.put(1, byte1);
-		
+
 		return shortBuf.getShort();
 	}
 }

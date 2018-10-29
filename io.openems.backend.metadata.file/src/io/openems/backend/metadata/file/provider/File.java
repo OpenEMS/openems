@@ -86,7 +86,7 @@ public class File implements MetadataService {
 						int edgeId = Integer.parseInt(parameters[4]);
 						String apikey = parameters[5];
 						MyEdge edge = new MyEdge(edgeId, apikey, name, comment, State.ACTIVE,
-								OpenemsConstants.OPENEMS_VERSION, producttype, new JsonObject(), role);
+								OpenemsConstants.VERSION, producttype, new JsonObject(), role);
 						edge.onSetConfig(jConfig -> {
 							log.debug(
 									"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
