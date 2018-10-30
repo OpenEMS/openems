@@ -1,5 +1,5 @@
 {
-  "index": "src/index.html",
+  "index": "/index.html",
   "assetGroups": [
     {
       "name": "app",
@@ -7,13 +7,12 @@
       "resources": {
         "files": [
           "/favicon.ico",
-          "src/index.html",
+          "/index.html",
           "/*.css",
           "/*.js"
         ]
       }
-    },
-    {
+    }, {
       "name": "assets",
       "installMode": "lazy",
       "updateMode": "prefetch",

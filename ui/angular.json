@@ -14,7 +14,7 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "progress": false,
-            "outputPath": "dist",
+            "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -30,16 +30,7 @@
                 "input": "node_modules/@ionic/angular/dist/ionic/svg",
                 "output": "./svg"
               },
-              "src/android-chrome-192x192.png",
-              "src/android-chrome-512x512.png",
-              "src/apple-touch-icon.png",
-              "src/browserconfig.xml",
-              "src/favicon.ico",
-              "src/favicon-16x16.png",
-              "src/favicon-32x32.png",
-              "src/manifest.json",
-              "src/mstile-150x150.png",
-              "src/safari-pinned-tab.svg"
+              "src/manifest.json"
             ],
             "styles": [
               {
@@ -62,18 +53,37 @@
                   "with": "src/environments/openems-backend.ts"
                 }
               ],
-              "baseHref": "/m/",
-              "outputPath": "target/backend",
+              "baseHref": "/primus/",
+              "outputPath": "www",
               "optimization": true,
-              "aot": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
+              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "serviceWorker": true,
               "buildOptimizer": true
+            },
+            "app": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/primus-app.ts"
+                }
+              ],
+              "baseHref": "./",
+              "outputPath": "www",
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "serviceWorker": true
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -97,7 +107,18 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/openems-backend-dev-live.ts"
                 }
-              ]
+              ],
+              "baseHref": "/primus-dev/",
+              "outputPath": "www",
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
             },
             "edge": {
               "optimization": true,
@@ -109,7 +130,6 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
-              "serviceWorker": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -117,7 +137,19 @@
                 }
               ],
               "baseHref": "/",
-              "outputPath": "target/edge"
+              "outputPath": "www"
+            },
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "serviceWorker": true
             }
           }
         },
@@ -141,6 +173,9 @@
             },
             "edge": {
               "browserTarget": "app:build:edge"
+            },
+            "production": {
+              "browserTarget": "app:build:production"
             }
           }
         },

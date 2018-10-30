@@ -17,7 +17,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 // services
-import { Service } from './shared/shared';
+import { Service, Alerts } from './shared/shared';
 import { MyTranslateLoader } from './shared/translate/translate';
 
 // locale Data
@@ -28,8 +28,19 @@ import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
+
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+
+import { BrowserXhr, HttpModule } from '@angular/http';
+import { CustExtBrowserXhr } from './cust-ext-browser-xhr';
+import { Interceptor } from './interceptor';
+
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -47,14 +58,25 @@ import { environment } from '../environments/environment';
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),
     PopoverPageModule,
+
+    HttpClientModule,
+    HttpModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
+
+
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: ErrorHandler, useExisting: Service },
-    { provide: LOCALE_ID, useValue: 'de' }
+    { provide: LOCALE_ID, useValue: 'de' },
+    //{ provide: BrowserXhr, useClass: CustExtBrowserXhr },
+    { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
+    SpinnerDialog,
+    Alerts
+
+
   ],
   bootstrap: [AppComponent]
 })

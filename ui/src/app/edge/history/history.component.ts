@@ -34,6 +34,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private dateRange: IMyDateRange;
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
+  public cumulative: boolean = false;
   public activePeriodText: string = "";
   private dateRangePickerOptions: IMyDrpOptions = {
     inline: true,
@@ -84,6 +85,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         }
       });
     this.setPeriod("today");
+    this.cumulative = false;
 
     // adjust chart size in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 200);

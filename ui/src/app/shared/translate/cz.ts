@@ -3,6 +3,7 @@ export const TRANSLATION = {
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
+        GridMode: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
         Power: "Výkon",
@@ -28,7 +29,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Přehled",
-        AboutUI: "About FEMS-UI",
+        AboutUI: "About PRIMUS-UI",
         Settings: 'Obecné Nastavení',
         Logout: 'Odhlásit'
     },
@@ -37,7 +38,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
-        IsOffline: "FEMS je ve stavu offline!"
+        IsOffline: "PRIMUS je ve stavu offline!"
     },
     Edge: {
         Index: {
@@ -117,7 +118,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nový plánovač...",
                 Class: "Třída:",
                 NotImplemented: "Zadání nebylo implementováno: ",
-                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
                 Always: "Vždy"
             },
             Log: {
@@ -139,14 +140,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Uživatelské rozhraní pro FEMS a OpenEMS",
-        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností FENECON jako open-source software.",
-        Fenecon: "Více o společnosti FENECON",
-        Fems: "Více o FEMS",
+        UI: "Uživatelské rozhraní pro PRIMUS a OpenEMS",
+        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností KACO new energy jako open-source software.",
+        Fenecon: "Více o společnosti KACO new energy",
+        Fems: "Více o PRIMUS",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
-        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš FEMS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš PRIMUS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
         Language: "Zvolte jazyk:"
     },
     Notifications: {
