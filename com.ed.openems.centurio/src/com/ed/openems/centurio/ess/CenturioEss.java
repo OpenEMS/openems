@@ -238,7 +238,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
+		return "SoC:" + this.getSoc().value().asString() + " ChannelId: " + this.getSoc().address().getChannelId() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"

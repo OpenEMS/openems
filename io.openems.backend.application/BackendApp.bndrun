@@ -69,5 +69,4 @@ JPM-Command:				openems-backend
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	org.osgi.compendium;version='[4.1.0,4.1.1)'
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'

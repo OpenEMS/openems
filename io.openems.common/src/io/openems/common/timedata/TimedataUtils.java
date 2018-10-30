@@ -39,10 +39,18 @@ public class TimedataUtils {
 				resolution = 24 * 60 * 60; // 1 Day
 			} else if (days > 6) {
 				resolution = 3 * 60 * 60; // 3 Hours
+				if(cumulative) {
+					resolution = 24* 60 * 60;
+				}
 			} else if (days > 2) {
 				resolution = 60 * 60; // 60 Minutes
+				if(cumulative) {
+					resolution = 24* 60 * 60;
+				}
 			}
-
+			if(cumulative) {
+				resolution = 60 * 60;
+			}
 			JsonArray jData = timeDataService.queryHistoricData(fromDate, toDate, channels, resolution, cumulative, tags);
 			return DefaultMessages.historicDataQueryReply(jMessageId, jData);
 		}

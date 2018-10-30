@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -41,6 +42,10 @@ public class EssUtils {
 			case DEBUG_SET_ACTIVE_POWER:
 			case DEBUG_SET_REACTIVE_POWER:
 				return new IntegerReadChannel(c, channelId);
+			case SET_ACTIVE_POWER_EQUALS:
+				return new IntegerWriteChannel(c, channelId);
+			default:
+				break;
 			}
 			return null;
 		}), Arrays.stream(CenturioEss.ChannelId.values()).map(channelId -> {
@@ -90,16 +95,6 @@ public class EssUtils {
 			case E170:
 			case E180:
 				return new CenturioErrorChannel(c, channelId);
-			}
-			return null;
-		}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
-			switch (channelId) {
-			case DEBUG_SET_ACTIVE_POWER:
-			case DEBUG_SET_REACTIVE_POWER:
-			case ALLOWED_CHARGE_POWER:
-			case ALLOWED_DISCHARGE_POWER:
-				return new IntegerReadChannel(c, channelId);
-
 			}
 			return null;
 		})).flatMap(channel -> channel);
