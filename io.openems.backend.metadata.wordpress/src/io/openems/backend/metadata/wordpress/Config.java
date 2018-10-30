@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.energydepot;
+package io.openems.backend.metadata.wordpress;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

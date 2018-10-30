@@ -1,5 +1,5 @@
-Bundle-Name: OpenEMS Backend Energy Depot Impl
-Bundle-Vendor: Energy Depot GmbH
+Bundle-Name: OpenEMS Backend MetaData Wordpress
+Bundle-Vendor: KACO new energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
@@ -7,7 +7,7 @@ Export-Package:  \
 	io.openems.backend.metadata.api;-provide=true
 
 Private-Package:  \
-	io.openems.backend.metadata.energydepot
+	io.openems.backend.metadata.wordpress
 
 -includeresource: {readme.md}
 
@@ -23,3 +23,4 @@ Private-Package:  \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
+-runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'

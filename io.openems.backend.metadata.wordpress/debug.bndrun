@@ -1,8 +1,8 @@
 #
-# io.openems.backend.metadata.energydepot DEBUG LAUNCH SPECFICATION 
+# io.openems.backend.metadata.wordpress DEBUG LAUNCH SPECFICATION 
 #
 
--include: ~io.openems.backend.metadata.energydepot.bndrun
+-include: ~io.openems.backend.metadata.wordpress.bndrun
 
 -runrequires.debug:  \
 	${debug-bundles}

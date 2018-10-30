@@ -1,4 +1,4 @@
-# io.openems.backend.metadata.energydepot Provider
+# io.openems.backend.metadata.wordpress Provider
 
 ${Bundle-Description}
 

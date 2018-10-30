@@ -1,10 +1,10 @@
-package io.openems.backend.metadata.energydepot;
+package io.openems.backend.metadata.wordpress;
 
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.backend.metadata.energydepot.EnergyDepot;
+import io.openems.backend.metadata.wordpress.Wordpress;
 
 /*
  * Example JUNit test case
@@ -19,7 +19,7 @@ public class ProviderImplTest {
 
 	@Test
 	public void simple() {
-		EnergyDepot impl = new EnergyDepot();
+		Wordpress impl = new Wordpress();
 		assertNotNull(impl);
 	}
 

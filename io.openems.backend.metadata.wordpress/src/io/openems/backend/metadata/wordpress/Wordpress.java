@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.energydepot;
+package io.openems.backend.metadata.wordpress;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,10 +36,10 @@ import io.openems.common.session.Role;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "io.openems.backend.metadata.energydepot")
-public class EnergyDepot implements MetadataService {
+@Component(name = "io.openems.backend.metadata.wordpress")
+public class Wordpress implements MetadataService {
 
-	private final Logger log = LoggerFactory.getLogger(EnergyDepot.class);
+	private final Logger log = LoggerFactory.getLogger(Wordpress.class);
 
 	private Map<Integer, MyUser> users = new HashMap<>();
 	private Map<Integer, MyEdge> edges = new HashMap<>();
@@ -215,7 +215,7 @@ public class EnergyDepot implements MetadataService {
 				String producttype = result.getString("producttype");
 
 				Role role = Role.getRole("ADMIN");
-				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
+				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION,
 						producttype, new JsonObject(), role);
 
 				edge.onSetConfig(jConfig -> {
