@@ -52,6 +52,7 @@ public class Utils {
 					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(ess, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
 						return new IntegerWriteChannel(ess, channelId);
 					}
 					return null;
