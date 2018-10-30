@@ -1,0 +1,13 @@
+#
+# io.openems.backend.uiwebsocket.energydepot DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.backend.uiwebsocket.energydepot.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
