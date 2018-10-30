@@ -11,7 +11,7 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 
 	public final static int BYTE_LENGTH = 2;
 
-	private final Short value;
+	protected final Short value;
 
 	public ModbusRecordUint16(int offset, Short value) {
 		super(offset, ModbusType.UINT16, toByteArray(value));

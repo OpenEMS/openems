@@ -34,6 +34,7 @@ import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -50,7 +51,6 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
 
-	public final static short OPENEMS_IDENTIFIER = (short) "OpenEMS".hashCode();
 	public final static int UNIT_ID = 1;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusTcpApi.class);
@@ -137,7 +137,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 	private void initializeModbusRecords() {
 		// Add generic header
-		this.records.put(0, new ModbusRecordUint16(0, ModbusTcpApi.OPENEMS_IDENTIFIER));
+		this.records.put(0, new ModbusRecordUint16Hash(0, "OpenEMS"));
 		int nextAddress = 1;
 
 		// add Meta-Component
@@ -205,7 +205,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 		for (ModbusSlaveNatureTable natureTable : table.getNatureTables()) {
 			// add the Interface Hash-Code and Length
 			nextAddress = this.addRecordToProcessImage(nextNatureAddress,
-					new ModbusRecordUint16(-1, natureTable.getNatureHash()), component);
+					new ModbusRecordUint16Hash(-1, natureTable.getNature().getSimpleName()), component);
 			nextAddress = this.addRecordToProcessImage(nextAddress,
 					new ModbusRecordUint16(-1, (short) natureTable.getLength()), component);
 
