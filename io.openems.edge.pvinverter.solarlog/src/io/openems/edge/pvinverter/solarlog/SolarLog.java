@@ -88,7 +88,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol()
 	{
 		this.protocol = new ModbusProtocol(this,
-				new FC4ReadInputRegistersTask(RegisterAddress.LAST_UPDATE_TIME.get(), Priority.LOW,
+				new FC4ReadInputRegistersTask(RegisterAddress.LAST_UPDATE_TIME.get(), Priority.HIGH,
 						m(SolarLog.ChannelId.LAST_UPDATE_TIME, 
 								new SignedDoublewordElement(RegisterAddress.LAST_UPDATE_TIME.get()).wordOrder(WordOrder.LSWMSW), 
 										ElementToChannelConverter.DIRECT_1_TO_1),
@@ -103,7 +103,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(SolarLog.ChannelId.UDC, 
 								new SignedWordElement(RegisterAddress.UDC.get()), 
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2)),
+				new FC4ReadInputRegistersTask(RegisterAddress.DAILY_YIELD.get(), Priority.LOW,
 						m(SolarLog.ChannelId.DAILY_YIELD, 
 								new SignedDoublewordElement(RegisterAddress.DAILY_YIELD.get()).wordOrder(WordOrder.LSWMSW), 
 								ElementToChannelConverter.DIRECT_1_TO_1),
