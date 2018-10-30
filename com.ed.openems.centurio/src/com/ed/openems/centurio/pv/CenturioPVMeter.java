@@ -18,6 +18,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ed.data.InverterData;
+import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -28,15 +29,16 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "EnergyDepot.CenturioPVMeter", //
+		name = "KACO.CenturioPVMeter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
-				+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class CenturioPVMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected EdComData datasource;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -50,7 +52,6 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 		}
 		this.getMaxActivePower().setNextValue(config.maxP());
 		this.getMinActivePower().setNextValue(0);
-
 	}
 
 	@Deactivate
@@ -60,7 +61,6 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 
 	public CenturioPVMeter() {
 		MeterUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-
 	}
 
 	@Override
@@ -73,24 +73,25 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
+		Integer activePower = null;
 
-		InverterData inverter = this.datasource.getInverterData();
-		this.getActivePower().setNextValue(Math.round(inverter.getPvPower() / 10) * 10);
+		if (this.datasource.isConnected()) {
+			InverterData inverter = this.datasource.getInverterData();
 
+			activePower = CenturioConstants.roundToPowerPrecision(inverter.getPvPower());
+		}
+
+		this.getActivePower().setNextValue(activePower);
 	}
 
 	@Override
 	public String debugLog() {
-
-		return "PV Power: " + this.getActivePower().value().toString();
-
+		return "L:" + this.getActivePower().value().asString();
 	}
 
 	@Override
 	public MeterType getMeterType() {
-
 		return MeterType.PRODUCTION;
-
 	}
 
 }

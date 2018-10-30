@@ -17,15 +17,21 @@ public class Utils {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static String toChannelAddressList(JsonObject channels) throws OpenemsException {
+	protected static String toChannelAddressList(JsonObject channels, boolean cumulative) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (Entry<String, JsonElement> entry : channels.entrySet()) {
 			String thingId = entry.getKey();
 			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
 			for (JsonElement channelElement : channelIds) {
 				String channelId = JsonUtils.getAsString(channelElement);
-				channelAddresses
-						.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
+				if (cumulative) {
+					channelAddresses
+					.add("CUMULATIVE_SUM(MEAN(\"" + thingId + "/" + channelId + "\")) AS \"" + thingId + "/" + channelId + "\"");
+				} else {
+					channelAddresses.add(
+							"MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
+				}
+
 			}
 		}
 		return String.join(", ", channelAddresses);

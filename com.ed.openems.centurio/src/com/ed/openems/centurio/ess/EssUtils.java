@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -14,14 +13,13 @@ import io.openems.edge.ess.api.SymmetricEss;
 public class EssUtils {
 
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(CenturioEss c) {
-		// TODO Auto-generated method stub
 		return Stream.of(Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case STATE:
 				return new StateCollectorChannel(c, channelId);
 			}
 			return null;
-		}),Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+		}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case GRID_MODE:
 				return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
@@ -31,9 +29,18 @@ public class EssUtils {
 			case ACTIVE_CHARGE_ENERGY:
 			case ACTIVE_DISCHARGE_ENERGY:
 				return new IntegerReadChannel(c, channelId);
-			case MAX_ACTIVE_POWER:
+			case MAX_APPARENT_POWER:
 				return new IntegerReadChannel(c, channelId, CenturioEss.MAX_APPARENT_POWER);
-			
+			}
+			return null;
+		}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
+			switch (channelId) {
+			case ALLOWED_CHARGE_POWER:
+			case ALLOWED_DISCHARGE_POWER:
+				return new IntegerReadChannel(c, channelId, 0);
+			case DEBUG_SET_ACTIVE_POWER:
+			case DEBUG_SET_REACTIVE_POWER:
+				return new IntegerReadChannel(c, channelId);
 			}
 			return null;
 		}), Arrays.stream(CenturioEss.ChannelId.values()).map(channelId -> {
@@ -82,15 +89,17 @@ public class EssUtils {
 			case E160:
 			case E170:
 			case E180:
-				return new StateChannel(c, channelId);
-
+				return new CenturioErrorChannel(c, channelId);
 			}
 			return null;
 		}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case DEBUG_SET_ACTIVE_POWER:
 			case DEBUG_SET_REACTIVE_POWER:
+			case ALLOWED_CHARGE_POWER:
+			case ALLOWED_DISCHARGE_POWER:
 				return new IntegerReadChannel(c, channelId);
+
 			}
 			return null;
 		})).flatMap(channel -> channel);

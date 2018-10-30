@@ -117,10 +117,10 @@ public class InfluxConnector {
 	 * @throws OpenemsException
 	 */
 	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution, Tag... tags) throws OpenemsException {
+			int resolution, boolean cumulative, Tag... tags) throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(Utils.toChannelAddressList(channels));
+		query.append(Utils.toChannelAddressList(channels, cumulative));
 		query.append(" FROM data WHERE ");
 		for (Tag tag : tags) {
 			query.append(tag.getName() + " = '" + tag.getValue() + "' AND ");

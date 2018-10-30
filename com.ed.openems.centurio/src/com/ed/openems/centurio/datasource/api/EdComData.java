@@ -7,13 +7,18 @@ import com.ed.data.Settings;
 import com.ed.data.Status;
 import com.ed.data.VectisData;
 
-
 public interface EdComData {
-	BatteryData getBatteryData();
-	InverterData getInverterData();
-	Status getStatusData();
-	boolean isConnected();
-	Settings getSettings();
-	VectisData getVectis();
-	EnergyMeter getEnergyMeter();
+	public BatteryData getBatteryData();
+
+	public InverterData getInverterData();
+
+	public Status getStatusData();
+
+	public boolean isConnected();
+
+	public Settings getSettings();
+
+	public VectisData getVectis();
+
+	public EnergyMeter getEnergyMeter();
 }

@@ -3,7 +3,6 @@ package com.ed.openems.centurio.ess;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,12 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ed.data.BatteryData;
-import com.ed.data.EnergyMeter;
 import com.ed.data.InverterData;
 import com.ed.data.Settings;
 import com.ed.data.Status;
+import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -35,62 +35,49 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "EnergyDepot.CenturioEss", //
+		name = "KACO.CenturioEss", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
-				+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class CenturioEss extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected EdComData datasource;
-	@Reference
-	protected ConfigurationAdmin cm;
-	
-	@Reference
-	private Power power;
-	private List<String> errors;
-	private int maxApparentPower = 0;
-	private Constraint allowedChargeConstraint;
-	private Constraint allowedDischargeConstraint;
+	protected final static int MAX_APPARENT_POWER = 10000;
+
 	private final Logger log = LoggerFactory.getLogger(CenturioEss.class);
 
-	protected final static int MAX_APPARENT_POWER = 40000;
-	
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected EdComData datasource;
 
+	@Reference
+	protected ConfigurationAdmin cm;
 
+	@Reference
+	private Power power;
+
+	private boolean readonly = false;
+
+	public CenturioEss() {
+		EssUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		this.maxApparentPower = config.maxP();
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
-		this.getMaxActivePower().setNextValue(config.maxP());
-		
-		/*
-		 * Initialize Power
-		 */
-		
-		// Allowed Charge
-		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0 /* initial zero; is set later */);
-		// Allowed Discharge
-		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0 /* initial zero; is set later */);		
 
-	
+		this.readonly = config.readonly();
+		if (readonly) {
+			// Do not allow Power in read-only mode
+			this.getMaxApparentPower().setNextValue(0);
+		}
 	}
 
 	@Deactivate
@@ -98,20 +85,13 @@ public class CenturioEss extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	public CenturioEss() {
-		EssUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		
-
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.updateChannels();
 			break;
 		}
-
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -171,118 +151,142 @@ public class CenturioEss extends AbstractOpenemsComponent
 		public Doc doc() {
 			return this.doc;
 		}
-
 	}
 
 	private void updateChannels() {
-		BatteryData battery = this.datasource.getBatteryData();
-		Status status = this.datasource.getStatusData();
-		InverterData invdata = this.datasource.getInverterData();
-		EnergyMeter energy = this.datasource.getEnergyMeter();
+		Integer soc = null;
+		Integer activePower = null;
+		Integer reactivePower = null;
+		SymmetricEss.GridMode gridMode = SymmetricEss.GridMode.UNDEFINED;
 
-		
-		
-		this.getSoc().setNextValue((int)battery.getSOE());
-		this.getActivePower().setNextValue(Math.round(battery.getPower()/10) * -10);
+		if (!this.datasource.isConnected()) {
+			this.logWarn(this.log, "Edcom is not connected!");
 
-		this.getReactivePower().setNextValue((Math.round(invdata.getReactivPower(0)/10) * -10) + Math.round(invdata.getReactivPower(1)/10) * (-10)
-				+ Math.round(invdata.getReactivPower(2)/10) * (-10));
-	
-		try {
-			float ah = energy.getAhBattery(EnergyMeter.DAY);
-			float voltage = battery.getBmsVoltage();
+		} else {
+			BatteryData battery = this.datasource.getBatteryData();
+			Status status = this.datasource.getStatusData();
+			InverterData inverter = this.datasource.getInverterData();
 			
-			float kWh = voltage * ah;
-			
-			log.info("Energy Depot ESS (kWh): " + kWh);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			log.warn("Energy Depot ESS (kWh): " +e1.getMessage());
-		}
-		
-		
-		int invStatus = status.getInverterStatus();
 
-		switch (invStatus) {
-		case 12:
-			this.getGridMode().setNextValue(2);
-		case 13:
-		case 14:
-			this.getGridMode().setNextValue(1);
-		default:
-			this.getGridMode().setNextValue(0);
-		}
-
-		errors = status.getErrors().getErrorCodes();
-		for (String error : errors) {
-			
-			
-			ChannelId ch;
-			try {
-				ch = CenturioEss.ChannelId.valueOf(error);
-				this.channel(ch).setNextValue(true);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (battery != null) {
+				soc = Math.round(battery.getSOE());
+				activePower = CenturioConstants.roundToPowerPrecision(battery.getPower()) * -1; // invert
 			}
-			
-			
+
+			if (status != null) {
+				switch (status.getInverterStatus()) {
+				case 12:
+					gridMode = SymmetricEss.GridMode.OFF_GRID;
+					break;
+				case 13:
+				case 14:
+					gridMode = SymmetricEss.GridMode.ON_GRID;
+					break;
+				
+				}
+				/*
+				switch (status.getVectisStatus()) {
+				case -1:
+					gridMode = SymmetricEss.GridMode.UNDEFINED;
+					break;
+				case 0:
+					gridMode = SymmetricEss.GridMode.ON_GRID;
+					break;
+				case 1:
+					gridMode = SymmetricEss.GridMode.OFF_GRID;
+					break;
+				
+				}
+				*/
+
+				// Set error channels
+				List<String> errors = status.getErrors().getErrorCodes();
+				for (Channel<?> channel : this.channels()) {
+					if (channel instanceof CenturioErrorChannel) {
+						CenturioErrorChannel c = (CenturioErrorChannel) channel;
+						c.setNextValue(errors.contains(c.getErrorCode()));
+					}
+				}
+			}else {
+				log.warn("Centurio Status Object is null!");
+			}
+
+			if (inverter != null) {
+				reactivePower = (CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(0))
+						+ CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(1))
+						+ CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(2))) * -1;
+			}
 		}
 
+		this.getSoc().setNextValue(soc);
+		this.getActivePower().setNextValue(activePower);
+		this.getReactivePower().setNextValue(reactivePower);
+		this.getGridMode().setNextValue(gridMode);
+
+		// Set ALLOWED_CHARGE_POWER and ALLOWED_DISCHARGE_POWER
+		if (soc == null || soc > 99) {
+			this.getAllowedCharge().setNextValue(0);
+		} else {
+			this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
+		}
+		if (soc == null || soc < 0) {
+			this.getAllowedDischarge().setNextValue(0);
+		} else {
+			this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+		}
 	}
 
 	@Override
 	public String debugLog() {
-		 return "Battery Power: " + this.getActivePower().value().toString();
-
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|Allowed:"
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
+				+ "|" + this.getGridMode().value().asOptionString();
 	}
-
 
 	@Override
 	public Power getPower() {
-		
 		return this.power;
 	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
+		if (this.readonly) {
+			return;
+		}
+
 		Settings settings = this.datasource.getSettings();
-		
-		float soc = this.datasource.getBatteryData().getSOE();
-		
-		if (soc == 0 && activePower > 0) {
-			activePower = 0;
+		if (settings == null) {
+			return;
 		}
-		if (soc == 100 && activePower < 0) {
-			activePower = 0;
+
+		// avoid setting active power to zero, because this activates 'compensator
+		// normal operation'
+		/*
+		if (activePower == 0) {
+			if (this.getSoc().value().orElse(0) > 50) {
+				activePower = 1; // > 50 % SoC: discharge
+			} else {
+				activePower = -1; // <= 50 % SoC: discharge
+			}
 		}
-			
-			
-		
-		if (soc == 100) {
-			this.allowedChargeConstraint.setIntValue(0);
-			
-		} else {
-			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
+		*/
+		// Log output on changed power
+		int lastActivePower = Math.round(settings.getPacSetPoint()) * -1;
+		if (lastActivePower != activePower) {
+			this.logInfo(this.log,
+					"Apply new Active Power [" + activePower + " W]. Last value was [" + lastActivePower + " W]");
 		}
-		if (soc == 0) {
-			this.allowedDischargeConstraint.setIntValue(0);
-			
-		} else {
-			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
-		}
-		float old = settings.getPacSetPoint();
-		if(old != activePower) {
-			System.out.println("Old power set for Centurio: " + old + " W; " + "New: " + activePower + " W");
-			settings.setPacSetPoint(activePower);
-		}
-		
+
+		// apply power
+		settings.setPacSetPoint(activePower);
 	}
 
 	@Override
 	public int getPowerPrecision() {
-		
-		return 10;
+		return CenturioConstants.POWER_PRECISION;
 	}
 
 }

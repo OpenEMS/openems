@@ -68,6 +68,15 @@ public abstract class AbstractOnOpen implements Runnable {
 				}
 			}
 		}
+		if (handshake.hasFieldValue("authentication") ) {
+			String cookieString = handshake.getFieldValue("authentication");
+			for (String cookieVariable : cookieString.split("; ")) {
+				String[] keyValue = cookieVariable.split("=");
+				if (keyValue.length == 2) {
+					jCookie.addProperty(keyValue[0], keyValue[1]);
+				}
+			}
+		}
 		return JsonUtils.getAsOptionalString(jCookie, fieldname);
 	}
 }

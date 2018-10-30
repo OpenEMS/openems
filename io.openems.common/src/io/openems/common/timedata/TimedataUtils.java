@@ -29,6 +29,7 @@ public class TimedataUtils {
 			ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
 			ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
 			JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
+			boolean cumulative = JsonUtils.getAsBoolean(jHistoricData, "cumulative");
 			// TODO check if role is allowed to read these channels
 			// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 			int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
@@ -42,7 +43,7 @@ public class TimedataUtils {
 				resolution = 60 * 60; // 60 Minutes
 			}
 
-			JsonArray jData = timeDataService.queryHistoricData(fromDate, toDate, channels, resolution, tags);
+			JsonArray jData = timeDataService.queryHistoricData(fromDate, toDate, channels, resolution, cumulative, tags);
 			return DefaultMessages.historicDataQueryReply(jMessageId, jData);
 		}
 

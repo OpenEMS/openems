@@ -38,15 +38,17 @@ public class OnOpen extends AbstractOnOpen {
 		websocket.setAttachment(attachment);
 
 		User user;
-
+		
 		// login using session_id from the cookie
 		Optional<String> sessionIdOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "wordpress_logged_in_c92c39b1a6e355483164923c7de6f7b7");
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID
+				log.info("WP COOKIE: " + sessionIdOpt.get());
 				user = this.parent.parent.metadataService.authenticate(sessionIdOpt.get());
 			} else {
-				// authenticate without Session-ID
+				
+				
 				user = this.parent.parent.metadataService.authenticate();
 			}
 		} catch (OpenemsException e) {
@@ -54,6 +56,7 @@ public class OnOpen extends AbstractOnOpen {
 			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiLogoutReply());
 			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + e.getMessage()
 					+ "].");
+			e.printStackTrace();
 			websocket.closeConnection(CloseFrame.REFUSE, e.getMessage());
 			return;
 		}

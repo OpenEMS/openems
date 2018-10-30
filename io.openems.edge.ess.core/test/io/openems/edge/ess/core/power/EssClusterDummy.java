@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -58,6 +59,8 @@ public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements 
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(this, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
 				}), Arrays.stream(ManagedAsymmetricEss.ChannelId.values()).map(channelId -> {

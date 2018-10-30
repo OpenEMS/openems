@@ -282,7 +282,14 @@ public class Influx implements TimedataService {
 
 	@Override
 	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+			int resolution, boolean cumulative, Tag... tags) throws OpenemsException {
+		return this.influxConnector.queryHistoricData(fromDate, toDate, channels, resolution, cumulative, tags);
+	}
+
+	@Override
+	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
 			int resolution, Tag... tags) throws OpenemsException {
-		return this.influxConnector.queryHistoricData(fromDate, toDate, channels, resolution, tags);
+		return this.influxConnector.queryHistoricData(fromDate, toDate, channels, resolution, false, tags);
+
 	}
 }
