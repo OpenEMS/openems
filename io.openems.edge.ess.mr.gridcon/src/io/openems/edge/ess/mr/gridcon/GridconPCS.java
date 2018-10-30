@@ -93,12 +93,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	ChannelAddress outputSyncDeviceBridge = null;
 	ChannelAddress outputMRHardReset = null;
 
+//	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+//	Battery battery1;
+//	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+//	Battery battery2;
+//	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+//	Battery battery3;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	Battery battery1;
+	Battery batteryStringA;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	Battery battery2;
+	Battery batteryStringB;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	Battery battery3;
+	Battery batteryStringC;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	SymmetricMeter gridMeter;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -112,9 +118,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
 	
-	int minSoC1;
-	int minSoC2;
-	int minSoC3;
+	int minSoCA;
+	int minSoCB;
+	int minSoCC;
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -130,16 +136,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		// update filter for 'battery1'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery1", config.battery1_id())) {
+		// update filter for 'batteryStringA'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "BatteryStringA", config.battery_string_A_id())) {
 			return;
 		}
-		// update filter for 'battery2'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery2", config.battery2_id())) {
+		// update filter for 'batteryStringB'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "BatteryStringB", config.battery_string_B_id())) {
 			return;
 		}
-		// update filter for 'battery3'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Battery3", config.battery3_id())) {
+		// update filter for 'batteryStringC'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "BatteryStringC", config.battery_string_C_id())) {
 			return;
 		}
 		// update filter for 'Grid-Meter'
@@ -177,9 +183,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 		
-		minSoC1 = config.minSoC1();
-		minSoC2 = config.minSoC2();
-		minSoC3 = config.minSoC3();
+		minSoCA = config.minSoCA();
+		minSoCB = config.minSoCB();
+		minSoCC = config.minSoCC();
 		
 
 		WriteChannel<Integer> commandControlWordChannel = this.channel(GridConChannelId.COMMAND_CONTROL_WORD);
@@ -717,50 +723,50 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// weight considering SoC of the batteries...
 		
 		
-		int weight1 = 0;
-		int weight2 = 0;
-		int weight3 = 0;
+		int weightA = 0;
+		int weightB = 0;
+		int weightC = 0;
 
 		// weight strings according to max allowed current
 		// use values for discharging
 		if (activePower > 0) {
-			weight1 = battery1.getDischargeMaxCurrent().value().asOptional().orElse(0);
-			weight2 = battery2.getDischargeMaxCurrent().value().asOptional().orElse(0);
-			weight3 = battery3.getDischargeMaxCurrent().value().asOptional().orElse(0);
+			weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
+			weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
+			weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
 			
 			//if minSoc is reached, do not allow further discharging
-			if (battery1.getSoc().value().asOptional().orElse(0) <= minSoC1) {
-				weight1 = 0;
+			if (batteryStringA.getSoc().value().asOptional().orElse(0) <= minSoCA) {
+				weightA = 0;
 			}
-			if (battery2.getSoc().value().asOptional().orElse(0) <= minSoC2) {
-				weight2 = 0;
+			if (batteryStringB.getSoc().value().asOptional().orElse(0) <= minSoCB) {
+				weightB = 0;
 			}
-			if (battery3.getSoc().value().asOptional().orElse(0) <= minSoC3) {
-				weight3 = 0;
+			if (batteryStringC.getSoc().value().asOptional().orElse(0) <= minSoCC) {
+				weightC = 0;
 			}
 			
 		} else { // use values for charging
-			weight1 = battery1.getChargeMaxCurrent().value().asOptional().orElse(0);
-			weight2 = battery2.getChargeMaxCurrent().value().asOptional().orElse(0);
-			weight3 = battery3.getChargeMaxCurrent().value().asOptional().orElse(0);
+			weightA = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0);
+			weightB = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0);
+			weightC = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0);
 		}
 
 		// TODO discuss if this is correct!
-		int maxChargePower1 = battery1.getChargeMaxCurrent().value().asOptional().orElse(0)
-				* battery1.getChargeMaxVoltage().value().asOptional().orElse(0);
-		int maxChargePower2 = battery2.getChargeMaxCurrent().value().asOptional().orElse(0)
-				* battery2.getChargeMaxVoltage().value().asOptional().orElse(0);
-		int maxChargePower3 = battery3.getChargeMaxCurrent().value().asOptional().orElse(0)
-				* battery3.getChargeMaxVoltage().value().asOptional().orElse(0);
+		int maxChargePower1 = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0)
+				* batteryStringA.getChargeMaxVoltage().value().asOptional().orElse(0);
+		int maxChargePower2 = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0)
+				* batteryStringB.getChargeMaxVoltage().value().asOptional().orElse(0);
+		int maxChargePower3 = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0)
+				* batteryStringC.getChargeMaxVoltage().value().asOptional().orElse(0);
 
-		int maxDischargePower1 = battery1.getDischargeMaxCurrent().value().asOptional().orElse(0)
-				* battery1.getDischargeMinVoltage().value().asOptional().orElse(0);
-		int maxDischargePower2 = battery2.getDischargeMaxCurrent().value().asOptional().orElse(0)
-				* battery2.getDischargeMinVoltage().value().asOptional().orElse(0);
-		int maxDischargePower3 = battery3.getDischargeMaxCurrent().value().asOptional().orElse(0)
-				* battery3.getDischargeMinVoltage().value().asOptional().orElse(0);
+		int maxDischargePower1 = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0)
+				* batteryStringA.getDischargeMinVoltage().value().asOptional().orElse(0);
+		int maxDischargePower2 = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0)
+				* batteryStringB.getDischargeMinVoltage().value().asOptional().orElse(0);
+		int maxDischargePower3 = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0)
+				* batteryStringC.getDischargeMinVoltage().value().asOptional().orElse(0);
 
-		writeIPUParameters(weight1, weight2, weight3, maxDischargePower1, maxDischargePower2, maxDischargePower3,
+		writeIPUParameters(weightA, weightB, weightC, maxDischargePower1, maxDischargePower2, maxDischargePower3,
 				maxChargePower1, maxChargePower2, maxChargePower3);
 	}
 
@@ -836,7 +842,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private void calculateSoC() {
 		double sumCapacity = 0;
 		double sumCurrentCapacity = 0;
-		for (Battery b : new Battery[] { battery1, battery2, battery3 }) {
+		for (Battery b : new Battery[] { batteryStringA, batteryStringB, batteryStringC }) {
 			sumCapacity = sumCapacity + b.getCapacity().value().asOptional().orElse(0);
 			sumCurrentCapacity = sumCurrentCapacity
 					+ b.getCapacity().value().asOptional().orElse(0) * b.getSoc().value().orElse(0) / 100.0;
