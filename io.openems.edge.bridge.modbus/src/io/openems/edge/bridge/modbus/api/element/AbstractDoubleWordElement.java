@@ -56,10 +56,10 @@ public abstract class AbstractDoubleWordElement<T> extends AbstractModbusRegiste
 
 	@Override
 	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
-		if (this.isDebug()) {
-			log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
-		}
 		if (valueOpt.isPresent()) {
+			if (this.isDebug()) {
+				log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+			}
 			ByteBuffer buff = ByteBuffer.allocate(4).order(this.getByteOrder());
 			buff = this.toByteBuffer(buff, valueOpt.get());
 			byte[] b = buff.array();
