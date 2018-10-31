@@ -42,6 +42,8 @@ Durch "Pooling" der verteilten Speicherflexibilität wird außerdem die Teilnahm
 
 === Blockchainbasierter, verteiter Großspeicher für PV-Anlagenbetreiber
 
+image::blogpv.png[BlogPV]
+
 BloGPV hat sich zum Ziel gesetzt einen wirtschaftlichen Betrieb von Photovoltaikanlagen in einer Post-EEG Situation zu ermöglichen. Als Teil der Smart Service Welt II sollen viele dezentrale Batteriespeicher durch die Blockchain-Technologie zu einem virtuellen Großspeicher vereint werden. 
 
 Ein dezentrales Speichermanagement mit der Anbindung von Mehrwertdiensten sowie der Schaffung geeigneter Bilanzierungs- und Abrechnungsmodelle soll ein einen wirtschaftlichen Betrieb der PV-Anlagen ohne Einspeisevergütung zu ermöglichen und somit einen wesentlichen Beitrag zur Energiewende leisten. 
