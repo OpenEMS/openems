@@ -10,8 +10,11 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -19,8 +22,12 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -37,11 +44,14 @@ import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 public class SolarLog extends AbstractOpenemsModbusComponent 
 		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent {
 	
+	private final Logger log = LoggerFactory.getLogger(SolarLog.class);
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 	
 	private MeterType meterType = MeterType.PRODUCTION;
 	private ModbusProtocol protocol = null;
+	int maxActivePower;
 	
 	public SolarLog()
 	{
@@ -76,6 +86,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 				"Modbus", 
 				config.modbus_id()
 		);
+		
+		this.maxActivePower = config.maxActivePower();
 	}
 
 	@Deactivate
@@ -140,8 +152,18 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.DIRECT_1_TO_1),
 						m(SolarLog.ChannelId.TOTAL_POWER, 
 								new SignedDoublewordElement(RegisterAddress.TOTAL_POWER.get()).wordOrder(WordOrder.LSWMSW), 
-								ElementToChannelConverter.DIRECT_1_TO_1)
-		));
+								ElementToChannelConverter.DIRECT_1_TO_1)),
+				//PV
+				new FC6WriteRegisterTask(RegisterAddress.P_LIMIT_TYPE.get(),
+						m(SolarLog.ChannelId.P_LIMIT_TYPE, 
+								new UnsignedWordElement(RegisterAddress.P_LIMIT_TYPE.get()))),
+				new FC6WriteRegisterTask(RegisterAddress.P_LIMIT_PERC.get(),
+						m(SolarLog.ChannelId.P_LIMIT_PERC, 
+								new UnsignedWordElement(RegisterAddress.P_LIMIT_PERC.get())))/*,
+				new FC6WriteRegisterTask(RegisterAddress.WATCH_DOG_TAG.get(),
+						m(SolarLog.ChannelId.WATCH_DOG_TAG, 
+								new UnsignedDoublewordElement(RegisterAddress.WATCH_DOG_TAG.get()).wordOrder(WordOrder.LSWMSW)))*/
+		);
 		return this.protocol;
 	}
 
@@ -154,7 +176,44 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog()
 	{
-	    return "L:" + this.getActivePower().value().asString();
+		return "Max Active Power: " + String.valueOf(this.maxActivePower + " Current PAC: " + String.valueOf(this.channel(ChannelId.PAC)));
+	}
+	
+	@Override
+	public void setPVLimit(int power)
+	{
+		int pLimitPerc = (int) ((double) power / (double) this.maxActivePower * 100.0);
+		
+		// keep percentage in range [0, 100]
+		if (pLimitPerc > 100) {
+			pLimitPerc = 100;
+		}
+		if (pLimitPerc < 0) {
+			pLimitPerc = 0;
+		}
+		
+		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
+		IntegerWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
+		//IntegerWriteChannel watchDogTagCh = this.channel(ChannelId.WATCH_DOG_TAG);
+		
+		try {
+			pLimitPercCh.setNextWriteValue(pLimitPerc);
+		} catch (OpenemsException e) {
+			log.error("Unable to set pLimitPerc: " + e.getMessage());
+		}
+		
+		try {
+			pLimitTypeCh.setNextWriteValue(2);
+		} catch (OpenemsException e) {
+			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
+		}
+		
+		/*try {
+			watchDogTagCh.setNextWriteValue(pLimitPerc);
+		} catch (OpenemsException e) {
+			log.error("Unable to set watchDogTagCh: " + e.getMessage());
+		}*/
+		
 	}
 
 	public enum RegisterAddress
@@ -175,7 +234,13 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		MONTHLY_YIELD_CONS(3524),
 		YEARLY_YIELD_CONS(3526),
 		TOTAL_YIELD_CONS(3528),
-		TOTAL_POWER(3530)
+		TOTAL_POWER(3530),
+		
+		// PV
+		
+		P_LIMIT_TYPE(10200),
+		P_LIMIT_PERC(10201),
+		WATCH_DOG_TAG(10211)
 		;
 		
 		private final int address;
@@ -241,7 +306,17 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 				.unit(Unit.WATT_HOURS)),
 		TOTAL_POWER(new Doc()
 				.type(OpenemsType.INTEGER)
-				.unit(Unit.WATT_HOURS_BY_WATT_PEAK))
+				.unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
+		
+		// PV
+		
+		P_LIMIT_TYPE(new Doc()
+				.type(OpenemsType.INTEGER)),
+		P_LIMIT_PERC(new Doc()
+				.type(OpenemsType.INTEGER)
+				.unit(Unit.PERCENT)),
+		WATCH_DOG_TAG(new Doc()
+				.type(OpenemsType.INTEGER))
 		; 
 	    
 		private final Doc doc;

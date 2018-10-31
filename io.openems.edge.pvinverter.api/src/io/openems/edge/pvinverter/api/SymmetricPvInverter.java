@@ -48,4 +48,11 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
 	}
+	
+	/**
+	 * Sets PV limit on given inverter
+	 * 
+	 * @param power
+	 */
+	public void setPVLimit(int power);
 }
