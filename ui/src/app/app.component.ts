@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ToasterService } from 'angular2-toaster';
 import { filter } from 'rxjs/operators';
 
-import { Platform, PopoverController, ToastController } from '@ionic/angular';
+import { Platform, PopoverController, ToastController, IonicModule } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
@@ -13,6 +13,7 @@ import { Service, Websocket } from './shared/shared';
 
 import { PopoverPage } from './shared/popover/popover.component';
 import { Router, NavigationEnd } from '@angular/router';
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 @Component({
   selector: 'app-root',
@@ -56,6 +57,9 @@ export class AppComponent {
       });
       toast.present();
     });
+
+
+    document.addEventListener("backbutton", (ev: Event) => { this.onBackDown(); }, false);
     // set initial backUrl
     this.updateBackUrl(window.location.pathname);
     // update backUrl on navigation events
@@ -67,7 +71,14 @@ export class AppComponent {
       this.updateBackUrl(url);
     })
   }
+  onBackDown() {
 
+    if (window.location.pathname === '/index') {
+      navigator['app'].exitApp();
+    }
+    else { this.router.navigate([this.backUrl]); }
+
+  };
   updateBackUrl(url: string) {
     // disable backUrl on initial 'index' page
     if (url === '/index') {
@@ -113,5 +124,7 @@ export class AppComponent {
     });
     return await popover.present();
   }
+
+
 
 }

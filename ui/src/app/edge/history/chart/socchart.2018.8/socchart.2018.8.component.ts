@@ -84,7 +84,7 @@ export class SocChartComponent_2018_8 implements OnInit, OnChanges {
       }
       this.loading = true;
       // TODO stop previous subscribe; show only results for latest query. Otherwise the chart misbehaves on fast switch of period
-      this._edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
+      this._edge.historicDataQuery(this.fromDate, this.toDate, this.channels, false).then(historicData => {
         // prepare datas array and prefill with each device
         let tmpData: {
           [componentId: string]: number[];

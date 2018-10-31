@@ -28,6 +28,44 @@
             <ion-icon slot="icon-only" name="log-in"></ion-icon>
           </ion-button>
         </ion-card-content>
+
+      </ion-card>
+      <ion-card *ngIf="env.backend === 'App' && websocket.status != 'online'" padding>
+        <ion-item>
+          <ion-icon slot="start" name="contact" color="primary"></ion-icon>
+          <ion-label>
+            <ion-card-title>Login</ion-card-title>
+            <ion-card-subtitle text-wrap translate>
+              Index.PleaseLogin
+            </ion-card-subtitle>
+          </ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-item>
+            <form [formGroup]="wpForm" (ngSubmit)="doWPLogin()" (keyup.enter)="doWPLogin()">
+              <ion-item>
+                <ion-label position="stacked" translate>Index.Username</ion-label>
+                <ion-input formControlName="username" required placeholder="{{ 'Index.Username' | translate }}"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked" translate>Index.Password</ion-label>
+                <ion-input formControlName="password" required type="password" placeholder="{{ 'Index.Password' | translate }}"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label translate>Index.SaveLogin
+                  <ion-checkbox formControlName="saveAccount"></ion-checkbox>
+                </ion-label>
+              </ion-item>
+
+            </form>
+          </ion-item>
+          <!-- Messages -->
+
+          <ion-button float-right (click)="doWPLogin()" [disabled]="!wpForm.valid">
+            <ion-icon slot="icon-only" name="log-in"></ion-icon>
+          </ion-button>
+          <a href="javascript:void(0);" (click)="retrievePwd()" translate>Index.LostPassword</a>
+        </ion-card-content>
       </ion-card>
     </ion-col>
   </ion-row>
@@ -64,14 +102,14 @@
           <ion-item *ngFor="let edge of edges" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
             <ion-label>
               <h2 text-wrap>{{ edge.comment }}</h2>
-              <p *ngIf="!edge.online" text-wrap>Das Gerät ist nicht verbunden!</p>
+              <p *ngIf="!edge.online" text-wrap translate>Index.NotOnline</p>
             </ion-label>
             <ion-label>
-              <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+              <ng-container *ngIf="env.backend === 'OpenEMS Backend' || env.backend === 'App'">
                 <p>ID: {{ edge.name }}</p>
-                <p text-wrap>Typ: {{ edge.producttype }}</p>
+                <p text-wrap>{{ 'Index.Type' | translate }} {{ edge.producttype }}</p>
               </ng-container>
-              <p text-wrap>Angemeldet als: {{ edge.role }}.</p>
+              <p text-wrap>{{ 'Index.ConnectedAs' | translate }} {{ edge.role }}.</p>
             </ion-label>
             <ion-icon *ngIf="edge.online" slot="end" name="play" color="primary"></ion-icon>
             <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
@@ -79,7 +117,7 @@
 
           <ion-item *ngIf="filteredTruncated">
             <ion-label>
-              <p text-wrap>Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.</p>
+              <p text-wrap translate>Index.MoreDevices</p>
             </ion-label>
           </ion-item>
 

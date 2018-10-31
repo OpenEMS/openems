@@ -16,6 +16,17 @@ export class DefaultMessages {
         return m;
     };
 
+    public static authenticateWPLogin(wpcookie: string) {
+        let m = {
+            authenticate: {
+                mode: "wplogin",
+                wpcookie: wpcookie
+            }
+        };
+
+        return m;
+    };
+
     public static authenticateLogout() {
         return {
             authenticate: {
@@ -65,7 +76,7 @@ export class DefaultMessages {
         }
     };
 
-    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
+    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses, cumulative: boolean): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: UUID.UUID()
@@ -76,7 +87,8 @@ export class DefaultMessages {
                 fromDate: format(fromDate, 'yyyy-MM-dd'),
                 toDate: format(toDate, 'yyyy-MM-dd'),
                 timezone: timezone,
-                channels: channels
+                channels: channels,
+                cumulative: cumulative
                 // TODO
                 // kwhChannels: {
                 //     address: 'grid' | 'production' | 'storage',

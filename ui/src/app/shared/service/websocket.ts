@@ -15,7 +15,7 @@ import { DefaultMessages } from '../service/defaultmessages';
 export class Websocket {
   public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
-  private static readonly DEFAULT_EDGENAME = "fems";
+  private static readonly DEFAULT_EDGENAME = "primus";
 
   // holds references of edge names (=key) to Edge objects (=value)
   private _edges: BehaviorSubject<{ [name: string]: Edge }> = new BehaviorSubject({});
@@ -50,7 +50,10 @@ export class Websocket {
   ) {
     // try to auto connect using token or session_id
     setTimeout(() => {
-      this.connect();
+      if (env.backend === "OpenEMS Backend" || env.backend === "OpenEMS Edge") {
+        this.connect();
+      }
+
     })
   }
 
@@ -60,8 +63,10 @@ export class Websocket {
   public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
     let onTimeout = () => {
       // Timeout: redirect to index
-      this.router.navigate(['/index']);
-      subscription.unsubscribe();
+      if (this.router.url != '/settings' && this.router.url != '/about') {
+        this.router.navigate(['/index']);
+        subscription.unsubscribe();
+      }
     }
 
     let edgeName = route.snapshot.params["edgeName"];
@@ -200,11 +205,11 @@ export class Websocket {
             this.initialize();
             if (env.backend === "OpenEMS Backend") {
               if (env.production) {
-                window.location.href = "/web/login?redirect=/m/index";
+                window.location.href = "/primus-online-monitoring/";
               } else {
                 console.info("would redirect...");
               }
-            } else if (env.backend === "OpenEMS Edge") {
+            } else if (env.backend === "OpenEMS Edge" || env.backend === "App") {
               this.router.navigate(['/index']);
             }
           }
@@ -307,6 +312,10 @@ export class Websocket {
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
     this.edges.next({});
+    if (env.backend === "App") {
+      this.socket = null;
+    }
+
   }
 
   /**
@@ -330,15 +339,43 @@ export class Websocket {
     }
   }
 
+  public wpLogIn(wpcookie: string) {
+    if (this.isWebsocketConnected.getValue()) {
+      // websocket was connected
+      this.send(DefaultMessages.authenticateLogin(wpcookie));
+    } else {
+      // websocket was NOT connected
+      this.connect()
+        .pipe(takeUntil(this.stopOnInitialize),
+          filter(isConnected => isConnected),
+          first())
+        .subscribe(isConnected => {
+          setTimeout(() => {
+            this.send(DefaultMessages.authenticateLogin(wpcookie));
+          }, 500);
+        });
+    }
+  }
+
   /**
    * Logs out and closes the websocket
    */
   public logOut() {
     // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
-    this.send(DefaultMessages.authenticateLogout());
-    this.status = "waiting for authentication";
-    this.service.removeToken();
-    this.initialize();
+    this.router.navigate(['/']).then(() => {
+      this.send(DefaultMessages.authenticateLogout());
+      this.status = "waiting for authentication";
+      this.service.removeToken();
+      this.initialize();
+    });
+
+
+  }
+
+  public wpconnect() {
+    console.info("WP CONNECT");
+    this.connect();
+    this.service.spinnerDialog.hide();
   }
 
   /**

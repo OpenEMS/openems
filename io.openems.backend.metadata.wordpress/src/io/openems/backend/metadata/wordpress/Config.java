@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "Metadata.EnergyDepot", //
-		description = "Configures the Metadata Energy Depot provider")
+		description = "Configures the Metadata Wordpress provider")
 @interface Config {
 	@AttributeDefinition(name = "User", description = "DB User")
 	String user() default "root2";
@@ -22,5 +22,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Wordpress URL", description = "Wordpress URL for API use")
 	String wpurl() default "https://www.energydepot.de";
 
-	String webconsole_configurationFactory_nameHint() default "Metadata.EnergyDepot";
+	String webconsole_configurationFactory_nameHint() default "Metadata.Wordpress";
 }

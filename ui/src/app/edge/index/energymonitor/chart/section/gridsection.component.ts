@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
+
 
 @Component({
     selector: '[gridsection]',
@@ -13,18 +14,27 @@ export class GridSectionComponent extends AbstractSection {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
-    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
+    protected gridMode: number
+
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number, gridMode: number) {
+        console.log('RATIO BEFORE', valueRatio)
         valueRatio = valueRatio / 2; // interval from -50 to 50
+        this.gridMode = gridMode
+        if (gridMode && this.square) {
+            this.square.image.image = "assets/img/" + this.getImagePath();
+        }
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
-            super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
+            super.updateGrid(buyAbsolute, valueRatio, sumBuyRatio * -1);
         } else if (sellAbsolute != null && sellAbsolute > 0) {
             this.name = this.translate.instant('General.GridSell');
-            super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
-        } else {
-            this.name = this.translate.instant('General.Grid')
-            super.updateValue(0, 0, 0);
+            super.updateGrid(sellAbsolute, valueRatio, sumSellRatio);
         }
+        else {
+            this.name = this.translate.instant('General.Grid')
+            super.updateGrid(0, 0, 0);
+        }
+        console.log('Grid ValueRatio 1:', valueRatio)
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -34,7 +44,12 @@ export class GridSectionComponent extends AbstractSection {
     }
 
     protected getImagePath(): string {
-        return "grid.png";
+        if (this.gridMode == 2 || this.gridMode == 0) {
+            return "offgrid.png"
+        }
+        else {
+            return "grid.png"
+        }
     }
 
     public getValueRatio(value: number) {
