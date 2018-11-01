@@ -118,7 +118,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nový plánovač...",
                 Class: "Třída:",
                 NotImplemented: "Zadání nebylo implementováno: ",
-                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Vždy"
             },
             Log: {
@@ -140,14 +140,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Uživatelské rozhraní pro PRIMUS a OpenEMS",
-        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností KACO new energy jako open-source software.",
-        Fenecon: "Více o společnosti KACO new energy",
-        Fems: "Více o PRIMUS",
+        UI: "Uživatelské rozhraní pro OpenEMS",
+        Developed: "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
-        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš PRIMUS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Zvolte jazyk:"
     },
     Notifications: {

@@ -134,7 +134,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Immer"
             },
             Log: {
@@ -156,14 +156,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Benutzeroberfläche für PRIMUS und OpenEMS",
-        Developed: "Diese Benutzeroberfläche wird von KACO new energy als Open-Source-Software entwickelt.",
-        Fenecon: "Mehr zu KACO new energy",
-        Fems: "Mehr zu PRIMUS",
+        UI: "Benutzeroberfläche OpenEMS",
+        Developed: "Diese Benutzeroberfläche wird von als Open-Source-Software entwickelt.",
         OpenEMS: "Mehr zu OpenEMS",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser PRIMUS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Sprache wählen:"
     },
     Notifications: {

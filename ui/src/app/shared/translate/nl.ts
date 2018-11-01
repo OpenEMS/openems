@@ -118,7 +118,7 @@ export const TRANSLATION = {
                 NewScheduler: "New Schema...",
                 Class: "Soort: ",
                 NotImplemented: "Gegevens niet geïmplementeerd: ",
-                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
+                Contact: "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Altijd"
             },
             Log: {
@@ -141,13 +141,11 @@ export const TRANSLATION = {
     },
     About: {
         UI: "Gebruikersinterface voor PRIMUS en OpenEMS",
-        Developed: "Deze gebruikersinterface is ontwikkeld door KACO new energy als open- source - software.",
-        Fenecon: "Meer over KACO new energy",
-        Fems: "Meer over PRIMUS",
+        Developed: "Deze gebruikersinterface is ontwikkeld als open-source- software.",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
-        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het PRIMUS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
+        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Selecteer taal: "
     },
     Notifications: {
