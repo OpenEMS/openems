@@ -127,9 +127,19 @@ public enum Unit {
 	 */
 	SECONDS("sec"),
 	/**
-	 * Unit of Frequency [mHz]
+	 * Unit of Time in Milli Seconds [ms]
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
+
+	/**
+	 * Unit of Time Minute
+	 */
+	MINUTE("min"),
+
+	/**
+	 * Unit of Time Hour
+	 */
+	HOUR("h"),
 
 	/*
 	 * Resistance
