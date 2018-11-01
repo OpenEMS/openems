@@ -70,38 +70,4 @@ export class Service implements ErrorHandler {
         // };
         // this.notify(notification);
     }
-
-    public setWPCookies(cookie_name: string, cookie: string) {
-        Cookie.set("wpcookie", cookie);
-        Cookie.set(cookie, cookie_name);
-        // localStorage.setItem(cookie, cookie_name);
-        //sessionStorage.setItem(cookie, cookie_name);
-        console.info('COOKIES: ' + Cookie.get(cookie));
-    }
-
-    public getWPCookieParam(): string {
-        let cookie: string = Cookie.get("wpcookie");
-        if (cookie.length > 10) {
-            return cookie + "=" + Cookie.get(cookie) + ";";
-        } else {
-            return "";
-        }
-
-    }
-
-    public sendWPPasswordRetrieve(username: string): Promise<any> {
-
-        return this.http.get("https://www.energydepot.de/api/user/retrieve_password/?user_login=" + username).toPromise();
-        /*
-      .then((data) => {
-          if (data['status'] === "ok") {
-            return "ok";
-          }
-          if (data['status'] === "error") {
-            return data['error'];
-          }
-        });*/
-
-
-    }
 }

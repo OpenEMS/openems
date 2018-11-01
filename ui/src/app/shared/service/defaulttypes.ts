@@ -2,7 +2,7 @@ import { Role } from '../type/role'
 
 export module DefaultTypes {
 
-  export type Backend = "OpenEMS Backend" | "OpenEMS Edge" | "App";
+  export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
 
   export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
 
@@ -85,8 +85,7 @@ export module DefaultTypes {
       dischargeActivePowerACL2: number,
       dischargeActivePowerACL3: number,
       dischargeActivePowerDC: number,
-      maxDischargeActivePower?: number,
-      powerRatio: number
+      maxDischargeActivePower?: number
     }, production: {
       powerRatio: number,
       isAsymmetric: boolean,
@@ -103,8 +102,7 @@ export module DefaultTypes {
       buyActivePower: number,
       maxBuyActivePower: number,
       sellActivePower: number,
-      maxSellActivePower: number,
-      gridMode: number,
+      maxSellActivePower: number
     }, consumption: {
       powerRatio: number,
       activePower: number

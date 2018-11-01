@@ -3,7 +3,6 @@ export const TRANSLATION = {
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
-        GridMode: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
         Power: "Výkon",
@@ -29,7 +28,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Přehled",
-        AboutUI: "About PRIMUS-UI",
+        AboutUI: "About OpenEMS UI",
         Settings: 'Obecné Nastavení',
         Logout: 'Odhlásit'
     },
@@ -38,7 +37,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
-        IsOffline: "PRIMUS je ve stavu offline!"
+        IsOffline: "OpenEMS je ve stavu offline!"
     },
     Edge: {
         Index: {

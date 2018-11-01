@@ -1,21 +1,15 @@
-$colors: (
-  primary: #f7a800,
-  secondary: #f7a800
-);
-
-
 // Ionic Variables and Theming. For more info, please see:
 // http://ionicframework.com/docs/theming/
 
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
-  --ion-color-primary: #f7a800;
-  --ion-color-primary-rgb: 247,168,0;
+  --ion-color-primary: #2d8fab;
+  --ion-color-primary-rgb: 72,138,255;
   --ion-color-primary-contrast: #fff;
   --ion-color-primary-contrast-rgb: 255,255,255;
-  --ion-color-primary-shade: #db9807;
-  --ion-color-primary-tint: #ffb414;
+  --ion-color-primary-shade: #3f79e0;
+  --ion-color-primary-tint: #5a96ff;
 
   /** secondary **/
   --ion-color-secondary: #32db64;

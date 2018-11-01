@@ -34,11 +34,11 @@ export class EnergytableComponent_2018_8 {
         // Ess
         'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
         // Grid
-        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower', 'GridMode',
+        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
         // Production
         'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
         // Consumption
-        'ConsumptionActivePower', 'ConsumptionMaxActivePower',
+        'ConsumptionActivePower', 'ConsumptionMaxActivePower'
       ]
     });
   }

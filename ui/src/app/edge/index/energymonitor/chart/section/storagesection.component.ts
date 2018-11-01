@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 import { interval } from 'rxjs';
@@ -10,13 +10,10 @@ import { interval } from 'rxjs';
     templateUrl: './section.component.html'
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
-    socValue: number
 
     constructor(translate: TranslateService) {
         super('Edge.Index.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
-
-
 
     ngOnInit() {
         interval(1000)
@@ -24,15 +21,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             })
     }
 
-    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number, powerRatio: number) {
-        powerRatio = powerRatio / 2; // interval from -50 to 50
-        this.socValue = valueRatio
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number) {
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge')
-            super.updateStorage(chargeAbsolute, valueRatio, sumChargeRatio, powerRatio);
+            super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
         } else if (dischargeAbsolute != null && dischargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge')
-            super.updateStorage(dischargeAbsolute, valueRatio, sumDischargeRatio * -1, powerRatio);
+            super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateValue(0, 0, 0);
@@ -41,9 +36,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             this.valueText2 = Math.round(valueRatio) + " %";
         } else {
             this.valueText2 = "";
-        }
-        if (this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath()
         }
     }
 
@@ -54,21 +46,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        if (this.socValue < 20) {
-            return "storage_20.png"
-        }
-        else if (this.socValue < 40) {
-            return "storage_40.png"
-        }
-        else if (this.socValue < 60) {
-            return "storage_60.png"
-        }
-        else if (this.socValue < 86) {
-            return "storage_80.png"
-        }
-        else {
-            return "storage_100.png"
-        }
+        return "storage.png";
     }
 
     protected getValueText(value: number): string {

@@ -23,7 +23,6 @@ import { appRoutingProviders } from './../app-routing.module';
 import { Service } from './service/service';
 import { Websocket } from './service/websocket';
 import { Utils } from './service/utils';
-import { Alerts } from './service/alerts';
 
 /*
  * Pipes
@@ -106,8 +105,7 @@ import { IonicModule } from '@ionic/angular';
     Service,
     Websocket,
     ToasterService,
-    appRoutingProviders,
-    Alerts
+    appRoutingProviders
   ]
 })
 export class SharedModule { }
