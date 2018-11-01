@@ -1,4 +1,4 @@
-# io.openems.edge.pvinverter.api Provider
+# io.openems.edge.pvinverter.api
 
 ${Bundle-Description}
 

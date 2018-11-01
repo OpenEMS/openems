@@ -1,17 +1,20 @@
 package io.openems.edge.pvinverter.api;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Represents a 3-Phase, symmetric PV-Inverter.
  */
-public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
+@ProviderType
+public interface SymmetricPvInverter extends SymmetricMeter {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -26,8 +29,7 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 		ACTIVE_POWER_LIMIT(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.text(POWER_DOC_TEXT));
+				.accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;
 
@@ -48,11 +50,13 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
 	}
-	
+
 	/**
-	 * Sets PV limit on given inverter
+	 * Sets the PV limit in [W].
 	 * 
-	 * @param power
+	 * @return
 	 */
-	public void setPVLimit(int power);
+	public default WriteChannel<Integer> getActivePowerLimit() {
+		return this.channel(ChannelId.ACTIVE_POWER_LIMIT);
+	}
 }
