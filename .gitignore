@@ -1,9 +1,5 @@
 # Created by https://www.gitignore.io/api/java,maven,gradle,angular,eclipse,node
 
-com.ed.openems.centurio/
-edcom.bnd
-edcom-v3.0.jar
-
 ### Angular ###
 ## Angular ##
 # compiled output
