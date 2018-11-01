@@ -1,5 +1,7 @@
 package io.openems.edge.pvinverter.solarlog;
 
+import java.util.function.Consumer;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,7 +24,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
@@ -56,6 +57,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	public SolarLog()
 	{
 	    Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	    
+	    this.getActivePowerLimit().onSetNextWrite(this.setPVLimit);
 	}
 	
 	@Reference(	policy = ReferencePolicy.STATIC, 
@@ -179,8 +182,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		return "Max Active Power: " + String.valueOf(this.maxActivePower + " Current PAC: " + String.valueOf(this.channel(ChannelId.PAC)));
 	}
 	
-	@Override
-	public void setPVLimit(int power)
+	public final Consumer<Integer> setPVLimit = (power) ->
 	{
 		int pLimitPerc = (int) ((double) power / (double) this.maxActivePower * 100.0);
 		
@@ -214,7 +216,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 			log.error("Unable to set watchDogTagCh: " + e.getMessage());
 		}*/
 		
-	}
+	};
 
 	public enum RegisterAddress
 	{
