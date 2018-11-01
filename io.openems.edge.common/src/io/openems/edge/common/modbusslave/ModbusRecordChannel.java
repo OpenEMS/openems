@@ -6,8 +6,10 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class ModbusRecordChannel extends ModbusRecord {
@@ -102,9 +104,6 @@ public class ModbusRecordChannel extends ModbusRecord {
 		switch (this.getType()) {
 		case FLOAT32:
 			value = buff.getFloat();
-
-			// TODO: aus 5000 wird 3156.0156
-
 			break;
 		case STRING16:
 			value = ""; // TODO implement String conversion
@@ -120,6 +119,21 @@ public class ModbusRecordChannel extends ModbusRecord {
 		} else {
 			log.error("No onWriteValueCallback registered. What should I do with [" + value + "]?");
 		}
+	}
+
+	@Override
+	public String getName() {
+		return new ChannelAddress(this.getComponentId(), this.getChannelId().id()).toString();
+	}
+
+	@Override
+	public Unit getUnit() {
+		return this.channelId.doc().getUnit();
+	}
+
+	@Override
+	public String getValueDescription() {
+		return ""; // TODO get some meaningful text from Doc(), like 'between 0 and 100 %'
 	}
 
 }

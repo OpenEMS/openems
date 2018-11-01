@@ -25,8 +25,8 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		public Builder uint16(int offset, short value) {
-			this.add(new ModbusRecordUint16(offset, value));
+		public Builder uint16(int offset, String name, short value) {
+			this.add(new ModbusRecordUint16(offset, name, value));
 			return this;
 		}
 
@@ -40,8 +40,8 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		public Builder float32(int offset, float value) {
-			this.add(new ModbusRecordFloat32(offset, value));
+		public Builder float32(int offset, String name, float value) {
+			this.add(new ModbusRecordFloat32(offset, name, value));
 			return this;
 		}
 
@@ -50,8 +50,8 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		public Builder string16(int offset, String value) {
-			this.add(new ModbusRecordString16(offset, value));
+		public Builder string16(int offset, String name, String value) {
+			this.add(new ModbusRecordString16(offset, name, value));
 			return this;
 		}
 
