@@ -13,10 +13,10 @@ Private-Package:  \
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	com.google.gson,\
 	io.openems.edge.controller.api.core;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
-	com.ghgande.j2mod
+	com.ghgande.j2mod,\
+	json
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

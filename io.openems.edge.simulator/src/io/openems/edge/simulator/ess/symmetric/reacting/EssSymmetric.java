@@ -22,19 +22,22 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
-import io.openems.edge.simulator.ess.EssUtils;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.EssSymmetric.Reacting", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
+@Component(name = "Simulator.EssAsymmetric.Reacting", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
-public class EssSymmetric extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
+public class EssSymmetric extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	/**
 	 * Current state of charge
@@ -97,7 +100,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	}
 
 	public EssSymmetric() {
-		EssUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Override
@@ -126,7 +129,10 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) {
+		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
+		int reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 		/*
 		 * calculate State of charge
 		 */
@@ -142,19 +148,13 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
-		if (soc == 0 && activePower > 0) {
-			activePower = 0;
-		}
-		if (soc == 100 && activePower < 0) {
-			activePower = 0;
-		}
+		this.getActivePowerL1().setNextValue(activePowerL1);
+		this.getActivePowerL2().setNextValue(activePowerL2);
+		this.getActivePowerL3().setNextValue(activePowerL3);
 		this.getActivePower().setNextValue(activePower);
-		if (soc == 0 && reactivePower > 0) {
-			reactivePower = 0;
-		}
-		if (soc == 100 && reactivePower < 0) {
-			reactivePower = 0;
-		}
+		this.getReactivePowerL1().setNextValue(reactivePowerL1);
+		this.getReactivePowerL2().setNextValue(reactivePowerL2);
+		this.getReactivePowerL3().setNextValue(reactivePowerL3);
 		this.getReactivePower().setNextValue(reactivePower);
 		/*
 		 * Set AllowedCharge / Discharge based on SoC
@@ -181,7 +181,11 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(), //
 				SymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable() //
-		);
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				AsymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(EssSymmetric.class, 300) //
+						.build());
 	}
+
 }

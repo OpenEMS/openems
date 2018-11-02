@@ -9,14 +9,14 @@ import io.openems.edge.common.channel.doc.ChannelId;
 public final class ModbusSlaveNatureTable {
 
 	public static class Builder {
-		private final short natureHash;
+		private final Class<?> nature;
 		private final int length;
 		private final List<ModbusRecord> maps = new ArrayList<>();
 
 		private int nextOffset = 0;
 
 		public Builder(Class<?> nature, int length) {
-			this.natureHash = (short) nature.getSimpleName().hashCode();
+			this.nature = nature;
 			this.length = length;
 		}
 
@@ -25,8 +25,13 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		public Builder uint16(int offset, short value) {
-			this.add(new ModbusRecordUint16(offset, value));
+		public Builder uint16(int offset, String name, short value) {
+			this.add(new ModbusRecordUint16(offset, name, value));
+			return this;
+		}
+
+		public Builder uint16Hash(int offset, String text) {
+			this.add(new ModbusRecordUint16Hash(offset, text));
 			return this;
 		}
 
@@ -35,8 +40,8 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		public Builder float32(int offset, float value) {
-			this.add(new ModbusRecordFloat32(offset, value));
+		public Builder float32(int offset, String name, float value) {
+			this.add(new ModbusRecordFloat32(offset, name, value));
 			return this;
 		}
 
@@ -45,8 +50,8 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
-		public Builder string16(int offset, String value) {
-			this.add(new ModbusRecordString16(offset, value));
+		public Builder string16(int offset, String name, String value) {
+			this.add(new ModbusRecordString16(offset, name, value));
 			return this;
 		}
 
@@ -64,8 +69,7 @@ public final class ModbusSlaveNatureTable {
 			Collections.sort(this.maps, (m1, m2) -> {
 				return Integer.compare(m1.getOffset(), m2.getOffset());
 			});
-			return new ModbusSlaveNatureTable(natureHash, length,
-					this.maps.toArray(new ModbusRecord[this.maps.size()]));
+			return new ModbusSlaveNatureTable(nature, length, this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
 	}
 
@@ -73,18 +77,18 @@ public final class ModbusSlaveNatureTable {
 		return new Builder(nature, length);
 	}
 
-	private final short natureHash;
+	private final Class<?> nature;
 	private final int length;
 	private final ModbusRecord[] modbusRecords;
 
-	private ModbusSlaveNatureTable(short natureHash, int length, ModbusRecord[] modbusRecords) {
-		this.natureHash = natureHash;
+	private ModbusSlaveNatureTable(Class<?> nature, int length, ModbusRecord[] modbusRecords) {
+		this.nature = nature;
 		this.length = length;
 		this.modbusRecords = modbusRecords;
 	}
 
-	public short getNatureHash() {
-		return natureHash;
+	public Class<?> getNature() {
+		return nature;
 	}
 
 	public int getLength() {
