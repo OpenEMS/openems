@@ -38,6 +38,9 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -57,7 +60,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 
 public class RefuEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
-		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, EventHandler {
+		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(RefuEss.class);
 
@@ -814,5 +817,17 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 			break;
 		}
 		return Power.NO_CONSTRAINTS;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				AsymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(RefuEss.class, 300) //
+						.build());
 	}
 }

@@ -23,6 +23,9 @@ import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -33,7 +36,7 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
 	protected static final int UNIT_ID = 100;
 	protected static final int MAX_APPARENT_POWER = 11600;
@@ -366,4 +369,13 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		}
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(AbstractEssStreetscooter.class, 300) //
+						.build());
+	}
 }
