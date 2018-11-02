@@ -62,4 +62,3 @@ The following scheme shows the abstraction of hardware via Channels, Natures and
 
 .Architecture scheme 
 image::device-nature-channel-scheduler-controller.png[Architecture scheme]
-image::device-nature-channel-scheduler-controller.png[Architecture scheme]
