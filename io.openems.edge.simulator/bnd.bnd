@@ -10,7 +10,7 @@ Private-Package: \
 	io.openems.edge.simulator.meter,\
 	io.openems.edge.simulator.datasource.api,\
 	io.openems.edge.simulator.datasource.csv,\
-	io.openems.edge.simulator.ess,\
+	io.openems.edge.simulator.ess.asymmetric.reacting,\
 	io.openems.edge.simulator.ess.symmetric.reacting
 
 Export-Package: io.openems.edge.ess.api,\

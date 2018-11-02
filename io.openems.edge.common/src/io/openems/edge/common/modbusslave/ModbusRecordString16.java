@@ -11,8 +11,11 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 
 	public final static int BYTE_LENGTH = 32;
 
-	public ModbusRecordString16(int offset, String value) {
-		super(offset, ModbusType.STRING16, toByteArray(value));
+	private final String value;
+
+	public ModbusRecordString16(int offset, String name, String value) {
+		super(offset, name, ModbusType.STRING16, toByteArray(value));
+		this.value = value;
 	}
 
 	public static byte[] toByteArray(String value) {
@@ -28,6 +31,11 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 		} else {
 			return toByteArray((String) TypeUtils.getAsType(OpenemsType.STRING, value));
 		}
+	}
+
+	@Override
+	public String getValueDescription() {
+		return this.value != null ? this.value : "";
 	}
 
 }

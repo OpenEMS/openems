@@ -9,10 +9,12 @@ public abstract class ModbusRecordConstant extends ModbusRecord {
 
 	private final Logger log = LoggerFactory.getLogger(ModbusRecordConstant.class);
 
+	private final String name;
 	private final byte[] value;
 
-	public ModbusRecordConstant(int offset, ModbusType type, byte[] value) {
+	public ModbusRecordConstant(int offset, String name, ModbusType type, byte[] value) {
 		super(offset, type);
+		this.name = name;
 		this.value = value;
 	}
 
@@ -32,6 +34,11 @@ public abstract class ModbusRecordConstant extends ModbusRecord {
 	public void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2) {
 		this.log.warn("Writing to Read-Only Modbus Record is not allowed! [" + this.getOffset() + ", " + this.getType()
 				+ "]");
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 
 }

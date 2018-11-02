@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
@@ -33,7 +34,38 @@ public class OnMessage extends AbstractOnMessage {
 		this.parent = parent;
 	}
 
-	protected void run(WebSocket websocket, JsonObject jMessage) {
+	protected void run(WebSocket websocket, String message) {
+//		TODO implement JSON-RPC
+//		try {
+//			JsonrpcResponse response = null;
+//			JsonrpcRequest request = JsonrpcRequest.from(message);
+//			try {
+//				/*
+//				 * Handle JsonrpcRequest
+//				 */
+//				switch (request.getMethod()) {
+//				}
+//
+//				/*
+//				 * Reply with JsonrpcResponse
+//				 */
+//				if (response != null) {
+//					WebSocketUtils.send(this.websocket, response.toString());
+//				}
+//
+//			} catch (OpenemsException e) {
+//				log.error("Unable to handle message: " + e.getMessage());
+//			}
+//
+//		} catch (JSONException e) {
+		/*
+		 * Handle Compatibility for pre-JSONRPC-Requests
+		 */
+		this.handleCompatibilty((new JsonParser()).parse(message).getAsJsonObject());
+//		}
+	}
+
+	private void handleCompatibilty(JsonObject jMessage) {
 		// get current User
 		WebsocketData data = websocket.getAttachment();
 		Integer userId = data.getUserId();
