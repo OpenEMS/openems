@@ -24,8 +24,10 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -151,12 +153,12 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(RegisterAddress.P_LIMIT_TYPE.get()))),
 				new FC6WriteRegisterTask(RegisterAddress.P_LIMIT_PERC.get(),
 						m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(RegisterAddress.P_LIMIT_PERC
-								.get())))/*
-											 * , new FC6WriteRegisterTask(RegisterAddress.WATCH_DOG_TAG.get(),
-											 * m(SolarLog.ChannelId.WATCH_DOG_TAG, new
-											 * UnsignedDoublewordElement(RegisterAddress.WATCH_DOG_TAG.get()).wordOrder(
-											 * WordOrder.LSWMSW)))
-											 */
+								.get()))),
+				new FC16WriteRegistersTask(RegisterAddress.WATCH_DOG_TAG.get(),
+						m(SolarLog.ChannelId.WATCH_DOG_TAG, new UnsignedDoublewordElement(RegisterAddress.WATCH_DOG_TAG.get())
+								.wordOrder(WordOrder.LSWMSW))),
+				new FC4ReadInputRegistersTask(RegisterAddress.STATUS.get(), Priority.HIGH,
+						m(SolarLog.ChannelId.STATUS, new SignedWordElement(RegisterAddress.STATUS.get())))
 		);
 		return this.protocol;
 	}
@@ -168,10 +170,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "Max Active Power: "
-				+ String.valueOf(this.maxActivePower + 
-			   " Current Active Power: " 
-				+ String.valueOf(this.channel(SymmetricMeter.ChannelId.ACTIVE_POWER)));
+	    return "L:" + this.getActivePower().value().asString();
 	}
 
 	public final Consumer<Integer> setPVLimit = (power) -> {
@@ -187,7 +186,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
 		IntegerWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
-		// IntegerWriteChannel watchDogTagCh = this.channel(ChannelId.WATCH_DOG_TAG);
+		IntegerWriteChannel watchDogTagCh = this.channel(ChannelId.WATCH_DOG_TAG);
 
 		try {
 			pLimitPercCh.setNextWriteValue(pLimitPerc);
@@ -201,10 +200,11 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
 		}
 
-		/*
-		 * try { watchDogTagCh.setNextWriteValue(pLimitPerc); } catch (OpenemsException
-		 * e) { log.error("Unable to set watchDogTagCh: " + e.getMessage()); }
-		 */
+		try {
+			 watchDogTagCh.setNextWriteValue((int)System.currentTimeMillis());
+		} catch (OpenemsException e) {
+			log.error("Unable to set watchDogTagCh: " + e.getMessage());
+		}
 
 	};
 
@@ -216,7 +216,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		// PV
 
-		P_LIMIT_TYPE(10200), P_LIMIT_PERC(10201), WATCH_DOG_TAG(10211);
+		P_LIMIT_TYPE(10400), P_LIMIT_PERC(10401), WATCH_DOG_TAG(10404), STATUS(10900);
 
 		private final int address;
 
@@ -248,7 +248,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		P_LIMIT_TYPE(new Doc().type(OpenemsType.INTEGER)),
 		P_LIMIT_PERC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		WATCH_DOG_TAG(new Doc().type(OpenemsType.INTEGER));
+		WATCH_DOG_TAG(new Doc().type(OpenemsType.INTEGER)),
+		STATUS(new Doc().type(OpenemsType.INTEGER));
 
 		private final Doc doc;
 

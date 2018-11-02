@@ -55,6 +55,7 @@ public class Utils {
 					case YESTERDAY_YIELD:
 					case YESTERDAY_YIELD_CONS:
 					case TOTAL_POWER:
+					case STATUS:
 						return new IntegerReadChannel(c, channelId);
 					case P_LIMIT_PERC:
 					case P_LIMIT_TYPE:
