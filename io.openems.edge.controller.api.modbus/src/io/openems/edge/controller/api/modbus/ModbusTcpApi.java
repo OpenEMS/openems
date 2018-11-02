@@ -25,15 +25,19 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.websocket.JsonrpcRequest;
+import io.openems.common.websocket.JsonrpcResponse;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
-import io.openems.edge.common.modbusslave.ModbusRecordUint16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16BlockLength;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -48,9 +52,9 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "Controller.Api.ModbusTcp", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
+public class ModbusTcpApi extends AbstractOpenemsComponent
+		implements Controller, ApiController, OpenemsComponent, JsonApi {
 
-	public final static short OPENEMS_IDENTIFIER = (short) "OpenEMS".hashCode();
 	public final static int UNIT_ID = 1;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusTcpApi.class);
@@ -137,7 +141,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 	private void initializeModbusRecords() {
 		// Add generic header
-		this.records.put(0, new ModbusRecordUint16(0, ModbusTcpApi.OPENEMS_IDENTIFIER));
+		this.records.put(0, new ModbusRecordUint16Hash(0, "OpenEMS"));
 		int nextAddress = 1;
 
 		// add Meta-Component
@@ -173,7 +177,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 		// add the Component-Model Length
 		int nextAddress = this.addRecordToProcessImage(startAddress,
-				new ModbusRecordUint16(-1, (short) table.getLength()), component);
+				new ModbusRecordUint16BlockLength(-1, component.id(), (short) table.getLength()), component);
 
 		// add Records
 		for (ModbusSlaveNatureTable natureTable : table.getNatureTables()) {
@@ -195,9 +199,10 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 		ModbusSlaveTable table = component.getModbusSlaveTable();
 
 		// add the Component-ID and Component-Model Length
-		int nextAddress = this.addRecordToProcessImage(startAddress, new ModbusRecordString16(-1, component.id()),
-				component);
-		this.addRecordToProcessImage(nextAddress, new ModbusRecordUint16(-1, (short) table.getLength()), component);
+		int nextAddress = this.addRecordToProcessImage(startAddress,
+				new ModbusRecordString16(-1, "Component-ID", component.id()), component);
+		this.addRecordToProcessImage(nextAddress,
+				new ModbusRecordUint16BlockLength(-1, component.id(), (short) table.getLength()), component);
 		nextAddress = startAddress + 20;
 		int nextNatureAddress = nextAddress;
 
@@ -205,9 +210,9 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 		for (ModbusSlaveNatureTable natureTable : table.getNatureTables()) {
 			// add the Interface Hash-Code and Length
 			nextAddress = this.addRecordToProcessImage(nextNatureAddress,
-					new ModbusRecordUint16(-1, natureTable.getNatureHash()), component);
-			nextAddress = this.addRecordToProcessImage(nextAddress,
-					new ModbusRecordUint16(-1, (short) natureTable.getLength()), component);
+					new ModbusRecordUint16Hash(-1, natureTable.getNature().getSimpleName()), component);
+			nextAddress = this.addRecordToProcessImage(nextAddress, new ModbusRecordUint16BlockLength(-1,
+					natureTable.getNature().getSimpleName(), (short) natureTable.getLength()), component);
 
 			// add Records
 			for (ModbusRecord record : natureTable.getModbusRecords()) {
@@ -276,5 +281,14 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {
+		switch (message.getMethod()) {
+		case JsonApiGetModbusProtocol.METHOD:
+			return JsonApiGetModbusProtocol.of(message.getId(), this.records);
+		}
+		return null;
 	}
 }
