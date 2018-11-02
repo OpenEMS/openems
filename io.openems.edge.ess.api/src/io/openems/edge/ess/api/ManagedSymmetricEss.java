@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -62,16 +61,21 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_ACTIVE_POWER_EQUALS(new Doc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(channel -> { //
-					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
-						try {
-							((ManagedSymmetricEss) channel.getComponent()).addPowerConstraintAndValidate(
-									"Channel SetActivePowerEquals", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, value);
-						} catch (PowerException e) {
-							log.error("Unable to set ActivePowerEquals: " + e.getMessage());
-						} //
-					});
-				})), //
+				.onInit(new PowerConstraint("SetActivePowerEquals", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS))), //
+		/**
+		 * Sets a fixed Reactive Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_REACTIVE_POWER_EQUALS(new Doc() //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new PowerConstraint("SetReactivePowerEquals", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Holds settings of Active Power for debugging
 		 * 
@@ -116,6 +120,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.SET_REACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
 				.build();
 	}
 
