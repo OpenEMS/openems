@@ -43,16 +43,12 @@ public class Utils {
 				}), Arrays.stream(SolarLog.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case LAST_UPDATE_TIME:
-					case DAILY_YIELD:
-					case DAILY_YIELD_CONS:
 					case MONTHLY_YIELD:
 					case MONTHLY_YIELD_CONS:
-					case PAC:
 					case PAC_CONSUMPTION:
 					case PDC:
 					case TOTAL_YIELD:
 					case TOTAL_YIELD_CONS:
-					case UAC:
 					case UDC:
 					case YEARLY_YIELD:
 					case YEARLY_YIELD_CONS:

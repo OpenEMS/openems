@@ -86,18 +86,18 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 								new SignedDoublewordElement(RegisterAddress.LAST_UPDATE_TIME.get())
 										.wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SolarLog.ChannelId.PAC,
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(RegisterAddress.PAC.get()).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.DIRECT_1_TO_1),
 						m(SolarLog.ChannelId.PDC,
 								new SignedDoublewordElement(RegisterAddress.PDC.get()).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SolarLog.ChannelId.UAC, new SignedWordElement(RegisterAddress.UAC.get()),
+						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(RegisterAddress.UAC.get()),
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(SolarLog.ChannelId.UDC, new SignedWordElement(RegisterAddress.UDC.get()),
 								ElementToChannelConverter.SCALE_FACTOR_2)),
 				new FC4ReadInputRegistersTask(RegisterAddress.DAILY_YIELD.get(), Priority.LOW,
-						m(SolarLog.ChannelId.DAILY_YIELD,
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new SignedDoublewordElement(RegisterAddress.DAILY_YIELD.get())
 										.wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.DIRECT_1_TO_1),
@@ -121,7 +121,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 								new SignedDoublewordElement(RegisterAddress.PAC_CONSUMPTION.get())
 										.wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SolarLog.ChannelId.DAILY_YIELD_CONS,
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new SignedDoublewordElement(RegisterAddress.DAILY_YIELD_CONS.get())
 										.wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.DIRECT_1_TO_1),
@@ -169,7 +169,9 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "Max Active Power: "
-				+ String.valueOf(this.maxActivePower + " Current PAC: " + String.valueOf(this.channel(ChannelId.PAC)));
+				+ String.valueOf(this.maxActivePower + 
+			   " Current Active Power: " 
+				+ String.valueOf(this.channel(SymmetricMeter.ChannelId.ACTIVE_POWER)));
 	}
 
 	public final Consumer<Integer> setPVLimit = (power) -> {
@@ -229,17 +231,13 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		LAST_UPDATE_TIME(new Doc().type(OpenemsType.INTEGER).unit(Unit.SECONDS)),
-		PAC(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		PDC(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		UAC(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
 		UDC(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		DAILY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		YESTERDAY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		MONTHLY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		YEARLY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		TOTAL_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		PAC_CONSUMPTION(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		DAILY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		YESTERDAY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		MONTHLY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 		YEARLY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
