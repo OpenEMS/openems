@@ -17,7 +17,7 @@ Export-Package: \
 	io.openems.common;version=latest,\
 	com.google.gson,\
 	com.google.guava;version=27,\
-	com.ghgande.j2mod;version=2.5
+	io.openems.wrapper.j2mod;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

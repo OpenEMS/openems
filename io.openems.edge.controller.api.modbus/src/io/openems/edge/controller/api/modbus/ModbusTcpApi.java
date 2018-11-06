@@ -120,13 +120,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 					config.maxConcurrentConnections());
 			slave.addProcessImage(UNIT_ID, this.processImage);
 			slave.open();
-			String error = slave.getError();
-			if (error != null) {
-				throw new OpenemsException(error);
-			}
+			// TODO from j2mod 2.5.2
+//			String error = slave.getError();
+//			if (error != null) {
+//				throw new OpenemsException(error);
+//			}
 			log.info("Modbus/TCP Api started on port [" + config.port() + "] with UnitId [" + ModbusTcpApi.UNIT_ID
 					+ "].");
-		} catch (ModbusException | OpenemsException e) {
+//		} catch (ModbusException | OpenemsException e) {
+		} catch (ModbusException e) {
 			this.logError(this.log,
 					"Unable to start Modbus/TCP Api on port [" + config.port() + "]: " + e.getMessage());
 			throw e;

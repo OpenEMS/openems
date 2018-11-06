@@ -215,4 +215,9 @@ public class MyProcessImage implements ProcessImage {
 		return 0;
 	}
 
+	@Override
+	public int getUnitID() {
+		return 1;
+	}
+
 }
