@@ -2,6 +2,9 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
@@ -15,6 +18,8 @@ import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
+
+	private final Logger log = LoggerFactory.getLogger(FC6WriteRegisterTask.class);
 
 	public FC6WriteRegisterTask(int startAddress, AbstractModbusElement<?> element) {
 		super(startAddress, element);
@@ -56,7 +61,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 				}
 			}
 		} else {
-			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!"); // TODO is this not possible for DoubleWords?
+			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!");
 		}
 	}
 

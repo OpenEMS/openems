@@ -264,7 +264,16 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		public BitChannelMapper(UnsignedWordElement element) {
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
+				if(value == null) {
+					return;
+				}
+				
 				this.channels.forEach((bitIndex, channelWrapper) -> {
+					if (bitIndex == null) {
+						log.warn("BitIndex is null for Channel [" + channelWrapper.channel.address() + "]");
+						return;
+					}
+
 					// Get value for this Channel
 					boolean setValue;
 					if (value << ~bitIndex < 0) {

@@ -21,7 +21,7 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 
 	protected boolean debug = false;
 
-	protected final Map<String, Value<T>> valueMap = new ConcurrentHashMap<>();
+	protected final Map<OpenemsComponent, Value<T>> valueMap = new ConcurrentHashMap<>();
 
 	public ChannelsFunction(OpenemsComponent parent, ChannelId targetChannelId, ChannelId sourceChannelId) {
 		this.targetChannel = parent.channel(targetChannelId);
@@ -33,7 +33,7 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 			log.info("Add Component [" + component.id() + "] of type [" + component.getClass().getSimpleName() + "]");
 		}
 		final Consumer<Value<T>> handler = value -> {
-			this.valueMap.put(component.id(), value);
+			this.valueMap.put(component, value);
 			this.recalculateValue();
 		};
 		Channel<T> channel = component.channel(this.sourceChannelId);
@@ -48,7 +48,7 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 		}
 		String componentId = component.id();
 		if (componentId != null) {
-			this.valueMap.remove(component.id());
+			this.valueMap.remove(component);
 		}
 		this.recalculateValue();
 	}
