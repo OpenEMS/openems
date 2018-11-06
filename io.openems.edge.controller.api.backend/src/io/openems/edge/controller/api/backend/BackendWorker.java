@@ -107,6 +107,15 @@ class BackendWorker extends AbstractWorker {
 		final JsonObject j = new JsonObject();
 		this.parent.getComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
 			component.channels().forEach(channel -> {
+				// Ignore WRITE_ONLY Channels
+				switch (channel.channelDoc().getAccessMode()) {
+				case READ_ONLY:
+				case READ_WRITE:
+					break;
+				case WRITE_ONLY:
+					return;
+				}
+
 				ChannelAddress address = channel.address();
 				JsonElement jValue = channel.value().asJson();
 				JsonElement jLastValue = this.last.get(address);

@@ -44,6 +44,9 @@ public class Utils {
 					case ALLOWED_CHARGE_POWER:
 					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -65,6 +68,13 @@ public class Utils {
 					case DEBUG_SET_REACTIVE_POWER_L1:
 					case DEBUG_SET_REACTIVE_POWER_L2:
 					case DEBUG_SET_REACTIVE_POWER_L3:
+						return new IntegerWriteChannel(c, channelId);
+					case SET_ACTIVE_POWER_L1_EQUALS:
+					case SET_ACTIVE_POWER_L2_EQUALS:
+					case SET_ACTIVE_POWER_L3_EQUALS:
+					case SET_REACTIVE_POWER_L1_EQUALS:
+					case SET_REACTIVE_POWER_L2_EQUALS:
+					case SET_REACTIVE_POWER_L3_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;

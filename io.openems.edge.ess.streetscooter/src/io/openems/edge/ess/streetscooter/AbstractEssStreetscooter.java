@@ -19,9 +19,13 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -32,7 +36,7 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
 	protected static final int UNIT_ID = 100;
 	protected static final int MAX_APPARENT_POWER = 11600;
@@ -280,7 +284,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		INVERTER_V_DC_1(new Doc().unit(Unit.VOLT)), //
 		INVERTER_V_DC_2(new Doc().unit(Unit.VOLT)), //
 		INVERTER_CONNECTED(new Doc().unit(Unit.ON_OFF)),
-		SYSTEM_STATE_INFORMATION(new Doc().setWritable().unit(Unit.NONE));
+		SYSTEM_STATE_INFORMATION(new Doc().accessMode(AccessMode.READ_WRITE).unit(Unit.NONE));
 
 		private final Doc doc;
 
@@ -349,8 +353,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		}
 
 		/*
-		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok -> block any
-		 * charging/discharging
+		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok ->
+		 * block any charging/discharging
 		 */
 		if (this.readonly || invalidIcuStatusCounter > 10) {
 			return new Constraint[] { //
@@ -365,4 +369,13 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		}
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(AbstractEssStreetscooter.class, 300) //
+						.build());
+	}
 }

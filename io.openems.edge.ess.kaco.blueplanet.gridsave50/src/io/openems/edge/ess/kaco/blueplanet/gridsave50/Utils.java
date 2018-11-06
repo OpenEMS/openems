@@ -43,6 +43,9 @@ public class Utils {
 					case ALLOWED_CHARGE_POWER:
 					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(ess, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
+						return new IntegerWriteChannel(ess, channelId);
 					}
 					return null;
 				}), Arrays.stream(EssKacoBlueplanetGridsave50.ChannelId.values()).map(channelId -> {
