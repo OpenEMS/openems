@@ -25,6 +25,9 @@ import io.openems.edge.common.channel.merger.SumInteger;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -40,10 +43,10 @@ import io.openems.edge.ess.api.MetaEss;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler {
+		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 //	private final Logger log = LoggerFactory.getLogger(EssCluster.class);
-	
+
 	private final AverageInteger<SymmetricEss> soc;
 	private final SumInteger<SymmetricEss> activePower;
 	private final SumInteger<SymmetricEss> reactivePower;
@@ -75,7 +78,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 			return;
 		}
 		// Do not add disabled Ess
-		if(!ess.isEnabled()) {
+		if (!ess.isEnabled()) {
 			return;
 		}
 
@@ -242,5 +245,17 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				AsymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(EssCluster.class, 300) //
+						.build());
 	}
 }

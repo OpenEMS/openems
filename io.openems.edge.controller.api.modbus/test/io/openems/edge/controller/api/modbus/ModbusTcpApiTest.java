@@ -60,10 +60,12 @@ public class ModbusTcpApiTest {
 
 	@Test
 	public void testWrite() throws Exception {
-		byte[] bytes = ByteBuffer.allocate(4).putFloat(5000).array();
+		byte[] bytes = ByteBuffer.allocate(4).putFloat(2500).array();
 		ModbusTCPMaster master = getMaster();
-		master.writeMultipleRegisters(706,
-				new Register[] { new SimpleRegister(bytes[0], bytes[1]), new SimpleRegister(bytes[2], bytes[3]) });
+		master.writeMultipleRegisters(902, new Register[] { //
+				new SimpleRegister(bytes[0], bytes[1]), new SimpleRegister(bytes[2], bytes[3]), //
+				new SimpleRegister(bytes[0], bytes[1]), new SimpleRegister(bytes[2], bytes[3]) //
+		});
 		master.disconnect();
 	}
 

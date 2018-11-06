@@ -10,11 +10,11 @@ public class ModbusRecordFloat32 extends ModbusRecordConstant {
 	public final static byte[] UNDEFINED_VALUE = new byte[] { (byte) 0x7F, (byte) 0xC0, (byte) 0x00, (byte) 0x00 };
 
 	public final static int BYTE_LENGTH = 4;
-	
+
 	private final Float value;
 
-	public ModbusRecordFloat32(int offset, Float value) {
-		super(offset, ModbusType.FLOAT32, toByteArray(value));
+	public ModbusRecordFloat32(int offset, String name, Float value) {
+		super(offset, name, ModbusType.FLOAT32, toByteArray(value));
 		this.value = value;
 	}
 
@@ -33,6 +33,11 @@ public class ModbusRecordFloat32 extends ModbusRecordConstant {
 		} else {
 			return toByteArray((float) TypeUtils.getAsType(OpenemsType.FLOAT, value));
 		}
+	}
+
+	@Override
+	public String getValueDescription() {
+		return this.value != null ? this.value.toString() : "";
 	}
 
 }
