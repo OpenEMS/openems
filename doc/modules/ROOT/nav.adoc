@@ -19,3 +19,4 @@
 ** xref:backend/configuration.adoc[Configuration]
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
+* xref:randd.adoc[Research and Development]

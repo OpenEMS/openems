@@ -2,6 +2,9 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
@@ -19,6 +22,8 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  */
 public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
+	private final Logger log = LoggerFactory.getLogger(FC5WriteCoilTask.class);
+	
 	public FC5WriteCoilTask(int startAddress, AbstractModbusElement<?> element) {
 		super(startAddress, element);
 	}

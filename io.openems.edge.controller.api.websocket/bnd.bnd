@@ -16,6 +16,7 @@ Private-Package:  \
 	io.openems.wrapper.websocket;version=latest,\
 	com.google.gson,\
 	io.openems.edge.timedata.api;version=latest,\
+	json,\
 	org.ops4j.pax.logging.pax-logging-api,\
 	io.openems.edge.controller.api.core;version=latest
 
