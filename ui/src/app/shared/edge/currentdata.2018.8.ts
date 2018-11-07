@@ -49,6 +49,8 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             }, consumption: {
                 powerRatio: null,
                 activePower: null
+            }, evcs: {
+                actualPower: null
             }
         };
 

@@ -31,6 +31,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
   public config: ConfigImpl = null;
   public socChannels: DefaultTypes.ChannelAddresses = {};
   public powerChannels: DefaultTypes.ChannelAddresses = {};
+  public evcsChannels: DefaultTypes.ChannelAddresses = {};
+  public Channels: DefaultTypes.ChannelAddresses = {};
   private dateRange: IMyDateRange;
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
@@ -76,9 +78,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
               if (config) {
                 this.socChannels = config.getEssSocChannels();
                 this.powerChannels = config.getPowerChannels();
+                this.evcsChannels = config.getEvcsChannels();
               } else {
                 this.socChannels = {};
                 this.powerChannels = {};
+                this.evcsChannels = {};
               }
             });
         }

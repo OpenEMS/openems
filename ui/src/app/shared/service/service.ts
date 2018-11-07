@@ -14,7 +14,7 @@ export class Service implements ErrorHandler {
         public translate: TranslateService
     ) {
         // add language
-        translate.addLangs(["de", "en", "cz", "nl"]);
+        translate.addLangs(["de", "en", "cz", "nl", "es"]);
         // this language will be used as a fallback when a translation isn't found in the current language
         translate.setDefaultLang('de');
     }
