@@ -1,18 +1,21 @@
 package io.openems.edge.bridge.modbus.api;
 
+import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
+
 public enum Parity {
-	NONE("none"),
-	EVEN("even"),
-	ODD("odd"),
-	MARK("mark"),
-	SPACE("space")
-	;
-	
-	Parity(String parity) {
-		this.parity = parity;
+	NONE(AbstractSerialConnection.NO_PARITY), //
+	ODD(AbstractSerialConnection.ODD_PARITY), //
+	EVEN(AbstractSerialConnection.EVEN_PARITY), //
+	MARK(AbstractSerialConnection.MARK_PARITY), //
+	SPACE(AbstractSerialConnection.SPACE_PARITY);
+
+	Parity(int value) {
+		this.value = value;
 	}
-	private String parity;
-	public String getParity() {
-		return parity;
-	}		
+
+	private int value;
+
+	public int getValue() {
+		return this.value;
+	}
 }

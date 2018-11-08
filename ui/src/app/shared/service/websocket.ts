@@ -15,7 +15,7 @@ import { DefaultMessages } from '../service/defaultmessages';
 export class Websocket {
   public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
-  private static readonly DEFAULT_EDGENAME = "fems";
+  private static readonly DEFAULT_EDGENAME = "openems";
 
   // holds references of edge names (=key) to Edge objects (=value)
   private _edges: BehaviorSubject<{ [name: string]: Edge }> = new BehaviorSubject({});
@@ -60,8 +60,10 @@ export class Websocket {
   public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
     let onTimeout = () => {
       // Timeout: redirect to index
-      this.router.navigate(['/index']);
-      subscription.unsubscribe();
+      if (this.router.url != '/settings' && this.router.url != '/about') {
+        this.router.navigate(['/index']);
+        subscription.unsubscribe();
+      }
     }
 
     let edgeName = route.snapshot.params["edgeName"];

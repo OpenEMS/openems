@@ -225,6 +225,36 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
     }
 
     /**
+    * Return ChannelAddresses of EVCS channels
+    */
+    public getEvcsChannels(): DefaultTypes.ChannelAddresses {
+        let result: DefaultTypes.ChannelAddresses = {}
+        let ignoreNatures = { EssClusterNature: true };
+
+        // Set "ignoreNatures"
+        for (let thingId of this.esss) {
+            let i = this.getImplements(this.config.things[thingId]);
+            if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+                ignoreNatures["AsymmetricMeterNature"] = true;
+            }
+        }
+        for (let thingId in this.config.things) {
+            let clazz = <string>this.config.things[thingId].class; // TODO casting
+            let i = this.getImplements(this.config.things[thingId]);
+            let channels = [];
+            //EVCS
+            for (let thingId of this.evcsDevices) {
+                result[thingId] = ["State", "Plug", "CurrUser", "ActualPower", "EnergySession", "EnergyTotal"];
+            }
+            if (channels.length > 0) {
+                result[thingId] = channels;
+            }
+        }
+        console.log("result", result)
+        return result;
+    }
+
+    /**
      * Returns ChannelAddresses of ESS Soc channels
      */
     public getEssSocChannels(): DefaultTypes.ChannelAddresses {

@@ -64,7 +64,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 		 * of those channelIds and their current values.
 		 */
 		this._components.stream() //
-				.filter(c -> c.isEnabled()) // enabled components only
+				.filter(c -> c.isEnabled() && c.id() != null) // enabled components only
 				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) // sorted by Component-ID
 				.forEachOrdered(component -> {
 					String debugLog = component.debugLog();

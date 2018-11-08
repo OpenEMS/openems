@@ -39,6 +39,8 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -57,7 +59,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 ) //
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
@@ -371,13 +373,15 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		});
 
 		this.battery.getSoh().onChange(value -> {
-			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_SOH).setNextValue(value.get());
 		});
 
 		this.battery.getBatteryTemp().onChange(value -> {
-			this.getSoc().setNextValue(value.get());
 			this.channel(ChannelId.BAT_TEMP).setNextValue(value.get());
+		});
+		
+		this.channel(ChannelId.AC_ENERGY).onUpdate(value -> {
+			this.channel(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY).setNextValue(value.get());
 		});
 	}
 
@@ -396,6 +400,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		 */
 		W_MAX(new Doc().unit(Unit.WATT)), //
 		W_MAX_SF(new Doc().unit(Unit.NONE)), //
+		AC_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
+		AC_ENERGY_SF(new Doc().unit(Unit.NONE)), //
 		/*
 		 * SUNSPEC_64201
 		 */
@@ -512,9 +518,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(SUNSPEC_103 + 24, Priority.LOW, //
+						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY, new UnsignedDoublewordElement(SUNSPEC_103 + 24)),
+						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY_SF, new SignedWordElement(SUNSPEC_103 + 26))), //
 				new FC3ReadRegistersTask(SUNSPEC_103 + 39, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.VENDOR_OPERATING_STATE,
-								new SignedWordElement(SUNSPEC_103 + 39))), //
+								new SignedWordElement(SUNSPEC_103 + 39))), //				
 				new FC3ReadRegistersTask(SUNSPEC_64201 + 35, Priority.HIGH,
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_64201 + 35),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
@@ -612,8 +621,18 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		if (this.isPowerAllowed) {
 			return new Constraint[] {};
 		} else {
-			return new Constraint[] { this.createPowerConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0) };
+			return new Constraint[] { this.createPowerConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE,
+					Relationship.EQUALS, 0) };
 		}
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable() //
+		);
 	}
 
 }
