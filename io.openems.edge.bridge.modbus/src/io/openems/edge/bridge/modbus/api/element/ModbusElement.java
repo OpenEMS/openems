@@ -32,7 +32,7 @@ public interface ModbusElement<T> {
 	 * Set the {@link AbstractTask}, where this Element belongs to. This is called during
 	 * {@link AbstractTask}.add()
 	 *
-	 * @param readTask
+	 * @param abstractTask
 	 */
 	public void setModbusTask(AbstractTask abstractTask);
 

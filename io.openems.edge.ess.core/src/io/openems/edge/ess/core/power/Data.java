@@ -347,7 +347,7 @@ public class Data {
 	}
 
 	/**
-	 * Creates Constraints for Sum of P > 0
+	 * Creates Constraints for Sum of P &gt; 0
 	 * 
 	 * @return
 	 */
@@ -416,7 +416,7 @@ public class Data {
 	 * resorting the entire list all the time. Instead it only adjusts the list
 	 * slightly.
 	 * 
-	 * @param wrapper2
+	 * @param inverters
 	 */
 	public static void invertersAdjustSortingByWeights(List<Inverter> inverters) {
 		for (int i = 0; i < inverters.size() - 1; i++) {

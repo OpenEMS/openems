@@ -6,14 +6,13 @@
                     <ion-avatar slot="start">
                         <ion-icon color="primary" name="options" size="large"></ion-icon>
                     </ion-avatar>
-                    <ion-label text-wrap>
-                        Allgemeine Einstellungen
+                    <ion-label text-wrap translate>
+                        Menu.Settings
                     </ion-label>
                 </ion-item>
                 <ion-card-content>
-                    <ul>
-                        Sprache:
-                        <!-- TODO translate -->
+                    <ul translate>
+                        About.Language
                         <select #langSelect (change)="translate.use(langSelect.value)">
                             <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{
                                 lang }}</option>

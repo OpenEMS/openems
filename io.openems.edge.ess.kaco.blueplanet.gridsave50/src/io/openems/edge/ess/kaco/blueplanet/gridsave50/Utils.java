@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -85,7 +86,10 @@ public class Utils {
 					case DEBUG_DIS_MAX_A:
 					case DEBUG_DIS_MIN_V:
 					case DEBUG_EN_LIMIT:
+					case AC_ENERGY_SF:
 						return new IntegerReadChannel(ess, channelId);
+					case AC_ENERGY:
+						return new LongReadChannel(ess, channelId);
 					}
 					return null;
 				}) //

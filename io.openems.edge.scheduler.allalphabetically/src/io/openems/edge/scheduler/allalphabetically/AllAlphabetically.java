@@ -1,9 +1,10 @@
 package io.openems.edge.scheduler.allalphabetically;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.ComponentContext;
@@ -39,14 +40,14 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 	private String[] controllersIds = new String[0];
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	void addController(Controller controller) {
+	protected synchronized void addController(Controller controller) {
 		if (controller != null && controller.id() != null) {
 			this._controllers.put(controller.id(), controller);
 		}
 		this.updateSortedControllers();
 	}
 
-	void removeController(Controller controller) {
+	protected synchronized void removeController(Controller controller) {
 		if (controller != null && controller.id() != null) {
 			this._controllers.remove(controller.id(), controller);
 		}
@@ -75,7 +76,7 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 	 * Fills sortedControllers using the order of controller_ids config property
 	 */
 	private synchronized void updateSortedControllers() {
-		HashMap<String, Controller> allControllers = new HashMap<>(this._controllers);
+		TreeMap<String, Controller> allControllers = new TreeMap<>(this._controllers);
 		this.sortedControllers.clear();
 		// add sorted controllers
 		for (String id : this.controllersIds) {
@@ -84,17 +85,16 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 			}
 			Controller controller = allControllers.remove(id);
 			if (controller == null) {
-				log.warn("Required Controller [" + id + "] is not available.");
+				this.logWarn(this.log, "Required Controller [" + id + "] is not available.");
 			} else {
 				this.sortedControllers.add(controller);
 			}
 		}
-		// add remaining controllers
-		allControllers.entrySet().stream() //
-				.sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey())) //
-				.map(e -> e.getValue()) //
-				.forEach(c -> {
-					this.sortedControllers.add(c);
-				});
+
+		// add remaining controllers; TreeMap is sorted alphabetically by key
+		Collection<Controller> remainingControllers = allControllers.values();
+		for (Controller controller : remainingControllers) {
+			this.sortedControllers.add(controller);
+		}
 	}
 }

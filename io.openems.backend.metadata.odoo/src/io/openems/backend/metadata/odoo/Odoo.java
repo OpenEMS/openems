@@ -216,7 +216,6 @@ public class Odoo implements MetadataService {
 	 * Tries to authenticate at the Odoo server WITHOUT a sessionId. This is always
 	 * denied.
 	 *
-	 * @param sessionId
 	 * @return
 	 * @throws OpenemsException
 	 */

@@ -42,9 +42,9 @@ public abstract class AbstractWorker {
 	/**
 	 * Gets the cycleTime of this worker in [ms].
 	 * <ul>
-	 * <li>> 0 sets the minimum execution time of one Cycle
+	 * <li>&gt; 0 sets the minimum execution time of one Cycle
 	 * <li>= 0 never wait between two consecutive executions of forever()
-	 * <li>< 0 causes the Cycle to sleep forever until 'triggerNextRun()' is called
+	 * <li>&lt; 0 causes the Cycle to sleep forever until 'triggerNextRun()' is called
 	 * </ul>
 	 * 
 	 * @return

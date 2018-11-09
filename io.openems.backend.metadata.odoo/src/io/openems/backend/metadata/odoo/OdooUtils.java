@@ -93,8 +93,8 @@ public class OdooUtils {
 	 *            Password of user
 	 * @param model
 	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param ids
-	 *            ids of model to read
+	 * @param id
+	 *            id of model to read
 	 * @param fields
 	 *            fields that should be read
 	 * @return
@@ -134,7 +134,7 @@ public class OdooUtils {
 	/**
 	 * Executes a Search and read on Odoo
 	 * 
-	 * @see https://www.odoo.com/documentation/10.0/api_integration.html
+	 * @see <a href="https://www.odoo.com/documentation/10.0/api_integration.html">Odoo API Integration</a>
 	 * 
 	 * @param url
 	 *            URL of Odoo instance
@@ -255,10 +255,10 @@ public class OdooUtils {
 	 *            Password of user
 	 * @param model
 	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param ids
-	 *            ids of model to read
 	 * @param fields
 	 *            fields that should be read
+	 * @param domains
+	 *            filter domains
 	 * @return
 	 * @throws OpenemsException
 	 */
@@ -312,11 +312,10 @@ public class OdooUtils {
 	 *            Password of user
 	 * @param model
 	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param id
-	 *            id of model to update
+	 * @param ids
+	 *            ids of model to update
 	 * @param fieldValues
 	 *            fields and values that should be written
-	 * @return
 	 * @throws OpenemsException
 	 */
 	protected static void write(String url, String database, int uid, String password, String model, Integer[] ids,
