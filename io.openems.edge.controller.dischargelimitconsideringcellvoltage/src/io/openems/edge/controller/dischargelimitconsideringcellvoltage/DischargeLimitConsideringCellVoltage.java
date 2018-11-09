@@ -289,7 +289,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		minCellVoltage = config.firstCellVoltageLimit();
 		absolutMinCellVoltage = config.secondCellVoltageLimit();
 		minimalSystemVoltage = config.minimalTotalVoltage();
-		chargeSoC = config.ChargeSoc();
+		chargeSoC = config.chargeSoc();
 		minSoC = config.minSoc();		
 		timeUntilChargeIsForced = config.timeSpan();		
 	}

@@ -29,7 +29,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int minSoc() default 5;
 
 	@AttributeDefinition(name = "Charge-SoC", description = "Charging until State of Charge has reached Charge-SoC.")
-	int ChargeSoc() default 3;
+	int chargeSoc() default 3;
 	
 	@AttributeDefinition(name = "Minimal total voltage", description = "Charging is forced if system voltage is lower than this value")
 	int minimalTotalVoltage() default 675;
