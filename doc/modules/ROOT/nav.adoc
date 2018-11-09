@@ -20,4 +20,4 @@
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]
-* link:javadoc/index.html[Javadoc]
+* xref:../../javadoc/index.html[Javadoc]
