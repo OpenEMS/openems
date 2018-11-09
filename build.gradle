@@ -1,9 +1,12 @@
 // Available to customize the build
 
 plugins {
-  id "io.github.rwinch.antora" version "0.0.1"
+    id "com.moowork.node" version "1.2.0"
 }
 
+/*
+ * Javadoc
+ */
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
 	destinationDir = file("$buildDir/site/javadoc")
     title = "OpenEMS Javadoc"
@@ -15,4 +18,21 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 			includes += javadocTask.includes
 		}
 	}
+}
+
+/*
+ * Antora docs
+ */
+task prepareAntora(type: NpmTask) {
+    node {
+        version = '9.6.1'
+        download = true
+        nodeModulesDir = file("${buildDir}/modules")
+    }
+    args = ['install', '@antora/cli', '@antora/site-generator-default']
+}
+
+task antora(type:Exec, dependsOn: 'prepareAntora') {
+    workingDir './doc/build'
+    commandLine "${buildDir}/modules/node_modules/@antora/cli/bin/antora", 'site.yml'
 }
