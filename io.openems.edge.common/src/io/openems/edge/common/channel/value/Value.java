@@ -101,8 +101,7 @@ public class Value<T> {
 	/**
 	 * Gets the value as its String option. Enum options are converted to Strings.
 	 *
-	 * @throws IllegalArgumentException
-	 *             no matching option existing
+	 * @throws IllegalArgumentException no matching option existing
 	 * @return
 	 */
 	public String asOptionString() throws IllegalArgumentException {
@@ -117,8 +116,7 @@ public class Value<T> {
 	/**
 	 * Gets the value as its Enum option.
 	 *
-	 * @throws IllegalArgumentException
-	 *             no matching Enum option existing
+	 * @throws IllegalArgumentException no matching Enum option existing
 	 * @return
 	 * @throws InvalidValueException
 	 */
@@ -127,23 +125,22 @@ public class Value<T> {
 		int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 		return this.parent.channelDoc().getOptionEnum(intValue);
 	}
-	
-	
+
 	/**
-	 * Gets the value as an Optional enum  
+	 * Gets the value as an Optional enum
 	 * 
 	 * @return
 	 */
 	public Optional<Enum<?>> asEnumOptional() {
 		try {
 			return Optional.ofNullable(asEnum());
-		} catch (Exception e) {  // if there is null in asEnum a NullPointerException is thrown
+		} catch (Exception e) { // if there is null in asEnum a NullPointerException is thrown
 			return Optional.empty();
 		}
 	}
 
 	/**
-	 * Gets the value in JSON format
+	 * Gets the value in GSON JSON format
 	 * 
 	 * @return
 	 */

@@ -75,7 +75,6 @@ public class DefaultMessages {
 	 *	}
 	 * </pre>
 	 * 
-	 * @param token
 	 * @return
 	 */
 	public static JsonObject uiLogoutReply() {
@@ -95,7 +94,6 @@ public class DefaultMessages {
 	 *	}
 	 * </pre>
 	 * 
-	 * @param token
 	 * @return
 	 */
 	public static JsonObject openemsConnectionSuccessfulReply() {
@@ -116,7 +114,7 @@ public class DefaultMessages {
 	 *	}
 	 * </pre>
 	 * 
-	 * @param token
+	 * @param message
 	 * @return
 	 */
 	public static JsonObject openemsConnectionFailedReply(String message) {
@@ -140,7 +138,8 @@ public class DefaultMessages {
 	 *	}
 	 * </pre>
 	 * 
-	 * @param token
+	 * @param timestamp
+	 * @param jData
 	 * @return
 	 */
 	public static JsonObject timestampedData(long timestamp, JsonObject jData) {
@@ -161,7 +160,8 @@ public class DefaultMessages {
 	 *	}
 	 * </pre>
 	 * 
-	 * @param token
+	 * @param jMessageId
+	 * @param config
 	 * @return
 	 */
 	public static JsonObject configQueryReply(JsonObject jMessageId, JsonObject config) {

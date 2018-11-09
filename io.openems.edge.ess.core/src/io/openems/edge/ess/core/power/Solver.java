@@ -57,8 +57,7 @@ public class Solver {
 	/**
 	 * Adds a callback for onSolved event, providing
 	 * 
-	 * @param boolean: was the problem solved?
-	 * @param long: duration for solving in milliseconds
+	 * @param onSolved
 	 */
 	public void onSolved(BiConsumer<Boolean, Integer> onSolved) {
 		this.onSolved = onSolved;
@@ -67,7 +66,6 @@ public class Solver {
 	/**
 	 * Tests wheter the Problem is solvable under the current Constraints.
 	 * 
-	 * @return
 	 * @throws PowerException
 	 * 
 	 */
@@ -845,7 +843,7 @@ public class Solver {
 	 * Gets all Constraints converted to Linear Constraints
 	 * 
 	 * @param data: the Data object
-	 * @param disabledInverters: for those inverters P/Q are set to zero
+	 * @param constraints
 	 * @return
 	 */
 	public static List<LinearConstraint> convertToLinearConstraints(Data data, List<Constraint> constraints) {

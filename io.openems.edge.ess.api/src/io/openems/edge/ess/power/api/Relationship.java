@@ -3,7 +3,7 @@ package io.openems.edge.ess.power.api;
 public enum Relationship {
 
 	/**
-	 * Less or equals [<=]
+	 * Less or equals [&lt;=]
 	 */
 	LESS_OR_EQUALS,
 	/**
@@ -11,7 +11,7 @@ public enum Relationship {
 	 */
 	EQUALS,
 	/**
-	 * Greater or equals [>=]
+	 * Greater or equals [&gt;=]
 	 */
 	GREATER_OR_EQUALS;
 

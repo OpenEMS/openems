@@ -434,7 +434,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Send a message to the websocket.
 	 *
-	 * @param message
+	 * @param j
 	 * @throws OpenemsException
 	 */
 	public void send(JsonObject j) throws OpenemsException {
@@ -444,7 +444,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Send a message to the websocket.
 	 *
-	 * @param message
+	 * @param j
 	 */
 	public void sendOrLogError(JsonObject j) {
 		WebSocketUtils.sendOrLogError(this.websocket, j);
@@ -453,8 +453,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Send a log message to the websocket. This method is called by logback
 	 *
-	 * @param message2
-	 * @param timestamp
+	 * @param event
 	 */
 	public void sendLog(PaxLoggingEvent event) {
 		if (this.logSubscribers.isEmpty()) {

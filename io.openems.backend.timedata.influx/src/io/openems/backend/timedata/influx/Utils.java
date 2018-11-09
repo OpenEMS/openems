@@ -15,9 +15,8 @@ public class Utils {
 	/**
 	 * Add value to Influx Builder in the correct data format
 	 *
-	 * @param builder
 	 * @param channel
-	 * @param value
+	 * @param jValueElement
 	 * @return
 	 */
 	protected static Optional<Object> parseValue(String channel, JsonElement jValueElement) {
