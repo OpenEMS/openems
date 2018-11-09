@@ -7,7 +7,7 @@ jdk:
 
 install: ./gradlew --version
 
-script: ./gradlew javadoc --continue
+script: ./gradlew aggregatedJavadocs --continue
 
 deploy:
   provider: pages
@@ -18,4 +18,4 @@ deploy:
     branch: develop
   repo: sfeilmeier/openems.io
   target-branch: master
-  local-dir: io.openems.common/generated/docs/javadoc
+  local-dir: build/docs/javadoc
