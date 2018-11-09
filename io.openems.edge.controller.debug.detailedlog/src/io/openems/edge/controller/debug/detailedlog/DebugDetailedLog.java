@@ -113,17 +113,21 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 						 */
 						String description = "";
 						if (channel.channelDoc().hasOptions()) {
-							description += channel.value().asOptionString();
+							try {
+								description += channel.value().asOptionString();
+							} catch (IllegalArgumentException e) {
+								description += "ERROR: " + e.getMessage();
+							}
 						}
 						if (channel instanceof StateChannel && ((StateChannel) channel).value().orElse(false) == true) {
-							if(!description.isEmpty()) {
+							if (!description.isEmpty()) {
 								description += "; ";
 							}
 							description += ((StateChannel) channel).channelDoc().getText();
 						}
 						if (channel instanceof StateCollectorChannel
 								&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
-							if(!description.isEmpty()) {
+							if (!description.isEmpty()) {
 								description += "; ";
 							}
 							description += ((StateCollectorChannel) channel).listStates();
