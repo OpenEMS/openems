@@ -1,6 +1,6 @@
 = Research and Development
-include::metadata.adoc[]
 :imagesdir: ../assets/images
+:toc:
 :sectnumlevels: 0
 :toclevels: 1
 

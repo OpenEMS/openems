@@ -1,5 +1,12 @@
 = Edge Architecture
-include::../metadata.adoc[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
 :imagesdir: ../../assets/images
 
 OpenEMS is a modular platform for energy management applications.

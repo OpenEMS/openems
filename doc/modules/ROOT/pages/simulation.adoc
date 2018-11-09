@@ -1,6 +1,5 @@
 = Simulation
 :imagesdir: ../assets/images
-include::metadata.adoc[]
 :sectnumlevels: 0
 :toc:
 :toclevels: 0

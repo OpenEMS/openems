@@ -1,3 +1,2 @@
 = Backend Architecture
-include::../metadata.adoc[]
 :imagesdir: ../../assets/images

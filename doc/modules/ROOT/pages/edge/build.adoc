@@ -1,5 +1,12 @@
 = Build OpenEMS Edge
-include::../metadata.adoc[]
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
 :imagesdir: ../../assets/images
 
 This chapter explains, how OpenEMS Edge can be compiled to a JAR file that can be executed outside of an IDE.

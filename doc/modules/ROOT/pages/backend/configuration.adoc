@@ -1,3 +1,2 @@
 = Configuration
-include::../metadata.adoc[]
 :imagesdir: ../../assets/images
