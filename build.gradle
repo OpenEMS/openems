@@ -19,4 +19,10 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
  */
 task antora(type:Exec) {
     commandLine 'docker', 'run', '--privileged', '-v', "$projectDir:/antora", '--rm', '-t', 'antora/antora', 'doc/build/site.yml'
+    doLast {
+        copy {
+            from "doc/build/.nojekyll", "doc/build/CNAME"
+            into "${buildDir}/www"
+        }
+    }
 }
