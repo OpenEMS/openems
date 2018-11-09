@@ -8,8 +8,8 @@ services:
 
 install: ./gradlew --version
 
-#script: ./gradlew antora aggregatedJavadocs --continue --stacktrace
-script: ./gradlew antora --continue --info
+script: ./gradlew antora aggregatedJavadocs --continue --info
+#script: ./gradlew antora --continue --info
 
 deploy:
   provider: pages

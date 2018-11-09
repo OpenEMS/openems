@@ -20,5 +20,5 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
  * Antora docs
  */
 task antora(type:Exec) {
-    commandLine 'docker', 'run', '--privileged', '-v', "$projectDir:/antora", '--rm', '-t', 'antora/antora', 'site.yml'
+    commandLine 'docker', 'run', '--privileged', '-v', "$projectDir:/antora", '--rm', '-t', 'antora/antora', 'doc/build/site.yml'
 }
