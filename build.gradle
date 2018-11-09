@@ -4,7 +4,7 @@
  * Javadoc
  */
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
-        destinationDir = file("$buildDir/javadoc")
+        destinationDir = file("$buildDir/www/javadoc")
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
