@@ -25,14 +25,17 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
  */
 task prepareAntora(type: NpmTask) {
     node {
-        version = '9.6.1'
         download = true
-        nodeModulesDir = file("${buildDir}/modules")
+        nodeModulesDir = file("$buildDir/modules")
     }
-    args = ['install', '@antora/cli', '@antora/site-generator-default']
+    args = ['install', '--global', '@antora/cli', '@antora/site-generator-default']
 }
 
 task antora(type:Exec, dependsOn: 'prepareAntora') {
-    workingDir './doc/build'
-    commandLine "${buildDir}/modules/node_modules/@antora/cli/bin/antora", 'site.yml'
+// task antora(type:Exec) {
+    // workingDir './doc/build'
+    // workingDir "$buildDir/modules"
+    // commandLine "./node_modules/.bin/antora.cmd", 'site.yml'
+    // commandLine "$buildDir/modules/node_modules/.bin/antora.cmd", 'site.yml'
+    commandLine 'antora', 'site.yml'
 }
