@@ -87,9 +87,15 @@ public class Utils {
 					case DEBUG_DIS_MIN_V:
 					case DEBUG_EN_LIMIT:
 					case AC_ENERGY_SF:
+					case DC_CURRENT:
+					case DC_CURRENT_SF:
+					case DC_POWER:
+					case DC_POWER_SF:
+					case DC_VOLTAGE:
+					case DC_VOLTAGE_SF:
 						return new IntegerReadChannel(ess, channelId);
 					case AC_ENERGY:
-						return new LongReadChannel(ess, channelId);
+						return new LongReadChannel(ess, channelId);					
 					}
 					return null;
 				}) //
