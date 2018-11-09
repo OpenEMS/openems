@@ -9,10 +9,8 @@ services:
 install: ./gradlew --version
 
 script:
-  - ./gradlew aggregatedJavadocs --continue --info --stacktrace
-  - ./gradlew antora --continue --info --stacktrace
-#script: ./gradlew antora aggregatedJavadocs --continue --info --stacktrace
-#script: ./gradlew antora --continue --info
+  - ./gradlew aggregatedJavadocs --continue
+  - ./gradlew antora --continue
 
 deploy:
   provider: pages
@@ -23,4 +21,4 @@ deploy:
     branch: develop
   repo: sfeilmeier/openems.io
   target-branch: master
-  local-dir: build/antora
+  local-dir: build/www
