@@ -29,7 +29,7 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 	/**
 	 * Internal method. Do not call directly.
 	 * 
-	 * @param value
+	 * @return
 	 */
 	@Deprecated
 	@Override

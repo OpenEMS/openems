@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.ChannelId;
@@ -101,7 +100,6 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	 * Sets the next value. Internal method. Do not call directly.
 	 * 
 	 * @param value
-	 * @throws OpenemsException
 	 */
 	@Deprecated
 	public final void _setNextValue(T value) {

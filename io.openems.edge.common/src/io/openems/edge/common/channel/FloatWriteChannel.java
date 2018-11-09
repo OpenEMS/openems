@@ -29,7 +29,7 @@ public class FloatWriteChannel extends FloatReadChannel implements WriteChannel<
 	/**
 	 * Internal method. Do not call directly.
 	 * 
-	 * @param value
+	 * @return
 	 */
 	@Deprecated
 	@Override

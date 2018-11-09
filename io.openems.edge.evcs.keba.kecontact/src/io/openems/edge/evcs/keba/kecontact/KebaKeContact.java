@@ -193,13 +193,10 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	}
 
 	/**
-	 * Send UDP message to KEBA KeContact
+	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
 	 *
 	 * @param s
-	 * @throws IOException
-	 * @throws ConfigException
-	 * @throws InterruptedException
-	 * @return true if sent successfully
+	 * @return
 	 */
 	protected boolean send(String s) {
 		byte[] raw = s.getBytes();

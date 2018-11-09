@@ -10,7 +10,6 @@ public interface KebaKeContactCore {
 	 * EVCS, String is the message.
 	 * 
 	 * @param callback
-	 * @return
 	 */
 	public void onReceive(BiConsumer<InetAddress, String> callback);
 
