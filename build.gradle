@@ -1,7 +1,11 @@
 // Available to customize the build
 
+plugins {
+  id "io.github.rwinch.antora" version "0.0.1"
+}
+
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
-	destinationDir = file("$buildDir/docs/javadoc")
+	destinationDir = file("$buildDir/site/javadoc")
     title = "OpenEMS Javadoc"
 	subprojects.each { proj ->
 		proj.tasks.withType(Javadoc).each { javadocTask ->

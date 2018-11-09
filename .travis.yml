@@ -7,7 +7,7 @@ jdk:
 
 install: ./gradlew --version
 
-script: ./gradlew aggregatedJavadocs --continue
+script: ./gradlew antora aggregatedJavadocs --continue
 
 deploy:
   provider: pages
