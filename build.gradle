@@ -37,5 +37,5 @@ task antora(type:Exec, dependsOn: 'prepareAntora') {
     // workingDir "$buildDir/modules"
     // commandLine "./node_modules/.bin/antora.cmd", 'site.yml'
     // commandLine "$buildDir/modules/node_modules/.bin/antora.cmd", 'site.yml'
-    commandLine '.gradle/nodejs/node-v6.9.1-linux-x64/bin/antora', '--generator', '.gradle/nodejs/node-v6.9.1-linux-x64/lib/node_modules/@antora/site-generator-default', 'site.yml'
+    commandLine '.gradle/nodejs/node-v6.9.1-linux-x64/bin/antora', '--generator', '.gradle/nodejs/node-v6.9.1-linux-x64/lib/node_modules/@antora/site-generator-default/lib/generate-site.js', 'site.yml'
 }
