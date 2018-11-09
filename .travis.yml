@@ -7,7 +7,7 @@ jdk:
 
 install: ./gradlew --version
 
-script: ./gradlew --continue
+script: ./gradlew javadoc --continue
 
 deploy:
   provider: pages
