@@ -18,16 +18,16 @@ import io.openems.edge.common.channel.Channel;
  * 
  * Possible meta information:
  * <ul>
- * <li>access-mode (read-only/read-write/write-only) flag {@link Doc#accessMode()}
- * <li>expected OpenemsType via {@link Doc#getType()}
- * <li>descriptive text via {@link Doc#getText()}
- * <li>a Unit via {@link Doc#getUnit()}
+ * <li>access-mode (read-only/read-write/write-only) flag {@link #accessMode(AccessMode)}
+ * <li>expected OpenemsType via {@link #getType()}
+ * <li>descriptive text via {@link #getText()}
+ * <li>a Unit via {@link #getUnit()}
  * <li>possible named option values as String or Enum via
- * {@link Doc#getOption()} methods
- * <li>importance {@link Level} via {@link Doc#getLevel()}
- * <li>is debug mode activated via {@link Doc#isDebug()}
+ * {@link #getOption(String)}, {@link #getOption(int)}, {@link #getOption(Enum)} methods
+ * <li>importance {@link Level} via {@link #getLevel()}
+ * <li>is debug mode activated via {@link #isDebug()}
  * <li>callback on initialisation of a Channel via
- * {@link Doc#getOnInitCallback()}
+ * {@link #getOnInitCallback()}
  * </ul>
  */
 public class Doc {
@@ -154,7 +154,7 @@ public class Doc {
 	 * Get the Option value. Throws IllegalArgumentException if there is no option
 	 * with that name
 	 * 
-	 * @param value
+	 * @param name
 	 * @return
 	 */
 	public int getOption(String name) {
@@ -170,7 +170,7 @@ public class Doc {
 	 * Get the Option value. Throws IllegalArgumentException if there is no option
 	 * with that name
 	 * 
-	 * @param value
+	 * @param nameEnum
 	 * @return
 	 */
 	public int getOption(Enum<?> nameEnum) {
@@ -256,7 +256,7 @@ public class Doc {
 	/**
 	 * Provides a callback on initialisation of the actual Channel
 	 * 
-	 * @param channel
+	 * @param callback
 	 * @return
 	 */
 	public Doc onInit(Consumer<Channel<?>> callback) {

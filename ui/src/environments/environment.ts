@@ -8,7 +8,6 @@ class DefaultEnvironment extends Environment {
   public readonly backend: DefaultTypes.Backend = "OpenEMS Edge";
   // For OpenEMS Backend
   // public readonly url = "ws://" + location.hostname + ":8087";
-  //*BACKEND*public readonly url = "wss://fenecon.de:443/openems-backend-ui2";
   // public readonly backend: DefaultTypes.Backend = "OpenEMS Backend";
   public debugMode = true;
 }

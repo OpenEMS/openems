@@ -32,10 +32,10 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class BridgeModbusTcpImpl extends AbstractModbusBridge implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
+public class BridgeModbusTcpImpl extends AbstractModbusBridge
+		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
+//	private final Logger log = LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
 
 	/**
 	 * The configured IP address
@@ -57,6 +57,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge implements BridgeM
 	public void closeModbusConnection() {
 		if (this._connection != null) {
 			this._connection.close();
+			this._connection = null;
 		}
 	}
 

@@ -56,7 +56,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		 * Ess: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricEssReadonly})
+		 * <li>Interface: Sum (origin: @see {@link SymmetricEss})
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge

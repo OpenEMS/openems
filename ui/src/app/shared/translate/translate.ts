@@ -5,6 +5,8 @@ import { TRANSLATION as DE } from './de';
 import { TRANSLATION as EN } from './en';
 import { TRANSLATION as CZ } from './cz';
 import { TRANSLATION as NL } from './nl';
+import { TRANSLATION as ES } from './es';
+
 
 export class MyTranslateLoader implements TranslateLoader {
 
@@ -15,9 +17,14 @@ export class MyTranslateLoader implements TranslateLoader {
             return of(DE);
         } else if (lang == 'cz') {
             return of(CZ);
-        } else if (lang == 'nl') {
+        }
+        else if (lang == 'nl') {
             return of(NL);
-        } else {
+        }
+        else if (lang == 'es') {
+            return of(ES);
+        }
+        else {
             return of(EN);
         }
     }

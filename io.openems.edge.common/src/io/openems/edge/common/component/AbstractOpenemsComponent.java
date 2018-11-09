@@ -16,8 +16,8 @@ import io.openems.edge.common.channel.StateChannel;
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
  * 
- * {@link AbstractOpenemsComponent#activate()} and
- * {@link AbstractOpenemsComponent#deactivate()} methods should be called by the
+ * {@link #activate(ComponentContext, String, String, boolean)} and
+ * {@link #deactivate()} methods should be called by the
  * corresponding methods in the OSGi component.
  */
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
@@ -60,8 +60,6 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Handles @Deactivate of implementations. Prints log output.
-	 * 
-	 * @param id
 	 */
 	protected void deactivate() {
 		this.logMessage("Deactivate");

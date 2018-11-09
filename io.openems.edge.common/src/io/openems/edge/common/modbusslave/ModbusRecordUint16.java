@@ -11,10 +11,10 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 
 	public final static int BYTE_LENGTH = 2;
 
-	private final Short value;
+	protected final Short value;
 
-	public ModbusRecordUint16(int offset, Short value) {
-		super(offset, ModbusType.UINT16, toByteArray(value));
+	public ModbusRecordUint16(int offset, String name, Short value) {
+		super(offset, name, ModbusType.UINT16, toByteArray(value));
 		this.value = value;
 	}
 
@@ -33,6 +33,11 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 		} else {
 			return toByteArray((short) TypeUtils.getAsType(OpenemsType.SHORT, value));
 		}
+	}
+
+	@Override
+	public String getValueDescription() {
+		return this.value != null ? this.value + "/0x" + Integer.toHexString(this.value) : "";
 	}
 
 }

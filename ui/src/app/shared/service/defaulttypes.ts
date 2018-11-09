@@ -108,6 +108,8 @@ export module DefaultTypes {
     }, consumption: {
       powerRatio: number,
       activePower: number
+    }, evcs: {
+      actualPower: number
     }
   }
 

@@ -58,8 +58,23 @@ public class WebSocketUtils {
 	/**
 	 * Send a message to a websocket
 	 *
+	 * @param websocket
+	 * @param json
+	 */
+	public static void send(WebSocket websocket, String json) throws OpenemsException {
+		try {
+			websocket.send(json);
+		} catch (WebsocketNotConnectedException e) {
+			throw new OpenemsException(
+					"Websocket is not connected. Unable to send [" + StringUtils.toShortString(json, 100) + "]");
+		}
+	}
+
+	/**
+	 * Send a message to a websocket
+	 *
+	 * @param websocket
 	 * @param j
-	 * @return true if successful, otherwise false
 	 */
 	public static void send(WebSocket websocket, JsonObject j) throws OpenemsException {
 		try {

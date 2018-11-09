@@ -231,7 +231,7 @@ public class TestController {
 			}
 
 			@Override
-			public int ChargeSoc() {
+			public int chargeSoc() {
 				return 5;
 			}
 		};

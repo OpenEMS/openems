@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
@@ -22,6 +25,8 @@ import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
  */
 public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
+	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
+	
 	public FC16WriteRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
 		super(startAddress, elements);
 	}
