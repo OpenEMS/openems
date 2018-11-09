@@ -29,7 +29,7 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 	/**
 	 * Internal method. Do not call directly.
 	 * 
-	 * @param value
+	 * @return
 	 */
 	@Deprecated
 	@Override
@@ -39,6 +39,8 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 
 	/*
 	 * onSetNextWrite
+	 *
+	 * @return
 	 */
 	@Override
 	public List<Consumer<Boolean>> getOnSetNextWrites() {

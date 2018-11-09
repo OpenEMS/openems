@@ -9,7 +9,7 @@ public class IntUtils {
 	/**
 	 * Rounds a value to a defined precision.
 	 * 
-	 * Example: roundToPrecision(1234, Round.AWAY_FROM_ZERO, 100) -> 1300
+	 * Example: roundToPrecision(1234, Round.AWAY_FROM_ZERO, 100) -&gt; 1300
 	 * 
 	 * @param value
 	 * @param round

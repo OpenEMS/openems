@@ -58,8 +58,8 @@ public class WebSocketUtils {
 	/**
 	 * Send a message to a websocket
 	 *
-	 * @param j
-	 * @return true if successful, otherwise false
+	 * @param websocket
+	 * @param json
 	 */
 	public static void send(WebSocket websocket, String json) throws OpenemsException {
 		try {
@@ -73,8 +73,8 @@ public class WebSocketUtils {
 	/**
 	 * Send a message to a websocket
 	 *
+	 * @param websocket
 	 * @param j
-	 * @return true if successful, otherwise false
 	 */
 	public static void send(WebSocket websocket, JsonObject j) throws OpenemsException {
 		try {

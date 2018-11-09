@@ -108,7 +108,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * <li>Implementation Note: value is automatically written by {@link io.openems.edge.ess.power.api.Power} just
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -121,7 +121,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * <li>Implementation Note: value is automatically written by {@link io.openems.edge.ess.power.api.Power} just
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -134,7 +134,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * <li>Implementation Note: value is automatically written by {@link io.openems.edge.ess.power.api.Power} just
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -147,7 +147,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * <li>Implementation Note: value is automatically written by {@link io.openems.edge.ess.power.api.Power} just
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -160,7 +160,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * <li>Implementation Note: value is automatically written by {@link io.openems.edge.ess.power.api.Power} just
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -173,7 +173,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * <li>Implementation Note: value is automatically written by {@link io.openems.edge.ess.power.api.Power} just
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -213,8 +213,12 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	/**
 	 * Apply the calculated Power
 	 * 
-	 * @param activePower
-	 * @param reactivePower
+	 * @param activePowerL1
+	 * @param activePowerL2
+	 * @param activePowerL3
+	 * @param reactivePowerL1
+	 * @param reactivePowerL2
+	 * @param reactivePowerL3
 	 */
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3);

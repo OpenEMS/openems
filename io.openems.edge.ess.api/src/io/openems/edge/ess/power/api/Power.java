@@ -9,7 +9,6 @@ public interface Power {
 	/**
 	 * Adds a Constraint.
 	 * 
-	 * @param type
 	 * @param constraint
 	 */
 	public Constraint addConstraint(Constraint constraint);
@@ -17,7 +16,6 @@ public interface Power {
 	/**
 	 * Adds a Constraint if the problem is still solvable afterwards.
 	 * 
-	 * @param type
 	 * @param constraint
 	 * @throws PowerException
 	 */
@@ -26,8 +24,8 @@ public interface Power {
 	/**
 	 * Creates a simple constraint
 	 * 
+	 * @param description
 	 * @param ess
-	 * @param type
 	 * @param phase
 	 * @param pwr
 	 * @param relationship
@@ -40,7 +38,6 @@ public interface Power {
 	/**
 	 * Removes a Constraint.
 	 * 
-	 * @param type
 	 * @param constraint
 	 */
 	public void removeConstraint(Constraint constraint);
