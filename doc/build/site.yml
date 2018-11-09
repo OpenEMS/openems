@@ -14,5 +14,5 @@ ui:
     url: /antora/doc/build/uibundle_openems.zip
 
 output:
-  dir: /antora/build/doc
+  dir: /antora/build/antora
 
