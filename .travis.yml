@@ -3,12 +3,8 @@ sudo: false
 language: java
 jdk:
   - openjdk8
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libstdc++-4.9-dev
+services:
+  - docker
 
 install: ./gradlew --version
 
