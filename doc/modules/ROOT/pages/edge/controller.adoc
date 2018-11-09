@@ -1,14 +1,6 @@
-ifndef::backend-pdf[]
 = Controller
-endif::[]
-:sectnums:
-:sectnumlevels: 4
-:toc:
-:toclevels: 4
-:experimental:
-:keywords: AsciiDoc
-:source-highlighter: highlight.js
-:icons: font
+include::../metadata.adoc[]
+:imagesdir: ../../assets/images
 
 == Existing Controllers
 

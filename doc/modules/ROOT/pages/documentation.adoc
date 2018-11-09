@@ -1,14 +1,6 @@
-ifndef::backend-pdf[]
 = Documentation
-endif::[]
-:sectnums:
-:sectnumlevels: 4
-:toc:
-:toclevels: 4
-:experimental:
-:keywords: AsciiDoc
-:source-highlighter: highlight.js
-:icons: font
+include::metadata.adoc[]
+:imagesdir: ../assets/images
 
 == Concept
 
@@ -63,3 +55,7 @@ antora.yml
 Docs should be building.. the finished HTML Folder can be found in your local 'build' folder (inside your https://github.com/OpenEMS/openems/tree/develop/doc/build[repository build folder icon:external-link[]])
 
 TIP: If your data isn't updating properly or not building, try antora.yml --pull to reset the cache
+
+NOTE: If you want to build your own docs with Antora see https://fabianfnc.github.io/bocs/[this guide icon:external-link[]] 
+
+

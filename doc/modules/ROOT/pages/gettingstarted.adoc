@@ -1,14 +1,6 @@
-ifndef::backend-pdf[]
 = Getting Started
-endif::[]
-:sectnums:
-:sectnumlevels: 4
-:toc:
-:toclevels: 4
-:experimental:
-:keywords: AsciiDoc
-:source-highlighter: highlight.js
-:icons: font
+:imagesdir: ../assets/images
+include::metadata.adoc[]
 
 This quick 'Getting Started' should help you setup up a complete development environment. On finishing you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser.
 
