@@ -37,5 +37,5 @@ task antora(type:Exec, dependsOn: 'prepareAntora') {
     // workingDir "$buildDir/modules"
     // commandLine "./node_modules/.bin/antora.cmd", 'site.yml'
     // commandLine "$buildDir/modules/node_modules/.bin/antora.cmd", 'site.yml'
-    commandLine 'antora', 'site.yml'
+    commandLine '.gradle/nodejs/node-v6.9.1-linux-x64/bin/antora', 'site.yml'
 }

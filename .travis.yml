@@ -13,7 +13,7 @@ addons:
 install: ./gradlew --version
 
 #script: ./gradlew antora aggregatedJavadocs --continue --stacktrace
-script: ./gradlew antora --continue --stacktrace
+script: ./gradlew antora --continue --info
 
 deploy:
   provider: pages
