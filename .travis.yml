@@ -8,7 +8,8 @@ services:
 
 install: ./gradlew --version
 
-script: ./gradlew antora aggregatedJavadocs --continue --info --stacktrace
+script: ./gradlew aggregatedJavadocs --continue --info --stacktrace
+#script: ./gradlew antora aggregatedJavadocs --continue --info --stacktrace
 #script: ./gradlew antora --continue --info
 
 deploy:
