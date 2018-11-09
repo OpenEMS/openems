@@ -19,6 +19,6 @@ deploy:
   keep-history: true
   on:
     branch: develop
-  repo: sfeilmeier/openems.io
+  repo: OpenEMS/openems.io
   target-branch: master
   local-dir: build/www
