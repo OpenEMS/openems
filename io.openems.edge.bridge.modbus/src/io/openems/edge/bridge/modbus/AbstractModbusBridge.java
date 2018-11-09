@@ -216,7 +216,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * Creates a new Modbus Transaction on an open Modbus connection
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @throws OpenemsException
 	 */
 	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
 

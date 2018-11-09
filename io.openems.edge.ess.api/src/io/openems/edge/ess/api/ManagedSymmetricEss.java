@@ -133,7 +133,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public Power getPower();
 
 	/**
-	 * Gets the Allowed Charge Power in [W], range "<= 0"
+	 * Gets the Allowed Charge Power in [W], range "&lt;= 0"
 	 * 
 	 * @return
 	 */
@@ -142,7 +142,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the Allowed Discharge Power in [W], range ">= 0"
+	 * Gets the Allowed Discharge Power in [W], range "&gt;= 0"
 	 * 
 	 * @return
 	 */
@@ -165,7 +165,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * return 100.
 	 * <li>KACO blueplanet gridsave 50 allows setting of power in 0.1 % of 52 VA. It
 	 * should return 52 (= 52000 * 0.001)
-	 * <ul>
+	 * </ul>
 	 * 
 	 * @return
 	 */
@@ -184,7 +184,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Creates a Power Constraint
 	 * 
-	 * @param ess
+	 * @param description
 	 * @param phase
 	 * @param pwr
 	 * @param relationship
@@ -200,7 +200,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * 
 	 * To add a Constraint on every Cycle, use getStaticConstraints()
 	 * 
-	 * @param ess
+	 * @param description
 	 * @param phase
 	 * @param pwr
 	 * @param relationship
@@ -216,7 +216,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * 
 	 * To add a Constraint on every Cycle, use getStaticConstraints()
 	 * 
-	 * @param ess
+	 * @param description
 	 * @param phase
 	 * @param pwr
 	 * @param relationship

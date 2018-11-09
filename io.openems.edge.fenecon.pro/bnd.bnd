@@ -7,7 +7,8 @@ Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
 	io.openems.edge.ess.power.symmetric,\
-	io.openems.edge.ess.power.api
+	io.openems.edge.ess.power.api,\
+	io.openems.edge.meter.api
 -includeresource: {readme.md}
 
 -buildpath: \
@@ -15,7 +16,8 @@ Export-Package: \
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.meter.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

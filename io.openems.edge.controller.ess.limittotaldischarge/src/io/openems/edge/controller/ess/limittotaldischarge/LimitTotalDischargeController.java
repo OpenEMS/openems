@@ -176,6 +176,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			 */
 			// Force charge: set Constraint for ActivePower
 			int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			// TODO allow setting of Force-Charge-Power (in percentage of maxCharge power) per configuration
             calculatedPower = Optional.of(maxCharge / 5);
 
 			if (soc > this.forceChargeSoc) {

@@ -81,6 +81,10 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Short range.");
 				}
+
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				return (T) Short.valueOf(Short.parseShort(stringValue));
 			}
 			break;
 
@@ -120,6 +124,10 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
 				}
+
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				return (T) Integer.valueOf(Integer.parseInt(stringValue));
 			}
 			break;
 
@@ -145,6 +153,10 @@ public class TypeUtils {
 
 			} else if (value instanceof Double) {
 				return (T) (Long) Math.round((Double) value);
+
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				return (T) Long.valueOf(Long.parseLong(stringValue));
 			}
 			break;
 
@@ -182,6 +194,10 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
 				}
+
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				return (T) Float.valueOf(Float.parseFloat(stringValue));
 			}
 			break;
 
@@ -207,6 +223,10 @@ public class TypeUtils {
 
 			} else if (value instanceof Double) {
 				return (T) (Double) value;
+
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				return (T) Double.valueOf(Double.parseDouble(stringValue));
 			}
 			break;
 
@@ -219,8 +239,8 @@ public class TypeUtils {
 			}
 
 		}
-		throw new IllegalArgumentException(
-				"Converter for value [" + value + "] to type [" + type + "] is not implemented.");
+		throw new IllegalArgumentException("Converter for value [" + value + "] of type [" + value.getClass()
+				+ "] to type [" + type + "] is not implemented.");
 
 	}
 
