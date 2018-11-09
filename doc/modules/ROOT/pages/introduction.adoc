@@ -11,8 +11,7 @@ It was developed around the requirements of controlling, monitoring and integrat
 
 Upcoming dates:
 
-* *Introductory-Meeting:* Monday, 2018-11-05, 11:00 - 16:00, in Deggendorf
-* *Openems Foundation:*  Thursday, 2018-11-15, 11:00 - 14:00, in Deggendorf
+* *Openems Foundation:*  Thursday, 2018-11-15, 11:00 - 17:00, in Deggendorf
 
 == OpenEMS IoT stack
 
