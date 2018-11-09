@@ -66,7 +66,6 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.api.modbus;version=snapshot,\
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
-	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.dischargelimitconsideringcellvoltage;version=snapshot,\
 	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
@@ -82,12 +81,8 @@ JPM-Command:				openems-edge
 	io.openems.edge.core;version=snapshot,\
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
-	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
-	io.openems.edge.kostal.piko;version=snapshot,\
-	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
@@ -127,6 +122,10 @@ JPM-Command:				openems-edge
 	com.sun.jna;version='[4.2.1,4.2.2)',\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
 	io.openems.wrapper.edcom;version=snapshot,\
-	org.apache.commons.math3;version='[3.6.1,3.6.2)'
+	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
+	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
+	io.openems.edge.fenecon.mini;version=snapshot,\
+	io.openems.edge.meter.socomec;version=snapshot
 	
 -runee: JavaSE-1.8
