@@ -7,7 +7,8 @@ jdk:
 
 install: ./gradlew --version
 
-script: ./gradlew antora aggregatedJavadocs --continue
+#script: ./gradlew antora aggregatedJavadocs --continue --stacktrace
+script: ./gradlew antora --continue --stacktrace
 
 deploy:
   provider: pages
@@ -18,4 +19,4 @@ deploy:
     branch: develop
   repo: sfeilmeier/openems.io
   target-branch: master
-  local-dir: build/docs/javadoc
+  local-dir: build/site
