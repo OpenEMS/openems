@@ -15,6 +15,5 @@ deploy:
   github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
   keep-history: true
   repo: sfeilmeier/openems.io
-  on:
-    branch: master
+  target-branch: master
   local-dir: io.openems.common/generated/docs/javadoc
