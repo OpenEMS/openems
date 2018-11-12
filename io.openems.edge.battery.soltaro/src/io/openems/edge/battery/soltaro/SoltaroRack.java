@@ -135,8 +135,8 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 			if (!vOpt.isPresent()) {
 				return;
 			}
-			int voltage_millivolt = vOpt.get();
-			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_millivolt * 1000);
+			int voltage_volt = vOpt.get();
+			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
 		});
 
 		this.channel(ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
@@ -295,7 +295,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		BMS_CONTACTOR_CONTROL(new Doc().options(ContactorControl.values())), //
 		SYSTEM_OVER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
 		SYSTEM_UNDER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
-		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		CLUSTER_1_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_CHARGE_INDICATION(new Doc().options(ChargeIndication.values())), //
 		CLUSTER_1_SOH(new Doc().unit(Unit.PERCENT)), //
@@ -703,7 +703,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
 						m(SoltaroRack.ChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
