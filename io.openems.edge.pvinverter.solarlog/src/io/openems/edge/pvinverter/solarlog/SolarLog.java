@@ -158,7 +158,10 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 						m(SolarLog.ChannelId.WATCH_DOG_TAG, new UnsignedDoublewordElement(RegisterAddress.WATCH_DOG_TAG.get())
 								.wordOrder(WordOrder.LSWMSW))),
 				new FC4ReadInputRegistersTask(RegisterAddress.STATUS.get(), Priority.HIGH,
-						m(SolarLog.ChannelId.STATUS, new SignedWordElement(RegisterAddress.STATUS.get())))
+						m(SolarLog.ChannelId.STATUS, new SignedWordElement(RegisterAddress.STATUS.get()),
+								ElementToChannelConverter.DIRECT_1_TO_1),
+						m(SolarLog.ChannelId.P_LIMIT_PERC_N, new SignedWordElement(RegisterAddress.P_LIMIT_PERC_N.get()),
+								ElementToChannelConverter.DIRECT_1_TO_1))
 		);
 		return this.protocol;
 	}
@@ -216,7 +219,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		// PV
 
-		P_LIMIT_TYPE(10400), P_LIMIT_PERC(10401), WATCH_DOG_TAG(10404), STATUS(10900);
+		P_LIMIT_TYPE(10400), P_LIMIT_PERC(10401), WATCH_DOG_TAG(10404), STATUS(10900), P_LIMIT_PERC_N(10901);
 
 		private final int address;
 
@@ -249,7 +252,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		P_LIMIT_TYPE(new Doc().type(OpenemsType.INTEGER)),
 		P_LIMIT_PERC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 		WATCH_DOG_TAG(new Doc().type(OpenemsType.INTEGER)),
-		STATUS(new Doc().type(OpenemsType.INTEGER));
+		STATUS(new Doc().type(OpenemsType.INTEGER)),
+		P_LIMIT_PERC_N(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT));
 
 		private final Doc doc;
 
