@@ -1,6 +1,4 @@
-ifndef::backend-pdf[]
 = Hardware
-endif::[]
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -9,6 +7,7 @@ endif::[]
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
+:imagesdir: ../../assets/images
 
 This chapter covers hardware related topics around OpenEMS Edge.
 It describes how physical hardware is abstracted using _Natures_, how standardized physical connection layers and protocols are implemented using _Bridges_ and shows which _Devices and Services_ are implemented. The chapter concludes with a development tutorial on how to implement a device. 

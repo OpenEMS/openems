@@ -5,11 +5,14 @@ site:
   start_page: openems::introduction.adoc
 content:
   sources:
-    - url: https://github.com/OpenEMS/openems
-      branches: 'develop'
+    - url: /antora/.git
+      branches: 'HEAD'
       start_path: doc
 
 ui:
   bundle:
-    url: https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true
-    snapshot: true
+    url: /antora/doc/build/uibundle_openems.zip
+
+output:
+  dir: /antora/build/www
+

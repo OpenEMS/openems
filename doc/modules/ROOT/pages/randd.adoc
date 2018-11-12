@@ -1,14 +1,8 @@
-ifndef::backend-pdf[]
 = Research and Development
-endif::[]
-:sectnums:
-:sectnumlevels: 0
+:imagesdir: ../assets/images
 :toc:
+:sectnumlevels: 0
 :toclevels: 1
-:experimental:
-:keywords: AsciiDoc
-:source-highlighter: highlight.js
-:icons: font
 
 == EASY-RES
 

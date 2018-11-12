@@ -1,6 +1,4 @@
-ifndef::backend-pdf[]
 = Build OpenEMS Edge
-endif::[]
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -9,6 +7,7 @@ endif::[]
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
+:imagesdir: ../../assets/images
 
 This chapter explains, how OpenEMS Edge can be compiled to a JAR file that can be executed outside of an IDE.
 

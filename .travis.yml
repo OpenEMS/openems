@@ -1,10 +1,24 @@
 sudo: false
 
 language: java
-
 jdk:
-  - oraclejdk8
+  - openjdk8
+services:
+  - docker
 
 install: ./gradlew --version
 
-script: ./gradlew --continue
+script:
+  - ./gradlew aggregatedJavadocs --continue
+  - ./gradlew antora --continue
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  on:
+    branch: develop
+  repo: OpenEMS/openems.io
+  target-branch: master
+  local-dir: build/www

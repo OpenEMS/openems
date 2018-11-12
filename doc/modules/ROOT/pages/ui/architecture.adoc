@@ -1,6 +1,4 @@
-ifndef::backend-pdf[]
 = Architecture
-endif::[]
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -9,5 +7,6 @@ endif::[]
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
+:imagesdir: ../../assets/images
 
 == Architecture
