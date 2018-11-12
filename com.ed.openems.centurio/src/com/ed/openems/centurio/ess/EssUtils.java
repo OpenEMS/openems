@@ -43,6 +43,7 @@ public class EssUtils {
 			case DEBUG_SET_REACTIVE_POWER:
 				return new IntegerReadChannel(c, channelId);
 			case SET_ACTIVE_POWER_EQUALS:
+			case SET_REACTIVE_POWER_EQUALS:
 				return new IntegerWriteChannel(c, channelId);
 			default:
 				break;

@@ -20,7 +20,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import com.ed.edcom.Util;
 import com.ed.openems.centurio.datasource.api.EdComData;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
@@ -45,7 +48,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
 				+ EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class EdCom extends AbstractOpenemsComponent implements EdComData {
+public class EdCom extends AbstractOpenemsComponent implements EdComData, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EdCom.class);
 
@@ -59,6 +62,9 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 	private Settings settings = null;
 	private VectisData vectis = null;
 	private EnergyMeter energy = null;
+	private InetAddress inverterAddress;
+	private String userkey;
+	private String serialNumber;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
@@ -69,16 +75,18 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		/*
 		 * Async initialize library and connection
 		 */
-		final InetAddress inverterAddress;
+		this.userkey = config.userkey();
+		this.serialNumber = config.serialnumber();
+		
 		if (config.ip() == null) {
-			inverterAddress = null;
+			this.inverterAddress = null;
 		} else {
-			inverterAddress = InetAddress.getByName(config.ip());
+			this.inverterAddress = InetAddress.getByName(config.ip());
 		}
 		Runnable initializeLibrary = () -> {
 			while (true) {
 				try {
-					this.initialize(inverterAddress, config.serialnumber(), config.userkey());
+					this.initialize();
 					break; // stop forever loop
 				} catch (Exception e) {
 					this.logError(this.log, e.getMessage());
@@ -94,17 +102,20 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		this.configFuture = configExecutor.schedule(initializeLibrary, 0, TimeUnit.SECONDS);
 	}
 
-	private void initialize(InetAddress inverterAddress, String serialnumber, String userkey) throws Exception {
+	private void initialize() throws Exception {
 		// TODO Static instance? What happens if we have more than one instance of this
 		// component? Is it really necessary as we set the userkey with setUserKey()
 		// later?
+		
+		
+		
 		Util.getInstance().setUserName( //
 				"K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYm"
 						+ "BxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVv"
 						+ "n0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2Tpv"
 						+ "Z1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
 
-		if (inverterAddress != null) {
+		if (this.inverterAddress != null) {
 			/*
 			 * IP address was set. No need for discovery.
 			 */
@@ -127,9 +138,9 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 
 					// Start discovery
 					ServiceInfo inverter = null;
-					if (serialnumber != null) {
+					if (this.serialNumber != null) {
 						// Search by serialnumber if it was configured
-						inverter = discovery.getBySerialNumber(serialnumber);
+						inverter = discovery.getBySerialNumber(this.serialNumber);
 					} else {
 						// Otherwise discover all and take first discovered inverter
 						ServiceInfo[] inverterList = discovery.refreshInverterList();
@@ -149,71 +160,23 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 					if (inverter != null) {
 						InetAddress[] addresses = inverter.getInetAddresses();
 						if (addresses.length > 0) {
-							inverterAddress = addresses[0]; // use the first address
-							this.logInfo(this.log, "found inverter: " + inverterAddress.toString());
+							this.inverterAddress = addresses[0]; // use the first address
+							this.logInfo(this.log, "found inverter: " + this.inverterAddress.toString());
 							break; // quit searching
 						}
 					}
 				}
 
-				if (inverterAddress != null) {
+				if (this.inverterAddress != null) {
 					break;
 				}
 
 			}
 		}
+		
+		this.initClient();
 
-		// Initialize the Client
-		if (inverterAddress != null) {
-			InetAddress localAddress = EdCom.getMatchingLocalInetAddress(inverterAddress);
-			// FIXME: sometimes I receive a "java.lang.Exception: wrong parameters" here.
-			// Any idea why?
-			this.client = new Client(inverterAddress, localAddress, 1);
-		}
-
-		// Initialize all Data classes
-		this.client.setUserKey(userkey);
-
-		this.battery = new BatteryData();
-		this.battery.registerData(client);
-		this.inverter = new InverterData();
-		this.inverter.registerData(client);
-		this.status = new Status();
-		this.status.registerData(client);
-		this.settings = new Settings();
-		this.settings.registerData(client);
-		this.energy = new EnergyMeter();
-		this.energy.registerData(client);
-		this.vectis = new VectisData();
-		this.vectis.registerData(client);
-
-		this.client.start();
-
-		// Get User-Status
-		int userStatus;
-		do {
-			userStatus = this.client.getUserStatus();
-
-			switch (this.client.getUserStatus()) {
-			case -1: // not read
-				break;
-			case 0: // access denied
-				this.logWarn(this.log, "User Status: Access denied");
-				break;
-			case 1: // no password required
-				this.logInfo(this.log, "User Status: No password required");
-				break;
-			case 2: // password accepted
-				this.logInfo(this.log, "User Status: Password accepted");
-				break;
-			case 3: // energy depot
-				this.logInfo(this.log, "User Status: EnergyDepot");
-				break;
-			}
-			if (userStatus == -1 /* not read */) {
-				Thread.sleep(1000); // try again after 1 second
-			}
-		} while (userStatus == -1 /* not read */);
+		
 	}
 
 	@Deactivate
@@ -315,6 +278,84 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData {
 		} catch (SocketException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
+			if(!this.client.isConnected()) {
+			try {
+				this.logWarn(this.log, "EdCom connection lost! Trying to reconnect...");
+				this.client.reconnect();
+				break;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				break;
+			}
+			}
+			
+			break;
+		}
+		
+	}
+	
+	
+	
+	private void initClient() throws Exception {
+		// Initialize the Client
+				if (this.inverterAddress != null) {
+					InetAddress localAddress = EdCom.getMatchingLocalInetAddress(inverterAddress);
+					// FIXME: sometimes I receive a "java.lang.Exception: wrong parameters" here.
+					// Any idea why?
+					this.client = new Client(this.inverterAddress, localAddress, 1);
+				}
+				
+				// Initialize all Data classes
+				this.client.setUserKey(this.userkey);
+
+				this.battery = new BatteryData();
+				this.battery.registerData(client);
+				this.inverter = new InverterData();
+				this.inverter.registerData(client);
+				this.status = new Status();
+				this.status.registerData(client);
+				this.settings = new Settings();
+				this.settings.registerData(client);
+				this.energy = new EnergyMeter();
+				this.energy.registerData(client);
+				this.vectis = new VectisData();
+				this.vectis.registerData(client);
+
+				this.client.start();
+				
+
+				// Get User-Status
+				int userStatus;
+				do {
+					userStatus = this.client.getUserStatus();
+						
+					switch (this.client.getUserStatus()) {
+					case -1: // not read
+						break;
+					case 0: // access denied
+						this.logWarn(this.log, "User Status: Access denied");
+						break;
+					case 1: // no password required
+						this.logInfo(this.log, "User Status: No password required");
+						break;
+					case 2: // password accepted
+						this.logInfo(this.log, "User Status: Password accepted");
+						break;
+					case 3: // energy depot
+						this.logInfo(this.log, "User Status: EnergyDepot");
+						break;
+					}
+					if (userStatus == -1 /* not read */) {
+						Thread.sleep(1000); // try again after 1 second
+					}
+				} while (userStatus == -1 /* not read */);
 	}
 
 }

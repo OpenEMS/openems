@@ -78,6 +78,9 @@ public class CenturioEss extends AbstractOpenemsComponent
 			// Do not allow Power in read-only mode
 			this.getMaxApparentPower().setNextValue(0);
 		}
+		else {
+			this.getMaxApparentPower().setNextValue(MAX_APPARENT_POWER);
+		}
 	}
 
 	@Deactivate
@@ -224,6 +227,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		this.getGridMode().setNextValue(gridMode);
 
 		// Set ALLOWED_CHARGE_POWER and ALLOWED_DISCHARGE_POWER
+		/*
 		if (soc == null || soc > 99) {
 			this.getAllowedCharge().setNextValue(0);
 		} else {
@@ -234,6 +238,10 @@ public class CenturioEss extends AbstractOpenemsComponent
 		} else {
 			this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
 		}
+		*/
+		this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
+		this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
+		
 	}
 
 	@Override
@@ -274,14 +282,16 @@ public class CenturioEss extends AbstractOpenemsComponent
 		}
 		*/
 		// Log output on changed power
-		int lastActivePower = Math.round(settings.getPacSetPoint()) * -1;
+		int lastActivePower = Math.round(settings.getPacSetPoint());
+		this.logInfo(this.log, "lastactive Power: " + lastActivePower);
 		if (lastActivePower != activePower) {
 			this.logInfo(this.log,
 					"Apply new Active Power [" + activePower + " W]. Last value was [" + lastActivePower + " W]");
+			// apply power
+			settings.setPacSetPoint(activePower);
 		}
 
-		// apply power
-		settings.setPacSetPoint(activePower);
+		
 	}
 
 	@Override
