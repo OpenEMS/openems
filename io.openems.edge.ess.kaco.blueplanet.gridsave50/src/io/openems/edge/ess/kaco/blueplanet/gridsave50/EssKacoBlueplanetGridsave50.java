@@ -352,17 +352,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		if (this.lastPowerValuesTimestamp != null) {						
 			
 			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now()).toMillis();
-			log.debug("time elpsed in ms: " + passedTimeInMilliSeconds);
-			
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 			
 			double lastPowerValue = this.lastCurrentValue * this.lastVoltageValue; 
 			double energy = lastPowerValue  * ( ((double) passedTimeInMilliSeconds) / 1000.0) / 3600.0; // calculate energy in watt hours
-			
-			log.debug("last power value :" + lastPowerValue + " W  =  " + this.lastVoltageValue + " V  x  " + this.lastCurrentValue + " A");
-			log.debug("calculated energy :" + energy);
-			log.debug("last active power value: " + this.lastActivePowerValue);
-			
 			
 			if (this.lastActivePowerValue < 0) {
 				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
