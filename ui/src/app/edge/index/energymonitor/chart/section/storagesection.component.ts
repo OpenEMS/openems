@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 import { interval } from 'rxjs';
@@ -16,23 +16,20 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         super('Edge.Index.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
 
-
-
     ngOnInit() {
         interval(1000)
             .subscribe(x => {
             })
     }
 
-    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number, powerRatio: number) {
-        powerRatio = powerRatio / 2; // interval from -50 to 50
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number) {
         this.socValue = valueRatio
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge')
-            super.updateStorage(chargeAbsolute, valueRatio, sumChargeRatio, powerRatio);
+            super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
         } else if (dischargeAbsolute != null && dischargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge')
-            super.updateStorage(dischargeAbsolute, valueRatio, sumDischargeRatio * -1, powerRatio);
+            super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateValue(0, 0, 0);

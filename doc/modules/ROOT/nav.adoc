@@ -20,3 +20,4 @@
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]
+* http://openems.io/javadoc[Javadoc]

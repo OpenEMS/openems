@@ -1,4 +1,5 @@
 = Introduction
+:imagesdir: ../assets/images
 
 image::OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400, align="left"]
 

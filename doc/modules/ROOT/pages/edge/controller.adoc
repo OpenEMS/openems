@@ -1,6 +1,4 @@
-ifndef::backend-pdf[]
 = Controller
-endif::[]
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -9,6 +7,7 @@ endif::[]
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
+:imagesdir: ../../assets/images
 
 == Existing Controllers
 
