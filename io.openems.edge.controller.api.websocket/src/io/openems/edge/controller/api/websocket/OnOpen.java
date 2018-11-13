@@ -14,10 +14,10 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.SecureRandomSingleton;
-import io.openems.common.websocket.AbstractOnOpen;
-import io.openems.common.websocket.LogBehaviour;
-import io.openems.common.websocket.Notification;
-import io.openems.common.websocket.WebSocketUtils;
+import io.openems.common.websocket_old.AbstractOnOpen;
+import io.openems.common.websocket_old.LogBehaviour;
+import io.openems.common.websocket_old.Notification;
+import io.openems.common.websocket_old.WebSocketUtils;
 import io.openems.edge.common.user.User;
 
 public class OnOpen extends AbstractOnOpen {

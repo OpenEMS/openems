@@ -15,7 +15,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
-import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket_old.DefaultMessages;
 import io.openems.edge.common.worker.AbstractWorker;
 
 class BackendWorker extends AbstractWorker {

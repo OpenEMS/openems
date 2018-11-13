@@ -19,10 +19,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.timedata.TimedataUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.LogBehaviour;
-import io.openems.common.websocket.Notification;
-import io.openems.common.websocket.WebSocketUtils;
+import io.openems.common.websocket_old.DefaultMessages;
+import io.openems.common.websocket_old.LogBehaviour;
+import io.openems.common.websocket_old.Notification;
+import io.openems.common.websocket_old.WebSocketUtils;
 import io.openems.edge.timedata.api.Timedata;
 
 /**

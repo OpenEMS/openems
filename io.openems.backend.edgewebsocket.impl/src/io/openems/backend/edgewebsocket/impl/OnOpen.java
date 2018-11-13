@@ -14,9 +14,9 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.websocket.AbstractOnOpen;
-import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.WebSocketUtils;
+import io.openems.common.websocket_old.AbstractOnOpen;
+import io.openems.common.websocket_old.DefaultMessages;
+import io.openems.common.websocket_old.WebSocketUtils;
 
 public class OnOpen extends AbstractOnOpen {
 

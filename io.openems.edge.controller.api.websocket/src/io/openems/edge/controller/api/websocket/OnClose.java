@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.websocket.AbstractOnClose;
+import io.openems.common.websocket_old.AbstractOnClose;
 
 public class OnClose extends AbstractOnClose {
 

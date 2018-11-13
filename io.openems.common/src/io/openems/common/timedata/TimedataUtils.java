@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket_old.DefaultMessages;
 
 public class TimedataUtils {
 

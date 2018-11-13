@@ -1,108 +1,138 @@
 package io.openems.common.websocket;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 
-import io.openems.common.utils.StringUtils;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
-public abstract class AbstractWebsocketServer extends WebSocketServer {
+public abstract class AbstractWebsocketServer {
+
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
+	private final String name;
+	private final int port;
+	private final WebSocketServer ws;
 
-	private final static int MAX_CONCURRENT_THREADS = 20;
+	protected abstract WsData onOpen(WebSocket ws, JsonObject handshake) throws OpenemsException;
 
-	private final ExecutorService executor = Executors.newFixedThreadPool(MAX_CONCURRENT_THREADS);
+	protected abstract void onRequest(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
+			throws OpenemsException;
 
-	protected abstract AbstractOnMessage _onMessage(WebSocket websocket, String message);
+	protected abstract void onError(WebSocket ws, Exception ex) throws OpenemsException;
 
-	protected abstract AbstractOnOpen _onOpen(WebSocket websocket, ClientHandshake handshake);
+	protected abstract void onClose(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException;
 
-	protected abstract AbstractOnError _onError(WebSocket websocket, Exception ex);
+	protected abstract void onInternalError(Exception ex);
 
-	protected abstract AbstractOnClose _onClose(WebSocket websocket, int code, String reason, boolean remote);
+	protected AbstractWebsocketServer(String name, int port) {
+		this.name = name;
+		this.port = port;
+		this.ws = new WebSocketServer(new InetSocketAddress(port)) {
 
-	public AbstractWebsocketServer(int port) {
-		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455()));
+			@Override
+			public void onStart() {
+			}
+
+			@Override
+			public void onOpen(WebSocket ws, ClientHandshake handshake) {
+				WsData wsData = null;
+				try {
+					// TODO convert ClientHandshake to JsonObject
+					wsData = AbstractWebsocketServer.this.onOpen(ws, new JsonObject());
+				} catch (OpenemsException e) {
+					AbstractWebsocketServer.this.onInternalError(e);
+				}
+				ws.setAttachment(wsData);
+			}
+
+			@Override
+			public void onMessage(WebSocket ws, String stringMessage) {
+				try {
+					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
+					if (message instanceof JsonrpcRequest) {
+						AbstractWebsocketServer.this.onRequest(ws, (JsonrpcRequest) message, (response) -> {
+							if (response != null) {
+								AbstractWebsocketServer.this.sendMessage(ws, response);
+							}
+						});
+
+					} else if (message instanceof JsonrpcResponse) {
+						WsData wsData = ws.getAttachment();
+						wsData.handleJsonrpcResponse((JsonrpcResponse) message);
+					}
+				} catch (OpenemsException e) {
+					AbstractWebsocketServer.this.onInternalError(e);
+				}
+			}
+
+			@Override
+			public void onError(WebSocket ws, Exception ex) {
+				try {
+					AbstractWebsocketServer.this.onError(ws, ex);
+				} catch (OpenemsException e) {
+					AbstractWebsocketServer.this.onInternalError(e);
+				}
+			}
+
+			@Override
+			public void onClose(WebSocket ws, int code, String reason, boolean remote) {
+				try {
+					AbstractWebsocketServer.this.onClose(ws, code, reason, remote);
+				} catch (OpenemsException e) {
+					AbstractWebsocketServer.this.onInternalError(e);
+				}
+			}
+		};
+
 	}
 
-	@Override
-	public void stop(int arg0) throws InterruptedException {
-		this.executor.shutdown();
-		super.stop(arg0);
+	public Collection<WebSocket> getConnections() {
+		return this.ws.getConnections();
 	}
 
-	@Override
-	public final void onStart() {
-		// nothing to do
+	public void sendMessage(WebSocket ws, JsonrpcMessage message) {
+		ws.send(message.toString());
 	}
 
 	/**
-	 * Open event of websocket.
+	 * Starts the websocket server
 	 */
-	@Override
-	public final void onOpen(WebSocket websocket, ClientHandshake handshake) {
-		this.executor.submit(this._onOpen(websocket, handshake));
+	public void start() {
+		log.info("Starting [" + this.name + "] websocket server [port=" + this.port + "]");
+		this.ws.start();
 	}
 
 	/**
-	 * Message event of websocket. Handles a new message.
+	 * Stops the websocket server
 	 */
-	@Override
-	public final void onMessage(WebSocket websocket, String message) {
-		this.executor.submit(this._onMessage(websocket, message));
-	}
-
-	/**
-	 * Close event of websocket. Removes the websocket. Keeps the session. Calls
-	 * _onClose()
-	 */
-	@Override
-	public final void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		this.executor.submit(this._onClose(websocket, code, reason, remote));
-	}
-
-	/**
-	 * Error event of websocket. Logs the error.
-	 */
-	@Override
-	public final void onError(WebSocket websocket, Exception ex) {
-		this.executor.submit(this._onError(websocket, ex));
-	}
-
-	/**
-	 * Send a message to a websocket
-	 *
-	 * @param j
-	 * @return true if successful, otherwise false
-	 */
-	@Deprecated
-	public boolean send(WebSocket websocket, JsonObject j) {
-		try {
-			websocket.send(j.toString());
-			return true;
-		} catch (WebsocketNotConnectedException e) {
-			log.error("Websocket is not connected. Unable to send [" + StringUtils.toShortString(j, 100) + "]");
-			return false;
+	public void stop() {
+		int tries = 3;
+		while (tries-- > 0) {
+			try {
+				this.ws.stop(1000);
+				return;
+			} catch (NullPointerException | InterruptedException e) {
+				log.warn("Unable to stop websocket server [" + this.name + "]. " + e.getClass().getSimpleName() + ": "
+						+ e.getMessage());
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					/* ignore */
+				}
+			}
 		}
+		log.error("Stopping websocket server [" + this.name + "] failed too often.");
 	}
 
-	public void executorTryAgain(Runnable runnable) {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		this.executor.submit(runnable);
-	}
 }

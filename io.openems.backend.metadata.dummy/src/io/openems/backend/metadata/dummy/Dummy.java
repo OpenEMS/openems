@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.dummy;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -82,8 +84,8 @@ public class Dummy implements MetadataService {
 		}
 		// not found -> create
 		int id = this.nextEdgeId++;
-		Edge edge = new Edge(id, apikey, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE,
-				OpenemsConstants.VERSION, "producttype [" + id + "]", new JsonObject(), null, null);
+		Edge edge = new Edge(id, apikey, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE, OpenemsConstants.VERSION,
+				"producttype [" + id + "]", new JsonObject(), null, null);
 		edge.onSetConfig(jConfig -> {
 			log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
 		});
@@ -109,4 +111,8 @@ public class Dummy implements MetadataService {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 
+	@Override
+	public Collection<Edge> getAllEdges() {
+		return Collections.unmodifiableCollection(this.edges.values());
+	}
 }

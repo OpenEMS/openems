@@ -15,10 +15,10 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
-import io.openems.common.websocket.AbstractOnMessage;
-import io.openems.common.websocket.LogBehaviour;
-import io.openems.common.websocket.Notification;
-import io.openems.common.websocket.WebSocketUtils;
+import io.openems.common.websocket_old.AbstractOnMessage;
+import io.openems.common.websocket_old.LogBehaviour;
+import io.openems.common.websocket_old.Notification;
+import io.openems.common.websocket_old.WebSocketUtils;
 
 public class OnMessage extends AbstractOnMessage {
 

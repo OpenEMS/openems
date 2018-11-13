@@ -25,8 +25,8 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.websocket.JsonrpcRequest;
-import io.openems.common.websocket.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -286,8 +286,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	@Override
 	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {
 		switch (message.getMethod()) {
-		case JsonApiGetModbusProtocol.METHOD:
-			return JsonApiGetModbusProtocol.of(message.getId(), this.records);
+		case GetModbusProtocolRequest.METHOD:
+			return new GetModbusProtocolResponse(message.getId(), this.records);
 		}
 		return null;
 	}

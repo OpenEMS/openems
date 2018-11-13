@@ -11,12 +11,12 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.websocket.AbstractOnClose;
-import io.openems.common.websocket.AbstractOnError;
-import io.openems.common.websocket.AbstractOnMessage;
-import io.openems.common.websocket.AbstractOnOpen;
-import io.openems.common.websocket.AbstractWebsocketServer;
-import io.openems.common.websocket.WebSocketUtils;
+import io.openems.common.websocket_old.AbstractOnClose;
+import io.openems.common.websocket_old.AbstractOnError;
+import io.openems.common.websocket_old.AbstractOnMessage;
+import io.openems.common.websocket_old.AbstractOnOpen;
+import io.openems.common.websocket_old.AbstractWebsocketServer;
+import io.openems.common.websocket_old.WebSocketUtils;
 
 public class EdgeWebsocketServer extends AbstractWebsocketServer {
 

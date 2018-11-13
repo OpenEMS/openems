@@ -1,7 +1,7 @@
 package io.openems.edge.common.jsonapi;
 
-import io.openems.common.websocket.JsonrpcRequest;
-import io.openems.common.websocket.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
 public interface JsonApi {
 

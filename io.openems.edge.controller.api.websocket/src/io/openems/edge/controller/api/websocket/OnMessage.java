@@ -3,25 +3,20 @@ package io.openems.edge.controller.api.websocket;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
 // TODO deprecate GSON; replace with org.json
 import com.google.gson.JsonParser;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.websocket.AbstractOnMessage;
-import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.JsonrpcRequest;
-import io.openems.common.websocket.JsonrpcResponse;
-import io.openems.common.websocket.LogBehaviour;
-import io.openems.common.websocket.Notification;
-import io.openems.common.websocket.WebSocketUtils;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.ComponentJsonApi;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.common.websocket_old.AbstractOnMessage;
+import io.openems.common.websocket_old.DefaultMessages;
+import io.openems.common.websocket_old.LogBehaviour;
+import io.openems.common.websocket_old.Notification;
+import io.openems.common.websocket_old.WebSocketUtils;
 import io.openems.edge.common.user.User;
 
 public class OnMessage extends AbstractOnMessage {
@@ -35,39 +30,40 @@ public class OnMessage extends AbstractOnMessage {
 	}
 
 	protected void run(WebSocket websocket, String message) {
-		try {
-			JsonrpcResponse response = null;
-			JsonrpcRequest request = JsonrpcRequest.from(message);
-			try {
-				// TODO: first check if Websocket connection was authenticated. This is currently happening only in handleCompatibilty.
-				
-				/*
-				 * Handle JsonrpcRequest
-				 */
-				switch (request.getMethod()) {
-				case ComponentJsonApi.METHOD:
-					ComponentJsonApi componentJsonApi = ComponentJsonApi.from(request);
-					response = this.handleComponentJsonApi(componentJsonApi);
-					break;
-				}
-
-				/*
-				 * Reply with JsonrpcResponse
-				 */
-				if (response != null) {
-					WebSocketUtils.send(this.websocket, response.toString());
-				}
-
-			} catch (OpenemsException e) {
-				log.error("Unable to handle message: " + e.getMessage());
-			}
-
-		} catch (JSONException e) {
+//		try {
+//			JsonrpcResponse response = null;
+//			JsonrpcRequest request = JsonrpcRequest.from(message);
+//			try {
+//				// TODO: first check if Websocket connection was authenticated. This is
+//				// currently happening only in handleCompatibilty.
+//
+//				/*
+//				 * Handle JsonrpcRequest
+//				 */
+//				switch (request.getMethod()) {
+//				case ComponentJsonApi.METHOD:
+//					ComponentJsonApi componentJsonApi = ComponentJsonApi.from(request);
+//					response = this.handleComponentJsonApi(componentJsonApi);
+//					break;
+//				}
+//
+//				/*
+//				 * Reply with JsonrpcResponse
+//				 */
+//				if (response != null) {
+//					WebSocketUtils.send(this.websocket, response.toString());
+//				}
+//
+//			} catch (OpenemsException e) {
+//				log.error("Unable to handle message: " + e.getMessage());
+//			}
+//
+//		} catch (JSONException e) {
 			/*
 			 * Handle Compatibility for pre-JSONRPC-Requests
 			 */
 			this.handleCompatibilty((new JsonParser()).parse(message).getAsJsonObject());
-		}
+//		}
 	}
 
 	/**
@@ -76,30 +72,30 @@ public class OnMessage extends AbstractOnMessage {
 	 * @param jMessage
 	 * @throws OpenemsException
 	 */
-	private JsonrpcResponse handleComponentJsonApi(ComponentJsonApi request) throws OpenemsException {
-		// get Component
-		String componentId = request.getComponentId();
-		OpenemsComponent component = null;
-		for (OpenemsComponent c : this.parent.parent.getComponents()) {
-			if (c.id().equals(componentId)) {
-				component = c;
-				break;
-			}
-		}
-		if (component == null) {
-			throw new OpenemsException("Unable to find Component [" + componentId + "]");
-		}
+//	private JsonrpcResponse handleComponentJsonApi(ComponentJsonApi request) throws OpenemsException {
+//		// get Component
+//		String componentId = request.getComponentId();
+//		OpenemsComponent component = null;
+//		for (OpenemsComponent c : this.parent.parent.getComponents()) {
+//			if (c.id().equals(componentId)) {
+//				component = c;
+//				break;
+//			}
+//		}
+//		if (component == null) {
+//			throw new OpenemsException("Unable to find Component [" + componentId + "]");
+//		}
+//
+//		if (!(component instanceof JsonApi)) {
+//			throw new OpenemsException("Component [" + componentId + "] is no JsonApi");
+//		}
+//
+//		// call JsonApi
+//		JsonApi jsonApi = (JsonApi) component;
+//		return jsonApi.handleJsonrpcRequest(request.getPayload());
+//	}
 
-		if (!(component instanceof JsonApi)) {
-			throw new OpenemsException("Component [" + componentId + "] is no JsonApi");
-		}
-
-		// call JsonApi
-		JsonApi jsonApi = (JsonApi) component;
-		return jsonApi.handleJsonrpcRequest(request.getPayload());
-	}
-
-	private void handleCompatibilty(com.google.gson.JsonObject jMessage) {
+	private void handleCompatibilty(JsonObject jMessage) {
 		/*
 		 * Authenticate
 		 */

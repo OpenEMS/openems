@@ -462,4 +462,75 @@ public class JsonUtils {
 		String json = gson.toJson(j);
 		System.out.println(json);
 	}
+
+	/**
+	 * A temporary builder class for JsonObjects
+	 */
+	public static class JsonObjectBuilder {
+
+		private final JsonObject j;
+
+		protected JsonObjectBuilder() {
+			this(new JsonObject());
+		}
+
+		protected JsonObjectBuilder(JsonObject j) {
+			this.j = j;
+		}
+
+		public JsonObjectBuilder addProperty(String property, String value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder addProperty(String property, int value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder addProperty(String property, boolean value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder add(String property, JsonElement value) {
+			j.add(property, value);
+			return this;
+		}
+
+		public JsonObject build() {
+			return this.j;
+		}
+
+	}
+
+	/**
+	 * Creates a JsonObject using a Builder.
+	 * 
+	 * @return
+	 */
+	public static JsonObjectBuilder buildJsonObject() {
+		return new JsonObjectBuilder();
+	}
+
+	/**
+	 * Creates a JsonObject using a Builder. Initialized from an existing
+	 * JsonObject.
+	 * 
+	 * @param j
+	 * @return
+	 */
+	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
+		return new JsonObjectBuilder(j);
+	}
+
+	/**
+	 * Parses a string to a JsonObject
+	 * 
+	 * @param string
+	 * @return
+	 */
+	public static JsonObject parseToJsonObject(String string) throws OpenemsException {
+		return JsonUtils.getAsJsonObject(JsonUtils.parse(string));
+	}
 }

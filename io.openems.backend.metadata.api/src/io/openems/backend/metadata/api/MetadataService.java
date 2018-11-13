@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.api;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -27,4 +28,6 @@ public interface MetadataService {
 	}
 
 	public abstract Optional<User> getUser(int userId);
+
+	public abstract Collection<Edge> getAllEdges();
 }

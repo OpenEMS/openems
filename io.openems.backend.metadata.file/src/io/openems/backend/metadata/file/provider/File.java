@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +87,8 @@ public class File implements MetadataService {
 						Role role = Role.getRole(parameters[3]);
 						int edgeId = Integer.parseInt(parameters[4]);
 						String apikey = parameters[5];
-						MyEdge edge = new MyEdge(edgeId, apikey, name, comment, State.ACTIVE,
-								OpenemsConstants.VERSION, producttype, new JsonObject(), role);
+						MyEdge edge = new MyEdge(edgeId, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION,
+								producttype, new JsonObject(), role);
 						edge.onSetConfig(jConfig -> {
 							log.debug(
 									"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
@@ -160,4 +162,8 @@ public class File implements MetadataService {
 		}
 	}
 
+	@Override
+	public Collection<Edge> getAllEdges() {
+		return Collections.unmodifiableCollection(this.edges.values());
+	}
 }

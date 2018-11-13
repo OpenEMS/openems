@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -325,6 +327,11 @@ public class Odoo implements MetadataService {
 		synchronized (this.users) {
 			return Optional.ofNullable(this.users.get(userId));
 		}
+	}
+
+	@Override
+	public Collection<Edge> getAllEdges() {
+		return Collections.unmodifiableCollection(this.edges.values());
 	}
 
 	private void write(Edge edge, FieldValue fieldValue) {

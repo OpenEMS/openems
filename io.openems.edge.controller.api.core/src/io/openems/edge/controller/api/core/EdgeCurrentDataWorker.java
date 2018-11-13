@@ -7,7 +7,7 @@ import com.google.gson.JsonNull;
 
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.websocket.CurrentDataWorker;
+import io.openems.common.websocket_old.CurrentDataWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 
