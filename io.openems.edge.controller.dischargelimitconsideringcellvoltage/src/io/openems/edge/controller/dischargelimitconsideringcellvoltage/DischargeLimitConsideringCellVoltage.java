@@ -161,7 +161,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 			return;
 		}
 		if ( values.get(KEY_MIN_CELL_VOLTAGE) < minCellVoltage && values.get(KEY_MIN_CELL_VOLTAGE) > absolutMinCellVoltage) {
-			debug("Min celll voltage is in range --> set pending");
+			debug("Min cell voltage is in range --> set pending");
 			setPending();
 			return;
 		}
