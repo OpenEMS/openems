@@ -48,8 +48,8 @@ public abstract class AbstractWebsocketServer {
 			public void onOpen(WebSocket ws, ClientHandshake handshake) {
 				WsData wsData = null;
 				try {
-					// TODO convert ClientHandshake to JsonObject
-					wsData = AbstractWebsocketServer.this.onOpen(ws, new JsonObject());
+					JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+					wsData = AbstractWebsocketServer.this.onOpen(ws, jHandshake);
 				} catch (OpenemsException e) {
 					AbstractWebsocketServer.this.onInternalError(e);
 				}

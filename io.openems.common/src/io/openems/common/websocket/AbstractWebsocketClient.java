@@ -39,8 +39,9 @@ public abstract class AbstractWebsocketClient {
 		this.ws = new WebSocketClient(serverUri) {
 
 			@Override
-			public void onOpen(ServerHandshake handshakedata) {
-				WsData wsData = AbstractWebsocketClient.this.onOpen(new JsonObject());
+			public void onOpen(ServerHandshake handshake) {
+				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+				WsData wsData = AbstractWebsocketClient.this.onOpen(jHandshake);
 				AbstractWebsocketClient.this.wsData = wsData;
 			}
 
