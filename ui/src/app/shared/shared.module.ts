@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { LoadingModule } from 'ngx-loading';
+import { NgxLoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
@@ -54,7 +54,7 @@ import { IonicModule } from '@ionic/angular';
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
-    LoadingModule,
+    NgxLoadingModule,
     MyDateRangePickerModule,
     ToasterModule
   ],
@@ -95,10 +95,10 @@ import { IonicModule } from '@ionic/angular';
     // components
     SocChartComponent_2018_7,
     SocChartComponent_2018_8,
-    LoadingModule,
+    NgxLoadingModule,
     AbstractConfigComponent,
     ChannelComponent,
-    ExistingThingComponent
+    ExistingThingComponent,
   ],
   providers: [
     Utils,
