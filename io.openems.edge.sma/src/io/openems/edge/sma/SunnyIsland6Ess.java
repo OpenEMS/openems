@@ -58,19 +58,17 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	// TODO IMP!! LOAD_POWER "30861"
+
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
 		IntegerWriteChannel setControlMode = this.channel(ChannelId.SET_CONTROL_MODE);
 		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
 //		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
-		IntegerWriteChannel gridLimitSwitchOffChannel = this.channel(ChannelId.GRID_REQUEST_SWITCH_OFF_POWER_LIMIT);
-		IntegerWriteChannel gridChargeTypeChannel = this.channel(ChannelId.GRID_REQUEST_VIA_CHARGE_TYPE);
 		try {
 			setControlMode.setNextWriteValue(802);
-			gridLimitSwitchOffChannel.setNextWriteValue(-4000);
 			setActivePowerChannel.setNextWriteValue(activePower);
 //			setReactivePowerChannel.setNextWriteValue(reactivePower);
-			gridChargeTypeChannel.setNextWriteValue(1768);
 		} catch (OpenemsException e) {
 			e.printStackTrace();
 		}
@@ -434,9 +432,136 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 						m(SunnyIsland6Ess.ChannelId.GENERATOR_NOMINAL_FREQUENCY, new UnsignedDoublewordElement(40573)), //
 						new DummyRegisterElement(40575, 40622), //
 						m(SunnyIsland6Ess.ChannelId.TIME_CONTROLLED_INVERTER_OPERATION,
-								new UnsignedDoublewordElement(40623))//
-				// TODO
-				),
+								new UnsignedDoublewordElement(40623)), //
+						new DummyRegisterElement(40625, 40626), //
+						m(SunnyIsland6Ess.ChannelId.OPERATING_TIME_FOR_TIME_CONTROLLED_INVERTER,
+								new UnsignedDoublewordElement(40627)), //
+						m(SunnyIsland6Ess.ChannelId.REPETITION_CYCLE_OF_TIME_CONTROLLED_INVERTER,
+								new UnsignedDoublewordElement(40629)), //
+						m(SunnyIsland6Ess.ChannelId.DEVICE_NAME, new UnsignedDoublewordElement(40631)), //
+						new DummyRegisterElement(40633, 40646), //
+						m(SunnyIsland6Ess.ChannelId.AUTOMATIC_UPDATES_ACTIVATED, new UnsignedDoublewordElement(40647)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_OF_THE_AUTOMATIC_UPDATE, new UnsignedDoublewordElement(40649)), //
+						new DummyRegisterElement(40651, 40662), //
+						m(SunnyIsland6Ess.ChannelId.GRID_GUARD_VERSION, new UnsignedDoublewordElement(40663)), //
+						m(SunnyIsland6Ess.ChannelId.MEMORY_CARD_STATUS, new UnsignedDoublewordElement(40665)), //
+						m(SunnyIsland6Ess.ChannelId.UPDATE_VERSION_OF_THE_MAIN_PROCESSOR,
+								new UnsignedDoublewordElement(40667)), //
+						m(SunnyIsland6Ess.ChannelId.START_FEED_IN_PV, new UnsignedDoublewordElement(40669)), //
+						m(SunnyIsland6Ess.ChannelId.STOP_FEED_IN_PV, new UnsignedDoublewordElement(40671)), //
+						m(SunnyIsland6Ess.ChannelId.CUT_OFF_TIME_UNTIL_CONNECTION_TO_EXTERNAL_NETWORK,
+								new UnsignedDoublewordElement(40673)), //
+						m(SunnyIsland6Ess.ChannelId.AUTOMATIC_FREQUENCY_SYNCHRONIZATION,
+								new UnsignedDoublewordElement(40675)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIUMUM_CURRENT_FROM_PUBLIC_GRID,
+								new UnsignedDoublewordElement(40677)), //
+						m(SunnyIsland6Ess.ChannelId.POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED,
+								new UnsignedDoublewordElement(40679)), //
+						m(SunnyIsland6Ess.ChannelId.GRID_REQUEST_VIA_SOC_SWITCHED_ON,
+								new UnsignedDoublewordElement(40681)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID,
+								new UnsignedDoublewordElement(40683)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID,
+								new UnsignedDoublewordElement(40685)), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_ADDTIONAL_TIME_RANGE_GRID_REQUEST,
+								new UnsignedDoublewordElement(40687)), //
+						m(SunnyIsland6Ess.ChannelId.START_INTERVAL_GRID_REQUEST, new UnsignedDoublewordElement(40689)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_CONNECT_TO_GRID_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40691)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_DISCONNECT_FROM_GRID_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40693)), //
+						m(SunnyIsland6Ess.ChannelId.ENERGY_SAVING_MODE_SWITCH_ON, new UnsignedDoublewordElement(40695)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_GRID_REVERSE_POWER, new UnsignedDoublewordElement(40697)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_GRID_REVERSE_POWER_TRIPPING_TIME,
+								new UnsignedDoublewordElement(40699)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_UNTIL_CHANGE_OVER_TO_ENERGY_SAVING_MODE,
+								new UnsignedDoublewordElement(40701)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_DURATION_OF_ENERGY_SAVING_MODE,
+								new UnsignedDoublewordElement(40703)), //
+						new DummyRegisterElement(40705, 40708), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL,
+								new UnsignedDoublewordElement(40709)), //
+						m(SunnyIsland6Ess.ChannelId.END_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL,
+								new UnsignedDoublewordElement(40711)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_SOC_FOR_PROTECTION_MODE,
+								new UnsignedDoublewordElement(40713)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_SWITCH_ONLIMIT_AFTER_OVER_TEMP_SHUT_DOWN,
+								new UnsignedDoublewordElement(40715)), //
+						m(SunnyIsland6Ess.ChannelId.OUTPUT_RESISTANCE_OF_BATTERY_CONNECTION,
+								new UnsignedDoublewordElement(40717)), //
+						m(SunnyIsland6Ess.ChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
+								new UnsignedDoublewordElement(40719)), //
+						m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_DEEP_DISCHARGE_PROTECTION_AREA,
+								new UnsignedDoublewordElement(40721)), //
+						m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_BAKCUP_POWER_AREA,
+								new UnsignedDoublewordElement(40723)), //
+						m(SunnyIsland6Ess.ChannelId.AREA_WIDTH_FOR_CONSERVING_SOC,
+								new UnsignedDoublewordElement(40725)), //
+						m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_OWN_CONSUMPTION_AREA,
+								new UnsignedDoublewordElement(40727)), //
+						m(SunnyIsland6Ess.ChannelId.MOST_PRODUCTIVE_MONTH_FOR_BATTERY_USAGE_RANGE,
+								new UnsignedDoublewordElement(40729)), //
+						m(SunnyIsland6Ess.ChannelId.SEASON_OPERATION_ACTIVE, new UnsignedDoublewordElement(40731)), //
+						m(SunnyIsland6Ess.ChannelId.VOLTAGE_SET_POINT_WITH_DEACTIVATED_BATTERY_MENAGEMENT,
+								new UnsignedDoublewordElement(40733)), //
+						m(SunnyIsland6Ess.ChannelId.CYCLE_TIME_FOR_FULL_CHARGE, new UnsignedDoublewordElement(40735)), //
+						m(SunnyIsland6Ess.ChannelId.CYCLE_TIME_FOR_EQUALIZATION_CHARGE,
+								new UnsignedDoublewordElement(40737)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_TEMPERATUR_COMPENSATION,
+								new UnsignedDoublewordElement(40739)), //
+						m(SunnyIsland6Ess.ChannelId.AUTOMATIC_EQUALIZATION_CHARGE,
+								new UnsignedDoublewordElement(40741)), //
+						m(SunnyIsland6Ess.ChannelId.TYPE_OF_ADDTIONAL_DC_SOURCES, new UnsignedDoublewordElement(40743)), //
+						m(SunnyIsland6Ess.ChannelId.LIMITATION_TYPE_OF_GENERATOR_CURRENT,
+								new UnsignedDoublewordElement(40745)), //
+						m(SunnyIsland6Ess.ChannelId.SENSIVITY_OF_GENERATOR_FAILURE_DETECTION,
+								new UnsignedDoublewordElement(40747)), //
+						new DummyRegisterElement(40749, 40750), //
+						m(SunnyIsland6Ess.ChannelId.INVERTER_NOMINAL_VOLTAGE, new UnsignedDoublewordElement(40751)), //
+						m(SunnyIsland6Ess.ChannelId.INVERTER_NOMINAL_FREQUENCY, new UnsignedDoublewordElement(40753)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_AC_BATTERY_CHARGE_CURRENT,
+								new UnsignedDoublewordElement(40755)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1,
+								new UnsignedDoublewordElement(40757)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_1,
+								new UnsignedDoublewordElement(40759)), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_1,
+								new UnsignedDoublewordElement(40761)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_LOAD_SHEDDING_1, new UnsignedDoublewordElement(40763)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_START_LOAD_SHEDDING_1_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40765)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_STOP_LOAD_SHEDDING_1_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40767)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_2,
+								new UnsignedDoublewordElement(40769)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_2,
+								new UnsignedDoublewordElement(40771)), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_2,
+								new UnsignedDoublewordElement(40773)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_LOAD_SHEDDING_2, new UnsignedDoublewordElement(40775)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_START_LOAD_SHEDDING_2_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40777)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_STOP_LOAD_SHEDDING_2_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40779)), //
+						new DummyRegisterElement(40781, 40786), //
+						m(SunnyIsland6Ess.ChannelId.CLUSTER_BEHAVIOUR_WHEN_A_DEVICE_FAILS,
+								new UnsignedDoublewordElement(40787)), //
+						m(SunnyIsland6Ess.ChannelId.COMMUNICATION_VERSION, new UnsignedDoublewordElement(40789)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_OUT_FOR_COMMUNICATION_FAULT_INDICATION,
+								new UnsignedDoublewordElement(40791)), //
+						new DummyRegisterElement(40793, 40804), //
+						m(SunnyIsland6Ess.ChannelId.ENERGY_SAVING_MODE, new UnsignedDoublewordElement(40805)), //
+						new DummyRegisterElement(40807, 40810), //
+						m(SunnyIsland6Ess.ChannelId.UPDATE_VERSION_OF_THE_LOGIC_COMPONENT,
+								new UnsignedDoublewordElement(40811)), //
+						new DummyRegisterElement(40813, 40818), //
+						m(SunnyIsland6Ess.ChannelId.FIRMWARE_VERSION_OF_PROTOCOL_CONVERTER,
+								new UnsignedDoublewordElement(40819)), //
+						m(SunnyIsland6Ess.ChannelId.HARDWARE_VERSION_OF_PROTOCOL_CONVERTER,
+								new UnsignedDoublewordElement(40821)), //
+						new DummyRegisterElement(40823, 40826), //
+						m(SunnyIsland6Ess.ChannelId.SERIAL_NUMBER_OF_THE_PROTOCOL_CONVERTER,
+								new UnsignedDoublewordElement(40827))),
 
 				new FC16WriteRegistersTask(40033, //
 						m(SunnyIsland6Ess.ChannelId.MAX_BATTERY_TEMPERATURE, new UnsignedDoublewordElement(40033),
@@ -577,10 +702,138 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 						m(SunnyIsland6Ess.ChannelId.GENERATOR_NOMINAL_FREQUENCY, new UnsignedDoublewordElement(40573)), //
 						new DummyRegisterElement(40575, 40622), //
 						m(SunnyIsland6Ess.ChannelId.TIME_CONTROLLED_INVERTER_OPERATION,
-								new UnsignedDoublewordElement(40623))//
-
-				// TODO .------------------------------------
-				), //
+								new UnsignedDoublewordElement(40623)), //
+						new DummyRegisterElement(40625, 40626), //
+						m(SunnyIsland6Ess.ChannelId.OPERATING_TIME_FOR_TIME_CONTROLLED_INVERTER,
+								new UnsignedDoublewordElement(40627)), //
+						m(SunnyIsland6Ess.ChannelId.REPETITION_CYCLE_OF_TIME_CONTROLLED_INVERTER,
+								new UnsignedDoublewordElement(40629)), //
+						m(SunnyIsland6Ess.ChannelId.DEVICE_NAME, new UnsignedDoublewordElement(40631)), //
+						new DummyRegisterElement(40633, 40646), //
+						m(SunnyIsland6Ess.ChannelId.AUTOMATIC_UPDATES_ACTIVATED, new UnsignedDoublewordElement(40647)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_OF_THE_AUTOMATIC_UPDATE, new UnsignedDoublewordElement(40649)), //
+						new DummyRegisterElement(40651, 40668), //
+						m(SunnyIsland6Ess.ChannelId.START_FEED_IN_PV, new UnsignedDoublewordElement(40669)), //
+						m(SunnyIsland6Ess.ChannelId.STOP_FEED_IN_PV, new UnsignedDoublewordElement(40671)), //
+						m(SunnyIsland6Ess.ChannelId.CUT_OFF_TIME_UNTIL_CONNECTION_TO_EXTERNAL_NETWORK,
+								new UnsignedDoublewordElement(40673)), //
+						m(SunnyIsland6Ess.ChannelId.AUTOMATIC_FREQUENCY_SYNCHRONIZATION,
+								new UnsignedDoublewordElement(40675)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIUMUM_CURRENT_FROM_PUBLIC_GRID,
+								new UnsignedDoublewordElement(40677)), //
+						m(SunnyIsland6Ess.ChannelId.POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED,
+								new UnsignedDoublewordElement(40679)), //
+						m(SunnyIsland6Ess.ChannelId.GRID_REQUEST_VIA_SOC_SWITCHED_ON,
+								new UnsignedDoublewordElement(40681)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_CONNECTION_TO_GRID,
+								new UnsignedDoublewordElement(40683)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID,
+								new UnsignedDoublewordElement(40685)), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_ADDTIONAL_TIME_RANGE_GRID_REQUEST,
+								new UnsignedDoublewordElement(40687)), //
+						m(SunnyIsland6Ess.ChannelId.START_INTERVAL_GRID_REQUEST, new UnsignedDoublewordElement(40689)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_CONNECT_TO_GRID_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40691)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_DISCONNECT_FROM_GRID_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40693)), //
+						m(SunnyIsland6Ess.ChannelId.ENERGY_SAVING_MODE_SWITCH_ON, new UnsignedDoublewordElement(40695)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_GRID_REVERSE_POWER, new UnsignedDoublewordElement(40697)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_GRID_REVERSE_POWER_TRIPPING_TIME,
+								new UnsignedDoublewordElement(40699)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_UNTIL_CHANGE_OVER_TO_ENERGY_SAVING_MODE,
+								new UnsignedDoublewordElement(40701)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_DURATION_OF_ENERGY_SAVING_MODE,
+								new UnsignedDoublewordElement(40703)), //
+						new DummyRegisterElement(40705, 40708), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL,
+								new UnsignedDoublewordElement(40709)), //
+						m(SunnyIsland6Ess.ChannelId.END_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL,
+								new UnsignedDoublewordElement(40711)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_SOC_FOR_PROTECTION_MODE,
+								new UnsignedDoublewordElement(40713)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_SWITCH_ONLIMIT_AFTER_OVER_TEMP_SHUT_DOWN,
+								new UnsignedDoublewordElement(40715)), //
+						m(SunnyIsland6Ess.ChannelId.OUTPUT_RESISTANCE_OF_BATTERY_CONNECTION,
+								new UnsignedDoublewordElement(40717)), //
+						m(SunnyIsland6Ess.ChannelId.LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN,
+								new UnsignedDoublewordElement(40719)), //
+						m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_DEEP_DISCHARGE_PROTECTION_AREA,
+								new UnsignedDoublewordElement(40721)), //
+						m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_BAKCUP_POWER_AREA,
+								new UnsignedDoublewordElement(40723)), //
+						m(SunnyIsland6Ess.ChannelId.AREA_WIDTH_FOR_CONSERVING_SOC,
+								new UnsignedDoublewordElement(40725)), //
+						m(SunnyIsland6Ess.ChannelId.MINIMUM_WIDTH_OF_OWN_CONSUMPTION_AREA,
+								new UnsignedDoublewordElement(40727)), //
+						m(SunnyIsland6Ess.ChannelId.MOST_PRODUCTIVE_MONTH_FOR_BATTERY_USAGE_RANGE,
+								new UnsignedDoublewordElement(40729)), //
+						m(SunnyIsland6Ess.ChannelId.SEASON_OPERATION_ACTIVE, new UnsignedDoublewordElement(40731)), //
+						m(SunnyIsland6Ess.ChannelId.VOLTAGE_SET_POINT_WITH_DEACTIVATED_BATTERY_MENAGEMENT,
+								new UnsignedDoublewordElement(40733)), //
+						m(SunnyIsland6Ess.ChannelId.CYCLE_TIME_FOR_FULL_CHARGE, new UnsignedDoublewordElement(40735)), //
+						m(SunnyIsland6Ess.ChannelId.CYCLE_TIME_FOR_EQUALIZATION_CHARGE,
+								new UnsignedDoublewordElement(40737)), //
+						m(SunnyIsland6Ess.ChannelId.BATTERY_TEMPERATUR_COMPENSATION,
+								new UnsignedDoublewordElement(40739)), //
+						m(SunnyIsland6Ess.ChannelId.AUTOMATIC_EQUALIZATION_CHARGE,
+								new UnsignedDoublewordElement(40741)), //
+						m(SunnyIsland6Ess.ChannelId.TYPE_OF_ADDTIONAL_DC_SOURCES, new UnsignedDoublewordElement(40743)), //
+						m(SunnyIsland6Ess.ChannelId.LIMITATION_TYPE_OF_GENERATOR_CURRENT,
+								new UnsignedDoublewordElement(40745)), //
+						m(SunnyIsland6Ess.ChannelId.SENSIVITY_OF_GENERATOR_FAILURE_DETECTION,
+								new UnsignedDoublewordElement(40747)), //
+						new DummyRegisterElement(40749, 40750), //
+						m(SunnyIsland6Ess.ChannelId.INVERTER_NOMINAL_VOLTAGE, new UnsignedDoublewordElement(40751)), //
+						m(SunnyIsland6Ess.ChannelId.INVERTER_NOMINAL_FREQUENCY, new UnsignedDoublewordElement(40753)), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_AC_BATTERY_CHARGE_CURRENT,
+								new UnsignedDoublewordElement(40755)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1,
+								new UnsignedDoublewordElement(40757)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_1,
+								new UnsignedDoublewordElement(40759)), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_1,
+								new UnsignedDoublewordElement(40761)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_LOAD_SHEDDING_1, new UnsignedDoublewordElement(40763)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_START_LOAD_SHEDDING_1_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40765)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_STOP_LOAD_SHEDDING_1_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40767)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_2,
+								new UnsignedDoublewordElement(40769)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_2,
+								new UnsignedDoublewordElement(40771)), //
+						m(SunnyIsland6Ess.ChannelId.START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_2,
+								new UnsignedDoublewordElement(40773)), //
+						m(SunnyIsland6Ess.ChannelId.TIME_LOAD_SHEDDING_2, new UnsignedDoublewordElement(40775)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_START_LOAD_SHEDDING_2_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40777)), //
+						m(SunnyIsland6Ess.ChannelId.LIMIT_SOC_FOR_STOP_LOAD_SHEDDING_2_IN_ADD_TIME_RANGE,
+								new UnsignedDoublewordElement(40779)), //
+						new DummyRegisterElement(40781, 40786), //
+						m(SunnyIsland6Ess.ChannelId.CLUSTER_BEHAVIOUR_WHEN_A_DEVICE_FAILS,
+								new UnsignedDoublewordElement(40787)), //
+						new DummyRegisterElement(40789, 40790), //
+						m(SunnyIsland6Ess.ChannelId.TIME_OUT_FOR_COMMUNICATION_FAULT_INDICATION,
+								new UnsignedDoublewordElement(40791)), //
+						new DummyRegisterElement(40793, 40794), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_CHARGING_POWER_CAPACITY,
+								new UnsignedDoublewordElement(40795)), //
+						new DummyRegisterElement(40797, 40798), //
+						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_DISCHARGING_POWER_CAPACITY,
+								new UnsignedDoublewordElement(40799)),
+						new DummyRegisterElement(40801, 40804), //
+						m(SunnyIsland6Ess.ChannelId.ENERGY_SAVING_MODE, new UnsignedDoublewordElement(40805)), //
+						new DummyRegisterElement(40807, 40810), //
+						m(SunnyIsland6Ess.ChannelId.UPDATE_VERSION_OF_THE_LOGIC_COMPONENT,
+								new UnsignedDoublewordElement(40811)), //
+						new DummyRegisterElement(40813, 40818), //
+						m(SunnyIsland6Ess.ChannelId.FIRMWARE_VERSION_OF_PROTOCOL_CONVERTER,
+								new UnsignedDoublewordElement(40819)), //
+						m(SunnyIsland6Ess.ChannelId.HARDWARE_VERSION_OF_PROTOCOL_CONVERTER,
+								new UnsignedDoublewordElement(40821)), //
+						new DummyRegisterElement(40823, 40826), //
+						m(SunnyIsland6Ess.ChannelId.SERIAL_NUMBER_OF_THE_PROTOCOL_CONVERTER,
+								new UnsignedDoublewordElement(40827))),
 				new FC3ReadRegistersTask(40189, Priority.HIGH, //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedDoublewordElement(40189),
 								ElementToChannelConverter.INVERT), //
@@ -596,19 +849,8 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 						m(SunnyIsland6Ess.ChannelId.GRID_GUARD_CODE, new UnsignedDoublewordElement(43090))), //
 				new FC16WriteRegistersTask(40705,
 						m(SunnyIsland6Ess.ChannelId.MIN_SOC_POWER_ON, new UnsignedDoublewordElement(40705)), //
-						m(SunnyIsland6Ess.ChannelId.MIN_SOC_POWER_OFF, new UnsignedDoublewordElement(40707))), //
-				new FC3ReadRegistersTask(40795, Priority.LOW, //
-						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_CHARGING_POWER_CAPACITY,
-								new UnsignedDoublewordElement(40795)), //
-						new DummyRegisterElement(40797, 40798), //
-						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_DISCHARGING_POWER_CAPACITY,
-								new UnsignedDoublewordElement(40799))),
-				new FC16WriteRegistersTask(40795, //
-						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_CHARGING_POWER_CAPACITY,
-								new UnsignedDoublewordElement(40795)), //
-						new DummyRegisterElement(40797, 40798), //
-						m(SunnyIsland6Ess.ChannelId.MAXIMUM_BATTERY_DISCHARGING_POWER_CAPACITY,
-								new UnsignedDoublewordElement(40799))));
+						m(SunnyIsland6Ess.ChannelId.MIN_SOC_POWER_OFF, new UnsignedDoublewordElement(40707)))); //
+
 		return protocol;
 	}
 
@@ -655,7 +897,11 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE)), //
 		COSPHI_SET_POINT_READ(new Doc()), //
 		CURRENT_BATTERY_CAPACITY(new Doc().unit(Unit.PERCENT)), //
-		ACTIVE_BATTERY_CHARGING_MODE(new Doc()), //
+		ACTIVE_BATTERY_CHARGING_MODE(new Doc()//
+				.option(1767, "Boost Charge")//
+				.option(1768, "Full")//
+				.option(1769, " Equalization Charge")//
+				.option(1770, "Float charge")), //
 		CURRENT_BATTERY_CHARGING_SET_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS(new Doc()), //
 		BATTERY_MAINT_SOC(new Doc()), //
@@ -907,6 +1153,93 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		TIME_CONTROLLED_INVERTER_OPERATION(new Doc()//
 				.option(1129, "Yes")//
 				.option(1130, "No")), //
+		START_TIME_FOR_TIME_CONTROLLED_INVERTER(new Doc()), //
+		OPERATING_TIME_FOR_TIME_CONTROLLED_INVERTER(new Doc().unit(Unit.SECONDS)), //
+		REPETITION_CYCLE_OF_TIME_CONTROLLED_INVERTER(new Doc()//
+				.option(1189, "Daily")//
+				.option(2622, "Once")//
+				.option(2623, "Weekly")), //
+		DEVICE_NAME(new Doc()), //
+		AUTOMATIC_UPDATES_ACTIVATED(new Doc()), //
+		TIME_OF_THE_AUTOMATIC_UPDATE(new Doc()), //
+		GRID_GUARD_VERSION(new Doc()), //
+		MEMORY_CARD_STATUS(new Doc()//
+				.option(1788, "Ready")//
+				.option(1787, "Initialization")//
+				.option(3102, "Memory Card Full")//
+				.option(3103, "No file System Detected")//
+				.option(3104, "Unsupported Data System")//
+				.option(3105, "Writing Parameters")//
+				.option(3106, "Writing Parameters Failed")//
+				.option(3107, "Writing log Data")//
+				.option(3108, "No Memory Card Available")), //
+		UPDATE_VERSION_OF_THE_MAIN_PROCESSOR(new Doc()), //
+		START_FEED_IN_PV(new Doc()), //
+		STOP_FEED_IN_PV(new Doc()), //
+		CUT_OFF_TIME_UNTIL_CONNECTION_TO_EXTERNAL_NETWORK(new Doc()), //
+		AUTOMATIC_FREQUENCY_SYNCHRONIZATION(new Doc()//
+				.option(303, "Off")//
+				.option(308, "On")), //
+		MAXIUMUM_CURRENT_FROM_PUBLIC_GRID(new Doc()), //
+		POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED(new Doc()//
+				.option(1129, "Yes")//
+				.option(1130, "No")), //
+
+		GRID_REQUEST_VIA_SOC_SWITCHED_ON(new Doc()), //
+		LIMIT_SOC_FOR_CONNECTION_TO_GRID(new Doc()), //
+		LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID(new Doc()), //
+		START_TIME_ADDTIONAL_TIME_RANGE_GRID_REQUEST(new Doc()), //
+		START_INTERVAL_GRID_REQUEST(new Doc()), //
+		LIMIT_SOC_FOR_CONNECT_TO_GRID_IN_ADD_TIME_RANGE(new Doc()), //
+		LIMIT_SOC_FOR_DISCONNECT_FROM_GRID_IN_ADD_TIME_RANGE(new Doc()), //
+		ENERGY_SAVING_MODE_SWITCH_ON(new Doc()), //
+		MAXIMUM_GRID_REVERSE_POWER(new Doc()), //
+		MAXIMUM_GRID_REVERSE_POWER_TRIPPING_TIME(new Doc()), //
+		TIME_UNTIL_CHANGE_OVER_TO_ENERGY_SAVING_MODE(new Doc()), //
+		MAXIMUM_DURATION_OF_ENERGY_SAVING_MODE(new Doc()), //
+		START_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL(new Doc()), //
+		END_TIME_OF_BATTERY_PROTECTION_MODE_LEVEL(new Doc()), //
+		BATTERY_SOC_FOR_PROTECTION_MODE(new Doc()), //
+		BATTERY_SWITCH_ONLIMIT_AFTER_OVER_TEMP_SHUT_DOWN(new Doc()), //
+		OUTPUT_RESISTANCE_OF_BATTERY_CONNECTION(new Doc()), //
+		LOWER_LIMIT_DEEP_DISCHARGE_PROTECT_AREA_PRIOR_SHUTDOWN(new Doc()), //
+		MINIMUM_WIDTH_OF_DEEP_DISCHARGE_PROTECTION_AREA(new Doc()), //
+		MINIMUM_WIDTH_OF_BAKCUP_POWER_AREA(new Doc()), //
+		AREA_WIDTH_FOR_CONSERVING_SOC(new Doc()), //
+		MINIMUM_WIDTH_OF_OWN_CONSUMPTION_AREA(new Doc()), //
+		MOST_PRODUCTIVE_MONTH_FOR_BATTERY_USAGE_RANGE(new Doc()), //
+		SEASON_OPERATION_ACTIVE(new Doc()), //
+		VOLTAGE_SET_POINT_WITH_DEACTIVATED_BATTERY_MENAGEMENT(new Doc()), //
+		CYCLE_TIME_FOR_FULL_CHARGE(new Doc()), //
+		CYCLE_TIME_FOR_EQUALIZATION_CHARGE(new Doc()), //
+		BATTERY_TEMPERATUR_COMPENSATION(new Doc()), //
+		AUTOMATIC_EQUALIZATION_CHARGE(new Doc()), //
+		TYPE_OF_ADDTIONAL_DC_SOURCES(new Doc()), //
+		LIMITATION_TYPE_OF_GENERATOR_CURRENT(new Doc()), //
+		SENSIVITY_OF_GENERATOR_FAILURE_DETECTION(new Doc()), //
+		INVERTER_NOMINAL_VOLTAGE(new Doc().unit(Unit.VOLT)), //
+		INVERTER_NOMINAL_FREQUENCY(new Doc().unit(Unit.HERTZ)), //
+		MAXIMUM_AC_BATTERY_CHARGE_CURRENT(new Doc().unit(Unit.AMPERE)), //
+		LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_1(new Doc().unit(Unit.PERCENT)), //
+		LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_1(new Doc().unit(Unit.PERCENT)), //
+		START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_1(new Doc()), //
+		TIME_LOAD_SHEDDING_1(new Doc()), //
+		LIMIT_SOC_FOR_START_LOAD_SHEDDING_1_IN_ADD_TIME_RANGE(new Doc()), //
+		LIMIT_SOC_FOR_STOP_LOAD_SHEDDING_1_IN_ADD_TIME_RANGE(new Doc()), //
+		LIMIT_VALUE_SOC_FOR_START_LOAD_SHEDDING_2(new Doc().unit(Unit.PERCENT)), //
+		LIMIT_VALUE_SOC_FOR_STOP_LOAD_SHEDDING_2(new Doc().unit(Unit.PERCENT)), //
+		START_TIME_ADDITIONAL_TIME_RANGE_LOAD_SHEDDING_2(new Doc()), //
+		TIME_LOAD_SHEDDING_2(new Doc()), //
+		LIMIT_SOC_FOR_START_LOAD_SHEDDING_2_IN_ADD_TIME_RANGE(new Doc()), //
+		LIMIT_SOC_FOR_STOP_LOAD_SHEDDING_2_IN_ADD_TIME_RANGE(new Doc()), //
+		CLUSTER_BEHAVIOUR_WHEN_A_DEVICE_FAILS(new Doc()), //
+		COMMUNICATION_VERSION(new Doc()), //
+		TIME_OUT_FOR_COMMUNICATION_FAULT_INDICATION(new Doc()), //
+		ENERGY_SAVING_MODE(new Doc()), //
+		UPDATE_VERSION_OF_THE_LOGIC_COMPONENT(new Doc()), //
+		FIRMWARE_VERSION_OF_PROTOCOL_CONVERTER(new Doc()), //
+		HARDWARE_VERSION_OF_PROTOCOL_CONVERTER(new Doc()), //
+		SERIAL_NUMBER_OF_THE_PROTOCOL_CONVERTER(new Doc()), //
 
 		BATTERY_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		BATTERY_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
@@ -946,7 +1279,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "Mode:" + this.channel(ChannelId.GRID_GUARD_CODE).getNextValue();
+		return "";
 	}
 
 	@Override

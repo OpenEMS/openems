@@ -468,11 +468,10 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent
 				.option(2, SetWorkState.REMOTE_CONTROL_OF_GRID) //
 				.option(3, SetWorkState.STOP) //
 				.option(4, SetWorkState.EMERGENCY_STOP)), //
-
 		WORK_MODE(new Doc()//
-				.option(2, "Economy")//
-				.option(6, "Remote")//
-				.option(8, "Timing")), //
+				.option(1, "Economy")//
+				.option(2, "Remote")//
+				.option(3, "Timing")), //
 		@SuppressWarnings("unchecked")
 		SYSTEM_STATE(new Doc() //
 				.option(0, "STANDBY") //
