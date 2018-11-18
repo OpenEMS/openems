@@ -2,7 +2,7 @@ package io.openems.common.websocket;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -14,29 +14,32 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
-public abstract class AbstractWebsocketServer {
+public abstract class AbstractWebsocketServer<T extends WsData> extends AbstractWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
-	private final String name;
 	private final int port;
 	private final WebSocketServer ws;
 
-	protected abstract WsData onOpen(WebSocket ws, JsonObject handshake) throws OpenemsException;
+	/**
+	 * Creates an empty WsData object that is attached to the WebSocket as early as
+	 * possible
+	 * 
+	 * @return
+	 */
+	protected abstract T createWsData();
 
-	protected abstract void onRequest(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException;
-
-	protected abstract void onError(WebSocket ws, Exception ex) throws OpenemsException;
-
-	protected abstract void onClose(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException;
-
-	protected abstract void onInternalError(Exception ex);
-
+	/**
+	 * 
+	 * 
+	 * @param name to identify this server
+	 * @param port to listen on
+	 */
 	protected AbstractWebsocketServer(String name, int port) {
-		this.name = name;
+		super(name);
 		this.port = port;
 		this.ws = new WebSocketServer(new InetSocketAddress(port)) {
 
@@ -46,55 +49,46 @@ public abstract class AbstractWebsocketServer {
 
 			@Override
 			public void onOpen(WebSocket ws, ClientHandshake handshake) {
-				WsData wsData = null;
-				try {
-					JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
-					wsData = AbstractWebsocketServer.this.onOpen(ws, jHandshake);
-				} catch (OpenemsException e) {
-					AbstractWebsocketServer.this.onInternalError(e);
-				}
+				T wsData = AbstractWebsocketServer.this.createWsData();
 				ws.setAttachment(wsData);
+				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+				CompletableFuture.runAsync(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
 			}
 
 			@Override
 			public void onMessage(WebSocket ws, String stringMessage) {
 				try {
 					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
+					// TODO handle deprecated non-JSON-RPC messages
 					if (message instanceof JsonrpcRequest) {
-						AbstractWebsocketServer.this.onRequest(ws, (JsonrpcRequest) message, (response) -> {
-							if (response != null) {
-								AbstractWebsocketServer.this.sendMessage(ws, response);
-							}
-						});
-
+						CompletableFuture.runAsync(new OnRequestHandler(AbstractWebsocketServer.this, ws,
+								(JsonrpcRequest) message, (response) -> {
+									if (response != null) {
+										AbstractWebsocketServer.this.sendMessage(ws, response);
+									}
+								}));
 					} else if (message instanceof JsonrpcResponse) {
-						WsData wsData = ws.getAttachment();
-						wsData.handleJsonrpcResponse((JsonrpcResponse) message);
+						CompletableFuture.runAsync(
+								new OnResponseHandler(AbstractWebsocketServer.this, ws, (JsonrpcResponse) message));
+					} else if (message instanceof JsonrpcNotification) {
+						CompletableFuture.runAsync(new OnNotificationHandler(AbstractWebsocketServer.this, ws,
+								(JsonrpcNotification) message));
 					}
 				} catch (OpenemsException e) {
-					AbstractWebsocketServer.this.onInternalError(e);
+					AbstractWebsocketServer.this.handleInternalErrorAsync(e);
 				}
 			}
 
 			@Override
 			public void onError(WebSocket ws, Exception ex) {
-				try {
-					AbstractWebsocketServer.this.onError(ws, ex);
-				} catch (OpenemsException e) {
-					AbstractWebsocketServer.this.onInternalError(e);
-				}
+				CompletableFuture.runAsync(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
 			}
 
 			@Override
 			public void onClose(WebSocket ws, int code, String reason, boolean remote) {
-				try {
-					AbstractWebsocketServer.this.onClose(ws, code, reason, remote);
-				} catch (OpenemsException e) {
-					AbstractWebsocketServer.this.onInternalError(e);
-				}
+				CompletableFuture.runAsync(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
 			}
 		};
-
 	}
 
 	public Collection<WebSocket> getConnections() {
@@ -109,7 +103,7 @@ public abstract class AbstractWebsocketServer {
 	 * Starts the websocket server
 	 */
 	public void start() {
-		log.info("Starting [" + this.name + "] websocket server [port=" + this.port + "]");
+		log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
 		this.ws.start();
 	}
 
@@ -123,8 +117,8 @@ public abstract class AbstractWebsocketServer {
 				this.ws.stop(1000);
 				return;
 			} catch (NullPointerException | InterruptedException e) {
-				log.warn("Unable to stop websocket server [" + this.name + "]. " + e.getClass().getSimpleName() + ": "
-						+ e.getMessage());
+				log.warn("Unable to stop websocket server [" + this.getName() + "]. " + e.getClass().getSimpleName()
+						+ ": " + e.getMessage());
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
@@ -132,7 +126,7 @@ public abstract class AbstractWebsocketServer {
 				}
 			}
 		}
-		log.error("Stopping websocket server [" + this.name + "] failed too often.");
+		log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
 	}
 
 }

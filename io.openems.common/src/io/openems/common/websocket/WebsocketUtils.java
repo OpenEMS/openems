@@ -14,7 +14,7 @@ public class WebsocketUtils {
 	 * @param handshake
 	 * @return
 	 */
-	protected static JsonObject handshakeToJsonObject(Handshakedata handshake) {
+	public static JsonObject handshakeToJsonObject(Handshakedata handshake) {
 		JsonObject j = new JsonObject();
 		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext();) {
 			String field = iter.next();
