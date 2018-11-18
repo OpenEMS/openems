@@ -18,13 +18,26 @@ public abstract class JsonrpcResponse extends JsonrpcMessage {
 		if (j.has("result")) {
 			return new GenericJsonrpcResponseSuccess(id, JsonUtils.getAsJsonObject(j, "result"));
 		} else if (j.has("error")) {
-			return new GenericJsonrpcResponseError(id, JsonUtils.getAsJsonObject(j, "error"));
+			return JsonrpcResponseError.from(j);
 		}
 		throw new OpenemsException("Unable to parse JsonrpcResponse");
 	}
 
+	private final UUID id;
+
 	protected JsonrpcResponse(UUID id) {
-		super(id);
+		this.id = id;
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	@Override
+	public JsonObject toJsonObject() {
+		return JsonUtils.buildJsonObject(super.toJsonObject()) //
+				.addProperty("id", this.getId().toString()) //
+				.build();
 	}
 
 }

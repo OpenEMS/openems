@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.base;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -17,31 +15,24 @@ public abstract class JsonrpcMessage {
 
 	public static JsonrpcMessage from(JsonObject j) throws OpenemsException {
 		if (j.has("method") && j.has("params")) {
-			return GenericJsonrpcRequest.from(j);
+			if (j.has("id")) {
+				return GenericJsonrpcRequest.from(j);
+			} else {
+				return GenericJsonrpcNotification.from(j);
+			}
 
 		} else if (j.has("result")) {
 			return GenericJsonrpcResponseSuccess.from(j);
 
 		} else if (j.has("error")) {
-			return GenericJsonrpcResponseError.from(j);
+			return JsonrpcResponseError.from(j);
 		}
-		throw new OpenemsException("JsonrpcMessage is neither a Request nor a Result!");
-	}
-
-	private final UUID id;
-
-	protected JsonrpcMessage(UUID id) {
-		this.id = id;
-	}
-
-	public UUID getId() {
-		return id;
+		throw new OpenemsException("JsonrpcMessage is not a valid Request, Result or Notification: " + j);
 	}
 
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("jsonrpc", JSONRPC_VERSION) //
-				.addProperty("id", this.getId().toString()) //
 				.build();
 	}
 

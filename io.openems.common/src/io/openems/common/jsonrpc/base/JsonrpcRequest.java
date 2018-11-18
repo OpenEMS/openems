@@ -5,30 +5,27 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
 
-public abstract class JsonrpcRequest extends JsonrpcMessage {
+public abstract class JsonrpcRequest extends AbstractJsonrpcRequest {
 
-	private final String method;
+	private final UUID id;
 
 	public JsonrpcRequest(String method) {
 		this(UUID.randomUUID(), method);
 	}
 
 	public JsonrpcRequest(UUID id, String method) {
-		super(id);
-		this.method = method;
+		super(method);
+		this.id = id;
 	}
 
-	public String getMethod() {
-		return method;
+	public UUID getId() {
+		return id;
 	}
-
-	public abstract JsonObject getParams();
 
 	@Override
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject(super.toJsonObject()) //
-				.addProperty("method", this.method) //
-				.add("params", this.getParams()) //
+				.addProperty("id", this.getId().toString()) //
 				.build();
 	}
 }
