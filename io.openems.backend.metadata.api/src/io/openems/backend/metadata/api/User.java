@@ -8,37 +8,32 @@ import java.util.TreeMap;
 import io.openems.common.session.Role;
 
 public class User {
-	private final int id;
-	private String name;
-	private final NavigableMap<Integer, Role> edgeRoles = new TreeMap<>();	
-	
-	public User(int id, String name) {
+
+	private final String id;
+	private final NavigableMap<String, Role> edgeRoles = new TreeMap<>();
+
+	public User(String id) {
 		this.id = id;
-		this.name = name;
 	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public int getId() {
+
+	public String getId() {
 		return id;
 	}
-	
-	public void addEdgeRole(int deviceId, Role role) {
-		this.edgeRoles.put(deviceId, role);
+
+	public void addEdgeRole(String edgeId, Role role) {
+		this.edgeRoles.put(edgeId, role);
 	}
-	
-	public NavigableMap<Integer, Role> getEdgeRoles() {
+
+	public NavigableMap<String, Role> getEdgeRoles() {
 		return Collections.unmodifiableNavigableMap(this.edgeRoles);
 	}
-	
-	public Optional<Role> getEdgeRole(int edgeId) {
+
+	public Optional<Role> getEdgeRole(String edgeId) {
 		return Optional.ofNullable(this.edgeRoles.get(edgeId));
 	}
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", edgeRole=" + edgeRoles + "]";
+		return "User [id=" + id + ", edgeRole=" + edgeRoles + "]";
 	}
 }

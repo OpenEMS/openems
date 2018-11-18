@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.common.utils.JsonUtils;
+
 public class Edge {
 
 	private final Logger log = LoggerFactory.getLogger(Edge.class);
@@ -19,9 +22,8 @@ public class Edge {
 		ACTIVE, INACTIVE, TEST, INSTALLED_ON_STOCK, OFFLINE;
 	}
 
-	private final int id;
 	private final String apikey;
-	private String name;
+	private String id;
 	private String comment;
 	private State state;
 	private String version;
@@ -33,11 +35,10 @@ public class Edge {
 	private String ipv4 = null;
 	private boolean isOnline;
 
-	public Edge(int id, String apikey, String name, String comment, State state, String version, String producttype,
+	public Edge(String id, String apikey, String comment, State state, String version, String producttype,
 			JsonObject jConfig, Integer soc, String ipv4) {
 		this.id = id;
 		this.apikey = apikey;
-		this.name = name;
 		this.comment = comment;
 		this.state = state;
 		this.version = version;
@@ -47,18 +48,18 @@ public class Edge {
 		this.ipv4 = ipv4;
 	}
 
-	public int getId() {
-		return id;
-	}
-
 	public String getApikey() {
 		return apikey;
 	}
 
-	public String getName() {
-		return name;
+	public String getId() {
+		return id;
 	}
 
+	public String getComment() {
+		return comment;
+	}
+	
 	public JsonObject getConfig() {
 		return this.jConfig;
 	}
@@ -72,22 +73,21 @@ public class Edge {
 	}
 
 	public JsonObject toJsonObject() {
-		JsonObject j = new JsonObject();
-		j.addProperty("id", this.id);
-		j.addProperty("name", this.name);
-		j.addProperty("comment", this.comment);
-		j.addProperty("version", this.version);
-		j.addProperty("producttype", this.producttype);
-		j.addProperty("online", this.isOnline);
-		return j;
+		return JsonUtils.buildJsonObject() //
+				.addProperty("id", this.id) //
+				.addProperty("comment", this.comment) //
+				.addProperty("version", this.version) //
+				.addProperty("producttype", this.producttype) //
+				.addProperty("online", this.isOnline) //
+				.build();
 	}
 
 	@Override
 	public String toString() {
-		return "Edge [id=" + id + ", name=" + name + ", comment=" + comment + ", state=" + state + ", version="
-				+ version + ", producttype=" + producttype + ", jConfig="
-				+ (jConfig.toString().isEmpty() ? "NOT_SET" : "set") + ", lastMessage=" + lastMessage + ", lastUpdate="
-				+ lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4 + ", isOnline=" + isOnline + "]";
+		return "Edge [id=" + id + ", comment=" + comment + ", state=" + state + ", version=" + version
+				+ ", producttype=" + producttype + ", jConfig=" + (jConfig.toString().isEmpty() ? "NOT_SET" : "set")
+				+ ", lastMessage=" + lastMessage + ", lastUpdate=" + lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4
+				+ ", isOnline=" + isOnline + "]";
 	}
 
 	/*
@@ -106,7 +106,8 @@ public class Edge {
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.
 	 */
-	public synchronized void setOnline(boolean isOnline) {
+	public synchronized void updateIsOnline(EdgeWebsocket edgeWebsocket) {
+		boolean isOnline = edgeWebsocket.isOnline(this.getId());
 		this.isOnline = isOnline;
 		this.onSetOnline.forEach(listener -> listener.accept(isOnline));
 	}
@@ -141,38 +142,38 @@ public class Edge {
 	/*
 	 * Last Message
 	 */
-	private final List<Runnable> onSetLastMessage = new CopyOnWriteArrayList<>();
+	private final List<Runnable> onSetLastMessageTimestamp = new CopyOnWriteArrayList<>();
 
 	public void onSetLastMessage(Runnable listener) {
-		this.onSetLastMessage.add(listener);
+		this.onSetLastMessageTimestamp.add(listener);
 	}
 
-	public synchronized void setLastMessage() {
+	public synchronized void setLastMessageTimestamp() {
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastMessage = now;
-		this.onSetLastMessage.forEach(listener -> listener.run());
+		this.onSetLastMessageTimestamp.forEach(listener -> listener.run());
 	}
 
-	public ZonedDateTime getLastMessage() {
+	public ZonedDateTime getLastMessageTimestamp() {
 		return lastMessage;
 	}
 
 	/*
 	 * Last Update
 	 */
-	private final List<Runnable> onSetLastUpdate = new CopyOnWriteArrayList<>();
+	private final List<Runnable> onSetLastUpdateTimestamp = new CopyOnWriteArrayList<>();
 
 	public void onSetLastUpdate(Runnable listener) {
-		this.onSetLastUpdate.add(listener);
+		this.onSetLastUpdateTimestamp.add(listener);
 	}
 
-	public synchronized void setLastUpdate() {
+	public synchronized void setLastUpdateTimestamp() {
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastUpdate = now;
-		this.onSetLastUpdate.forEach(listener -> listener.run());
+		this.onSetLastUpdateTimestamp.forEach(listener -> listener.run());
 	}
 
-	public ZonedDateTime getLastUpdate() {
+	public ZonedDateTime getLastUpdateTimestamp() {
 		return lastUpdate;
 	}
 

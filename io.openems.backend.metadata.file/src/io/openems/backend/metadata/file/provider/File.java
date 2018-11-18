@@ -24,10 +24,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
+import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
@@ -47,7 +47,7 @@ import io.openems.common.utils.StringUtils;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Metadata.File", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class File implements MetadataService {
+public class File implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(File.class);
 
@@ -57,7 +57,7 @@ public class File implements MetadataService {
 	private Map<Integer, MyEdge> edges = new HashMap<>();
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	private volatile EdgeWebsocketService edgeWebsocketService;
+	private volatile EdgeWebsocket edgeWebsocketService;
 
 	@Activate
 	void activate(Config config) {
@@ -99,7 +99,7 @@ public class File implements MetadataService {
 						edge.onSetIpv4(ipv4 -> {
 							log.debug("Edge [" + edgeId + "]. Set IPv4: " + ipv4);
 						});
-						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
+						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getInternalId()));
 						this.edges.put(edgeId, edge);
 					} catch (Throwable e) {
 						log.error("Unable to parse line [" + s + "]. " + e.getClass().getSimpleName() + ": "
@@ -136,7 +136,7 @@ public class File implements MetadataService {
 		List<Integer> ids = new ArrayList<>();
 		for (MyEdge edge : this.edges.values()) {
 			if (edge.getApikey().equals(apikey)) {
-				ids.add(edge.getId());
+				ids.add(edge.getInternalId());
 			}
 		}
 		int[] result = new int[ids.size()];

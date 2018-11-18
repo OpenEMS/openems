@@ -8,18 +8,18 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.exceptions.OpenemsException;
 
 @ProviderType
-public interface MetadataService {
+public interface Metadata {
 
 	public abstract User authenticate() throws OpenemsException;
 
 	public abstract User authenticate(String sessionId) throws OpenemsException;
 
-	public abstract int[] getEdgeIdsForApikey(String apikey);
+	public abstract Optional<String> getEdgeIdForApikey(String apikey);
 
-	public abstract Optional<Edge> getEdgeOpt(int edgeId);
+	public abstract Optional<Edge> getEdge(String edgeId);
 
-	public default Edge getEdge(int edgeId) throws OpenemsException {
-		Optional<Edge> edgeOpt = this.getEdgeOpt(edgeId);
+	public default Edge getEdgeOrError(String edgeId) throws OpenemsException {
+		Optional<Edge> edgeOpt = this.getEdge(edgeId);
 		if (edgeOpt.isPresent()) {
 			return edgeOpt.get();
 		} else {
@@ -27,7 +27,7 @@ public interface MetadataService {
 		}
 	}
 
-	public abstract Optional<User> getUser(int userId);
+	public abstract Optional<User> getUser(String userId);
 
 	public abstract Collection<Edge> getAllEdges();
 }

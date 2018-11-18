@@ -35,10 +35,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
+import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -46,7 +46,7 @@ import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Odoo implements MetadataService {
+public class Odoo implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(Odoo.class);
 	private final int READ_BATCH_SIZE = 100;
@@ -64,7 +64,7 @@ public class Odoo implements MetadataService {
 	private OdooWriteWorker writeWorker;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	private volatile EdgeWebsocketService edgeWebsocketService;
+	private volatile EdgeWebsocket edgeWebsocketService;
 
 	@Activate
 	void activate(Config config) {
@@ -158,7 +158,7 @@ public class Odoo implements MetadataService {
 						edge.onSetOnline(isOnline -> {
 							if (isOnline && edge.getState().equals(State.INACTIVE)) {
 								// Update Edge state to active
-								log.info("Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name()
+								log.info("Mark Edge [" + edge.getInternalId() + "] as ACTIVE. It was [" + edge.getState().name()
 										+ "]");
 								edge.setState(State.ACTIVE);
 								this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
@@ -189,7 +189,7 @@ public class Odoo implements MetadataService {
 							// Set IPv4 in Odoo
 							this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)));
 						});
-						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
+						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getInternalId()));
 
 						// store in cache
 						synchronized (this.edges) {
@@ -277,7 +277,7 @@ public class Odoo implements MetadataService {
 						if (edgeOpt.isPresent()) {
 							Edge edge = edgeOpt.get();
 							synchronized (this.edges) {
-								this.edges.putIfAbsent(edge.getId(), edge);
+								this.edges.putIfAbsent(edge.getInternalId(), edge);
 							}
 						}
 						user.addEdgeRole(edgeId, Role.getRole(JsonUtils.getAsString(jDevice, "role")));
@@ -302,7 +302,7 @@ public class Odoo implements MetadataService {
 	public int[] getEdgeIdsForApikey(String apikey) {
 		synchronized (this.edges) {
 			return this.edges.values().stream().filter(edge -> apikey.equals(edge.getApikey()))
-					.mapToInt(edge -> edge.getId()).toArray();
+					.mapToInt(edge -> edge.getInternalId()).toArray();
 		}
 	}
 
@@ -337,7 +337,7 @@ public class Odoo implements MetadataService {
 	private void write(Edge edge, FieldValue fieldValue) {
 		try {
 			OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device",
-					new Integer[] { edge.getId() }, fieldValue);
+					new Integer[] { edge.getInternalId() }, fieldValue);
 		} catch (OpenemsException e) {
 			log.error("Unable to update Edge [ID:" + edge.getName() + "] field [" + fieldValue.getField().n() + "] : "
 					+ e.getMessage());
