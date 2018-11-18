@@ -61,8 +61,9 @@ final class WebsocketApiServer extends AbstractWebsocketServer {
 		jEdges.add(jEdge);
 
 		// send reply
-		JsonObject jReply = DefaultMessages.uiLoginSuccessfulReply(handler.getSessionToken(), jEdges);
-		handler.send(jReply);
+		// TODO
+//		JsonObject jReply = DefaultMessages.uiLoginSuccessfulReply(handler.getSessionToken(), jEdges);
+//		handler.send(jReply);
 	}
 
 	protected void sendLog(PaxLoggingEvent event) {
