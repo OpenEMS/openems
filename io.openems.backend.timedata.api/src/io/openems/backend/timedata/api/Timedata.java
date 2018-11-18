@@ -10,8 +10,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
 import io.openems.common.types.ChannelAddress;
 
+// TODO: implement Timedata Dummy
+
 @ProviderType
-public interface TimedataService extends CommonTimedataService {
+public interface Timedata extends CommonTimedataService {
 	/**
 	 * Takes a JsonObject and writes the points to database.
 	 *
@@ -28,7 +30,7 @@ public interface TimedataService extends CommonTimedataService {
 	 *	}
 	 * </pre>
 	 */
-	public void write(int edgeId, JsonObject jData) throws OpenemsException;
+	public void write(String edgeId, JsonObject jData) throws OpenemsException;
 
 	/**
 	 * Gets the latest value for the given ChannelAddress
@@ -37,6 +39,6 @@ public interface TimedataService extends CommonTimedataService {
 	 * @param channelAddress
 	 * @return
 	 */
-	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress);
+	public Optional<Object> getChannelValue(String edgeId, ChannelAddress channelAddress);
 
 }

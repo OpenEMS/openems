@@ -6,7 +6,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-public class DeviceCache {
+public class EdgeCache {
+	
 	private long timestamp = 0l;
 	private final Map<String, Object> channelValueCache = new HashMap<>();
 
@@ -39,4 +40,5 @@ public class DeviceCache {
 	public void clear() {
 		this.channelValueCache.clear();
 	}
+	
 }
