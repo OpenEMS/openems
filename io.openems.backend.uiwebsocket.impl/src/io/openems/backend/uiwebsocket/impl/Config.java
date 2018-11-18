@@ -4,11 +4,13 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "UiWebsocket", //
-		description = "Configures the Websockets to OpenEMS UI")
+		name = "Ui.Websocket", //
+		description = "Configures the websocket server for OpenEMS UI")
 @interface Config {
+	
 	@AttributeDefinition(name = "Port", description = "The port of the websocket server.")
 	int port();
 
-	String webconsole_configurationFactory_nameHint() default "EdgeWebsocket";
+	String webconsole_configurationFactory_nameHint() default "Ui Websocket";
+	
 }

@@ -9,8 +9,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
-import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.backend.metadata.api.Metadata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -21,14 +21,14 @@ import io.openems.backend.metadata.api.MetadataService;
 public class B2bWebsocket {
 
 	public final static int DEFAULT_PORT = 8076;
-	
+
 	private WebsocketServer server = null;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile EdgeWebsocketService edgeWebsocketService;
+	protected volatile EdgeWebsocket edgeWebsocket;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile MetadataService metadataService;
+	protected volatile Metadata metadata;
 
 	@Activate
 	void activate(Config config) {

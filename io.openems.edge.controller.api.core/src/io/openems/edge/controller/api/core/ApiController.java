@@ -10,7 +10,7 @@ import io.openems.edge.timedata.api.Timedata;
 
 public interface ApiController extends Controller {
 
-	Timedata getTimedataService();
+	Timedata getTimedata();
 
 	List<OpenemsComponent> getComponents();
 

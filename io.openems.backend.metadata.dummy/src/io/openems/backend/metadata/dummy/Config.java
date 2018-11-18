@@ -7,5 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Configures the Metadata Dummy provider")
 @interface Config {
 
-	String webconsole_configurationFactory_nameHint() default "Metadata.Dummy";
+	String webconsole_configurationFactory_nameHint() default "Metadata Dummy";
+	
 }

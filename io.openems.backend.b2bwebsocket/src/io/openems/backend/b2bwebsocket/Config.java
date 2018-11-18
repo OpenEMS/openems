@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Backend2Backend Websocket", //
+		name = "Backend2Backend.Websocket", //
 		description = "Provides a websocket server for backend-to-backend communication.")
 @interface Config {
 

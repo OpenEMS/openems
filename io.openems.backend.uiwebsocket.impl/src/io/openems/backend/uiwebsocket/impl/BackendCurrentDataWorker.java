@@ -14,10 +14,10 @@ import io.openems.common.websocket_old.CurrentDataWorker;
 
 public class BackendCurrentDataWorker extends CurrentDataWorker {
 
-	private final UiWebsocketServer parent;
-	private final int edgeId;
+	private final UiWebsocketImpl parent;
+	private final String edgeId;
 
-	public BackendCurrentDataWorker(UiWebsocketServer parent, WebSocket websocket, int edgeId) {
+	public BackendCurrentDataWorker(UiWebsocketImpl parent, WebSocket websocket, String edgeId) {
 		super(websocket);
 		this.parent = parent;
 		this.edgeId = edgeId;
@@ -25,8 +25,7 @@ public class BackendCurrentDataWorker extends CurrentDataWorker {
 
 	@Override
 	protected JsonElement getChannelValue(ChannelAddress channelAddress) {
-		Optional<Object> channelCacheOpt = this.parent.parent.timeDataService.getChannelValue(this.edgeId,
-				channelAddress);
+		Optional<Object> channelCacheOpt = this.parent.timeData.getChannelValue(this.edgeId, channelAddress);
 		if (channelCacheOpt.isPresent()) {
 			try {
 				return JsonUtils.getAsJsonElement(channelCacheOpt.get());

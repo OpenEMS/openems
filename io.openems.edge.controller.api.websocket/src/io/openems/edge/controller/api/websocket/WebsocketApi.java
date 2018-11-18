@@ -91,7 +91,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public Timedata getTimedataService() {
+	public Timedata getTimedata() {
 		return this.timedataService;
 	}
 

@@ -274,7 +274,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public Timedata getTimedataService() {
+	public Timedata getTimedata() {
 		return this.timedataService;
 	}
 

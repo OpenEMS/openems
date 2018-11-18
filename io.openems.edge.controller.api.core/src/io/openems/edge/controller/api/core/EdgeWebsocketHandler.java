@@ -166,7 +166,7 @@ public class EdgeWebsocketHandler {
 	}
 
 	private void historicData(JsonObject jMessageId, JsonObject jHistoricData) {
-		Timedata timedataService = this.parent.getTimedataService();
+		Timedata timedataService = this.parent.getTimedata();
 		if (timedataService == null) {
 			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
 					Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
