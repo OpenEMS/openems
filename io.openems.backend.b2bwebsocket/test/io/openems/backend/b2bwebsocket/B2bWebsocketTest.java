@@ -14,7 +14,7 @@ public class B2bWebsocketTest {
 	@Test
 	public void testGetStatusOfEdgesRequest() throws URISyntaxException, InterruptedException, OpenemsException {
 		TestClient client = new TestClient(new URI("ws://localhost:" + B2bWebsocket.DEFAULT_PORT));
-		client.connectBlocking();
+		client.startBlocking();
 		
 		GetStatusOfEdgesRequest request = new GetStatusOfEdgesRequest();
 		client.sendRequest(request, response -> {

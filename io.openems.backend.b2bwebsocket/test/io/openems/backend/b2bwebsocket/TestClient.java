@@ -1,52 +1,79 @@
 package io.openems.backend.b2bwebsocket;
 
 import java.net.URI;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.websocket.AbstractWebsocketClient;
+import io.openems.common.websocket.OnClose;
+import io.openems.common.websocket.OnError;
+import io.openems.common.websocket.OnInternalError;
+import io.openems.common.websocket.OnNotification;
+import io.openems.common.websocket.OnOpen;
+import io.openems.common.websocket.OnRequest;
 import io.openems.common.websocket.WsData;
 
-public class TestClient extends AbstractWebsocketClient {
+public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	private Logger log = LoggerFactory.getLogger(TestClient.class);
 
+	private final OnOpen onOpen;
+	private final OnRequest onRequest;
+	private final OnNotification onNotification;
+	private final OnError onError;
+	private final OnClose onClose;
+	private final OnInternalError onInternalError;
+
 	protected TestClient(URI serverUri) {
-		super(serverUri);
+		super("B2bwebsocket.Unittest", serverUri);
+		this.onOpen = (ws, handshake) -> {
+			log.info("OnOpen: " + handshake);
+		};
+		this.onRequest = (ws, request, responseCallback) -> {
+			log.info("OnRequest: " + request);
+		};
+		this.onNotification = (ws, notification) -> {
+			log.info("OnNotification: " + notification);
+		};
+		this.onError = (ws, ex) -> {
+			log.info("onError: " + ex.getMessage());
+		};
+		this.onClose = (ws, code, reason, remote) -> {
+			log.info("onClose: " + reason);
+		};
+		this.onInternalError = (ex) -> {
+			log.warn("onInternalError: " + ex.getMessage());
+		};
 	}
 
 	@Override
-	protected WsData onOpen(JsonObject handshake) {
-		log.info("OnOpen: " + handshake);
-		return new WsData();
+	public OnOpen getOnOpen() {
+		return onOpen;
 	}
 
 	@Override
-	protected void onRequest(JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException {
-		log.info("OnRequest: " + request);
+	public OnRequest getOnRequest() {
+		return onRequest;
 	}
 
 	@Override
-	protected void onError(Exception ex) throws OpenemsException {
-		log.info("onError: " + ex.getMessage());
+	public OnError getOnError() {
+		return onError;
 	}
 
 	@Override
-	protected void onClose(int code, String reason, boolean remote) throws OpenemsException {
-		log.info("onClose: " + reason);
+	public OnClose getOnClose() {
+		return onClose;
 	}
 
 	@Override
-	protected void onInternalError(Exception ex) {
-		log.warn("onInternalError: " + ex.getMessage());
+	public OnInternalError getOnInternalError() {
+		return onInternalError;
 	}
 
+	@Override
+	protected OnNotification getOnNotification() {
+		return onNotification;
+	}
 }
