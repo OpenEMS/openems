@@ -1,89 +1,75 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.framing.CloseFrame;
-import org.java_websocket.handshake.ClientHandshake;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.UiAuthenticateWithSessionId;
+import io.openems.common.jsonrpc.notification.UiAuthenticateWithSessionId.EdgeMetadata;
 import io.openems.common.session.Role;
-import io.openems.common.websocket_old.AbstractOnOpen;
-import io.openems.common.websocket_old.DefaultMessages;
-import io.openems.common.websocket_old.WebSocketUtils;
+import io.openems.common.utils.JsonUtils;
 
-public class OnOpen extends AbstractOnOpen {
+public class OnOpen implements io.openems.common.websocket.OnOpen {
 
-	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
-	private final UiWebsocketServer parent;
+//	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
+	private final UiWebsocketImpl parent;
 
-	public OnOpen(UiWebsocketServer parent, WebSocket websocket, ClientHandshake handshake) {
-		super(websocket, handshake);
+	public OnOpen(UiWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	protected void run(WebSocket websocket, ClientHandshake handshake) {
-		// create websocket attachment
-		WebsocketData attachment = new WebsocketData();
-		websocket.setAttachment(attachment);
-
+	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
 		User user;
 
 		// login using session_id from the cookie
-		Optional<String> sessionIdOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "session_id");
+		Optional<String> sessionIdOpt = JsonUtils.getAsOptionalString(handshake, "session_id");
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID
-				user = this.parent.parent.metadataService.authenticate(sessionIdOpt.get());
+				user = this.parent.metadata.authenticate(sessionIdOpt.get());
 			} else {
 				// authenticate without Session-ID
-				user = this.parent.parent.metadataService.authenticate();
+				user = this.parent.metadata.authenticate();
 			}
+
 		} catch (OpenemsException e) {
-			// send connection failed to browser
-			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiLogoutReply());
-			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + e.getMessage()
-					+ "].");
-			websocket.closeConnection(CloseFrame.REFUSE, e.getMessage());
+			// login using session_id failed. Still keeping the websocket opened to give the
+			// user the change to authenticate manually.
 			return;
 		}
 
-		UUID uuid = UUID.randomUUID();
-		synchronized (this.parent.websocketsMap) {
-			// add websocket to local cache
-			this.parent.websocketsMap.put(uuid, websocket);
-		}
 		// store userId together with the websocket
-		attachment.initialize(user.getId(), uuid);
+		WsData wsData = ws.getAttachment();
+		wsData.setUserId(user.getId());
 
-		// send connection successful to browser
-		JsonArray jEdges = new JsonArray();
-		for (Entry<Integer, Role> edgeRole : user.getEdgeRoles().entrySet()) {
-			int edgeId = edgeRole.getKey();
+		// generate token
+		UUID token = UUID.randomUUID();
+		wsData.setToken(token);
+
+		// send connection successful reply
+		List<EdgeMetadata> metadatas = new ArrayList<>();
+		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
+			String edgeId = edgeRole.getKey();
 			Role role = edgeRole.getValue();
-			Edge edge;
-			try {
-				edge = this.parent.parent.metadataService.getEdge(edgeId);
-				JsonObject jEdge = edge.toJsonObject();
-				jEdge.addProperty("role", role.toString());
-				jEdges.add(jEdge);
-			} catch (OpenemsException e) {
-				log.warn("Unable to get Edge from MetadataService [ID:" + edgeId + "]: " + e.getMessage());
+			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+			if (edgeOpt.isPresent()) {
+				Edge e = edgeOpt.get();
+				metadatas.add(new EdgeMetadata(e.getId(), e.getComment(), e.getProducttype(), e.getVersion(), role,
+						e.isOnline()));
 			}
 		}
-		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
-		JsonObject jReply = DefaultMessages.uiLoginSuccessfulReply("" /* empty token? */, jEdges);
-		WebSocketUtils.sendOrLogError(websocket, jReply);
+		UiAuthenticateWithSessionId notification = new UiAuthenticateWithSessionId(token, metadatas);
+		this.parent.server.sendMessage(ws, notification);
 	}
 
 }

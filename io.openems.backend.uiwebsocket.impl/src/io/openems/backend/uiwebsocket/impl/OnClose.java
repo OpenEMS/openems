@@ -7,36 +7,30 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.websocket_old.AbstractOnClose;
+import io.openems.backend.metadata.api.Edge;
+import io.openems.common.exceptions.OpenemsException;
 
-public class OnClose extends AbstractOnClose {
+public class OnClose implements io.openems.common.websocket.OnClose {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
+	private final UiWebsocketImpl parent;
 
-	private final UiWebsocketServer parent;
-
-	public OnClose(UiWebsocketServer parent, WebSocket websocket, int code, String reason, boolean remote) {
-		super(websocket, code, reason, remote);
+	public OnClose(UiWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	protected void run(WebSocket websocket, int code, String reason, boolean remote) {
+	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
 		// get current User
-		WebsocketData data = websocket.getAttachment();
-		log.info("User [" + this.parent.getUserName(data) + "] disconnected.");
+		WsData wsData = ws.getAttachment();
+		Optional<String> userId = wsData.getUserId();
+		log.info("User [" + userId.orElse("UNKNOWN") + "] disconnected.");
 
 		// stop CurrentDataWorker
-		Optional<BackendCurrentDataWorker> currentDataWorkerOpt = data.getCurrentDataWorker();
+		Optional<BackendCurrentDataWorker> currentDataWorkerOpt = wsData.getCurrentDataWorker();
 		if (currentDataWorkerOpt.isPresent()) {
 			currentDataWorkerOpt.get().dispose();
 		}
-		// remove websocket from local cache
-		UUID uuid = data.getUuid();
-		if (uuid != null) {
-			synchronized (this.parent.websocketsMap) {
-				this.parent.websocketsMap.remove(uuid);
-			}
-		}
 	}
+
 }

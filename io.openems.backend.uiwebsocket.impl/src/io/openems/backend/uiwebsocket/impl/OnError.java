@@ -4,23 +4,17 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.websocket_old.AbstractOnError;
+import io.openems.common.exceptions.OpenemsException;
 
-public class OnError extends AbstractOnError {
+public class OnError implements io.openems.common.websocket.OnError {
 
 	private final Logger log = LoggerFactory.getLogger(OnError.class);
-	private final UiWebsocketServer parent;
-
-	public OnError(UiWebsocketServer parent, WebSocket websocket, Exception ex) {
-		super(websocket, ex);
-		this.parent = parent;
-	}
 
 	@Override
-	protected void run(WebSocket websocket, Exception ex) {
-		WebsocketData data = websocket.getAttachment();
-		log.warn("User [" + this.parent.getUserName(data) + "] websocket error. " + ex.getClass().getSimpleName() + ": "
-				+ ex.getMessage());
+	public void run(WebSocket ws, Exception ex) throws OpenemsException {
+		WsData wsData = ws.getAttachment();
+		log.warn("User [" + wsData.getUserId().orElse("UNKNOWN") + "] websocket error. " + ex.getClass().getSimpleName()
+				+ ": " + ex.getMessage());
 	}
 
 }
