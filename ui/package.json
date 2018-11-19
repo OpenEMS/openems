@@ -34,7 +34,7 @@
     "@ionic/angular": "4.0.0-beta.3",
     "@ngx-translate/core": "^11.0.1",
     "@types/d3": "5.0.1",
-    "angular2-toaster": "6.1.0",
+    "angular2-toaster": "7.0.0",
     "angular2-uuid": "^1.1.1",
     "chart.js": "^2.7.3",
     "classlist.js": "^1.1.20150312",
