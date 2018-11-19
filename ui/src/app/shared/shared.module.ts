@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NgModule, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
@@ -41,7 +41,7 @@ import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
 import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
 import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, InfiniteScroll } from '@ionic/angular';
 
 @NgModule({
   imports: [
@@ -108,4 +108,6 @@ import { IonicModule } from '@ionic/angular';
     appRoutingProviders
   ]
 })
-export class SharedModule { }
+export class SharedModule {
+  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+}

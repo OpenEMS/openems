@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Directive } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -15,6 +15,7 @@ import { Edge } from '../shared/edge/edge';
   templateUrl: './index.component.html'
 })
 export class IndexComponent {
+
   public env = environment;
   public form: FormGroup;
   private filter: string = '';
@@ -23,7 +24,8 @@ export class IndexComponent {
   private allEdgeIds: string[] = [];
   private edges: Edge[] = [];
   private filteredTruncated: boolean = false;
-  private static maxFilteredEdges = 20;
+  private static maxFilteredEdges = Infinity;
+  private slice: number = 20;
 
   constructor(
     public websocket: Websocket,
@@ -43,7 +45,6 @@ export class IndexComponent {
         let edge = edges[edgeIds[0]];
         this.router.navigate(['/device', edge.name]);
       }
-
       this.updateFilteredEdges();
     })
   }
@@ -75,6 +76,13 @@ export class IndexComponent {
   doLogin() {
     let password: string = this.form.value['password'];
     this.websocket.logIn(password);
+  }
+
+  doInfinite(infiniteScroll) {
+    setTimeout(() => {
+      this.slice += 5;
+      infiniteScroll.target.complete();
+    }, 200);
   }
 
   onDestroy() {
