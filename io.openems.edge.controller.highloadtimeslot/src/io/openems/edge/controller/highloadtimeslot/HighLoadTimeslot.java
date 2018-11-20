@@ -165,9 +165,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		}
 	}
 	
-	private boolean isWeekend(LocalDateTime date) {
-		LocalDateTime aktualDate = LocalDateTime.now();
-		DayOfWeek dayOfWeek = aktualDate.getDayOfWeek();
+	private boolean isWeekend(LocalDateTime date) {		
+		DayOfWeek dayOfWeek = date.getDayOfWeek();
 		
 		if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
 			return true;
