@@ -425,10 +425,10 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(FeneconProEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
 						m(FeneconProEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30558, //
-						m(FeneconProEss.ChannelId.SET_SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(FeneconProEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
 				new FC16WriteRegistersTask(30559, //
-						m(FeneconProEss.ChannelId.SET_PCS_MODE, new UnsignedWordElement(30559))), //
-				new FC16WriteRegistersTask(30157, //
+						m(FeneconProEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
+				new FC3ReadRegistersTask(30157, Priority.LOW, //
 						m(FeneconProEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
 						m(FeneconProEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158)))//
 
@@ -460,63 +460,37 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 				+ this.getAllowedDischarge().value().asString();
 	}
 
-	private enum SetWorkState {
-		STOP, STANDBY, START, LOCAL_CONTROL, REMOTE_CONTROL_OF_GRID, EMERGENCY_STOP
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SET_WORK_STATE(new Doc() //
-				.option(0, SetWorkState.LOCAL_CONTROL)//
-				.option(1, SetWorkState.START) //
-				.option(2, SetWorkState.REMOTE_CONTROL_OF_GRID) //
-				.option(3, SetWorkState.STOP) //
-				.option(4, SetWorkState.EMERGENCY_STOP)), //
-
-		WORK_MODE(new Doc()//
-				.option(2, "Economy")//
-				.option(6, "Remote")//
-				.option(8, "Timing")), //
+		SET_WORK_STATE(new Doc().options(SetWorkState.values())), //
+		WORK_MODE(new Doc().options(WorkMode.values())), //
 		@SuppressWarnings("unchecked")
 		SYSTEM_STATE(new Doc() //
-				.option(0, "STANDBY") //
-				.option(1, "Start Off-Grid") //
-				.option(2, "START") //
-				.option(3, "FAULT") //
-				.option(4, "Off-Grd PV") //
+				.options(SystemState.values()) //
 				.onInit(channel -> { //
 					// on each update set Grid-Mode channel
 					((Channel<Integer>) channel).onChange(value -> {
+						SystemState systemState = value.asEnum();
 						Channel<Integer> gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
-						switch (value.orElse(0)) {
-						case 0:
-						case 2:
-						case 3:
+						switch (systemState) {
+						case STANDBY:
+						case START:
+						case FAULT:
 							gridMode.setNextValue(SymmetricEss.GridMode.ON_GRID);
 							break;
-						case 1:
-						case 4:
+						case START_OFF_GRID:
+						case OFF_GRID_PV:
 							gridMode.setNextValue(SymmetricEss.GridMode.OFF_GRID);
 							break;
-						default:
+						case UNDEFINED:
 							gridMode.setNextValue(SymmetricEss.GridMode.UNDEFINED);
+							break;
 						}
 					});
 				})), //
-		CONTROL_MODE(new Doc()//
-				.option(1, "Remote")//
-				.option(2, "Local")), //
-
+		CONTROL_MODE(new Doc().options(ControlMode.values())),
 		TOTAL_BATTERY_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
 		TOTAL_BATTERY_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BATTERY_GROUP_STATE(new Doc()//
-				.option(0, "Initial")//
-				.option(1, "Stop")//
-				.option(2, "Starting")//
-				.option(3, "Running")//
-				.option(4, "Stopping")//
-				.option(5, "Fail")//
-		), //
-
+		BATTERY_GROUP_STATE(new Doc().options(BatteryGroupState.values())), //
 		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
@@ -579,45 +553,15 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		BATTERY_TEMPERATURE_SECTION_15(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		BATTERY_TEMPERATURE_SECTION_16(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 
-		PCS_OPERATION_STATE(new Doc()//
-				.option(0, "Self-checking")//
-				.option(1, "Standby")//
-				.option(2, "Off-Grid PV")//
-				.option(3, "Off-Grid")//
-				.option(4, "ON_GRID")//
-				.option(5, "Fail")//
-				.option(6, "ByPass 1")//
-				.option(7, "ByPass 2")), //
+		PCS_OPERATION_STATE(new Doc().options(PcsOperationState.values())), //
 		RTC_YEAR(new Doc().text("Year")), //
 		RTC_MONTH(new Doc().text("Month")), //
 		RTC_DAY(new Doc().text("Day")), //
 		RTC_HOUR(new Doc().text("Hour")), //
 		RTC_MINUTE(new Doc().text("Minute")), //
 		RTC_SECOND(new Doc().text("Second")), //
-		SET_SETUP_MODE(new Doc()//
-				.option(0, "OFF")//
-				.option(1, "ON")), //
-		SET_PCS_MODE(new Doc()//
-				.option(0, "Emergency")//
-				.option(1, "ConsumersPeakPattern")//
-				.option(2, "Economic")//
-				.option(3, "Eco")//
-				.option(4, "Debug")//
-				.option(5, "SmoothPv")//
-				.option(6, "Remote")), //
-		SETUP_MODE(new Doc()//
-				.option(0, "OFF")//
-				.option(1, "ON")), //
-		PCS_MODE(new Doc()//
-				.option(0, "Emergency")//
-				.option(1, "ConsumersPeakPattern")//
-				.option(2, "Economic")//
-				.option(3, "Eco")//
-				.option(4, "Debug")//
-				.option(5, "SmoothPv")//
-				.option(6, "Remote")//
-
-		), //
+		SETUP_MODE(new Doc().options(SetupMode.values())), //
+		PCS_MODE(new Doc().options(PcsMode.values())), //
 
 		STATE_0(new Doc().level(Level.WARNING).text("FailTheSystemShouldBeStopped")), //
 		STATE_1(new Doc().level(Level.WARNING).text("CommonLowVoltageAlarm")), //

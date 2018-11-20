@@ -17,16 +17,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	public final static String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
 
 	public enum GridMode implements OptionsEnum {
-		UNDEFINED(0, "Undefined"), //
+		UNDEFINED(-1, "Undefined"), //
 		ON_GRID(1, "On-Grid"), //
 		OFF_GRID(2, "Off-Grid");
 
 		private int value;
-		private String option;
+		private String name;
 
-		private GridMode(int value, String option) {
+		private GridMode(int value, String name) {
 			this.value = value;
-			this.option = option;
+			this.name = name;
 		}
 
 		@Override
@@ -35,8 +35,13 @@ public interface SymmetricEss extends OpenemsComponent {
 		}
 
 		@Override
-		public String getOption() {
-			return option;
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
 		}
 	}
 

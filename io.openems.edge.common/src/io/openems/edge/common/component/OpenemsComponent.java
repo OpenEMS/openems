@@ -26,7 +26,8 @@ import io.openems.edge.common.channel.doc.Level;
  * <li>an enabled/disabled state (see {@link #isEnabled()})
  * <li>an OSGi service PID (see {@link #servicePid()}
  * <li>Channels (see {@link Channel}), identified by {@link ChannelId} or
- * String-ID and provided via {@link #channel(String)}, {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
+ * String-ID and provided via {@link #channel(String)},
+ * {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
  * {@link #channels()}
  * <li>a kind of 'toString' method which provides the most important info about
  * the component. (see {@link #debugLog()})
@@ -120,11 +121,7 @@ public interface OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new Doc().unit(Unit.NONE) //
-				.option(0, "Ok") //
-				.option(1, Level.INFO) //
-				.option(2, Level.WARNING) //
-				.option(3, Level.FAULT));
+		STATE(new Doc().unit(Unit.NONE).options(Level.values()));
 
 		private final Doc doc;
 

@@ -4,22 +4,23 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 
 // TODO numbers are not correctly
 public enum CurrentState implements OptionsEnum { // see Software manual chapter 5.1
-	OFFLINE(1, "Offline"),
-	INIT(2, "Init"),
-	IDLE(3, "Idle"),
-	PRECHARGE(4, "Precharge"),
-	STOP_PRECHARGE(5, "Stop precharge"),
-	ECO(6, "Eco"),
-	PAUSE(7, "Pause"),
-	RUN(8, "Run"),
+	UNDEFINED(-1, "Undefined"), //
+	OFFLINE(1, "Offline"), //
+	INIT(2, "Init"), //
+	IDLE(3, "Idle"), //
+	PRECHARGE(4, "Precharge"), //
+	STOP_PRECHARGE(5, "Stop precharge"), //
+	ECO(6, "Eco"), //
+	PAUSE(7, "Pause"), //
+	RUN(8, "Run"), //
 	ERROR(99, "Error");
 
-	int value;
-	String option;
+	private final int value;
+	private final String name;
 
-	private CurrentState(int value, String option) {
+	private CurrentState(int value, String name) {
 		this.value = value;
-		this.option = option;
+		this.name = name;
 	}
 
 	@Override
@@ -28,7 +29,12 @@ public enum CurrentState implements OptionsEnum { // see Software manual chapter
 	}
 
 	@Override
-	public String getOption() {
-		return option;
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
 	}
 }

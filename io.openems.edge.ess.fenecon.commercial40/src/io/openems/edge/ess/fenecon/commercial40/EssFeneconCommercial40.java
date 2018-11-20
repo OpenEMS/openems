@@ -119,10 +119,6 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		return modbusBridgeId;
 	}
 
-	private enum SetWorkState {
-		STOP, STANDBY, START
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		ORIGINAL_ALLOWED_CHARGE_POWER(new Doc() //
 				.onInit(channel -> { //
@@ -168,39 +164,14 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						currentValueChannel.setNextValue(value);
 					});
 				})), //
-		SYSTEM_STATE(new Doc() //
-				.option(2, "Stop") //
-				.option(4, "PV-Charge") //
-				.option(8, "Standby") //
-				.option(16, "Start") //
-				.option(32, "Fault") //
-				.option(64, "Debug")), //
-		CONTROL_MODE(new Doc() //
-				.option(1, "Remote") //
-				.option(2, "Local")), //
-		BATTERY_MAINTENANCE_STATE(new Doc() //
-				.option(0, "Off") //
-				.option(1, "On")), //
-		INVERTER_STATE(new Doc() //
-				.option(0, "Init") //
-				.option(2, "Fault") //
-				.option(4, "Stop") //
-				.option(8, "Standby") //
-				.option(16, "Grid-Monitor") // ,
-				.option(32, "Ready") //
-				.option(64, "Start") //
-				.option(128, "Debug")), //
+		SYSTEM_STATE(new Doc().options(SystemState.values())), //
+		CONTROL_MODE(new Doc().options(ControlMode.values())), //
+		BATTERY_MAINTENANCE_STATE(new Doc().options(BatteryMaintenanceState.values())), //
+		INVERTER_STATE(new Doc().options(InverterState.values())), //
 		PROTOCOL_VERSION(new Doc()), //
-		SYSTEM_MANUFACTURER(new Doc() //
-				.option(1, "BYD")), //
-		SYSTEM_TYPE(new Doc() //
-				.option(1, "CESS")), //
-		BATTERY_STRING_SWITCH_STATE(new Doc() //
-				.option(1, "Main contactor") //
-				.option(2, "Precharge contactor") //
-				.option(4, "FAN contactor") //
-				.option(8, "BMU power supply relay") //
-				.option(16, "Middle relay")), //
+		SYSTEM_MANUFACTURER(new Doc().options(SystemManufacturer.values())), //
+		SYSTEM_TYPE(new Doc().options(SystemType.values())), //
+		BATTERY_STRING_SWITCH_STATE(new Doc().options(BatteryStringSwitchState.values())), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
@@ -225,25 +196,12 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		IPM_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		IPM_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		TRANSFORMER_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		SET_WORK_STATE(new Doc() //
-				.option(4, SetWorkState.STOP) //
-				.option(32, SetWorkState.STANDBY) //
-				.option(64, SetWorkState.START)), //
+		SET_WORK_STATE(new Doc().options(SetWorkState.values())), //
 		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		SET_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		SET_PV_POWER_LIMIT(new Doc().unit(Unit.WATT)), //
-		BMS_DCDC_WORK_STATE(new Doc() //
-				.option(2, "Initial") //
-				.option(4, "Stop") //
-				.option(8, "Ready") //
-				.option(16, "Running") //
-				.option(32, "Fault") //
-				.option(64, "Debug") //
-				.option(128, "Locked")), //
-		BMS_DCDC_WORK_MODE(new Doc() //
-				.option(128, "Constant Current") //
-				.option(256, "Constant Voltage") //
-				.option(512, "Boost MPPT")), //
+		BMS_DCDC_WORK_STATE(new Doc().options(BmsDcdcWorkState.values())), //
+		BMS_DCDC_WORK_MODE(new Doc().options(BmsDcdcWorkMode.values())), //
 		STATE_0(new Doc().level(Level.WARNING).text("Emergency Stop")), //
 		STATE_1(new Doc().level(Level.WARNING).text("Key Manual Stop")), //
 		STATE_2(new Doc().level(Level.WARNING).text("Transformer Phase B Temperature Sensor Invalidation")), //
@@ -733,8 +691,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 			this.lastDefineWorkState = now;
 			IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
 			try {
-				int startOption = setWorkStateChannel.channelDoc().getOption(SetWorkState.START);
-				setWorkStateChannel.setNextWriteValue(startOption);
+				setWorkStateChannel.setNextWriteValue(SetWorkState.START);
 			} catch (OpenemsException e) {
 				logError(this.log, "Unable to start: " + e.getMessage());
 			}

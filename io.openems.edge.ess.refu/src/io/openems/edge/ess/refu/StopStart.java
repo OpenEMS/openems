@@ -3,6 +3,7 @@ package io.openems.edge.ess.refu;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 enum StopStart implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
 	STOP(0, "Stop"), //
 	START(1, "Start");
 
@@ -20,7 +21,12 @@ enum StopStart implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
+	public String getName() {
 		return option;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
 	}
 }
