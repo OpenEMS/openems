@@ -10,6 +10,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,7 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -46,11 +50,11 @@ import io.openems.edge.ess.power.api.Power;
 @Component( //
 		name = "Fenecon.Pro.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
 
 public class FeneconProEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
-		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, ModbusSlave {
+		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, ModbusSlave, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
 
@@ -787,6 +791,63 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	private IntegerWriteChannel getSetReactivePowerL3Channel() {
 		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
+	}
+
+	private IntegerWriteChannel getPcsModeChannel() {
+		return this.channel(FeneconProEss.ChannelId.PCS_MODE);
+	}
+
+	private PcsMode getPcsMode() {
+		return this.getPcsModeChannel().value().asEnum();
+	}
+
+	private IntegerWriteChannel getSetupModeChannel() {
+		return this.channel(FeneconProEss.ChannelId.SETUP_MODE);
+	}
+
+	private SetupMode getSetupMode() {
+		return this.getSetupModeChannel().value().asEnum();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.activateRemoteMode();
+		}
+	}
+
+	/**
+	 * Activates the Remote-Mode
+	 */
+	private void activateRemoteMode() {
+		try {
+			if (this.getPcsMode() != PcsMode.REMOTE) {
+				// If Mode is not "Remote"
+				this.logWarn(log, "PCS-Mode is not 'Remote'. It's [" + this.getPcsMode() + "]");
+				if (this.getSetupMode() == SetupMode.OFF) {
+					// Activate SetupMode
+					this.logInfo(log, "Activating Setup-Mode");
+					this.getSetupModeChannel().setNextWriteValue(SetupMode.ON);
+				} else {
+					// Set Mode to "Remote"
+					this.logInfo(log, "Setting PCS-Mode to 'Remote'");
+					this.getPcsModeChannel().setNextWriteValue(PcsMode.REMOTE);
+				}
+			} else {
+				// If Mode is "Remote" and SetupMode is active
+				if (this.getSetupMode() == SetupMode.ON) {
+					// Deactivate SetupMode
+					this.logInfo(log, "Deactivating Setup-Mode");
+					this.getSetupModeChannel().setNextWriteValue(SetupMode.OFF);
+				}
+			}
+		} catch (OpenemsException e) {
+			this.logError(log, "Unable to activate Remote-Mode: " + e.getMessage());
+		}
 	}
 
 	@Override
