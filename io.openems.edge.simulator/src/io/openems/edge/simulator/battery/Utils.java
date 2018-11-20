@@ -33,6 +33,7 @@ public class Utils {
 					case DISCHARGE_MAX_CURRENT:
 					case DISCHARGE_MIN_VOLTAGE:
 					case MINIMAL_CELL_VOLTAGE:
+					case MAXIMAL_POWER:
 					case VOLTAGE:
 						return new IntegerWriteChannel(s, channelId);					
 					case READY_FOR_WORKING:
