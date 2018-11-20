@@ -17,10 +17,11 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	public static JsonrpcResponseError from(JsonObject j) throws OpenemsException {
 		UUID id = UUID.fromString(JsonUtils.getAsString(j, "id"));
-		int code = JsonUtils.getAsInt(j, "code");
-		String message = JsonUtils.getAsString(j, "message");
-		if (j.has("data")) {
-			return new JsonrpcResponseError(id, code, message, j.get("data"));
+		JsonObject error = JsonUtils.getAsJsonObject(j, "error");
+		int code = JsonUtils.getAsInt(error, "code");
+		String message = JsonUtils.getAsString(error, "message");
+		if (error.has("data")) {
+			return new JsonrpcResponseError(id, code, message, error.get("data"));
 		} else {
 			return new JsonrpcResponseError(id, code, message);
 		}

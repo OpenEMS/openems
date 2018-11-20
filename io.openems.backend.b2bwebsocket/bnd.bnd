@@ -7,8 +7,7 @@ Export-Package:  \
 	io.openems.backend.b2bwebsocket.api;-provide=true
 
 Private-Package: \
-	io.openems.backend.b2bwebsocket,\
-	io.openems.backend.b2bwebsocket.jsonrpc
+	io.openems.backend.b2bwebsocket
 
 -includeresource: {readme.md}
 

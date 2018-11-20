@@ -6,11 +6,11 @@ import com.google.gson.JsonObject;
 
 public class OnOpenHandler implements Runnable {
 
-	private final AbstractWebsocket parent;
+	private final AbstractWebsocket<?> parent;
 	private final WebSocket ws;
 	private final JsonObject handshake;
 
-	public OnOpenHandler(AbstractWebsocket parent, WebSocket ws, JsonObject handshake) {
+	public OnOpenHandler(AbstractWebsocket<?> parent, WebSocket ws, JsonObject handshake) {
 		this.parent = parent;
 		this.ws = ws;
 		this.handshake = handshake;

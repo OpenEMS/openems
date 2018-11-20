@@ -6,11 +6,11 @@ import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
 public class OnResponseHandler implements Runnable {
 
-	private final AbstractWebsocket parent;
+	private final AbstractWebsocket<?> parent;
 	private final WebSocket ws;
 	private final JsonrpcResponse response;
 
-	public OnResponseHandler(AbstractWebsocket parent, WebSocket ws, JsonrpcResponse response) {
+	public OnResponseHandler(AbstractWebsocket<?> parent, WebSocket ws, JsonrpcResponse response) {
 		this.parent = parent;
 		this.ws = ws;
 		this.response = response;

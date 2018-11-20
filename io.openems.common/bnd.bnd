@@ -17,7 +17,8 @@ Export-Package: \
 	io.openems.common.websocket,\
 	io.openems.common.websocket_old,\
 	io.openems.common.jsonrpc.notification,\
-	io.openems.common.jsonrpc.request
+	io.openems.common.jsonrpc.request,\
+	io.openems.common.jsonrpc.response
 
 -includeresource: {readme.md}
 

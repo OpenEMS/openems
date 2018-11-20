@@ -1,4 +1,4 @@
-package io.openems.backend.b2bwebsocket.jsonrpc;
+package io.openems.common.jsonrpc.request;
 
 import java.util.UUID;
 

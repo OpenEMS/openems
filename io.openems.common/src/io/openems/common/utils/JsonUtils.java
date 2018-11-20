@@ -488,6 +488,11 @@ public class JsonUtils {
 			return this;
 		}
 
+		public JsonObjectBuilder addProperty(String property, long value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
 		public JsonObjectBuilder addProperty(String property, boolean value) {
 			j.addProperty(property, value);
 			return this;

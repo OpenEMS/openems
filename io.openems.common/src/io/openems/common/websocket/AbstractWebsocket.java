@@ -2,9 +2,17 @@ package io.openems.common.websocket;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class AbstractWebsocket {
+public abstract class AbstractWebsocket<T extends WsData> {
 
 	private final String name;
+
+	/**
+	 * Creates an empty WsData object that is attached to the WebSocket as early as
+	 * possible
+	 * 
+	 * @return
+	 */
+	protected abstract T createWsData();
 
 	protected abstract OnInternalError getOnInternalError();
 

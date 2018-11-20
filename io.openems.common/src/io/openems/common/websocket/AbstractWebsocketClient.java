@@ -31,7 +31,7 @@ import io.openems.common.utils.StringUtils;
  *
  * @param <T>
  */
-public abstract class AbstractWebsocketClient<T extends WsData> extends AbstractWebsocket {
+public abstract class AbstractWebsocketClient<T extends WsData> extends AbstractWebsocket<T> {
 
 	public final static Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
 	public final static Proxy NO_PROXY = null;
@@ -44,8 +44,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	private final WebSocketClient ws;
 	private final URI serverUri;
 	private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
-
-	private volatile T wsData = null;
 
 	protected AbstractWebsocketClient(String name, URI serverUri) {
 		this(name, serverUri, DEFAULT_DRAFT, NO_HTTP_HEADERS, NO_PROXY);
@@ -122,6 +120,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			}
 		};
+		this.ws.setAttachment(this.createWsData());
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
 		}
@@ -189,7 +188,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	public void sendRequest(JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
 			throws OpenemsException {
-		this.wsData.send(ws, request, responseCallback);
+		WsData wsData = this.ws.getAttachment();
+		wsData.send(ws, request, responseCallback);
 	}
 
 }

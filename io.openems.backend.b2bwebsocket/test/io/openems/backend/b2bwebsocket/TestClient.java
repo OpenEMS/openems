@@ -43,7 +43,8 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 			log.info("onClose: " + reason);
 		};
 		this.onInternalError = (ex) -> {
-			log.warn("onInternalError: " + ex.getMessage());
+			log.warn("onInternalError. " + ex.getClass() + ": " + ex.getMessage());
+			ex.printStackTrace();
 		};
 	}
 
@@ -75,5 +76,10 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected OnNotification getOnNotification() {
 		return onNotification;
+	}
+
+	@Override
+	protected WsData createWsData() {
+		return new WsData();
 	}
 }

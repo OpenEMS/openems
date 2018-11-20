@@ -18,19 +18,11 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
-public abstract class AbstractWebsocketServer<T extends WsData> extends AbstractWebsocket {
+public abstract class AbstractWebsocketServer<T extends WsData> extends AbstractWebsocket<T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 	private final int port;
 	private final WebSocketServer ws;
-
-	/**
-	 * Creates an empty WsData object that is attached to the WebSocket as early as
-	 * possible
-	 * 
-	 * @return
-	 */
-	protected abstract T createWsData();
 
 	/**
 	 * 
@@ -66,6 +58,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 									if (response != null) {
 										AbstractWebsocketServer.this.sendMessage(ws, response);
 									}
+									// TODO reply error
 								}));
 					} else if (message instanceof JsonrpcResponse) {
 						CompletableFuture.runAsync(

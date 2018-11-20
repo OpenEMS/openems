@@ -31,40 +31,7 @@ public class DefaultMessages {
 		return j;
 	}
 
-	/**
-	 * <pre>
-	 *	{
-	 *		authenticate: {
-	 *			mode: "allow",
-	 *			token: String
-	 *		}, metadata: {
-	 *			edges: [{
-	 *				id: number
-	 *				name: String,
-	 *				comment: String,
-	 *				producttype: String,
-	 *				version: String,
-	 *				role: "admin" | "installer" | "owner" | "guest",
-	 *				online: boolean
-	 *			}]
-	 *		}
-	 *	}
-	 * </pre>
-	 * 
-	 * @param token
-	 * @return
-	 */
-	public static JsonObject uiLoginSuccessfulReply(String token, JsonArray jEdges) {
-		JsonObject jAuthenticate = new JsonObject();
-		jAuthenticate.addProperty("mode", "allow");
-		jAuthenticate.addProperty("token", token);
-		JsonObject j = new JsonObject();
-		j.add("authenticate", jAuthenticate);
-		JsonObject jMetadata = new JsonObject();
-		jMetadata.add("edges", jEdges);
-		j.add("metadata", jMetadata);
-		return j;
-	}
+
 
 	/**
 	 * <pre>
@@ -123,30 +90,6 @@ public class DefaultMessages {
 		jAuthenticate.addProperty("message", message);
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);
-		return j;
-	}
-
-	/**
-	 * <pre>
-	 *	{
-	 *		timedata: {
-	 *			timestamp (long): {
-	 *				channel: String,
-	 *				value: String | Number
-	 *			}
-	 *		}
-	 *	}
-	 * </pre>
-	 * 
-	 * @param timestamp
-	 * @param jData
-	 * @return
-	 */
-	public static JsonObject timestampedData(long timestamp, JsonObject jData) {
-		JsonObject jTimedata = new JsonObject();
-		jTimedata.add(String.valueOf(timestamp), jData);
-		JsonObject j = new JsonObject();
-		j.add("timedata", jTimedata);
 		return j;
 	}
 

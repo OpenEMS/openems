@@ -4,11 +4,11 @@ import org.java_websocket.WebSocket;
 
 public class OnErrorHandler implements Runnable {
 
-	private final AbstractWebsocket parent;
+	private final AbstractWebsocket<?> parent;
 	private final WebSocket ws;
 	private final Exception ex;
 
-	public OnErrorHandler(AbstractWebsocket parent, WebSocket ws, Exception ex) {
+	public OnErrorHandler(AbstractWebsocket<?> parent, WebSocket ws, Exception ex) {
 		this.parent = parent;
 		this.ws = ws;
 		this.ex = ex;

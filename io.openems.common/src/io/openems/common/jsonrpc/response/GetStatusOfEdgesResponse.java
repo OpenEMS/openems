@@ -1,4 +1,4 @@
-package io.openems.backend.b2bwebsocket.jsonrpc;
+package io.openems.common.jsonrpc.response;
 
 import java.util.Map;
 import java.util.Map.Entry;

@@ -71,4 +71,9 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	public OnInternalError getOnInternalError() {
 		return this.onInternalError;
 	}
+
+	@Override
+	protected WsData createWsData() {
+		return new WsData();
+	}
 }

@@ -4,13 +4,13 @@ import org.java_websocket.WebSocket;
 
 public class OnCloseHandler implements Runnable {
 
-	private final AbstractWebsocket parent;
+	private final AbstractWebsocket<?> parent;
 	private final WebSocket ws;
 	private final int code;
 	private final String reason;
 	private final boolean remote;
 
-	public OnCloseHandler(AbstractWebsocket parent, WebSocket ws, int code, String reason, boolean remote) {
+	public OnCloseHandler(AbstractWebsocket<?> parent, WebSocket ws, int code, String reason, boolean remote) {
 		this.parent = parent;
 		this.ws = ws;
 		this.code = code;

@@ -7,14 +7,15 @@ import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 
-import io.openems.backend.b2bwebsocket.jsonrpc.GetStatusOfEdgesRequest;
-import io.openems.backend.b2bwebsocket.jsonrpc.GetStatusOfEdgesResponse;
-import io.openems.backend.b2bwebsocket.jsonrpc.SetGridConnScheduleRequest;
-import io.openems.backend.b2bwebsocket.jsonrpc.GetStatusOfEdgesResponse.EdgeInfo;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
+import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
+import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
+import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse;
+import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse.EdgeInfo;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -35,7 +36,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case SetGridConnScheduleRequest.METHOD:
 			this.handleSetGridConnScheduleRequest(request, responseCallback);
-
+			break;
 		}
 	}
 
@@ -68,10 +69,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private void handleSetGridConnScheduleRequest(JsonrpcRequest jsonrpcRequest,
 			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(jsonrpcRequest);
-//		this.parent.edgeWebsocketService.
-		// TODO
-//		responseCallback.accept(response);
+		SetGridConnScheduleRequest setGridConnScheduleRequest = SetGridConnScheduleRequest.from(jsonrpcRequest);
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest("ctrlGridConnSchedule",
+				setGridConnScheduleRequest);
+		this.parent.edgeWebsocket.send(setGridConnScheduleRequest.getEdgeId(), request, responseCallback);
 	}
 
 }

@@ -1,4 +1,4 @@
-package io.openems.backend.b2bwebsocket.jsonrpc;
+package io.openems.common.jsonrpc.request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,10 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 	private final String edgeId;
 	private final List<GridConnSchedule> schedule;
 
+	public SetGridConnScheduleRequest(String edgeId) {
+		this(UUID.randomUUID(), edgeId, new ArrayList<>());
+	}
+
 	public SetGridConnScheduleRequest(String edgeId, List<GridConnSchedule> schedule) {
 		this(UUID.randomUUID(), edgeId, schedule);
 	}
@@ -62,9 +66,24 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		this.schedule = schedule;
 	}
 
+	public void addScheduleEntry(GridConnSchedule scheduleEntry) {
+		this.schedule.add(scheduleEntry);
+	}
+
 	@Override
 	public JsonObject getParams() {
-		return new JsonObject();
+		JsonArray schedule = new JsonArray();
+		for (GridConnSchedule se : this.schedule) {
+			schedule.add(JsonUtils.buildJsonObject() //
+					.addProperty("startTimestamp", se.getStartTimestamp()) //
+					.addProperty("duration", se.getDuration()) //
+					.addProperty("gridConnSetPoint", se.gridConnSetPoint) //
+					.build());
+		}
+		return JsonUtils.buildJsonObject() //
+				.addProperty("id", this.getEdgeId()) //
+				.add("schedule", schedule) //
+				.build();
 	}
 
 	public String getEdgeId() {
@@ -80,6 +99,11 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		private final int duration;
 		private final int gridConnSetPoint;
 
+		/**
+		 * @param startTimestamp   epoch in seconds
+		 * @param duration         in seconds
+		 * @param gridConnSetPoint in Watt
+		 */
 		public GridConnSchedule(long startTimestamp, int duration, int gridConnSetPoint) {
 			this.startTimestamp = startTimestamp;
 			this.duration = duration;
