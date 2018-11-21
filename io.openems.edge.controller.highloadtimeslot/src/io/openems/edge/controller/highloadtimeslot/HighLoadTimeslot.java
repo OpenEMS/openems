@@ -37,10 +37,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	private final Logger log = LoggerFactory.getLogger(HighLoadTimeslot.class);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss ess0;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss ess1;
+	private ManagedSymmetricEss ess;
 
 	LocalDate startDate;
 	LocalDate endDate;
@@ -48,6 +45,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	LocalTime endtime;
 	int chargePower;
 	int dischargePower;
+	int minSoc;
+	int hysteresisSoc;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
@@ -58,6 +57,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		endtime = convertTime(config.endtime());
 		chargePower = config.chargePower();
 		dischargePower = config.dischargePower();
+		minSoc = config.minSoc();
+		hysteresisSoc = config.hysteresisSoc();
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
@@ -65,34 +66,22 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	@Override
 	public void run() {
-		
-		handle(ess0);
-		handle(ess1);
-		
+
+		handle(ess, LocalDateTime.now());
+
 	}
-	
-	private void handle(ManagedSymmetricEss ess) {
-		LocalDateTime aktualDate = LocalDateTime.now();
-		
-		if (isWeekend(aktualDate) || !isInDateSlot(aktualDate, startDate, endDate)) {
+
+	private void handle(ManagedSymmetricEss ess, LocalDateTime dateTime) {
+
+		if (isWeekend(dateTime) || !isInDateSlot(dateTime, startDate, endDate)) {
 			conservationCharge(ess);
-		} else if (aktualDate.toLocalTime().isAfter(starttime)) {
-			if (aktualDate.toLocalTime().isBefore(endtime)) {
-				
-				if (isSoCGreater3(ess) == true) {
-					discharge(ess);
-					
-				} else {
-					conservationCharge(ess);
-				}
-			} else {
-				conservationCharge(ess);
-			}
+		} else if (isInTimeSlot(dateTime, starttime, endtime) && isSoCGreaterMinSoC(ess, minSoc)) {
+			discharge(ess);
 		} else {
 			conservationCharge(ess);
 		}
-		
 	}
+
 	private LocalDate convert(String startdate2) {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		LocalDate localDate = LocalDate.parse(startdate2, dateTimeFormatter);
@@ -119,7 +108,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 		int soC = socOpt.get();
 
-		if (soC < 95) {
+		if (soC < hysteresisSoc) {
 			charge(ess);
 		} else {
 			conservation(ess);
@@ -156,26 +145,22 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		}
 	}
 
-
 	protected static boolean isInDateSlot(LocalDateTime currentDate, LocalDate startDate, LocalDate endDate) {
-		if (currentDate.toLocalDate().isAfter(startDate.minusDays(1)) && currentDate.toLocalDate().isBefore(endDate.plusDays(1))) {
-			return true;
-		} else {
-			return false;
-		}
+		return (currentDate.toLocalDate().isAfter(startDate.minusDays(1))
+				&& currentDate.toLocalDate().isBefore(endDate.plusDays(1)));
 	}
 	
-	private boolean isWeekend(LocalDateTime date) {		
-		DayOfWeek dayOfWeek = date.getDayOfWeek();
-		
-		if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
-			return true;
-		}else {
-			return false;
-		}
+	protected static boolean isInTimeSlot(LocalDateTime currentTime, LocalTime starttime, LocalTime endtime) {
+		return currentTime.toLocalTime().isAfter(starttime) && currentTime.toLocalTime().isBefore(endtime);
 	}
 
-	private boolean isSoCGreater3(ManagedSymmetricEss ess) {
+	private boolean isWeekend(LocalDateTime date) {
+		DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+		return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY); 
+	}
+
+	private boolean isSoCGreaterMinSoC(ManagedSymmetricEss ess, int minSoc) {
 		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
 
 		if (!socOpt.isPresent()) {
@@ -183,10 +168,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		}
 
 		int soC = socOpt.get();
-		if (soC > 3) {
-			return true;
-		}
-		return false;
+
+		return soC > minSoc;
 	}
 
 }

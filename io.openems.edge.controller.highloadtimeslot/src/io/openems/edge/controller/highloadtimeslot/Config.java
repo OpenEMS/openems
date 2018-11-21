@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "Controller high load timeslot", //
-		description = "This controller discharges the Storagesystem at a defined time with a defined load")
+		description = "This controller discharges the storages ystem at a defined time with a defined load")
 @interface Config {
 	String service_pid();
 
@@ -13,12 +13,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 	
-	@AttributeDefinition(name = "Ess0-ID", description = "ID of Ess0 device.")
-	String ess0_id();
-	
-	@AttributeDefinition(name = "Ess1-ID", description = "ID of Ess1 device.")
-	String ess1_id();
-	
+	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
+	String ess();
+		
 	@AttributeDefinition(name = "Startdate", description = "for example: 30.12.1998")
 	String startdate();
 	
@@ -36,6 +33,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "Discharge Power", description = "Charge power per ess in Watt and positive values for example: 29000")
 	int dischargePower();
+	
+	@AttributeDefinition(name = "Min SoC", description = "Discharges the ess until the minimal soc has been reached")
+	int minSoc();
+	
+	@AttributeDefinition(name = "Hysteresis SoC", description = "Controller charges the ess until it is full, charging is started again when hysteresis soc is reached")
+	int hysteresisSoc();
 	
 	String webconsole_configurationFactory_nameHint() default "Controller HighLoadTimeslot [{id}]";
 }
