@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -65,15 +66,14 @@ public class EdgeWebsocketImpl implements EdgeWebsocket {
 		}
 	}
 
-	@Override
-	public boolean isOnline(String edgeId) {
+	/**
+	 * Gets whether the Websocket for this Edge is connected
+	 * 
+	 * @param edgeId
+	 * @return
+	 */
+	protected boolean isOnline(String edgeId) {
 		return this.server.isOnline(edgeId);
-	}
-
-	@Override
-	@Deprecated
-	public void forwardMessageFromUi(int edgeId, JsonObject jMessage) throws OpenemsException {
-//		this.server.forwardMessageFromUi(edgeId, jMessage);
 	}
 
 	/**
@@ -87,23 +87,24 @@ public class EdgeWebsocketImpl implements EdgeWebsocket {
 		// TODO
 	}
 
-	/**
-	 * Sends a JsonrpcRequest to an OpenEMS Edge, registering a callback for the
-	 * response.
-	 * 
-	 * @param edgeId
-	 * @param request
-	 * @param responseCallback
-	 * @throws OpenemsException
-	 */
 	@Override
-	public void send(String edgeId, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
+	public void send(String edgeId, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
+			throws WebsocketNotConnectedException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
 			wsData.send(ws, request, responseCallback);
 		} else {
 			responseCallback.accept(Error.EDGE_NOT_CONNECTED.asJsonrpc(request.getId(), edgeId));
+		}
+	}
+
+	@Override
+	public void send(String edgeId, JsonrpcNotification notification) throws WebsocketNotConnectedException {
+		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
+		if (ws != null) {
+			WsData wsData = ws.getAttachment();
+			wsData.send(ws, notification);
 		}
 	}
 
