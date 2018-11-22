@@ -14,6 +14,8 @@ JPM-Command:				openems-backend
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.metadata.dummy)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.metadata.file)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.metadata.odoo)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.backend.timedata.core)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.backend.timedata.dummy)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.timedata.influx)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.uiwebsocket.impl)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
@@ -40,6 +42,8 @@ JPM-Command:				openems-backend
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
+	io.openems.backend.timedata.core;version=snapshot,\
+	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\

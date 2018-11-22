@@ -1,4 +1,4 @@
-package io.openems.backend.timedata.influx;
+package io.openems.backend.timedata.core;
 
 import java.util.Optional;
 
@@ -13,13 +13,13 @@ public class Utils {
 	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 
 	/**
-	 * Add value to Influx Builder in the correct data format
+	 * Add value in the correct data format
 	 *
 	 * @param channel
 	 * @param jValueElement
 	 * @return
 	 */
-	protected static Optional<Object> parseValue(String channel, JsonElement jValueElement) {
+	public static Optional<Object> parseValue(String channel, JsonElement jValueElement) {
 		if (jValueElement == null) {
 			return Optional.empty();
 		}

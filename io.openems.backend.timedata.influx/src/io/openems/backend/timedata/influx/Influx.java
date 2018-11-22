@@ -27,6 +27,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
+import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Tag;
 import io.openems.common.types.ChannelAddress;
