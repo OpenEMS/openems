@@ -58,7 +58,6 @@ JPM-Command:				openems-edge
 	com.google.guava;version='[27.0.0,27.0.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
-	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
@@ -123,9 +122,9 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
 	io.openems.wrapper.edcom;version=snapshot,\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
-	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
+	io.openems.edge.fenecon.pro;version=snapshot,\
+	org.eclipse.jetty.server;version='[9.3.8,9.3.9)',\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.fenecon.mini;version=snapshot,\
-	io.openems.edge.meter.socomec;version=snapshot
+	io.openems.edge.meter.microcare.sdm630;version=snapshot
 	
 -runee: JavaSE-1.8

@@ -26,7 +26,7 @@ public interface CommonTimedataService {
 	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
 			int resolution, Tag... tags) throws OpenemsException;
 
-	JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
+	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
 			boolean cumulative, Tag[] tags) throws OpenemsException;
 
 }

@@ -20,7 +20,9 @@ Private-Package:  \
 	io.openems.backend.timedata.api,\
 	io.openems.backend.uiwebsocket.api,\
 	io.openems.common,\
-	io.openems.wrapper.websocket
+	io.openems.wrapper.websocket,\
+	com.google.guava;version=27,\
+	json;version=20180813.0
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
