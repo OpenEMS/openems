@@ -189,7 +189,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 				e.printStackTrace();
 			}
 		}
-		super.deactivate();
+		
 
 		// Shutdown executor
 		if (this.configExecutor != null) {
@@ -206,6 +206,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 			}
 			configExecutor.shutdownNow();
 		}
+		super.deactivate();
 	}
 
 	public BatteryData getBatteryData() {
