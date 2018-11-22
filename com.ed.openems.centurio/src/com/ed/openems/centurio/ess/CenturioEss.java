@@ -30,6 +30,7 @@ import com.ed.openems.centurio.datasource.api.EdComData;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -142,8 +143,10 @@ public class CenturioEss extends AbstractOpenemsComponent
 		E150(new Doc().level(Level.FAULT).text("Phase1InvertVoltageSamplingInvalidation")), //
 		E160(new Doc().level(Level.FAULT).text("Phase2InvertVoltageSamplingInvalidation")), //
 		E170(new Doc().level(Level.FAULT).text("Phase3InvertVoltageSamplingInvalidation")), //
-		E180(new Doc().level(Level.FAULT).text("ACCurrentSamplingInvalidation")); //
-
+		E180(new Doc().level(Level.FAULT).text("ACCurrentSamplingInvalidation")), //
+		
+		BMS_VOLTAGE((new Doc().unit(Unit.VOLT))); //
+		
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -161,6 +164,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		Integer activePower = null;
 		Integer reactivePower = null;
 		SymmetricEss.GridMode gridMode = SymmetricEss.GridMode.UNDEFINED;
+		float bmsVoltage = 0;
 
 		if (!this.datasource.isConnected()) {
 			this.logWarn(this.log, "Edcom is not connected!");
@@ -174,6 +178,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 			if (battery != null) {
 				soc = Math.round(battery.getSOE());
 				activePower = CenturioConstants.roundToPowerPrecision(battery.getPower()) * -1; // invert
+				bmsVoltage = battery.getBmsVoltage();
 			}
 
 			if (status != null) {
@@ -227,7 +232,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		this.getGridMode().setNextValue(gridMode);
 
 		// Set ALLOWED_CHARGE_POWER and ALLOWED_DISCHARGE_POWER
-		/*
+		
 		if (soc == null || soc > 99) {
 			this.getAllowedCharge().setNextValue(0);
 		} else {
@@ -238,9 +243,11 @@ public class CenturioEss extends AbstractOpenemsComponent
 		} else {
 			this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
 		}
-		*/
+		/*
 		this.getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
 		this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
+		*/
+		this.channel(CenturioEss.ChannelId.BMS_VOLTAGE).setNextValue(bmsVoltage);
 		
 	}
 

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
@@ -96,6 +97,10 @@ public class EssUtils {
 			case E170:
 			case E180:
 				return new CenturioErrorChannel(c, channelId);
+			case BMS_VOLTAGE:
+				return new FloatReadChannel(c, channelId);
+			default:
+				break;
 			}
 			return null;
 		})).flatMap(channel -> channel);
