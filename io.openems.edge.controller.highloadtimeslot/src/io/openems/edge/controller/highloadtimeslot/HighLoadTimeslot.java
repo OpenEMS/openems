@@ -34,6 +34,9 @@ import io.openems.edge.ess.power.api.Relationship;
 @Component(name = "Controller.HighLoadTimeslot", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class HighLoadTimeslot extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
+	public static final String TIME_FORMAT = "HH:mm";
+	public static final String DATE_FORMAT = "dd.MM.yyyy";
+
 	private final Logger log = LoggerFactory.getLogger(HighLoadTimeslot.class);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -51,8 +54,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 
-		startDate = convert(config.startdate());
-		endDate = convert(config.enddate());
+		startDate = convertDate(config.startdate());
+		endDate = convertDate(config.enddate());
 		starttime = convertTime(config.starttime());
 		endtime = convertTime(config.endtime());
 		chargePower = config.chargePower();
@@ -82,14 +85,14 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		}
 	}
 
-	private LocalDate convert(String startdate2) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-		LocalDate localDate = LocalDate.parse(startdate2, dateTimeFormatter);
+	protected static LocalDate convertDate(String date) {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+		LocalDate localDate = LocalDate.parse(date, dateTimeFormatter);
 		return localDate;
 	}
 
-	private LocalTime convertTime(String time) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+	protected static LocalTime convertTime(String time) {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
 		LocalTime localDate = LocalTime.parse(time, dateTimeFormatter);
 		return localDate;
 	}
@@ -100,6 +103,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void conservationCharge(ManagedSymmetricEss ess) {
+		// TODO hysteresis 
 		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
 
 		if (!socOpt.isPresent()) {
@@ -117,7 +121,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void conservation(ManagedSymmetricEss ess) {
-		System.out.println("CONSERVATION");
+		log.info("HighLoadTimeslot.conservation()");
 		try {
 			ess.addPowerConstraintAndValidate("HighLoadTimeslot", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
 		} catch (PowerException e) {
@@ -126,7 +130,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void charge(ManagedSymmetricEss ess) {
-		System.out.println("CHARGE");
+		log.info("HighLoadTimeslot.charge()");
 		try {
 			ess.addPowerConstraintAndValidate("HighLoadTimeslot", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
 					chargePower);
@@ -136,7 +140,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void discharge(ManagedSymmetricEss ess) {
-		System.out.println("DISCHARGE");
+		log.info("HighLoadTimeslot.discharge()");
 		try {
 			ess.addPowerConstraintAndValidate("HighLoadTimeslot", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
 					dischargePower);
@@ -154,7 +158,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		return currentTime.toLocalTime().isAfter(starttime) && currentTime.toLocalTime().isBefore(endtime);
 	}
 
-	private boolean isWeekend(LocalDateTime date) {
+	protected static boolean isWeekend(LocalDateTime date) {
 		DayOfWeek dayOfWeek = date.getDayOfWeek();
 
 		return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY); 
