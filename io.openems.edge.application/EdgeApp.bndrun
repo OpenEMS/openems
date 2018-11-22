@@ -40,6 +40,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.ess.limittotaldischarge)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.io.fixdigitaloutput)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancingschedule)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.limitactivepower)',\
@@ -96,6 +97,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
+	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\
