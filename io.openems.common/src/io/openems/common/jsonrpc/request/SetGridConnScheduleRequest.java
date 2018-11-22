@@ -25,7 +25,7 @@ import io.openems.common.utils.JsonUtils;
  *     "schedule": [{
  *       "startTimestamp": 1542464697, // epoch in seconds
  *       "duration": 900, // in seconds
- *       "gridConnSetPoint": 0 // in Watt
+ *       "activePowerSetPoint": 0 // in Watt
  *     }]
  *   }
  * }
@@ -37,13 +37,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 		JsonObject p = r.getParams();
 		String edgeId = JsonUtils.getAsString(p, "id");
 		JsonArray s = JsonUtils.getAsJsonArray(p, "schedule");
-		List<GridConnSchedule> schedule = new ArrayList<>();
-		for (JsonElement se : s) {
-			long startTimestamp = JsonUtils.getAsLong(se, "startTimestamp");
-			int duration = JsonUtils.getAsInt(se, "duration");
-			int gridConnSetPoint = JsonUtils.getAsInt(se, "gridConnSetPoint");
-			schedule.add(new GridConnSchedule(startTimestamp, duration, gridConnSetPoint));
-		}
+		List<GridConnSchedule> schedule = GridConnSchedule.from(s);
 		return new SetGridConnScheduleRequest(r.getId(), edgeId, schedule);
 	}
 
@@ -77,7 +71,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 			schedule.add(JsonUtils.buildJsonObject() //
 					.addProperty("startTimestamp", se.getStartTimestamp()) //
 					.addProperty("duration", se.getDuration()) //
-					.addProperty("gridConnSetPoint", se.gridConnSetPoint) //
+					.addProperty("activePowerSetPoint", se.activePowerSetPoint) //
 					.build());
 		}
 		return JsonUtils.buildJsonObject() //
@@ -95,19 +89,31 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 	}
 
 	public static class GridConnSchedule {
+
+		public static List<GridConnSchedule> from(JsonArray j) throws OpenemsException {
+			List<GridConnSchedule> schedule = new ArrayList<>();
+			for (JsonElement se : j) {
+				long startTimestamp = JsonUtils.getAsLong(se, "startTimestamp");
+				int duration = JsonUtils.getAsInt(se, "duration");
+				int activePowerSetPoint = JsonUtils.getAsInt(se, "activePowerSetPoint");
+				schedule.add(new GridConnSchedule(startTimestamp, duration, activePowerSetPoint));
+			}
+			return schedule;
+		}
+
 		private final long startTimestamp;
 		private final int duration;
-		private final int gridConnSetPoint;
+		private final int activePowerSetPoint;
 
 		/**
-		 * @param startTimestamp   epoch in seconds
-		 * @param duration         in seconds
-		 * @param gridConnSetPoint in Watt
+		 * @param startTimestamp      epoch in seconds
+		 * @param duration            in seconds
+		 * @param activePowerSetPoint in Watt
 		 */
-		public GridConnSchedule(long startTimestamp, int duration, int gridConnSetPoint) {
+		public GridConnSchedule(long startTimestamp, int duration, int activePowerSetPoint) {
 			this.startTimestamp = startTimestamp;
 			this.duration = duration;
-			this.gridConnSetPoint = gridConnSetPoint;
+			this.activePowerSetPoint = activePowerSetPoint;
 		}
 
 		public long getStartTimestamp() {
@@ -118,8 +124,8 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 			return duration;
 		}
 
-		public int getGridConnSetPoint() {
-			return gridConnSetPoint;
+		public int getActivePowerSetPoint() {
+			return activePowerSetPoint;
 		}
 	}
 }

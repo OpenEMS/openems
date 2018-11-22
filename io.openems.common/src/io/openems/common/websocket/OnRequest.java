@@ -4,14 +4,19 @@ import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
 @FunctionalInterface
 public interface OnRequest {
 
-	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException;
+	/**
+	 * Handle a JSON-RPC request, receive a JSON-RPC response via callback.
+	 * 
+	 * @param ws
+	 * @param request
+	 * @param responseCallback
+	 */
+	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback);
 
 }

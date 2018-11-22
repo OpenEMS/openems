@@ -9,6 +9,13 @@ import io.openems.common.exceptions.OpenemsException;
 @FunctionalInterface
 public interface OnOpen {
 
+	/**
+	 * Handles OnOpen event of Websocket.
+	 * 
+	 * @param ws
+	 * @param handshake
+	 * @throws OpenemsException
+	 */
 	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException;
 
 }

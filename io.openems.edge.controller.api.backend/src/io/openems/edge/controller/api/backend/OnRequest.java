@@ -5,8 +5,10 @@ import java.util.function.Consumer;
 import org.java_websocket.WebSocket;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -20,15 +22,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException {
-		System.out.println("BackendApi onRequest " + request);
+	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
+		try {
+			switch (request.getMethod()) {
 
-		switch (request.getMethod()) {
+			case ComponentJsonApiRequest.METHOD:
+				this.handleComponentJsonApiRequest(request, responseCallback);
 
-		case ComponentJsonApiRequest.METHOD:
-			this.handleComponentJsonApiRequest(request, responseCallback);
+			}
 
+		} catch (OpenemsException e) {
+			responseCallback.accept(
+					new JsonrpcResponseError(request.getId(), 0, "Error while handling request: " + e.getMessage()));
 		}
 	}
 
@@ -63,7 +68,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
 		JsonrpcResponse response = jsonApi.handleJsonrpcRequest(request.getPayload());
-		responseCallback.accept(response);
+		JsonrpcResponse wrappedResponse = new GenericJsonrpcResponseSuccess(request.getId(), response.toJsonObject());
+		responseCallback.accept(wrappedResponse);
 	}
 
 }

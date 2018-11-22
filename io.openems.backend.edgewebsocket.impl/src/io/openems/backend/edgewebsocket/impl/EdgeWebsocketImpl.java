@@ -12,8 +12,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.google.gson.JsonObject;
-
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;

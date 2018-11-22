@@ -22,7 +22,7 @@ public class WsData {
 	private final ConcurrentHashMap<UUID, Consumer<JsonrpcResponse>> callbacks = new ConcurrentHashMap<>();
 
 	/**
-	 * Sends a JsonrpcRequest to a Websocket and registers a callback.
+	 * Sends a JSON-RPC request to a Websocket and registers a callback.
 	 * 
 	 * @param ws
 	 * @param request

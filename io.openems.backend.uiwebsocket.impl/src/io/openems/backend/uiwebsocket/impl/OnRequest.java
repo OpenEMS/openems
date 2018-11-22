@@ -17,10 +17,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException {
+	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
 		System.out.println("UI: onRequest: " + request);
-		
+
 //		switch (request.getMethod()) {
 
 //		case GetStatusOfEdgesRequest.METHOD:

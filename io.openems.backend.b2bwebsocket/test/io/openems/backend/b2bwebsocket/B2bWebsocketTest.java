@@ -38,10 +38,10 @@ public class B2bWebsocketTest {
 		TestClient client = preparteTestClient();
 
 		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("edge0");
-		request.addScheduleEntry(new GridConnSchedule(1536041040, 900, 150));
-
+		request.addScheduleEntry(new GridConnSchedule(System.currentTimeMillis() / 1000, 20, -3000));
+		System.out.println("Sending Request " + request);
 		client.sendRequest(request, response -> {
-			System.out.println(response);
+			System.out.println("Response: " + response);
 		});
 
 		while (true) {

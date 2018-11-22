@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.common.utils.JsonUtils;
 
 public class Edge {

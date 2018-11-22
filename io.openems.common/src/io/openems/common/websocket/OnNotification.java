@@ -8,6 +8,13 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 @FunctionalInterface
 public interface OnNotification {
 
+	/**
+	 * Handles a JSON-RPC notification.
+	 * 
+	 * @param ws
+	 * @param notification
+	 * @throws OpenemsException
+	 */
 	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsException;
 
 }

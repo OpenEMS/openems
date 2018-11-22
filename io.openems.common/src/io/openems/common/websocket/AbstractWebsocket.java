@@ -14,22 +14,57 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 */
 	protected abstract T createWsData();
 
+	/**
+	 * Callback for internal error
+	 * 
+	 * @return
+	 */
 	protected abstract OnInternalError getOnInternalError();
 
+	/**
+	 * Callback for websocket OnOpen event
+	 * 
+	 * @return
+	 */
 	protected abstract OnOpen getOnOpen();
 
+	/**
+	 * Callback for JSON-RPC request
+	 * 
+	 * @return
+	 */
 	protected abstract OnRequest getOnRequest();
 
+	/**
+	 * Callback for JSON-RPC notification
+	 * 
+	 * @return
+	 */
 	protected abstract OnNotification getOnNotification();
 
+	/**
+	 * Callback for websocket error
+	 * 
+	 * @return
+	 */
 	protected abstract OnError getOnError();
 
+	/**
+	 * Callback for websocket OnClose event
+	 * 
+	 * @return
+	 */
 	protected abstract OnClose getOnClose();
 
 	public AbstractWebsocket(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Gets the internal name of this websocket client/server
+	 * 
+	 * @return
+	 */
 	public String getName() {
 		return name;
 	}
