@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
@@ -34,7 +35,7 @@ public class OnMessage extends AbstractOnMessage {
 		this.parent = parent;
 	}
 
-	protected void run(WebSocket websocket, JsonObject jMessage) {
+	protected void handleCompatibilty(JsonObject jMessage) {
 		
 	
 		
@@ -193,7 +194,14 @@ public class OnMessage extends AbstractOnMessage {
 		} catch (Exception e) {
 			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, "Edge [ID:" + edgeId + "] " + e.getMessage());
+			e.printStackTrace();
 		}
+	}
+
+	@Override
+	protected void run(WebSocket websocket, String message) {
+		this.handleCompatibilty((new JsonParser()).parse(message).getAsJsonObject());
+		
 	}
 
 }
