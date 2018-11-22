@@ -56,7 +56,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			log.info("Edge [" + edge.getId() + "] connected.");
 
 			// announce Edge as online
-			edge.isOnline();
+			edgeOpt.get().setOnline(true);
 			edge.setLastMessageTimestamp();
 			wsData.setAuthenticated(true);
 

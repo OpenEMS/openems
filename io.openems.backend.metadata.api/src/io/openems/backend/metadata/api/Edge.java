@@ -59,7 +59,7 @@ public class Edge {
 	public String getComment() {
 		return comment;
 	}
-	
+
 	public JsonObject getConfig() {
 		return this.jConfig;
 	}
@@ -106,8 +106,7 @@ public class Edge {
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.
 	 */
-	public synchronized void updateIsOnline(EdgeWebsocket edgeWebsocket) {
-		boolean isOnline = edgeWebsocket.isOnline(this.getId());
+	public synchronized void setOnline(boolean isOnline) {
 		this.isOnline = isOnline;
 		this.onSetOnline.forEach(listener -> listener.accept(isOnline));
 	}

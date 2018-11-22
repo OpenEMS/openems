@@ -32,7 +32,8 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		String edgeId = edgeIdOpt.get();
 		Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
 		if (edgeOpt.isPresent()) {
-			edgeOpt.get().updateIsOnline(this.parent);
+			boolean isOnline = this.parent.isOnline(edgeId);
+			edgeOpt.get().setOnline(isOnline);
 		}
 
 		// log
