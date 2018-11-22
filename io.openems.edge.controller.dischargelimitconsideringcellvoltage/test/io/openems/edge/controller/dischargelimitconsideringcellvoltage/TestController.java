@@ -136,6 +136,8 @@ public class TestController {
 		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
+		sut.run();
+		assertEquals(State.NORMAL, sut.getStatus());
 	}
 
 	@Test

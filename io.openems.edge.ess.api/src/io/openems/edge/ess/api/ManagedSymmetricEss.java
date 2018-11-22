@@ -151,7 +151,12 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Apply the calculated Power
+	 * Apply the calculated Power.
+	 * 
+	 * Careful: do not adjust activePower and reactivePower in this method, e.g.
+	 * setting it to zero on error. The purpose of this method is solely to apply
+	 * the calculated power to the ESS. If you need to constrain the allowed power,
+	 * add Constraints using the {@link #getStaticConstraints()} method.
 	 * 
 	 * @param activePower
 	 * @param reactivePower

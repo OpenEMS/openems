@@ -56,7 +56,11 @@ import io.openems.edge.ess.mr.gridcon.enums.ErrorCode;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -695,11 +699,23 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return this.power;
 	}
 
+	
+	
+	@Override
+	public Constraint[] getStaticConstraints() {
+		if (getCurrentState() != CCUState.RUN || this.getOnOffGrid() != GridMode.ON_GRID) {
+			return new Constraint[] { 
+					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
+					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0)
+			};	
+		} else {
+			return Power.NO_CONSTRAINTS;
+		}		
+	}
+
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		if (getCurrentState() != CCUState.RUN || this.getOnOffGrid() != GridMode.ON_GRID) {
-			return;
-		}
+		
 		doStringWeighting(activePower, reactivePower);
 		/*
 		 * !! signum, MR calculates negative values as discharge, positive as charge.
@@ -715,8 +731,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doStringWeighting(int activePower, int reactivePower) {
-		// weight according to battery ranges
-		
+		// weight according to battery ranges		
 		// weight considering SoC of the batteries...
 		
 		

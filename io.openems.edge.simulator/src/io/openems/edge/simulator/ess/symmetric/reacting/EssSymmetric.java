@@ -1,6 +1,8 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -104,8 +106,9 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:			
 			this.updateChannels();
+			this.calculateEnergy();
 			break;
 		}
 	}
@@ -186,4 +189,40 @@ public class EssSymmetric extends AbstractOpenemsComponent
 				ModbusSlaveNatureTable.of(EssSymmetric.class, 300) //
 						.build());
 	}
+	
+	// These variables are used to calculate the energy 
+		LocalDateTime lastPowerValuesTimestamp = null;
+		double lastPowerValue = 0;
+		double accumulatedChargeEnergy = 0;
+		double accumulatedDischargeEnergy = 0;
+		
+		private void calculateEnergy() {
+			if (this.lastPowerValuesTimestamp != null) {						
+				
+				long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now()).toMillis();
+				this.lastPowerValuesTimestamp = LocalDateTime.now();
+				
+				log.debug("time elpsed in ms: " + passedTimeInMilliSeconds);
+				log.debug("last power value :" + this.lastPowerValue);
+				double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600; // calculate energy in watt hours
+				
+				log.debug("energy in wh: " + energy);
+				
+				if (this.lastPowerValue < 0) {
+					this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
+					this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);					
+				} else if (this.lastPowerValue > 0) {
+					this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
+					this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
+				}
+				
+				log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
+				log.debug("accumulated discharge energy :" + accumulatedDischargeEnergy);
+				
+			} else {
+				this.lastPowerValuesTimestamp = LocalDateTime.now();			
+			}
+			
+			this.lastPowerValue = this.getActivePower().value().orElse(0);
+		}
 }

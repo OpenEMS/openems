@@ -135,8 +135,8 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 			if (!vOpt.isPresent()) {
 				return;
 			}
-			int voltage_millivolt = vOpt.get();
-			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_millivolt * 1000);
+			int voltage_volt = vOpt.get();
+			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
 		});
 
 		this.channel(ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
@@ -220,6 +220,51 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	public String getModbusBridgeId() {
 		return modbusBridgeId;
 	}
+	
+
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value() //
+				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+	}
+
+	private void startSystem() {
+		if (isStopping) {
+			return;
+		}
+				
+		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		
+		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		// To avoid hardware damages do not send start command if system has already started
+		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.ON_GRID.getValue()) {
+			return;
+		}
+		
+		try {
+			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
+		} catch (OpenemsException e) {
+			log.error("Error while trying to start system\n" + e.getMessage());
+		}
+	}
+
+	private void stopSystem() {
+		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		
+		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		// To avoid hardware damages do not send stop command if system has already stopped
+		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.CUT_OFF.getValue()) {
+			return;
+		}
+		
+		try {
+			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
+			isStopping = true;
+		} catch (OpenemsException e) {
+			log.error("Error while trying to stop system\n" + e.getMessage());
+		}
+	}
 
 	public enum ChargeIndication implements OptionsEnum {
 
@@ -295,7 +340,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		BMS_CONTACTOR_CONTROL(new Doc().options(ContactorControl.values())), //
 		SYSTEM_OVER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
 		SYSTEM_UNDER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
-		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		CLUSTER_1_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_CHARGE_INDICATION(new Doc().options(ChargeIndication.values())), //
 		CLUSTER_1_SOH(new Doc().unit(Unit.PERCENT)), //
@@ -685,11 +730,11 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
 						m(SoltaroRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
 				), //
-				new FC3ReadRegistersTask(0x2042, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2042, Priority.HIGH, //
 						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x2042), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
-				new FC3ReadRegistersTask(0x2046, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2046, Priority.HIGH, //
 						m(SoltaroRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)), //
 						m(SoltaroRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)), //
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x2048), //
@@ -703,7 +748,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
 						m(SoltaroRack.ChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
@@ -720,7 +765,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 						new DummyRegisterElement(0x210D, 0x2115), //
 						m(SoltaroRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
-				new FC3ReadRegistersTask(0x2160, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x2160), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x2161), //
@@ -1071,34 +1116,5 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
 				)//
 		); //
-	}
-
-	@Override
-	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
-	}
-
-	private void startSystem() {
-		if (isStopping) {
-			return;
-		}
-		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-		try {
-			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
-		} catch (OpenemsException e) {
-			log.error("Error while trying to start system\n" + e.getMessage());
-		}
-	}
-
-	private void stopSystem() {
-		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-		try {
-			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-			isStopping = true;
-		} catch (OpenemsException e) {
-			log.error("Error while trying to stop system\n" + e.getMessage());
-		}
 	}
 }
