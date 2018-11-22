@@ -114,6 +114,6 @@ Thorsten Zörner::
 Discovergy GmbH
 tz@discovergy.com
 
-== Download der Beitragsordnung
+== Download Beitragsordnung
 
 link:https://github.com/OpenEMS/openems/raw/develop/doc/OpenEMS%20Association%20e.V.%20Gr%C3%BCndungs-Beitragsordnung.pdf[OpenEMS Association e.V. Gründungs-Beitragsordnung]
