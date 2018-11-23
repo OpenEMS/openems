@@ -82,6 +82,8 @@ Zwecke des Vereins sind die Entwicklung und kontinuierliche Pflege einer open-so
 
 == Vorstand
 
+=== E-Mail: vorstand@openems.io
+
 Der Vorstand besteht aus...
 
 - Vorsitzender: 
