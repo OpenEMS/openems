@@ -1,7 +1,4 @@
 = Configuration
-ifndef::backend-pdf[]
-= Configuration
-endif::[]
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -10,6 +7,7 @@ endif::[]
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
+:imagesdir: ../../assets/images
 
 OpenEMS Edge and Backend are configured using the standard OSGi configuration admin service. The easiest way to set a configuration is via the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]] as described in the xref:gettingstarted.adoc[Getting Started] guide above.
 

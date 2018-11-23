@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.ChannelId;
@@ -47,12 +46,17 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 						+ "]. Expected [" + channelId.doc().getType().get() + "].");
 			}
 		}
-		// validate isWritable
-		if (channelId.doc().getIsWritable()) {
+		// validate Access-Mode
+		switch (channelId.doc().getAccessMode()) {
+		case READ_ONLY:
+			break;
+		case READ_WRITE:
+		case WRITE_ONLY:
 			if (!(this instanceof WriteChannel)) {
 				throw new IllegalArgumentException(
 						"[" + this.address() + "]: This Channel needs to implement WriteChannel.");
 			}
+			break;
 		}
 		// call onInitCallback from Doc
 		this.channelId.doc().getOnInitCallback().forEach(callback -> {
@@ -96,7 +100,6 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	 * Sets the next value. Internal method. Do not call directly.
 	 * 
 	 * @param value
-	 * @throws OpenemsException
 	 */
 	@Deprecated
 	public final void _setNextValue(T value) {

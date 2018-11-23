@@ -116,7 +116,11 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 							try {
 								description += channel.value().asOptionString();
 							} catch (IllegalArgumentException e) {
+<<<<<<< HEAD
 								description += "UNKNOWN OPTION VALUE [" + channel.value().asString() + "]";
+=======
+								description += "ERROR: " + e.getMessage();
+>>>>>>> develop
 							}
 						}
 						if (channel instanceof StateChannel && ((StateChannel) channel).value().orElse(false) == true) {

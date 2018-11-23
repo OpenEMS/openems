@@ -1,1 +1,28 @@
-// Available to customize the build
+/*
+ * Javadoc
+ */
+task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
+        destinationDir = file("$buildDir/www/javadoc")
+    title = "OpenEMS Javadoc"
+    subprojects.each { proj ->
+        proj.tasks.withType(Javadoc).each { javadocTask ->
+            source += javadocTask.source
+            classpath += javadocTask.classpath
+            excludes += javadocTask.excludes
+            includes += javadocTask.includes
+        }
+    }
+}
+
+/*
+ * Antora docs
+ */
+task antora(type:Exec) {
+    commandLine 'docker', 'run', '--privileged', '-v', "$projectDir:/antora", '--rm', '-t', 'antora/antora', 'doc/build/site.yml'
+    doLast {
+        copy {
+            from "doc/build/.nojekyll", "doc/build/CNAME"
+            into "${buildDir}/www"
+        }
+    }
+}

@@ -19,6 +19,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.Parity;
+import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -34,8 +35,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
+//	private final Logger log = LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
 
 	/**
 	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3')
@@ -55,7 +55,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	/**
 	 * The configured Stopbits
 	 */
-	private String stopbits;
+	private Stopbit stopbits;
 
 	/**
 	 * The configured parity
@@ -81,13 +81,13 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	public void closeModbusConnection() {
 		if (this._connection != null) {
 			this._connection.close();
+			this._connection = null;
 		}
 	}
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		SerialConnection connection;
-		connection = this.getModbusConnection();
+		SerialConnection connection = this.getModbusConnection();
 		ModbusSerialTransaction transaction = new ModbusSerialTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
 		return transaction;
@@ -104,8 +104,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setPortName(this.portName);
 			params.setBaudRate(this.baudrate);
 			params.setDatabits(this.databits);
-			params.setStopbits(this.stopbits);
-			params.setParity(this.parity.getParity());			
+			params.setStopbits(this.stopbits.getValue());
+			params.setParity(this.parity.getValue());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			SerialConnection connection = new SerialConnection(params);
@@ -124,26 +124,26 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Override
 	public int getBaudrate() {
-		return baudrate;
+		return this.baudrate;
 	}
 
 	@Override
 	public int getDatabits() {
-		return databits;
+		return this.databits;
 	}
 
 	@Override
 	public Parity getParity() {
-		return parity;
+		return this.parity;
 	}
 
 	@Override
 	public String getPortName() {
-		return portName;
+		return this.portName;
 	}
 
 	@Override
-	public String getStopbits() {
-		return stopbits;
+	public Stopbit getStopbits() {
+		return this.stopbits;
 	}
 }

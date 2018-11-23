@@ -1,6 +1,5 @@
-ifndef::backend-pdf[]
 = Core concepts & terminology 
-endif::[]
+:imagesdir: ../assets/images
 :sectnums:
 :sectnumlevels: 4
 :toc:

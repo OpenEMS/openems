@@ -8,6 +8,8 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface SymmetricEss extends OpenemsComponent {
@@ -140,6 +142,13 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	}
 
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(SymmetricEss.class, 100) //
+				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
+				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
+				.build();
+	}
+
 	/**
 	 * Gets the State of Charge in [%], range 0..100 %
 	 * 
@@ -169,7 +178,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Maximum Apparent Power in [VA], range ">= 0"
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0"
 	 * 
 	 * @return
 	 */

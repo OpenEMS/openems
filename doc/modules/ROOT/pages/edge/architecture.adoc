@@ -1,6 +1,4 @@
-ifndef::backend-pdf[]
 = Edge Architecture
-endif::[]
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -9,6 +7,7 @@ endif::[]
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
+:imagesdir: ../../assets/images
 
 OpenEMS is a modular platform for energy management applications.
 It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
@@ -61,5 +60,4 @@ image::cycle-modbus.png[Synchronize Cycle with Modbus read/write]
 The following scheme shows the abstraction of hardware via Channels, Natures and Devices as well as the execution of control algorithms via Scheduler and Controllers.
 
 .Architecture scheme 
-image::device-nature-channel-scheduler-controller.png[Architecture scheme]
 image::device-nature-channel-scheduler-controller.png[Architecture scheme]

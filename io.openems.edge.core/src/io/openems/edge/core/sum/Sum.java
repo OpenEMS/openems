@@ -24,9 +24,13 @@ import io.openems.edge.common.channel.merger.SumInteger;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -34,7 +38,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
  * Enables access to sum/average data.
  */
 @Component(name = "Core.Sum", immediate = true, property = { "id=_sum", "enabled=true" })
-public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
+public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -52,7 +56,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * Ess: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricEssReadonly})
+		 * <li>Interface: Sum (origin: @see {@link SymmetricEss})
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
@@ -220,6 +224,39 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(Sum.class, 220) //
+						.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //
+						.channel(1, ChannelId.ESS_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.float32Reserved(3) // ChannelId.ESS_MIN_ACTIVE_POWER
+						.float32Reserved(5) // ChannelId.ESS_MAX_ACTIVE_POWER
+						.float32Reserved(7) // ChannelId.ESS_REACTIVE_POWER
+						.float32Reserved(9) // ChannelId.ESS_MIN_REACTIVE_POWER
+						.float32Reserved(11) // ChannelId.ESS_MAX_REACTIVE_POWER
+						.channel(13, ChannelId.GRID_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.channel(15, ChannelId.GRID_MIN_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.channel(17, ChannelId.GRID_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.float32Reserved(19) // ChannelId.GRID_REACTIVE_POWER
+						.float32Reserved(21) // ChannelId.GRID_MIN_REACTIVE_POWER
+						.float32Reserved(23) // ChannelId.GRID_MAX_REACTIVE_POWER
+						.channel(25, ChannelId.PRODUCTION_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.channel(27, ChannelId.PRODUCTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.channel(29, ChannelId.PRODUCTION_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.channel(31, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.float32Reserved(33) // ChannelId.PRODUCTION_AC_REACTIVE_POWER
+						.float32Reserved(35) // ChannelId.PRODUCTION_MAX_AC_REACTIVE_POWER
+						.channel(37, ChannelId.PRODUCTION_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
+						.channel(39, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
+						.channel(41, ChannelId.CONSUMPTION_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.channel(43, ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.float32Reserved(45) // ChannelId.CONSUMPTION_REACTIVE_POWER
+						.float32Reserved(47) // ChannelId.CONSUMPTION_MAX_REACTIVE_POWER
+						.build());
 	}
 
 	/*

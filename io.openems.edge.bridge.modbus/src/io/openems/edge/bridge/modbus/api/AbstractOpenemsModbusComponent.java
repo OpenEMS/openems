@@ -213,7 +213,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Maps the given element 1-to-1 to the Channel identified by channelId.
 	 * 
-	 * @param channelDoc
+	 * @param channelId
 	 * @param element
 	 * @return the element parameter
 	 */
@@ -228,8 +228,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Maps the given element to the Channel identified by channelId, applying the
 	 * given @link{ElementToChannelConverter}
 	 * 
-	 * @param channelDoc
+	 * @param channelId
 	 * @param element
+	 * @param converter
 	 * @return the element parameter
 	 */
 	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
@@ -264,7 +265,16 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		public BitChannelMapper(UnsignedWordElement element) {
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
+				if(value == null) {
+					return;
+				}
+				
 				this.channels.forEach((bitIndex, channelWrapper) -> {
+					if (bitIndex == null) {
+						log.warn("BitIndex is null for Channel [" + channelWrapper.channel.address() + "]");
+						return;
+					}
+
 					// Get value for this Channel
 					boolean setValue;
 					if (value << ~bitIndex < 0) {

@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.bridge.modbus.api.Parity;
+import io.openems.edge.bridge.modbus.api.Stopbit;
 
 @ObjectClassDefinition( //
 		name = "Bridge Modbus/RTU Serial", //
@@ -23,7 +24,7 @@ import io.openems.edge.bridge.modbus.api.Parity;
 	int databits() default 8;
 
 	@AttributeDefinition(name = "Stopbits", description = "The number of stopbits - '1', '1.5' or '2'")
-	String stopbits() default "1";
+	Stopbit stopbits() default Stopbit.ONE;
 
 	@AttributeDefinition(name = "Parity", description = "The parity - 'none', 'even', 'odd', 'mark' or 'space'")
 	Parity parity() default Parity.NONE;

@@ -18,43 +18,43 @@ import io.openems.edge.common.channel.Channel;
  * 
  * Possible meta information:
  * <ul>
- * <li>read-only/writable flag {@link Doc#setWritable()}
- * <li>expected OpenemsType via {@link Doc#getType()}
- * <li>descriptive text via {@link Doc#getText()}
- * <li>a Unit via {@link Doc#getUnit()}
+ * <li>access-mode (read-only/read-write/write-only) flag {@link #accessMode(AccessMode)}
+ * <li>expected OpenemsType via {@link #getType()}
+ * <li>descriptive text via {@link #getText()}
+ * <li>a Unit via {@link #getUnit()}
  * <li>possible named option values as String or Enum via
- * {@link Doc#getOption()} methods
- * <li>importance {@link Level} via {@link Doc#getLevel()}
- * <li>is debug mode activated via {@link Doc#isDebug()}
+ * {@link #getOption(String)}, {@link #getOption(int)}, {@link #getOption(Enum)} methods
+ * <li>importance {@link Level} via {@link #getLevel()}
+ * <li>is debug mode activated via {@link #isDebug()}
  * <li>callback on initialisation of a Channel via
- * {@link Doc#getOnInitCallback()}
+ * {@link #getOnInitCallback()}
  * </ul>
  */
 public class Doc {
 
-	/*
-	 * Channel is Writable
+	/**
+	 * Allowed Access-Mode for this Channel.
 	 */
-	private boolean isWritable = false;
+	private AccessMode accessMode = AccessMode.READ_ONLY;
 
 	/**
-	 * Sets the Channel as Writable. This is validated on construction of the
-	 * Channel by {@link AbstractReadChannel}
+	 * Sets the Access-Mode for the Channel. This is validated on construction of
+	 * the Channel by {@link AbstractReadChannel}
 	 * 
 	 * @return
 	 */
-	public Doc setWritable() {
-		this.isWritable = true;
+	public Doc accessMode(AccessMode accessMode) {
+		this.accessMode = accessMode;
 		return this;
 	}
 
 	/**
-	 * Gets the 'isWritable' information
+	 * Gets the 'Access-Mode' information
 	 * 
 	 * @return
 	 */
-	public boolean getIsWritable() {
-		return this.isWritable;
+	public AccessMode getAccessMode() {
+		return this.accessMode;
 	}
 
 	/*
@@ -136,15 +136,15 @@ public class Doc {
 		this.options.put(option.ordinal(), option);
 		// this.options.put(option.ordinal(), option.name());
 		return this;
-		}
+	}
 
 	public Doc options(Enum<? extends OptionsEnum>[] options) {
-		for(Enum<? extends OptionsEnum> option : options) {
-			this.option(((OptionsEnum)option).getValue(), option);
+		for (Enum<? extends OptionsEnum> option : options) {
+			this.option(((OptionsEnum) option).getValue(), option);
 		}
 		return this;
 	}
-	
+
 	public Doc option(int value, String option) {
 		this.options.put(value, option);
 		return this;
@@ -154,7 +154,7 @@ public class Doc {
 	 * Get the Option value. Throws IllegalArgumentException if there is no option
 	 * with that name
 	 * 
-	 * @param value
+	 * @param name
 	 * @return
 	 */
 	public int getOption(String name) {
@@ -170,7 +170,7 @@ public class Doc {
 	 * Get the Option value. Throws IllegalArgumentException if there is no option
 	 * with that name
 	 * 
-	 * @param value
+	 * @param nameEnum
 	 * @return
 	 */
 	public int getOption(Enum<?> nameEnum) {
@@ -256,7 +256,7 @@ public class Doc {
 	/**
 	 * Provides a callback on initialisation of the actual Channel
 	 * 
-	 * @param channel
+	 * @param callback
 	 * @return
 	 */
 	public Doc onInit(Consumer<Channel<?>> callback) {

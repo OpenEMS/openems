@@ -10,8 +10,8 @@ Private-Package: \
 	io.openems.edge.simulator.meter,\
 	io.openems.edge.simulator.datasource.api,\
 	io.openems.edge.simulator.datasource.csv,\
-	io.openems.edge.simulator.ess,\
-	io.openems.edge.simulator.ess.symmetric.reacting
+	io.openems.edge.simulator.ess.symmetric.reacting,\
+	io.openems.edge.simulator.ess.asymmetric.reacting
 
 Export-Package: io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
@@ -30,7 +30,7 @@ Export-Package: io.openems.edge.ess.api,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
-	com.google.guava,\
+	com.google.guava;version=27,\
 	io.openems.edge.battery.api;version=latest
 
 -testpath: \

@@ -62,7 +62,7 @@ public abstract class WriteObject {
 		this.onTimeoutCallbacks.forEach(callback -> callback.run());
 	}
 
-	public abstract void pushWrite(WriteChannel<?> writeChannel) throws OpenemsException;
+	public abstract void setNextWriteValue(WriteChannel<?> writeChannel) throws OpenemsException;
 
 	public abstract String valueToString();
 }

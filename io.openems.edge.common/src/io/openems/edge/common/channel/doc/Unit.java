@@ -1,5 +1,7 @@
 package io.openems.edge.common.channel.doc;
 
+import com.google.common.base.CaseFormat;
+
 import io.openems.common.types.OpenemsType;
 
 public enum Unit {
@@ -141,6 +143,7 @@ public enum Unit {
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
 
+<<<<<<< HEAD
 	/**
 	 * Unit of Time Minute
 	 */
@@ -151,6 +154,8 @@ public enum Unit {
 	 */
 	HOUR("h"),
 
+=======
+>>>>>>> develop
 	/*
 	 * Resistance
 	 */
@@ -240,5 +245,11 @@ public enum Unit {
 			this.format(value, type);
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
+	}
+
+	@Override
+	public String toString() {
+		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name()) + //
+				(this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
 	}
 }
