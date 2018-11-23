@@ -93,6 +93,16 @@ public enum Unit {
 	 */
 	KILOWATT_HOURS("kWh", WATT_HOURS, 3),
 
+	/**
+	 * Unit of Apparent Energy [VAh]
+	 */
+	VOLT_AMPERE_HOURS("VAh"),
+
+	/**
+	 * Unit of Apparent Energy [VAh]
+	 */
+	VOLT_AMPERE_REACTIVE_HOURS("varh"),
+
 	/*
 	 * Frequency
 	 */

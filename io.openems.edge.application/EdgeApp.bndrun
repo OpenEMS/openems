@@ -66,7 +66,7 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.simulator)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.sma)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.weidmuller)'
 	
 	
 -runbundles: \
@@ -103,7 +103,6 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.core;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.mr.gridcon;version=snapshot,\
-	io.openems.edge.sma;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.ess.refu;version=snapshot,\
@@ -130,6 +129,7 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\
+	io.openems.edge.meter.weidmuller;version=snapshot,\
 	com.fazecast.jSerialComm;version='[2.2.0,2.2.1)',\
 	json;version='[20160212.0.0,20160212.0.1)',\
 	org.apache.commons.math3;version='[3.6.0,4.0.0)',\
