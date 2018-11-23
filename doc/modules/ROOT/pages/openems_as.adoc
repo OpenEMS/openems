@@ -11,6 +11,9 @@
 
 Zur Förderung der Weiterentwicklung von OpenEMS wurde am 15.11.2018 die "OpenEMS Association" gegründet.
 
+.Gründungsmitglieder
+image::members.jpg[Gründungsmitglieder]
+
 == OpenEMS Association Newsletter
 
 Gerne halten wir Sie über aktuelle News zur OpenEMS Association auf dem Laufenden. Bitte melden Sie sich zu unserem Newsletter an:
@@ -78,6 +81,8 @@ Zwecke des Vereins sind die Entwicklung und kontinuierliche Pflege einer open-so
 •	Winter, Peter
 
 == Vorstand
+
+=== E-Mail: vorstand@openems.io
 
 Der Vorstand besteht aus...
 
