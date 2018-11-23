@@ -2,6 +2,7 @@ package io.openems.edge.core.sum;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -31,6 +32,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -213,7 +215,19 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		 */
 		CONSUMPTION_MAX_ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
+				.unit(Unit.WATT)),
+		
+		/**
+		 * Gridmode
+		 * 
+		 * <ul>
+		 * <li>Interface: Gridmode (origin: @see {@link EssSymmetric}))
+		 * <li>Type: Integer
+		 * <li>Values: '0' = UNDEFINED, '1' = ON GRID, '2' = OFF GRID
+		 * </ul>
+		 */
+		GRID_MODE(new Doc() //
+				.type(OpenemsType.INTEGER));
 
 		private final Doc doc;
 
@@ -272,6 +286,29 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 	private final SumInteger<SymmetricMeter> gridActivePower;
 	private final SumInteger<SymmetricMeter> gridMinActivePower;
 	private final SumInteger<SymmetricMeter> gridMaxActivePower;
+	private final Consumer<Value<Integer>> gridModeCalculator = value -> {
+		int onGrids = 0;
+		int offGrids = 0;
+		for (SymmetricEss e : this.esss) {
+			Optional<Integer> gridOpt = e.getGridMode().getNextValue().asOptional();
+			if (gridOpt.isPresent()) {
+				if (gridOpt.get() == GridMode.ON_GRID.getValue()) {
+					onGrids = onGrids + 1;
+				}
+				if (gridOpt.get() == GridMode.OFF_GRID.getValue()) {
+					offGrids = offGrids + 1;
+				}
+			}
+		}
+		int gridMode = GridMode.UNDEFINED.getValue();
+		if (this.esss.size() == onGrids) {
+			gridMode = GridMode.ON_GRID.getValue();
+		}
+		if (this.esss.size() == offGrids) {
+			gridMode = GridMode.OFF_GRID.getValue();
+		}
+		this.getGridMode().setNextValue(gridMode);
+	};
 
 	/*
 	 * Production
@@ -291,6 +328,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		this.essSoc.addComponent(ess);
 		this.essActivePower.addComponent(ess);
 		this.calculateMaxConsumption.accept(null /* ignored */);
+		ess.getGridMode().onChange(gridModeCalculator );
 	}
 
 	protected void removeEss(SymmetricEss ess) {
@@ -300,7 +338,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		}
 		this.esss.remove(ess);
 		this.essSoc.removeComponent(ess);
-		this.essActivePower.removeComponent(ess);
+		this.essActivePower.removeComponent(ess);		
 	}
 
 	private final Consumer<Value<Integer>> calculateMaxConsumption = ignoreValue -> {
@@ -389,6 +427,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 				SymmetricMeter.ChannelId.MIN_ACTIVE_POWER);
 		this.gridMaxActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.GRID_MAX_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
+		
+		
 		/*
 		 * Production
 		 */
@@ -511,5 +551,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 
 	public Channel<Integer> getConsumptionMaxActivePower() {
 		return this.channel(ChannelId.CONSUMPTION_MAX_ACTIVE_POWER);
+	}
+	
+	public Channel<Integer> getGridMode() {
+		return this.channel(ChannelId.GRID_MODE);
 	}
 }
