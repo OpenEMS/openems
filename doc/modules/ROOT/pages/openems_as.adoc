@@ -12,7 +12,7 @@
 Zur Förderung der Weiterentwicklung von OpenEMS wurde am 15.11.2018 die "OpenEMS Association" gegründet.
 
 .Gründungsmitglieder
-image::members.jpg[Gründungsmitglieder]
+image::members.JPG[Gründungsmitglieder]
 
 == OpenEMS Association Newsletter
 

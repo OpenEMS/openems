@@ -3,10 +3,11 @@ package io.openems.edge.simulator.io;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
-		name = "Simulator IO Digital Output", //
-		description = "Simulates digital outputs with name 'DigitalOutputX', starting with index 0.")
+@ObjectClassDefinition(//
+		name = "Simulator IO Digital", //
+		description = "Simulates digital input/output channels with name 'InputOutputX', starting with index 0.")
 @interface Config {
+	
 	String service_pid();
 
 	String id()
@@ -15,9 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Number of outputs", description = "This many output channels 'DigitalOutputX' are created.")
+	@AttributeDefinition(name = "Number of input/output channels", description = "This many channels 'InputOutputX' are created.")
 	int numberOfOutputs() default 1;
 
-	String webconsole_configurationFactory_nameHint() default "Simulator IO Digital Output [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Simulator IO Digital [{id}]";
 
 }

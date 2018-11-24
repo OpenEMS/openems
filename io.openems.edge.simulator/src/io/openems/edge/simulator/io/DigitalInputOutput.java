@@ -1,5 +1,14 @@
 package io.openems.edge.simulator.io;
 
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.io.api.DigitalOutput;
+
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -8,32 +17,27 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-
 @Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Simulator.IO.DigitalOutput", //
+@Component(//
+		name = "Simulator.IO.DigitalInputOutput", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 )
-public class DigitalOutput extends AbstractOpenemsComponent
-		implements io.openems.edge.io.api.DigitalOutput, OpenemsComponent {
+public class DigitalInputOutput extends AbstractOpenemsComponent
+		implements DigitalInput, DigitalOutput, OpenemsComponent {
 
-	public final static String CHANNEL_NAME = "DigitalOutput%d";
+	public static final String CHANNEL_NAME = "InputOutput%d";
 
-	private final Logger log = LoggerFactory.getLogger(DigitalOutput.class);
+	private final Logger log = LoggerFactory.getLogger(DigitalInputOutput.class);
 
 	private WriteChannel<Boolean>[] channels = new BooleanWriteChannel[0];
 
-	public DigitalOutput() {
+	public DigitalInputOutput() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -57,6 +61,11 @@ public class DigitalOutput extends AbstractOpenemsComponent
 			this.addChannel(channel);
 			this.channels[i] = channel;
 		}
+	}
+
+	@Override
+	public Channel<Boolean>[] digitalInputChannels() {
+		return this.channels;
 	}
 
 	@Override
