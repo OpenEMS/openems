@@ -1,12 +1,10 @@
 package io.openems.edge.common.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
@@ -37,6 +35,11 @@ public abstract class AbstractComponentTest {
 		public Object getValue() {
 			return value;
 		}
+
+		@Override
+		public String toString() {
+			return address.toString() + ":" + value;
+		}
 	}
 
 	/**
@@ -64,8 +67,10 @@ public abstract class AbstractComponentTest {
 		public void applyInputs(Map<String, OpenemsComponent> components) {
 			for (ChannelValue input : this.inputs) {
 				OpenemsComponent component = components.get(input.address.getComponentId());
-				assertNotNull("The component [" + input.address.getComponentId()
-						+ "] was not added to the OpenEMS Component test framework!", component);
+				if (component == null) {
+					throw new IllegalArgumentException("The component [" + input.address.getComponentId()
+							+ "] was not added to the OpenEMS Component test framework!");
+				}
 				Channel<?> channel = component.channel(input.address.getChannelId());
 				channel.setNextValue(input.getValue());
 				channel.nextProcessImage();
@@ -76,13 +81,18 @@ public abstract class AbstractComponentTest {
 		 * Validates the output values.
 		 * 
 		 * @param components Referenced components
+		 * @throws Exception on validation failure
 		 */
-		public void validateOutputs(Map<String, OpenemsComponent> components) {
+		public void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
 			for (ChannelValue output : this.outputs) {
 				WriteChannel<?> channel = components.get(output.address.getComponentId())
 						.channel(output.address.getChannelId());
-				assertEquals("Inputs []. Channel [" + output.address.toString() + "]", output.value,
-						channel._getNextWriteValue().orElse(null));
+				Object expected = output.value;
+				Object got = channel._getNextWriteValue().orElse(null);
+				if (!Objects.equals(expected, got)) {
+					throw new Exception("Expected [" + expected + "], Got [" + got + "] for Channel ["
+							+ output.address.toString() + "] on Inputs [" + this.inputs + "]");
+				}
 			}
 		}
 	}
@@ -113,8 +123,10 @@ public abstract class AbstractComponentTest {
 
 	/**
 	 * Runs all Test-Cases.
+	 * 
+	 * @throws Exception on validation failure
 	 */
-	public void run() {
+	public void run() throws Exception {
 		for (TestCase testCase : this.testCases) {
 			testCase.applyInputs(this.components);
 			this.executeLogic();

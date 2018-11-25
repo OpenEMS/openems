@@ -2,7 +2,6 @@ package io.openems.edge.controller.symmetric.balancing;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -48,7 +47,7 @@ public class BalancingTest {
 	}
 
 	@Test
-	public void test() throws OpenemsException {
+	public void test() throws Exception {
 		// Initialize Controller
 		Balancing controller = new Balancing();
 		// Add referenced services

@@ -2,7 +2,6 @@ package io.openems.edge.controller.io.fixdigitaloutput;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -42,16 +41,16 @@ public class FixDigitalOutputTest {
 	}
 
 	@Test
-	public void testOn() throws OpenemsException {
+	public void testOn() throws Exception {
 		this.testSwitch(true);
 	}
 
 	@Test
-	public void testOff() throws OpenemsException {
+	public void testOff() throws Exception {
 		this.testSwitch(false);
 	}
 
-	private void testSwitch(boolean on) throws OpenemsException {
+	private void testSwitch(boolean on) throws Exception {
 		// Initialize Controller
 		FixDigitalOutput controller = new FixDigitalOutput();
 		// Add referenced services
