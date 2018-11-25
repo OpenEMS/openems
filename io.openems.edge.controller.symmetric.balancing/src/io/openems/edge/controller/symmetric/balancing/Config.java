@@ -3,10 +3,11 @@ package io.openems.edge.controller.symmetric.balancing;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Balancing Symmetric", //
 		description = "Optimizes the self-consumption by keeping the grid meter on zero.")
 @interface Config {
+
 	String service_pid();
 
 	String id() default "ctrlBalancing0";
@@ -26,4 +27,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String meter_target() default "";
 
 	String webconsole_configurationFactory_nameHint() default "Controller Balancing Symmetric [{id}]";
+
 }
