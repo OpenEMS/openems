@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -148,6 +149,24 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	default Channel<Integer> getAllowedDischarge() {
 		return this.channel(ChannelId.ALLOWED_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Set Active Power Equals in [W]
+	 * 
+	 * @return
+	 */
+	default WriteChannel<Integer> getSetActivePowerEquals() {
+		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS);
+	}
+
+	/**
+	 * Gets the Set Reactive Power Equals in [var]
+	 * 
+	 * @return
+	 */
+	default WriteChannel<Integer> getSetReactivePowerEquals() {
+		return this.channel(ChannelId.SET_REACTIVE_POWER_EQUALS);
 	}
 
 	/**
