@@ -194,13 +194,17 @@ public class RestHandler extends AbstractHandler {
 
 		// set channel value
 		try {
-			channel.setNextWriteValueFromObject(jValue.toString());
+			if (jValue.isJsonNull()) {
+				channel.setNextWriteValue(null);
+			} else {
+				channel.setNextWriteValueFromObject(jValue.toString());
+			}
 			log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
 		} catch (OpenemsException e) {
 			e.printStackTrace();
 			throw new OpenemsException("Unable to set value: " + e.getMessage());
 		}
-		
+
 		this.sendOkResponse(baseRequest, response, new JsonObject());
 	}
 }
