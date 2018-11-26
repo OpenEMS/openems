@@ -11,6 +11,9 @@
 
 Zur Förderung der Weiterentwicklung von OpenEMS wurde am 15.11.2018 die "OpenEMS Association" gegründet.
 
+.Gründungsmitglieder
+image::members.JPG[Gründungsmitglieder]
+
 == OpenEMS Association Newsletter
 
 Gerne halten wir Sie über aktuelle News zur OpenEMS Association auf dem Laufenden. Bitte melden Sie sich zu unserem Newsletter an:
@@ -79,6 +82,8 @@ Zwecke des Vereins sind die Entwicklung und kontinuierliche Pflege einer open-so
 
 == Vorstand
 
+=== E-Mail: vorstand@openems.io
+
 Der Vorstand besteht aus...
 
 - Vorsitzender: 
@@ -114,6 +119,10 @@ Thorsten Zörner::
 Discovergy GmbH
 tz@discovergy.com
 
-== Download der Beitragsordnung
+== Beitragsordnung
 
 link:https://github.com/OpenEMS/openems/raw/develop/doc/OpenEMS%20Association%20e.V.%20Gr%C3%BCndungs-Beitragsordnung.pdf[OpenEMS Association e.V. Gründungs-Beitragsordnung]
+
+== Antrag auf Mitgliedschaft
+
+link:https://github.com/OpenEMS/openems/raw/develop/doc/OpenEMS%20Association%20e.V.%20Antrag%20auf%20Mitgliedschaft.pdf[OpenEMS Association e.V. Antrag auf Mitgliedschaft]
