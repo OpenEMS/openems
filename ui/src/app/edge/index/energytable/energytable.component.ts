@@ -34,7 +34,7 @@ export class EnergytableComponent_2018_8 {
         // Ess
         'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
         // Grid
-        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
+        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower', 'GridMode',
         // Production
         'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
         // Consumption

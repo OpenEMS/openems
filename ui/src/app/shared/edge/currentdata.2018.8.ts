@@ -45,7 +45,8 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 buyActivePower: null,
                 maxBuyActivePower: null,
                 sellActivePower: null,
-                maxSellActivePower: null
+                maxSellActivePower: null,
+                gridMode: null
             }, consumption: {
                 powerRatio: null,
                 activePower: null
@@ -82,6 +83,7 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             const gridActivePower: number = sum['GridActivePower'];
             result.grid.maxBuyActivePower = sum['GridMaxActivePower'];
             result.grid.maxSellActivePower = sum['GridMinActivePower'] * -1;
+            result.grid.gridMode = sum['GridMode'];
             if (gridActivePower > 0) {
                 result.grid.sellActivePower = 0;
                 result.grid.buyActivePower = gridActivePower;
