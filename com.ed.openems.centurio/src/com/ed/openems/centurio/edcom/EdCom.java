@@ -20,9 +20,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +46,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
 				+ EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class EdCom extends AbstractOpenemsComponent implements EdComData, OpenemsComponent, EventHandler {
+public class EdCom extends AbstractOpenemsComponent implements EdComData, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EdCom.class);
 
@@ -281,26 +279,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 		}
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-			if(!this.client.isConnected()) {
-			try {
-				this.logWarn(this.log, "EdCom connection lost! Trying to reconnect...");
-				this.client.reconnect();
-				break;
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				break;
-			}
-			}
-			
-			break;
-		}
-		
-	}
+	
 	
 	
 	
