@@ -1,9 +1,10 @@
 package io.openems.edge.pvinverter.api;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -15,7 +16,7 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Read/Set Active Power Limit
+		 * Read/Set Active Power Limit.
 		 * 
 		 * <ul>
 		 * <li>Interface: PV-Inverter Symmetric
@@ -27,6 +28,12 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(channel -> { //
+					// on each Write to the channel -> set the value
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+						channel.setNextValue(value);
+					});
+				}) //
 				.text(POWER_DOC_TEXT));
 
 		private final Doc doc;
@@ -41,11 +48,20 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the type of this Meter
+	 * Gets the type of this Meter.
 	 * 
-	 * @return
+	 * @return the MeterType
 	 */
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
+	}
+
+	/**
+	 * Gets the Active Power Limit in [W].
+	 * 
+	 * @return the Channel
+	 */
+	default IntegerWriteChannel getActivePowerLimit() {
+		return this.channel(ChannelId.ACTIVE_POWER_LIMIT);
 	}
 }

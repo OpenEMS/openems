@@ -3,10 +3,11 @@ package io.openems.edge.controller.api.rest;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Api REST/JSON", //
 		description = "This controller provides a REST/JSON api.")
 @interface Config {
+
 	String service_pid();
 
 	String id() default "ctrlApiRest0";
@@ -20,4 +21,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int apiTimeout() default 60;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Api REST/JSON [{id}]";
+
 }
