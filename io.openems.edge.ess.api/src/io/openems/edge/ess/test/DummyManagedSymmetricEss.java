@@ -54,6 +54,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent implement
 						return new IntegerReadChannel(this, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
