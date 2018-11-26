@@ -26,8 +26,8 @@ export class GridSectionComponent extends AbstractSection {
             this.name = this.translate.instant('General.Grid')
             super.updateValue(0, 0, 0);
         }
-        if (gridMode) {
-            this.square.image.image = super.getSquare(this.innerRadius).image.image
+        if (this.square) {
+            this.square.image.image = "assets/img/" + this.getImagePath()
         }
     }
 
