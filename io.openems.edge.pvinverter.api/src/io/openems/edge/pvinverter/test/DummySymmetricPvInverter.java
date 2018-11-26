@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -41,7 +42,7 @@ public class DummySymmetricPvInverter extends AbstractOpenemsComponent implement
 				}), Arrays.stream(SymmetricPvInverter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case ACTIVE_POWER_LIMIT:
-						return new IntegerReadChannel(this, channelId);
+						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> {
