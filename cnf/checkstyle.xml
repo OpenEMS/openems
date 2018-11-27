@@ -106,7 +106,8 @@ Checkstyle configuration that checks the Google coding conventions from Google J
       <message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="ParameterName">
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="accessModifiers" value="public"/>
       <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="LambdaParameterName">
@@ -155,7 +156,7 @@ Checkstyle configuration that checks the Google coding conventions from Google J
     <module name="VariableDeclarationUsageDistance"/>
     <module name="CustomImportOrder">
       <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-      <property name="sortImportsInGroupAlphabetically" value="true"/>
+      <property name="sortImportsInGroupAlphabetically" value="false"/>
     </module>
     <module name="MethodParamPad"/>
     <module name="NoWhitespaceBefore">

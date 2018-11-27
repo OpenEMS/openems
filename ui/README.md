@@ -1,4 +1,4 @@
-# OpenemsGui
+# OpenEMS UI
 
 This project was generated with [angular-cli](https://github.com/angular/angular-cli).
 
@@ -16,25 +16,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
 	`ng serve`  (Expects openems-edge on `ws://localhost:8075`)
 
-## Build using angular-cli
-
-Run `ng build` to build the project. The build artifacts will be stored in the `target` directory. Use the `-prod` flag for a production build.
-
-Build for OpenEMS Backend:
-
-`ng build -c backend`
-
-Build for OpenEMS Edge:
-
-`ng build -c edge`
-
-Be aware that there is currently a [bug](https://github.com/angular/angular-cli/issues/11208) in how angular-cli generates the service-worker configuration file (ngsw-config.json). After running the above command it is required to fix 'regex' statements in the file, replacing double '`\\`' by single '`\`' to avoid wrong escaping.
-
 ## Further help
-
-To get more help on the `angular-cli` use `ng help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
-
-### Development hints
 
 #### i18n - internationalization
 

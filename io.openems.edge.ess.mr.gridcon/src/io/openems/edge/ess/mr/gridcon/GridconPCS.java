@@ -699,18 +699,58 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return this.power;
 	}
 
-	
-	
 	@Override
 	public Constraint[] getStaticConstraints() {
 		if (getCurrentState() != CCUState.RUN || this.getOnOffGrid() != GridMode.ON_GRID) {
-			return new Constraint[] { 
+			return new Constraint[] {
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
-					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0)
-			};	
+					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		} else {
-			return Power.NO_CONSTRAINTS;
-		}		
+//			return Power.NO_CONSTRAINTS;
+			// calculate max charge and discharge power
+			int currentMaxChargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
+					* batteryStringA.getChargeMaxCurrent().value().orElse(0);
+			int maxChargeA_W = Math.min(currentMaxChargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
+
+			int currentMaxChargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
+					* batteryStringB.getChargeMaxCurrent().value().orElse(0);
+			int maxChargeB_W = Math.min(currentMaxChargeBatteryB_W, batteryStringB.getMaxPower().value().orElse(0));
+
+			int currentMaxChargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
+					* batteryStringC.getChargeMaxCurrent().value().orElse(0);
+			int maxChargeC_W = Math.min(currentMaxChargeBatteryC_W, batteryStringC.getMaxPower().value().orElse(0));
+
+			int maxCharge_W = (maxChargeA_W + maxChargeB_W + maxChargeC_W);
+			maxCharge_W = (-1) * Math.min(maxCharge_W, (int) MAX_CHARGE_W);
+
+			int currentMaxDischargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
+					* batteryStringA.getDischargeMaxCurrent().value().orElse(0);
+			int maxDischargeA_W = Math.min(currentMaxDischargeBatteryA_W,
+					batteryStringA.getMaxPower().value().orElse(0));
+
+			int currentMaxDischargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
+					* batteryStringB.getDischargeMaxCurrent().value().orElse(0);
+			int maxDischargeB_W = Math.min(currentMaxDischargeBatteryB_W,
+					batteryStringB.getMaxPower().value().orElse(0));
+
+			int currentMaxDischargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
+					* batteryStringC.getDischargeMaxCurrent().value().orElse(0);
+			int maxDischargeC_W = Math.min(currentMaxDischargeBatteryC_W,
+					batteryStringC.getMaxPower().value().orElse(0));
+
+			int maxDischarge_W = (maxDischargeA_W + maxDischargeB_W + maxDischargeC_W);
+			maxDischarge_W = Math.min(maxDischarge_W, (int) MAX_DISCHARGE_W);
+
+			log.info("getStaticConstraints() maxCharge:" + maxCharge_W + "; maxDischarge:" + maxDischarge_W);
+
+			return new Constraint[] {
+					this.createPowerConstraint("GridCon PCS calculated max charge power", Phase.ALL, Pwr.ACTIVE,
+							Relationship.GREATER_OR_EQUALS, maxCharge_W),
+					this.createPowerConstraint("GridCon PCS calculated max discharge power", Phase.ALL, Pwr.ACTIVE,
+							Relationship.LESS_OR_EQUALS, maxDischarge_W),
+					this.createPowerConstraint("GridCon PCS", Phase.ALL, Pwr.REACTIVE, Relationship.LESS_OR_EQUALS,
+							MAX_APPARENT_POWER) };
+		}
 	}
 
 	@Override

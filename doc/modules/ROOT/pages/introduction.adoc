@@ -83,4 +83,4 @@ This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).
 
 Stefan Feilmeier (c) 2018 FENECON GmbH
-Version 2018.9.0
+Version 2018.10.0
