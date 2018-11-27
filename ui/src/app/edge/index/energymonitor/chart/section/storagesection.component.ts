@@ -22,7 +22,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             })
     }
 
-    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number) {
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number, sumPowerRatio: number) {
         this.socValue = valueRatio
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge')
