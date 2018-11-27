@@ -45,6 +45,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
     public readonly simulatorDevices: string[] = [];
     public readonly evcsDevices: string[] = [];
     public readonly thresholdDevices: string[] = [];
+    public readonly essType: string[] = [];
 
     constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config_2018_7) {
         super();
@@ -76,10 +77,23 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         let simulatorDevices: string[] = [];
         let evcsDevices: string[] = [];
         let thresholdDevices: string[] = [];
+        let essType: string[] = [];
 
         for (let thingId in config.things) {
             let thing = config.things[thingId];
             let i = this.getImplements(thing);
+            /*
+            * Types
+            */
+            if (i.includes("FeneconCommercialEss")) {
+                essType.push("commercial")
+            }
+            if (i.includes("FeneconMiniEss")) {
+                essType.push("mini")
+            }
+            if (i.includes("AsymmetricSymmetricCombinationEssNature")) {
+                essType.push("pro")
+            }
 
             /*
              * Natures
@@ -88,6 +102,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
             if (i.includes("EssNature")
                 && !i.includes("EssClusterNature") /* ignore cluster */
                 && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
+
                 esss.push(thingId);
             }
             // Meter
@@ -157,6 +172,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         this.esss = esss.sort();
         this.chargers = chargers.sort();
         this.thresholdDevices = thresholdDevices;
+        this.essType = essType;
     }
 
     public getStateChannels(): DefaultTypes.ChannelAddresses {
@@ -181,7 +197,6 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         // Set "ignoreNatures"
         for (let thingId of this.esss) {
             let i = this.getImplements(this.config.things[thingId]);
-
             if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
                 ignoreNatures["AsymmetricMeterNature"] = true;
             }
@@ -250,7 +265,6 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
                 result[thingId] = channels;
             }
         }
-        console.log("result", result)
         return result;
     }
 

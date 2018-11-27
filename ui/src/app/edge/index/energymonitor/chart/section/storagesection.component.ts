@@ -22,14 +22,15 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             })
     }
 
-    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number) {
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number, powerRatio: number) {
+        powerRatio = powerRatio / 2;
         this.socValue = valueRatio
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge')
-            super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
+            super.updateStorage(chargeAbsolute, valueRatio, sumChargeRatio, powerRatio);
         } else if (dischargeAbsolute != null && dischargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge')
-            super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
+            super.updateStorage(dischargeAbsolute, valueRatio, sumDischargeRatio * -1, powerRatio);
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateValue(0, 0, 0);
