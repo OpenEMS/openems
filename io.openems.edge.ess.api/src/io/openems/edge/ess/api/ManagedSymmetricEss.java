@@ -78,6 +78,21 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerEquals", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS))), //
 		/**
+		 * Sets a fixed maximum Active Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_ACTIVE_POWER_LESS_OR_EQUALS(new Doc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new PowerConstraint("SetActivePowerLessOrEquals", Phase.ALL, Pwr.ACTIVE,
+						Relationship.LESS_OR_EQUALS))), //
+		/**
 		 * Holds settings of Active Power for debugging
 		 * 
 		 * <ul>
@@ -167,6 +182,15 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	default WriteChannel<Integer> getSetReactivePowerEquals() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_EQUALS);
+	}
+
+	/**
+	 * Gets the Set Active Power Less Or Equals in [W].
+	 * 
+	 * @return
+	 */
+	default WriteChannel<Integer> getSetActivePowerLessOrEquals() {
+		return this.channel(ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS);
 	}
 
 	/**

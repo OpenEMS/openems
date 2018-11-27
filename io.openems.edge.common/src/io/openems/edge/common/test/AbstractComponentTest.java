@@ -1,5 +1,6 @@
 package io.openems.edge.common.test;
 
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,11 +44,32 @@ public abstract class AbstractComponentTest {
 	}
 
 	/**
+	 * Wraps a Time-leap.
+	 */
+	private static class TimeLeap {
+		private final TimeLeapClock clock;
+		private final long amountToAdd;
+		private final TemporalUnit unit;
+
+		public TimeLeap(TimeLeapClock clock, long amountToAdd, TemporalUnit unit) {
+			this.clock = clock;
+			this.amountToAdd = amountToAdd;
+			this.unit = unit;
+		}
+
+		public void apply() {
+			this.clock.leap(this.amountToAdd, this.unit);
+		}
+	}
+
+	/**
 	 * Defines a Test-Case consisting of given inputs and expected outputs.
 	 */
 	public static class TestCase {
 		private final List<ChannelValue> inputs = new ArrayList<>();
 		private final List<ChannelValue> outputs = new ArrayList<>();
+
+		private TimeLeap timeleap = null;
 
 		public TestCase input(ChannelAddress address, Object value) {
 			this.inputs.add(new ChannelValue(address, value));
@@ -57,6 +79,20 @@ public abstract class AbstractComponentTest {
 		public TestCase output(ChannelAddress address, Object value) {
 			this.outputs.add(new ChannelValue(address, value));
 			return this;
+		}
+
+		public TestCase timeleap(TimeLeapClock clock, long amountToAdd, TemporalUnit unit) {
+			this.timeleap = new TimeLeap(clock, amountToAdd, unit);
+			return this;
+		}
+
+		/**
+		 * Applies the time leap to the clock.
+		 */
+		public void applyTimeLeap() {
+			if (this.timeleap != null) {
+				this.timeleap.apply();
+			}
 		}
 
 		/**
@@ -85,10 +121,15 @@ public abstract class AbstractComponentTest {
 		 */
 		public void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
 			for (ChannelValue output : this.outputs) {
-				WriteChannel<?> channel = components.get(output.address.getComponentId())
-						.channel(output.address.getChannelId());
 				Object expected = output.value;
-				Object got = channel._getNextWriteValue().orElse(null);
+				Channel<?> channel = components.get(output.address.getComponentId())
+						.channel(output.address.getChannelId());
+				Object got;
+				if (channel instanceof WriteChannel) {
+					got = ((WriteChannel<?>) channel)._getNextWriteValue().orElse(null);
+				} else {
+					got = channel.getNextValue().orElse(null);
+				}
 				if (!Objects.equals(expected, got)) {
 					throw new Exception("Expected [" + expected + "], Got [" + got + "] for Channel ["
 							+ output.address.toString() + "] on Inputs [" + this.inputs + "]");
@@ -128,6 +169,7 @@ public abstract class AbstractComponentTest {
 	 */
 	public void run() throws Exception {
 		for (TestCase testCase : this.testCases) {
+			testCase.applyTimeLeap();
 			testCase.applyInputs(this.components);
 			this.executeLogic();
 			testCase.validateOutputs(this.components);
