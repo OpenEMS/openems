@@ -6,7 +6,9 @@ Bundle-Version: 2.5.0
 
 Include-Resource: @retrofit-2.5.0.jar
 Import-Package: \
-	android.os;resolution:=optional, \
+	android.os;resolution:=optional,\
+	kotlin;resolution:=optional,\
+	kotlin.jvm.internal;resolution:=optional,\
 	*
 
 -dsannotations: *
@@ -15,6 +17,7 @@ Import-Package: \
 
 -exportcontents: \
 	retrofit2,\
-	retrofit2.http
+	retrofit2.http,\
+	retrofit2.internal
 	
 -sources: false
