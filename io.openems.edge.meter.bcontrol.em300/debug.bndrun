@@ -1,0 +1,13 @@
+#
+# io.openems.edge.meter.bcontrol.em300 DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.meter.bcontrol.em300.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

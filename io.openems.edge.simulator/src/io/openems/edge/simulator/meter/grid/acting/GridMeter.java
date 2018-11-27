@@ -73,7 +73,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "datasource", config.datasource_id())) {
 			return;
 		}
 

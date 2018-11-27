@@ -6,6 +6,8 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface AsymmetricEss extends SymmetricEss {
@@ -114,6 +116,14 @@ public interface AsymmetricEss extends SymmetricEss {
 		}
 	}
 
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(AsymmetricEss.class, 100) //
+				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //
+				.build();
+	}
+
 	/**
 	 * Gets the Active Power on L1 in [W]. Negative values for Charge; positive for
 	 * Discharge
@@ -131,7 +141,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * @return
 	 */
 	default Channel<Integer> getActivePowerL2() {
-		return this.channel(ChannelId.ACTIVE_POWER_L1);
+		return this.channel(ChannelId.ACTIVE_POWER_L2);
 	}
 
 	/**

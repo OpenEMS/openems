@@ -1,6 +1,5 @@
 eclipse.preferences.version=1
 encoding//src/io/openems/edge/controller/symmetric/balancing/Balancing.java=UTF-8
-encoding//test/io/openems/edge/controller/symmetric/balancing/ProviderImplTest.java=UTF-8
 encoding/bnd.bnd=UTF-8
 encoding/debug.bndrun=UTF-8
 encoding/io.openems.edge.controller.symmetric.balancing.bndrun=UTF-8

@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -26,9 +27,9 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case MAX_ACTIVE_POWER:
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
+					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
@@ -38,7 +39,13 @@ public class Utils {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -61,6 +68,13 @@ public class Utils {
 					case DEBUG_SET_REACTIVE_POWER_L2:
 					case DEBUG_SET_REACTIVE_POWER_L3:
 						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_L1_EQUALS:
+					case SET_ACTIVE_POWER_L2_EQUALS:
+					case SET_ACTIVE_POWER_L3_EQUALS:
+					case SET_REACTIVE_POWER_L1_EQUALS:
+					case SET_REACTIVE_POWER_L2_EQUALS:
+					case SET_REACTIVE_POWER_L3_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				})).flatMap(channel -> channel);

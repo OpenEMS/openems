@@ -1,3 +1,5 @@
+[![Build Status](https://www.travis-ci.com/OpenEMS/openems.svg?branch=develop)](https://www.travis-ci.com/OpenEMS/openems)
+
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/OpenEMS/openems/develop/doc/img/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
   <br/>Open Source Energy Management System
@@ -43,9 +45,7 @@ OpenEMS is generally used in combination with external hardware and software com
 
 Indepth documentation is currently in progress. Please find the latest documents here:
 
- * [Latest version of documentation](/doc/OpenEMS_EN.adoc)
- * [Latest version of documentation in HTML format](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/develop/doc/OpenEMS_EN.html)
- * [Documentation of previous version of OpenEMS](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.html)
+ * [Latest version of documentation](http://openems.io/openems/latest/introduction.html)
  * [Previous version readme](https://github.com/OpenEMS/openems/blob/old_master/README.md)
 
 ## Open Source philosophy

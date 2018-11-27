@@ -32,7 +32,7 @@ public interface ModbusElement<T> {
 	 * Set the {@link AbstractTask}, where this Element belongs to. This is called during
 	 * {@link AbstractTask}.add()
 	 *
-	 * @param readTask
+	 * @param abstractTask
 	 */
 	public void setModbusTask(AbstractTask abstractTask);
 
@@ -57,4 +57,9 @@ public interface ModbusElement<T> {
 	 * @throws OpenemsException
 	 */
 	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException;
+
+	/**
+	 * resets the value in case if value could not be read from the modbus device
+	 */
+	public void invalidate();
 }

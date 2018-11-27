@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
@@ -17,11 +20,13 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
 /**
- * Implements a Write Holding Registers abstractTask, using Modbus function code 16
- * (http://www.simplymodbus.ca/FC16.htm)
+ * Implements a Write Holding Registers abstractTask, using Modbus function code
+ * 16 (http://www.simplymodbus.ca/FC16.htm)
  */
 public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
+	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
+	
 	public FC16WriteRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
 		super(startAddress, elements);
 	}
@@ -72,14 +77,16 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 				/*
 				 * First try
 				 */
-				this.writeMultipleRegisters(bridge, this.getUnitId(), write.startAddress, write.getRegisters());
+				this.writeMultipleRegisters(bridge, this.getParent().getUnitId(), write.startAddress,
+						write.getRegisters());
 			} catch (OpenemsException | ModbusException e) {
 				/*
 				 * Second try: with new connection
 				 */
 				bridge.closeModbusConnection();
 				try {
-					this.writeMultipleRegisters(bridge, this.getUnitId(), write.startAddress, write.getRegisters());
+					this.writeMultipleRegisters(bridge, this.getParent().getUnitId(), write.startAddress,
+							write.getRegisters());
 				} catch (ModbusException e2) {
 					throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 				}
@@ -89,10 +96,10 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 	private void writeMultipleRegisters(AbstractModbusBridge bridge, int unitId, int startAddress, Register[] registers)
 			throws ModbusException, OpenemsException {
-		
-		WriteMultipleRegistersRequest request = new WriteMultipleRegistersRequest(startAddress, registers);			
-		 ModbusResponse response = Utils.getResponse(request, unitId, bridge);
-		
+
+		WriteMultipleRegistersRequest request = new WriteMultipleRegistersRequest(startAddress, registers);
+		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+
 		if (!(response instanceof WriteMultipleRegistersResponse)) {
 			throw new OpenemsException("Unexpected Modbus response. Expected [WriteMultipleRegistersResponse], got ["
 					+ response.getClass().getSimpleName() + "]");

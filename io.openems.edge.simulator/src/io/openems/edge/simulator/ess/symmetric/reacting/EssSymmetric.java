@@ -1,8 +1,10 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
-import org.apache.commons.math3.optim.linear.Relationship;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,26 +23,21 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
-import io.openems.edge.simulator.ess.EssUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSymmetric.Reacting", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class EssSymmetric extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
-
-	private Constraint allowedChargeConstraint;
-	private Constraint allowedDischargeConstraint;
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	/**
 	 * Current state of charge
@@ -72,29 +69,29 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 	@Reference
 	private Power power;
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected SimulatorDatasource datasource;
 
+	@Reference
+	protected ConfigurationAdmin cm;
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
+		// update filter for 'datasource'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "datasource",
+				config.datasource_id())) {
+			return;
+		}
+
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 		this.getSoc().setNextValue(config.initialSoc());
 		this.soc = config.initialSoc();
 		this.capacity = config.capacity();
 		this.maxApparentPower = config.maxApparentPower();
-		this.getMaxActivePower().setNextValue(config.maxApparentPower());
-		/*
-		 * Initialize Power
-		 */
-		// Max Apparent Power
-		new CircleConstraint(this, this.maxApparentPower);
-		// Allowed Charge
-		this.allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0 /* initial zero; is set later */);
-		// Allowed Discharge
-		this.allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0 /* initial zero; is set later */);
+		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
+		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
+		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
 	}
 
 	@Deactivate
@@ -103,14 +100,15 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	}
 
 	public EssSymmetric() {
-		EssUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:			
 			this.updateChannels();
+			this.calculateEnergy();
 			break;
 		}
 	}
@@ -166,14 +164,14 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
 		if (this.soc == 100) {
-			this.allowedChargeConstraint.setIntValue(0);
+			this.getAllowedCharge().setNextValue(0);
 		} else {
-			this.allowedChargeConstraint.setIntValue(this.maxApparentPower * -1);
+			this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
 		}
 		if (this.soc == 0) {
-			this.allowedDischargeConstraint.setIntValue(0);
+			this.getAllowedDischarge().setNextValue(0);
 		} else {
-			this.allowedDischargeConstraint.setIntValue(this.maxApparentPower);
+			this.getAllowedDischarge().setNextValue(this.maxApparentPower);
 		}
 	}
 
@@ -181,4 +179,50 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	public int getPowerPrecision() {
 		return 1;
 	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(EssSymmetric.class, 300) //
+						.build());
+	}
+	
+	// These variables are used to calculate the energy 
+		LocalDateTime lastPowerValuesTimestamp = null;
+		double lastPowerValue = 0;
+		double accumulatedChargeEnergy = 0;
+		double accumulatedDischargeEnergy = 0;
+		
+		private void calculateEnergy() {
+			if (this.lastPowerValuesTimestamp != null) {						
+				
+				long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now()).toMillis();
+				this.lastPowerValuesTimestamp = LocalDateTime.now();
+				
+				log.debug("time elpsed in ms: " + passedTimeInMilliSeconds);
+				log.debug("last power value :" + this.lastPowerValue);
+				double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600; // calculate energy in watt hours
+				
+				log.debug("energy in wh: " + energy);
+				
+				if (this.lastPowerValue < 0) {
+					this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
+					this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);					
+				} else if (this.lastPowerValue > 0) {
+					this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
+					this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
+				}
+				
+				log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
+				log.debug("accumulated discharge energy :" + accumulatedDischargeEnergy);
+				
+			} else {
+				this.lastPowerValuesTimestamp = LocalDateTime.now();			
+			}
+			
+			this.lastPowerValue = this.getActivePower().value().orElse(0);
+		}
 }

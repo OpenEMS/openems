@@ -11,10 +11,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
-	public enum GridMode {
-		UNDEFINED, ON_GRID, OFF_GRID
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
 		 * State of Charge
@@ -28,22 +24,19 @@ public interface Battery extends OpenemsComponent {
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 		/**
-		 * Grid-Mode
-		 * 
+		 * State of Health
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
-		 * <li>Type: Integer/Enum
-		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
+		 * <li>Type: Integer
+		 * <li>Unit: %
+		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		GRID_MODE(new Doc().type(OpenemsType.INTEGER) //
-				.option(GridMode.UNDEFINED) //
-				.option(GridMode.ON_GRID) //
-				.option(GridMode.OFF_GRID) //
-		),		
+		SOH(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 		/**
 		 * Max capacity
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
@@ -91,6 +84,66 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		/**
+		 * Battery Temperature
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: Celsius
+		 * <li>Range: (-50)..100
+		 * </ul>
+		 */
+		BATTERY_TEMP(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		/**
+		 * Indicates that the battery has started and is ready for charging/discharging
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
+		
+		/**
+		 * Capacity of battery
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		CAPACITY_KWH(new Doc().type(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)),
+		
+		/**
+		 * Voltage of battery
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		
+		/**
+		 * Minimal cell voltage
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		MINIMAL_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
+		
+		/**
+		 * Maximal power
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		MAXIMAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		;
 
 		private final Doc doc;
@@ -115,21 +168,30 @@ public interface Battery extends OpenemsComponent {
 	}
 
 	/**
-	 * Is the Battery On-Grid?
-	 * 
+	 * Gets the State of Health in [%], range 0..100 %
+	 *
 	 * @return
 	 */
-	default Channel<Integer> getGridMode() {
-		return this.channel(ChannelId.GRID_MODE);
+	default Channel<Integer> getSoh() {
+		return this.channel(ChannelId.SOH);
 	}
 
 	/**
 	 * Gets the maximum capacity
-	 * 
+	 *
 	 * @return
 	 */
 	default Channel<Integer> getMaxCapacity() {
 		return this.channel(ChannelId.MAX_CAPACITY);
+	}
+
+	/**
+	 * Gets the Battery Temperature in [degC], range (-50)..100
+	 *
+	 * @return
+	 */
+	default Channel<Integer> getBatteryTemp() {
+		return this.channel(ChannelId.BATTERY_TEMP);
 	}
 
 	/**
@@ -166,5 +228,50 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getChargeMaxCurrent() {
 		return this.channel(ChannelId.CHARGE_MAX_CURRENT);
+	}
+	
+	/**
+	 * Gets the indicator if ready to charge/discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Boolean> getReadyForWorking() {
+		return this.channel(ChannelId.READY_FOR_WORKING);
+	}
+	
+	/**
+	 * Gets the capacity of this battery
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getCapacity() {
+		return this.channel(ChannelId.CAPACITY_KWH);
+	}
+	
+	/**
+	 * Gets the total voltage of this battery system
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getVoltage() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+	
+	/**
+	 * Gets the minimal cell voltage of this battery
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMinimalCellVoltage() {
+		return this.channel(ChannelId.MINIMAL_CELL_VOLTAGE);
+	}
+
+	/**
+	 * Gets the maximal power
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMaxPower() {
+		return this.channel(ChannelId.MAXIMAL_POWER);
 	}
 }

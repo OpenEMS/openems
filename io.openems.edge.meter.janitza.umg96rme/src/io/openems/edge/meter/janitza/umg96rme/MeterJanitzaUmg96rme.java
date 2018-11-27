@@ -41,6 +41,11 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
+	/*
+	 * Invert power values
+	 */
+	private boolean invert = false;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -56,9 +61,10 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
+		this.invert = config.invert();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
 
 		// Initialize Min/MaxActivePower channels
 		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
@@ -89,12 +95,12 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
+	protected ModbusProtocol defineModbusProtocol() {
 		/*
 		 * We are using the FLOAT registers from the modbus table, because they are all
 		 * reachable within one ReadMultipleRegistersRequest.
 		 */
-		return new ModbusProtocol(unitId, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),
@@ -116,14 +122,22 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(866),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880)),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882))//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)) //
 				));
 	}
 

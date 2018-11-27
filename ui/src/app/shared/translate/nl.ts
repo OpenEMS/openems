@@ -14,8 +14,9 @@ export const TRANSLATION = {
         More: "Meer…",
         ChargePower: "Laad vermogen",
         DischargePower: "Ontlaad vermogen",
+        ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
-        DateFormat: "DD-MM-YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
+        DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
             Monday: "Maandag",
             Tuesday: "Dinsdag",
@@ -27,18 +28,20 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Overzicht",
-        AboutUI: "Over FEMS- UI"
+        Index: "Overzicht",
+        AboutUI: "Over OpenEMS UI",
+        Settings: 'Algemene instellingen',
+        Logout: 'Uitloggen'
     },
-    Overview: {
+    Index: {
         AllConnected: "Alle verbindingen gemaakt.",
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
         ToEnergymonitor: "Naar Energiemonitor...",
-        IsOffline: "FEMS is offline!"
+        IsOffline: "OpenEMS is offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Energiemonitor",
                 ConsumptionWarning: "Verbruik & onbekende producenten",
@@ -49,12 +52,37 @@ export const TRANSLATION = {
                 ProductionMeter: "Productiemeter"
             },
             Energytable: {
-                Title: "Energie tabel"
+                Title: "Energie tabel",
+                LoadingDC: "DC laden",
+                ProductionDC: "Generatie DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Laadstation",
+                    Status: "Staat",
+                    Starting: "Beginnend",
+                    NotReadyForCharging: "Niet klaar voor opladen",
+                    ReadyForCharging: "Klaar om op te laden",
+                    Charging: "Is aan het laden",
+                    Error: "Fout",
+                    NotAuthorized: "Geen bevoegdheid",
+                    Unplugged: "Unplugged",
+                    CharingStationPluggedIn: "Laadstation aangesloten",
+                    ChargingStationPluggedInLocked: "Laadstation aangesloten + op slot",
+                    ChargingStationPluggedInEV: "Laadstation + E-Auto aangesloten",
+                    ChargingStationPluggedInEVLocked: "Laadstation + E-Auto aangesloten + op slot",
+                    ChargingLimit: "Laadlimiet",
+                    ChargingPower: "Oplaadvermogen",
+                    CurrentCharge: "Huidige lading",
+                    TotalCharge: "Totale lading",
+                    EnforceCharging: "Handhaaf het laden",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
             SelectedPeriod: "Geselecteerde periode: ",
-            OtherPeriod: "Andere periode: ",
+            OtherPeriod: "Andere periode",
             Period: "Periode",
             Today: "Vandaag",
             Yesterday: "Gisteren",
@@ -64,7 +92,7 @@ export const TRANSLATION = {
             Go: "Ga!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Verbindingen en apparaten",
                 Scheduler: "Toepassingsschema",
                 Controller: "Toepassingen",
@@ -72,7 +100,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulatie uitvoeren",
                 Log: "Log",
                 LiveLog: "Live System log",
-                ManualControl: "Handmatige bediening"
+                ManualControl: "Handmatige bediening",
+                DataStorage: "Gegevensopslag"
             },
             More: {
                 ManualCommand: "Handmatig commando",
@@ -89,7 +118,7 @@ export const TRANSLATION = {
                 NewScheduler: "New Schema...",
                 Class: "Soort: ",
                 NotImplemented: "Gegevens niet geïmplementeerd: ",
-                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom FEMS- Team)
+                Contact: "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Altijd"
             },
             Log: {
@@ -111,14 +140,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Gebruikersinterface voor FEMS en OpenEMS",
-        Developed: "Deze gebruikersinterface is ontwikkeld door FENECON als open- source - software.",
-        Fenecon: "Meer over FENECON",
-        Fems: "Meer over FEMS",
+        UI: "Gebruikersinterface voor OpenEMS",
+        Developed: "Deze gebruikersinterface is ontwikkeld als open-source-software.",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
-        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het FEMS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom FEMS- Team)
+        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Selecteer taal: "
     },
     Notifications: {

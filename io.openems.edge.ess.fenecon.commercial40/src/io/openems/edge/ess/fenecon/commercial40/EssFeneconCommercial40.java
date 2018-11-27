@@ -1,8 +1,8 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -33,22 +33,24 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -58,7 +60,7 @@ import io.openems.edge.ess.power.api.Pwr;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40.class);
 
@@ -106,30 +108,6 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
-
-		/*
-		 * Initialize Power
-		 */
-		// ReactivePower limitations
-		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.GEQ, MIN_REACTIVE_POWER);
-		this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.REACTIVE, Relationship.LEQ, MAX_REACTIVE_POWER);
-		// Allowed Apparent
-		CircleConstraint allowedApparentConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-		this.channel(ChannelId.ALLOWED_APPARENT).onChange(value -> {
-			allowedApparentConstraint.setRadius(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
-		// Allowed Charge
-		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0);
-		this.channel(ChannelId.ALLOWED_CHARGE).onChange(value -> {
-			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
-		// Allowed Discharge
-		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0);
-		this.channel(ChannelId.ALLOWED_DISCHARGE).onChange(value -> {
-			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
 	}
 
 	@Deactivate
@@ -146,6 +124,50 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		ORIGINAL_ALLOWED_CHARGE_POWER(new Doc() //
+				.onInit(channel -> { //
+					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
+					// delta of max 500
+					((IntegerReadChannel) channel).onChange(originalValueChannel -> {
+						IntegerReadChannel currentValueChannel = channel.getComponent()
+								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
+						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
+						int value;
+						if (!originalValue.isPresent() && !currentValue.isPresent()) {
+							value = 0;
+						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+							value = originalValue.get();
+						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+							value = currentValue.get();
+						} else {
+							value = Math.max(originalValue.get(), currentValue.get() - 500);
+						}
+						currentValueChannel.setNextValue(value);
+					});
+				})), //
+		ORIGINAL_ALLOWED_DISCHARGE_POWER(new Doc() //
+				.onInit(channel -> { //
+					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
+					// delta of max 500
+					((IntegerReadChannel) channel).onChange(originalValueChannel -> {
+						IntegerReadChannel currentValueChannel = channel.getComponent()
+								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+						Optional<Integer> originalValue = originalValueChannel.asOptional();
+						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
+						int value;
+						if (!originalValue.isPresent() && !currentValue.isPresent()) {
+							value = 0;
+						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+							value = originalValue.get();
+						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+							value = currentValue.get();
+						} else {
+							value = Math.min(originalValue.get(), currentValue.get() + 500);
+						}
+						currentValueChannel.setNextValue(value);
+					});
+				})), //
 		SYSTEM_STATE(new Doc() //
 				.option(2, "Stop") //
 				.option(4, "PV-Charge") //
@@ -199,9 +221,6 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		INVERTER_CURRENT_L1(new Doc().unit(Unit.MILLIAMPERE)), //
 		INVERTER_CURRENT_L2(new Doc().unit(Unit.MILLIAMPERE)), //
 		INVERTER_CURRENT_L3(new Doc().unit(Unit.MILLIAMPERE)), //
-		ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
-		ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
-		ALLOWED_APPARENT(new Doc().unit(Unit.VOLT_AMPERE)), //
 		IPM_TEMPERATURE_L1(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		IPM_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		IPM_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELSIUS)), //
@@ -386,11 +405,12 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		public Doc doc() {
 			return this.doc;
 		}
+
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		return new ModbusProtocol(unitId, //
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x0101, Priority.LOW, //
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101)),
 						m(EssFeneconCommercial40.ChannelId.CONTROL_MODE, new UnsignedWordElement(0x0102)),
@@ -618,11 +638,11 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0228),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0229, 0x022F), //
-						m(EssFeneconCommercial40.ChannelId.ALLOWED_CHARGE, new SignedWordElement(0x0230),
+						m(ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER, new SignedWordElement(0x0230),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.ALLOWED_DISCHARGE, new UnsignedWordElement(0x0231),
+						m(ChannelId.ORIGINAL_ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(0x0231),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.ALLOWED_APPARENT, new UnsignedWordElement(0x0232),
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(0x0232),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0233, 0x23F),
 						m(EssFeneconCommercial40.ChannelId.IPM_TEMPERATURE_L1, new SignedWordElement(0x0240)), //
@@ -682,8 +702,9 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
-				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).value().asStringWithoutUnit() + ";"
-				+ this.channel(ChannelId.ALLOWED_DISCHARGE).value().asString() //
+				+ "|Allowed:"
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
 				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
@@ -728,6 +749,25 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 100; // the modbus field for SetActivePower has the unit 0.1 kW
+	}
+
+	@Override
+	public Constraint[] getStaticConstraints() {
+		return new Constraint[] {
+				// ReactivePower limitations
+				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
+						Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER),
+				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
+						Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable() //
+		);
 	}
 
 }

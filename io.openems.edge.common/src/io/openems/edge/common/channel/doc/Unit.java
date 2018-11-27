@@ -1,5 +1,7 @@
 package io.openems.edge.common.channel.doc;
 
+import com.google.common.base.CaseFormat;
+
 import io.openems.common.types.OpenemsType;
 
 public enum Unit {
@@ -33,6 +35,10 @@ public enum Unit {
 	 */
 	MILLIWATT("mW", WATT, -3),
 	/**
+	 * Unit of Active Power [kW]
+	 */
+	KILOWATT("kW", WATT, 3),
+	/**
 	 * Unit of Reactive Power [var]
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
@@ -53,7 +59,7 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
-	
+
 	/*
 	 * Current
 	 */
@@ -96,7 +102,7 @@ public enum Unit {
 	/*
 	 * Temperature
 	 */
-	
+
 	/**
 	 * Unit of Temperature [�C]
 	 */
@@ -113,11 +119,15 @@ public enum Unit {
 	 * Unit of Time in Seconds [s]
 	 */
 	SECONDS("sec"),
-	
+	/**
+	 * Unit of Frequency [mHz]
+	 */
+	MILLISECONDS("ms", SECONDS, -3),
+
 	/*
 	 * Resistance
 	 */
-	
+
 	/**
 	 * Unit of Resistance [Ohm]
 	 */
@@ -170,6 +180,8 @@ public enum Unit {
 		case VOLT_AMPERE:
 		case VOLT_AMPERE_REACTIVE:
 		case WATT:
+		case KILOWATT:
+		case MILLIWATT:
 		case WATT_HOURS:
 		case OHM:
 		case KILOOHM:
@@ -201,5 +213,11 @@ public enum Unit {
 			this.format(value, type);
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
+	}
+
+	@Override
+	public String toString() {
+		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name()) + //
+				(this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
 	}
 }

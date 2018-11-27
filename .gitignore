@@ -12,8 +12,10 @@
 /node_modules
 /bower_components
 
-# IDEs and editors
+# IntelliJ IDEA files and metadata
 /.idea
+*.iml
+*.eml
 
 # misc
 /.sass-cache
@@ -85,7 +87,7 @@ local.properties
 
 ### Eclipse Patch ###
 # Eclipse Core
-.project
+#.project
 
 # JDT-specific (Eclipse Java Development Tools)
 #.classpath

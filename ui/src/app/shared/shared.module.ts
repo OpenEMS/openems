@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NgModule, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { LoadingModule } from 'ngx-loading';
+import { NgxLoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
+
 
 import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
 
-import { routing, appRoutingProviders } from './../app.routing';
+import { appRoutingProviders } from './../app-routing.module';
 
 /*
  * Services
@@ -41,21 +41,22 @@ import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
 import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
 import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
+import { IonicModule, InfiniteScroll } from '@ionic/angular';
 
 @NgModule({
   imports: [
     BrowserAnimationsModule,
     CommonModule,
     FormsModule,
+    IonicModule,
     ReactiveFormsModule,
     MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
-    LoadingModule,
+    NgxLoadingModule,
     MyDateRangePickerModule,
-    ToasterModule,
-    routing
+    ToasterModule
   ],
   declarations: [
     // pipes
@@ -83,6 +84,7 @@ import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/
     ChartsModule,
     CommonModule,
     FormsModule,
+    IonicModule,
     MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
@@ -93,10 +95,10 @@ import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/
     // components
     SocChartComponent_2018_7,
     SocChartComponent_2018_8,
-    LoadingModule,
+    NgxLoadingModule,
     AbstractConfigComponent,
     ChannelComponent,
-    ExistingThingComponent
+    ExistingThingComponent,
   ],
   providers: [
     Utils,
@@ -106,4 +108,6 @@ import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/
     appRoutingProviders
   ]
 })
-export class SharedModule { }
+export class SharedModule {
+  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+}

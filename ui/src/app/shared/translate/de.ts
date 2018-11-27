@@ -14,8 +14,9 @@ export const TRANSLATION = {
         More: "Mehr...",
         ChargePower: "Beladung",
         DischargePower: "Entladung",
+        ActualPower: "E-Auto Beladung",
         PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
-        DateFormat: "DD.MM.YYYY", // z.B. Englisch: YYYY-MM-DD (DD = Tag, MM = Monat, YYYY = Jahr)
+        DateFormat: "dd.MM.yyyy", // z.B. Englisch: yyyy-MM-dd (dd = Tag, MM = Monat, yyyy = Jahr)
         Search: "Suchen",
         Week: {
             Monday: "Montag",
@@ -28,18 +29,20 @@ export const TRANSLATION = {
         }
     },
     Menu: {
-        Overview: "Übersicht",
-        AboutUI: "Über FEMS-UI"
+        Index: "Übersicht",
+        AboutUI: "Über OpenEMS UI",
+        Settings: 'Allgemeine Einstellungen',
+        Logout: 'Abmelden'
     },
-    Overview: {
+    Index: {
         AllConnected: "Alle Verbindungen hergestellt.",
         ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.", // value = name of websocket
         ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
-        IsOffline: "FEMS ist offline!"
+        IsOffline: "OpenEMS ist offline!"
     },
     Edge: {
-        Overview: {
+        Index: {
             Energymonitor: {
                 Title: "Energiemonitor",
                 ConsumptionWarning: "Verbrauch & unbekannte Erzeuger",
@@ -52,12 +55,37 @@ export const TRANSLATION = {
                 StorageCharge: "Speicher-Beladung"
             },
             Energytable: {
-                Title: "Energietabelle"
+                Title: "Energietabelle",
+                LoadingDC: "Beladung DC",
+                ProductionDC: "Erzeugung DC"
+            },
+            Widgets: {
+                EVCS: {
+                    ChargingStation: "Ladestation",
+                    Status: "Status",
+                    Starting: "Startet",
+                    NotReadyForCharging: "Nicht bereit zur Beladung",
+                    ReadyForCharging: "Bereit zur Beladung",
+                    Charging: "Beladung läuft",
+                    Error: "Fehler",
+                    NotAuthorized: "Nicht authorisiert",
+                    Unplugged: "Ausgesteckt",
+                    ChargingStationPluggedIn: "Ladestation eingesteckt",
+                    ChargingStationPluggedInLocked: "Ladestation eingesteckt + gesperrt",
+                    ChargingStationPluggedInEV: "Ladestation + E-Auto eingesteckt",
+                    ChargingStationPluggedInEVLocked: "Ladestation + E-Auto eingesteckt + gesperrt",
+                    ChargingLimit: "Lade-Begrenzung",
+                    ChargingPower: "Lade-Leistung",
+                    CurrentCharge: "Aktuelle Beladung",
+                    TotalCharge: "Gesamte Beladung",
+                    EnforceCharging: "Erzwinge Beladung",
+                    Cable: "Kabel"
+                }
             }
         },
         History: {
             SelectedPeriod: "Gewählter Zeitraum: ",
-            OtherPeriod: "Anderer Zeitraum:",
+            OtherPeriod: "Anderer Zeitraum",
             Period: "Zeitraum",
             Today: "Heute",
             Yesterday: "Gestern",
@@ -67,7 +95,7 @@ export const TRANSLATION = {
             Go: "Los!"
         },
         Config: {
-            Overview: {
+            Index: {
                 Bridge: "Verbindungen und Geräte",
                 Scheduler: "Anwendungsplaner",
                 Controller: "Anwendungen",
@@ -75,7 +103,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulationen ausführen",
                 Log: "Log",
                 LiveLog: "Live Systemprotokoll",
-                ManualControl: "Manuelle Steuerung"
+                ManualControl: "Manuelle Steuerung",
+                DataStorage: "Datenspeicher"
             },
             More: {
                 ManualCommand: "Manueller Befehl",
@@ -92,7 +121,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Immer"
             },
             Log: {
@@ -114,14 +143,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Benutzeroberfläche für FEMS und OpenEMS",
-        Developed: "Diese Benutzeroberfläche wird von FENECON als Open-Source-Software entwickelt.",
-        Fenecon: "Mehr zu FENECON",
-        Fems: "Mehr zu FEMS",
+        UI: "Benutzeroberfläche für OpenEMS",
+        Developed: "Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.",
         OpenEMS: "Mehr zu OpenEMS",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Sprache wählen:"
     },
     Notifications: {

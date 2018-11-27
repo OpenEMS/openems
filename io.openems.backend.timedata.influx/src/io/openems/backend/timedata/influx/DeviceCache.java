@@ -21,8 +21,7 @@ public class DeviceCache {
 	/**
 	 * Adds the channel value to the cache
 	 *
-	 * @param channel
-	 * @param timestamp
+	 * @param address
 	 * @param value
 	 */
 	public synchronized void putToChannelCache(String address, Object value) {

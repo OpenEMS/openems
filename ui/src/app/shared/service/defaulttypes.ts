@@ -1,5 +1,4 @@
 import { Role } from '../type/role'
-import { UUID } from 'angular2-uuid';
 
 export module DefaultTypes {
 
@@ -107,6 +106,8 @@ export module DefaultTypes {
     }, consumption: {
       powerRatio: number,
       activePower: number
+    }, evcs: {
+      actualPower: number
     }
   }
 

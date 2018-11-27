@@ -1,0 +1,453 @@
+= Implementing a device
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+== Step-by-step guide
+
+This chapter explains the steps required to implement a meter in OpenEMS Edge that is connected via Modbus/TCP. The meter itself is simulated using a small Modbus slave application, so no external hardware is required for this guide.
+
+The tutorial is based on the xref:gettingstarted.adoc[Getting Started] guide.
+
+=== Create a new OSGi Bundle
+
+For more information see xref:coreconcepts.adoc#_osgi_bundle[OSGi Bundle].
+
+. In the menu choose btn:[File] -> btn:[New] -> btn:[Other]
++
+.Creating a new project in Eclipse IDE
+image::eclipse-file-new-other.png[Creating a new project in Eclipse IDE]
+
+. Select btn:[Bndtools] -> btn:[Bnd OSGi Project] and press btn:[Next >]
++
+.Creating a Bnd OSGi Project in Eclipse IDE
+image::eclipse-bndtools-osgi-project.png[Creating a Bnd OSGi Project in Eclipse IDE]
+
+. Select btn:[OSGi enRoute] -> btn:[Provider/Adapter Bundle] and press btn:[Next >]
++
+NOTE: Technically an OpenEMS Edge Device provides implementations of the interfaces of an OSGi _API Bundle_. In OSGi terminology this is called a _Provider/Adapter Bundle_ 
++
+.Creating a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE
+image::eclipse-new-osgi-provider-bundle.png[Creating a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE]
+
+. Choose a project name and press btn:[Next >]
++
+NOTE: The project name is used as the folder name in OpenEMS source directory. The naming is up to you, but it is good practice to keep the name lower case and use something like *io.openems.[edge/backend].[purpose/nature].[implementation]*. For the simulated meter `io.openems.edge.meter.simulated` is a good choice.
++
+.Naming a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE
+image::eclipse-new-osgi-provider-simulatedmeter.png[Naming a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE]
+
+. Accept defaults for the final screen and press btn:[Finish]
++
+.Java settings for a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE
+image::eclipse-new-osgi-provider-simulatedmeter-final.png[Java settings for a Bnd OSGi Provider/Adapter Bundle in Eclipse IDE]
+
+. The assistant closes and you can see your new bundle.
+
+=== Define Bundle dependencies
+
+OSGi Bundles can be dependent on certain other Bundles. This information needs to be set in a *bnd.bnd* file.
+
+. Select the component directory btn:[src] -> btn:[io.openems.edge.meter.simulated]
++
+.New simulated meter Bnd OSGi Provider/Adapter Bundle in Eclipse IDE
+image::eclipse-new-simulatedmeter-bundle.png[New simulated meter Bnd OSGi Provider/Adapter Bundle in Eclipse IDE]
+
+. Open the btn:[bnd.bnd] file by double clicking on it.
+
+. Open the btn:[Build] tab
++
+NOTE: You can see, that the Bundle is currently dependent on a core OSGi API bundle ('osgi.enroute.base.api'). We are going to expand that list.
++
+.Bndtools Build configuration
+image::eclipse-bnd-file-build.png[Bndtools Build configuration]
+
+. Click the btn:[+] symbol next to *Build Path*.
++
+.Bndtools Build Path configuration
+image::eclipse-osgi-build-path.png[Bndtools Build Path configuration]
+
+. Use the *Project Build Path* assistant to add the following Bundles as dependencies:
++
+io.openems.edge.common::
+The Edge Common Bundle provides implementations and services that are common to all OpenEMS Edge components. 
++
+io.openems.edge.meter.api::
+The Meter API Bundle provides the interfaces for OpenEMS Edge Meter Nature.
++
+io.openems.edge.bridge.modbus::
+The Modbus Bundle provides the Bridge services for Modbus/RTU and Modbus/TCP protocols.
+
+. It is also a good moment to configure the Bundle meta information. Still inside the btn:[bnd.bnd] file open the btn:[Source] tab. Add some meta information - it will help the users of your component:
++
+[source]
+----
+Bundle-Name: OpenEMS Edge Meter Simulated
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: \
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.asymmetric.api,\
+	io.openems.edge.meter.symmetric.api
+Private-Package: io.openems.edge.meter.simulated
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.meter.api;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+----
+
+=== Define configuration parameters
+
+OpenEMS Components can have several configuration parameters. They are defined as Java annotations and specific OSGi annotations are used to generate meta information that is used e.g. by Apache Felix Web Console to generate a user interface form (see xref:gettingstarted.adoc[Getting Started]).  
+
+. Make sure that the component directory is still selected.
+
+. In the menu choose btn:[File] -> btn:[New] -> btn:[Other]
+
+. Select btn:[Java] -> btn:[Other...] and press btn:[Next >]
++
+.Creating a Java annotation in Eclipse IDE
+image::eclipse-new-annotation.png[Creating a Java annotation in Eclipse IDE]
+
+. Set the name *Config* press btn:[Finish].
++
+.Creating the Java annotation 'Config' in Eclipse IDE
+image::eclipse-new-config-annotation.png[Creating the Java annotation 'Config' in Eclipse IDE]
+
+. A Java annotation template was generated for you:
++
+[source,java]
+----
+package io.openems.edge.meter.simulated;
+
+public interface Config {
+
+}
+----
+
+. Adjust the template to match the following code:
++
+[source,java]
+----
+package io.openems.edge.meter.simulated;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+import io.openems.edge.meter.api.MeterType;
+
+@ObjectClassDefinition( // <1>
+		name = "Meter Simulated", //
+		description = "Implements the simulated meter.")
+@interface Config {
+	String service_pid(); // <2>
+
+	String id() default "meter0"; // <3>
+
+	boolean enabled() default true; // <4>
+
+	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption") // <5>
+	MeterType type() default MeterType.PRODUCTION; // <6>
+
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
+	String modbus_id(); // <7>
+
+	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
+	int modbusUnitId(); // <8>
+
+	@AttributeDefinition(name = "Modbus target filter", description = "This is auto-generated by 'Modbus-ID'.")
+	String Modbus_target() default ""; // <9>
+
+	String webconsole_configurationFactory_nameHint() default "Meter Simulated [{id}]"; // <10>
+}
+----
+<1> The *@ObjectClassDefinition* annotation defines this file as a Meta Type Resource for OSGi configuration admin. Use it to set a _name_ and _description_ for this OpenEMS Component.
+// TODO add screenshot that shows how the strings are used in Apache
+<2> The *service_pid* is used in internally by OpenEMS Edge framework and is automatically filled by OSGi.
+<3> The *id* configuration parameter sets the OpenEMS Component-ID (see xref:coreconcepts.adoc[Channel Adress]). _Note_: A *default* ID 'meter0' is defined. It is good practice to define such an ID here, as it simplifies configuration in the UI.
+<4> The *enabled* parameter provides a _soft_ way of deactivating an OpenEMS Component programmatically.
+<5> The *@AttributeDefinition* annotation provides meta information about a configuration parameter like _name_ and _description_.
+<6> The 'Meter' nature requires definition of a MeterType that defines the purpose of the Meter. We will let the user define this type by a configuration parameter.
+<7> The 'Modbus-ID' parameter creates the link to a Modbus-Service via its OpenEMS Component-ID. At runtime the user will typically set this configuration parameter to something like 'modbus0'.
+<8> The Modbus service implementation requires us to provide the Modbus _Unit-ID_ (also commonly called _Device-ID_ or _Slave-ID_) of the Modbus slave device. This is the ID that is configured at the simulated meter.
+<9> The *Modbus_target* will be automatically set by OpenEMS framework and does usually not need to be configured by the user. _Note_: Linking other OpenEMS Components is implemented using OSGi References. The OpenEMS Edge framework therefor sets the 'target' property of a reference to filter the matched services.
+<10> The *webconsole_configurationFactory_nameHint* parameter sets a custom name for Apache Felix Web Console, helping the user to find the correct bundle.
+
+=== Initialize Channels
+
+Next step is to actually implement the OpenEMS Component as an OSGi Bundle.
+
+The simulated meter is going to implement
+
+- the "OpenemsComponent" nature - like every OpenEMS Component
+- the "SymmetricMeter" nature - for a three-phase symmetric meter 
+
+Those natures require the simulated meter implementation to provide certain Channels, like "State" and "ActivePower". A common place to define and initialize those Channel-Objects is in a separate Utils class with a static _Utils.initializeChannels()_ method. This method is later going to be called as early as possible by the component constructor, to be sure that the Channels are always defined and avoid NullPointerExceptions. 
+
+The initialization method uses Java Streams and Enums to facilitate the Definition of Channels.
+
+Create a new file *Utils.java* with the following content:
+
+[source,java]
+----
+package io.openems.edge.meter.simulated;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
+
+import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.meter.api.SymmetricMeter;
+
+public class Utils {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(MeterSimulated c) { // <1>
+		return Stream.of( //
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> { // <2>
+					switch (channelId) { // <3>
+					case STATE:
+						return new StateCollectorChannel(c, channelId); // <4>
+					}
+					return null;
+				}), Arrays.stream(SymmetricMeter.ChannelId.values()).map(channelId -> { // <2>
+					switch (channelId) { // <3>
+					case ACTIVE_POWER:
+					case ACTIVE_CONSUMPTION_ENERGY:
+					case ACTIVE_PRODUCTION_ENERGY:
+					case CURRENT:
+					case FREQUENCY:
+					case MAX_ACTIVE_POWER:
+					case MIN_ACTIVE_POWER:
+					case REACTIVE_POWER:
+					case VOLTAGE:
+						return new IntegerReadChannel(c, channelId); // <4>
+					}
+					return null;
+				})).flatMap(channel -> channel);
+	}
+}
+----
+<1> The static *initializeChannels()* method returns a Java Stream of Channel objects.
+<2> Using Streams the Java lambda function is called for each declared ChannelId. This command is repeated for every Nature that is implemented by the OpenEMS Component.
+<3> Using a switch-case statement each ChannelId can be evaluated.
++
+NOTE: Because we are using enums together with switch-case, Eclipse IDE is able to find out if we covered every Channel and post a warning like 'The enum constant CURRENT needs a corresponding case label in this enum switch on SymmetricMeter.ChannelId'. Eclipse IDE 'Quick Fix' provides an option 'Add missing case statements' that will generate the missing switch-cases for you.
++
+.Eclipse IDE Quick Fix for switch-case
+image::eclipse-channels-switch-case.png[Eclipse IDE Quick Fix for switch-case]
+<4> This line creates the actual Definition of the Channel and returns a Channel object instance of the required type.
+
+=== Implement the OpenEMS Component
+
+The Bndtools assistant created a `ProviderImpl.java` file. First step is to set a proper name for this file. To rename the file, select it by clicking on it and choose btn:[Refactor] -> btn:[Rename...] in the menu. Write `MeterSimulated` as 'New name' and press btn:[Finish].
++
+.Renaming a Java class in Eclipse IDE
+image::eclipse-rename.png[Renaming a Java class in Eclipse IDE]
++
+Afterwards replace the content of `MeterSimulated.java` file with the following code:
++
+[source,java]
+----
+package io.openems.edge.meter.simulated;
+
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.metatype.annotations.Designate;
+
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SymmetricMeter;
+
+@Designate(ocd = Config.class, factory = true) // <1>
+@Component( // <2>
+	name = "Meter.Simulated", // <3>
+	immediate = true, // <4>
+	configurationPolicy = ConfigurationPolicy.REQUIRE) // <5>
+public class MeterSimulated extends AbstractOpenemsModbusComponent // <6>
+	implements SymmetricMeter, OpenemsComponent { // <7>
+
+	private MeterType meterType = MeterType.PRODUCTION;
+
+	@Reference
+	protected ConfigurationAdmin cm; // <8>
+
+	public MeterSimulated() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel)); // <9>
+	}
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus); // <10>
+	}
+
+	@Activate
+	void activate(ComponentContext context, Config config) { // <11>
+		this.meterType = config.type();
+
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
+	}
+
+	@Deactivate
+	protected void deactivate() { // <12>
+		super.deactivate();
+	}
+
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId { // <13>
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
+	@Override
+	public MeterType getMeterType() { // <14>
+		return this.meterType;
+	}
+
+	@Override
+	protected ModbusProtocol defineModbusProtocol() { // <15>
+		return new ModbusProtocol(this, // <16>
+				new FC3ReadRegistersTask(1000, Priority.HIGH, // <17>
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000)))); // <18>
+	}
+
+	@Override
+	public String debugLog() { // <19>
+		return "L:" + this.getActivePower().value().asString();
+	}
+}
+----
+<1> The *@Designate* annotation is used for OSGi to create a connection to the _Config_ annotation class. It also defines this Component as a _factory_, i.e. it can produce multiple instances with different configurations.
+<2> The *@Component* annotation marks this class as an OSGi component.
+<3> The *name* property sets the unique name of this component. It is used to store configuration in the filesystem, to identify the component inside Apache Felix Web Console, and so on. Configure a human-readable name in the form *[nature].[vendor].[product]*.
+<4> The *immediate* property defines whether the component should be started immediately. Configure the Component to be started immediately after configuration, i.e. it is not waiting till its service is required by another Component.
+<5> The *configurationPolicy* define that the configuration of the Component is required before it gets activated.
+<6> To ease the implementation of a Modbus device we can extend the *AbstractOpenemsModbusComponent* class.
++
+NOTE: If the device was using another protocol, it is advisable to use the *AbstractOpenemsComponent* class as a convenience layer instead of implementing everything required by the *OpenemsComponent* interface manually.
+<7> The class implements *OpenemsComponent*. This makes it an xref:coreconcepts.adoc#_openems_component[OpenEMS Component].
+The Device that we are is a *SymmetricMeter*. We already defined the required Channels in the _initializeChannels()_ method. Additionally the Component also needs to implement the Nature interface.
++
+NOTE: In plain Java it is not required to add `implements OpenemsComponent` if we inherit from 'AbstractOpenemsComponent' or 'AbstractOpenemsModbusComponent'. Be aware that for OSGi dependency injection to function properly, it is still required to mention all implemented interfaces again, as it is not considering the complete inheritance tree.
+<8> The `super.activate()` method requires an instance of *ConfigurationAdmin* as a parameter. Using the *@Reference* annotation the OSGi framework is going to provide the ConfigurationAdmin service via dependency injection.
+<9> In the constructor the _Utils.initializeChannels()_ method is called to *initialize Channels*. It receives a Stream of Channel objects and adds all of them to the Component using the `addChannel()` method.
+<10> The Component utilizes an external Modbus Component (the _Modbus Bridge_) for the actual Modbus communication. We receive an instance of this service via dependency injection (like we did already for the _ConfigurationAdmin_ service). Most of the magic is handled by the _AbstractOpenemsModbusComponent_ implementation, but the way the OSGi framework works, we need to define the _@Reference_ explicitly here in the actual implementation of the component and call the parent `setModbus()` method.
+<11> The *activate()* method (marked by the *@Activate* annotation) is called on activation of an object instance of this Component. It comes with a ComponentContext and an instance of a configuration in the form of a Config object. All logic for activating and deactivating the OpenEMS Component is hidden in the super classes and just needs to be called from here.
+<12> The *deactivate()* method (marked by the *@Deactivate* annotation) is called on deactivation of the Component instance.
+<13> The simulated implementation is only going to provide Channels defined by _OpenemsComponent_ and _SymmetricMeter_ natures. It is still good practice to add a skeleton for custom Channels to the Component implementation. We therefor add the _Channel Declaration_ block inside the class.
++
+NOTE:
++
+- Channel declarations are *enum* types implementing the ChannelId interface.
+- This enum is empty, as we do not have custom Channels here.
+- ChannelId enums require a Doc object that provides meta information about the Channel - e.g. the above ACTIVE_POWER Channel is defined as `ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)`
+<14> The SymmetricMeter Nature requires us to provide a *MeterType* via a `MeterType getMeterType()` method. The MeterType is provided by the Config.
+<15> _AbstractOpenemsModbusComponent_ requires to implement a *defineModbusProtocol()* method that returns an instance of *ModbusProtocol*. The _ModbusProtocol_ class maps Modbus addresses to OpenEMS Channels and provides some conversion utilities. Instantiation of a _ModbusProtocol_ object uses the https://en.wikipedia.org/wiki/Builder_pattern#Java[Builder pattern icon:external-link[]] 
+<16> Creates a *new ModbusProtocol* instance. A reference to the component itself is the first parameter, followed by an arbitrary number of 'Tasks' (implemented as a Java varags array).  
+<17> *FC3ReadRegistersTask* is an implementation of Modbus http://www.simplymodbus.ca/FC03.htm[function code 3 "Read Holding Registers" icon:external-link[]]. Its first parameter is the start address of the register block. The second parameter is a priority information that defines how often this register block needs to be queried. Following parameters are an arbitrary number of *ModbusElements*.
++
+NOTE: Most Modbus function codes are available by their respective _FC*_ implementation classes.
+<18> Here the internal *m()* method is used to make a simple 1-to-1 mapping between the Modbus element at address `1000` and the Channel _SymmetricMeter.ChannelId.ACTIVE_POWER_. The Modbus element is defined as a 16 bit word element with an signed integer value.
++
+NOTE:
++
+- The _m()_ method also takes an instance of *ElementToChannelConverter* as an additional parameter. It can be used to add implicit unit conversions between Modbus element and OpenEMS Channel - like adding a scale factor that converts a read value of '95' to a channel value of '950'.
+- For Modbus registers that are empty or should be ignored, the *DummyRegisterElement* can be used. 
+- For more advanced channel-to-element mapping functionalities the internal *cm()* method can be used - e.g. to map one Modbus element to multiple Channels.
++
+Using this principle a complete Modbus table consisting of multiple register blocks that need to be read or written with different Modbus function codes can be defined. For details have a look at the existing implementation classes inside the Modbus Bridge source code.
+<19> Finally it is always a good idea to define a *debugLog()* method. This method is called in each cycle by the *Controller.Debug.Log* and very helpful for continuous debugging.
+
+=== Start the device simulator
+
+To start the device simulator, open the btn:[io.openems.edge.bridge.modbus] project and navigate to the btn:[test] -> btn:[io.openems.edge.brige.modbus] folder. There you find the btn:[ModbusSlaveSimulator.java] file. Right-click that file and select btn:[Run As] -> btn:[Java Application].
+
+=== Enable the Component
+
+To enable the Component for running, open the btn:[io.openems.edge.application] project and open the btn:[EdgeApp.bndrun] file. Change to the btn:[Source] view and create two new lines to declare the new Component. 
+
+First: somewhere below *-runrequires: \* add
+`osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.simulated)',\`
+
+Second: somewhere below *-runbundles: \* add
+`io.openems.edge.meter.simulated;version=snapshot,\` 
+
+You may have found, that the entries are sorted alphabetically.
+
+=== Run the implementation
+
+Switch back to btn:[Run] view and press btn:[Run OSGi] to run OpenEMS Edge. 
+
+.Eclipse IDE EdgeApp.bndrun
+image::eclipse-edgeapp-bndrun.png[Eclipse IDE EdgeApp.bndrun]
+
+From then you can configure your component as shown in xref:gettingstarted.adoc[Getting Started] guide. Add the following configurations inside Apache Felix Web Console:
+
+Controller Debug Log::
+- ID: `ctrlDebugLog0`
+- Enabled: `checked`
+
+Scheduler All Alphabetically::
+- ID: `scheduler0`
+- Enabled: `checked`
+- Cycle time: `1000`
+
+Bridge Modbus/TCP::
+- ID: `modbus0`
+- IP-Address: `localhost`
+- Enabled: `checked`
+
+Meter Simulated::
+- ID: `meter0`
+- Enabled: `checked`
+- Meter-Type: `PRODUCTION`
+- Modbus-ID: `modbus0`
+- Modbus Unit-ID: `1`
+
+In the Eclipse IDE console log you should see an output like this:
+----
+2018-11-14 23:03:03,898 [Executor] INFO  [e.controller.debuglog.DebugLog] [ctrlDebugLog0] _sum[Ess SoC:0 %|L:0 W Grid:0 W Production:500 W Consumption L:500 W] meter0[L:500 W]
+----
+It shows a Production of `500 W` which is what is provided by the simulated meter device. Congrats!
+
+// == Synchronize device communication
+
+// == Active/Reactive power control of a battery inverter

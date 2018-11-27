@@ -2,7 +2,9 @@ Bundle-Name: OpenEMS Edge Meter Api
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: io.openems.edge.meter.api
+Export-Package: \
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.test
 Require-Capability: \
 	compile-only
 

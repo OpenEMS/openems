@@ -1,0 +1,25 @@
+Bundle-Name: OpenEMS Edge Meter SOCOMEC DirisA14
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: \
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.asymmetric.api,\
+	io.openems.edge.meter.symmetric.api
+Private-Package: \
+	io.openems.edge.meter.socomec.dirisa14,\
+	io.openems.edge.meter.socomec.dirise24,\
+	io.openems.edge.meter.socomec.dirisa10,\
+	io.openems.edge.meter.socomec.dirisb30
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.meter.api;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3

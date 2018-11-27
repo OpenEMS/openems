@@ -91,6 +91,17 @@ export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config
     }
 
     /**
+    * Return ChannelAddresses of EVCS channels
+    */
+    public getEvcsChannels(): DefaultTypes.ChannelAddresses {
+        let result: DefaultTypes.ChannelAddresses = {}
+        for (let thingId of this.evcsDevices) {
+            result[thingId] = ["State", "Plug", "CurrUser", "ActualPower", "EnergySession", "EnergyTotal"];
+        }
+        return result;
+    }
+
+    /**
      * Returns ChannelAddresses of ESS Soc channels
      */
     public getEssSocChannels(): DefaultTypes.ChannelAddresses {
@@ -116,18 +127,7 @@ export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config
      * Return ChannelAddresses of power and soc channels
      */
     public getImportantChannels(): DefaultTypes.ChannelAddresses {
-        return {
-            '_sum': [
-                // Ess
-                'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
-                // Grid
-                'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
-                // Production
-                'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
-                // Consumption
-                'ConsumptionActivePower', 'ConsumptionMaxActivePower'
-            ]
-        }
+        return {};
     }
 
     public getWidgets(): Widget[] {

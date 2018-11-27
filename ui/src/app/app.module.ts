@@ -1,53 +1,62 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+//import { RouterModule, RouteReuseStrategy, Routes } from '@angular/router';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-
-import { environment } from '../environments';
+import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 // modules
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
-import { OverviewModule } from './overview/overview.module';
+import { IndexModule } from './index/index.module';
 import { EdgeModule } from './edge/edge.module';
-import { ConfigModule } from './config/config.module';
 
 // components
 import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
 
 // services
-import { Websocket, Service } from './shared/shared';
+import { Service } from './shared/shared';
 import { MyTranslateLoader } from './shared/translate/translate';
 
 // locale Data
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localDE from '@angular/common/locales/de';
+import { PopoverPage } from './shared/popover/popover.component';
+import { PopoverPageModule } from './shared/popover/popover.module';
+import { SettingsModule } from './settings/settings.module';
+import { RouteReuseStrategy } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
+  declarations: [AppComponent],
+  entryComponents: [PopoverPage],
   imports: [
     BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
     SharedModule,
     AboutModule,
+    SettingsModule,
     EdgeModule,
-    ConfigModule,
-    OverviewModule,
+    IndexModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
-    })
-  ],
-  declarations: [
-    AppComponent
-  ],
-  bootstrap: [
-    AppComponent
+    }),
+    PopoverPageModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
   ],
   providers: [
-    {
-      provide: ErrorHandler,
-      useExisting: Service
-    },
+    StatusBar,
+    SplashScreen,
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }
-  ]
+  ],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor() {

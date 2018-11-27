@@ -1,13 +1,11 @@
 package io.openems.edge.ess.streetscooter;
 
-import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -17,87 +15,86 @@ import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC2ReadInputsTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.CircleConstraint;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
 	protected static final int UNIT_ID = 100;
+	protected static final int MAX_APPARENT_POWER = 11600;
 
-	static final int MAX_APPARENT_POWER = 2000;
-	private static final int POWER_PRECISION = 100;
-
-	public static final int INVERTER_MODE_UNDEFINED = -1;
-	public static final int INVERTER_MODE_INITIAL = 0;
-	public static final int INVERTER_MODE_WAIT = 1;
-	public static final int INVERTER_MODE_START_UP = 2;
-	public static final int INVERTER_MODE_NORMAL = 3;
-	public static final int INVERTER_MODE_OFF_GRID = 4;
-	public static final int INVERTER_MODE_FAULT = 5;
-	public static final int INVERTER_MODE_PERMANENT_FAULT = 6;
-	public static final int INVERTER_MODE_UPDATE_MASTER = 7;
-	public static final int INVERTER_MODE_UPDATE_SLAVE = 8;
-
+	private static final int POWER_PRECISION = 1;
 	private static final int ICU_RUN_ADDRESS = 4002;
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
+//	private final Logger log = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
 
 	private final PowerHandler powerHandler;
 
+	private boolean readonly = false;
+
 	public AbstractEssStreetscooter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel((Channel<?>) channel));
-		this.powerHandler = new PowerHandler(this, this.log);
+		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId) {
-		/*
-		 * Initialize Power
-		 */
-		// max Apparent
-		new CircleConstraint(this, MAX_APPARENT_POWER);
-		// Allowed Charge
-		Constraint allowedChargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.GEQ, 0);
-		this.channel(ChannelId.BATTERY_BMS_PWR_CHRG_MAX).onChange(value -> {
-			allowedChargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
-		// Allowed Discharge
-		Constraint allowedDischargeConstraint = this.addPowerConstraint(ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE,
-				Relationship.LEQ, 0);
-		this.channel(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX).onChange(value -> {
-			allowedDischargeConstraint.setIntValue(TypeUtils.getAsType(OpenemsType.INTEGER, value));
-		});
-		super.activate(id);
+	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, boolean readonly,
+			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
+		this.readonly = readonly;
+
+		if (readonly) {
+			// Do not allow Power in read-only mode
+			this.getMaxApparentPower().setNextValue(0);
+		}
+
+		super.activate(context, servicePid, id, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() + ", mode:"
-				+ this.channel(ChannelId.INVERTER_MODE).value().asOptionString();
-
+				+ this.channel(ChannelId.INVERTER_MODE).value().asOptionString() + "|L:"
+				+ this.getActivePower().value().asString() //
+		;
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol(int unitId) {
-		int batteryInfoStartAddress = getBatteryInfoStartAddress() + getAdressOffsetForBattery();
-		int inverterInfoStartAddress = getInverterInfoStartAddress() + getAdressOffsetForInverter();
+	public void applyPower(int activePower, int reactivePower) {
+		if (!this.readonly) {
+			this.powerHandler.accept(activePower, reactivePower);
+		}
+	}
 
-		return new ModbusProtocol(unitId, //
+	@Override
+	public int getPowerPrecision() {
+		return AbstractEssStreetscooter.POWER_PRECISION;
+	}
+
+	@Override
+	protected ModbusProtocol defineModbusProtocol() {
+		int batteryInfoStartAddress = BATTERY_INFO_START_ADDRESS + getAdressOffsetForBattery();
+		int inverterInfoStartAddress = INVERTER_INFO_START_ADDRESS + getAdressOffsetForInverter();
+
+		return new ModbusProtocol(this, //
 				new FC1ReadCoilsTask(getIcuRunAddress(), Priority.HIGH,
 						m(ChannelId.ICU_RUN, new CoilElement(getIcuRunAddress()))),
 				new FC5WriteCoilTask(getIcuRunAddress(), m(ChannelId.ICU_RUN, new CoilElement(getIcuRunAddress()))),
@@ -105,23 +102,21 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ChannelId.ICU_ENABLED, new CoilElement(getIcuEnabledAddress()))),
 				new FC5WriteCoilTask(getIcuEnabledAddress(),
 						m(ChannelId.ICU_ENABLED, new CoilElement(getIcuEnabledAddress()))),
-				new FC4ReadInputRegistersTask(getInverterModeAddress(), Priority.HIGH,
-						m(ChannelId.INVERTER_MODE,
-								new FloatDoublewordElement(getInverterModeAddress()).wordOrder(WordOrder.LSWMSW))),
 				new FC16WriteRegistersTask(getIcuSetPowerAddress(),
 						m(ChannelId.INVERTER_SET_ACTIVE_POWER,
 								new FloatDoublewordElement(getIcuSetPowerAddress()).wordOrder(WordOrder.LSWMSW))),
-				new FC4ReadInputRegistersTask(batteryInfoStartAddress, Priority.HIGH,
+				new FC4ReadInputRegistersTask(batteryInfoStartAddress, Priority.LOW,
 						m(ChannelId.BATTERY_BMS_ERR,
 								new FloatDoublewordElement(batteryInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_I_ACT,
 								new FloatDoublewordElement(batteryInfoStartAddress + 2).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_PWR_CHRG_MAX,
 								new FloatDoublewordElement(batteryInfoStartAddress + 4).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.BATTERY_BMS_PWR_D_CHA_MAX,
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 								new FloatDoublewordElement(batteryInfoStartAddress + 6).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.BATTERY_BMS_PWR_RGN_MAX,
-								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW)),
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+								new FloatDoublewordElement(batteryInfoStartAddress + 8).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.INVERT),
 						m(SymmetricEss.ChannelId.SOC,
 								new FloatDoublewordElement(batteryInfoStartAddress + 10).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_SOH,
@@ -136,7 +131,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(batteryInfoStartAddress + 20).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.BATTERY_BMS_WRN,
 								new FloatDoublewordElement(batteryInfoStartAddress + 22).wordOrder(WordOrder.LSWMSW))),
-				new FC4ReadInputRegistersTask(inverterInfoStartAddress, Priority.HIGH,
+				new FC4ReadInputRegistersTask(inverterInfoStartAddress, Priority.LOW,
 						m(ChannelId.INVERTER_ACTIVE_POWER,
 								new FloatDoublewordElement(inverterInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_DC1_FAULT_VALUE,
@@ -191,48 +186,75 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 								new FloatDoublewordElement(inverterInfoStartAddress + 50).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_V_DC_1,
 								new FloatDoublewordElement(inverterInfoStartAddress + 52).wordOrder(WordOrder.LSWMSW)),
+						// Ewon: 2055 / 3055
 						m(ChannelId.INVERTER_V_DC_2,
-								new FloatDoublewordElement(inverterInfoStartAddress + 54).wordOrder(WordOrder.LSWMSW))),
-				new FC2ReadInputsTask(getIcuRunstateAddress(), Priority.HIGH,
+								new FloatDoublewordElement(inverterInfoStartAddress + 54).wordOrder(WordOrder.LSWMSW)),
+						// Ewon: 2057 / 3057
+						m(ChannelId.INVERTER_MODE,
+								new FloatDoublewordElement(inverterInfoStartAddress + 56).wordOrder(WordOrder.LSWMSW)),
+						// Ewon: 2059 / 3059
+						m(ChannelId.ICU_STATUS,
+								new FloatDoublewordElement(inverterInfoStartAddress + 58).wordOrder(WordOrder.LSWMSW))),
+				new FC2ReadInputsTask(getIcuRunstateAddress(), Priority.LOW,
 						m(ChannelId.ICU_RUNSTATE, new CoilElement(getIcuRunstateAddress()))),
-				new FC2ReadInputsTask(getInverterConnectedAddress(), Priority.HIGH,
+				new FC2ReadInputsTask(getInverterConnectedAddress(), Priority.LOW,
 						m(ChannelId.INVERTER_CONNECTED, new CoilElement(getInverterConnectedAddress()))),
-				new FC2ReadInputsTask(getBatteryConnectedAddress(), Priority.HIGH,
+				new FC2ReadInputsTask(getBatteryConnectedAddress(), Priority.LOW,
 						m(ChannelId.BATTERY_CONNECTED, new CoilElement(getBatteryConnectedAddress()))),
-				new FC2ReadInputsTask(getBatteryOverloadAddress(), Priority.HIGH,
+				new FC2ReadInputsTask(getBatteryOverloadAddress(), Priority.LOW,
 						m(ChannelId.BATTERY_OVERLOAD, new CoilElement(getBatteryOverloadAddress()))));
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		ICU_RUN(new Doc().unit(Unit.ON_OFF)), //
-		ICU_ENABLED(new Doc().unit(Unit.ON_OFF)), //
+		DEBUG_ICU_RUN(new Doc()), //
+		ICU_RUN(new Doc().unit(Unit.ON_OFF) //
+				// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+				.onInit(channel -> { //
+					((BooleanWriteChannel) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_ICU_RUN).setNextValue(value);
+					});
+				})), //
+		DEBUG_ICU_ENABLED(new Doc()), //
+		ICU_ENABLED(new Doc().unit(Unit.ON_OFF) //
+				// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+				.onInit(channel -> { //
+					((BooleanWriteChannel) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_ICU_ENABLED).setNextValue(value);
+					});
+				})), //
 		ICU_RUNSTATE(new Doc().unit(Unit.ON_OFF)), //
-
+		ICU_STATUS(new Doc()), //
 		BATTERY_BMS_ERR(new Doc().unit(Unit.NONE)), //
 		BATTERY_BMS_I_ACT(new Doc().unit(Unit.AMPERE)), //
 		BATTERY_BMS_PWR_CHRG_MAX(new Doc().unit(Unit.WATT)), //
-		BATTERY_BMS_PWR_D_CHA_MAX(new Doc().unit(Unit.WATT)), //
-		BATTERY_BMS_PWR_RGN_MAX(new Doc().unit(Unit.WATT)), //
 		BATTERY_BMS_SOH(new Doc().unit(Unit.PERCENT)), //
 		BATTERY_BMS_ST_BAT(new Doc().unit(Unit.NONE)), //
 		BATTERY_BMS_T_MAX_PACK(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		BATTERY_BMS_T_MIN_PACK(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BATTERY_BMS_U_PACK(new Doc().unit(Unit.VOLT)), //
+		BATTERY_BMS_U_PACK(new Doc().unit(Unit.VOLT) //
+				// onChange calculate new value for MaxApparentPower
+				.onInit(channel -> { //
+					((IntegerReadChannel) channel).onChange(value -> {
+						final int CHARGE_DISCHARGE_CURRENT = 40; // in ampere
+						int maxApparentPower = Math.min(value.orElse(Integer.MAX_VALUE) * CHARGE_DISCHARGE_CURRENT,
+								MAX_APPARENT_POWER);
+						channel.getComponent().channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
+								.setNextValue(maxApparentPower);
+					});
+				})), //
 		BATTERY_BMS_WRN(new Doc().unit(Unit.NONE)), //
 		BATTERY_CONNECTED(new Doc().unit(Unit.ON_OFF)), //
 		BATTERY_OVERLOAD(new Doc().unit(Unit.ON_OFF)), //
 
-		INVERTER_MODE(new Doc(). //
-				option(getInverterModeInitial(), "Initial"). //
-				option(getInverterModeWait(), "Wait"). //
-				option(getInverterModeStartUp(), "Start up"). //
-				option(getInverterModeNormal(), "Normal"). //
-				option(getInverterModeOffGrid(), "Off grid"). //
-				option(getInverterModeFault(), "Fault"). //
-				option(getInverterModePermanentFault(), "Permanent fault"). //
-				option(getInverterModeUpdateMaster(), "Program update of master controller"). //
-				option(getInverterModeUpdateSlave(), "Program update of slave controller")), //
-		INVERTER_SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		INVERTER_MODE(new Doc().options(InverterMode.values())), //
+		DEBUG_INVERTER_SET_ACTIVE_POWER(new Doc()), //
+		INVERTER_SET_ACTIVE_POWER(new Doc().unit(Unit.WATT) //
+				// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+				.onInit(channel -> { //
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_INVERTER_SET_ACTIVE_POWER).setNextValue(value);
+					});
+				})), //
 		INVERTER_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		INVERTER_DC1_FAULT_VALUE(new Doc().unit(Unit.NONE)), //
 		INVERTER_DC2_FAULT_VALUE(new Doc().unit(Unit.NONE)), //
@@ -262,7 +284,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		INVERTER_V_DC_1(new Doc().unit(Unit.VOLT)), //
 		INVERTER_V_DC_2(new Doc().unit(Unit.VOLT)), //
 		INVERTER_CONNECTED(new Doc().unit(Unit.ON_OFF)),
-		SYSTEM_STATE_INFORMATION(new Doc().setWritable().unit(Unit.NONE));
+		SYSTEM_STATE_INFORMATION(new Doc().accessMode(AccessMode.READ_WRITE).unit(Unit.NONE));
 
 		private final Doc doc;
 
@@ -276,51 +298,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		}
 	}
 
-	private static int getInverterModeUpdateSlave() {
-		return INVERTER_MODE_UPDATE_SLAVE;
-	}
-
-	private static int getInverterModeUpdateMaster() {
-		return INVERTER_MODE_UPDATE_MASTER;
-	}
-
-	private static int getInverterModePermanentFault() {
-		return INVERTER_MODE_PERMANENT_FAULT;
-	}
-
-	private static int getInverterModeFault() {
-		return INVERTER_MODE_FAULT;
-	}
-
-	private static int getInverterModeOffGrid() {
-		return INVERTER_MODE_OFF_GRID;
-	}
-
-	private static int getInverterModeNormal() {
-		return INVERTER_MODE_NORMAL;
-	}
-
-	private static int getInverterModeStartUp() {
-		return INVERTER_MODE_START_UP;
-	}
-
-	private static int getInverterModeWait() {
-		return INVERTER_MODE_WAIT;
-	}
-
-	private static int getInverterModeInitial() {
-		return INVERTER_MODE_INITIAL;
-	}
-
-	private int getBatteryInfoStartAddress() {
-		return BATTERY_INFO_START_ADDRESS;
-	}
-
 	protected abstract int getAdressOffsetForBattery();
-
-	private int getInverterInfoStartAddress() {
-		return INVERTER_INFO_START_ADDRESS;
-	}
 
 	protected abstract int getAdressOffsetForInverter();
 
@@ -340,15 +318,64 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 
 	protected abstract int getIcuRunstateAddress();
 
-	protected abstract int getInverterModeAddress();
-
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
-		this.powerHandler.accept(activePower, reactivePower);
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override
-	public int getPowerPrecision() {
-		return AbstractEssStreetscooter.POWER_PRECISION;
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	private int invalidIcuStatusCounter = 0;
+
+	@Override
+	public Constraint[] getStaticConstraints() {
+		/*
+		 * Increase the invalidIcuStatusCounter if the ICU_STATUS is not ok.
+		 */
+		IntegerReadChannel icuStatusChannel = this.channel(ChannelId.ICU_STATUS);
+		int icuStatus = icuStatusChannel.value().orElse(0);
+		switch (icuStatus) {
+		case 20:
+		case 21:
+		case 120:
+		case 122:
+		case 200:
+		case 201:
+			invalidIcuStatusCounter = 0;
+
+		case 0:
+		case 101:
+		default:
+			invalidIcuStatusCounter++;
+		}
+
+		/*
+		 * If device is in read-only mode or the ICU_STATUS was repeatedly not ok ->
+		 * block any charging/discharging
+		 */
+		if (this.readonly || invalidIcuStatusCounter > 10) {
+			return new Constraint[] { //
+					this.createPowerConstraint("Wrong ICU_STATUS or disabled: " + icuStatus, Phase.ALL, Pwr.ACTIVE,
+							Relationship.EQUALS, 0), //
+					this.createPowerConstraint("Wrong ICU_STATUS or disabled: " + icuStatus, Phase.ALL, Pwr.REACTIVE,
+							Relationship.EQUALS, 0) //
+			};
+
+		} else {
+			return Power.NO_CONSTRAINTS;
+		}
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(), //
+				SymmetricEss.getModbusSlaveNatureTable(), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
+				ModbusSlaveNatureTable.of(AbstractEssStreetscooter.class, 300) //
+						.build());
 	}
 }

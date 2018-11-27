@@ -1,376 +1,434 @@
 package io.openems.edge.ess.core.power;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.apache.commons.math3.optim.linear.LinearConstraint;
-import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
-import org.apache.commons.math3.optim.linear.Relationship;
+import com.google.common.collect.Streams;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.Coefficient;
+import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Inverter;
+import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 public class Data {
 
 	/**
-	 * Holds all ManagedSymmetricEss objects covered by this Power object
+	 * Holds all managed Ess objects
 	 */
-	protected final Set<ManagedSymmetricEss> allEsss = new HashSet<>();
-
-	private final int COEFFICIENTS_PER_ESS = 6;
+	private final Set<ManagedSymmetricEss> esss = new HashSet<>();
 
 	/**
-	 * Holds the cycle constraints. Those constraints are cleared on every Cycle by
-	 * the applyPower()-method.
+	 * Holds all inverters, Sorted by weight
 	 */
-	private final List<Constraint> cycleConstraints = new ArrayList<>();
+	private final List<Inverter> inverters = new ArrayList<>();
 
-	/**
-	 * Holds all MetaEss objects
-	 */
-	protected final Set<MetaEss> metaEsss = new HashSet<>();
+	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
+	private final Coefficients coefficients = new Coefficients();
 
-	/**
-	 * Holds all ManagedSymmetricEss objects that represent physical ESS (i.e. no
-	 * MetaEss).
-	 */
-	protected final Set<ManagedSymmetricEss> realEsss = new HashSet<>();
+	private final ApparentPowerConstraintFactory apparentPowerConstraintFactory;
 
-	/**
-	 * Holds the static constraints. Those constraints stay forever. They can be
-	 * adjusted by keeping a reference and calling the setValue() method.
-	 */
-	private final List<Constraint> staticConstraints = new ArrayList<>();
+	private boolean symmetricMode = PowerComponent.DEFAULT_SYMMETRIC_MODE;
 
-	/**
-	 * Recursive helper method for getEssIndex
-	 * 
-	 * @param ess
-	 * @param retry
-	 * @return
-	 */
-	private synchronized int _getEssIndex(ManagedSymmetricEss ess) {
-		boolean found = false;
-		int essIndex = 0;
-		for (ManagedSymmetricEss realEss : this.realEsss) {
-			if (realEss.equals(ess)) {
-				found = true;
-				break;
-			} else {
-				essIndex += COEFFICIENTS_PER_ESS;
+	public Data() {
+		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
+	}
+
+	public synchronized void addEss(ManagedSymmetricEss ess) {
+		this.esss.add(ess);
+		// MetaEss has no explicit Inverters
+		if (!(ess instanceof MetaEss)) {
+			// create inverters and add them to list
+			for (Inverter inverter : Inverter.of(ess, this.symmetricMode)) {
+				this.inverters.add(inverter);
+			}
+			// Initially sort Inverters
+			Data.invertersUpdateWeights(this.inverters);
+			Data.invertersSortByWeights(this.inverters);
+		}
+		this.coefficients.initialize(this.esss);
+	}
+
+	public synchronized void removeEss(ManagedSymmetricEss ess) {
+		// remove from Ess set
+		this.esss.remove(ess);
+		// remove from Inverters list
+		Iterator<Inverter> iter = this.inverters.iterator();
+		while (iter.hasNext()) {
+			Inverter inverter = iter.next();
+			if (Objects.equals(ess, inverter.getEss())) {
+				iter.remove();
 			}
 		}
-		if (found) {
-			return essIndex;
-		}
+		this.coefficients.initialize(this.esss);
+	}
 
-		// not found -> add ess
-		throw new IllegalArgumentException(
-				"Ess [" + ess.id() + "; " + ess.hashCode() + "] was not found in the system.");
+	public void setSymmetricMode(boolean symmetricMode) {
+		if (this.symmetricMode != symmetricMode) {
+			this.symmetricMode = symmetricMode;
+			this.initializeCycle(); // because SymmetricEssConstraints need to be renewed
+		}
+	}
+
+	public List<Inverter> getInverters() {
+		return Collections.unmodifiableList(this.inverters);
+	}
+
+	public Set<ManagedSymmetricEss> getEsss() {
+		return Collections.unmodifiableSet(esss);
+	}
+
+	public synchronized void initializeCycle() {
+		this.constraints.clear();
+		// Update sorting of Inverters
+		Data.invertersUpdateWeights(this.inverters);
+		Data.invertersAdjustSortingByWeights(this.inverters);
+	}
+
+	public void addConstraint(Constraint constraint) {
+		this.constraints.add(constraint);
+	}
+
+	public void removeConstraint(Constraint constraint) {
+		this.constraints.remove(constraint);
+	}
+
+	public void addSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			Relationship relationship, double value) {
+		this.constraints.add(this.createSimpleConstraint(description, ess, phase, pwr, relationship, value));
+	}
+
+	public Coefficients getCoefficients() {
+		return coefficients;
+	}
+
+	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+		return this.coefficients.of(ess, phase, pwr);
 	}
 
 	/**
-	 * Add a Constraint
+	 * Gets Constraints for all Inverters.
 	 * 
-	 * @param constraint
 	 * @return
 	 */
-	public synchronized Constraint addConstraint(Constraint constraint) {
-		this.getConstraintListForType(constraint.getType()).add(constraint);
-		return constraint;
+	public List<Constraint> getConstraintsForAllInverters() {
+		return this.getConstraintsWithoutDisabledInverters(Collections.emptyList());
 	}
 
 	/**
-	 * Add an ManagedSymmetricEss
+	 * Gets Constraints with the 'enabledInverters' only.
 	 * 
-	 * @param ess
+	 * @param enabledInverters
+	 * @return
 	 */
-	public synchronized void addEss(ManagedSymmetricEss ess) {
-		boolean wasAlreadyAdded = !this.allEsss.add(ess);
-		if (wasAlreadyAdded) {
-			return;
+	public List<Constraint> getConstraintsForInverters(Collection<Inverter> enabledInverters) {
+		List<Inverter> disabledInverters = new ArrayList<>(this.inverters);
+		disabledInverters.removeAll(enabledInverters);
+		return getConstraintsWithoutDisabledInverters(disabledInverters);
+	}
+
+	/**
+	 * Gets Constraints without the 'disabledInverters'.
+	 * 
+	 * @param disabledInverters
+	 * @return
+	 */
+	public List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters) {
+		return Streams.concat(//
+				this.createDisableConstraintsForInactiveInverters(disabledInverters).stream(),
+				this.createGenericEssConstraints().stream(), //
+				this.createStaticEssConstraints().stream(), //
+				this.createClusterConstraints().stream(), //
+				this.createSumOfPhasesConstraints(disabledInverters).stream(), //
+				this.createSymmetricEssConstraints().stream(), //
+				this.constraints.stream()).collect(Collectors.toList());
+	}
+
+	/**
+	 * Creates for each disabled inverter an EQUALS ZERO constraint
+	 */
+	public List<Constraint> createDisableConstraintsForInactiveInverters(Collection<Inverter> inverters) {
+		List<Constraint> result = new ArrayList<>();
+		for (Inverter inverter : inverters) {
+			ManagedSymmetricEss ess = inverter.getEss();
+			Phase phase = inverter.getPhase();
+			for (Pwr pwr : Pwr.values()) {
+				result.add(this.createSimpleConstraint(ess.id() + ": Disable " + pwr.getSymbol() + phase.getSymbol(),
+						ess, phase, pwr, Relationship.EQUALS, 0));
+			}
 		}
-		if (ess instanceof MetaEss) {
-			this.metaEsss.add((MetaEss) ess);
+		return result;
+	}
 
-		} else {
-			if (!(this.realEsss.contains(ess))) {
-				this.realEsss.add(ess);
+	/**
+	 * Creates for each Ess constraints for AllowedCharge, AllowedDischarge and
+	 * MaxApparentPower
+	 */
+	public List<Constraint> createGenericEssConstraints() {
+		List<Constraint> result = new ArrayList<>();
+		for (ManagedSymmetricEss ess : this.esss) {
+			if (ess instanceof MetaEss) {
+				// ignore
+				continue;
+			}
 
-				if (ess instanceof ManagedAsymmetricEss) {
-					// nothing
+			Optional<Integer> allowedCharge = ess.getAllowedCharge().value().asOptional();
+			if (allowedCharge.isPresent()) {
+				result.add(this.createSimpleConstraint(ess.id() + ": Allowed Charge", ess, Phase.ALL, Pwr.ACTIVE,
+						Relationship.GREATER_OR_EQUALS, allowedCharge.get()));
+			}
+			Optional<Integer> allowedDischarge = ess.getAllowedDischarge().value().asOptional();
+			if (allowedDischarge.isPresent()) {
+				result.add(this.createSimpleConstraint(ess.id() + ": Allowed Discharge", ess, Phase.ALL, Pwr.ACTIVE,
+						Relationship.LESS_OR_EQUALS, allowedDischarge.get()));
+			}
+			Optional<Integer> maxApparentPower = ess.getMaxApparentPower().value().asOptional();
+			if (maxApparentPower.isPresent()) {
+				if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode) {
+					double maxApparentPowerPerPhase = maxApparentPower.get() / 3d;
+					for (Phase phase : Phase.values()) {
+						if (phase == Phase.ALL) {
+							continue; // do not add Max Apparent Power Constraint for ALL phases
+						}
+						result.addAll(//
+								this.apparentPowerConstraintFactory.getConstraints(ess, phase,
+										maxApparentPowerPerPhase));
+					}
 				} else {
-					/*
-					 * ManagedSymmetricEss: all phases need to be equal
-					 */
-					this.addConstraint(new Constraint( //
-							ConstraintType.STATIC, //
-							new Coefficient[] { //
-									new Coefficient(ess, Phase.L1, Pwr.ACTIVE, 1), //
-									new Coefficient(ess, Phase.L2, Pwr.ACTIVE, -1), //
-							}, Relationship.EQ, 0));
-					this.addConstraint(new Constraint( //
-							ConstraintType.STATIC, //
-							new Coefficient[] { //
-									new Coefficient(ess, Phase.L1, Pwr.ACTIVE, 1), //
-									new Coefficient(ess, Phase.L3, Pwr.ACTIVE, -1), //
-							}, Relationship.EQ, 0));
-					this.addConstraint(new Constraint( //
-							ConstraintType.STATIC, //
-							new Coefficient[] { //
-									new Coefficient(ess, Phase.L1, Pwr.REACTIVE, 1), //
-									new Coefficient(ess, Phase.L2, Pwr.REACTIVE, -1), //
-							}, Relationship.EQ, 0));
-					this.addConstraint(new Constraint( //
-							ConstraintType.STATIC, //
-							new Coefficient[] { //
-									new Coefficient(ess, Phase.L1, Pwr.REACTIVE, 1), //
-									new Coefficient(ess, Phase.L3, Pwr.REACTIVE, -1), //
-							}, Relationship.EQ, 0));
+					result.addAll(//
+							this.apparentPowerConstraintFactory.getConstraints(ess, Phase.ALL, maxApparentPower.get()));
 				}
 			}
 		}
+		return result;
 	}
 
 	/**
-	 * Removes a ManagedSymmetricEss
+	 * Asks each Ess if it has any static Constraints and adds them
 	 * 
-	 * @param ess
+	 * @return
 	 */
-	public synchronized void removeEss(ManagedSymmetricEss ess) {
-		this.allEsss.remove(ess);
-		if (ess instanceof MetaEss) {
-			this.metaEsss.remove((MetaEss) ess);
+	public List<Constraint> createStaticEssConstraints() {
+		List<Constraint> result = new ArrayList<>();
+		for (ManagedSymmetricEss ess : this.esss) {
+			for (Constraint c : ess.getStaticConstraints()) {
+				result.add(c);
+			}
+		}
+		return result;
+	}
 
-		} else {
-			/*
-			 * find all existing Constraints for this Ess and remove them
-			 */
-			Consumer<Iterator<Constraint>> constraintHandler = (i) -> {
-				while (i.hasNext()) {
-					Constraint ct = i.next();
-					boolean constraintHasThisEss = Stream.of(ct.getCoefficients()) //
-							.anyMatch(co -> co.getEss().equals(ess));
-					if (constraintHasThisEss) {
-						i.remove();
-						// NOTE: what happens if this Constraint is for several Ess? Should we keep it
-						// and only remove the matching coefficients?
+	/**
+	 * Creates Constraints for Cluster, e.g. ClusterL1 = ess1_L1 + ess2_L1 + ...
+	 * 
+	 * @return
+	 */
+	public List<Constraint> createClusterConstraints() {
+		List<Constraint> result = new ArrayList<>();
+		for (ManagedSymmetricEss ess : this.esss) {
+			if (ess instanceof MetaEss) {
+				MetaEss e = (MetaEss) ess;
+				for (Phase phase : Phase.values()) {
+					for (Pwr pwr : Pwr.values()) {
+						// creates a constraint of the form
+						// 1*sumL1 - 1*ess1_L1 - 1*ess2_L1 = 0
+						List<LinearCoefficient> cos = new ArrayList<>();
+						cos.add(new LinearCoefficient(this.coefficients.of(ess, phase, pwr), 1));
+						for (ManagedSymmetricEss subEss : e.getEsss()) {
+							if (!subEss.isEnabled()) {
+								// ignore disabled Sub-ESS
+								continue;
+							}
+							cos.add(new LinearCoefficient(this.coefficients.of(subEss, phase, pwr), -1));
+						}
+						Constraint c = new Constraint(ess.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos,
+								Relationship.EQUALS, 0);
+						result.add(c);
 					}
 				}
-			};
-			constraintHandler.accept(this.staticConstraints.iterator());
-			constraintHandler.accept(this.cycleConstraints.iterator());
-
-			this.realEsss.remove(ess);
+			}
 		}
+		return result;
 	}
 
 	/**
-	 * Add a simple Constraint
+	 * Creates Constraints for Three-Phased Ess: P = L1 + L2 + L3
+	 * 
+	 * @return
+	 */
+	public List<Constraint> createSumOfPhasesConstraints(Collection<Inverter> disabledInverters) {
+		List<Constraint> result = new ArrayList<>();
+		for (ManagedSymmetricEss ess : this.esss) {
+			// deactivate disabled Inverters if they are part of this Ess
+			boolean addL1 = true;
+			boolean addL2 = true;
+			boolean addL3 = true;
+			for (Inverter inverter : disabledInverters) {
+				if (Objects.equals(ess, inverter.getEss())) {
+					switch (inverter.getPhase()) {
+					case ALL:
+						break;
+					case L1:
+						addL1 = false;
+						break;
+					case L2:
+						addL2 = false;
+						break;
+					case L3:
+						addL3 = false;
+						break;
+					}
+				}
+			}
+			if (addL1 || addL2 || addL3) {
+				for (Pwr pwr : Pwr.values()) {
+					// creates two constraint of the form
+					// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
+					// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
+					List<LinearCoefficient> cos = new ArrayList<>();
+					cos.add(new LinearCoefficient(this.coefficients.of(ess, Phase.ALL, pwr), 1));
+					if (addL1) {
+						cos.add(new LinearCoefficient(this.coefficients.of(ess, Phase.L1, pwr), -1));
+					}
+					if (addL2) {
+						cos.add(new LinearCoefficient(this.coefficients.of(ess, Phase.L2, pwr), -1));
+					}
+					if (addL3) {
+						cos.add(new LinearCoefficient(this.coefficients.of(ess, Phase.L3, pwr), -1));
+					}
+					result.add(new Constraint(ess.id() + ": " + pwr.getSymbol() + "=L1+L2+L3",
+							cos.toArray(new LinearCoefficient[cos.size()]), Relationship.EQUALS, 0));
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Creates Constraints for SymmetricEss, e.g. L1 = L2 = L3
+	 * 
+	 * @return
+	 */
+	public List<Constraint> createSymmetricEssConstraints() {
+		List<Constraint> result = new ArrayList<>();
+		for (Inverter inverter : this.inverters) {
+			if (inverter != null && inverter.getPhase() == Phase.ALL) {
+				ManagedSymmetricEss ess = inverter.getEss();
+				for (Pwr pwr : Pwr.values()) {
+					// creates two constraint of the form
+					// 1*L1 - 1*L2 = 0
+					// 1*L1 - 1*L3 = 0
+					result.add(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
+							new LinearCoefficient(this.coefficients.of(ess, Phase.L1, pwr), 1), //
+							new LinearCoefficient(this.coefficients.of(ess, Phase.L2, pwr), -1) //
+					}, Relationship.EQUALS, 0));
+					result.add(new Constraint(ess.id() + ": Symmetric L1/L3", new LinearCoefficient[] { //
+							new LinearCoefficient(this.coefficients.of(ess, Phase.L1, pwr), 1), //
+							new LinearCoefficient(this.coefficients.of(ess, Phase.L3, pwr), -1) //
+					}, Relationship.EQUALS, 0));
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Creates Constraints for Sum of P &gt; 0
+	 * 
+	 * @return
+	 */
+	public List<Constraint> createPGreaterThan0Constraints() {
+		List<Constraint> result = new ArrayList<>();
+		List<LinearCoefficient> cos = new ArrayList<>();
+		for (Inverter inverter : this.inverters) {
+			ManagedSymmetricEss ess = inverter.getEss();
+			for (Phase phase : Phase.values()) {
+				cos.add(new LinearCoefficient(this.coefficients.of(ess, phase, Pwr.ACTIVE), 1));
+
+			}
+		}
+		Constraint c = new Constraint("Sum of P > 0", cos, Relationship.GREATER_OR_EQUALS, 0);
+		result.add(c);
+		return result;
+	}
+
+	/**
+	 * Creates a simple Constraint with only one Coefficient.
 	 * 
 	 * @param ess
-	 * @param type
 	 * @param phase
 	 * @param pwr
 	 * @param relationship
 	 * @param value
 	 * @return
 	 */
-	public synchronized Constraint addSimpleConstraint(ManagedSymmetricEss ess, ConstraintType type, Phase phase,
-			Pwr pwr, Relationship relationship, int value) {
-		return this.addConstraint(Utils.createSimpleConstraint(ess, type, phase, pwr, relationship, value));
+	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			Relationship relationship, double value) {
+		return new Constraint(description, //
+				new LinearCoefficient[] { //
+						new LinearCoefficient(this.coefficients.of(ess, phase, pwr), 1) //
+				}, relationship, //
+				value);
 	}
 
 	/**
-	 * Clear Cycle constraints, keeping only the 'staticConstraints' for next Cycle.
+	 * Sets the weight of each Inverter according to the SoC of its ESS
 	 */
-	public synchronized void clearCycleConstraints() {
-		this.cycleConstraints.clear();
+	public static void invertersUpdateWeights(List<Inverter> inverters) {
+		for (Inverter inverter : inverters) {
+			inverter.weight = inverter.getEss().getSoc().value().orElse(50);
+		}
 	}
 
 	/**
-	 * Get Indices of ActivePower coefficients
+	 * Sorts the list of Inverters by their weights
+	 */
+	public static void invertersSortByWeights(List<Inverter> inverters) {
+		Collections.sort(inverters, (e1, e2) -> {
+			// first: sort by weight
+			int weightCompare = Integer.compare(e2.weight, e1.weight);
+			if (weightCompare != 0) {
+				return weightCompare;
+			}
+			// second: sort by name
+			return e1.toString().compareTo(e2.toString());
+		});
+	}
+
+	/**
+	 * Adjust the sorting of Inverters by weights.
 	 * 
-	 * @return
-	 */
-	public synchronized IntStream getActivePowerCoefficientIndices() {
-		return IntStream.iterate(0, i -> i + 2).limit(this.getNoOfCoefficients() / 2);
-	}
-
-	/**
-	 * Gets all Constraints (Static + Cycle)
+	 * This is different to 'invertersSortByWeights()' in that it tries to avoid
+	 * resorting the entire list all the time. Instead it only adjusts the list
+	 * slightly.
 	 * 
-	 * @return
+	 * @param inverters
 	 */
-	public synchronized List<Constraint> getAllConstraints() {
-		return Stream.concat(this.staticConstraints.stream(), this.cycleConstraints.stream())
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Gets all Constraints as LinearConstraints
-	 * 
-	 * @return
-	 */
-	public synchronized List<LinearConstraint> getAllLinearConstraints() {
-		List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
-		for (Constraint c : this.getAllConstraints()) {
-			LinearConstraint lc = this.toLinearConstraint(c);
-			if (lc != null) {
-				constraints.add(lc);
+	public static void invertersAdjustSortingByWeights(List<Inverter> inverters) {
+		for (int i = 0; i < inverters.size() - 1; i++) {
+			for (int j = i; j < inverters.size() - 1; j++) {
+				int weight1 = inverters.get(j).weight;
+				int weight2 = inverters.get(j + 1).weight;
+				if (weight1 * SORT_FACTOR < weight2) {
+					Collections.swap(inverters, j, j + 1);
+				}
 			}
 		}
-		return constraints;
 	}
 
-	/**
-	 * Get the correct list for the ConstraintType
-	 * 
-	 * @param type
-	 * @return
-	 */
-	private synchronized List<Constraint> getConstraintListForType(ConstraintType type) {
-		switch (type) {
-		case STATIC:
-			return this.staticConstraints;
-		case CYCLE:
-			return this.cycleConstraints;
-		}
-		throw new IllegalArgumentException("This should never happen!");
-	}
-
-	/**
-	 * Create Constraints to keep all coefficients in Quadrant I
-	 * 
-	 * @return
-	 */
-	public synchronized LinearConstraint[] createConstraintsForQuadrantI() {
-		LinearConstraint[] result = new LinearConstraint[this.getNoOfCoefficients()];
-		for (int i = 0; i < this.getNoOfCoefficients(); i++) {
-			double[] coefficients = this.createEmptyCoefficients();
-			coefficients[i] = 1;
-			result[i] = new LinearConstraint(coefficients, Relationship.GEQ, 0);
-		}
-		return result;
-	}
-
-	/**
-	 * Creates an empty Coefficient array
-	 * 
-	 * @return
-	 */
-	public synchronized double[] createEmptyCoefficients() {
-		return new double[this.getNoOfCoefficients()];
-	}
-
-	/**
-	 * Gets the coefficient start index for the given ManagedSymmetricEss - if it is
-	 * available
-	 * 
-	 * @param ess
-	 * @return
-	 */
-	public synchronized int getEssIndex(ManagedSymmetricEss ess) {
-		return this._getEssIndex(ess);
-	}
-
-	/**
-	 * Gets the total number of Coefficients
-	 */
-	public synchronized int getNoOfCoefficients() {
-		return this.realEsss.size() * COEFFICIENTS_PER_ESS;
-	}
-
-	/**
-	 * Creates a Simple Objective Function: 1*p1 + 1*q1 + 1*p2 + 1*q2 + ...
-	 * 
-	 * @return
-	 */
-	public synchronized LinearObjectiveFunction createSimpleObjectiveFunction() {
-		double[] c = this.createEmptyCoefficients();
-		for (int i = 0; i < c.length; i++) {
-			c[i] = 1;
-		}
-		return new LinearObjectiveFunction(c, 0);
-	}
-
-	/**
-	 * Removes a Constraint
-	 * 
-	 * @param constraint
-	 */
-	public synchronized void removeConstraint(Constraint constraint) {
-		if (constraint == null) {
-			return;
-		}
-		this.getConstraintListForType(constraint.getType()).remove(constraint);
-	}
-
-	/**
-	 * Creates a LinearConstraint - suitable for linear optimization problem - from
-	 * a OpenEMS Constraint object
-	 * 
-	 * @param constraint
-	 * @return
-	 */
-	protected synchronized LinearConstraint toLinearConstraint(Constraint constraint) {
-		if (constraint.isEnabled()) {
-			double[] coefficients = this.createEmptyCoefficients();
-			for (Coefficient coefficient : constraint.getCoefficients()) {
-				this.getCoefficients(coefficients, coefficient.getEss(), coefficient.getPhase(), coefficient.getPwr(),
-						coefficient.getValue());
-			}
-			return new LinearConstraint(coefficients, constraint.getRelationship(), constraint.getValue().get());
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Helper for toLinearConstraint-method. Creates the coefficients array for a
-	 * LinearConstraint from given meta data
-	 * 
-	 * @param coefficients
-	 * @param ess
-	 * @param phase
-	 * @param pwr
-	 * @param value
-	 */
-	private synchronized void getCoefficients(double[] coefficients, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			double value) {
-		if (ess instanceof MetaEss) {
-			for (ManagedSymmetricEss subEss : ((MetaEss) ess).getEsss()) {
-				this.getCoefficients(coefficients, subEss, phase, pwr, value);
-			}
-			return;
-		}
-
-		int essIndex = this.getEssIndex(ess);
-		int pwrOffset = pwr.getOffset();
-		switch (phase) {
-		case ALL:
-			coefficients[essIndex + Phase.L1.getOffset() + pwrOffset] = value;
-			coefficients[essIndex + Phase.L2.getOffset() + pwrOffset] = value;
-			coefficients[essIndex + Phase.L3.getOffset() + pwrOffset] = value;
-			break;
-		case L1:
-		case L2:
-		case L3:
-			coefficients[essIndex + phase.getOffset() + pwrOffset] = value;
-			break;
-		}
-	}
+	private final static float SORT_FACTOR = 1.3f;
 }

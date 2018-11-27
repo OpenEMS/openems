@@ -1,11 +1,10 @@
 import { Injectable, ErrorHandler } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { Cookie } from 'ng2-cookies';
 
-import { Websocket } from './websocket';
-import { Edge } from '../edge/edge';
 import { DefaultTypes } from './defaulttypes';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -15,7 +14,7 @@ export class Service implements ErrorHandler {
         public translate: TranslateService
     ) {
         // add language
-        translate.addLangs(["de", "en", "cz", "nl"]);
+        translate.addLangs(["de", "en", "cz", "nl", "es"]);
         // this language will be used as a fallback when a translation isn't found in the current language
         translate.setDefaultLang('de');
     }

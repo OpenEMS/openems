@@ -2,6 +2,9 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
@@ -19,6 +22,8 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  */
 public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
+	private final Logger log = LoggerFactory.getLogger(FC5WriteCoilTask.class);
+	
 	public FC5WriteCoilTask(int startAddress, AbstractModbusElement<?> element) {
 		super(startAddress, element);
 	}
@@ -34,14 +39,14 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 					/*
 					 * First try
 					 */
-					this.writeCoil(bridge, this.getUnitId(), this.getStartAddress(), valueOpt.get());
+					this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), valueOpt.get());
 				} catch (OpenemsException | ModbusException e) {
 					/*
 					 * Second try: with new connection
 					 */
 					bridge.closeModbusConnection();
 					try {
-						this.writeCoil(bridge, this.getUnitId(), this.getStartAddress(), valueOpt.get());
+						this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), valueOpt.get());
 					} catch (ModbusException e2) {
 						throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 					}
@@ -54,10 +59,10 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
-		
-		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);	
+
+		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
-		
+
 		if (!(response instanceof WriteCoilResponse)) {
 			throw new OpenemsException("Unexpected Modbus response. Expected [WriteCoilResponse], got ["
 					+ response.getClass().getSimpleName() + "]");

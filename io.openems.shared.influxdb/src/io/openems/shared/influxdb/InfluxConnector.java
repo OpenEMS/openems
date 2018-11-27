@@ -61,6 +61,7 @@ public class InfluxConnector {
 			try {
 				InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
 						this.password);
+				// TODO try to create database
 				influxDB.setDatabase(this.database);
 				influxDB.enableBatch(BatchOptions.DEFAULTS);
 				this._influxDB = influxDB;
@@ -80,8 +81,6 @@ public class InfluxConnector {
 	/**
 	 * copied from backend.timedata.influx.provider
 	 * 
-	 * @param influxdb
-	 * @param database
 	 * @param query
 	 * @return
 	 * @throws OpenemsException
@@ -105,13 +104,11 @@ public class InfluxConnector {
 	/**
 	 * copied from backend.timedata.influx.provider
 	 * 
-	 * @param influxdb
-	 * @param database
-	 * @param influxIdOpt
 	 * @param fromDate
 	 * @param toDate
 	 * @param channels
 	 * @param resolution
+	 * @param tags
 	 * @return
 	 * @throws OpenemsException
 	 */

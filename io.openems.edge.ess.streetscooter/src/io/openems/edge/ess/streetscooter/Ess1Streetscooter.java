@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -23,10 +24,9 @@ import io.openems.edge.ess.power.api.Power;
 @Component(name = "Ess1.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class Ess1Streetscooter extends AbstractEssStreetscooter
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
-	private static final int INVERTER_1_MODE_ADDRESS = 3056;
-	private static final int ICU1_SET_POWER_ADRESS = 4002;
+	private static final int ICU_1_SET_POWER_ADRESS = 4002;
 	private static final int ICU_1_ENABLED_ADDRESS = 4001;
 
 	private static final int BATTERY_1_ADDRESS_OFFSET = 1000;
@@ -49,8 +49,8 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 
 	@Activate
 	protected void activate(ComponentContext context, Config1 config1) {
-		super.activate(context, config1.service_pid(), config1.id(), config1.enabled(), UNIT_ID, this.cm, "Modbus",
-				config1.modbus_id());
+		super.activate(context, config1.service_pid(), config1.id(), config1.enabled(), config1.readonly(), UNIT_ID,
+				this.cm, "Modbus", config1.modbus_id());
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -60,12 +60,7 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 
 	@Override
 	protected int getIcuSetPowerAddress() {
-		return ICU1_SET_POWER_ADRESS;
-	}
-
-	@Override
-	protected int getInverterModeAddress() {
-		return INVERTER_1_MODE_ADDRESS;
+		return ICU_1_SET_POWER_ADRESS;
 	}
 
 	@Override

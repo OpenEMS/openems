@@ -31,7 +31,7 @@ public class Utils {
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
-					case MAX_ACTIVE_POWER:
+					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, EssFeneconCommercial40.MAX_APPARENT_POWER);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
@@ -41,7 +41,13 @@ public class Utils {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+					case ALLOWED_CHARGE_POWER:
+					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(EssFeneconCommercial40.ChannelId.values()).map(channelId -> {
@@ -66,9 +72,6 @@ public class Utils {
 					case VOLTAGE_L1:
 					case VOLTAGE_L2:
 					case VOLTAGE_L3:
-					case ALLOWED_APPARENT:
-					case ALLOWED_CHARGE:
-					case ALLOWED_DISCHARGE:
 					case INVERTER_CURRENT_L1:
 					case INVERTER_CURRENT_L2:
 					case INVERTER_CURRENT_L3:
@@ -83,6 +86,8 @@ public class Utils {
 					case BMS_DCDC_WORK_STATE:
 					case AC_CHARGE_ENERGY:
 					case AC_DISCHARGE_ENERGY:
+					case ORIGINAL_ALLOWED_CHARGE_POWER:
+					case ORIGINAL_ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case SET_WORK_STATE:
 					case SET_ACTIVE_POWER:

@@ -5,16 +5,39 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface SymmetricEss extends OpenemsComponent {
 
 	public final static String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
 
-	public enum GridMode {
-		UNDEFINED, ON_GRID, OFF_GRID
+	public enum GridMode implements OptionsEnum {
+		UNDEFINED(0, "Undefined"), //
+		ON_GRID(1, "On-Grid"), //
+		OFF_GRID(2, "Off-Grid");
+
+		private int value;
+		private String option;
+
+		private GridMode(int value, String option) {
+			this.value = value;
+			this.option = option;
+		}
+
+		@Override
+		public int getValue() {
+			return value;
+		}
+
+		@Override
+		public String getOption() {
+			return option;
+		}
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -38,11 +61,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(new Doc().type(OpenemsType.INTEGER) //
-				.option(GridMode.UNDEFINED) //
-				.option(GridMode.ON_GRID) //
-				.option(GridMode.OFF_GRID) //
-		),
+		GRID_MODE(new Doc().type(OpenemsType.INTEGER).options(GridMode.values())),
 		/**
 		 * Active Power
 		 * 
@@ -74,15 +93,17 @@ public interface SymmetricEss extends OpenemsComponent {
 				.text(POWER_DOC_TEXT) //
 		),
 		/**
-		 * Max Active Power
+		 * Holds the currently maximum possible apparent power. This value is commonly
+		 * defined by the inverter limitations.
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess
+		 * <li>Interface: Managed Symmetric Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
+		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
+		MAX_APPARENT_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
 		/**
 		 * Active Charge Energy
 		 * 
@@ -118,6 +139,14 @@ public interface SymmetricEss extends OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(SymmetricEss.class, 100) //
+				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
+				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
+				.build();
 	}
 
 	/**
@@ -149,12 +178,12 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the maximum Active Power
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0"
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getMaxActivePower() {
-		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	default Channel<Integer> getMaxApparentPower() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
 	}
 
 	/**
@@ -166,7 +195,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	default Channel<Integer> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
 	}
-	
+
 	/**
 	 * Gets the Active Charge Energy in [Wh].
 	 * 
@@ -175,13 +204,13 @@ public interface SymmetricEss extends OpenemsComponent {
 	default Channel<Integer> getActiveChargeEnergy() {
 		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
 	}
-	
+
 	/**
 	 * Gets the Active Discharge Energy in [Wh].
 	 * 
 	 * @return
 	 */
 	default Channel<Integer> getActiveDischargeEnergy() {
-		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
+		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 }
