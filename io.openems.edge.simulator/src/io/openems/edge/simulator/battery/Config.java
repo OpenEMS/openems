@@ -31,6 +31,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	int minCellVoltage_mV() default 3300;
 	
+	int maximalPower_W() default 50000;
+	
 	String webconsole_configurationFactory_nameHint() default "BMS Simulated [{id}]";
 
 

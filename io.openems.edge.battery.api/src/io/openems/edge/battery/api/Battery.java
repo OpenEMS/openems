@@ -134,6 +134,16 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		MINIMAL_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
+		
+		/**
+		 * Maximal power
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		MAXIMAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		;
 
 		private final Doc doc;
@@ -254,5 +264,14 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMinimalCellVoltage() {
 		return this.channel(ChannelId.MINIMAL_CELL_VOLTAGE);
+	}
+
+	/**
+	 * Gets the maximal power
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMaxPower() {
+		return this.channel(ChannelId.MAXIMAL_POWER);
 	}
 }
