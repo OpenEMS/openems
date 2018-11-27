@@ -42,6 +42,8 @@ public class Utils {
 					case ALLOWED_DISCHARGE_POWER:
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;

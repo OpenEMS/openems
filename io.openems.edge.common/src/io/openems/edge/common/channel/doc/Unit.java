@@ -142,8 +142,6 @@ public enum Unit {
 	 * Unit of Time in Milli Seconds [ms]
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
-
-<<<<<<< HEAD
 	/**
 	 * Unit of Time Minute
 	 */
@@ -154,8 +152,6 @@ public enum Unit {
 	 */
 	HOUR("h"),
 
-=======
->>>>>>> develop
 	/*
 	 * Resistance
 	 */
