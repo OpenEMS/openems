@@ -34,7 +34,7 @@ To add a page, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc
 
 1. Go to https://github.com/OpenEMS/openems/tree/develop/doc/modules/ROOT/pages[doc/modules/ROOT/pages icon:external-link[]] and create a .adoc file with the desired name.
 
-2. Go to https://github.com/OpenEMS/openems/blob/develop/doc/modules/ROOT/nav.adoc[doc/modules/ROOT/nav.adoc icon:external-link[]] and add your page with the correct filename to the nav file.
+2. Go to https://github.com/OpenEMS/openems/blob/develop/doc/modules/ROOT/nav.adoc[doc/modules/ROOT/nav.adoc icon:external-link[]] and add your page with the correct filename to the nav file. 
 
 
 

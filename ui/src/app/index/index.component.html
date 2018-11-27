@@ -21,9 +21,9 @@
             </form>
           </ion-item>
           <!-- Messages -->
-          <ion-item>
+          <p>
             {{ (websocket.event | async)?.message }}
-          </ion-item>
+          </p>
           <ion-button float-right (click)="doLogin()">
             <ion-icon slot="icon-only" name="log-in"></ion-icon>
           </ion-button>
