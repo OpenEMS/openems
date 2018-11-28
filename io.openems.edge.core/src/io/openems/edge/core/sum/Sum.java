@@ -221,13 +221,26 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		 * Gridmode
 		 * 
 		 * <ul>
-		 * <li>Interface: Gridmode (origin: @see {@link EssSymmetric}))
+		 * <li>Interface: Gridmode (origin: @see {@link SymmetricEss}))
 		 * <li>Type: Integer
 		 * <li>Values: '0' = UNDEFINED, '1' = ON GRID, '2' = OFF GRID
 		 * </ul>
 		 */
 		GRID_MODE(new Doc() //
-				.type(OpenemsType.INTEGER));
+				.type(OpenemsType.INTEGER)),
+		
+		/**
+		 * Max Apparent Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Max Apparent Power (origin: @see {@link SymmetricEss}))
+		 * <li>Type: Integer
+		 * <li>Unit: VA
+		 * </ul>
+		 */
+		MAX_APPARENT_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE));
 
 		private final Doc doc;
 
@@ -279,6 +292,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
 	private final AverageInteger<SymmetricEss> essSoc;
 	private final SumInteger<SymmetricEss> essActivePower;
+	private final SumInteger<SymmetricEss> maxApparentPower;
 
 	/*
 	 * Grid
@@ -327,6 +341,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		this.esss.add(ess);
 		this.essSoc.addComponent(ess);
 		this.essActivePower.addComponent(ess);
+		this.maxApparentPower.addComponent(ess);		
 		this.calculateMaxConsumption.accept(null /* ignored */);
 		ess.getGridMode().onChange(gridModeCalculator );
 	}
@@ -338,7 +353,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		}
 		this.esss.remove(ess);
 		this.essSoc.removeComponent(ess);
-		this.essActivePower.removeComponent(ess);		
+		this.essActivePower.removeComponent(ess);
+		this.maxApparentPower.removeComponent(ess);		
 	}
 
 	private final Consumer<Value<Integer>> calculateMaxConsumption = ignoreValue -> {
@@ -418,6 +434,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		this.essSoc = new AverageInteger<SymmetricEss>(this, ChannelId.ESS_SOC, SymmetricEss.ChannelId.SOC);
 		this.essActivePower = new SumInteger<SymmetricEss>(this, ChannelId.ESS_ACTIVE_POWER,
 				SymmetricEss.ChannelId.ACTIVE_POWER);
+		this.maxApparentPower = new SumInteger<SymmetricEss>(this, ChannelId.MAX_APPARENT_POWER,
+				SymmetricEss.ChannelId.MAX_APPARENT_POWER);
+		
 		/*
 		 * Grid
 		 */
@@ -556,4 +575,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 	public Channel<Integer> getGridMode() {
 		return this.channel(ChannelId.GRID_MODE);
 	}
+	
+	public Channel<Integer> getMaxApparentPower() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	}
+	
 }
