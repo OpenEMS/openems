@@ -1,6 +1,5 @@
 eclipse.preferences.version=1
 encoding//src/io/openems/edge/io/kmtronic/KmtronicRelayOutput.java=UTF-8
-encoding//test/io/openems/edge/io/kmtronic/ProviderImplTest.java=UTF-8
 encoding/bnd.bnd=UTF-8
 encoding/debug.bndrun=UTF-8
 encoding/io.openems.edge.io.kmtronic.bndrun=UTF-8

@@ -1,24 +1,22 @@
 package io.openems.edge.pvinverter.api;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Represents a 3-Phase, symmetric PV-Inverter.
  */
-@ProviderType
-public interface SymmetricPvInverter extends SymmetricMeter {
+public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Read/Set Active Power Limit
+		 * Read/Set Active Power Limit.
 		 * 
 		 * <ul>
 		 * <li>Interface: PV-Inverter Symmetric
@@ -29,7 +27,14 @@ public interface SymmetricPvInverter extends SymmetricMeter {
 		ACTIVE_POWER_LIMIT(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE));
+				.accessMode(AccessMode.READ_WRITE) //
+				.onInit(channel -> { //
+					// on each Write to the channel -> set the value
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+						channel.setNextValue(value);
+					});
+				}) //
+				.text(POWER_DOC_TEXT));
 
 		private final Doc doc;
 
@@ -43,20 +48,20 @@ public interface SymmetricPvInverter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the type of this Meter
+	 * Gets the type of this Meter.
 	 * 
-	 * @return
+	 * @return the MeterType
 	 */
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
 	}
 
 	/**
-	 * Sets the PV limit in [W].
+	 * Gets the Active Power Limit in [W].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
-	public default WriteChannel<Integer> getActivePowerLimit() {
+	default IntegerWriteChannel getActivePowerLimit() {
 		return this.channel(ChannelId.ACTIVE_POWER_LIMIT);
 	}
 }

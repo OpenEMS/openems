@@ -1,6 +1,5 @@
-ifndef::backend-pdf[]
-= Getting Started  
-endif::[]
+= Getting Started
+:imagesdir: ../assets/images
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -55,7 +54,7 @@ Menu: btn:[Help] →  btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn
 
 . Import OpenEMS component projects (OSGi bundles):
 +
-Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → Root directory: btn:[Browse...] → select the directory with the source code - for example `C:\Users\your.user\git\openems` → btn:[OK] → btn:[Finish] → "Switch to Bndtools perspective?" btn:[yes] 
+Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → Root directory: btn:[Browse...] → select the directory with the source code - for example `C:\Users\your.user\git\openems` → btn:[OK] → btn:[Finish] → "Switch to Bndtools perspective?" btn:[yes]
 
 . Eclipse should have successfully built OpenEMS Edge and Backend, showing no entry in Problems.
 +
@@ -138,7 +137,7 @@ This time some more logs will show up. Most importantly they show, that the Grid
 INFO  [onent.AbstractOpenemsComponent] [meter0] Activate GridMeter [edge.simulator.meter.grid.acting]
 [onent.AbstractOpenemsComponent] [meter0] Deactivate GridMeter [edge.simulator.meter.grid.acting]
 [onent.AbstractOpenemsComponent] [meter0] Activate GridMeter [edge.simulator.meter.grid.acting]
-[e.controller.debuglog.DebugLog] [ctrlDebugLog0] _sum[Ess SoC:0 %|L:0 W Grid L:1423 W Production L:0 W Consumption L:1423 W] meter0[1423 W] 
+[e.controller.debuglog.DebugLog] [ctrlDebugLog0] _sum[Ess SoC:0 %|L:0 W Grid L:1423 W Production L:0 W Consumption L:1423 W] meter0[1423 W]
 ----
 +
 NOTE: This setup causes the simulated grid-meter to take the standardized load-profiles data as input parameter.
@@ -229,3 +228,51 @@ image::openems-ui-overview.png[OpenEMS UI Overview screen]
 image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
 +
 NOTE: OpenEMS UI will complain that "no timedata source is available". Because of this the historic chart is not yet functional.
+
+== Connect the Edge App to the Backend and transfer data to the Backend
+. Start the Backend and connect the Edge App to it
+.. Select the Backend Application in Eclipse
+image:eclipse-io.openems.backend.application.png[io.openems.backend.application in eclipse project]
+.. Start the Backend App
+image:eclipse-backendapp-bndrund.png[Start the Backend Application in Eclipse]
+.. Open the Felix Web interface of the Backend: http://localhost:8079/system/console/configMgr
+Username: admin, Password: admin
+... Select the `Metadata.Dummy` Bundle and save it
+image:config-backend-metadummy.png[Save the Metadata.Dummy]
+... Select the `EdgeWebsocket` Bundle and specify the Port: e.g. 8084
+image:config-backend-edgeWebsocket.png[Start the EdgeWebsocket to listen on port 8084]
+.. Start the client connection from the `Edge App` in the Felix Web interface. The uri has to be changed to the backend address and port: ws://localhost:8084
+image:config-edge-api-backend.png[Connect to Edge App to the Backend Application Server]
+. Install InfluxDB and Chronograf: https://www.influxdata.com
+It is recommended from the Influx Developers to use a Unix system such as Liunx, thus support for Windows is experimental: https://www.influxdata.com/blog/running-the-tick-stack-on-windows/
+.. Set up a Linux system if not already running.
+.. On Ubuntu 18.04LTS run the following commands as sudo to add the influxdata repository and install influxdb and Chronograf:
++
+`# curl -sL https://repos.influxdata.com/influxdb.key | apt-key add -`
++
+`# source /etc/lsb-release`
++
+`# echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | tee /etc/apt/sources.list.d/influxdb.list`
++
+`# apt update && apt install influxdb chronograf`
++
+`# systemctl enable influxdb`
++
+`# systemctl start influxdb`
++
+`# systemctl enable chronograf`
++
+`# systemctl start chronograf`
++
+. Start data local data collection in the Edge App
+.. Open the installed Chronograf in the Web Browser: http://IP:8888 and set up a new Influx Database with the `InfluxDB Admin` Section in Chronograf for the Edge Application: `OpenEMS`. A newly installed Chronograf ask for username and password: use User: admin Password: admin
+.. Set up the connection to the InfluxDB in the Felix Web Interface in the Edge App.
+Enter the IP of the InfluxDB System. The standard port for Influx is 8086. Enter admin as Username and Password and specify the Database for the Edge `OpenEMS`.
+image:config-edge-influxdb.png[Configure the Edge Influx Connection]
+Now in Chronograf the `Data Explorer` can be used to inspect the collected data of the Edge App
+. Enable the Backend to save data as well
+.. Set up a new database in Chronograf: `OpenEMSBackend`
+.. Set up the connection the Backend Felix Web Interface:
+image:config-backend-influxdb.png[Configure the Backend Influx Connection]
+
+As there is now a connection between the backend and edge component as well as database connections on both ends the data is now transferred into the backend influx database.

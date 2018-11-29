@@ -32,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.OptionsEnum;
@@ -54,26 +55,29 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	public static final int CHARGE_MAX_V = 854;
 	public static final int DISCHARGE_MAX_A = 20;
 	public static final int CHARGE_MAX_A = 20;
-	
+
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
-	
+
 	private static final int SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS = 3;
 	private static final int MAX_TIME_FOR_INITIALIZATION_IN_SECONDS = 30;
 	public static final Integer CAPACITY_KWH = 50;
-	
+	public static final int MAX_POWER_WATT = 50000;
+
 	private final Logger log = LoggerFactory.getLogger(SoltaroRack.class);
-	
+
 	private String modbusBridgeId;
 	private BatteryState batteryState;
 
 	@Reference
 	protected ConfigurationAdmin cm;
-	
-	private LocalDateTime lastCommandSent = LocalDateTime.now(); // timer variable to avoid that commands are sent to fast	
+
+	private LocalDateTime lastCommandSent = LocalDateTime.now(); // timer variable to avoid that commands are sent to
+																	// fast
 	private LocalDateTime timeForSystemInitialization = null;
-	private boolean isStopping = false; // indicates that system is stopping; during that time no commands should be sent
-	
+	private boolean isStopping = false; // indicates that system is stopping; during that time no commands should be
+										// sent
+
 	public SoltaroRack() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
@@ -85,14 +89,14 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
-		
+
 		this.batteryState = config.batteryState();
 		initializeCallbacks();
 	}
-	
+
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -107,7 +111,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 
 			ContactorControl cc = (ContactorControl) ccOpt.get();
 
-			switch(cc) {
+			switch (cc) {
 			case CONNECTION_INITIATING:
 				timeForSystemInitialization = LocalDateTime.now();
 				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
@@ -122,20 +126,20 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(true);
 				break;
 			default:
-				break;			
-			}			
+				break;
+			}
 		});
-		
+
 		this.channel(ChannelId.CLUSTER_1_VOLTAGE).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
 			if (!vOpt.isPresent()) {
 				return;
 			}
-			int voltage_millivolt = vOpt.get();
-			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_millivolt * 1000);
+			int voltage_volt = vOpt.get();
+			this.channel(Battery.ChannelId.VOLTAGE).setNextValue(voltage_volt);
 		});
-		
+
 		this.channel(ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
@@ -146,7 +150,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 			this.channel(Battery.ChannelId.MINIMAL_CELL_VOLTAGE).setNextValue(voltage_millivolt);
 		});
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -155,7 +159,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		switch (event.getTopic()) {
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			handleBatteryState();			
+			handleBatteryState();
 			break;
 		}
 	}
@@ -167,7 +171,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		} else {
 			lastCommandSent = LocalDateTime.now();
 		}
-		
+
 		switch (this.batteryState) {
 		case DEFAULT:
 			checkSystemState();
@@ -182,7 +186,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	}
 
 	private void checkSystemState() {
-		
+
 		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		Optional<Enum<?>> ccOpt = contactorControlChannel.value().asEnumOptional();
@@ -191,28 +195,76 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		}
 		ContactorControl cc = (ContactorControl) ccOpt.get();
 
-		if (cc == ContactorControl.CONNECTION_INITIATING) {			
-			if (timeForSystemInitialization == null || timeForSystemInitialization.plusSeconds(MAX_TIME_FOR_INITIALIZATION_IN_SECONDS).isAfter(LocalDateTime.now())) {
-				return;	
+		if (cc == ContactorControl.CONNECTION_INITIATING) {
+			if (timeForSystemInitialization == null || timeForSystemInitialization
+					.plusSeconds(MAX_TIME_FOR_INITIALIZATION_IN_SECONDS).isAfter(LocalDateTime.now())) {
+				return;
 			} else {
-				// Maybe battery hung up in precharge mode...stop system, it will be restarted automatically
+				// Maybe battery hung up in precharge mode...stop system, it will be restarted
+				// automatically
 				this.channel(ChannelId.PRECHARGE_TAKING_TOO_LONG).setNextValue(true);
 				stopSystem();
 				return;
 			}
-					}
+		}
 		if (cc == ContactorControl.CUT_OFF) {
 			startSystem();
 			return;
 		}
 
 		if (cc == ContactorControl.ON_GRID) {
-			// TODO: Implement error handling or prevention on system temperature errors/ low voltage/...
+			// TODO: Implement error handling or prevention on system temperature errors/
+			// low voltage/...
 		}
 	}
 
 	public String getModbusBridgeId() {
 		return modbusBridgeId;
+	}
+	
+
+	@Override
+	public String debugLog() {
+		return "SoC:" + this.getSoc().value() //
+				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+	}
+
+	private void startSystem() {
+		if (isStopping) {
+			return;
+		}
+				
+		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		
+		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		// To avoid hardware damages do not send start command if system has already started
+		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.ON_GRID.getValue()) {
+			return;
+		}
+		
+		try {
+			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
+		} catch (OpenemsException e) {
+			log.error("Error while trying to start system\n" + e.getMessage());
+		}
+	}
+
+	private void stopSystem() {
+		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		
+		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		// To avoid hardware damages do not send stop command if system has already stopped
+		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.CUT_OFF.getValue()) {
+			return;
+		}
+		
+		try {
+			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
+			isStopping = true;
+		} catch (OpenemsException e) {
+			log.error("Error while trying to stop system\n" + e.getMessage());
+		}
 	}
 
 	public enum ChargeIndication implements OptionsEnum {
@@ -289,7 +341,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		BMS_CONTACTOR_CONTROL(new Doc().options(ContactorControl.values())), //
 		SYSTEM_OVER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
 		SYSTEM_UNDER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
-		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		CLUSTER_1_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_CHARGE_INDICATION(new Doc().options(ChargeIndication.values())), //
 		CLUSTER_1_SOH(new Doc().unit(Unit.PERCENT)), //
@@ -304,6 +356,9 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 		SYSTEM_INSULATION(new Doc().unit(Unit.KILOOHM)), //
 		SYSTEM_ACCEPT_MAX_CHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
+		CELL_VOLTAGE_PROTECT(new Doc().accessMode(AccessMode.READ_WRITE).unit(Unit.MILLIVOLT)), //
+		CELL_VOLTAGE_RECOVER(new Doc().accessMode(AccessMode.READ_WRITE).unit(Unit.MILLIVOLT)), //
+
 		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(
 				new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
 		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(
@@ -670,23 +725,31 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC6WriteRegisterTask(0x2010,  //
+				new FC6WriteRegisterTask(0x2010, //
 						m(SoltaroRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
-				) , //
+				), //
 				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
 						m(SoltaroRack.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
-				) , //
-				new FC3ReadRegistersTask(0x2042, Priority.LOW, //
+				), //
+				new FC3ReadRegistersTask(0x2042, Priority.HIGH, //
 						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x2042), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
-				new FC3ReadRegistersTask(0x2048, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2046, Priority.HIGH, //
+						m(SoltaroRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)), //
+						m(SoltaroRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)), //
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x2048), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
+				new FC6WriteRegisterTask(0x2046, //
+						m(SoltaroRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)) //
+				), //
+				new FC6WriteRegisterTask(0x2047, //
+						m(SoltaroRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)) //
+				), //
 				new FC3ReadRegistersTask(0x2100, Priority.LOW, //
 						m(SoltaroRack.ChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
@@ -703,7 +766,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 						new DummyRegisterElement(0x210D, 0x2115), //
 						m(SoltaroRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
-				new FC3ReadRegistersTask(0x2160, Priority.LOW, //
+				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x2160), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x2161), //
@@ -1054,34 +1117,5 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent implements Batte
 						m(SoltaroRack.ChannelId.CLUSTER_1_BATTERY_47_TEMPERATURE, new UnsignedWordElement(0x2C2F)) //
 				)//
 		); //
-	}
-
-	@Override
-	public String debugLog() {
-		return "SoC:" + this.getSoc().value() //
-				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
-	}
-
-	private void startSystem() {
-		if (isStopping) {
-			return;
-		}
-		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-		try {
-			contactorControlChannel.setNextWriteValue(SYSTEM_ON);			
-		} catch (OpenemsException e) {
-			log.error("Error while trying to start system\n" + e.getMessage());
-		}
-	}
-	
-	private void stopSystem() {
-		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-		try {
-			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-			isStopping = true;
-		} catch (OpenemsException e) {
-			log.error("Error while trying to stop system\n" + e.getMessage());
-		}
 	}
 }

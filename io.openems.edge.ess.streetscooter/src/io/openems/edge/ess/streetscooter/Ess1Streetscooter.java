@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -23,7 +24,7 @@ import io.openems.edge.ess.power.api.Power;
 @Component(name = "Ess1.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class Ess1Streetscooter extends AbstractEssStreetscooter
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
 
 	private static final int ICU_1_SET_POWER_ADRESS = 4002;
 	private static final int ICU_1_ENABLED_ADDRESS = 4001;

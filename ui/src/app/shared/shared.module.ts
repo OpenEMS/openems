@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NgModule, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { LoadingModule } from 'ngx-loading';
+import { NgxLoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
@@ -41,7 +41,7 @@ import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
 import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
 import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, InfiniteScroll } from '@ionic/angular';
 
 @NgModule({
   imports: [
@@ -54,7 +54,7 @@ import { IonicModule } from '@ionic/angular';
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
-    LoadingModule,
+    NgxLoadingModule,
     MyDateRangePickerModule,
     ToasterModule
   ],
@@ -95,10 +95,10 @@ import { IonicModule } from '@ionic/angular';
     // components
     SocChartComponent_2018_7,
     SocChartComponent_2018_8,
-    LoadingModule,
+    NgxLoadingModule,
     AbstractConfigComponent,
     ChannelComponent,
-    ExistingThingComponent
+    ExistingThingComponent,
   ],
   providers: [
     Utils,
@@ -108,4 +108,6 @@ import { IonicModule } from '@ionic/angular';
     appRoutingProviders
   ]
 })
-export class SharedModule { }
+export class SharedModule {
+  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+}

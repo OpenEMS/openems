@@ -21,6 +21,7 @@ import com.google.common.collect.Multimaps;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.channel.StateCollectorChannel;
@@ -154,6 +155,11 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				} catch (OpenemsException e) {
 					// TODO remember defective unitid
 					logError(log, readTask.toString() + " read failed: " + e.getMessage());
+					// invalidate elements of this task
+					for (ModbusElement<?> element : readTask.getElements()) {
+						log.debug("invalidate element: " + element.toString());
+						element.invalidate();
+					}
 				}
 			});
 		}
@@ -210,7 +216,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * Creates a new Modbus Transaction on an open Modbus connection
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @throws OpenemsException
 	 */
 	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
 

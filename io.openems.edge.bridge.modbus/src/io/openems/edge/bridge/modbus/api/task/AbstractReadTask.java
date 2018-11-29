@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
@@ -18,6 +21,8 @@ import io.openems.edge.common.taskmanager.Priority;
  * @author stefan.feilmeier
  */
 public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTask {
+
+	private final Logger log = LoggerFactory.getLogger(AbstractReadTask.class);
 
 	private final Priority priority;
 

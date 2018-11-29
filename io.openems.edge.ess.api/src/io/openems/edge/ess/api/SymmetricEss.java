@@ -178,7 +178,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Maximum Apparent Power in [VA], range ">= 0"
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0"
 	 * 
 	 * @return
 	 */

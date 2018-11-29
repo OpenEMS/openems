@@ -1,6 +1,5 @@
-ifndef::backend-pdf[]
 = Documentation
-endif::[]
+:imagesdir: ../assets/images
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -35,7 +34,7 @@ To add a page, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc
 
 1. Go to https://github.com/OpenEMS/openems/tree/develop/doc/modules/ROOT/pages[doc/modules/ROOT/pages icon:external-link[]] and create a .adoc file with the desired name.
 
-2. Go to https://github.com/OpenEMS/openems/blob/develop/doc/modules/ROOT/nav.adoc[doc/modules/ROOT/nav.adoc icon:external-link[]] and add your page with the correct filename to the nav file.
+2. Go to https://github.com/OpenEMS/openems/blob/develop/doc/modules/ROOT/nav.adoc[doc/modules/ROOT/nav.adoc icon:external-link[]] and add your page with the correct filename to the nav file. 
 
 
 
@@ -58,8 +57,12 @@ npm i -g @antora/site-generator-default
 
 Go to https://github.com/OpenEMS/openems/tree/develop/doc/build[doc/build icon:external-link[]] and type
 ====
-antora.yml
+antora site.yml
 ====
 Docs should be building.. the finished HTML Folder can be found in your local 'build' folder (inside your https://github.com/OpenEMS/openems/tree/develop/doc/build[repository build folder icon:external-link[]])
 
-TIP: If your data isn't updating properly or not building, try antora.yml --pull to reset the cache
+TIP: If your data isn't updating properly or not building, try antora site.yml --pull to reset the cache
+
+NOTE: If you want to build your own docs with Antora see https://fabianfnc.github.io/bocs/[this guide icon:external-link[]] 
+
+

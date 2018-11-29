@@ -136,6 +136,8 @@ public class TestController {
 		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
+		sut.run();
+		assertEquals(State.NORMAL, sut.getStatus());
 	}
 
 	@Test
@@ -231,7 +233,7 @@ public class TestController {
 			}
 
 			@Override
-			public int ChargeSoc() {
+			public int chargeSoc() {
 				return 5;
 			}
 		};

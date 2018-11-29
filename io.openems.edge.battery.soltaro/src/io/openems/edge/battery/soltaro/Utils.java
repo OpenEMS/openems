@@ -44,6 +44,8 @@ public class Utils {
 						return new BooleanReadChannel(s, channelId);
 					case CAPACITY_KWH:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.CAPACITY_KWH);
+					case MAXIMAL_POWER:
+						return new IntegerReadChannel(s, channelId, SoltaroRack.MAX_POWER_WATT);
 					default:
 						break;
 					}
@@ -51,6 +53,8 @@ public class Utils {
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case BMS_CONTACTOR_CONTROL:
+					case CELL_VOLTAGE_PROTECT:
+					case CELL_VOLTAGE_RECOVER:
 						return new IntegerWriteChannel(s, channelId);
 
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH:
@@ -91,7 +95,7 @@ public class Utils {
 					case FAILURE_TEMP_SAMPLING_LINE:
 					case FAILURE_TEMP_SENSOR:
 					case FAILURE_VOLTAGE_SAMPLING:
-						
+
 					case PRECHARGE_TAKING_TOO_LONG:
 						return new StateChannel(s, channelId);
 					case CLUSTER_1_BATTERY_000_VOLTAGE:
@@ -404,7 +408,7 @@ public class Utils {
 					case CLUSTER_1_MIN_CELL_TEMPERATURE_ID:
 					case CLUSTER_1_MIN_CELL_VOLTAGE:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
-						return new IntegerReadChannel(s, channelId);					
+						return new IntegerReadChannel(s, channelId);
 					}
 					return null;
 				}) //

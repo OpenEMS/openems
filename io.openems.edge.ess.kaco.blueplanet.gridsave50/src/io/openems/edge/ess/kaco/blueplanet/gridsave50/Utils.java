@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -27,8 +28,8 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case ACTIVE_CHARGE_ENERGY: // TODO ACTIVE_CHARGE_ENERGY
-					case ACTIVE_DISCHARGE_ENERGY: // TODO ACTIVE_DISCHARGE_ENERGY
+					case ACTIVE_CHARGE_ENERGY: 
+					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(ess, channelId);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(ess, channelId, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER);
@@ -44,6 +45,8 @@ public class Utils {
 					case ALLOWED_DISCHARGE_POWER:
 						return new IntegerReadChannel(ess, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(ess, channelId);
 					}
 					return null;
@@ -84,7 +87,16 @@ public class Utils {
 					case DEBUG_DIS_MAX_A:
 					case DEBUG_DIS_MIN_V:
 					case DEBUG_EN_LIMIT:
+					case AC_ENERGY_SF:
+					case DC_CURRENT:
+					case DC_CURRENT_SF:
+					case DC_POWER:
+					case DC_POWER_SF:
+					case DC_VOLTAGE:
+					case DC_VOLTAGE_SF:
 						return new IntegerReadChannel(ess, channelId);
+					case AC_ENERGY:
+						return new LongReadChannel(ess, channelId);					
 					}
 					return null;
 				}) //

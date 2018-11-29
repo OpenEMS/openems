@@ -10,6 +10,7 @@ import { interval } from 'rxjs';
     templateUrl: './section.component.html'
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
+    socValue: number
 
     constructor(translate: TranslateService) {
         super('Edge.Index.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
@@ -22,6 +23,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number) {
+        this.socValue = valueRatio
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge')
             super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
@@ -37,6 +39,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         } else {
             this.valueText2 = "";
         }
+        if (this.square) {
+            this.square.image.image = "assets/img/" + this.getImagePath()
+        }
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -46,7 +51,21 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getImagePath(): string {
-        return "storage.png";
+        if (this.socValue < 20) {
+            return "storage_20.png"
+        }
+        else if (this.socValue < 40) {
+            return "storage_40.png"
+        }
+        else if (this.socValue < 60) {
+            return "storage_60.png"
+        }
+        else if (this.socValue < 86) {
+            return "storage_80.png"
+        }
+        else {
+            return "storage_100.png"
+        }
     }
 
     protected getValueText(value: number): string {

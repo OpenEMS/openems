@@ -21,9 +21,9 @@
             </form>
           </ion-item>
           <!-- Messages -->
-          <ion-item>
+          <p>
             {{ (websocket.event | async)?.message }}
-          </ion-item>
+          </p>
           <ion-button float-right (click)="doLogin()">
             <ion-icon slot="icon-only" name="log-in"></ion-icon>
           </ion-button>
@@ -61,7 +61,8 @@
             </ion-item>
           </ion-virtual-scroll> -->
 
-          <ion-item *ngFor="let edge of edges" [routerLink]="edge.online ? ['/device', edge.name] : null" [color]="edge.online ? null : 'light'">
+          <ion-item *ngFor="let edge of edges | slice:0:slice; let i=index" [routerLink]="edge.online ? ['/device', edge.name] : null"
+            [color]="edge.online ? null : 'light'">
             <ion-label>
               <h2 text-wrap>{{ edge.comment }}</h2>
               <p *ngIf="!edge.online" text-wrap>Das Gerät ist nicht verbunden!</p>
@@ -77,11 +78,16 @@
             <ion-icon *ngIf="!edge.online" slot="end" name="square" color="primary"></ion-icon>
           </ion-item>
 
-          <ion-item *ngIf="filteredTruncated">
+          <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+            <ion-infinite-scroll-content loadingSpinner="bubbles" distance="1%" loadingText="Loading more data...">
+            </ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+
+          <!-- <ion-item *ngIf="filteredTruncated">
             <ion-label>
               <p text-wrap>Es sind weitere Geräte vorhanden... Bitte Filter enger setzen.</p>
             </ion-label>
-          </ion-item>
+          </ion-item> -->
 
         </ion-list>
       </ion-col>

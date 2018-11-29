@@ -22,14 +22,14 @@ import io.openems.edge.common.channel.doc.Level;
  * 
  * Every OpenEMS service has:
  * <ul>
- * <li>a unique ID (see {@link OpenemsComponent#id()})
- * <li>an enabled/disabled state (see {@link OpenemsComponent#isEnabled()})
- * <li>an OSGi service PID (see {@link OpenemsComponent#servicePid()}
+ * <li>a unique ID (see {@link #id()})
+ * <li>an enabled/disabled state (see {@link #isEnabled()})
+ * <li>an OSGi service PID (see {@link #servicePid()}
  * <li>Channels (see {@link Channel}), identified by {@link ChannelId} or
- * String-ID and provided via {@link OpenemsComponent#channel()} and
- * {@link OpenemsComponent#channels()}
+ * String-ID and provided via {@link #channel(String)}, {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
+ * {@link #channels()}
  * <li>a kind of 'toString' method which provides the most important info about
- * the component. (see {@link OpenemsComponent#debugLog()})
+ * the component. (see {@link #debugLog()})
  * </ul>
  * 
  * The recommended implementation of an OpenEMS component is via
@@ -78,7 +78,7 @@ public interface OpenemsComponent {
 	/**
 	 * Returns a Channel defined by its ChannelId string representation.
 	 * 
-	 * @param channelId
+	 * @param channelName
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")

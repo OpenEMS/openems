@@ -21,8 +21,6 @@ public interface Task {
 
 	/**
 	 * Sets the parent
-	 * 
-	 * @return
 	 */
 	void setParent(AbstractOpenemsModbusComponent parent);
 

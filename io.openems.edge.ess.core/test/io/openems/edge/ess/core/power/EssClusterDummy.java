@@ -60,6 +60,8 @@ public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements 
 					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(this, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
+					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
@@ -72,6 +74,13 @@ public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements 
 					case DEBUG_SET_REACTIVE_POWER_L2:
 					case DEBUG_SET_REACTIVE_POWER_L3:
 						return new IntegerReadChannel(this, channelId);
+					case SET_ACTIVE_POWER_L1_EQUALS:
+					case SET_ACTIVE_POWER_L2_EQUALS:
+					case SET_ACTIVE_POWER_L3_EQUALS:
+					case SET_REACTIVE_POWER_L1_EQUALS:
+					case SET_REACTIVE_POWER_L2_EQUALS:
+					case SET_REACTIVE_POWER_L3_EQUALS:
+						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));

@@ -14,6 +14,7 @@ export const TRANSLATION = {
         More: "Další",
         ChargePower: "Nabíjecí výkon",
         DischargePower: "Vybíjecí výkon",
+        ActualPower: "E-Car Nabíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
@@ -28,7 +29,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Přehled",
-        AboutUI: "About FEMS-UI",
+        AboutUI: "About OpenEMS UI",
         Settings: 'Obecné Nastavení',
         Logout: 'Odhlásit'
     },
@@ -37,7 +38,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
-        IsOffline: "FEMS je ve stavu offline!"
+        IsOffline: "OpenEMS je ve stavu offline!"
     },
     Edge: {
         Index: {
@@ -117,7 +118,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nový plánovač...",
                 Class: "Třída:",
                 NotImplemented: "Zadání nebylo implementováno: ",
-                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Vždy"
             },
             Log: {
@@ -139,14 +140,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Uživatelské rozhraní pro FEMS a OpenEMS",
-        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností FENECON jako open-source software.",
-        Fenecon: "Více o společnosti FENECON",
-        Fems: "Více o FEMS",
+        UI: "Uživatelské rozhraní pro OpenEMS",
+        Developed: "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
-        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš FEMS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Zvolte jazyk:"
     },
     Notifications: {

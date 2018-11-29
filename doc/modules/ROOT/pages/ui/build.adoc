@@ -1,0 +1,39 @@
+= Build OpenEMS UI
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+This chapter explains, how OpenEMS UI can be compiled so that it can be executed outside of an IDE.
+
+Open the terminal inside Visual Studio Code (Menu: btn:[Terminal] -> btn:[New Terminal]).
+
+== Build using angular-cli from command line
+
+Execute the following commands inside the `ui` directory of your OpenEMS repository. The build artifacts will be stored in a subfolder of the `target` directory
+
+To get more help on `angular-cli` use `ng help` or go check out the link:https://github.com/angular/angular-cli/blob/master/README.md[Angular-CLI README].
+
+Be aware that there is currently a link:https://github.com/angular/angular-cli/issues/11208[bug]
+in how angular-cli generates the service-worker configuration file (ngsw-config.json). After running the above command it is required to fix 'regex' statements in the file, replacing double '`\\`' by single '`\`' to avoid wrong escaping.
+
+=== Build for OpenEMS Backend
+
+Execute
+
+`ng build -c backend`
+
+The build artifacts are created in the directory `ui/target/backend`.
+
+=== Build for OpenEMS Edge
+
+Execute 
+
+`ng build -c edge`
+
+The build artifacts are created in the directory `ui/target/edge`.
