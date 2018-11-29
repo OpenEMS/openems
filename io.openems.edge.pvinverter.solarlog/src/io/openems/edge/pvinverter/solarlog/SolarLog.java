@@ -55,7 +55,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	int maxActivePower;
+	private int maxActivePower = 0;
 
 	public SolarLog() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -72,6 +72,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
+
+		this.maxActivePower = config.maxActivePower();
 
 		// Stop if component is disabled
 		if (!config.enabled()) {
