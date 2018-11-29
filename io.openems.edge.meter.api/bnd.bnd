@@ -4,7 +4,9 @@ Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.meter.api,\
-	io.openems.edge.meter.test
+	io.openems.edge.meter.test,\
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.pvinverter.test
 Require-Capability: \
 	compile-only
 
