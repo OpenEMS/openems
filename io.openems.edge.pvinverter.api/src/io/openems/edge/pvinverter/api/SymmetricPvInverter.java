@@ -7,12 +7,11 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Represents a 3-Phase, symmetric PV-Inverter.
  */
-public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
+public interface SymmetricPvInverter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -33,8 +32,7 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
 						channel.setNextValue(value);
 					});
-				}) //
-				.text(POWER_DOC_TEXT));
+				}));
 
 		private final Doc doc;
 
