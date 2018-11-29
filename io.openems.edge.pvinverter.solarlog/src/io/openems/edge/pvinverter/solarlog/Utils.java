@@ -13,7 +13,7 @@ import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(SolarLog c) {
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -55,8 +55,8 @@ public class Utils {
 					case YESTERDAY_YIELD:
 					case YESTERDAY_YIELD_CONS:
 					case TOTAL_POWER:
-					case P_LIMIT_PERC_N:
 					case STATUS:
+					case P_LIMIT:
 						return new IntegerReadChannel(c, channelId);
 					case P_LIMIT_PERC:
 					case P_LIMIT_TYPE:

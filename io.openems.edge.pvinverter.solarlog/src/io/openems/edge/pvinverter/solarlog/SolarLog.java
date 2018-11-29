@@ -29,34 +29,38 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.Solarlog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "PV-Inverter.Solarlog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class SolarLog extends AbstractOpenemsModbusComponent
 		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent {
 
+	// Solar-Log requires the watchdog to be triggered every 300 seconds
+	private static final int WATCHDOG_SECONDS = 150;
+
 	private final Logger log = LoggerFactory.getLogger(SolarLog.class);
+
+	private AbstractWorker watchdogWorker = null;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private MeterType meterType = MeterType.PRODUCTION;
-	private ModbusProtocol protocol = null;
 	int maxActivePower;
 
 	public SolarLog() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 
-		this.getActivePowerLimit().onSetNextWrite(this.setPVLimit);
+		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -66,117 +70,90 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		this.meterType = config.type();
-		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
-				config.maxActivePower());
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 
-		this.maxActivePower = config.maxActivePower();
+		// Stop if component is disabled
+		if (!config.enabled()) {
+			return;
+		}
+
+		// Initialize Watchdog-Worker
+		this.watchdogWorker = new WatchdogWorker(this, WATCHDOG_SECONDS);
+		this.watchdogWorker.activate(this.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+
+		if (this.watchdogWorker != null) {
+			this.watchdogWorker.deactivate();
+		}
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		this.protocol = new ModbusProtocol(this,
-				new FC4ReadInputRegistersTask(RegisterAddress.LAST_UPDATE_TIME.get(), Priority.HIGH,
+		return new ModbusProtocol(this, //
+				new FC4ReadInputRegistersTask(3500, Priority.HIGH,
 						m(SolarLog.ChannelId.LAST_UPDATE_TIME,
-								new SignedDoublewordElement(RegisterAddress.LAST_UPDATE_TIME.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3500).wordOrder(WordOrder.LSWMSW)),
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
-								new SignedDoublewordElement(RegisterAddress.PAC.get()).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SolarLog.ChannelId.PDC,
-								new SignedDoublewordElement(RegisterAddress.PDC.get()).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(RegisterAddress.UAC.get()),
+								new SignedDoublewordElement(3502).wordOrder(WordOrder.LSWMSW)),
+						m(SolarLog.ChannelId.PDC, new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
+						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SolarLog.ChannelId.UDC, new SignedWordElement(RegisterAddress.UDC.get()),
-								ElementToChannelConverter.SCALE_FACTOR_2)),
-				new FC4ReadInputRegistersTask(RegisterAddress.DAILY_YIELD.get(), Priority.LOW,
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new SignedDoublewordElement(RegisterAddress.DAILY_YIELD.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YESTERDAY_YIELD,
-								new SignedDoublewordElement(RegisterAddress.YESTERDAY_YIELD.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3510).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.MONTHLY_YIELD,
-								new SignedDoublewordElement(RegisterAddress.MONTHLY_YIELD.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3512).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YEARLY_YIELD,
-								new SignedDoublewordElement(RegisterAddress.YEARLY_YIELD.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3514).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.TOTAL_YIELD,
-								new SignedDoublewordElement(RegisterAddress.TOTAL_YIELD.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3516).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.PAC_CONSUMPTION,
-								new SignedDoublewordElement(RegisterAddress.PAC_CONSUMPTION.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3518).wordOrder(WordOrder.LSWMSW)),
 						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-								new SignedDoublewordElement(RegisterAddress.DAILY_YIELD_CONS.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3520).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YESTERDAY_YIELD_CONS,
-								new SignedDoublewordElement(RegisterAddress.YESTERDAY_YIELD_CONS.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3522).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.MONTHLY_YIELD_CONS,
-								new SignedDoublewordElement(RegisterAddress.MONTHLY_YIELD_CONS.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3524).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YEARLY_YIELD_CONS,
-								new SignedDoublewordElement(RegisterAddress.YEARLY_YIELD_CONS.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3526).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.TOTAL_YIELD_CONS,
-								new SignedDoublewordElement(RegisterAddress.TOTAL_YIELD_CONS.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new SignedDoublewordElement(3528).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.TOTAL_POWER,
-								new SignedDoublewordElement(RegisterAddress.TOTAL_POWER.get())
-										.wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.DIRECT_1_TO_1)),
-				// PV
-				new FC6WriteRegisterTask(RegisterAddress.P_LIMIT_TYPE.get(),
-						m(SolarLog.ChannelId.P_LIMIT_TYPE,
-								new UnsignedWordElement(RegisterAddress.P_LIMIT_TYPE.get()))),
-				new FC6WriteRegisterTask(RegisterAddress.P_LIMIT_PERC.get(),
-						m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(RegisterAddress.P_LIMIT_PERC
-								.get()))),
-				new FC16WriteRegistersTask(RegisterAddress.WATCH_DOG_TAG.get(),
-						m(SolarLog.ChannelId.WATCH_DOG_TAG, new UnsignedDoublewordElement(RegisterAddress.WATCH_DOG_TAG.get())
-								.wordOrder(WordOrder.LSWMSW))),
-				new FC4ReadInputRegistersTask(RegisterAddress.STATUS.get(), Priority.HIGH,
-						m(SolarLog.ChannelId.STATUS, new SignedWordElement(RegisterAddress.STATUS.get()),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(SolarLog.ChannelId.P_LIMIT_PERC_N, new SignedWordElement(RegisterAddress.P_LIMIT_PERC_N.get()),
-								ElementToChannelConverter.DIRECT_1_TO_1))
-		);
-		return this.protocol;
+								new SignedDoublewordElement(3530).wordOrder(WordOrder.LSWMSW))),
+
+				new FC16WriteRegistersTask(10400, //
+						m(SolarLog.ChannelId.P_LIMIT_TYPE, new UnsignedWordElement(10400)),
+						m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(10401))),
+				new FC16WriteRegistersTask(10404,
+						m(SolarLog.ChannelId.WATCH_DOG_TAG,
+								new UnsignedDoublewordElement(10404).wordOrder(WordOrder.LSWMSW))),
+
+				new FC4ReadInputRegistersTask(10900, Priority.LOW, //
+						m(SolarLog.ChannelId.STATUS, new SignedWordElement(10900)), //
+						m(SolarLog.ChannelId.P_LIMIT_PERC, new SignedWordElement(10901)),
+						m(SolarLog.ChannelId.P_LIMIT, new SignedWordElement(10902))));
 	}
 
 	@Override
 	public MeterType getMeterType() {
-		return this.meterType;
+		return MeterType.PRODUCTION;
 	}
 
 	@Override
 	public String debugLog() {
-	    return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().value().asString();
 	}
 
-	public final Consumer<Integer> setPVLimit = (power) -> {
+	public final Consumer<Integer> setPvLimit = (power) -> {
 		int pLimitPerc = (int) ((double) power / (double) this.maxActivePower * 100.0);
 
 		// keep percentage in range [0, 100]
@@ -189,7 +166,6 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
 		IntegerWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
-		IntegerWriteChannel watchDogTagCh = this.channel(ChannelId.WATCH_DOG_TAG);
 
 		try {
 			pLimitPercCh.setNextWriteValue(pLimitPerc);
@@ -202,35 +178,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		} catch (OpenemsException e) {
 			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
 		}
-
-		try {
-			 watchDogTagCh.setNextWriteValue((int)System.currentTimeMillis());
-		} catch (OpenemsException e) {
-			log.error("Unable to set watchDogTagCh: " + e.getMessage());
-		}
-
 	};
-
-	public enum RegisterAddress {
-		LAST_UPDATE_TIME(3500), PAC(3502), PDC(3504), UAC(3506), UDC(3507), DAILY_YIELD(3508), YESTERDAY_YIELD(3510),
-		MONTHLY_YIELD(3512), YEARLY_YIELD(3514), TOTAL_YIELD(3516), PAC_CONSUMPTION(3518), DAILY_YIELD_CONS(3520),
-		YESTERDAY_YIELD_CONS(3522), MONTHLY_YIELD_CONS(3524), YEARLY_YIELD_CONS(3526), TOTAL_YIELD_CONS(3528),
-		TOTAL_POWER(3530),
-
-		// PV
-
-		P_LIMIT_TYPE(10400), P_LIMIT_PERC(10401), WATCH_DOG_TAG(10404), STATUS(10900), P_LIMIT_PERC_N(10901);
-
-		private final int address;
-
-		RegisterAddress(int address) {
-			this.address = address;
-		}
-
-		public int get() {
-			return this.address;
-		}
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		LAST_UPDATE_TIME(new Doc().type(OpenemsType.INTEGER).unit(Unit.SECONDS)),
@@ -248,12 +196,20 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		TOTAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
 
 		// PV
-
-		P_LIMIT_TYPE(new Doc().type(OpenemsType.INTEGER)),
-		P_LIMIT_PERC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		WATCH_DOG_TAG(new Doc().type(OpenemsType.INTEGER)),
-		STATUS(new Doc().type(OpenemsType.INTEGER)),
-		P_LIMIT_PERC_N(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT));
+		// TODO: should use an enum for this; once
+		// https://github.com/OpenEMS/openems/pull/175 is merged
+		P_LIMIT_TYPE(new Doc().type(OpenemsType.INTEGER)), //
+		P_LIMIT_PERC(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.PERCENT)),
+		P_LIMIT(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.unit(Unit.KILOWATT)),
+		WATCH_DOG_TAG(new Doc() //
+				.type(OpenemsType.INTEGER)),
+		STATUS(new Doc().type(OpenemsType.INTEGER));
 
 		private final Doc doc;
 
@@ -264,5 +220,9 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	protected IntegerWriteChannel getWatchdogTagChannel() {
+		return this.channel(ChannelId.WATCH_DOG_TAG);
 	}
 }
