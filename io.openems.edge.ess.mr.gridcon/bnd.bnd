@@ -2,14 +2,6 @@ Bundle-Name: OpenEMS Edge ESS MR Gridcon
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.ess.symmetric.readonly.api,\
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.symmetric.api,\
-	io.openems.edge.ess.power.symmetric,\
-	io.openems.edge.ess.power.api,\
-	io.openems.edge.ess.mr.gridcon,\
-	io.openems.edge.ess.mr.gridcon.enums
 
 -includeresource: {readme.md}
 
@@ -25,3 +17,9 @@ Export-Package: \
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
+Export-Package: \
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.power.api
+Private-Package: \
+	io.openems.edge.ess.mr.gridcon,\
+	io.openems.edge.ess.mr.gridcon.enums
