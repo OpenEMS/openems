@@ -390,7 +390,7 @@ public class Data {
 	 */
 	public static void invertersUpdateWeights(List<Inverter> inverters) {
 		for (Inverter inverter : inverters) {
-			inverter.weight = inverter.getEss().getSoc().value().orElse(50);
+			inverter.setWeight(inverter.getEss().getSoc().value().orElse(50));
 		}
 	}
 
@@ -400,7 +400,7 @@ public class Data {
 	public static void invertersSortByWeights(List<Inverter> inverters) {
 		Collections.sort(inverters, (e1, e2) -> {
 			// first: sort by weight
-			int weightCompare = Integer.compare(e2.weight, e1.weight);
+			int weightCompare = Integer.compare(e2.getWeight(), e1.getWeight());
 			if (weightCompare != 0) {
 				return weightCompare;
 			}
@@ -421,8 +421,8 @@ public class Data {
 	public static void invertersAdjustSortingByWeights(List<Inverter> inverters) {
 		for (int i = 0; i < inverters.size() - 1; i++) {
 			for (int j = i; j < inverters.size() - 1; j++) {
-				int weight1 = inverters.get(j).weight;
-				int weight2 = inverters.get(j + 1).weight;
+				int weight1 = inverters.get(j).getWeight();
+				int weight2 = inverters.get(j + 1).getWeight();
 				if (weight1 * SORT_FACTOR < weight2) {
 					Collections.swap(inverters, j, j + 1);
 				}

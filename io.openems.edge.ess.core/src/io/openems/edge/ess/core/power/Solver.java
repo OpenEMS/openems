@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
-import java.util.function.BiConsumer;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -31,11 +30,13 @@ import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
+import io.openems.edge.ess.power.api.OnSolved;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.PowerException.Type;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.power.api.SolverStrategy;
 
 public class Solver {
 
@@ -46,8 +47,8 @@ public class Solver {
 	private final Data data;
 
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
-
-	private BiConsumer<Boolean, Integer> onSolved = (wasSolved, duration) -> {
+	private SolverStrategy strategy = PowerComponent.DEFAULT_SOLVER_STRATEGY;
+	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 
 	public Solver(Data data) {
@@ -59,8 +60,8 @@ public class Solver {
 	 * 
 	 * @param onSolved
 	 */
-	public void onSolved(BiConsumer<Boolean, Integer> onSolved) {
-		this.onSolved = onSolved;
+	public void onSolved(OnSolved onSolvedCallback) {
+		this.onSolvedCallback = onSolvedCallback;
 	}
 
 	/**
@@ -150,7 +151,7 @@ public class Solver {
 
 		// No Inverters -> nothing to do
 		if (this.data.getInverters().isEmpty()) {
-			this.onSolved.accept(true, 0);
+			this.onSolvedCallback.accept(false, 0, SolverStrategy.NONE);
 			return;
 		}
 		List<Inverter> allInverters = data.getInverters();
@@ -174,27 +175,31 @@ public class Solver {
 		// Evaluates whether it is a CHARGE or DISCHARGE problem.
 		TargetDirection targetDirection = this.getTargetDirection();
 
-		PointValuePair solution = null;
+		SolveSolution solution = new SolveSolution(SolverStrategy.NONE, null);
 		try {
-			solution = this.solveWithConstraints(allConstraints);
-
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
 			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
 
-			// Applies weights to move slowly towards only using Target-Inverters.
-			PointValuePair nextSolution = this.optimizeByMovingTowardsTarget(targetDirection, allInverters,
-					targetInverters, allConstraints);
-			if (nextSolution != null) {
-				solution = nextSolution;
+			switch (this.strategy) {
+			case ALL_CONSTRAINTS:
+			case NONE:
+				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints);
+				break;
 
-			} else {
-				nextSolution = optimizeByKeepingTargetDirectionAndMaximizingInOrder(allInverters, targetInverters,
-						allConstraints, targetDirection);
-				if (nextSolution != null) {
-					solution = nextSolution;
-				}
+			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET:
+				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET,
+						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER);
+				break;
+
+			case OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER:
+				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
+						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
+				break;
 			}
+
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			if (this.debugMode) {
 				PowerComponent.debugLogConstraints(this.log,
@@ -207,17 +212,59 @@ public class Solver {
 		// finish time measure (in milliseconds)
 		duration = (System.nanoTime() - duration) / 1_000_000;
 
+		// announce success/failure
+		boolean isSolved = solution.getPoints() != null;
+		this.onSolvedCallback.accept(isSolved, (int) duration, solution.getSolvedBy());
+
 		// Apply final Solution to Inverters
-		if (solution != null) {
-			// announce success
-			this.onSolved.accept(true, (int) duration);
-
-			this.applySolution(this.applyInverterPrecisions(allInverters, solution, targetDirection));
+		if (isSolved) {
+			this.applySolution(this.applyInverterPrecisions(allInverters, solution.getPoints(), targetDirection));
 		} else {
-			// announce failure
-			this.onSolved.accept(false, (int) duration);
-
 			this.applySolution(this.getZeroSolution(allInverters));
+		}
+	}
+
+	/**
+	 * Tries different solving strategies in order. 'ALL_CONSTRAINTS' is always
+	 * tried last if everything else failed. Returns as soon as a result is found.
+	 * 
+	 * @param targetDirection
+	 * @param allInverters
+	 * @param targetInverters
+	 * @param allConstraints
+	 * @param strategies
+	 * @return
+	 */
+	private SolveSolution tryStrategies(TargetDirection targetDirection, List<Inverter> allInverters,
+			List<Inverter> targetInverters, List<Constraint> allConstraints, SolverStrategy... strategies) {
+		PointValuePair solution = null;
+		for (SolverStrategy strategy : strategies) {
+			switch (strategy) {
+			case NONE:
+				break;
+			case ALL_CONSTRAINTS:
+				solution = this.solveWithConstraints(allConstraints);
+				break;
+			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET:
+				solution = this.optimizeByMovingTowardsTarget(targetDirection, allInverters, targetInverters,
+						allConstraints);
+				break;
+			case OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER:
+				solution = this.optimizeByKeepingTargetDirectionAndMaximizingInOrder(allInverters, targetInverters,
+						allConstraints, targetDirection);
+				break;
+			}
+
+			if (solution != null) {
+				return new SolveSolution(strategy, solution);
+			}
+		}
+		// to strategy was successful -> try allConstraints
+		solution = this.solveWithConstraints(allConstraints);
+		if (solution != null) {
+			return new SolveSolution(SolverStrategy.ALL_CONSTRAINTS, solution);
+		} else {
+			return new SolveSolution(SolverStrategy.NONE, null);
 		}
 	}
 
@@ -353,6 +400,7 @@ public class Solver {
 	private PointValuePair optimizeByKeepingTargetDirectionAndMaximizingInOrder(List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints, TargetDirection targetDirection) {
 		PointValuePair result = null;
+		PointValuePair thisSolution = null;
 		List<Constraint> constraints = new ArrayList<>(allConstraints);
 
 		// Add Zero-Constraint for all Inverters that are not Target
@@ -378,7 +426,8 @@ public class Solver {
 			constraints.add(c);
 			// Try to solve with Constraint
 			try {
-				result = this.solveWithConstraints(constraints);
+				thisSolution = this.solveWithConstraints(constraints);
+				result = thisSolution; // only if solving was successful
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// If solving fails: remove the Constraints
 				constraints.remove(c);
@@ -400,7 +449,8 @@ public class Solver {
 
 			// Try to solve with Constraint
 			try {
-				result = this.solveWithConstraints(constraints);
+				thisSolution = this.solveWithConstraints(constraints);
+				result = thisSolution; // only if solving was successful
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// If solving fails: remove the Constraints
 				constraints.remove(c);
@@ -413,14 +463,13 @@ public class Solver {
 	/**
 	 * Tries to adjust the weights used in last applyPower() towards the target
 	 * weights using a learning rate. If this fails it tries to start from the
-	 * target weights towards a given existing solution. If everything fails it will
-	 * eventually return the existing solution.
+	 * target weights towards a given existing solution.
 	 * 
 	 * @param allInverters
 	 * @param targetInverters
 	 * @param existingSolution
 	 * @param allConstraints
-	 * @return
+	 * @return a solution or null
 	 */
 	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints) {
@@ -457,10 +506,10 @@ public class Solver {
 				case CHARGE:
 					// Invert weights for CHARGE, i.e. give higher weight to low state-of-charge
 					// inverters
-					targetWeights.put(inverter, 100 - inverter.weight);
+					targetWeights.put(inverter, 100 - inverter.getWeight());
 					break;
 				case DISCHARGE:
-					targetWeights.put(inverter, inverter.weight);
+					targetWeights.put(inverter, inverter.getWeight());
 					break;
 				}
 			} else {
@@ -522,9 +571,6 @@ public class Solver {
 				PointValuePair solution = this.solveWithConstraints(constraints);
 				return solution;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
-				// log.warn("[" + Math.round(i / LEARNING_RATE) + "] Unable to solve with next
-				// weights. Next try!");
-
 				// Adjust next weights
 				for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 					entry.setValue(entry.getValue() + learningRates.get(entry.getKey()));
@@ -534,7 +580,6 @@ public class Solver {
 
 		// TODO if we reached here, we should try to approach existingWeights in the
 		// same way as above. This could still improve existingSolution.
-
 		return null;
 	}
 
@@ -842,7 +887,7 @@ public class Solver {
 	/**
 	 * Gets all Constraints converted to Linear Constraints
 	 * 
-	 * @param data: the Data object
+	 * @param             data: the Data object
 	 * @param constraints
 	 * @return
 	 */
@@ -903,5 +948,14 @@ public class Solver {
 	 */
 	protected void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
+	}
+
+	/**
+	 * Sets the solver strategy.
+	 * 
+	 * @param strategy
+	 */
+	public void setStrategy(SolverStrategy strategy) {
+		this.strategy = strategy;
 	}
 }

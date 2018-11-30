@@ -23,6 +23,7 @@ public class Utils {
 					case SOLVED:
 						return new BooleanReadChannel(c, channelId);
 					case SOLVE_DURATION:
+					case SOLVE_STRATEGY:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;

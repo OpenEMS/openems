@@ -28,8 +28,21 @@ public abstract class Inverter {
 	 * Holds the weight of this Inverter in relation to other Inverters. Range
 	 * [1-100]
 	 */
-	// TODO setWeight() that limits range to 1-100
-	public int weight = 0;
+	private int weight = 0;
+
+	public void setWeight(int weight) {
+		if (weight > 100) {
+			this.weight = 100;
+		} else if (weight < 0) {
+			this.weight = 0;
+		} else {
+			this.weight = weight;
+		}
+	}
+	
+	public int getWeight() {
+		return weight;
+	}
 
 	/**
 	 * Holds the last set P

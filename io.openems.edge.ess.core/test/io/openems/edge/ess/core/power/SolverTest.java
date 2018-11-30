@@ -223,7 +223,7 @@ public class SolverTest {
 		assertEquals("ess2", is.get(3).toString());
 
 		// #1 ess3 weight is slightly below ess0 -> no resorting
-		inv3.weight = 49;
+		inv3.setWeight(49);
 		Data.invertersAdjustSortingByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -232,7 +232,7 @@ public class SolverTest {
 		assertEquals("ess2", is.get(3).toString());
 
 		// #2 ess3 weight is clearly below ess0 -> resort
-		inv3.weight = 35;
+		inv3.setWeight(35);
 		Data.invertersAdjustSortingByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());

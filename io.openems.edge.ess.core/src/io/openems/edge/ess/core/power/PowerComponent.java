@@ -34,6 +34,7 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.power.api.SolverStrategy;
 import io.openems.edge.common.channel.doc.Unit;
 
 @Designate(ocd = Config.class, factory = false)
@@ -62,6 +63,17 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 */
 		SOLVE_DURATION(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
 		/**
+		 * The eventually used solving strategy.
+		 * 
+		 * <ul>
+		 * <li>Interface: PowerComponent
+		 * <li>Type: Integer
+		 * <li>Unit: milliseconds
+		 * <li>Range: positive
+		 * </ul>
+		 */
+		SOLVE_STRATEGY(new Doc().type(OpenemsType.INTEGER).options(SolverStrategy.values())),
+		/**
 		 * Whether the Power problem could be solved
 		 * 
 		 * <ul>
@@ -86,6 +98,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	protected final static boolean DEFAULT_SYMMETRIC_MODE = false;
 	protected final static boolean DEFAULT_DEBUG_MODE = false;
+	protected final static SolverStrategy DEFAULT_SOLVER_STRATEGY = SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 
 	private final Data data;
 	private final Solver solver;
@@ -97,9 +110,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.data = new Data();
 		this.solver = new Solver(data);
 
-		this.solver.onSolved((wasSolved, duration) -> {
-			this.getSolvedChannel().setNextValue(wasSolved);
+		this.solver.onSolved((isSolved, duration, strategy) -> {
+			this.getSolvedChannel().setNextValue(isSolved);
 			this.getSolveDurationChannel().setNextValue(duration);
+			this.getSolveStrategyChannel().setNextValue(strategy);
 		});
 	}
 
@@ -109,6 +123,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.data.setSymmetricMode(config.symmetricMode());
 		this.debugMode = config.debugMode();
 		this.solver.setDebugMode(config.debugMode());
+		this.solver.setStrategy(config.strategy());
 	}
 
 	@Deactivate
@@ -216,6 +231,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	protected IntegerReadChannel getSolveDurationChannel() {
 		return this.channel(ChannelId.SOLVE_DURATION);
+	}
+
+	protected IntegerReadChannel getSolveStrategyChannel() {
+		return this.channel(ChannelId.SOLVE_STRATEGY);
 	}
 
 	public boolean isDebugMode() {
