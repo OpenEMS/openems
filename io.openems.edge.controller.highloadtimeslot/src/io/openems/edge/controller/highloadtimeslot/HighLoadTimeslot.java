@@ -121,39 +121,24 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void conservation(ManagedSymmetricEss ess) {
-		log.info("HighLoadTimeslot.conservation()");
-		try {
-			ess.addPowerConstraintAndValidate("HighLoadTimeslot", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
-		} catch (PowerException e) {
-			log.error(e.getMessage());
-		}
+		this.applyPower(0);
 	}
 
 	private void charge(ManagedSymmetricEss ess) {
 		log.info("HighLoadTimeslot.charge()");
-		try {
-			ess.addPowerConstraintAndValidate("HighLoadTimeslot", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-					chargePower);
-		} catch (PowerException e) {
-			log.error(e.getMessage());
-		}
+		this.applyPower(this.chargePower);
 	}
 
 	private void discharge(ManagedSymmetricEss ess) {
 		log.info("HighLoadTimeslot.discharge()");
-		try {
-			ess.addPowerConstraintAndValidate("HighLoadTimeslot", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-					dischargePower);
-		} catch (PowerException e) {
-			log.error(e.getMessage());
-		}
+		this.applyPower(this.dischargePower);
 	}
 
 	protected static boolean isInDateSlot(LocalDateTime currentDate, LocalDate startDate, LocalDate endDate) {
 		return (currentDate.toLocalDate().isAfter(startDate.minusDays(1))
 				&& currentDate.toLocalDate().isBefore(endDate.plusDays(1)));
 	}
-	
+
 	protected static boolean isInTimeSlot(LocalDateTime currentTime, LocalTime starttime, LocalTime endtime) {
 		return currentTime.toLocalTime().isAfter(starttime) && currentTime.toLocalTime().isBefore(endtime);
 	}
@@ -174,6 +159,21 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		int soC = socOpt.get();
 
 		return soC > minSoc;
+	}
+
+	private void applyPower(int activePower) {
+		// adjust value so that it fits into Min/MaxActivePower
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
+
+		// set result
+		try {
+			this.ess.addPowerConstraintAndValidate("HighLoadTimeslot P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
+					calculatedPower); //
+			this.ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS,
+					0);
+		} catch (PowerException e) {
+			this.logError(this.log, e.getMessage());
+		}
 	}
 
 }
