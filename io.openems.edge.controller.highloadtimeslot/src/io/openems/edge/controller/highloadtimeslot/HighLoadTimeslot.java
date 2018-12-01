@@ -1,11 +1,11 @@
 package io.openems.edge.controller.highloadtimeslot;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -38,63 +38,40 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	private final Logger log = LoggerFactory.getLogger(HighLoadTimeslot.class);
+	private final Clock clock;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	LocalDate startDate;
-	LocalDate endDate;
-	LocalTime starttime;
-	LocalTime endtime;
-	int chargePower;
-	int dischargePower;
-	int minSoc;
-	int hysteresisSoc;
+	private LocalDate startDate;
+	private LocalDate endDate;
+	private LocalTime startTime;
+	private LocalTime endTime;
+	private int chargePower;
+	private int dischargePower;
+	private int hysteresisSoc;
+	private WeekdayFilter weekdayDayFilter;
+
+	public HighLoadTimeslot() {
+		this(Clock.systemDefaultZone());
+	}
+
+	protected HighLoadTimeslot(Clock clock) {
+		this.clock = clock;
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-
-		startDate = convertDate(config.startdate());
-		endDate = convertDate(config.enddate());
-		starttime = convertTime(config.starttime());
-		endtime = convertTime(config.endtime());
-		chargePower = config.chargePower();
-		dischargePower = config.dischargePower();
-		minSoc = config.minSoc();
-		hysteresisSoc = config.hysteresisSoc();
+		this.startDate = convertDate(config.startDate());
+		this.endDate = convertDate(config.endDate());
+		this.startTime = convertTime(config.startTime());
+		this.endTime = convertTime(config.endTime());
+		this.chargePower = config.chargePower();
+		this.dischargePower = config.dischargePower();
+		this.hysteresisSoc = config.hysteresisSoc();
+		this.weekdayDayFilter = config.weekdayFilter();
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-
-	}
-
-	@Override
-	public void run() {
-
-		handle(ess, LocalDateTime.now());
-
-	}
-
-	private void handle(ManagedSymmetricEss ess, LocalDateTime dateTime) {
-
-		if (isWeekend(dateTime) || !isInDateSlot(dateTime, startDate, endDate)) {
-			conservationCharge(ess);
-		} else if (isInTimeSlot(dateTime, starttime, endtime) && isSoCGreaterMinSoC(ess, minSoc)) {
-			discharge(ess);
-		} else {
-			conservationCharge(ess);
-		}
-	}
-
-	protected static LocalDate convertDate(String date) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		LocalDate localDate = LocalDate.parse(date, dateTimeFormatter);
-		return localDate;
-	}
-
-	protected static LocalTime convertTime(String time) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
-		LocalTime localDate = LocalTime.parse(time, dateTimeFormatter);
-		return localDate;
 	}
 
 	@Deactivate
@@ -102,68 +79,168 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		super.deactivate();
 	}
 
-	private void conservationCharge(ManagedSymmetricEss ess) {
-		// TODO hysteresis 
-		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
+	@Override
+	public void run() {
+		int power = getPower();
+		this.applyPower(power);
+	}
 
-		if (!socOpt.isPresent()) {
-			return;
+	private enum ChargeState {
+		NORMAL, HYSTERESIS;
+	}
+
+	private ChargeState chargeState = ChargeState.NORMAL;
+
+	/**
+	 * Gets the current ActivePower.
+	 * 
+	 * @return
+	 */
+	private int getPower() {
+		if (this.isHighLoadTimeslot()) {
+			/*
+			 * We are in a High-Load period -> discharge
+			 */
+			this.logInfo(log, "Within High-Load timeslot. Discharge with [" + this.dischargePower + "]");
+			return this.dischargePower;
 		}
+		/*
+		 * We are in a Charge period
+		 */
+		switch (this.chargeState) {
+		case NORMAL:
+			/*
+			 * charge with configured charge-power
+			 */
+			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + this.chargePower + "]");
+			int minPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+			if (minPower >= 0) {
+				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
+				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
+				this.chargeState = ChargeState.HYSTERESIS;
+			}
+			return this.chargePower;
 
-		int soC = socOpt.get();
-
-		if (soC < hysteresisSoc) {
-			charge(ess);
-		} else {
-			conservation(ess);
+		case HYSTERESIS:
+			/*
+			 * block charging till configured hysteresisSoc
+			 */
+			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
+			if (this.ess.getSoc().value().orElse(0) <= this.hysteresisSoc) {
+				this.logInfo(log, "SoC [" + this.ess.getSoc().value().orElse(0) + " <= " + this.hysteresisSoc
+						+ "]. Switch to Charge-Normal state.");
+				this.chargeState = ChargeState.NORMAL;
+			}
+			return 0;
 		}
-
+		// we should never come here...
+		return 0;
 	}
 
-	private void conservation(ManagedSymmetricEss ess) {
-		this.applyPower(0);
-	}
-
-	private void charge(ManagedSymmetricEss ess) {
-		log.info("HighLoadTimeslot.charge()");
-		this.applyPower(this.chargePower);
-	}
-
-	private void discharge(ManagedSymmetricEss ess) {
-		log.info("HighLoadTimeslot.discharge()");
-		this.applyPower(this.dischargePower);
-	}
-
-	protected static boolean isInDateSlot(LocalDateTime currentDate, LocalDate startDate, LocalDate endDate) {
-		return (currentDate.toLocalDate().isAfter(startDate.minusDays(1))
-				&& currentDate.toLocalDate().isBefore(endDate.plusDays(1)));
-	}
-
-	protected static boolean isInTimeSlot(LocalDateTime currentTime, LocalTime starttime, LocalTime endtime) {
-		return currentTime.toLocalTime().isAfter(starttime) && currentTime.toLocalTime().isBefore(endtime);
-	}
-
-	protected static boolean isWeekend(LocalDateTime date) {
-		DayOfWeek dayOfWeek = date.getDayOfWeek();
-
-		return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY); 
-	}
-
-	private boolean isSoCGreaterMinSoC(ManagedSymmetricEss ess, int minSoc) {
-		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
-
-		if (!socOpt.isPresent()) {
+	/**
+	 * Is the current time in a high-load timeslot?
+	 * 
+	 * @return
+	 */
+	private boolean isHighLoadTimeslot() {
+		LocalDateTime now = LocalDateTime.now(this.clock);
+		if (!isActiveWeekday(this.weekdayDayFilter, now)) {
 			return false;
 		}
-
-		int soC = socOpt.get();
-
-		return soC > minSoc;
+		if (!isActiveDate(this.startDate, this.endDate, now)) {
+			return false;
+		}
+		if (!isActiveTime(this.startTime, this.endTime, now)) {
+			return false;
+		}
+		// all tests passed
+		return true;
 	}
 
+	/**
+	 * Is 'dateTime' within the ActiveWeekdayFilter?
+	 * 
+	 * @param activeDayFilter
+	 * @param dateTime
+	 * @return
+	 */
+	protected static boolean isActiveWeekday(WeekdayFilter activeDayFilter, LocalDateTime dateTime) {
+		switch (activeDayFilter) {
+		case EVERDAY:
+			return true;
+		case ONLY_WEEKDAYS:
+			return !isWeekend(dateTime);
+		case ONLY_WEEKEND:
+			return isWeekend(dateTime);
+		}
+		// should never happen
+		return false;
+	}
+
+	protected static boolean isActiveDate(LocalDate startDate, LocalDate endDate, LocalDateTime dateTime) {
+		LocalDate date = dateTime.toLocalDate();
+		return !(date.isBefore(startDate) || date.isAfter(endDate));
+	}
+
+	/**
+	 * Is the time of 'dateTime' within startTime and endTime?
+	 * 
+	 * @param currentTime
+	 * @param starttime
+	 * @param endTime
+	 * @return
+	 */
+	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
+		LocalTime time = dateTime.toLocalTime();
+		return !(time.isBefore(startTime) || time.isAfter(endTime));
+	}
+
+	/**
+	 * Converts a string to a LocalDate.
+	 * 
+	 * @param date
+	 * @return
+	 */
+	protected static LocalDate convertDate(String date) {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+		LocalDate localDate = LocalDate.parse(date, dateTimeFormatter);
+		return localDate;
+	}
+
+	/**
+	 * Converts a string to a LocalTime.
+	 * 
+	 * @param time
+	 * @return
+	 */
+	protected static LocalTime convertTime(String time) {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
+		LocalTime localDate = LocalTime.parse(time, dateTimeFormatter);
+		return localDate;
+	}
+
+	/**
+	 * Is 'dateTime' a Saturday or Sunday?
+	 * 
+	 * @param dateTime
+	 * @return
+	 */
+	protected static boolean isWeekend(LocalDateTime dateTime) {
+		DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
+		return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
+	}
+
+	/**
+	 * Applies the power constraint on the Ess
+	 * 
+	 * @param activePower
+	 */
 	private void applyPower(int activePower) {
 		// adjust value so that it fits into Min/MaxActivePower
 		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
+		if (calculatedPower != activePower) {
+			this.logInfo(log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
+		}
 
 		// set result
 		try {

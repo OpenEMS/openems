@@ -12,73 +12,73 @@ import org.junit.Test;
 public class ControllerSimpleTests {
 
 	@Test
-	public void testIsInDateSlot() {
+	public void testIsActiveDay() {
 		LocalDate startDate = LocalDate.of(2018, 11, 10);
-		LocalDate endDate = LocalDate.of(2018, 11, 12);		
-		
+		LocalDate endDate = LocalDate.of(2018, 11, 12);
+
 		LocalDateTime currentDate = LocalDateTime.of(2018, 11, 9, 12, 0);
-		assertFalse(HighLoadTimeslot.isInDateSlot(currentDate, startDate, endDate));
-		
+		assertFalse(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+
 		currentDate = LocalDateTime.of(2018, 11, 10, 12, 0);
-		assertTrue(HighLoadTimeslot.isInDateSlot(currentDate, startDate, endDate));
-		
+		assertTrue(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+
 		currentDate = LocalDateTime.of(2018, 11, 11, 12, 0);
-		assertTrue(HighLoadTimeslot.isInDateSlot(currentDate, startDate, endDate));
-		
+		assertTrue(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+
 		currentDate = LocalDateTime.of(2018, 11, 12, 12, 0);
-		assertTrue(HighLoadTimeslot.isInDateSlot(currentDate, startDate, endDate));
-		
-		currentDate = LocalDateTime.of(2018, 11, 13, 12, 0);		
-		assertFalse(HighLoadTimeslot.isInDateSlot(currentDate, startDate, endDate));
+		assertTrue(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+
+		currentDate = LocalDateTime.of(2018, 11, 13, 12, 0);
+		assertFalse(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
 	}
 
 	@Test
-	public void testIsInTimeSlot() {
+	public void testIsActiveTime() {
 		LocalTime startTime = LocalTime.of(8, 0);
 		LocalTime endTime = LocalTime.of(8, 10);
-		
-		LocalDateTime currentDateTime = LocalDateTime.of(2018, 11, 11, 7, 59);
-		assertFalse(HighLoadTimeslot.isInTimeSlot(currentDateTime, startTime, endTime));
-				
-		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 0);		
-		assertFalse(HighLoadTimeslot.isInTimeSlot(currentDateTime, startTime, endTime));
-		
-		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 1);
-		assertTrue(HighLoadTimeslot.isInTimeSlot(currentDateTime, startTime, endTime));
-		
-		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 9);
-		assertTrue(HighLoadTimeslot.isInTimeSlot(currentDateTime, startTime, endTime));
-		
-		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 10);
-		assertFalse(HighLoadTimeslot.isInTimeSlot(currentDateTime, startTime, endTime));
-		
-		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 11);
-		assertFalse(HighLoadTimeslot.isInTimeSlot(currentDateTime, startTime, endTime));
-	}
-	
-	@Test
-	public void testIsWeekend() {
 
+		LocalDateTime currentDateTime = LocalDateTime.of(2018, 11, 11, 7, 59);
+		assertFalse(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+
+		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 0);
+		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+
+		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 1);
+		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+
+		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 9);
+		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+
+		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 10);
+		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+
+		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 11);
+		assertFalse(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+	}
+
+	@Test
+	public void testIsActiveWeekday() {
 		LocalDateTime currentDate = LocalDateTime.of(2018, 11, 5, 12, 0);
-		assertFalse(HighLoadTimeslot.isWeekend(currentDate)); //Monday
-		
+		WeekdayFilter weekdayFilter = WeekdayFilter.ONLY_WEEKDAYS;
+		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Monday
+
 		currentDate = LocalDateTime.of(2018, 11, 6, 12, 0);
-		assertFalse(HighLoadTimeslot.isWeekend(currentDate)); //Tuesday
-		
+		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Tuesday
+
 		currentDate = LocalDateTime.of(2018, 11, 7, 12, 0);
-		assertFalse(HighLoadTimeslot.isWeekend(currentDate)); //Wednesday
-		
+		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Wednesday
+
 		currentDate = LocalDateTime.of(2018, 11, 8, 12, 0);
-		assertFalse(HighLoadTimeslot.isWeekend(currentDate)); //Thursday
-		
+		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Thursday
+
 		currentDate = LocalDateTime.of(2018, 11, 9, 12, 0);
-		assertFalse(HighLoadTimeslot.isWeekend(currentDate)); //Friday
-		
+		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Friday
+
 		currentDate = LocalDateTime.of(2018, 11, 10, 12, 0);
-		assertTrue(HighLoadTimeslot.isWeekend(currentDate)); //Saturday
-		
+		assertFalse(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Saturday
+
 		currentDate = LocalDateTime.of(2018, 11, 11, 12, 0);
-		assertTrue(HighLoadTimeslot.isWeekend(currentDate)); //Sunday
+		assertFalse(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Sunday
 	}
 
 	@Test
@@ -102,11 +102,11 @@ public class ControllerSimpleTests {
 		} catch (DateTimeParseException e) {
 			assertTrue(e instanceof DateTimeParseException);
 		}
-				
+
 		dateString = "31.02.2018";
 		expectedDate = LocalDate.of(2018, 2, 28);
 		assertEquals(expectedDate, HighLoadTimeslot.convertDate(dateString));
-	
+
 		dateString = "32.12.2018";
 		try {
 			HighLoadTimeslot.convertDate(dateString);
@@ -115,13 +115,13 @@ public class ControllerSimpleTests {
 			assertTrue(e instanceof DateTimeParseException);
 		}
 	}
-	
+
 	@Test
 	public void testconvertTime() {
 		String timeString = "11:11";
 		LocalTime expectedTime = LocalTime.of(11, 11);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
-		
+
 		timeString = "karlheinz";
 		try {
 			HighLoadTimeslot.convertTime(timeString);
@@ -129,7 +129,7 @@ public class ControllerSimpleTests {
 		} catch (DateTimeParseException e) {
 			assertTrue(e instanceof DateTimeParseException);
 		}
-		
+
 		timeString = "25:13";
 		try {
 			HighLoadTimeslot.convertTime(timeString);
@@ -137,7 +137,7 @@ public class ControllerSimpleTests {
 		} catch (DateTimeParseException e) {
 			assertTrue(e instanceof DateTimeParseException);
 		}
-		
+
 		timeString = "24:13";
 		try {
 			HighLoadTimeslot.convertTime(timeString);
@@ -145,7 +145,7 @@ public class ControllerSimpleTests {
 		} catch (DateTimeParseException e) {
 			assertTrue(e instanceof DateTimeParseException);
 		}
-		
+
 		timeString = "24:00";
 		expectedTime = LocalTime.of(0, 00);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
@@ -153,7 +153,7 @@ public class ControllerSimpleTests {
 		timeString = "23:13";
 		expectedTime = LocalTime.of(23, 13);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
-		
+
 		timeString = "0:13";
 		try {
 			HighLoadTimeslot.convertTime(timeString);
@@ -161,7 +161,7 @@ public class ControllerSimpleTests {
 		} catch (DateTimeParseException e) {
 			assertTrue(e instanceof DateTimeParseException);
 		}
-		
+
 		timeString = "00:13";
 		expectedTime = LocalTime.of(0, 13);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
