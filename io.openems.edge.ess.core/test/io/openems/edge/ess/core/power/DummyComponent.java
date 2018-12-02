@@ -22,7 +22,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 
 	public DummyComponent(String id) {
 		this.id = id;
-		Stream.of( //
+		Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:

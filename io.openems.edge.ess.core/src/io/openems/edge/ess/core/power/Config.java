@@ -8,7 +8,7 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 /**
  * Configures the Power solver.
  */
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "ESS Power", //
 		description = "This component solves Power distribution among energy storage systems.")
 @interface Config {

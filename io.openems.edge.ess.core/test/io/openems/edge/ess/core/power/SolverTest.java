@@ -18,11 +18,11 @@ import io.openems.edge.ess.power.api.ThreePhaseInverter;
 public class SolverTest {
 
 	private static Data prepareDataAndSetSymmetricMode(boolean symmetricMode, ManagedSymmetricEss... esss) {
-		Data data = new Data();
-		data.setSymmetricMode(symmetricMode);
 		PowerComponent c = new PowerComponent();
+		Data data = new Data(c);
+		data.setSymmetricMode(symmetricMode);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess);
+			data.addEss(ess.id());
 			c.addEss(ess);
 		}
 		data.initializeCycle();
@@ -30,10 +30,10 @@ public class SolverTest {
 	}
 
 	private static Data prepareData(ManagedSymmetricEss... esss) {
-		Data data = new Data();
 		PowerComponent c = new PowerComponent();
+		Data data = new Data(c);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess);
+			data.addEss(ess.id());
 			c.addEss(ess);
 		}
 		data.initializeCycle();
@@ -59,10 +59,10 @@ public class SolverTest {
 		Data d = prepareDataAndSetSymmetricMode(false, ess0, ess1, ess2);
 		Solver s = new Solver(d);
 
-		d.addSimpleConstraint("", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		d.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
 		s.solve();
 		d.initializeCycle();
-		d.addSimpleConstraint("", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -9000);
+		d.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -9000);
 		s.solve();
 	}
 
@@ -82,10 +82,10 @@ public class SolverTest {
 				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(70);
 		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2, ess3, ess4, ess5, ess6); //
 		Data d = prepareData(ess0, ess1, ess2, ess3, ess4, ess5, ess6);
-		Solver s = new Solver(d);
+		final Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint("#1", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 30000);
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 30000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(9864).expectQ(0); // third largest SoC
 		ess3.expectP(0).expectQ(0);
@@ -96,7 +96,7 @@ public class SolverTest {
 
 		// #2
 		d.initializeCycle();
-		d.addSimpleConstraint("#2", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 25000);
+		d.addSimpleConstraint("#2", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 25000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(8113).expectQ(0);
 		ess3.expectP(0).expectQ(0);
@@ -107,7 +107,7 @@ public class SolverTest {
 
 		// #3
 		d.initializeCycle();
-		d.addSimpleConstraint("#3", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		d.addSimpleConstraint("#3", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(1569).expectQ(0);
 		ess3.expectP(0).expectQ(0);
@@ -118,12 +118,12 @@ public class SolverTest {
 
 		// #4 not strictly defined force charge
 		d.initializeCycle();
-		d.addSimpleConstraint("#4", ess1, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess2, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess3, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess4, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess5, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess6, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess1.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess2.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess3.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess4.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess5.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess6.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess1.expectP(-2000).expectQ(0);
 		ess2.expectP(-2000).expectQ(0);
 		ess3.expectP(-2000).expectQ(0);
@@ -142,35 +142,35 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint("#1", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
 		ess0.expectP(700);
 		s.solve();
 
 		// #2
 		d.initializeCycle();
 		ess0.soc(49);
-		d.addSimpleConstraint("#2", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
+		d.addSimpleConstraint("#2", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
 		ess0.expectP(500);
 		s.solve();
 
 		// #3
 		d.initializeCycle();
 		ess0.soc(49);
-		d.addSimpleConstraint("#3", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
+		d.addSimpleConstraint("#3", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.expectP(-400);
 		s.solve();
 
 		// #4
 		d.initializeCycle();
 		ess0.soc(51);
-		d.addSimpleConstraint("#4", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
+		d.addSimpleConstraint("#4", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.expectP(-300);
 		s.solve();
 
 		// #5 not strictly defined force charge
 		d.initializeCycle();
 		ess0.soc(50);
-		d.addSimpleConstraint("#5", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#5", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess0.expectP(-2000);
 		s.solve();
 	}
@@ -185,13 +185,19 @@ public class SolverTest {
 
 	@Test
 	public void testInvertersSortByWeight() {
-		List<Inverter> is = new ArrayList<>();
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess0").soc(50)));
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess1").soc(70)));
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess2").soc(40)));
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess3").soc(70)));
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").soc(50);
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").soc(70);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").soc(40);
+		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3").soc(70);
 
-		Data.invertersUpdateWeights(is);
+		List<Inverter> is = new ArrayList<>();
+		is.add(new ThreePhaseInverter(ess0.id()));
+		is.add(new ThreePhaseInverter(ess1.id()));
+		is.add(new ThreePhaseInverter(ess2.id()));
+		is.add(new ThreePhaseInverter(ess3.id()));
+
+		// TODO change to non-static
+		// Data.invertersUpdateWeights(is);
 		Data.invertersSortByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -202,19 +208,24 @@ public class SolverTest {
 
 	@Test
 	public void testInvertersAdjustSortingByWeights() {
-		List<Inverter> is = new ArrayList<>();
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").soc(50);
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").soc(70);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").soc(40);
+		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3").soc(70);
 
-		Inverter inv0 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess0").soc(50));
-		Inverter inv1 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess1").soc(70));
-		Inverter inv2 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess2").soc(40));
-		Inverter inv3 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess3").soc(70));
+		List<Inverter> is = new ArrayList<>();
+		Inverter inv0 = new ThreePhaseInverter(ess0.id());
+		Inverter inv1 = new ThreePhaseInverter(ess1.id());
+		Inverter inv2 = new ThreePhaseInverter(ess2.id());
+		Inverter inv3 = new ThreePhaseInverter(ess3.id());
 
 		is.add(inv0);
 		is.add(inv1);
 		is.add(inv2);
 		is.add(inv3);
 
-		Data.invertersUpdateWeights(is);
+		// TODO change to non-static
+		// Data.invertersUpdateWeights(is);
 		Data.invertersSortByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -248,12 +259,12 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint("", esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
+		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
 		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
 		d.initializeCycle();
 
 		// #2
-		d.addSimpleConstraint("", esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
+		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
 		assertEquals(TargetDirection.CHARGE, s.getTargetDirection());
 	}
 }
