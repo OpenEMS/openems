@@ -37,6 +37,11 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	public static final String TIME_FORMAT = "HH:mm";
 	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
+	/**
+	 * This many minutes before the high-load timeslot force charging is activated.
+	 */
+	private static final int FORCE_CHARGE_MINUTES = 30;
+
 	private final Logger log = LoggerFactory.getLogger(HighLoadTimeslot.class);
 	private final Clock clock;
 
@@ -85,10 +90,6 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		this.applyPower(power);
 	}
 
-	private enum ChargeState {
-		NORMAL, HYSTERESIS;
-	}
-
 	private ChargeState chargeState = ChargeState.NORMAL;
 
 	/**
@@ -97,12 +98,20 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 * @return
 	 */
 	private int getPower() {
-		if (this.isHighLoadTimeslot()) {
+		LocalDateTime now = LocalDateTime.now(this.clock);
+		if (this.isHighLoadTimeslot(now)) {
 			/*
 			 * We are in a High-Load period -> discharge
 			 */
+			// reset charge state
+			this.chargeState = ChargeState.NORMAL;
 			this.logInfo(log, "Within High-Load timeslot. Discharge with [" + this.dischargePower + "]");
 			return this.dischargePower;
+		} else if (this.isHighLoadTimeslot(now.plusMinutes(FORCE_CHARGE_MINUTES))) {
+			/*
+			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
+			 */
+			this.chargeState = ChargeState.FORCE_CHARGE;
 		}
 		/*
 		 * We are in a Charge period
@@ -132,6 +141,13 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 				this.chargeState = ChargeState.NORMAL;
 			}
 			return 0;
+
+		case FORCE_CHARGE:
+			/*
+			 * force full charging just before the high-load timeslot starts
+			 */
+			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + this.chargePower + "]");
+			return this.chargePower;
 		}
 		// we should never come here...
 		return 0;
@@ -142,15 +158,14 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 * 
 	 * @return
 	 */
-	private boolean isHighLoadTimeslot() {
-		LocalDateTime now = LocalDateTime.now(this.clock);
-		if (!isActiveWeekday(this.weekdayDayFilter, now)) {
+	private boolean isHighLoadTimeslot(LocalDateTime dateTime) {
+		if (!isActiveWeekday(this.weekdayDayFilter, dateTime)) {
 			return false;
 		}
-		if (!isActiveDate(this.startDate, this.endDate, now)) {
+		if (!isActiveDate(this.startDate, this.endDate, dateTime)) {
 			return false;
 		}
-		if (!isActiveTime(this.startTime, this.endTime, now)) {
+		if (!isActiveTime(this.startTime, this.endTime, dateTime)) {
 			return false;
 		}
 		// all tests passed
