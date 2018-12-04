@@ -1,6 +1,7 @@
 package io.openems.edge.ess.core.power;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -152,9 +153,12 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	protected synchronized void removeEss(ManagedSymmetricEss ess) {
-		for (Entry<String, ManagedSymmetricEss> entry : this.esss.entrySet()) {
+		Iterator<Entry<String, ManagedSymmetricEss>> i = this.esss.entrySet().iterator();
+		while (i.hasNext()) {
+			Entry<String, ManagedSymmetricEss> entry = i.next();
 			if (Objects.equals(entry.getValue(), ess)) {
 				this.data.removeEss(entry.getKey());
+				i.remove();
 			}
 		}
 	}

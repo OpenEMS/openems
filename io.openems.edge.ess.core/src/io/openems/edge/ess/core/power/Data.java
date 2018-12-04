@@ -406,7 +406,7 @@ public class Data {
 	}
 
 	/**
-	 * Sorts the list of Inverters by their weights.
+	 * Sorts the list of Inverters by their weights descending.
 	 * 
 	 * @param inverters a List of inverters
 	 */

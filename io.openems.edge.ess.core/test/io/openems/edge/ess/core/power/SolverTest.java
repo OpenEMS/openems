@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Test;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -13,6 +14,7 @@ import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.power.api.SolverStrategy;
 import io.openems.edge.ess.power.api.ThreePhaseInverter;
 
 public class SolverTest {
@@ -22,8 +24,8 @@ public class SolverTest {
 		Data data = new Data(c);
 		data.setSymmetricMode(symmetricMode);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess.id());
 			c.addEss(ess);
+			data.addEss(ess.id());
 		}
 		data.initializeCycle();
 		return data;
@@ -33,8 +35,8 @@ public class SolverTest {
 		PowerComponent c = new PowerComponent();
 		Data data = new Data(c);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess.id());
 			c.addEss(ess);
+			data.addEss(ess.id());
 		}
 		data.initializeCycle();
 		return data;
@@ -260,11 +262,100 @@ public class SolverTest {
 
 		// #1
 		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
-		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
+		assertEquals(TargetDirection.KEEP_ZERO, s.getTargetDirection());
 		d.initializeCycle();
 
 		// #2
 		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
 		assertEquals(TargetDirection.CHARGE, s.getTargetDirection());
+		d.initializeCycle();
+
+		// #3
+		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1);
+		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
+	}
+
+	@Test
+	public void testCommercial40Cluster() throws Exception {
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").maxApparentPower(40000).allowedCharge(-500)
+				.allowedDischarge(500).precision(100).soc(1);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").maxApparentPower(40000).allowedCharge(-500)
+				.allowedDischarge(500).precision(100).soc(97);
+		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2);
+		Data d = prepareData(ess0, ess1, ess2);
+		Solver s = new Solver(d);
+		s.setStrategy(SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER);
+
+		// #1
+		int p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-500);
+		ess2.expectP(-500);
+		// TODO: Q should not be -1000 & 1000!
+		s.solve();
+		d.initializeCycle();
+
+		// #2
+		ess1.allowedCharge(-1000);
+		ess2.allowedCharge(-1000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-1000);
+		ess2.expectP(-1000);
+		s.solve();
+		d.initializeCycle();
+
+		// #3
+		ess1.allowedCharge(-2000);
+		ess2.allowedCharge(-2000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-2000);
+		ess2.expectP(-2000);
+		s.solve();
+		d.initializeCycle();
+
+		// #4
+		ess1.allowedCharge(-3000);
+		ess2.allowedCharge(-3000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-3000);
+		ess2.expectP(-2000);
+		s.solve();
+		d.initializeCycle();
+
+		// #5
+		ess1.allowedCharge(-3500);
+		ess2.allowedCharge(-3500);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		// TODO: should prefer ess1, because it is empty!
+		ess1.expectP(-3500);
+		ess2.expectP(-1500);
+		s.solve();
+		d.initializeCycle();
+
+		// #6
+		ess1.allowedCharge(-4000);
+		ess2.allowedCharge(-4000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		// TODO: should prefer ess1, because it is empty!
+		ess1.expectP(-4000);
+		ess2.expectP(-1000);
+		s.solve();
+		d.initializeCycle();
+
+		// #6
+		ess1.allowedCharge(-5000);
+		ess2.allowedCharge(-5000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-5000);
+		ess2.expectP(0);
+		s.solve();
+		d.initializeCycle();
+
 	}
 }

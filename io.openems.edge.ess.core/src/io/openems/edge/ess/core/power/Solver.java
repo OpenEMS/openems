@@ -420,22 +420,22 @@ public class Solver {
 		PointValuePair result = this.solveWithConstraints(constraints);
 		PointValuePair thisSolution = null;
 
+		Relationship relationship = Relationship.EQUALS;
+		switch (targetDirection) {
+		case CHARGE:
+			relationship = Relationship.LESS_OR_EQUALS;
+			break;
+		case DISCHARGE:
+			relationship = Relationship.GREATER_OR_EQUALS;
+			break;
+		case KEEP_ZERO:
+			relationship = Relationship.EQUALS;
+			break;
+		}
+
 		for (Inverter inv : targetInverters) {
 			// Create Constraint to force Ess positive/negative/zero according to
 			// targetDirection
-			Relationship relationship = Relationship.EQUALS;
-			switch (targetDirection) {
-			case CHARGE:
-				relationship = Relationship.LESS_OR_EQUALS;
-				break;
-			case DISCHARGE:
-				relationship = Relationship.GREATER_OR_EQUALS;
-				break;
-			case KEEP_ZERO:
-				relationship = Relationship.EQUALS;
-				break;
-			}
-
 			Constraint c = this.data.createSimpleConstraint(inv.toString() + ": Force " + targetDirection.name(),
 					inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0);
 			constraints.add(c);
@@ -743,6 +743,10 @@ public class Solver {
 		for (Inverter disabledInverter : disabledInverters) {
 			result.remove(disabledInverter);
 		}
+		// get result in the order of preferred usage
+		if (this.activeTargetDirection == TargetDirection.CHARGE) {
+			result = Lists.reverse(result);
+		}
 		return result;
 	}
 
@@ -831,6 +835,10 @@ public class Solver {
 				this.solveWithConstraints(constraints);
 				return TargetDirection.DISCHARGE;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e2) {
+				constraints.remove(greaterOrEquals0);
+				Constraint lessOrEquals0 = this.data.createPConstraint(Relationship.LESS_OR_EQUALS, 0);
+				constraints.add(lessOrEquals0);
+				this.solveWithConstraints(constraints);
 				return TargetDirection.CHARGE;
 			}
 		}
