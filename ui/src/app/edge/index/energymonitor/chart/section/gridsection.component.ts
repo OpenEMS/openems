@@ -8,12 +8,12 @@ import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlo
     templateUrl: './section.component.html'
 })
 export class GridSectionComponent extends AbstractSection {
-
     constructor(translate: TranslateService) {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
-    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number, gridMode: number) {
+        this.gridMode = gridMode;
         valueRatio = valueRatio / 2; // interval from -50 to 50
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
@@ -25,6 +25,9 @@ export class GridSectionComponent extends AbstractSection {
             this.name = this.translate.instant('General.Grid')
             super.updateValue(0, 0, 0);
         }
+        if (this.square) {
+            this.square.image.image = "assets/img/" + this.getImagePath()
+        }
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -34,7 +37,11 @@ export class GridSectionComponent extends AbstractSection {
     }
 
     protected getImagePath(): string {
-        return "grid.png";
+        if (this.gridMode == 0 || this.gridMode == 2) {
+            return "offgrid.png"
+        } else {
+            return "grid.png"
+        }
     }
 
     public getValueRatio(value: number) {

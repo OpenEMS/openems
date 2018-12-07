@@ -28,7 +28,9 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 dischargeActivePowerACL2: null,
                 dischargeActivePowerACL3: null,
                 dischargeActivePowerDC: null,
-                maxDischargeActivePower: null
+                maxDischargeActivePower: null,
+                powerRatio: null,
+                maxApparent: null
             }, production: {
                 isAsymmetric: false,
                 hasDC: false,
@@ -45,7 +47,8 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
                 buyActivePower: null,
                 maxBuyActivePower: null,
                 sellActivePower: null,
-                maxSellActivePower: null
+                maxSellActivePower: null,
+                gridMode: null
             }, consumption: {
                 powerRatio: null,
                 activePower: null
@@ -63,6 +66,7 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
              */
             result.storage.soc = sum['EssSoc'];
             const essActivePower: number = sum['EssActivePower'];
+            result.storage.maxApparent = sum['MaxApparentPower'];
             result.storage.chargeActivePowerAC = essActivePower < 0 ? essActivePower * -1 : 0;
             result.storage.chargeActivePower = result.storage.chargeActivePowerAC; // TODO
             result.storage.dischargeActivePowerAC = essActivePower > 0 ? essActivePower : 0;
@@ -70,6 +74,16 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             if (sum['ProductionDcActualPower'] != null) {
                 result.storage.chargeActivePowerDC = sum['ProductionDcActualPower'];
                 result.storage.hasDC = true;
+            }
+            if (essActivePower > 0) {
+                result.storage.chargeActivePower = 0;
+                result.storage.dischargeActivePower = essActivePower;
+                result.storage.powerRatio = Math.round(result.storage.dischargeActivePower / result.storage.maxApparent * 100);
+            }
+            else {
+                result.storage.chargeActivePower = essActivePower * -1;
+                result.storage.dischargeActivePower = 0;
+                result.storage.powerRatio = Math.round(result.storage.chargeActivePower / result.storage.maxApparent * -100);
             }
         }
 
@@ -82,6 +96,7 @@ export class CurrentDataAndSummary_2018_8 extends CurrentDataAndSummary {
             const gridActivePower: number = sum['GridActivePower'];
             result.grid.maxBuyActivePower = sum['GridMaxActivePower'];
             result.grid.maxSellActivePower = sum['GridMinActivePower'] * -1;
+            result.grid.gridMode = sum['GridMode'];
             if (gridActivePower > 0) {
                 result.grid.sellActivePower = 0;
                 result.grid.buyActivePower = gridActivePower;

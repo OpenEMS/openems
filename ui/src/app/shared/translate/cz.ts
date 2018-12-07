@@ -3,6 +3,7 @@ export const TRANSLATION = {
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
+        OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
         Power: "Výkon",

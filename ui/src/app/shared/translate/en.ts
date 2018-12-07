@@ -3,6 +3,7 @@ export const TRANSLATION = {
         Grid: "Grid",
         GridBuy: "Buy from grid",
         GridSell: "Sell to grid",
+        OffGrid: "No Grid Connection!",
         Production: "Production",
         Consumption: "Consumption",
         Power: "Power",

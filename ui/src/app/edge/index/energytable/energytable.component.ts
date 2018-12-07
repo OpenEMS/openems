@@ -32,9 +32,9 @@ export class EnergytableComponent_2018_8 {
     this.subscribes.next({
       '_sum': [
         // Ess
-        'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
+        'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower', 'MaxApparentPower',
         // Grid
-        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
+        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower', 'GridMode',
         // Production
         'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
         // Consumption
