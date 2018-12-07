@@ -5,6 +5,7 @@ import { Edge } from './edge';
 import { ConfigImpl } from './config';
 
 export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config_2018_7 {
+    [x: string]: any;
 
     public readonly things?: {
         [id: string]: {
@@ -46,6 +47,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
     public readonly evcsDevices: string[] = [];
     public readonly thresholdDevices: string[] = [];
     public readonly essType: string[] = [];
+    public readonly chargepower: number;
 
     constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config_2018_7) {
         super();
@@ -78,6 +80,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         let evcsDevices: string[] = [];
         let thresholdDevices: string[] = [];
         let essType: string[] = [];
+        let chargepower: number;
 
         for (let thingId in config.things) {
             let thing = config.things[thingId];
@@ -86,13 +89,13 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
             * Types
             */
             if (i.includes("FeneconCommercialEss")) {
-                essType.push("commercial")
+                chargepower = 50000;
             }
             if (i.includes("FeneconMiniEss")) {
-                essType.push("mini")
+                chargepower = 3000;
             }
             if (i.includes("AsymmetricSymmetricCombinationEssNature")) {
-                essType.push("pro")
+                chargepower = 9000;
             }
 
             /*
@@ -173,6 +176,7 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         this.chargers = chargers.sort();
         this.thresholdDevices = thresholdDevices;
         this.essType = essType;
+        this.chargepower = chargepower;
     }
 
     public getStateChannels(): DefaultTypes.ChannelAddresses {

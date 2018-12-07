@@ -93,16 +93,8 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
             let activePowerACL3 = null;
             let activePowerDC = null;
             let countSoc = 0;
-            let chargePower = 0;
-            if (config.essType[""] == "commercial") {
-                chargePower = 50000;
-            }
-            else if (config.essType[""] == "pro") {
-                chargePower = 9000;
-            }
-            else {
-                chargePower = 3000;
-            }
+            let chargePower = config.chargepower
+
             for (let thing of config.esss) {
                 if (thing in currentData) {
                     let essData = currentData[thing];
@@ -200,6 +192,7 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
                 if (activePower > 0) {
                     result.storage.chargeActivePower = activePower;
                     result.storage.dischargeActivePower = 0;
+
                     result.storage.powerRatio = Math.round(result.storage.chargeActivePower / chargePower * 100);
                 } else {
                     result.storage.chargeActivePower = 0;
@@ -219,9 +212,7 @@ export class CurrentDataAndSummary_2018_7 extends CurrentDataAndSummary {
             let ratio = 0;
             let maxSell = 0;
             let maxBuy = 0;
-            for (let thing of config.essType) {
-                let type = config.things[thing];
-            }
+
             for (let thing of config.gridMeters) {
                 let meterData = currentData[thing];
                 let meterConfig = config.things[thing];
