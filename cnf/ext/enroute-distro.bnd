@@ -12,6 +12,7 @@
 		releaseUrls=https://repo1.maven.org/maven2/; \
 		revision=org.osgi:osgi.enroute.pom.distro:2.1.0-SNAPSHOT; \
 		name=Distro; \
+		local=C:/Maven2/.m2/repository; \
 		location=${build}/cache/enroute-distro.xml
 
 -runblacklist.enroute:	\
