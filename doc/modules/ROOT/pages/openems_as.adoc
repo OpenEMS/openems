@@ -16,6 +16,14 @@ image::members.JPG[Gründungsmitglieder]
 
 Die zugehörige Pressemitteilung finden Sie link:https://github.com/OpenEMS/openems/raw/develop/doc/Pressemitteilung_OpenEMS_Association_Gruendung_1v0.pdf[hier zum Download].
 
+== PV Magazine Top Business Model Award
+
+.PV Magazine Award
+image::pvmagazine.png[PV Magazine Award]
+
+Auch das PV Magazine erkennt das Potenzial eines Betriebssystems für die Energiewende und würdigt die OpenEMS Association bereits zum Start mit dem Top Business Model Award. Im Auftrag von Chefredakteur Dr. Michael Fuhs durfte Franz-Josef Feilmeier, CEO der FENECON GmbH, die Urkunde an seinen Bruder Stefan Feilmeier, frisch gewählter Vorstandsvorsitzender der OpenEMS Association, überreichen. Der Preisverleihung vorausgegangen war eine lesenswerte Diskussion über die Notwendigkeit und Möglichkeiten von Energiemanagementsystemen zwischen Franz-Josef Feilmeier und Hans Urban, die im Zuge der Verleihung link:https://www.pv-magazine.de/2018/11/12/pv-magazine-top-business-model-ein-betriebssystem-fuer-die-energiewende/?utm_source=CleverReach&utm_medium=email&utm_campaign=27-11-2018+FENECON+November+Newsletter&utm_content=Mailing_7205600[ebenfalls veröffentlicht wurde].
+
+
 == OpenEMS Association Newsletter
 
 Gerne halten wir Sie über aktuelle News zur OpenEMS Association auf dem Laufenden. Bitte melden Sie sich zu unserem Newsletter an:
