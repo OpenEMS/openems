@@ -24,17 +24,17 @@ import com.ed.openems.centurio.datasource.api.EdComData;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "KACO.CenturioPVMeter", //
+		name = "KACO.bpPVMeter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class CenturioPVMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, OpenemsComponent, EventHandler {
+		implements SymmetricMeter, SymmetricPvInverter, OpenemsComponent, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected EdComData datasource;
@@ -52,6 +52,7 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 		}
 		this.getMaxActivePower().setNextValue(config.maxP());
 		this.getMinActivePower().setNextValue(0);
+		this.getActivePowerLimit().setNextValue(config.maxP());
 	}
 
 	@Deactivate
@@ -88,10 +89,8 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 	public String debugLog() {
 		return "L:" + this.getActivePower().value().asString();
 	}
-
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.PRODUCTION;
-	}
+	
+	
+	
 
 }

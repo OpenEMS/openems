@@ -42,7 +42,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "KACO.EdCom", //
+		name = "KACO.bpCom", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "="
 				+ EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
@@ -269,6 +269,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 		try (DatagramSocket socket = new DatagramSocket()) {
 			socket.connect(inetAddress, 0);
 			InetAddress localAddress = socket.getLocalAddress();
+			
 			if (localAddress.isAnyLocalAddress()) {
 				return null;
 			} else {
@@ -286,10 +287,14 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 	private void initClient() throws Exception {
 		// Initialize the Client
 				if (this.inverterAddress != null) {
-					InetAddress localAddress = EdCom.getMatchingLocalInetAddress(inverterAddress);
+					InetAddress localAddress = EdCom.getMatchingLocalInetAddress(this.inverterAddress);
 					// FIXME: sometimes I receive a "java.lang.Exception: wrong parameters" here.
 					// Any idea why?
+					//this.logInfo(this.log, "Using local Address: " + localAddress.getHostAddress());
 					this.client = new Client(this.inverterAddress, localAddress, 1);
+					//if (this.client != null ) {
+						//this.initClient();
+					//}
 				}
 				
 				// Initialize all Data classes

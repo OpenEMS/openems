@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "KACO CENTURIO DC Charger", //
-		description = "Implements the KACO Centurio DC Charger.")
+		name = "KACO blueplanet 10.0 TL3 hybrid DC Charger", //
+		description = "Implements the KACO blueplanet 10.0 TL3 hybrid DC Charger.")
 @interface Config {
 	String service_pid();
 
@@ -13,11 +13,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "EdCom-ID", description = "ID of EdCom Interface.")
-	String datasource_id() default "edcom0";
+	@AttributeDefinition(name = "bpCom-ID", description = "ID of bpCom Interface.")
+	String datasource_id() default "bpcom0";
 
 	@AttributeDefinition(name = "Maximum Ever Actual Power", description = "This is automatically updated.")
 	int maxActualPower();
 
-	String webconsole_configurationFactory_nameHint() default "KACO CENTURIO DC Charger [{id}]";
+	String webconsole_configurationFactory_nameHint() default "KACO blueplanet 10.0 TL3 hybrid DC Charger [{id}]";
 }

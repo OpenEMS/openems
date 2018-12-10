@@ -26,7 +26,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
  * Implements the FENECON Commercial 40 Charger
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "EssDcCharger.KACO.Centurio", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "EssDcCharger.KACO.pbEssCharger", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class CenturioEssCharger extends AbstractOpenemsComponent implements EssDcCharger, OpenemsComponent, EventHandler {
 
 	@Reference

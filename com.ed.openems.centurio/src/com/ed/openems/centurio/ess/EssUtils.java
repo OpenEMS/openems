@@ -45,6 +45,7 @@ public class EssUtils {
 				return new IntegerReadChannel(c, channelId);
 			case SET_ACTIVE_POWER_EQUALS:
 			case SET_REACTIVE_POWER_EQUALS:
+			case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 				return new IntegerWriteChannel(c, channelId);
 			default:
 				break;

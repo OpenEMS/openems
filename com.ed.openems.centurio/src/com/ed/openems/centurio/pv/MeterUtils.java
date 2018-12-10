@@ -5,10 +5,12 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 
 public class MeterUtils {
 
@@ -32,6 +34,13 @@ public class MeterUtils {
 			case ACTIVE_PRODUCTION_ENERGY:
 			case ACTIVE_CONSUMPTION_ENERGY:
 				return new IntegerReadChannel(c, channelId);
+
+			}
+			return null;
+		}), Arrays.stream(SymmetricPvInverter.ChannelId.values()).map(channelId -> {
+			switch (channelId) {
+			case ACTIVE_POWER_LIMIT:
+				return new IntegerWriteChannel(c, channelId);
 
 			}
 			return null;
