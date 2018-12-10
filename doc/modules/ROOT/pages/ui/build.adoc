@@ -17,9 +17,10 @@ Open the terminal inside Visual Studio Code (Menu: btn:[Terminal] -> btn:[New Te
 
 Execute the following commands inside the `ui` directory of your OpenEMS repository. The build artifacts will be stored in a subfolder of the `target` directory
 
-To get more help on `angular-cli` use `ng help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+To get more help on `angular-cli` use `ng help` or go check out the link:https://github.com/angular/angular-cli/blob/master/README.md[Angular-CLI README].
 
-Be aware that there is currently a [bug](https://github.com/angular/angular-cli/issues/11208) in how angular-cli generates the service-worker configuration file (ngsw-config.json). After running the above command it is required to fix 'regex' statements in the file, replacing double '`\\`' by single '`\`' to avoid wrong escaping.
+Be aware that there is currently a link:https://github.com/angular/angular-cli/issues/11208[bug]
+in how angular-cli generates the service-worker configuration file (ngsw-config.json). After running the above command it is required to fix 'regex' statements in the file, replacing double '`\\`' by single '`\`' to avoid wrong escaping.
 
 === Build for OpenEMS Backend
 

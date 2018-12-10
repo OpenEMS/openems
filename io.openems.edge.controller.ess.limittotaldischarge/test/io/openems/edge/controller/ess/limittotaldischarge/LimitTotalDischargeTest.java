@@ -20,12 +20,14 @@ public class LimitTotalDischargeTest {
 		private final String essId;
 		private final int minSoc;
 		private final int forceChargeSoc;
+		private final int forceChargePower;
 
-		public MyConfig(String id, String essId, int minSoc, int forceChargeSoc) {
+		public MyConfig(String id, String essId, int minSoc, int forceChargeSoc, int forceChargePower) {
 			super(Config.class, id);
 			this.essId = essId;
 			this.minSoc = minSoc;
 			this.forceChargeSoc = forceChargeSoc;
+			this.forceChargePower = forceChargePower;
 		}
 
 		@Override
@@ -48,6 +50,11 @@ public class LimitTotalDischargeTest {
 			return this.forceChargeSoc;
 		}
 
+		@Override
+		public int forceChargePower() {
+			return this.forceChargePower;
+		}
+
 	}
 
 	@Test
@@ -60,7 +67,7 @@ public class LimitTotalDischargeTest {
 		controller.cm = new DummyConfigurationAdmin();
 		controller.ess = new DummyManagedSymmetricEss("ess0");
 		// Activate (twice, so that reference target is set)
-		MyConfig config = new MyConfig("ctrl0", "ess0", 15, 10);
+		MyConfig config = new MyConfig("ctrl0", "ess0", 15, 10, 1000);
 		controller.activate(null, config);
 		controller.activate(null, config);
 		// Prepare Channels

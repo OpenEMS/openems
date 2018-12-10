@@ -6,6 +6,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
@@ -102,5 +103,10 @@ public class PvInverter extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		return this.getActivePower().value().asString();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.PRODUCTION;
 	}
 }

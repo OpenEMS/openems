@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -49,6 +48,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
+	private Optional<Integer> forceChargePower = Optional.empty();
 	private State state = State.NORMAL;
 
 	@Reference
@@ -56,28 +56,6 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected ManagedSymmetricEss ess;
-
-	public enum State implements OptionsEnum {
-		NORMAL(0, "Normal"), MIN_SOC(1, "Min-SoC"), FORCE_CHARGE_SOC(2, "Force-Charge-SoC");
-
-		private final int value;
-		private final String option;
-
-		private State(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
-		}
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		STATE_MACHINE(new Doc() //
@@ -121,6 +99,10 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
+		if (config.forceChargePower() > 0) {
+			// apply configured force charge power if it is was set and it is greater than 0
+			this.forceChargePower = Optional.of(config.forceChargePower());
+		}
 
 		// Force-Charge-SoC must be smaller than Min-SoC
 		if (this.forceChargeSoc >= this.minSoc) {
@@ -192,10 +174,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				 * Force-Charge-SoC State
 				 */
 				// Force charge: set Constraint for ActivePower
-				int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-				// TODO allow setting of Force-Charge-Power (in percentage of maxCharge power)
-				// per configuration
-				calculatedPower = maxCharge / 5;
+				if (this.forceChargePower.isPresent()) {
+					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
+				} else {
+					int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					calculatedPower = maxCharge / 5;
+				}
 
 				if (soc > this.forceChargeSoc) {
 					stateChanged = this.changeState(State.MIN_SOC);
@@ -205,6 +189,11 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			}
 
 		} while (stateChanged); // execute again if the state changed
+
+		// adjust value so that it fits into Min/MaxActivePower
+		if (calculatedPower != null) {
+			calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		}
 
 		// Apply Force-Charge if it was set
 		try {
