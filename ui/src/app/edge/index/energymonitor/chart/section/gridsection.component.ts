@@ -1,40 +1,33 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
-
 
 @Component({
     selector: '[gridsection]',
     templateUrl: './section.component.html'
 })
 export class GridSectionComponent extends AbstractSection {
-
     constructor(translate: TranslateService) {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
-    protected gridMode: number
-
     public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number, gridMode: number) {
-        console.log('RATIO BEFORE', valueRatio)
+        this.gridMode = gridMode;
         valueRatio = valueRatio / 2; // interval from -50 to 50
-        this.gridMode = gridMode
-        if (gridMode && this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath();
-        }
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
-            super.updateGrid(buyAbsolute, valueRatio, sumBuyRatio * -1);
+            super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
         } else if (sellAbsolute != null && sellAbsolute > 0) {
             this.name = this.translate.instant('General.GridSell');
-            super.updateGrid(sellAbsolute, valueRatio, sumSellRatio);
-        }
-        else {
+            super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
+        } else {
             this.name = this.translate.instant('General.Grid')
-            super.updateGrid(0, 0, 0);
+            super.updateValue(0, 0, 0);
         }
-        console.log('Grid ValueRatio 1:', valueRatio)
+        if (this.square) {
+            this.square.image.image = "assets/img/" + this.getImagePath()
+        }
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -44,10 +37,9 @@ export class GridSectionComponent extends AbstractSection {
     }
 
     protected getImagePath(): string {
-        if (this.gridMode == 2 || this.gridMode == 0) {
+        if (this.gridMode == 0 || this.gridMode == 2) {
             return "offgrid.png"
-        }
-        else {
+        } else {
             return "grid.png"
         }
     }

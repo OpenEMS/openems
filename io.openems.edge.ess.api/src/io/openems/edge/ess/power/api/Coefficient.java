@@ -1,32 +1,30 @@
 package io.openems.edge.ess.power.api;
 
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-
 public class Coefficient {
 
 	protected final int index;
-	protected final ManagedSymmetricEss ess;
+	protected final String essId;
 	protected final Phase phase;
 	protected final Pwr pwr;
 
-	public Coefficient(int index, ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public Coefficient(int index, String essId, Phase phase, Pwr pwr) {
 		this.index = index;
-		this.ess = ess;
+		this.essId = essId;
 		this.phase = phase;
 		this.pwr = pwr;
 	}
 
 	@Override
 	public String toString() {
-		return this.ess.id() + this.pwr.getSymbol() + this.phase.getSymbol();
+		return this.essId + this.pwr.getSymbol() + this.phase.getSymbol();
 	}
 
 	public int getIndex() {
 		return index;
 	}
 
-	public ManagedSymmetricEss getEss() {
-		return ess;
+	public String getEssId() {
+		return essId;
 	}
 
 	public Phase getPhase() {

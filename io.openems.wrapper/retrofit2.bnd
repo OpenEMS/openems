@@ -2,11 +2,13 @@ Bundle-Name: Retrofit2
 Bundle-Description: A type-safe HTTP client for Android and Java
 Bundle-DocURL: https://github.com/square/retrofit
 Bundle-License: https://opensource.org/licenses/Apache-2.0
-Bundle-Version: 2.4.0
+Bundle-Version: 2.5.0
 
-Include-Resource: @retrofit-2.4.0.jar
+Include-Resource: @retrofit-2.5.0.jar
 Import-Package: \
-	android.os;resolution:=optional, \
+	android.os;resolution:=optional,\
+	kotlin;resolution:=optional,\
+	kotlin.jvm.internal;resolution:=optional,\
 	*
 
 -dsannotations: *
@@ -15,6 +17,7 @@ Import-Package: \
 
 -exportcontents: \
 	retrofit2,\
-	retrofit2.http
+	retrofit2.http,\
+	retrofit2.internal
 	
 -sources: false

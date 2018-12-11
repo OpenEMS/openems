@@ -161,67 +161,6 @@ export abstract class AbstractSection {
     }
 
     /**
-     * This method was created to add the powerRatio to the Monitor (showing charge/discharge)
-     * This method is called on every change of values.
-     */
-    protected updateStorage(valueAbsolute: number, valueRatio: number, sumRatio: number, powerRatio: number) {
-        // TODO smoothly resize the arc
-        this.lastValue = { valueAbsolute: valueAbsolute, valueRatio: valueRatio, sumRatio: sumRatio };
-        this.valueRatio = this.getValueRatioStorageGrid(valueRatio);
-        this.powerRatio = this.getPowerRatio(powerRatio)
-        this.valueText = this.getValueText(valueAbsolute);
-        let valueEndAngle = ((this.endAngle - this.startAngle) * this.powerRatio) / 100 + this.getStorageValueStartAngle();
-        let valueArc = this.getArc()
-            .startAngle(this.deg2rad(this.getStorageValueStartAngle()))
-            .endAngle(this.deg2rad(valueEndAngle));
-        this.valuePath = valueArc();
-
-        let energyFlowValue = Math.abs(Math.round(sumRatio * 10));
-        if (energyFlowValue < -10) {
-            energyFlowValue = -10;
-        } else if (energyFlowValue > 10) {
-            energyFlowValue = 10;
-        }
-        let svgEnergyFlow;
-        if (isNaN(sumRatio) || isNaN(energyFlowValue)) {
-            svgEnergyFlow = null;
-        } else {
-            svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
-        }
-        this.energyFlow.update(svgEnergyFlow);
-    }
-
-    /**
-    * This method is called on every change of values.
-    */
-    protected updateGrid(valueAbsolute: number, valueRatio: number, sumRatio: number) {
-        // TODO smoothly resize the arc
-        this.lastValue = { valueAbsolute: valueAbsolute, valueRatio: valueRatio, sumRatio: sumRatio };
-        this.valueRatio = this.getValueRatioStorageGrid(valueRatio);
-        this.valueText = this.getValueText(valueAbsolute);
-        let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
-        let valueArc = this.getArc()
-            .startAngle(this.deg2rad(this.getValueStartAngle()))
-            .endAngle(this.deg2rad(valueEndAngle));
-        this.valuePath = valueArc();
-
-        let energyFlowValue = Math.abs(Math.round(sumRatio * 10));
-        if (energyFlowValue < -10) {
-            energyFlowValue = -10;
-        } else if (energyFlowValue > 10) {
-            energyFlowValue = 10;
-        }
-        let svgEnergyFlow;
-        if (isNaN(sumRatio) || isNaN(energyFlowValue)) {
-            svgEnergyFlow = null;
-        } else {
-            svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
-        }
-        this.energyFlow.update(svgEnergyFlow);
-        console.log("GridValueRatio2:", valueRatio)
-    }
-
-    /**
      * This method is called on every change of resolution of the browser window.
      */
     public update(outerRadius: number, innerRadius: number, height: number, width: number) {
@@ -297,29 +236,6 @@ export abstract class AbstractSection {
             return 0;
         }
         return valueRatio;
-    }
-
-    public getValueRatioStorageGrid(valueRatio: number): number {
-        if (valueRatio > 50) {
-            return 50;
-        } else if (valueRatio < -50) {
-            return -50;
-        }
-        else if (valueRatio == null || Number.isNaN(valueRatio)) {
-            return 0;
-        }
-        return valueRatio;
-    }
-
-    protected getPowerRatio(powerRatio: number): number {
-        if (powerRatio > 50) {
-            return 50;
-        } else if (powerRatio < -50) {
-            return -50;
-        } else if (powerRatio == null || Number.isNaN(powerRatio)) {
-            return 0;
-        }
-        return powerRatio;
     }
 
     protected getArc(): any {

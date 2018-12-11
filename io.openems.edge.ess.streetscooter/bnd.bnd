@@ -2,12 +2,6 @@ Bundle-Name: OpenEMS Edge ESS Streetscooter
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.ess.symmetric.readonly.api,\
-	io.openems.edge.ess.api,\
-	io.openems.edge.ess.symmetric.api,\
-	io.openems.edge.ess.power.symmetric,\
-	io.openems.edge.ess.power
 
 -includeresource: {readme.md}
 
@@ -23,3 +17,6 @@ Export-Package: \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 -runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
 Private-Package: io.openems.edge.ess.streetscooter
+Export-Package: \
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.power.api

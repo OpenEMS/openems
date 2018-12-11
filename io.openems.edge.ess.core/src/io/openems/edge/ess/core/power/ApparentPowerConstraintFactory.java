@@ -3,7 +3,6 @@ package io.openems.edge.ess.core.power;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
@@ -12,7 +11,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class ApparentPowerConstraintFactory {
 
-	private final static int CIRCLE_SECTIONS_PER_QUARTER = 2; // don't set higher than 90
+	private static final int CIRCLE_SECTIONS_PER_QUARTER = 2; // don't set higher than 90
 
 	private class Point {
 		protected final double x;
@@ -35,7 +34,7 @@ public class ApparentPowerConstraintFactory {
 		this.parent = parent;
 	}
 
-	public List<Constraint> getConstraints(ManagedSymmetricEss ess, Phase phase, double apparentPower) {
+	public List<Constraint> getConstraints(String essId, Phase phase, double apparentPower) {
 		List<Constraint> result = new ArrayList<>();
 		double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
 		Point p1 = this.getPointOnCircle(apparentPower, 0);
@@ -50,7 +49,7 @@ public class ApparentPowerConstraintFactory {
 				relationship = Relationship.LESS_OR_EQUALS;
 			}
 
-			Constraint constraint = this.getConstraintThroughPoints(ess, phase, p1, p2, relationship);
+			Constraint constraint = this.getConstraintThroughPoints(essId, phase, p1, p2, relationship);
 			result.add(constraint);
 
 			// set p2 -> p1 for next loop
@@ -63,7 +62,7 @@ public class ApparentPowerConstraintFactory {
 		return new Point(Math.cos(Math.toRadians(degree)) * radius, Math.sin(Math.toRadians(degree)) * radius);
 	}
 
-	private Constraint getConstraintThroughPoints(ManagedSymmetricEss ess, Phase phase, Point p1, Point p2,
+	private Constraint getConstraintThroughPoints(String essId, Phase phase, Point p1, Point p2,
 			Relationship relationship) {
 		/**
 		 * Build the LinearConstraint.
@@ -77,9 +76,9 @@ public class ApparentPowerConstraintFactory {
 		double coefficient1 = (p2.y - p1.y) / (p2.x - p1.x);
 		double coefficient2 = -1;
 
-		return new Constraint(ess.id() + ": Max Apparent Power", new LinearCoefficient[] { //
-				new LinearCoefficient(this.parent.getCoefficient(ess, phase, Pwr.ACTIVE), coefficient1), //
-				new LinearCoefficient(this.parent.getCoefficient(ess, phase, Pwr.REACTIVE), coefficient2) //
+		return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //
+				new LinearCoefficient(this.parent.getCoefficient(essId, phase, Pwr.ACTIVE), coefficient1), //
+				new LinearCoefficient(this.parent.getCoefficient(essId, phase, Pwr.REACTIVE), coefficient2) //
 		}, relationship, constraintValue);
 	}
 }

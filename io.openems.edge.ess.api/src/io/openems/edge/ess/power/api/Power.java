@@ -25,7 +25,7 @@ public interface Power {
 	 * Creates a simple constraint
 	 * 
 	 * @param description
-	 * @param ess
+	 * @param essId
 	 * @param phase
 	 * @param pwr
 	 * @param relationship

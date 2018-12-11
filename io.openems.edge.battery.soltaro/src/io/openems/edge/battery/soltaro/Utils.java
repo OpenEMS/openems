@@ -44,6 +44,8 @@ public class Utils {
 						return new BooleanReadChannel(s, channelId);
 					case CAPACITY_KWH:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.CAPACITY_KWH);
+					case MAXIMAL_POWER:
+						return new IntegerReadChannel(s, channelId, SoltaroRack.MAX_POWER_WATT);
 					default:
 						break;
 					}

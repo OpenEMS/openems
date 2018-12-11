@@ -1,3 +1,5 @@
+[![Build Status](https://www.travis-ci.com/OpenEMS/openems.svg?branch=develop)](https://www.travis-ci.com/OpenEMS/openems)
+
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/OpenEMS/openems/develop/doc/img/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
   <br/>Open Source Energy Management System
@@ -5,14 +7,6 @@
 
 OpenEMS is a modular platform for energy management applications.
 It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
-
-## Openems Foundation
-
-Upcoming dates:
-* Online-Meeting I:   Thursday, 2018-10-11, 14:00 - 16:00 (Registration: franz.feilmeier@fenecon.de)
-* Online-Meeting II:  Friday, 2018-10-12, 14:00 - 16:00 (Registration: franz.feilmeier@fenecon.de)
-* Introductory-Meeting: Monday, 2018-11-05, 11:00 - 16:00, in Deggendorf
-* Openems Foundation:  Thursday, 2018-11-15, 11:00 - 14:00, in Deggendorf
 
 ## OpenEMS IoT stack
 

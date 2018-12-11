@@ -14,66 +14,69 @@ JPM-Command:				openems-edge
 -runsystempackages: sun.misc, com.sun.net.httpserver
 
 -runrequires: \
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.application)',\
-	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-api)',\
-	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-service)',\
-	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.common)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.battery.soltaro)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.common)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.core)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.modbus)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.rest)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.balancingcosphi)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.phaserectification)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.fixactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.asymmetric.fixreactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.dischargelimitconsideringcellvoltage)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.ess.limittotaldischarge)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.io.fixdigitaloutput)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixreactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.limitactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.linearpowerband)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.peakshaving)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.randompower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.core)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.cluster)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.core)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.mr.gridcon)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.kaco.blueplanet.gridsave50)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.refu)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.mini)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.fenecon.pro)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.bcontrol.em300)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.carlo.gavazzi.em300)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.microcare.sdm630)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.socomec)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.wago)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.kostal.piko)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.allalphabetically)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.simulator)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)'
+	bnd.identity;id=io.openems.common,\
+	bnd.identity;id=io.openems.edge.application,\
+	bnd.identity;id=io.openems.edge.battery.soltaro,\
+	bnd.identity;id=io.openems.edge.bridge.modbus,\
+	bnd.identity;id=io.openems.edge.common,\
+	bnd.identity;id=io.openems.edge.controller.api.backend,\
+	bnd.identity;id=io.openems.edge.controller.api.core,\
+	bnd.identity;id=io.openems.edge.controller.api.modbus,\
+	bnd.identity;id=io.openems.edge.controller.api.rest,\
+	bnd.identity;id=io.openems.edge.controller.api.websocket,\
+	bnd.identity;id=io.openems.edge.controller.asymmetric.balancingcosphi,\
+	bnd.identity;id=io.openems.edge.controller.asymmetric.fixactivepower,\
+	bnd.identity;id=io.openems.edge.controller.asymmetric.fixreactivepower,\
+	bnd.identity;id=io.openems.edge.controller.asymmetric.phaserectification,\
+	bnd.identity;id=io.openems.edge.controller.channelthreshold,\
+	bnd.identity;id=io.openems.edge.controller.debug.detailedlog,\
+	bnd.identity;id=io.openems.edge.controller.debug.log,\
+	bnd.identity;id=io.openems.edge.controller.dischargelimitconsideringcellvoltage,\
+	bnd.identity;id=io.openems.edge.controller.ess.limittotaldischarge,\
+	bnd.identity;id=io.openems.edge.controller.highloadtimeslot,\
+	bnd.identity;id=io.openems.edge.controller.io.fixdigitaloutput,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.balancing,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.fixactivepower,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.fixreactivepower,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.limitactivepower,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.linearpowerband,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.peakshaving,\
+	bnd.identity;id=io.openems.edge.controller.symmetric.randompower,\
+	bnd.identity;id=io.openems.edge.core,\
+	bnd.identity;id=io.openems.edge.ess.cluster,\
+	bnd.identity;id=io.openems.edge.ess.core,\
+	bnd.identity;id=io.openems.edge.ess.fenecon.commercial40,\
+	bnd.identity;id=io.openems.edge.ess.kaco.blueplanet.gridsave50,\
+	bnd.identity;id=io.openems.edge.ess.mr.gridcon,\
+	bnd.identity;id=io.openems.edge.ess.refu,\
+	bnd.identity;id=io.openems.edge.ess.streetscooter,\
+	bnd.identity;id=io.openems.edge.evcs.keba.kecontact,\
+	bnd.identity;id=io.openems.edge.fenecon.mini,\
+	bnd.identity;id=io.openems.edge.fenecon.pro,\
+	bnd.identity;id=io.openems.edge.io.kmtronic,\
+	bnd.identity;id=io.openems.edge.io.wago,\
+	bnd.identity;id=io.openems.edge.kostal.piko,\
+	bnd.identity;id=io.openems.edge.meter.bcontrol.em300,\
+	bnd.identity;id=io.openems.edge.meter.carlo.gavazzi.em300,\
+	bnd.identity;id=io.openems.edge.meter.janitza.umg96rme,\
+	bnd.identity;id=io.openems.edge.meter.microcare.sdm630,\
+	bnd.identity;id=io.openems.edge.meter.socomec,\
+	bnd.identity;id=io.openems.edge.pvinverter.solarlog,\
+	bnd.identity;id=io.openems.edge.scheduler.allalphabetically,\
+	bnd.identity;id=io.openems.edge.scheduler.fixedorder,\
+	bnd.identity;id=io.openems.edge.simulator,\
+	bnd.identity;id=io.openems.edge.timedata.influxdb,\
+	bnd.identity;id=org.apache.felix.webconsole,\
+	bnd.identity;id=org.ops4j.pax.logging.pax-logging-api,\
+	bnd.identity;id=org.ops4j.pax.logging.pax-logging-service,\
+	bnd.identity;id=osgi.enroute.webconsole.xray.provider
 	
 -runbundles: \
+	com.fazecast.jSerialComm;version='[2.2.2,2.2.3)',\
 	com.ghgande.j2mod;version='[2.5.2,2.5.3)',\
 	com.google.gson;version='[2.8.5,2.8.6)',\
-	com.google.guava;version='[27.0.0,27.0.1)',\
+	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
+	com.google.guava;version='[27.0.1,27.0.2)',\
 	com.sun.jna;version='[4.2.2,4.2.3)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
@@ -86,15 +89,16 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
-	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
+	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
-	io.openems.edge.controller.dischargelimitconsideringcellvoltage;version=snapshot,\
-	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
-	io.openems.edge.controller.ess.limittotaldischarge,\
+	io.openems.edge.controller.dischargelimitconsideringcellvoltage;version=snapshot,\
+	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
+	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
+	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
@@ -106,10 +110,10 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
-	io.openems.edge.ess.streetscooter;version=snapshot,\
+	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.refu;version=snapshot,\
+	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
@@ -121,6 +125,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.socomec;version=snapshot,\
+	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
@@ -129,15 +134,14 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
 	io.openems.wrapper.msgpack;version=snapshot,\
-	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
+	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\
-	com.fazecast.jSerialComm;version='[2.2.2,2.2.3)',\
 	json;version='[20160212.0.0,20160212.0.1)',\
-	org.apache.commons.math3;version='[3.6.0,4.0.0)',\
 	org.apache.commons.fileupload;version='[1.3.2,1.3.3)',\
 	org.apache.commons.io;version='[2.5.0,2.5.1)',\
+	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
 	org.apache.felix.configadmin;version='[1.8.8,1.8.9)',\
 	org.apache.felix.http.jetty;version='[3.2.0,3.2.1)',\
 	org.apache.felix.http.servlet-api;version='[1.1.2,1.1.3)',\
@@ -148,6 +152,9 @@ JPM-Command:				openems-edge
 	org.apache.servicemix.bundles.okio;version='[1.13.0,1.13.1)',\
 	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
 	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
+	org.eclipse.jetty.server;version='[9.3.8,9.3.9)',\
+	org.eclipse.jetty.util;version='[9.3.8,9.3.9)',\
+	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.10.1,1.10.2)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.10.1,1.10.2)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
@@ -155,7 +162,6 @@ JPM-Command:				openems-edge
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	org.osgi.compendium;version='[4.1.0,4.1.1)'
-	
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'
+		
 -runee: JavaSE-1.8

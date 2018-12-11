@@ -1,0 +1,13 @@
+#
+# io.openems.edge.controller.pvinverter.fixpowerlimit DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.controller.pvinverter.fixpowerlimit.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
