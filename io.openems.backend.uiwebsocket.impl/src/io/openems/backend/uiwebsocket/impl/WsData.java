@@ -5,9 +5,18 @@ import java.util.UUID;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
-	private Optional<BackendCurrentDataWorker> currentDataWorker = Optional.empty();
+	private final SubscribedChannelsWorker subscribedChannelsWorker;
 	private Optional<String> userId = Optional.empty();
 	private Optional<UUID> token = Optional.empty();
+
+	public WsData(UiWebsocketImpl parent) {
+		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
+	}
+
+	@Override
+	public void dispose() {
+		this.subscribedChannelsWorker.dispose();
+	}
 
 	public synchronized void setUserId(String userId) {
 		this.userId = Optional.ofNullable(userId);
@@ -25,12 +34,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return token;
 	}
 
-	public void setCurrentDataWorker(BackendCurrentDataWorker currentDataWorker) {
-		this.currentDataWorker = Optional.ofNullable(currentDataWorker);
-	}
-
-	public Optional<BackendCurrentDataWorker> getCurrentDataWorker() {
-		return currentDataWorker;
+	public SubscribedChannelsWorker getSubscribedChannelsWorker() {
+		return subscribedChannelsWorker;
 	}
 
 }

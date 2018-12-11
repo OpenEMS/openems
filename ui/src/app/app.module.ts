@@ -29,7 +29,7 @@ import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment';
+import { environment as env } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -47,7 +47,7 @@ import { environment } from '../environments/environment';
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
     }),
     PopoverPageModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
+    env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
   ],
   providers: [
     StatusBar,

@@ -71,38 +71,39 @@ export class EvcsChartComponent implements OnChanges {
       return;
     }
     this.loading = true;
-    this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
-      // prepare datas array and prefill with each device
+    // this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels)
+    // .then(historicData => {
+    //   // prepare datas array and prefill with each device
 
-      // prepare datasets and labels
-      let actualPowers: number[] = [];
-      let labels: Date[] = [];
-      for (let record of historicData.data) {
-        for (let componentId in record.channels) {
-          let d = record.channels[componentId];
-          if ("ActualPower" in d) {
-            actualPowers.push(Utils.divideSafely(d.ActualPower, 1000000));  // convert to kW
-          }
-        }
-        labels.push(new Date(record.time));
-      }
-      this.datasets = [{
-        label: this.translate.instant('General.ActualPower'),
-        data: actualPowers,
-        hidden: false
-      }];
-      this.labels = labels;
-      // stop loading spinner
-      this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
-      });
-    }).catch(error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
-    });
+    //   // prepare datasets and labels
+    //   let actualPowers: number[] = [];
+    //   let labels: Date[] = [];
+    //   for (let record of historicData.data) {
+    //     for (let componentId in record.channels) {
+    //       let d = record.channels[componentId];
+    //       if ("ActualPower" in d) {
+    //         actualPowers.push(Utils.divideSafely(d.ActualPower, 1000000));  // convert to kW
+    //       }
+    //     }
+    //     labels.push(new Date(record.time));
+    //   }
+    //   this.datasets = [{
+    //     label: this.translate.instant('General.ActualPower'),
+    //     data: actualPowers,
+    //     hidden: false
+    //   }];
+    //   this.labels = labels;
+    //   // stop loading spinner
+    //   this.loading = false;
+    //   setTimeout(() => {
+    //     // Workaround, because otherwise chart data and labels are not refreshed...
+    //     if (this.chart) {
+    //       this.chart.ngOnChanges({} as SimpleChanges);
+    //     }
+    //   });
+    // }).catch(error => {
+    //   this.datasets = EMPTY_DATASET;
+    //   this.labels = [];
+    // });
   }
 }

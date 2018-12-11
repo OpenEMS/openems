@@ -56,11 +56,6 @@ public class TimestampedData extends JsonrpcNotification {
 		super(METHOD);
 	}
 
-	public TimestampedData(long timestamp, Map<ChannelAddress, JsonElement> values) {
-		super(METHOD);
-		this.add(timestamp, values);
-	}
-
 	public void add(long timestamp, Map<ChannelAddress, JsonElement> data) {
 		for (Entry<ChannelAddress, JsonElement> entry : data.entrySet()) {
 			this.add(timestamp, entry.getKey(), entry.getValue());
@@ -73,7 +68,7 @@ public class TimestampedData extends JsonrpcNotification {
 
 	@Override
 	public JsonObject getParams() {
-		JsonObject j = new JsonObject();
+		JsonObject p = new JsonObject();
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> e1 : this.data.rowMap().entrySet()) {
 			JsonObject jTime = new JsonObject();
 			for (Entry<ChannelAddress, JsonElement> e2 : e1.getValue().entrySet()) {
@@ -81,9 +76,9 @@ public class TimestampedData extends JsonrpcNotification {
 				JsonElement value = e2.getValue();
 				jTime.add(address.toString(), value);
 			}
-			j.add(e1.getKey().toString(), jTime);
+			p.add(e1.getKey().toString(), jTime);
 		}
-		return j;
+		return p;
 	}
 
 	public Table<Long, ChannelAddress, JsonElement> getData() {

@@ -61,29 +61,30 @@ export class LogComponent implements OnInit, OnDestroy {
     this.stopOnDestroy = new Subject<void>();
 
     if (this.edge != null) {
-      const result = this.edge.subscribeLog();
-      this.messageId = result.messageId;
-      result.logs.pipe(takeUntil(this.stopOnDestroy)).subscribe(log => {
-        log.time = new Date(<number>log.time).toLocaleString();
-        switch (log.level) {
-          case 'INFO':
-            log.color = 'green';
-            break;
-          case 'WARN':
-            log.color = 'orange';
-            break;
-          case 'DEBUG':
-            log.color = 'gray';
-            break;
-          case 'ERROR':
-            log.color = 'red';
-            break;
-        };
-        this.logs.unshift(log);
-        if (this.logs.length > this.MAX_LOG_ENTRIES) {
-          this.logs.length = this.MAX_LOG_ENTRIES;
-        }
-      });
+      this.edge.subscribeLog();
+      // const result = this.edge.subscribeLog();
+      // this.messageId = result.messageId;
+      // result.logs.pipe(takeUntil(this.stopOnDestroy)).subscribe(log => {
+      //   log.time = new Date(<number>log.time).toLocaleString();
+      //   switch (log.level) {
+      //     case 'INFO':
+      //       log.color = 'green';
+      //       break;
+      //     case 'WARN':
+      //       log.color = 'orange';
+      //       break;
+      //     case 'DEBUG':
+      //       log.color = 'gray';
+      //       break;
+      //     case 'ERROR':
+      //       log.color = 'red';
+      //       break;
+      //   };
+      //   this.logs.unshift(log);
+      //   if (this.logs.length > this.MAX_LOG_ENTRIES) {
+      //     this.logs.length = this.MAX_LOG_ENTRIES;
+      //   }
+      // });
       this.isSubscribed = true;
     };
   }

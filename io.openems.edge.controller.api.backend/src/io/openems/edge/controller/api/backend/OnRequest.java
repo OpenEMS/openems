@@ -3,6 +3,8 @@ package io.openems.edge.controller.api.backend;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -15,6 +17,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
+	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 	private final BackendApi parent;
 
 	public OnRequest(BackendApi parent) {
@@ -23,11 +26,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	@Override
 	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
+		log.info("BackendApi. OnRequest: " + request);
+
 		try {
 			switch (request.getMethod()) {
 
 			case ComponentJsonApiRequest.METHOD:
-				this.handleComponentJsonApiRequest(request, responseCallback);
+				this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request), responseCallback);
 
 			}
 
@@ -44,10 +49,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param responseCallback
 	 * @throws OpenemsException
 	 */
-	private void handleComponentJsonApiRequest(JsonrpcRequest jsonrpcRequest,
+	private void handleComponentJsonApiRequest(ComponentJsonApiRequest request,
 			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		ComponentJsonApiRequest request = ComponentJsonApiRequest.from(jsonrpcRequest);
-
 		// get Component
 		String componentId = request.getComponentId();
 		OpenemsComponent component = null;

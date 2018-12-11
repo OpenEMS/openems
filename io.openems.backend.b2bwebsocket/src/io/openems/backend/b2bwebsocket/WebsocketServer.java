@@ -3,6 +3,8 @@ package io.openems.backend.b2bwebsocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnInternalError;
 
@@ -49,7 +51,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	protected OnRequest getOnRequest() {
 		return this.onRequest;
 	}
-	
+
 	@Override
 	public OnNotification getOnNotification() {
 		return onNotification;

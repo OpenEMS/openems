@@ -50,8 +50,6 @@ export class IndexComponent implements OnInit, OnDestroy {
               if (config != null) {
                 // get widgets
                 this.widgets = config.getWidgets();
-
-                this.subscribe();
               }
             });
         }
@@ -60,9 +58,6 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearInterval(this.currentDataTimeout);
-    if (this.edge) {
-      this.edge.unsubscribeCurrentData();
-    }
     this.edge = null;
     this.config = null;
     this.currentData = null;
@@ -72,57 +67,4 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.websocket.clearCurrentEdge();
   }
 
-  private subscribes: { [id: string]: DefaultTypes.ChannelAddresses } = {};
-
-  public addSubscribes(id: string, subscribes: DefaultTypes.ChannelAddresses) {
-    this.subscribes[id] = subscribes;
-    this.subscribe();
-  }
-
-  private subscription: Subscription = null;
-
-  private subscribe() {
-    // abort if edge or config are missing
-    if (this.edge == null || this.config == null) {
-      if (this.subscription != null) {
-        this.subscription.unsubscribe();
-      }
-      return;
-    }
-    // merge channels from requiredSubscribes
-    let channels: DefaultTypes.ChannelAddresses = this.config.getImportantChannels();
-    for (let componentId in this.subscribes) {
-      let subscribe = this.subscribes[componentId];
-      for (let thingId in subscribe) {
-        if (thingId in channels) {
-          for (let channelId of subscribe[thingId]) {
-            if (!channels[thingId].includes(channelId)) {
-              channels[thingId].push(channelId);
-            }
-          }
-        } else {
-          channels[thingId] = subscribe[thingId];
-        }
-      }
-    }
-
-    if (this.subscription != null) {
-      this.subscription.unsubscribe();
-    }
-    this.subscription = this.edge.subscribeCurrentData(channels)
-      .pipe(takeUntil(this.stopOnDestroy))
-      .subscribe(currentData => {
-        this.currentData = currentData;
-
-        // resubscribe on timeout
-        clearInterval(this.currentDataTimeout);
-        this.currentDataTimeout = window.setInterval(() => {
-          this.currentData = null;
-          if (this.websocket.status == 'online') {
-            // TODO
-            console.warn('timeout...')
-          }
-        }, Websocket.TIMEOUT);
-      });
-  }
 }

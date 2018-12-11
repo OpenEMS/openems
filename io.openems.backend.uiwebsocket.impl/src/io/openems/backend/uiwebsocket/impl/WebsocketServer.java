@@ -3,6 +3,8 @@ package io.openems.backend.uiwebsocket.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnInternalError;
 
@@ -10,6 +12,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketServer.class);
 
+	private final UiWebsocketImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
@@ -19,6 +22,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	public WebsocketServer(UiWebsocketImpl parent, String name, int port) {
 		super(name, port);
+		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification();
@@ -32,7 +36,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new WsData(this.parent);
 	}
 
 	@Override
@@ -54,7 +58,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	public OnNotification getOnNotification() {
 		return onNotification;
 	}
-	
+
 	@Override
 	protected OnError getOnError() {
 		return this.onError;
@@ -63,5 +67,12 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected OnClose getOnClose() {
 		return this.onClose;
+	}
+
+	@Override
+	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsException lastException)
+			throws OpenemsException {
+		log.info("UiWs. handleNonJsonrpcMessage: " + stringMessage);
+		throw new OpenemsException("UiWs. handleNonJsonrpcMessage", lastException);
 	}
 }

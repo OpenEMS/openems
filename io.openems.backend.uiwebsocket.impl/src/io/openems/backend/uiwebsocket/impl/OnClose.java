@@ -1,13 +1,11 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
@@ -26,11 +24,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		Optional<String> userId = wsData.getUserId();
 		log.info("User [" + userId.orElse("UNKNOWN") + "] disconnected.");
 
-		// stop CurrentDataWorker
-		Optional<BackendCurrentDataWorker> currentDataWorkerOpt = wsData.getCurrentDataWorker();
-		if (currentDataWorkerOpt.isPresent()) {
-			currentDataWorkerOpt.get().dispose();
-		}
+		wsData.dispose();
 	}
 
 }

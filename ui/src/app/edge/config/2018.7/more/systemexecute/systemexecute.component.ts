@@ -32,9 +32,10 @@ export class SystemExecuteComponent implements OnInit {
   public commandLogs: { command: string, background: boolean, timeout: number }[] = [];
 
   public send(password: string, command: string, background: boolean, timeout: number) {
-    this.edge.systemExecute(password, command, background, timeout).then(output => {
-      this.output = output;
-    });
+    this.edge.systemExecute(password, command, background, timeout)
+    // .then(output => {
+    //   this.output = output;
+    // });
     this.commandLogs.unshift({ command, background, timeout });
   }
 }

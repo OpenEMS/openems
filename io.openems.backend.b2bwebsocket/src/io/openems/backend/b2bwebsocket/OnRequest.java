@@ -3,6 +3,7 @@ package io.openems.backend.b2bwebsocket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
@@ -33,11 +34,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			switch (request.getMethod()) {
 
 			case GetStatusOfEdgesRequest.METHOD:
-				this.handleGetStatusOfEdgesRequest(request, responseCallback);
+				this.handleGetStatusOfEdgesRequest(request.getId(), GetStatusOfEdgesRequest.from(request),
+						responseCallback);
 				break;
 
 			case SetGridConnScheduleRequest.METHOD:
-				this.handleSetGridConnScheduleRequest(request, responseCallback);
+				this.handleSetGridConnScheduleRequest(request.getId(), SetGridConnScheduleRequest.from(request),
+						responseCallback);
 				break;
 
 			}
@@ -54,16 +57,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param responseCallback
 	 * @throws OpenemsException
 	 */
-	private void handleGetStatusOfEdgesRequest(JsonrpcRequest jsonrpcRequest,
+	private void handleGetStatusOfEdgesRequest(UUID messageId, GetStatusOfEdgesRequest request,
 			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		GetStatusOfEdgesRequest request = GetStatusOfEdgesRequest.from(jsonrpcRequest);
 		Collection<Edge> edges = this.parent.metadata.getAllEdges();
 		Map<String, EdgeInfo> result = new HashMap<>();
 		for (Edge edge : edges) {
 			EdgeInfo info = new EdgeInfo(edge.isOnline());
 			result.put(edge.getId(), info);
 		}
-		GetStatusOfEdgesResponse response = new GetStatusOfEdgesResponse(request.getId(), result);
+		GetStatusOfEdgesResponse response = new GetStatusOfEdgesResponse(messageId, result);
 		responseCallback.accept(response);
 	}
 
@@ -74,18 +76,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param responseCallback
 	 * @throws OpenemsException
 	 */
-	private void handleSetGridConnScheduleRequest(JsonrpcRequest jsonrpcRequest,
+	private void handleSetGridConnScheduleRequest(UUID messageId, SetGridConnScheduleRequest setGridConnScheduleRequest,
 			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		SetGridConnScheduleRequest setGridConnScheduleRequest = SetGridConnScheduleRequest.from(jsonrpcRequest);
-
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = "ctrlBalancingSchedule0"; // TODO find dynamic Component-ID of BalancingScheduleController
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, setGridConnScheduleRequest);
 
 		this.parent.edgeWebsocket.send(setGridConnScheduleRequest.getEdgeId(), request, response -> {
 			// wrap response with original JSON-RPC id
-			JsonrpcResponse wrappedResponse = new GenericJsonrpcResponseSuccess(jsonrpcRequest.getId(),
-					response.toJsonObject());
+			JsonrpcResponse wrappedResponse = new GenericJsonrpcResponseSuccess(messageId, response.toJsonObject());
 			responseCallback.accept(wrappedResponse);
 		});
 	}

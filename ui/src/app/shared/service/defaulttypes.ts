@@ -7,7 +7,7 @@ export module DefaultTypes {
   export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
 
   export interface ChannelAddresses {
-    [thing: string]: string[];
+    [componentId: string]: string[];
   }
 
   export interface ComponentConfig {
@@ -111,15 +111,6 @@ export module DefaultTypes {
     }
   }
 
-  export interface MessageMetadataEdge {
-    id: number,
-    name: string,
-    comment: string,
-    producttype: string,
-    role: string,
-    online: boolean
-  }
-
   export type NotificationType = "success" | "error" | "warning" | "info";
 
   export interface Notification {
@@ -144,7 +135,7 @@ export module DefaultTypes {
       ui: string,
       backend?: string
     },
-    edgeId?: number,
+    edgeId?: string,
     [thing: string]: {}
   }
 

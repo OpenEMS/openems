@@ -87,22 +87,22 @@ public class EdgeWebsocketImpl implements EdgeWebsocket {
 
 	@Override
 	public void send(String edgeId, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws WebsocketNotConnectedException {
+			throws OpenemsException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
-			wsData.send(ws, request, responseCallback);
+			wsData.send(request, responseCallback);
 		} else {
 			responseCallback.accept(Error.EDGE_NOT_CONNECTED.asJsonrpc(request.getId(), edgeId));
 		}
 	}
 
 	@Override
-	public void send(String edgeId, JsonrpcNotification notification) throws WebsocketNotConnectedException {
+	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
-			wsData.send(ws, notification);
+			wsData.send(notification);
 		}
 	}
 

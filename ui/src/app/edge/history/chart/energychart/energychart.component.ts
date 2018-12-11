@@ -99,71 +99,72 @@ export class EnergyChartComponent implements OnChanges {
       return;
     }
     this.loading = true;
-    this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
-      // prepare datas array and prefill with each device
+    // this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels)
+    // .then(historicData => {
+    //   // prepare datas array and prefill with each device
 
-      // prepare datasets and labels
-      let activePowers = {
-        production: [],
-        gridBuy: [],
-        gridSell: [],
-        consumption: [],
-        storageCharge: [],
-        storageDischarge: []
-      }
-      let labels: Date[] = [];
-      for (let record of historicData.data) {
-        labels.push(new Date(record.time));
-        let data;
-        if (this.edge.isVersionAtLeast('2018.8')) {
-          data = new CurrentDataAndSummary_2018_8(this.edge, record.channels, <ConfigImpl_2018_8>this.config);
-        } else {
-          data = new CurrentDataAndSummary_2018_7(this.edge, record.channels, <ConfigImpl_2018_7>this.config);
-        }
-        activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
-        activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
-        activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
-        activePowers.consumption.push(Utils.divideSafely(data.summary.consumption.activePower, 1000)); // convert to kW
-        activePowers.storageCharge.push(Utils.divideSafely(data.summary.storage.chargeActivePower, 1000)); // convert to kW
-        activePowers.storageDischarge.push(Utils.divideSafely(data.summary.storage.dischargeActivePower, 1000)); // convert to kW
-      }
-      this.datasets = [{
-        label: this.translate.instant('General.Production'),
-        data: activePowers.production,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.GridBuy'),
-        data: activePowers.gridBuy,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.GridSell'),
-        data: activePowers.gridSell,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.Consumption'),
-        data: activePowers.consumption,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.ChargePower'),
-        data: activePowers.storageCharge,
-        hidden: true
-      }, {
-        label: this.translate.instant('General.DischargePower'),
-        data: activePowers.storageDischarge,
-        hidden: true
-      }];
-      this.labels = labels;
-      // stop loading spinner
-      this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
-      });
-    }).catch(error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
-    });
+    //   // prepare datasets and labels
+    //   let activePowers = {
+    //     production: [],
+    //     gridBuy: [],
+    //     gridSell: [],
+    //     consumption: [],
+    //     storageCharge: [],
+    //     storageDischarge: []
+    //   }
+    //   let labels: Date[] = [];
+    //   for (let record of historicData.data) {
+    //     labels.push(new Date(record.time));
+    //     let data;
+    //     if (this.edge.isVersionAtLeast('2018.8')) {
+    //       data = new CurrentDataAndSummary_2018_8(this.edge, record.channels, <ConfigImpl_2018_8>this.config);
+    //     } else {
+    //       data = new CurrentDataAndSummary_2018_7(this.edge, record.channels, <ConfigImpl_2018_7>this.config);
+    //     }
+    //     activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
+    //     activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
+    //     activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
+    //     activePowers.consumption.push(Utils.divideSafely(data.summary.consumption.activePower, 1000)); // convert to kW
+    //     activePowers.storageCharge.push(Utils.divideSafely(data.summary.storage.chargeActivePower, 1000)); // convert to kW
+    //     activePowers.storageDischarge.push(Utils.divideSafely(data.summary.storage.dischargeActivePower, 1000)); // convert to kW
+    //   }
+    //   this.datasets = [{
+    //     label: this.translate.instant('General.Production'),
+    //     data: activePowers.production,
+    //     hidden: false
+    //   }, {
+    //     label: this.translate.instant('General.GridBuy'),
+    //     data: activePowers.gridBuy,
+    //     hidden: false
+    //   }, {
+    //     label: this.translate.instant('General.GridSell'),
+    //     data: activePowers.gridSell,
+    //     hidden: false
+    //   }, {
+    //     label: this.translate.instant('General.Consumption'),
+    //     data: activePowers.consumption,
+    //     hidden: false
+    //   }, {
+    //     label: this.translate.instant('General.ChargePower'),
+    //     data: activePowers.storageCharge,
+    //     hidden: true
+    //   }, {
+    //     label: this.translate.instant('General.DischargePower'),
+    //     data: activePowers.storageDischarge,
+    //     hidden: true
+    //   }];
+    //   this.labels = labels;
+    //   // stop loading spinner
+    //   this.loading = false;
+    //   setTimeout(() => {
+    //     // Workaround, because otherwise chart data and labels are not refreshed...
+    //     if (this.chart) {
+    //       this.chart.ngOnChanges({} as SimpleChanges);
+    //     }
+    //   });
+    // }).catch(error => {
+    //   this.datasets = EMPTY_DATASET;
+    //   this.labels = [];
+    // });
   }
 }

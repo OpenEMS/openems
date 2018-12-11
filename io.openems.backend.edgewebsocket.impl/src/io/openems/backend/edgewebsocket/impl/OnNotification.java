@@ -1,14 +1,24 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import org.java_websocket.WebSocket;
+import java.util.Map.Entry;
 
+import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.jsonrpc.notification.EdgeConfiguration;
 import io.openems.common.jsonrpc.notification.TimestampedData;
+import io.openems.common.utils.JsonUtils;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
-//	private final Logger log = LoggerFactory.getLogger(OnNotification.class);
+	private final Logger log = LoggerFactory.getLogger(OnNotification.class);
 	private final EdgeWebsocketImpl parent;
 
 	public OnNotification(EdgeWebsocketImpl parent) {
@@ -23,68 +33,56 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		// Handle notification
 		switch (notification.getMethod()) {
+		case EdgeConfiguration.METHOD:
+			this.handleEdgeConfiguration(EdgeConfiguration.from(notification), wsData);
+			return;
 
 		case TimestampedData.METHOD:
-			this.handleTimestampedData(notification, wsData);
-			break;
+			this.handleTimestampedData(TimestampedData.from(notification), wsData);
+			return;
+		}
+
+		log.info("EdgeWs. OnNotification: " + notification);
+	}
+
+	private void handleEdgeConfiguration(EdgeConfiguration message, WsData wsData) throws OpenemsException {
+		String edgeId = wsData.assertEdgeId(message);
+		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
+		edge.setConfig(message.getParams());
+	}
+
+	private void handleTimestampedData(TimestampedData message, WsData wsData) throws OpenemsException {
+		String edgeId = wsData.assertEdgeId(message);
+
+		this.parent.timedata.write(edgeId, message.getParams());
+
+		// Read some specific channels
+		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
+		for (Entry<String, JsonElement> entry : message.getParams().entrySet()) {
+			JsonObject data = JsonUtils.getAsJsonObject(entry.getValue());
+			// set Edge last update timestamp only for those channels
+			for (String channel : data.keySet()) {
+				if (channel.endsWith("ActivePower")
+						|| channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
+								| channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
+					edge.setLastUpdateTimestamp();
+				}
+			}
+
+			// set specific Edge values
+			if (data.has("ess0/Soc")) {
+				int soc = JsonUtils.getAsPrimitive(data, "ess0/Soc").getAsInt();
+				edge.setSoc(soc);
+			}
+			if (data.has("system0/PrimaryIpAddress")) {
+				String ipv4 = JsonUtils.getAsPrimitive(data, "system0/PrimaryIpAddress").getAsString();
+				edge.setIpv4(ipv4);
+			}
+			if (data.has("_meta/Version")) {
+				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
+				edge.setVersion(version);
+			}
 		}
 	}
 
-	private void handleTimestampedData(JsonrpcNotification notification, WsData wsData) throws OpenemsException {
-		TimestampedData message = TimestampedData.from(notification);
-		String edgeId = wsData.assertEdgeId(notification);
-
-		this.parent.timedata.write(edgeId, notification.getParams());
-	}
-
-//	private void timedata(int[] edgeIds, JsonObject jTimedata) {
-//	for (int edgeId : edgeIds) {
-//		Edge edge;
-//		try {
-//			edge = this.parent.parent.metadata.getEdge(edgeId);
-//		} catch (OpenemsException e) {
-//			log.warn(e.getMessage());
-//			continue;
-//		}
-//		/*
-//		 * write data to timedataService
-//		 */
-//		try {
-//			this.parent.parent.timedata.write(edgeId, jTimedata);
-//			log.debug("Edge [" + edge.getName() + "] wrote " + jTimedata.entrySet().size() + " timestamps "
-//					+ StringUtils.toShortString(jTimedata, 120));
-//		} catch (Exception e) {
-//			log.error("Unable to write Timedata: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-//		}
-//
-//		for (Entry<String, JsonElement> jTimedataEntry : jTimedata.entrySet()) {
-//			try {
-//				JsonObject jChannels = JsonUtils.getAsJsonObject(jTimedataEntry.getValue());
-//				// set Odoo last update timestamp only for those channels
-//				for (String channel : jChannels.keySet()) {
-//					if (channel.endsWith("ActivePower")
-//							|| channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
-//									| channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
-//						edge.setLastUpdateTimestamp();
-//					}
-//				}
-//
-//				// set specific Odoo values
-//				if (jChannels.has("ess0/Soc")) {
-//					int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
-//					edge.setSoc(soc);
-//				}
-//				if (jChannels.has("system0/PrimaryIpAddress")) {
-//					String ipv4 = JsonUtils.getAsPrimitive(jChannels, "system0/PrimaryIpAddress").getAsString();
-//					edge.setIpv4(ipv4);
-//				}
-//				if (jChannels.has("_meta/Version")) {
-//					String version = JsonUtils.getAsPrimitive(jChannels, "_meta/Version").getAsString();
-//					edge.setVersion(version);
-//				}
-//			} catch (OpenemsException e) {
-//				log.error("Edgde [" + edge.getName() + "] error: " + e.getMessage());
-//			}
-//		}
-//	}
 }

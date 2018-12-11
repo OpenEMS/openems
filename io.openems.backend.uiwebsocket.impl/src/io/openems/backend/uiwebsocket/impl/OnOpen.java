@@ -13,8 +13,8 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.notification.UiAuthenticateWithSessionId;
-import io.openems.common.jsonrpc.notification.UiAuthenticateWithSessionId.EdgeMetadata;
+import io.openems.common.jsonrpc.notification.AuthenticateWithSessionId;
+import io.openems.common.jsonrpc.notification.AuthenticateWithSessionId.EdgeMetadata;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
@@ -29,6 +29,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	@Override
 	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
+		// get websocket attachment
+		WsData wsData = ws.getAttachment();
+		
+		// declare user
 		User user;
 
 		// login using session_id from the cookie
@@ -49,7 +53,6 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		}
 
 		// store userId together with the websocket
-		WsData wsData = ws.getAttachment();
 		wsData.setUserId(user.getId());
 
 		// generate token
@@ -57,6 +60,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		wsData.setToken(token);
 
 		// send connection successful reply
+		// TODO migrate
 		List<EdgeMetadata> metadatas = new ArrayList<>();
 		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
 			String edgeId = edgeRole.getKey();
@@ -68,7 +72,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 						e.isOnline()));
 			}
 		}
-		UiAuthenticateWithSessionId notification = new UiAuthenticateWithSessionId(token, metadatas);
+		AuthenticateWithSessionId notification = new AuthenticateWithSessionId(token, metadatas);
 		this.parent.server.sendMessage(ws, notification);
 	}
 

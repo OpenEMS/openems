@@ -78,8 +78,8 @@ public class Dummy implements Metadata {
 		// not found -> create
 		int id = this.nextEdgeId.incrementAndGet();
 		String edgeId = "edge" + id;
-		Edge edge = new Edge(edgeId, apikey, "comment [" + id + "]", State.ACTIVE, OpenemsConstants.VERSION,
-				"producttype [" + id + "]", new JsonObject(), null, null);
+		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, OpenemsConstants.VERSION, "",
+				new JsonObject(), null, null);
 		edge.onSetConfig(jConfig -> {
 			log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
 		});

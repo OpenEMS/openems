@@ -9,6 +9,9 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Wraps a JSON-RPC Request for a specific Edge-ID.
+ */
 public class EdgeRpcRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "edgeRpc";

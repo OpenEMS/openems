@@ -23,8 +23,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
-		// create websocket attachment
+	public void run(WebSocket ws, JsonObject handshake) {
+		// get websocket attachment
 		WsData wsData = ws.getAttachment();
 
 		String apikey = "";
@@ -56,7 +56,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			log.info("Edge [" + edge.getId() + "] connected.");
 
 			// announce Edge as online
-			edgeOpt.get().setOnline(true);
+			edge.setOnline(true);
 			edge.setLastMessageTimestamp();
 			wsData.setAuthenticated(true);
 

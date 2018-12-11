@@ -9,6 +9,10 @@ public class GenericJsonrpcResponseSuccess extends JsonrpcResponseSuccess {
 
 	private final JsonObject result;
 
+	public GenericJsonrpcResponseSuccess(UUID id) {
+		this(id, new JsonObject());
+	}
+
 	public GenericJsonrpcResponseSuccess(UUID id, JsonObject result) {
 		super(id);
 		this.result = result;

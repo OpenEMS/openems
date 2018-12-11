@@ -1,4 +1,4 @@
-<ion-card>
+<ion-card *ngIf="edge">
   <ion-item>
     <ion-icon slot="start" name="today" color="primary"></ion-icon>
     <ion-label>
@@ -6,15 +6,14 @@
     </ion-label>
   </ion-item>
 
-  <ngx-loading [show]="!(currentData && config)"></ngx-loading>
-  <ng-container *ngIf="currentData && config">
+  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+  <ng-container *ngIf="edge.currentData | async as currentData">
 
     <!-- Storage -->
     <ion-item color="light">
       <ion-img style="width:40px" src="assets/img/storage.png"></ion-img>
       <ion-label translate>General.StorageSystem</ion-label>
     </ion-item>
-
 
     <ion-card-content *ngIf="currentData.summary.storage as sum">
       <table class="full_width">

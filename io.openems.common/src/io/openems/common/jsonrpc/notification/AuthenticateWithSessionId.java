@@ -25,20 +25,20 @@ import io.openems.common.utils.JsonUtils;
  *       "producttype: String,
  *       "version: String,
  *       "role: "admin" | "installer" | "owner" | "guest",
- *       "online: boolean
+ *       "isOnline: boolean
  *     }]
  *   }
  * }
  * </pre>
  */
-public class UiAuthenticateWithSessionId extends JsonrpcNotification {
-
+public class AuthenticateWithSessionId extends JsonrpcNotification {
+	
 	public final static String METHOD = "authenticatedWithSessionId";
 
 	private final UUID token;
 	private final List<EdgeMetadata> metadatas;
 
-	public UiAuthenticateWithSessionId(UUID token, List<EdgeMetadata> metadatas) {
+	public AuthenticateWithSessionId(UUID token, List<EdgeMetadata> metadatas) {
 		super(METHOD);
 		this.token = token;
 		this.metadatas = metadatas;

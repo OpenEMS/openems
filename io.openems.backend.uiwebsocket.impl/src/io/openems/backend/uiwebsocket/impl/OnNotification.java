@@ -13,7 +13,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 	@Override
 	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsException {
-		this.log.info("Got notification: " + notification);
+		log.info("UiWs. OnNotification: " + notification);
 	}
 
 }

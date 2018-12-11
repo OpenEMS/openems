@@ -41,7 +41,9 @@ export class IndexComponent {
       let edgeIds = Object.keys(edges);
       if (edgeIds.length == 1) {
         let edge = edges[edgeIds[0]];
-        this.router.navigate(['/device', edge.name]);
+        if (edge.isOnline) {
+          this.router.navigate(['/device', edge.id]);
+        }
       }
 
       this.updateFilteredEdges();
@@ -55,7 +57,7 @@ export class IndexComponent {
     let filteredEdges = Object.keys(edges)
       .filter(edgeId => {
         let edge = edges[edgeId];
-        if (/* name */ edge.name.toLowerCase().includes(filter)
+        if (/* name */ edge.id.toLowerCase().includes(filter)
           || /* comment */ edge.comment.toLowerCase().includes(filter)) {
           return true;
         }

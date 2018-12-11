@@ -84,60 +84,62 @@ export class SocChartComponent_2018_8 implements OnInit, OnChanges {
       }
       this.loading = true;
       // TODO stop previous subscribe; show only results for latest query. Otherwise the chart misbehaves on fast switch of period
-      this._edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
-        // prepare datas array and prefill with each device
-        let tmpData: {
-          [componentId: string]: number[];
-        } = {};
-        let labels: Date[] = [];
-        for (let componentId in this.channels) {
-          tmpData[componentId] = [];
-        }
-        for (let record of historicData.data) {
-          // read timestamp and soc of each device
-          labels.push(new Date(record.time));
-          for (let componentId in this.channels) {
-            let soc = null;
-            if (componentId == '_sum' && "EssSoc" in record.channels[componentId]
-              && record.channels[componentId]["EssSoc"] != null) {
-              soc = Math.round(record.channels[componentId].EssSoc);
-            }
-            if (componentId in record.channels
-              && "Soc" in record.channels[componentId]
-              && record.channels[componentId]["Soc"] != null) {
-              soc = Math.round(record.channels[componentId].Soc);
-            }
-            if (soc > 100 || soc < 0) {
-              soc = null;
-            }
-            tmpData[componentId].push(soc);
-          }
-        }
-        // refresh global datasets and labels
-        let datasets = [];
-        for (let componentId in tmpData) {
-          datasets.push({
-            label: this.translate.instant('General.Soc'),
-            data: tmpData[componentId]
-          });
-        }
-        this.datasets = datasets;
-        this.labels = labels;
-        // stop loading spinner
-        this.loading = false;
-        setTimeout(() => {
-          // Workaround, because otherwise chart data and labels are not refreshed...
-          if (this.chart) {
-            this.chart.ngOnChanges({} as SimpleChanges);
-          }
-        });
-      }).catch(error => {
-        this.datasets = EMPTY_DATASET;
-        this.labels = [];
-        // stop loading spinner
-        this.loading = false;
-        // TODO error message
-      });
+      // this._edge.historicDataQuery(this.fromDate, this.toDate, this.channels)
+
+      // .then(historicData => {
+      //   // prepare datas array and prefill with each device
+      //   let tmpData: {
+      //     [componentId: string]: number[];
+      //   } = {};
+      //   let labels: Date[] = [];
+      //   for (let componentId in this.channels) {
+      //     tmpData[componentId] = [];
+      //   }
+      //   for (let record of historicData.data) {
+      //     // read timestamp and soc of each device
+      //     labels.push(new Date(record.time));
+      //     for (let componentId in this.channels) {
+      //       let soc = null;
+      //       if (componentId == '_sum' && "EssSoc" in record.channels[componentId]
+      //         && record.channels[componentId]["EssSoc"] != null) {
+      //         soc = Math.round(record.channels[componentId].EssSoc);
+      //       }
+      //       if (componentId in record.channels
+      //         && "Soc" in record.channels[componentId]
+      //         && record.channels[componentId]["Soc"] != null) {
+      //         soc = Math.round(record.channels[componentId].Soc);
+      //       }
+      //       if (soc > 100 || soc < 0) {
+      //         soc = null;
+      //       }
+      //       tmpData[componentId].push(soc);
+      //     }
+      //   }
+      //   // refresh global datasets and labels
+      //   let datasets = [];
+      //   for (let componentId in tmpData) {
+      //     datasets.push({
+      //       label: this.translate.instant('General.Soc'),
+      //       data: tmpData[componentId]
+      //     });
+      //   }
+      //   this.datasets = datasets;
+      //   this.labels = labels;
+      //   // stop loading spinner
+      //   this.loading = false;
+      //   setTimeout(() => {
+      //     // Workaround, because otherwise chart data and labels are not refreshed...
+      //     if (this.chart) {
+      //       this.chart.ngOnChanges({} as SimpleChanges);
+      //     }
+      //   });
+      // }).catch(error => {
+      //   this.datasets = EMPTY_DATASET;
+      //   this.labels = [];
+      //   // stop loading spinner
+      //   this.loading = false;
+      //   // TODO error message
+      // });
     }
   }
 }

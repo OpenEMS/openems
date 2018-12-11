@@ -6,7 +6,6 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 
@@ -21,6 +20,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	@Override
 	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
+		log.info("EdgeWs. OnRequest: " + request);
 	}
 
 //	private void handleCompatibilty(JsonObject jMessage) {

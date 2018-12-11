@@ -92,7 +92,7 @@ export class AppComponent {
     // re-join the url
     backUrl = urlArray.join('/') || '/';
 
-    // correct path for '/device/[edgeName]/index'
+    // correct path for '/device/[edgeId]/index'
     if (backUrl === '/device') {
       backUrl = '/';
     }

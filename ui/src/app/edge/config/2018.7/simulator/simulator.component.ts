@@ -46,73 +46,74 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
   ngOnInit() {
     super.ngOnInit();
 
-    this.edge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
-      // subscribed to edge
-      if (edge != null) {
-        edge.subscribeCurrentData({
-          meter0: [
-            "ActivePower", "minActivePower"
-          ],
-          meter1: [
-            "ActivePower"
-          ],
-          cluster0: [
-            "ActivePower", "Soc"
-          ],
-          output0: [
-            "DO1", "DO2", "DO3", "DO4", "DO5", "DO6", "DO7", "DO8"
-          ],
-          sps0: [
-            "SetPivotOn", "SetBorehole1On", "SetBorehole2On", "SetBorehole3On", "SetClima1On", "SetClima2On", "SetOfficeOn", "SetTraineeCenterOn", "SignalBus1On", "SignalBus2On", "SignalOnGrid", "SignalWatchdog",
-            "WaterLevelBorehole1On", "WaterLevelBorehole1Off", "WaterLevelBorehole2On", "WaterLevelBorehole2Off", "WaterLevelBorehole3On", "WaterLevelBorehole3Off"
-          ],
-          ess0: [
-            "Soc", "SystemState", "ActivePower"
-          ],
-          ess1: [
-            "Soc", "SystemState", "ActivePower"
-          ],
-          ess2: [
-            "Soc", "SystemState", "ActivePower"
-          ],
-          ess3: [
-            "Soc", "SystemState", "ActivePower"
-          ]
-        }).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
-          let tmpData = {};
-          // subscribed to data
-          // TODO
-          // if (data.data != null) {
-          //   for (let thing in data.data) {
-          //     if (!tmpData[thing]) {
-          //       tmpData[thing] = {};
-          //     }
-          //     for (let channel in data.data[thing]) {
-          //       let newData = { name: moment(), value: <number>data.data[thing][channel] };
-          //       // if (!this.data[thing][channel]) {
-          //       //   // create new array
-          //       //   this.data[thing][channel] = [];
-          //       // }
-          //       // if (this.data[thing][channel].length > 9) {
-          //       //   // max 10 entries
-          //       //   this.data[thing][channel].shift();
-          //       // }
-          //       tmpData[thing][channel] = newData;
-          //     }
-          //   }
-          // }
-          this.data = tmpData;
-        }, error => {
-          console.error("error", error);
-        });
-      }
-    });
+    // this.edge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
+    //   // subscribed to edge
+    //   if (edge != null) {
+    //     edge.subscribeCurrentData({
+    //       meter0: [
+    //         "ActivePower", "minActivePower"
+    //       ],
+    //       meter1: [
+    //         "ActivePower"
+    //       ],
+    //       cluster0: [
+    //         "ActivePower", "Soc"
+    //       ],
+    //       output0: [
+    //         "DO1", "DO2", "DO3", "DO4", "DO5", "DO6", "DO7", "DO8"
+    //       ],
+    //       sps0: [
+    //         "SetPivotOn", "SetBorehole1On", "SetBorehole2On", "SetBorehole3On", "SetClima1On", "SetClima2On", "SetOfficeOn", "SetTraineeCenterOn", "SignalBus1On", "SignalBus2On", "SignalOnGrid", "SignalWatchdog",
+    //         "WaterLevelBorehole1On", "WaterLevelBorehole1Off", "WaterLevelBorehole2On", "WaterLevelBorehole2Off", "WaterLevelBorehole3On", "WaterLevelBorehole3Off"
+    //       ],
+    //       ess0: [
+    //         "Soc", "SystemState", "ActivePower"
+    //       ],
+    //       ess1: [
+    //         "Soc", "SystemState", "ActivePower"
+    //       ],
+    //       ess2: [
+    //         "Soc", "SystemState", "ActivePower"
+    //       ],
+    //       ess3: [
+    //         "Soc", "SystemState", "ActivePower"
+    //       ]
+    //     })
+    //     // .pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
+    //     // let tmpData = {};
+    //     // subscribed to data
+    //     // TODO
+    //     // if (data.data != null) {
+    //     //   for (let thing in data.data) {
+    //     //     if (!tmpData[thing]) {
+    //     //       tmpData[thing] = {};
+    //     //     }
+    //     //     for (let channel in data.data[thing]) {
+    //     //       let newData = { name: moment(), value: <number>data.data[thing][channel] };
+    //     //       // if (!this.data[thing][channel]) {
+    //     //       //   // create new array
+    //     //       //   this.data[thing][channel] = [];
+    //     //       // }
+    //     //       // if (this.data[thing][channel].length > 9) {
+    //     //       //   // max 10 entries
+    //     //       //   this.data[thing][channel].shift();
+    //     //       // }
+    //     //       tmpData[thing][channel] = newData;
+    //     //     }
+    //     //   }
+    //     // }
+    //     //   this.data = tmpData;
+    //     // }, error => {
+    //     //   console.error("error", error);
+    //     // });
+    //   }
+    // });
   }
 
   ngOnDestroy() {
     let edge = this.edge.getValue();
     if (edge != null) {
-      edge.unsubscribeCurrentData();
+      // edge.unsubscribeCurrentData();
     }
     super.ngOnDestroy();
   }

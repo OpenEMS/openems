@@ -1,10 +1,22 @@
 package io.openems.backend.edgewebsocket.impl;
 
+import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.notification.EdgeConfiguration;
+import io.openems.common.jsonrpc.notification.TimestampedData;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnInternalError;
 
@@ -82,7 +94,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	protected OnRequest getOnRequest() {
 		return this.onRequest;
 	}
-	
+
 	@Override
 	public OnNotification getOnNotification() {
 		return onNotification;
@@ -97,4 +109,36 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	protected OnClose getOnClose() {
 		return this.onClose;
 	}
+
+	@Override
+	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsException lastException)
+			throws OpenemsException {
+		JsonObject message = JsonUtils.parseToJsonObject(stringMessage);
+
+		// config
+		if (message.has("config")) {
+			return new EdgeConfiguration(JsonUtils.getAsJsonObject(message, "config"));
+		}
+
+		// timedata
+		if (message.has("timedata")) {
+			TimestampedData d = new TimestampedData();
+			JsonObject timedata = JsonUtils.getAsJsonObject(message, "timedata");
+			for (Entry<String, JsonElement> entry : timedata.entrySet()) {
+				long timestamp = Long.valueOf(entry.getKey());
+				JsonObject values = JsonUtils.getAsJsonObject(entry.getValue());
+				Map<ChannelAddress, JsonElement> data = new HashMap<>();
+				for (Entry<String, JsonElement> value : values.entrySet()) {
+					ChannelAddress address = ChannelAddress.fromString(value.getKey());
+					data.put(address, value.getValue());
+				}
+				d.add(timestamp, data);
+			}
+			return d;
+		}
+
+		log.info("EdgeWs. handleNonJsonrpcMessage: " + stringMessage);
+		throw new OpenemsException("EdgeWs. handleNonJsonrpcMessage", lastException);
+	}
+
 }

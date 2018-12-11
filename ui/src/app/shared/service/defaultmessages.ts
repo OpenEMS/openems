@@ -24,7 +24,7 @@ export class DefaultMessages {
         };
     };
 
-    public static configQuery(edgeId: number): DefaultTypes.IdentifiedMessage {
+    public static configQuery(edgeId: string): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: UUID.UUID()
@@ -37,7 +37,7 @@ export class DefaultMessages {
         }
     };
 
-    public static configUpdate(edgeId: number, thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
+    public static configUpdate(edgeId: string, thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
         return {
             messageId: {
                 ui: UUID.UUID()
@@ -52,7 +52,7 @@ export class DefaultMessages {
         }
     }
 
-    public static currentDataSubscribe(edgeId: number, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
+    public static currentDataSubscribe(edgeId: string, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: UUID.UUID()
@@ -65,7 +65,7 @@ export class DefaultMessages {
         }
     };
 
-    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
+    public static historicDataQuery(edgeId: string, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: UUID.UUID()
@@ -85,7 +85,7 @@ export class DefaultMessages {
         }
     };
 
-    public static logSubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
+    public static logSubscribe(edgeId: string): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: UUID.UUID()
@@ -97,7 +97,7 @@ export class DefaultMessages {
         }
     };
 
-    public static logUnsubscribe(messageId: string, edgeId: number): DefaultTypes.IdentifiedMessage {
+    public static logUnsubscribe(messageId: string, edgeId: string): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: messageId
@@ -109,7 +109,7 @@ export class DefaultMessages {
         }
     };
 
-    public static systemExecute(edgeId: number, password: string, command: string, background: boolean, timeout: number): DefaultTypes.IdentifiedMessage {
+    public static systemExecute(edgeId: string, password: string, command: string, background: boolean, timeout: number): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
                 ui: UUID.UUID()

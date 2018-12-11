@@ -25,8 +25,6 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final WebSocketServer ws;
 
 	/**
-	 * 
-	 * 
 	 * @param name to identify this server
 	 * @param port to listen on
 	 */
@@ -42,6 +40,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			@Override
 			public void onOpen(WebSocket ws, ClientHandshake handshake) {
 				T wsData = AbstractWebsocketServer.this.createWsData();
+				wsData.setWebsocket(ws);
 				ws.setAttachment(wsData);
 				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
 				CompletableFuture.runAsync(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
@@ -50,8 +49,13 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			@Override
 			public void onMessage(WebSocket ws, String stringMessage) {
 				try {
-					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
-					// TODO handle deprecated non-JSON-RPC messages
+					JsonrpcMessage message;
+					try {
+						message = JsonrpcMessage.from(stringMessage);
+					} catch (OpenemsException e) {
+						// handle deprecated non-JSON-RPC messages
+						message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(stringMessage, e);
+					}
 					if (message instanceof JsonrpcRequest) {
 						CompletableFuture.runAsync(new OnRequestHandler(AbstractWebsocketServer.this, ws,
 								(JsonrpcRequest) message, (response) -> {
@@ -74,7 +78,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 			@Override
 			public void onError(WebSocket ws, Exception ex) {
-				CompletableFuture.runAsync(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
+				if (ws == null) {
+					AbstractWebsocketServer.this.handleInternalErrorAsync(ex);
+				} else {
+					CompletableFuture.runAsync(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
+				}
 			}
 
 			@Override
@@ -120,6 +128,17 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 		}
 		log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
+	}
+
+	/**
+	 * Convert deprecated Non-JSON-RPC messages to JSON-RPC messages.
+	 * 
+	 * @param stringMessage
+	 * @return
+	 */
+	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsException lastException)
+			throws OpenemsException {
+		throw new OpenemsException("Unhandled Non-JSON-RPC message", lastException);
 	}
 
 }

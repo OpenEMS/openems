@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
@@ -18,8 +19,10 @@ public interface EdgeWebsocket {
 	 * @param edgeId
 	 * @param request
 	 * @param responseCallback
+	 * @throws OpenemsException
 	 */
-	public void send(String edgeId, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback);
+	public void send(String edgeId, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
+			throws OpenemsException;
 
 	/**
 	 * Send a JSON-RPC Notification to an Edge
@@ -27,7 +30,8 @@ public interface EdgeWebsocket {
 	 * @param edgeId
 	 * @param request
 	 * @param responseCallback
+	 * @throws OpenemsException
 	 */
-	public void send(String edgeId, JsonrpcNotification notification);
+	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsException;
 
 }

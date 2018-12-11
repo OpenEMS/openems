@@ -4,13 +4,18 @@ import java.util.UUID;
 
 public enum Error {
 	/*
+	 * Generic error should not be used. Please try to define each error separately.
+	 */
+	@Deprecated
+	GENERIC(1, "An error happend: %s"),
+	/*
 	 * Internal Errors
 	 */
-	ID_NOT_UNIQUE(1, "A Request with this ID [%s] had already been existing"),
+	ID_NOT_UNIQUE(1000, "A Request with this ID [%s] had already been existing"),
 	/*
 	 * Backend Errors
 	 */
-	EDGE_NOT_CONNECTED(1000, "Edge [%s] is not connected.");
+	EDGE_NOT_CONNECTED(2000, "Edge [%s] is not connected.");
 
 	private final int code;
 	private final String message;

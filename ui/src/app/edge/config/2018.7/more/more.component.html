@@ -1,5 +1,5 @@
 <div fxLayout fxLayoutAlign="center start" fxLayout="wrap">
-  <div *ngIf="edge" routerLink="/device/{{ edge.name }}/config/more/directcontrol" fxFlex="50%" fxFlex.xs="100%">
+  <div *ngIf="edge" routerLink="/device/{{ edge.id }}/config/more/directcontrol" fxFlex="50%" fxFlex.xs="100%">
     <mat-card class="single">
       <mat-card-header>
         <mat-icon mat-card-avatar>more_horiz</mat-icon>
@@ -11,7 +11,7 @@
     </mat-card>
   </div>
 
-  <div *ngIf="edge" routerLink="/device/{{ edge.name }}/config/more/rawconfig" fxFlex="50%" fxFlex.xs="100%">
+  <div *ngIf="edge" routerLink="/device/{{ edge.id }}/config/more/rawconfig" fxFlex="50%" fxFlex.xs="100%">
     <mat-card class="single">
       <mat-card-header>
         <mat-icon mat-card-avatar>more_horiz</mat-icon>
@@ -23,7 +23,7 @@
     </mat-card>
   </div>
 
-  <div *ngIf="edge" routerLink="/device/{{ edge.name }}/config/all" fxFlex="50%" fxFlex.xs="100%">
+  <div *ngIf="edge" routerLink="/device/{{ edge.id }}/config/all" fxFlex="50%" fxFlex.xs="100%">
     <mat-card class="single">
       <mat-card-header>
         <mat-icon mat-card-avatar>more_horiz</mat-icon>
@@ -35,7 +35,7 @@
     </mat-card>
   </div>
 
-  <div *ngIf="edge" routerLink="/device/{{ edge.name }}/config/more/systemexecute" fxFlex="50%" fxFlex.xs="100%">
+  <div *ngIf="edge" routerLink="/device/{{ edge.id }}/config/more/systemexecute" fxFlex="50%" fxFlex.xs="100%">
     <mat-card class="single">
       <mat-card-header>
         <mat-icon mat-card-avatar>more_horiz</mat-icon>

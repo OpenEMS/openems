@@ -22,6 +22,12 @@ public class OnCloseHandler implements Runnable {
 	public final void run() {
 		try {
 			this.parent.getOnClose().run(this.ws, this.code, this.reason, this.remote);
+
+			// remove websocket from WsData
+			WsData wsData = this.ws.getAttachment();
+			if (wsData != null) {
+				wsData.setWebsocket(null);
+			}
 		} catch (Exception e) {
 			this.parent.handleInternalErrorSync(e);
 		}

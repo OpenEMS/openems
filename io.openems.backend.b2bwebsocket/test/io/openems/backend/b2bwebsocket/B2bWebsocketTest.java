@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import io.openems.backend.b2bwebsocket.B2bWebsocket;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
@@ -14,7 +13,9 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSche
 public class B2bWebsocketTest {
 
 	private static TestClient preparteTestClient() throws URISyntaxException, InterruptedException {
-		TestClient client = new TestClient(new URI("ws://localhost:" + B2bWebsocket.DEFAULT_PORT));
+		String uri = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
+
+		TestClient client = new TestClient(new URI(uri));
 		client.startBlocking();
 		return client;
 	}

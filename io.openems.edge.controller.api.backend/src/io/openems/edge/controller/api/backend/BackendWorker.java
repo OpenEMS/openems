@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
 
@@ -22,7 +19,7 @@ class BackendWorker extends AbstractWorker {
 
 	private final static int MAX_CACHED_MESSAGES = 1000;
 
-	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
+//	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 	private final BackendApi parent;
 
 	private Optional<Integer> increasedCycleTime = Optional.empty();
@@ -51,7 +48,8 @@ class BackendWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
-		Map<ChannelAddress, JsonElement> values = getChangedValues();
+		// TODO send all data once after reconnect. The Backend might have been restartet.
+		Map<ChannelAddress, JsonElement> values = this.getChangedValues();
 		boolean canSendFromCache;
 
 		/*
@@ -63,7 +61,8 @@ class BackendWorker extends AbstractWorker {
 			long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
 
 			// create JSON-RPC notification
-			TimestampedData message = new TimestampedData(timestamp, values);
+			TimestampedData message = new TimestampedData();
+			message.add(timestamp, values);
 
 			// reset cycleTime to default
 			resetCycleTime();

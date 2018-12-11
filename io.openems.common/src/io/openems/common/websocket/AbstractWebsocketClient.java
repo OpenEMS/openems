@@ -189,7 +189,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public void sendRequest(JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
 			throws OpenemsException {
 		WsData wsData = this.ws.getAttachment();
-		wsData.send(ws, request, responseCallback);
+		wsData.send(request, responseCallback);
 	}
 
 }
