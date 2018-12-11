@@ -3,7 +3,7 @@ export const TRANSLATION = {
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
-        GridMode: "žádné připojení k síti!",
+        OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
         Power: "Výkon",
@@ -15,6 +15,7 @@ export const TRANSLATION = {
         More: "Další",
         ChargePower: "Nabíjecí výkon",
         DischargePower: "Vybíjecí výkon",
+        ActualPower: "E-Car Nabíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd.MM.yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
@@ -118,7 +119,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nový plánovač...",
                 Class: "Třída:",
                 NotImplemented: "Zadání nebylo implementováno: ",
-                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Vždy"
             },
             Log: {

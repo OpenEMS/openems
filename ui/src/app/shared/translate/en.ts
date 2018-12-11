@@ -3,7 +3,7 @@ export const TRANSLATION = {
         Grid: "Grid",
         GridBuy: "Buy from grid",
         GridSell: "Sell to grid",
-        GridMode: "No Grid Connection!",
+        OffGrid: "No Grid Connection!",
         Production: "Production",
         Consumption: "Consumption",
         Power: "Power",
@@ -135,7 +135,7 @@ export const TRANSLATION = {
                 NewScheduler: "New scheduler...",
                 Class: "Class:",
                 NotImplemented: "Form not implemented: ",
-                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Always"
             },
             Log: {
@@ -157,14 +157,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "User interface for PRIMUS and OpenEMS",
-        Developed: "This user interface is developed by KACO new energy as open-source software.",
-        Fenecon: "More about KACO new energy",
-        Fems: "More about PRIMUS",
+        UI: "User interface for OpenEMS",
+        Developed: "This user interface is developed as open-source software.",
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
         Build: "This build",
-        Contact: "Please contact our PRIMUS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Select language:"
     },
     Notifications: {

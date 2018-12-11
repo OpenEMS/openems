@@ -3,7 +3,7 @@ export const TRANSLATION = {
         Grid: "Net",
         GridBuy: "Netafname",
         GridSell: "Netteruglevering",
-        GridMode: "geen netaansluiting!",
+        OffGrid: "geen netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
         Power: "Vermogen",
@@ -15,6 +15,7 @@ export const TRANSLATION = {
         More: "Meer…",
         ChargePower: "Laad vermogen",
         DischargePower: "Ontlaad vermogen",
+        ActualPower: "e-car Laad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "dd-MM-yyyy", // e.g. German: dd.MM.yyyy, English: yyyy-MM-dd (dd = Day, MM = Month, yyyy = Year)
         Week: {
@@ -118,7 +119,7 @@ export const TRANSLATION = {
                 NewScheduler: "New Schema...",
                 Class: "Soort: ",
                 NotImplemented: "Gegevens niet geïmplementeerd: ",
-                Contact: "Dit zou niet mogen gebeuren.Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
+                Contact: "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Altijd"
             },
             Log: {
@@ -140,14 +141,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Gebruikersinterface voor PRIMUS en OpenEMS",
-        Developed: "Deze gebruikersinterface is ontwikkeld door KACO new energy als open- source - software.",
-        Fenecon: "Meer over KACO new energy",
-        Fems: "Meer over PRIMUS",
+        UI: "Gebruikersinterface voor OpenEMS",
+        Developed: "Deze gebruikersinterface is ontwikkeld als open-source-software.",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
-        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het PRIMUS team via <a href=\"mailto:{{value}}\">{{value}}</a>.", // (value = E - Mail vom PRIMUS- Team)
+        Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Selecteer taal: "
     },
     Notifications: {

@@ -3,7 +3,7 @@ export const TRANSLATION = {
         Grid: "Netz",
         GridBuy: "Netzbezug",
         GridSell: "Netzeinspeisung",
-        GridMode: "Keine Netzverbindung!",
+        OffGrid: "Keine Netzverbindung!",
         Production: "Erzeugung",
         Consumption: "Verbrauch",
         Power: "Leistung",
@@ -135,7 +135,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Immer"
             },
             Log: {
