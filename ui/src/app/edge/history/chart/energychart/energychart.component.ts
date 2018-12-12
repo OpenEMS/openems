@@ -89,7 +89,7 @@ export class EnergyChartComponent implements OnChanges {
           label = this.gridSell;
         }
       }
-      return label + ": " + value.toPrecision(2) + " kW";
+      return label + ": " + value.toPrecision(3) + " kW";
     }
     this.options = options;
   }
