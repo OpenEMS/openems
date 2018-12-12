@@ -5,12 +5,10 @@ import java.util.Optional;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.notification.CurrentData;
+import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.JsonUtils;
 
 public class SubscribedChannelsWorker extends io.openems.common.websocket.SubscribedChannelsWorker {
 
@@ -33,20 +31,12 @@ public class SubscribedChannelsWorker extends io.openems.common.websocket.Subscr
 			return JsonNull.INSTANCE;
 		}
 
-		Optional<Object> channelCacheOpt = this.parent.timeData.getChannelValue(this.edgeId, channelAddress);
-		if (channelCacheOpt.isPresent()) {
-			try {
-				return JsonUtils.getAsJsonElement(channelCacheOpt.get());
-			} catch (NotImplementedException e) {
-				return JsonNull.INSTANCE;
-			}
-		} else {
-			return JsonNull.INSTANCE;
-		}
+		Optional<JsonElement> channelCacheValue = this.parent.timeData.getChannelValue(this.edgeId, channelAddress);
+		return channelCacheValue.orElse(JsonNull.INSTANCE);
 	}
 
 	@Override
-	protected JsonrpcNotification getJsonRpcNotification(CurrentData currentData) {
+	protected JsonrpcNotification getJsonRpcNotification(CurrentDataNotification currentData) {
 		return new EdgeRpcNotification(this.edgeId, currentData);
 	}
 }

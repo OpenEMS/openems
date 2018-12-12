@@ -3,8 +3,7 @@ package io.openems.common.jsonrpc.notification;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -33,10 +32,10 @@ import io.openems.common.utils.JsonUtils;
  * @param jData
  * @return
  */
-public class TimestampedData extends JsonrpcNotification {
+public class TimestampedDataNotification extends JsonrpcNotification {
 
-	public static TimestampedData from(JsonrpcNotification notification) throws OpenemsException {
-		TimestampedData result = new TimestampedData();
+	public static TimestampedDataNotification from(JsonrpcNotification notification) throws OpenemsException {
+		TimestampedDataNotification result = new TimestampedDataNotification();
 		JsonObject j = notification.getParams();
 		for (Entry<String, JsonElement> e1 : j.entrySet()) {
 			long timestamp = Long.parseLong(e1.getKey());
@@ -50,9 +49,9 @@ public class TimestampedData extends JsonrpcNotification {
 
 	public final static String METHOD = "timestampedData";
 
-	private final Table<Long, ChannelAddress, JsonElement> data = HashBasedTable.create();
+	private final TreeBasedTable<Long, ChannelAddress, JsonElement> data = TreeBasedTable.create();
 
-	public TimestampedData() {
+	public TimestampedDataNotification() {
 		super(METHOD);
 	}
 
@@ -81,7 +80,7 @@ public class TimestampedData extends JsonrpcNotification {
 		return p;
 	}
 
-	public Table<Long, ChannelAddress, JsonElement> getData() {
+	public TreeBasedTable<Long, ChannelAddress, JsonElement> getData() {
 		return data;
 	}
 }

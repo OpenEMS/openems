@@ -31,14 +31,14 @@ import io.openems.common.utils.JsonUtils;
  * }
  * </pre>
  */
-public class AuthenticateWithSessionId extends JsonrpcNotification {
+public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 	
 	public final static String METHOD = "authenticatedWithSessionId";
 
 	private final UUID token;
 	private final List<EdgeMetadata> metadatas;
 
-	public AuthenticateWithSessionId(UUID token, List<EdgeMetadata> metadatas) {
+	public AuthenticateWithSessionIdNotification(UUID token, List<EdgeMetadata> metadatas) {
 		super(METHOD);
 		this.token = token;
 		this.metadatas = metadatas;

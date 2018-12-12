@@ -3,19 +3,24 @@ package io.openems.backend.timedata.core;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.google.gson.JsonElement;
+
+import io.openems.common.types.ChannelAddress;
+
 import java.util.Optional;
 import java.util.Set;
 
 public class EdgeCache {
-	
-	private long timestamp = 0l;
-	private final Map<String, Object> channelValueCache = new HashMap<>();
 
-	public synchronized final Optional<Object> getChannelValueOpt(String address) {
+	private long timestamp = 0l;
+	private final Map<ChannelAddress, JsonElement> channelValueCache = new HashMap<>();
+
+	public synchronized final Optional<JsonElement> getChannelValue(ChannelAddress address) {
 		return Optional.ofNullable(this.channelValueCache.get(address));
 	}
 
-	public synchronized final Set<Entry<String, Object>> getChannelCacheEntries() {
+	public synchronized final Set<Entry<ChannelAddress, JsonElement>> getChannelCacheEntries() {
 		return this.channelValueCache.entrySet();
 	}
 
@@ -25,8 +30,8 @@ public class EdgeCache {
 	 * @param address
 	 * @param value
 	 */
-	public synchronized void putToChannelCache(String address, Object value) {
-		this.channelValueCache.put(address, value);
+	public synchronized void putToChannelCache(ChannelAddress channel, JsonElement value) {
+		this.channelValueCache.put(channel, value);
 	}
 
 	public long getTimestamp() {
@@ -40,5 +45,5 @@ public class EdgeCache {
 	public void clear() {
 		this.channelValueCache.clear();
 	}
-	
+
 }

@@ -12,9 +12,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.notification.EdgeConfiguration;
-import io.openems.common.jsonrpc.notification.TimestampedData;
+import io.openems.common.jsonrpc.notification.EdgeConfigurationNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
@@ -117,12 +118,12 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 		// config
 		if (message.has("config")) {
-			return new EdgeConfiguration(JsonUtils.getAsJsonObject(message, "config"));
+			return new EdgeConfigurationNotification(JsonUtils.getAsJsonObject(message, "config"));
 		}
 
 		// timedata
 		if (message.has("timedata")) {
-			TimestampedData d = new TimestampedData();
+			TimestampedDataNotification d = new TimestampedDataNotification();
 			JsonObject timedata = JsonUtils.getAsJsonObject(message, "timedata");
 			for (Entry<String, JsonElement> entry : timedata.entrySet()) {
 				long timestamp = Long.valueOf(entry.getKey());
@@ -136,6 +137,16 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			}
 			return d;
 		}
+
+		// notification
+		// TODO handle 'deprecatedNotification' in EdgeWs
+		if (message.has("notification")) {
+			JsonObject j = JsonUtils.getAsJsonObject(message, "notification");
+			GenericJsonrpcNotification n = new GenericJsonrpcNotification("deprecatedNotification", j);
+			return n;
+		}
+
+		// TODO log
 
 		log.info("EdgeWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("EdgeWs. handleNonJsonrpcMessage", lastException);

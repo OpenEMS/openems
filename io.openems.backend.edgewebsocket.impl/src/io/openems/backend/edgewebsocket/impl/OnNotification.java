@@ -12,8 +12,8 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.notification.EdgeConfiguration;
-import io.openems.common.jsonrpc.notification.TimestampedData;
+import io.openems.common.jsonrpc.notification.EdgeConfigurationNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.JsonUtils;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
@@ -33,28 +33,42 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		// Handle notification
 		switch (notification.getMethod()) {
-		case EdgeConfiguration.METHOD:
-			this.handleEdgeConfiguration(EdgeConfiguration.from(notification), wsData);
+		case EdgeConfigurationNotification.METHOD:
+			this.handleEdgeConfiguration(EdgeConfigurationNotification.from(notification), wsData);
 			return;
 
-		case TimestampedData.METHOD:
-			this.handleTimestampedData(TimestampedData.from(notification), wsData);
+		case TimestampedDataNotification.METHOD:
+			this.handleTimestampedData(TimestampedDataNotification.from(notification), wsData);
 			return;
 		}
 
 		log.info("EdgeWs. OnNotification: " + notification);
 	}
 
-	private void handleEdgeConfiguration(EdgeConfiguration message, WsData wsData) throws OpenemsException {
+	/**
+	 * Handle JSON-RPC Notification 'edgeConfiguration'.
+	 * 
+	 * @param message
+	 * @param wsData
+	 * @throws OpenemsException
+	 */
+	private void handleEdgeConfiguration(EdgeConfigurationNotification message, WsData wsData) throws OpenemsException {
 		String edgeId = wsData.assertEdgeId(message);
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getParams());
 	}
 
-	private void handleTimestampedData(TimestampedData message, WsData wsData) throws OpenemsException {
+	/**
+	 * Handle JSON-RPC Notification 'timestampedData'.
+	 * 
+	 * @param message
+	 * @param wsData
+	 * @throws OpenemsException
+	 */
+	private void handleTimestampedData(TimestampedDataNotification message, WsData wsData) throws OpenemsException {
 		String edgeId = wsData.assertEdgeId(message);
 
-		this.parent.timedata.write(edgeId, message.getParams());
+		this.parent.timedata.write(edgeId, message.getData());
 
 		// Read some specific channels
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);

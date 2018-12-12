@@ -5,29 +5,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.timedata.core.EdgeCache;
-import io.openems.backend.timedata.core.Utils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Timedata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -35,9 +30,6 @@ public class TimedataDummy implements Timedata {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataDummy.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
-
-	@Reference
-	protected volatile Metadata metadata;
 
 	@Activate
 	void activate(Config config) throws OpenemsException {
@@ -49,10 +41,10 @@ public class TimedataDummy implements Timedata {
 		log.info("Deactivate Timedata.Dummy");
 	}
 
-	public Optional<Object> getChannelValue(String edgeId, ChannelAddress channelAddress) {
+	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
 		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache != null) {
-			return edgeCache.getChannelValueOpt(channelAddress.toString());
+			return edgeCache.getChannelValue(channelAddress);
 		} else {
 			return Optional.empty();
 		}
@@ -75,9 +67,7 @@ public class TimedataDummy implements Timedata {
 	 * }
 	 * </pre>
 	 */
-	public void write(String edgeId, JsonObject jData) throws OpenemsException {
-		Edge edge = this.metadata.getEdgeOrError(edgeId);
-
+	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		// get existing or create new EdgeCache
 		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache == null) {
@@ -85,29 +75,11 @@ public class TimedataDummy implements Timedata {
 			this.edgeCacheMap.put(edgeId, edgeCache);
 		}
 
-		// Sort incoming data by timestamp
-		TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
-		for (Entry<String, JsonElement> entry : jData.entrySet()) {
-			try {
-				Long timestamp = Long.valueOf(entry.getKey());
-				JsonObject jChannels;
-				jChannels = JsonUtils.getAsJsonObject(entry.getValue());
-				sortedData.put(timestamp, jChannels);
-			} catch (OpenemsException e) {
-				log.error("Data error: " + e.getMessage());
-			}
-		}
-
 		// Prepare data table. Takes entries starting with eldest timestamp (ascending
 		// order)
-		for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
+		for (Entry<Long, Map<ChannelAddress, JsonElement>> dataEntry : data.rowMap().entrySet()) {
 			Long timestamp = dataEntry.getKey();
-			JsonObject jChannels = dataEntry.getValue();
-
-			if (jChannels.entrySet().size() == 0) {
-				// no channel values available. abort.
-				continue;
-			}
+			Map<ChannelAddress, JsonElement> channels = dataEntry.getValue();
 
 			// Check if cache is valid (it is not elder than 5 minutes compared to this
 			// timestamp)
@@ -125,20 +97,17 @@ public class TimedataDummy implements Timedata {
 					// cache is not anymore valid (elder than 5 minutes)
 					// clear cache
 					if (cacheTimestamp != 0l) {
-						log.info("Edge [" + edge.getId() + "]: invalidate cache for edge [" + edgeId
-								+ "]. This timestamp [" + timestamp + "]. Cache timestamp [" + cacheTimestamp + "]");
+						log.info("Edge [" + edgeId + "]: invalidate cache. This timestamp [" + timestamp
+								+ "]. Cache timestamp [" + cacheTimestamp + "]");
 					}
 					edgeCache.clear();
 				}
 
 				// add incoming data to cache (this replaces already existing cache values)
-				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
-					String channel = channelEntry.getKey();
-					Optional<Object> valueOpt = Utils.parseValue(channel, channelEntry.getValue());
-					if (valueOpt.isPresent()) {
-						Object value = valueOpt.get();
-						edgeCache.putToChannelCache(channel, value);
-					}
+				for (Entry<ChannelAddress, JsonElement> channelEntry : channels.entrySet()) {
+					ChannelAddress channel = channelEntry.getKey();
+					JsonElement value = channelEntry.getValue();
+					edgeCache.putToChannelCache(channel, value);
 				}
 			}
 		}
@@ -150,4 +119,5 @@ public class TimedataDummy implements Timedata {
 		this.log.error("Timedata.Dummy does not support querying historic data");
 		return new JsonArray();
 	}
+
 }

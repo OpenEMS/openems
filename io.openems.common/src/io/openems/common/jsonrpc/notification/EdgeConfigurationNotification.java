@@ -18,19 +18,19 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
  * }
  * </pre>
  */
-public class EdgeConfiguration extends GenericJsonrpcNotification {
+public class EdgeConfigurationNotification extends GenericJsonrpcNotification {
 
-	public static EdgeConfiguration from(JsonObject j) throws OpenemsException {
+	public static EdgeConfigurationNotification from(JsonObject j) throws OpenemsException {
 		return from(GenericJsonrpcNotification.from(j));
 	}
 
-	public static EdgeConfiguration from(JsonrpcNotification r) throws OpenemsException {
-		return new EdgeConfiguration(r.getParams());
+	public static EdgeConfigurationNotification from(JsonrpcNotification r) throws OpenemsException {
+		return new EdgeConfigurationNotification(r.getParams());
 	}
 
 	public final static String METHOD = "edgeConfiguration";
 
-	public EdgeConfiguration(JsonObject params) {
+	public EdgeConfigurationNotification(JsonObject params) {
 		super(METHOD, params);
 	}
 

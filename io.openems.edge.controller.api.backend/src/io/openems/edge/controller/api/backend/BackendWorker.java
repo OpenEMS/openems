@@ -10,7 +10,7 @@ import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
 
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.notification.TimestampedData;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.worker.AbstractWorker;
@@ -61,7 +61,7 @@ class BackendWorker extends AbstractWorker {
 			long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
 
 			// create JSON-RPC notification
-			TimestampedData message = new TimestampedData();
+			TimestampedDataNotification message = new TimestampedDataNotification();
 			message.add(timestamp, values);
 
 			// reset cycleTime to default

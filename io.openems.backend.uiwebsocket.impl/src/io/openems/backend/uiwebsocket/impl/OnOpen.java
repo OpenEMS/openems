@@ -13,8 +13,8 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.notification.AuthenticateWithSessionId;
-import io.openems.common.jsonrpc.notification.AuthenticateWithSessionId.EdgeMetadata;
+import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
+import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification.EdgeMetadata;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
@@ -72,7 +72,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 						e.isOnline()));
 			}
 		}
-		AuthenticateWithSessionId notification = new AuthenticateWithSessionId(token, metadatas);
+		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(token, metadatas);
 		this.parent.server.sendMessage(ws, notification);
 	}
 

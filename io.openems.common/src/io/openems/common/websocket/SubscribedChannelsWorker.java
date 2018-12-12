@@ -16,7 +16,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.notification.CurrentData;
+import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.types.ChannelAddress;
 
 public abstract class SubscribedChannelsWorker {
@@ -94,8 +94,8 @@ public abstract class SubscribedChannelsWorker {
 	 *
 	 * @return
 	 */
-	private CurrentData getCurrentData() {
-		CurrentData result = new CurrentData();
+	private CurrentDataNotification getCurrentData() {
+		CurrentDataNotification result = new CurrentDataNotification();
 		for (ChannelAddress channel : this.channels) {
 			JsonElement value = this.getChannelValue(channel);
 			result.add(channel, value);
@@ -105,5 +105,5 @@ public abstract class SubscribedChannelsWorker {
 
 	protected abstract JsonElement getChannelValue(ChannelAddress channelAddress);
 
-	protected abstract JsonrpcNotification getJsonRpcNotification(CurrentData currentData);
+	protected abstract JsonrpcNotification getJsonRpcNotification(CurrentDataNotification currentData);
 }

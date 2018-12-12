@@ -28,13 +28,13 @@ import io.openems.common.types.ChannelAddress;
  * @param jData
  * @return
  */
-public class CurrentData extends JsonrpcNotification {
+public class CurrentDataNotification extends JsonrpcNotification {
 
 	public final static String METHOD = "currentData";
 
 	private final Map<ChannelAddress, JsonElement> data = new HashMap<>();
 
-	public CurrentData() {
+	public CurrentDataNotification() {
 		super(METHOD);
 	}
 

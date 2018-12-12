@@ -4,41 +4,33 @@ import java.util.Optional;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.google.gson.JsonObject;
+import com.google.common.collect.TreeBasedTable;
+import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
 import io.openems.common.types.ChannelAddress;
 
-// TODO: implement Timedata Dummy
-
 @ProviderType
 public interface Timedata extends CommonTimedataService {
-	/**
-	 * Takes a JsonObject and writes the points to database.
-	 *
-	 * <pre>
-	 * 	{
-	 * 		"timestamp1" {
-	 * 			"channel1": value,
-	 * 			"channel2": value
-	 * 		},
-	 * 		"timestamp2" {
-	 * 			"channel1": value,
-	 * 			"channel2": value
-	 *		}
-	 *	}
-	 * </pre>
-	 */
-	public void write(String edgeId, JsonObject jData) throws OpenemsException;
 
 	/**
-	 * Gets the latest value for the given ChannelAddress
+	 * Sends the data points to the Timedata service.
 	 * 
-	 * @param edgeId
-	 * @param channelAddress
+	 * @param edgeId The unique Edge-ID
+	 * @param data   Table of timestamp (epoch in seconds), Channel-Address and the
+	 *               Channel value as JsonElement. Sorted by timestamp.
+	 * @throws OpenemsException
+	 */
+	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException;
+
+	/**
+	 * Gets the latest value for the given ChannelAddress.
+	 * 
+	 * @param edgeId         The unique Edge-ID
+	 * @param channelAddress The Channel-Address
 	 * @return
 	 */
-	public Optional<Object> getChannelValue(String edgeId, ChannelAddress channelAddress);
+	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress);
 
 }
