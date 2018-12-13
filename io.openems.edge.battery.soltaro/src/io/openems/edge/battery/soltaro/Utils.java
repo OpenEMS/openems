@@ -27,10 +27,13 @@ public class Utils {
 					switch (channelId) {
 					case SOC:
 					case SOH:
-					case BATTERY_TEMP:
-					case MAX_CAPACITY:
-					case MINIMAL_CELL_VOLTAGE:
+					case CAPACITY:
 					case VOLTAGE:
+					case CURRENT:
+					case MAX_CELL_TEMPERATURE:
+					case MAX_CELL_VOLTAGE:
+					case MIN_CELL_TEMPERATURE:
+					case MIN_CELL_VOLTAGE:
 						return new IntegerReadChannel(s, channelId);
 					case CHARGE_MAX_CURRENT:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.CHARGE_MAX_A);
@@ -42,12 +45,8 @@ public class Utils {
 						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);
 					case READY_FOR_WORKING:
 						return new BooleanReadChannel(s, channelId);
-					case CAPACITY_KWH:
-						return new IntegerReadChannel(s, channelId, SoltaroRack.CAPACITY_KWH);
-					case MAXIMAL_POWER:
+					case MAX_POWER:
 						return new IntegerReadChannel(s, channelId, SoltaroRack.MAX_POWER_WATT);
-					default:
-						break;
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
@@ -388,10 +387,7 @@ public class Utils {
 					case CLUSTER_1_BATTERY_46_TEMPERATURE:
 					case CLUSTER_1_BATTERY_47_TEMPERATURE:
 
-					case CLUSTER_1_VOLTAGE:
-					case CLUSTER_1_CURRENT:
 					case CLUSTER_1_CHARGE_INDICATION:
-					case CLUSTER_1_SOH:
 					case CLUSTER_RUN_STATE:
 					case SYSTEM_INSULATION:
 
@@ -400,13 +396,9 @@ public class Utils {
 					case SYSTEM_OVER_VOLTAGE_PROTECTION:
 					case SYSTEM_UNDER_VOLTAGE_PROTECTION:
 
-					case CLUSTER_1_MIN_CELL_TEMPERATURE:
-					case CLUSTER_1_MAX_CELL_TEMPERATURE:
 					case CLUSTER_1_MAX_CELL_TEMPERATURE_ID:
-					case CLUSTER_1_MAX_CELL_VOLTAGE:
 					case CLUSTER_1_MAX_CELL_VOLTAGE_ID:
 					case CLUSTER_1_MIN_CELL_TEMPERATURE_ID:
-					case CLUSTER_1_MIN_CELL_VOLTAGE:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
 						return new IntegerReadChannel(s, channelId);
 					}
