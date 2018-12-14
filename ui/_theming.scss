@@ -140,7 +140,7 @@ $mat-xsmall: 'max-width: 599px';
 $mat-small: 'max-width: 959px';
 
 // TODO(crisbeto): this isn't being used anywhere within Material. keeping for backwards compat.
-$mat-font-family: Roboto, 'Helvetica Neue', sans-serif !default;
+$mat-font-family: Arial, 'Helvetica Neue', sans-serif !default;
 
 // TODO: Revisit all z-indices before beta
 // z-index master list
@@ -1026,6 +1026,39 @@ $energydepot: (
   )
 );
 
+$kaco: (
+  50 : #e0e7ee,
+  100 : #b3c3d4,
+  200 : #809cb8,
+  300 : #4d749c,
+  400 : #265686,
+  500 : #003871,
+  600 : #003269,
+  700 : #002b5e,
+  800 : #002454,
+  900 : #001742,
+  A100 : #7798ff,
+  A200 : #4471ff,
+  A400 : #114aff,
+  A700 : #003bf6,
+    contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $dark-primary-text,
+    400: $dark-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+    A100: $dark-primary-text,
+    A200: $light-primary-text,
+    A400: $light-primary-text,
+    A700: $light-primary-text,
+  )
+);
+
 $mat-blue-grey: (
   50: #eceff1,
   100: #cfd8dc,
@@ -1474,7 +1507,7 @@ $mat-ripple-color-opacity: 0.1;
 // Represents a collection of typography levels.
 // Defaults come from https://material.io/guidelines/style/typography.html
 @function mat-typography-config(
-  $font-family:   'Roboto, "Helvetica Neue", sans-serif',
+  $font-family:   'Arial, "Helvetica Neue", sans-serif',
   $display-4:     mat-typography-level(112px, 112px, 300),
   $display-3:     mat-typography-level(56px, 56px, 400),
   $display-2:     mat-typography-level(45px, 48px, 400),

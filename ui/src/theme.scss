@@ -1,8 +1,8 @@
 @import '~@angular/material/theming';
 @include mat-core();
 
-$primary: mat-palette($energydepot);
-$accent:  mat-palette($energydepot);
+$primary: mat-palette($kaco);
+$accent:  mat-palette($kaco);
 
 
 
