@@ -31,7 +31,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Übersicht",
-        AboutUI: "Über PRIMUS-UI",
+        AboutUI: "Über hy-control-UI",
         Settings: 'Allgemeine Einstellungen',
         Logout: 'Abmelden'
     },
@@ -40,7 +40,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.", // value = name of websocket
         ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
-        IsOffline: "PRIMUS ist offline!",
+        IsOffline: "hy-control ist offline!",
         PleaseLogin: "Bitte geben Sie Ihre Zugangsdaten ein oder bestätigen Sie die Voreingabe um sich anzumelden.",
         Username: "Benutzername / Email",
         Password: "Passwort",
@@ -157,14 +157,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Benutzeroberfläche für PRIMUS und OpenEMS",
+        UI: "Benutzeroberfläche für hy-control und OpenEMS",
         Developed: "Diese Benutzeroberfläche wird von KACO new energy als Open-Source-Software entwickelt.",
         Fenecon: "Mehr zu KACO new energy",
-        Fems: "Mehr zu PRIMUS",
+        Fems: "Mehr zu hy-control",
         OpenEMS: "Mehr zu OpenEMS",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser PRIMUS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from PRIMUS-Team
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser hy-control-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from hy-control-Team
         Language: "Sprache wählen:"
     },
     Notifications: {

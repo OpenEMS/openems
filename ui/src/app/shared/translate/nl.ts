@@ -30,7 +30,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Overzicht",
-        AboutUI: "Over PRIMUS- UI",
+        AboutUI: "Over hy-control- UI",
         Settings: 'Algemene instellingen',
         Logout: 'Uitloggen'
     },
@@ -39,7 +39,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
         ToEnergymonitor: "Naar Energiemonitor...",
-        IsOffline: "PRIMUS is offline!"
+        IsOffline: "hy-control is offline!"
     },
     Edge: {
         Index: {

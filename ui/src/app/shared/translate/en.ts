@@ -31,7 +31,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Index",
-        AboutUI: "About PRIMUS-UI",
+        AboutUI: "About hy-control-UI",
         Settings: 'General Settings',
         Logout: 'Sign Out'
     },
@@ -40,7 +40,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "PRIMUS is offline!",
+        IsOffline: "hy-control is offline!",
         PleaseLogin: "Please enter your access data or confirm to log in.",
         Username: "Username/email",
         Password: "Password",
