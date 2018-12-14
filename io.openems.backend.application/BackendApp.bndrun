@@ -8,22 +8,20 @@ Bundle-SymbolicName:		io.openems.backend.application.launch
 JPM-Command:				openems-backend
 
 -runrequires: \
-	bnd.identity;id=io.openems.backend.application,\
-	bnd.identity;id=io.openems.backend.edgewebsocket.impl,\
-	bnd.identity;id=io.openems.backend.metadata.dummy,\
-	bnd.identity;id=io.openems.backend.metadata.file,\
-	bnd.identity;id=io.openems.backend.metadata.odoo,\
-	bnd.identity;id=io.openems.backend.timedata.influx,\
-	bnd.identity;id=io.openems.backend.uiwebsocket.impl,\
-	bnd.identity;id=org.apache.felix.webconsole,\
-	bnd.identity;id=org.ops4j.pax.logging.pax-logging-api,\
-	bnd.identity;id=org.ops4j.pax.logging.pax-logging-service,\
-	bnd.identity;id=osgi.enroute.webconsole.xray.provider
+	bnd.identity;id='io.openems.backend.application',\
+	bnd.identity;id='io.openems.backend.edgewebsocket.impl',\
+	bnd.identity;id='io.openems.backend.timedata.influx',\
+	bnd.identity;id='org.apache.felix.webconsole',\
+	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
+	bnd.identity;id='org.ops4j.pax.logging.pax-logging-service',\
+	bnd.identity;id='osgi.enroute.webconsole.xray.provider',\
+	bnd.identity;id='io.openems.backend.metadata.wordpress',\
+	bnd.identity;id='io.openems.backend.uiwebsocket.energydepot'
 
 -runproperties: \
 	felix.cm.dir=c:/openems-backend-config,\
-	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED",\
-	org.osgi.service.http.port=8079
+	org.osgi.service.http.port=9079,\
+	org.ops4j.pax.logging.service.frameworkEventsLogLevel=DISABLED
 
 -runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
 -runee: JavaSE-1.8
