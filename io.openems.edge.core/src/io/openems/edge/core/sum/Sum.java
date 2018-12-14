@@ -227,7 +227,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 		 * </ul>
 		 */
 		GRID_MODE(new Doc() //
-				.type(OpenemsType.INTEGER)),
+				.type(OpenemsType.INTEGER)
+				.options(GridMode.values())),
 		
 		/**
 		 * Max Apparent Power

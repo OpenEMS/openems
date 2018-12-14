@@ -7,13 +7,26 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * State of Charge
+		 * Indicates that the battery has started and is ready for charging/discharging.
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		// TODO: why can this not be handled using 'STATE'?
+		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
+
+		/**
+		 * State of Charge.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
@@ -23,8 +36,9 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+
 		/**
-		 * State of Health
+		 * State of Health.
 		 *
 		 * <ul>
 		 * <li>Interface: Battery
@@ -34,38 +48,40 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		SOH(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+
 		/**
-		 * Max capacity
-		 *
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Integer
-		 * <li>Unit: Wh
-		 * </ul>
-		 */
-		MAX_CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		/**
-		 * Min voltage for discharging
+		 * Voltage of battery.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
-		 * <li>Unit: V
 		 * </ul>
 		 */
-		DISCHARGE_MIN_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+
 		/**
-		 * Max current for discharging
+		 * Current of battery.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
-		 * <li>Unit: V
+		 * <li>Unit: mA
 		 * </ul>
 		 */
-		DISCHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
+
 		/**
-		 * Maximal voltage for charging
+		 * Capacity of battery.
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+
+		/**
+		 * Maximal voltage for charging.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
@@ -74,8 +90,20 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_MAX_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+
 		/**
-		 * Max current for charging
+		 * Maximum current for charging.
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: A
+		 * </ul>
+		 */
+		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+
+		/**
+		 * Minimal voltage for discharging.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
@@ -83,9 +111,21 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		DISCHARGE_MIN_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+
 		/**
-		 * Battery Temperature
+		 * Maximum current for discharging.
+		 * 
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: A
+		 * </ul>
+		 */
+		DISCHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+
+		/**
+		 * Minimal Cell Temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: Battery
@@ -94,184 +134,214 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Range: (-50)..100
 		 * </ul>
 		 */
-		BATTERY_TEMP(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIN_CELL_TEMPERATURE(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+
 		/**
-		 * Indicates that the battery has started and is ready for charging/discharging
-		 * 
+		 * Maximum Cell Temperature.
+		 *
 		 * <ul>
 		 * <li>Interface: Battery
-		 * <li>Type: Boolean
+		 * <li>Type: Integer
+		 * <li>Unit: Celsius
+		 * <li>Range: (-50)..100
 		 * </ul>
 		 */
-		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
-		
+		MAX_CELL_TEMPERATURE(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+
 		/**
-		 * Capacity of battery
+		 * Minimal cell voltage.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		CAPACITY_KWH(new Doc().type(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)),
-		
+		MIN_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
+
 		/**
-		 * Voltage of battery
+		 * Maximum cell voltage.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		
+		MAX_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
+
 		/**
-		 * Minimal cell voltage
+		 * Maximum power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Battery
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		MINIMAL_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
-		
-		/**
-		 * Maximal power
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		MAXIMAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		;
+		// TODO: how is max_power defined?
+		MAX_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT));
 
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
 			this.doc = doc;
 		}
-		
+
 		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
 
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(Battery.class, 100) //
+				.channel(0, ChannelId.SOC, ModbusType.UINT16) //
+				.channel(1, ChannelId.SOH, ModbusType.UINT16) //
+				.channel(2, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.CURRENT, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.CAPACITY, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.CHARGE_MAX_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.CHARGE_MAX_CURRENT, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.DISCHARGE_MIN_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.DISCHARGE_MAX_CURRENT, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.MIN_CELL_TEMPERATURE, ModbusType.FLOAT32) //
+				.channel(18, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
+				.channel(20, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(22, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(24, ChannelId.MAX_POWER, ModbusType.FLOAT32) //
+				.build();
+	}
+
 	/**
-	 * Gets the State of Charge in [%], range 0..100 %
+	 * Gets the State of Charge in [%], range 0..100 %.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getSoc() {
 		return this.channel(ChannelId.SOC);
 	}
 
 	/**
-	 * Gets the State of Health in [%], range 0..100 %
+	 * Gets the State of Health in [%], range 0..100 %.
 	 *
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getSoh() {
 		return this.channel(ChannelId.SOH);
 	}
 
 	/**
-	 * Gets the maximum capacity
+	 * Gets the capacity.
 	 *
-	 * @return
+	 * @return the Channel
 	 */
-	default Channel<Integer> getMaxCapacity() {
-		return this.channel(ChannelId.MAX_CAPACITY);
+	default Channel<Integer> getCapacity() {
+		return this.channel(ChannelId.CAPACITY);
 	}
 
 	/**
-	 * Gets the Battery Temperature in [degC], range (-50)..100
-	 *
-	 * @return
-	 */
-	default Channel<Integer> getBatteryTemp() {
-		return this.channel(ChannelId.BATTERY_TEMP);
-	}
-
-	/**
-	 * Gets the min voltage for discharging
+	 * Gets the min voltage for discharging.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getDischargeMinVoltage() {
 		return this.channel(ChannelId.DISCHARGE_MIN_VOLTAGE);
 	}
-	
+
 	/**
-	 * Gets the max current for discharging
+	 * Gets the max current for discharging.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getDischargeMaxCurrent() {
 		return this.channel(ChannelId.DISCHARGE_MAX_CURRENT);
 	}
-	
+
 	/**
-	 * Gets the max voltage for charging
+	 * Gets the max voltage for charging.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getChargeMaxVoltage() {
 		return this.channel(ChannelId.CHARGE_MAX_VOLTAGE);
 	}
-	
+
 	/**
-	 * Gets the max current for charging
+	 * Gets the max current for charging.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getChargeMaxCurrent() {
 		return this.channel(ChannelId.CHARGE_MAX_CURRENT);
 	}
-	
+
 	/**
-	 * Gets the indicator if ready to charge/discharge
+	 * Gets the Minimal Cell Temperature in [degC], range (-50)..100.
+	 *
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMinCellTemperature() {
+		return this.channel(ChannelId.MIN_CELL_TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Maximum Cell Temperature in [degC], range (-50)..100.
+	 *
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMaxCellTemperature() {
+		return this.channel(ChannelId.MAX_CELL_TEMPERATURE);
+	}
+
+	/**
+	 * Gets the indicator if ready to charge/discharge.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Boolean> getReadyForWorking() {
 		return this.channel(ChannelId.READY_FOR_WORKING);
 	}
-	
+
 	/**
-	 * Gets the capacity of this battery
+	 * Gets the total voltage of this battery system.
 	 * 
-	 * @return
-	 */
-	default Channel<Integer> getCapacity() {
-		return this.channel(ChannelId.CAPACITY_KWH);
-	}
-	
-	/**
-	 * Gets the total voltage of this battery system
-	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getVoltage() {
 		return this.channel(ChannelId.VOLTAGE);
 	}
-	
+
 	/**
-	 * Gets the minimal cell voltage of this battery
+	 * Gets the total current of this battery system.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
-	default Channel<Integer> getMinimalCellVoltage() {
-		return this.channel(ChannelId.MINIMAL_CELL_VOLTAGE);
+	default Channel<Integer> getCurrent() {
+		return this.channel(ChannelId.CURRENT);
 	}
 
 	/**
-	 * Gets the maximal power
+	 * Gets the minimal cell voltage of this battery.
 	 * 
-	 * @return
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMinCellVoltage() {
+		return this.channel(ChannelId.MIN_CELL_VOLTAGE);
+	}
+
+	/**
+	 * Gets the maximum cell voltage of this battery.
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMaxCellVoltage() {
+		return this.channel(ChannelId.MAX_CELL_VOLTAGE);
+	}
+
+	/**
+	 * Gets the maximum power.
+	 * 
+	 * @return the Channel
 	 */
 	default Channel<Integer> getMaxPower() {
-		return this.channel(ChannelId.MAXIMAL_POWER);
+		return this.channel(ChannelId.MAX_POWER);
 	}
 }
