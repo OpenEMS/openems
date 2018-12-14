@@ -69,7 +69,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.allalphabetically)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.simulator)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)',\
+	bnd.identity;version='20160212.0.0';id='json'
 	
 -runbundles: \
 	com.ghgande.j2mod;version='[2.5.2,2.5.3)',\

@@ -21,7 +21,8 @@ JPM-Command:				openems-backend
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-service)',\
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-api)',\
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)'
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
+	bnd.identity;version='20160212.0.0';id='json'
 
 -runproperties: \
 	felix.cm.dir=c:/openems-backend-config,\
