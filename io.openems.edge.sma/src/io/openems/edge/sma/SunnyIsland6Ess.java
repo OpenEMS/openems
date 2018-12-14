@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -32,6 +33,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.io.api.DigitalInput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -41,6 +43,8 @@ import io.openems.edge.ess.power.api.Power;
 public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		implements SinglePhaseEss, SymmetricEss, ManagedSymmetricEss, OpenemsComponent {
 
+	ChannelAddress fireDetection = null;
+
 	@Reference
 	private Power power;
 
@@ -48,6 +52,9 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput fireDetectionComponent;
 
 	public SunnyIsland6Ess() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -75,10 +82,15 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 		this.getPhase().setNextValue(config.Phase());
+		this.fireDetection = ChannelAddress.fromString(config.fireDtection());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "fireDetectionComponent",
+				this.fireDetection.getComponentId())) {
+			return;
+		}
 	}
 
 	@Deactivate

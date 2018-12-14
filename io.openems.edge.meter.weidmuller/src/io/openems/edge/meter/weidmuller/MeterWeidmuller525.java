@@ -131,7 +131,7 @@ public class MeterWeidmuller525 extends AbstractOpenemsModbusComponent implement
 //		COMPARATOR_2C_OPERATOR(new Doc()//
 //				.option(0, ">=")//
 //				.option(1, "<=")), //
-//
+
 //		TERMINATE_ASSIGNMENT_CURRENT_L1(new Doc()), //
 //		TERMINATE_ASSIGNMENT_CURRENT_L2(new Doc()), //
 //		TERMINATE_ASSIGNMENT_CURRENT_L3(new Doc()), //
@@ -157,7 +157,7 @@ public class MeterWeidmuller525 extends AbstractOpenemsModbusComponent implement
 //		LINKAGE_RESULT_OF_COMPARATOR_GROUP_1(new Doc()), //
 //		LINKAGE_RESULT_OF_COMPARATOR_GROUP_2(new Doc()), //
 //		PERIOD_OF_TIME_AFTER_WHICH_THE_BACKLIGHT_WILL_SWITCH_TO_STANDBY(new Doc().unit(Unit.SECONDS)), //
-//		BRIGHTNESS_OF_THE_STANDBY_BACKLIGHT(new Doc().unit(Unit.SECONDS)),//
+//		BRIGHTNESS_OF_THE_STANDBY_BACKLIGHT(new Doc().unit(Unit.SECONDS)), //
 
 		VOLTAGE_L1_N(new Doc().unit(Unit.VOLT)), //
 		VOLTAGE_L2_N(new Doc().unit(Unit.VOLT)), //
@@ -307,9 +307,32 @@ public class MeterWeidmuller525 extends AbstractOpenemsModbusComponent implement
 						m(MeterWeidmuller525.ChannelId.HARMONIC_THD_VOLT_L3N, new FloatDoublewordElement(19114)), //
 						m(MeterWeidmuller525.ChannelId.HARMONIC_THD_CURRENT_L1N, new FloatDoublewordElement(19116)), //
 						m(MeterWeidmuller525.ChannelId.HARMONIC_THD_VOLT_L2N, new FloatDoublewordElement(19118)), //
-						m(MeterWeidmuller525.ChannelId.HARMONIC_THD_CURRENT_L3N, new FloatDoublewordElement(19120))
+						m(MeterWeidmuller525.ChannelId.HARMONIC_THD_CURRENT_L3N, new FloatDoublewordElement(19120))) //
+//				new FC3ReadRegistersTask(10, Priority.HIGH, //
+//						m(MeterWeidmuller525.ChannelId.CURRENT_TRANSFORMER_L1_PRIMARY, new FloatDoublewordElement(10)), //
+//						m(MeterWeidmuller525.ChannelId.CURRENT_TRANSFORMER_L1_SECONDARY,
+//								new FloatDoublewordElement(12)), //
+//						m(MeterWeidmuller525.ChannelId.VOLTAGE_TRANSFORMER_L1_PRIMARY, new FloatDoublewordElement(14)), //
+//						m(MeterWeidmuller525.ChannelId.VOLTAGE_TRANSFORMER_L1_SECONDARY,
+//								new FloatDoublewordElement(16)), //
+//						m(MeterWeidmuller525.ChannelId.CURRENT_TRANSFORMER_L2_PRIMARY, new FloatDoublewordElement(18)), //
+//						m(MeterWeidmuller525.ChannelId.CURRENT_TRANSFORMER_L2_SECONDARY,
+//								new FloatDoublewordElement(20)), //
+//						m(MeterWeidmuller525.ChannelId.VOLTAGE_TRANSFORMER_L2_PRIMARY, new FloatDoublewordElement(22)), //
+//						m(MeterWeidmuller525.ChannelId.VOLTAGE_TRANSFORMER_L2_SECONDARY,
+//								new FloatDoublewordElement(24)), //
+//						m(MeterWeidmuller525.ChannelId.CURRENT_TRANSFORMER_L3_PRIMARY, new FloatDoublewordElement(26)), //
+//						m(MeterWeidmuller525.ChannelId.CURRENT_TRANSFORMER_L3_SECONDARY,
+//								new FloatDoublewordElement(28)), //
+//						m(MeterWeidmuller525.ChannelId.VOLTAGE_TRANSFORMER_L3_PRIMARY, new FloatDoublewordElement(30)), //
+//						m(MeterWeidmuller525.ChannelId.VOLTAGE_TRANSFORMER_L3_SECONDARY,
+//								new FloatDoublewordElement(32)), //
+//						m(MeterWeidmuller525.ChannelId.FREQUENCY_DETERMINATION, new FloatDoublewordElement(34)), //
+//						new DummyRegisterElement(36, 39), //
+//						m(MeterWeidmuller525.ChannelId.AVERAGING_TIME_CURRENT, new FloatWriteChannel(40)), //
+//						m(MeterWeidmuller525.ChannelId.AVERAGING_TIME_POWER, new FloatWriteChannel(41))
 
-				));
+		);
 
 		return protocol;
 	}
