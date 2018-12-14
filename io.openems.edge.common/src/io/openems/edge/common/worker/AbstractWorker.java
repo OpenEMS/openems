@@ -9,6 +9,9 @@ import io.openems.common.utils.Mutex;
 
 public abstract class AbstractWorker {
 
+	public final static int ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN = -1;
+	public final static int DO_NOT_WAIT = 0;
+	
 	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);

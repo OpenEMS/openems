@@ -1,10 +1,10 @@
 package io.openems.edge.common.worker;
 
 /**
- * A helper worker for tasks that always waits for a call to 'triggerNextRun()'
- * method before it executes 'forever()' again.
+ * A helper worker for tasks that need to be executed forever without any
+ * interruption or sleep.
  */
-public abstract class AbstractImmediateWorker extends AbstractWorker {
+public abstract class AbstractWaitForTriggerWorker extends AbstractWorker {
 
 	@Override
 	public void activate(String name) {
@@ -18,7 +18,7 @@ public abstract class AbstractImmediateWorker extends AbstractWorker {
 
 	@Override
 	protected final int getCycleTime() {
-		return AbstractWorker.DO_NOT_WAIT;
+		return AbstractWorker.ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN;
 	}
 
 	@Override
