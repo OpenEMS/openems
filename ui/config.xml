@@ -77,7 +77,7 @@
         <splash height="2732" src="resources/ios/splash/Default@2x~universal~anyany.png" width="2732" />
     </platform>
     <platform name="browser">
-        <icon src="/src/assets/icon/favicon.png" />
+        <icon src="/src/assets/icon/icon.png" />
         <preference name="SplashScreen" value="/resources/splash.png" />
         <preference name="AutoHideSplashScreen" value="true" />
         <preference name="SplashScreenDelay" value="3000" />
