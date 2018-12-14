@@ -120,7 +120,11 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			}
 		};
-		this.ws.setAttachment(this.createWsData());
+		// initialize WsData
+		T wsData = AbstractWebsocketClient.this.createWsData();
+		wsData.setWebsocket(ws);
+		this.ws.setAttachment(wsData);
+		
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
 		}

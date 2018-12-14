@@ -56,17 +56,13 @@ public class InfluxConnector {
 	 * 
 	 * @return
 	 */
-	public InfluxDB getConnection() throws OpenemsException {
+	public InfluxDB getConnection() {
 		if (this._influxDB == null) {
-			try {
-				InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
-						this.password);
-				influxDB.setDatabase(this.database);
-				influxDB.enableBatch(BatchOptions.DEFAULTS);
-				this._influxDB = influxDB;
-			} catch (RuntimeException e) {
-				throw new OpenemsException("Unable to connect to InfluxDB: " + e.getMessage(), e);
-			}
+			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
+					this.password);
+			influxDB.setDatabase(this.database);
+			influxDB.enableBatch(BatchOptions.DEFAULTS);
+			this._influxDB = influxDB;
 		}
 		return this._influxDB;
 	}

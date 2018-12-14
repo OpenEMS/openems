@@ -83,11 +83,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 				config.database());
 
 		if (config.enabled()) {
-			try {
-				this.influxConnector.getConnection();
-			} catch (OpenemsException e) {
-				logWarn(this.log, e.getMessage());
-			}
+			this.influxConnector.getConnection();
 		}
 	}
 
@@ -112,13 +108,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	protected synchronized void collectAndWriteChannelValues() {
-		InfluxDB influxDB;
-		try {
-			influxDB = this.influxConnector.getConnection();
-		} catch (OpenemsException e) {
-			this.log.error("Not perisisting any data: " + e.getMessage());
-			return;
-		}
+		InfluxDB influxDB = this.influxConnector.getConnection();
 
 		long timestamp = System.currentTimeMillis() / 1000;
 		final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.SECONDS);

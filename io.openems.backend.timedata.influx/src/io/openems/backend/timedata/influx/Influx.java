@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBIOException;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -81,8 +82,10 @@ public class Influx implements Timedata {
 			this.edgeCacheMap.put(edgeId, edgeCache);
 		}
 
-		// Prepare data table. Takes entries starting with eldest timestamp (ascending
-		// order)
+		/*
+		 * Prepare data table. Takes entries starting with eldest timestamp (ascending
+		 * order)
+		 */
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
 			Long timestamp = entry.getKey();
 
@@ -94,9 +97,6 @@ public class Influx implements Timedata {
 
 			} else {
 				// incoming data is more recent than cache
-				// update cache timestamp
-				edgeCache.setTimestamp(timestamp);
-
 				if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
 					// cache is valid (not elder than 5 minutes)
 					for (Entry<ChannelAddress, JsonElement> cacheEntry : edgeCache.getChannelCacheEntries()) {
@@ -117,6 +117,12 @@ public class Influx implements Timedata {
 					// clear cache
 					edgeCache.clear();
 				}
+
+				// update cache
+				edgeCache.setTimestamp(timestamp);
+				for (Entry<ChannelAddress, JsonElement> channelEntry : entry.getValue().entrySet()) {
+					edgeCache.putToChannelCache(channelEntry.getKey(), channelEntry.getValue());
+				}
 			}
 		}
 
@@ -127,8 +133,7 @@ public class Influx implements Timedata {
 		this.writeDataToOldMiniMonitoring(edgeId, influxEdgeId, data);
 	}
 
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
-			throws OpenemsException {
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
 		InfluxDB influxDB = this.influxConnector.getConnection();
 
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
@@ -146,7 +151,11 @@ public class Influx implements Timedata {
 		}
 
 		// write to DB
-		influxDB.write(batchPoints);
+		try {
+			influxDB.write(batchPoints);
+		} catch (InfluxDBIOException e) {
+			this.log.error("Unable to write data: " + e.getMessage());
+		}
 	}
 
 	/**
@@ -259,13 +268,80 @@ public class Influx implements Timedata {
 		influxDB.write(batchPoints);
 	}
 
-	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
-		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
-		if (edgeCache != null) {
-			return edgeCache.getChannelValue(channelAddress);
+	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress address) {
+		EdgeCache cache = this.edgeCacheMap.get(edgeId);
+		if (cache != null) {
+			Optional<Edge> edgeOpt = this.metadata.getEdge(edgeId);
+			if (!edgeOpt.isPresent()) {
+				return cache.getChannelValue(address);
+			}
+			Edge edge = edgeOpt.get();
+			ChannelFormula[] compatibility = getCompatibilityFormula(edge, address);
+			if (compatibility.length == 0) {
+				return cache.getChannelValue(address);
+			}
+			// handle compatibility with elder OpenEMS Edge version
+			return this.getCompatibilityChannelValue(compatibility, cache);
 		} else {
 			return Optional.empty();
 		}
+	}
+
+	/**
+	 * Handles compatibility with elder OpenEMS Edge version, e.g. calculate the
+	 * '_sum' Channels.
+	 * 
+	 * @param compatibility
+	 * @param cache
+	 * @return
+	 */
+	private Optional<JsonElement> getCompatibilityChannelValue(ChannelFormula[] compatibility, EdgeCache cache) {
+		int value = 0;
+		for (ChannelFormula formula : compatibility) {
+			ChannelAddress addr = formula.getAddress();
+			switch (formula.getFunction()) {
+			case PLUS:
+				value += cache.getChannelValue(addr).orElse(new JsonPrimitive(0)).getAsInt();
+			}
+		}
+		return Optional.of(new JsonPrimitive(value));
+	}
+
+	enum Function {
+		PLUS
+	}
+
+	class ChannelFormula {
+		private final Function function;
+		private final ChannelAddress address;
+
+		public ChannelFormula(Function function, ChannelAddress address) {
+			this.function = function;
+			this.address = address;
+		}
+
+		public Function getFunction() {
+			return function;
+		}
+
+		public ChannelAddress getAddress() {
+			return address;
+		}
+	}
+
+	private ChannelFormula[] getCompatibilityFormula(Edge edge, ChannelAddress address) {
+		if (address.getComponentId().equals("_sum")) {
+			JsonObject config = edge.getConfig();
+			switch (address.getChannelId()) {
+			case "EssSoc":
+				return new ChannelFormula[] { //
+						new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "Soc")) };
+			case "EssActivePower":
+				return new ChannelFormula[] { //
+						new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePower")) };
+			}
+		}
+		return new ChannelFormula[0];
 	}
 
 	@Override

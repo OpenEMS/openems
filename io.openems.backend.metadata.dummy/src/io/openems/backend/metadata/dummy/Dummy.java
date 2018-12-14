@@ -21,7 +21,6 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.StringUtils;
@@ -78,7 +77,7 @@ public class Dummy implements Metadata {
 		// not found -> create
 		int id = this.nextEdgeId.incrementAndGet();
 		String edgeId = "edge" + id;
-		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, OpenemsConstants.VERSION, "",
+		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "",
 				new JsonObject(), null, null);
 		edge.onSetConfig(jConfig -> {
 			log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
