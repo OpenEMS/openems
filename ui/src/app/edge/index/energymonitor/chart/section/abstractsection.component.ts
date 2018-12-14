@@ -96,6 +96,13 @@ export class EnergyFlow {
     }
 }
 
+
+export enum GridMode {
+    "undefined",
+    "ongrid",
+    "offgrid"
+}
+
 export abstract class AbstractSection {
 
     public url: string = window.location.href;
@@ -116,7 +123,7 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
     protected lastValue = { valueAbsolute: 0, valueRatio: 0, sumRatio: 0 };
-    protected gridMode: number;
+    protected gridMode: GridMode;
 
     constructor(
         translateName: string,
@@ -124,7 +131,7 @@ export abstract class AbstractSection {
         protected startAngle: number,
         protected endAngle: number,
         public color: string,
-        protected translate: TranslateService
+        protected translate: TranslateService,
     ) {
         this.sectionId = translateName;
         this.name = translate.instant(translateName);
