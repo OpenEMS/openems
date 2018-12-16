@@ -279,9 +279,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
+	
 
 	@Override
 	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {
