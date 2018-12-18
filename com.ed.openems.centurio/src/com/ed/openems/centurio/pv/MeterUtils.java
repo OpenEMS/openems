@@ -3,7 +3,11 @@ package com.ed.openems.centurio.pv;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import com.ed.openems.centurio.ess.CenturioErrorChannel;
+import com.ed.openems.centurio.ess.CenturioEss;
+
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
@@ -62,6 +66,16 @@ public class MeterUtils {
 			case VOLTAGE_L3:
 				return new IntegerReadChannel(c, channelId, 0);
 
+			}
+			return null;
+		}), Arrays.stream(CenturioPVMeter.ChannelId.values()).map(channelId -> {
+			switch (channelId) {
+			
+			case PV_VOLTAGE0:
+			case PV_VOLTAGE1:
+				return new FloatReadChannel(c, channelId);
+			default:
+				break;
 			}
 			return null;
 		})).flatMap(channel -> channel);

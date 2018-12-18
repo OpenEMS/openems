@@ -145,7 +145,8 @@ public class CenturioEss extends AbstractOpenemsComponent
 		E170(new Doc().level(Level.FAULT).text("Phase3InvertVoltageSamplingInvalidation")), //
 		E180(new Doc().level(Level.FAULT).text("ACCurrentSamplingInvalidation")), //
 		
-		BMS_VOLTAGE((new Doc().unit(Unit.VOLT))); //
+		BMS_VOLTAGE(new Doc().unit(Unit.VOLT)),
+		RISO(new Doc().unit(Unit.OHM)); //
 		
 		private final Doc doc;
 
@@ -165,6 +166,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		Integer reactivePower = null;
 		SymmetricEss.GridMode gridMode = SymmetricEss.GridMode.UNDEFINED;
 		float bmsVoltage = 0;
+		float riso = 0;
 
 		if (!this.datasource.isConnected()) {
 			this.logWarn(this.log, "Edcom is not connected!");
@@ -223,6 +225,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 				reactivePower = (CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(0))
 						+ CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(1))
 						+ CenturioConstants.roundToPowerPrecision(inverter.getReactivPower(2))) * -1;
+				riso = inverter.getRIso();
 			}
 		}
 
@@ -248,6 +251,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		this.getAllowedCharge().setNextValue(MAX_APPARENT_POWER * -1);
 		*/
 		this.channel(CenturioEss.ChannelId.BMS_VOLTAGE).setNextValue(bmsVoltage);
+		this.channel(CenturioEss.ChannelId.RISO).setNextValue(riso);
 		
 	}
 

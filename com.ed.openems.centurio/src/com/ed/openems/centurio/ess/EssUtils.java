@@ -99,6 +99,7 @@ public class EssUtils {
 			case E180:
 				return new CenturioErrorChannel(c, channelId);
 			case BMS_VOLTAGE:
+			case RISO:
 				return new FloatReadChannel(c, channelId);
 			default:
 				break;

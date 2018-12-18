@@ -17,6 +17,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.ed.data.InverterData;
 import com.ed.data.VectisData;
 import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
@@ -80,10 +81,12 @@ public class Vectis extends AbstractOpenemsComponent
 		Integer activePowerL1 = null;
 		Integer activePowerL2 = null;
 		Integer activePowerL3 = null;
+		float freq = 0;
 		
 
 		if (this.datasource.isConnected()) {
 			VectisData vectis = this.datasource.getVectis();
+			InverterData inverter = this.datasource.getInverterData();
 
 			reactivePowerL1 = CenturioConstants.roundToPowerPrecision(vectis.getReactivePower(0));
 			reactivePowerL2 = CenturioConstants.roundToPowerPrecision(vectis.getReactivePower(1));
@@ -94,6 +97,8 @@ public class Vectis extends AbstractOpenemsComponent
 			activePowerL2 = CenturioConstants.roundToPowerPrecision(vectis.getACPower(1));
 			activePowerL3 = CenturioConstants.roundToPowerPrecision(vectis.getACPower(2));
 			activePower = activePowerL1 + activePowerL2 + activePowerL3;
+			
+			freq = inverter.getGridFrequency();
 		}
 
 		this.getReactivePowerL1().setNextValue(reactivePowerL1);
@@ -104,6 +109,7 @@ public class Vectis extends AbstractOpenemsComponent
 		this.getActivePowerL2().setNextValue(activePowerL2);
 		this.getActivePowerL3().setNextValue(activePowerL3);
 		this.getActivePower().setNextValue(activePower);
+		this.getFrequency().setNextValue(freq);
 	}
 
 	@Override

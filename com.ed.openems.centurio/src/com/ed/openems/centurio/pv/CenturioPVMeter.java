@@ -20,7 +20,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.ed.data.InverterData;
 import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
+import com.ed.openems.centurio.ess.CenturioEss;
 
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -59,6 +63,24 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 	}
+	
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		
+		
+		PV_VOLTAGE0((new Doc().unit(Unit.VOLT))), //
+		PV_VOLTAGE1((new Doc().unit(Unit.VOLT))); //
+		
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	public CenturioPVMeter() {
 		MeterUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -75,14 +97,20 @@ public class CenturioPVMeter extends AbstractOpenemsComponent
 
 	private void updateChannels() {
 		Integer activePower = null;
-
+		float pvVoltage0 = 0;
+		float pvVoltage1 = 0;
+		
 		if (this.datasource.isConnected()) {
 			InverterData inverter = this.datasource.getInverterData();
 
 			activePower = CenturioConstants.roundToPowerPrecision(inverter.getPvPower());
+			pvVoltage0 = inverter.getPvVoltage(0);
+			pvVoltage1 = inverter.getPvVoltage(1);
 		}
 
 		this.getActivePower().setNextValue(activePower);
+		this.channel(CenturioPVMeter.ChannelId.PV_VOLTAGE0).setNextValue(pvVoltage0);
+		this.channel(CenturioPVMeter.ChannelId.PV_VOLTAGE1).setNextValue(pvVoltage1);
 	}
 
 	@Override
