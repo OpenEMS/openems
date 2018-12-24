@@ -9,7 +9,8 @@ Export-Package: \
 	io.openems.edge.ess.dccharger.api,\
 	io.openems.edge.ess.asymmetric.api,\
 	io.openems.edge.ess.core.power,\
-	io.openems.edge.ess.power.api
+	io.openems.edge.ess.power.api,\
+	io.openems.edge.ess.test
 Require-Capability: \
 	compile-only
 

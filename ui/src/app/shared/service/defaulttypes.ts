@@ -85,7 +85,9 @@ export module DefaultTypes {
       dischargeActivePowerACL2: number,
       dischargeActivePowerACL3: number,
       dischargeActivePowerDC: number,
-      maxDischargeActivePower?: number
+      maxDischargeActivePower?: number,
+      powerRatio: number,
+      maxApparent: number
     }, production: {
       powerRatio: number,
       isAsymmetric: boolean,
@@ -102,7 +104,8 @@ export module DefaultTypes {
       buyActivePower: number,
       maxBuyActivePower: number,
       sellActivePower: number,
-      maxSellActivePower: number
+      maxSellActivePower: number,
+      gridMode: number
     }, consumption: {
       powerRatio: number,
       activePower: number

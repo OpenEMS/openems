@@ -1,9 +1,9 @@
 Bundle-Name: Retrofit2 Moshi Converter
 Bundle-DocURL: https://github.com/square/retrofit/tree/master/retrofit-converters/moshi
 Bundle-License: https://opensource.org/licenses/Apache-2.0
-Bundle-Version: 2.4.0
+Bundle-Version: 2.5.0
 
-Include-Resource: @converter-moshi-2.4.0.jar
+Include-Resource: @converter-moshi-2.5.0.jar
 
 -dsannotations: *
 

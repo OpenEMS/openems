@@ -8,11 +8,6 @@ image::OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400, align="left"]
 OpenEMS is a modular platform for energy management applications.
 It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
 
-== Openems Foundation
-
-Upcoming dates:
-
-* *Openems Foundation:*  Thursday, 2018-11-15, 11:00 - 17:00, in Deggendorf
 
 == OpenEMS IoT stack
 
@@ -88,4 +83,4 @@ This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).
 
 Stefan Feilmeier (c) 2018 FENECON GmbH
-Version 2018.9.0
+Version 2018.11.0-SNAPSHOT

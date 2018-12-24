@@ -8,12 +8,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -27,8 +23,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 )
 public class BatteryDummy extends AbstractOpenemsComponent implements Battery, OpenemsComponent, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(BatteryDummy.class);
-
 	private int disChargeMinVoltage;
 	private int chargeMaxVoltage;
 	private int disChargeMaxCurrent;
@@ -39,6 +33,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int capacityKWh;
 	private int voltage;
 	private int minCellVoltage_mV;
+	private int maximalPower_W;
 
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -57,6 +52,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		capacityKWh = config.capacityKWh();
 		voltage = config.voltage();
 		minCellVoltage_mV = config.minCellVoltage_mV();
+		maximalPower_W = config.maximalPower_W();
 	}
 
 	@Override
@@ -69,38 +65,21 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	private void updateChannels() {
-		IntegerWriteChannel disChargeMinVoltageChannel = this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE);
-		IntegerWriteChannel chargeMaxVoltageChannel = this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE);
-		IntegerWriteChannel disChargeMaxCurrentChannel = this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT);
-		IntegerWriteChannel chargeMaxCurrentChannel = this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT);
-		IntegerWriteChannel socChannel = this.channel(Battery.ChannelId.SOC);
-		IntegerWriteChannel sohChannel = this.channel(Battery.ChannelId.SOH);
-		IntegerWriteChannel tempChannel = this.channel(Battery.ChannelId.BATTERY_TEMP);
-		IntegerWriteChannel capacityChannel = this.channel(Battery.ChannelId.CAPACITY_KWH);
-		IntegerWriteChannel voltageChannel = this.channel(Battery.ChannelId.VOLTAGE);
-		IntegerWriteChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MINIMAL_CELL_VOLTAGE);
+		this.getDischargeMinVoltage().setNextValue(disChargeMinVoltage);
+		this.getChargeMaxVoltage().setNextValue(chargeMaxVoltage);
+		this.getDischargeMaxCurrent().setNextValue(disChargeMaxCurrent);
+		this.getChargeMaxCurrent().setNextValue(chargeMaxCurrent);
+		this.getSoc().setNextValue(soc);
+		this.getSoh().setNextValue(soh);
+		this.getMinCellTemperature().setNextValue(temperature);
+		this.getMaxCellTemperature().setNextValue(temperature);
+		this.getCapacity().setNextValue(capacityKWh);
 
-		try {
-			disChargeMinVoltageChannel.setNextWriteValue(disChargeMinVoltage);
-			chargeMaxVoltageChannel.setNextWriteValue(chargeMaxVoltage);
-			disChargeMaxCurrentChannel.setNextWriteValue(disChargeMaxCurrent);
-			chargeMaxCurrentChannel.setNextWriteValue(chargeMaxCurrent);
-			socChannel.setNextValue(soc);
-			sohChannel.setNextValue(soh);
-			tempChannel.setNextValue(temperature);
-			capacityChannel.setNextWriteValue(capacityKWh);
-		
-			disChargeMinVoltageChannel.setNextValue(disChargeMinVoltage);
-			chargeMaxVoltageChannel.setNextValue(chargeMaxVoltage);
-			disChargeMaxCurrentChannel.setNextValue(disChargeMaxCurrent);
-			chargeMaxCurrentChannel.setNextValue(chargeMaxCurrent);
-			
-			voltageChannel.setNextValue(voltage);
-			minCellVoltageChannel.setNextValue(minCellVoltage_mV);
+		this.getVoltage().setNextValue(voltage);
+		this.getMinCellVoltage().setNextValue(minCellVoltage_mV);
+		this.getMaxCellVoltage().setNextValue(minCellVoltage_mV);
 
-		} catch (OpenemsException e) {
-			log.error("Error occurred while writing channel values! " + e.getMessage());
-		}
+		this.getMaxPower().setNextValue(maximalPower_W);
 	}
 
 }

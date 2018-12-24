@@ -14,7 +14,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.InvalidValueException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -22,9 +22,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -50,10 +48,10 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss ess;
+	protected ManagedSymmetricEss ess;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter meter;
+	protected SymmetricMeter meter;
 
 	@Deactivate
 	protected void deactivate() {
@@ -61,9 +59,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	}
 
 	/**
-	 * Calculates required charge/discharge power
+	 * Calculates required charge/discharge power.
 	 * 
-	 * @throws InvalidValueException
+	 * @return the required power
 	 */
 	private int calculateRequiredPower() {
 		return this.meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
@@ -94,10 +92,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * set result
 		 */
 		try {
-			this.ess.addPowerConstraintAndValidate("Balancing P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-					calculatedPower); //
-			this.ess.addPowerConstraintAndValidate("Balancing Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
-		} catch (PowerException e) {
+			this.ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
+			this.ess.getSetReactivePowerEquals().setNextWriteValue(0);
+		} catch (OpenemsException e) {
 			this.logError(this.log, e.getMessage());
 		}
 	}

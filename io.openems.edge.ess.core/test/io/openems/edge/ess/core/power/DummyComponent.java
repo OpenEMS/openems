@@ -22,7 +22,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 
 	public DummyComponent(String id) {
 		this.id = id;
-		Stream.of( //
+		Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -62,6 +62,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 						return new IntegerReadChannel(this, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;

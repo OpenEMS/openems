@@ -242,7 +242,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	private Map<String, Float> getValuesFromChannels() {
 		debug("DischargeLimitConsideringCellVoltage.getValuesFromChannels()");
 		Optional<Integer> vOpt = battery.getVoltage().getNextValue().asOptional();
-		Optional<Integer> mcvOpt = battery.getMinimalCellVoltage().getNextValue().asOptional();
+		Optional<Integer> mcvOpt = battery.getMinCellVoltage().getNextValue().asOptional();
 		Optional<Integer> socOpt = battery.getSoc().getNextValue().asOptional();
 		
 		Map<String, Float> values = new HashMap<>();

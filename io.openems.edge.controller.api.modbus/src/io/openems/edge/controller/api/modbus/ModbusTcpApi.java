@@ -41,6 +41,7 @@ import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
@@ -56,6 +57,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 		implements Controller, ApiController, OpenemsComponent, JsonApi {
 
 	public final static int UNIT_ID = 1;
+	public final static int DEFAULT_PORT = 502;
+	public final static int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusTcpApi.class);
 
@@ -83,6 +86,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 
 	protected volatile Map<String, ModbusSlave> _components = new HashMap<>();
 	private String[] componentIds = new String[0];
+	private int port = ModbusTcpApi.DEFAULT_PORT;
+	private int maxConcurrentConnections = ModbusTcpApi.DEFAULT_MAX_CONCURRENT_CONNECTIONS;
 
 	public ModbusTcpApi() {
 		this.processImage = new MyProcessImage(this);
@@ -97,6 +102,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 		}
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
+		this.port = config.port();
+		this.maxConcurrentConnections = config.maxConcurrentConnections();
 		this.componentIds = config.component_ids();
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 
@@ -111,33 +118,59 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 		// Initialize Modbus Records
 		this.initializeModbusRecords();
 
-		/*
-		 * Start Modbus-Server
-		 */
-		try {
-			ModbusSlaveFactory.close();
-			com.ghgande.j2mod.modbus.slave.ModbusSlave slave = ModbusSlaveFactory.createTCPSlave(config.port(),
-					config.maxConcurrentConnections());
-			slave.addProcessImage(UNIT_ID, this.processImage);
-			slave.open();
-			String error = slave.getError();
-			if (error != null) {
-				throw new OpenemsException(error);
-			}
-			log.info("Modbus/TCP Api started on port [" + config.port() + "] with UnitId [" + ModbusTcpApi.UNIT_ID
-					+ "].");
-		} catch (ModbusException | OpenemsException e) {
-			this.logError(this.log,
-					"Unable to start Modbus/TCP Api on port [" + config.port() + "]: " + e.getMessage());
-			throw e;
-		}
+		// Start Modbus-Server
+		this.startApiWorker.activate(config.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.startApiWorker.deactivate();
 		ModbusSlaveFactory.close();
 		super.deactivate();
 	}
+
+	private final AbstractWorker startApiWorker = new AbstractWorker() {
+
+		private final static int DEFAULT_WAIT_TIME = 5000; // 5 seconds
+
+		private com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
+
+		@Override
+		protected void forever() {
+			if (this.slave == null) {
+				try {
+					// start new server
+					this.slave = ModbusSlaveFactory.createTCPSlave(ModbusTcpApi.this.port,
+							ModbusTcpApi.this.maxConcurrentConnections);
+					slave.addProcessImage(UNIT_ID, ModbusTcpApi.this.processImage);
+					slave.open();
+					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port ["
+							+ ModbusTcpApi.this.port + "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
+				} catch (ModbusException e) {
+					ModbusSlaveFactory.close();
+					ModbusTcpApi.this.logError(ModbusTcpApi.this.log, "Unable to start Modbus/TCP Api on port ["
+							+ ModbusTcpApi.this.port + "]: " + e.getMessage());
+				}
+
+			} else {
+				// regular check for errors
+				String error = slave.getError();
+				if (error != null) {
+					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
+							"Unable to start Modbus/TCP Api on port [" + ModbusTcpApi.this.port + "]: " + error);
+					this.slave = null;
+					// stop server
+					ModbusSlaveFactory.close();
+				}
+			}
+		}
+
+		@Override
+		protected int getCycleTime() {
+			return DEFAULT_WAIT_TIME;
+		}
+
+	};
 
 	private void initializeModbusRecords() {
 		// Add generic header
@@ -279,9 +312,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
+	
 
 	@Override
 	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {

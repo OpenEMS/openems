@@ -85,6 +85,10 @@ public enum Unit {
 	 * Unit of Energy [kWh]
 	 */
 	KILOWATT_HOURS("kWh", WATT_HOURS, 3),
+	/**
+	 * Unit of Energy [Wh/Wp]
+	 */
+	WATT_HOURS_BY_WATT_PEAK("Wh/Wp"),
 
 	/*
 	 * Frequency

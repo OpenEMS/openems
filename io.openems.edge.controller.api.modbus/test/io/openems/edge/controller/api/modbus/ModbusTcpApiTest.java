@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.modbus;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Test;
 
@@ -69,4 +70,19 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
+	@Test
+	public void testFloat32() throws Exception {
+		ModbusTCPMaster master = getMaster();
+		InputRegister[] registers = master.readInputRegisters(884, 2);
+		ByteBuffer buff = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+		buff.put(registers[0].toBytes());
+		buff.put(registers[1].toBytes());
+		buff.rewind();
+		float value = buff.order(ByteOrder.BIG_ENDIAN).getFloat(0);
+		
+		System.out.println(value);
+		
+		master.disconnect();
+	}
+	
 }

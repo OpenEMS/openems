@@ -3,6 +3,7 @@ export const TRANSLATION = {
         Grid: "Net",
         GridBuy: "Netafname",
         GridSell: "Netteruglevering",
+        OffGrid: "geen netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
         Power: "Vermogen",

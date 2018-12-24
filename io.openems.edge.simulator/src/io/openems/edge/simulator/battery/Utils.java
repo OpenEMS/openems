@@ -25,21 +25,23 @@ public class Utils {
 					switch (channelId) {
 					case SOC:
 					case SOH:
-					case BATTERY_TEMP:
-					case MAX_CAPACITY:
-					case CAPACITY_KWH:
 					case CHARGE_MAX_CURRENT:
 					case CHARGE_MAX_VOLTAGE:
 					case DISCHARGE_MAX_CURRENT:
 					case DISCHARGE_MIN_VOLTAGE:
-					case MINIMAL_CELL_VOLTAGE:
 					case VOLTAGE:
-						return new IntegerWriteChannel(s, channelId);					
+					case CAPACITY:
+					case CURRENT:
+					case MAX_CELL_TEMPERATURE:
+					case MAX_CELL_VOLTAGE:
+					case MAX_POWER:
+					case MIN_CELL_TEMPERATURE:
+					case MIN_CELL_VOLTAGE:
+						return new IntegerWriteChannel(s, channelId);
 					case READY_FOR_WORKING:
 						return new BooleanReadChannel(s, channelId);
 					}
 					return null;
-				})
-		).flatMap(channel -> channel);
+				})).flatMap(channel -> channel);
 	}
 }
