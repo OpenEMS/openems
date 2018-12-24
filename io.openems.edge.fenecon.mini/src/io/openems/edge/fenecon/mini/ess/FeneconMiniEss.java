@@ -70,33 +70,11 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	enum SetWorkState {
-		LOCAL_CONTROL, START, REMOTE_CONTROL_OF_GRID, STOP, EMERGENCY_STOP
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SYSTEM_STATE(new Doc() //
-				.option(0, "STANDBY") //
-				.option(1, "Start Off-Grid") //
-				.option(2, "START") //
-				.option(3, "FAULT") //
-				.option(4, "Off-Grd PV")), //
-		CONTROL_MODE(new Doc()//
-				.option(1, "Remote")//
-				.option(2, "Local")), //
-		BATTERY_GROUP_STATE(new Doc()//
-				.option(0, "Initial")//
-				.option(1, "Stop")//
-				.option(2, "Starting")//
-				.option(3, "Running")//
-				.option(4, "Stopping")//
-				.option(5, "Fail")), //
-		SET_WORK_STATE(new Doc() //
-				.option(0, SetWorkState.LOCAL_CONTROL)//
-				.option(1, SetWorkState.START) //
-				.option(2, SetWorkState.REMOTE_CONTROL_OF_GRID) //
-				.option(3, SetWorkState.STOP) //
-				.option(4, SetWorkState.EMERGENCY_STOP)), //
+		SYSTEM_STATE(new Doc().options(SystemState.values())), //
+		CONTROL_MODE(new Doc().options(ControlMode.values())), //
+		BATTERY_GROUP_STATE(new Doc().options(BatteryGroupState.values())), //
+		SET_WORK_STATE(new Doc().options(SetWorkState.values())),
 
 		SOC(new Doc().unit(Unit.PERCENT)), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
@@ -154,30 +132,8 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		RTC_HOUR(new Doc().text("Hour")), //
 		RTC_MINUTE(new Doc().text("Minute")), //
 		RTC_SECOND(new Doc().text("Second")), //
-		SET_SETUP_MODE(new Doc()//
-				.option(0, "OFF")//
-				.option(1, "ON")), //
-		SET_PCS_MODE(new Doc()//
-				.option(0, "Emergency")//
-				.option(1, "ConsumersPeakPattern")//
-				.option(2, "Economic")//
-				.option(3, "Eco")//
-				.option(4, "Debug")//
-				.option(5, "SmoothPv")//
-				.option(6, "Remote")), //
-		SETUP_MODE(new Doc()//
-				.option(0, "OFF")//
-				.option(1, "ON")), //
-		PCS_MODE(new Doc()//
-				.option(0, "Emergency")//
-				.option(1, "ConsumersPeakPattern")//
-				.option(2, "Economic")//
-				.option(3, "Eco")//
-				.option(4, "Debug")//
-				.option(5, "SmoothPv")//
-				.option(6, "Remote")//
-
-		), //
+		SETUP_MODE(new Doc().options(SetupMode.values())), //
+		PCS_MODE(new Doc().options(PcsMode.values())), //
 
 		STATE_1(new Doc().level(Level.WARNING).text("BECU1GeneralChargeOverCurrentAlarm")), //
 		STATE_2(new Doc().level(Level.WARNING).text("BECU1GeneralDischargeOverCurrentAlarm")), //
@@ -588,9 +544,9 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
 						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30558, //
-						m(FeneconMiniEss.ChannelId.SET_SETUP_MODE, new UnsignedWordElement(30558))), //
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558))), //
 				new FC16WriteRegistersTask(30559, //
-						m(FeneconMiniEss.ChannelId.SET_PCS_MODE, new UnsignedWordElement(30559))), //
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559))), //
 				new FC16WriteRegistersTask(30157, //
 						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
 						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158))));//

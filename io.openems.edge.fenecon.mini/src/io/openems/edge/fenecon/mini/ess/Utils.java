@@ -82,10 +82,8 @@ public class Utils {
 					case BECU_VOLT:
 					case BECU_WORK_STATE:
 					case SYSTEM_WORK_STATE:
-
 						return new IntegerReadChannel(c, channelId);
 
-					case PCS_MODE:
 					case RTC_DAY:
 					case RTC_HOUR:
 					case RTC_MINUTE:
@@ -93,8 +91,7 @@ public class Utils {
 					case RTC_SECOND:
 					case RTC_YEAR:
 					case SETUP_MODE:
-					case SET_PCS_MODE:
-					case SET_SETUP_MODE:
+					case PCS_MODE:
 					case SET_WORK_STATE:
 						return new IntegerWriteChannel(c, channelId);
 

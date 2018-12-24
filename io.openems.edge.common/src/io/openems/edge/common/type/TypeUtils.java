@@ -16,7 +16,7 @@ import io.openems.edge.common.channel.value.Value;
 public class TypeUtils {
 
 	@SuppressWarnings("unchecked")
-	public static <T> T getAsType(OpenemsType type, Object value) {
+	public static <T> T getAsType(OpenemsType type, Object value) throws IllegalArgumentException {
 		// Extract Value containers
 		if (value instanceof Value<?>) {
 			value = ((Value<?>) value).get();

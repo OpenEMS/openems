@@ -181,6 +181,7 @@ public class Solver {
 			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
 
 			switch (this.strategy) {
+			case UNDEFINED:
 			case ALL_CONSTRAINTS:
 			case NONE:
 				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints);
@@ -239,6 +240,7 @@ public class Solver {
 		PointValuePair solution = null;
 		for (SolverStrategy strategy : strategies) {
 			switch (strategy) {
+			case UNDEFINED:
 			case NONE:
 				break;
 			case ALL_CONSTRAINTS:

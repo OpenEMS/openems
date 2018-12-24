@@ -1,7 +1,6 @@
 package io.openems.edge.ess.refu;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +45,7 @@ public class ErrorHandler implements Runnable {
 		IntegerReadChannel errorHandlerState = this.parent.channel(ChannelId.ERROR_HANDLER_STATE);
 		errorHandlerState.setNextValue(this.currentSystemStateHandling.getValue());
 
-		Optional<Enum<?>> systemStateOpt = this.parent.channel(ChannelId.SYSTEM_STATE).value().asEnumOptional();
-		SystemState systemState;
-		if (systemStateOpt.isPresent()) {
-			systemState = (SystemState) systemStateOpt.get();
-		} else {
-			systemState = SystemState.UNDEFINED;
-		}
+		SystemState systemState = this.parent.channel(ChannelId.SYSTEM_STATE).value().asEnum();
 		IntegerWriteChannel setWorkStateChannel = this.parent.channel(ChannelId.SET_WORK_STATE);
 		IntegerWriteChannel systemErrorResetChannel = this.parent.channel(ChannelId.SET_SYSTEM_ERROR_RESET);
 

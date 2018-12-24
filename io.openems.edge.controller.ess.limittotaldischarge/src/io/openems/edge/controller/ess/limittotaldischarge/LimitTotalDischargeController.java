@@ -136,6 +136,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			stateChanged = false;
 
 			switch (this.state) {
+			case UNDEFINED:
 			case NORMAL:
 				/*
 				 * Normal State

@@ -316,13 +316,12 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	}
 	
 	public enum State implements OptionsEnum {
-		UNDEFINED(0, "Undefined"),
-		INITIALIZING(1, "Initializing"),
-		NO_VALUES_PRESENT(2, "No values present"),
-		NORMAL(3, "Normal"),
-		PENDING(4, "Pending"),
-		CHARGING(5, "Charging"), 
-		;
+		UNDEFINED(-1, "Undefined"), //
+		INITIALIZING(1, "Initializing"), //
+		NO_VALUES_PRESENT(2, "No values present"), //
+		NORMAL(3, "Normal"), //
+		PENDING(4, "Pending"), //
+		CHARGING(5, "Charging");
 
 		@Override
 		public int getValue() {
@@ -330,17 +329,22 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		}
 
 		@Override
-		public String getOption() {
-			return this.option;
+		public String getName() {
+			return this.name;
 		}
 		
-		State(int value, String option) {
+		State(int value, String name) {
 			this.value = value;
-			this.option = option;
+			this.name = name;
 		}
 		
 		private int value;
-		private String option;		
+		private String name;		
+	
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
 	}
 
 }

@@ -1,7 +1,5 @@
 package io.openems.edge.controller.symmetric.peakshaving;
 
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -21,6 +19,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
@@ -88,11 +87,11 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		Optional<Enum<?>> gridMode = this.ess.getGridMode().value().asEnumOptional();
-		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) == SymmetricEss.GridMode.UNDEFINED) {
-			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
+		GridMode gridMode = this.ess.getGridMode().value().asEnum();
+		if (gridMode.isUndefined()) {
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode != SymmetricEss.GridMode.ON_GRID) {
 			return;
 		}
 

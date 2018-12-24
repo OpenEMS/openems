@@ -35,7 +35,6 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -106,12 +105,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 
 	private void initializeCallbacks() {
 		this.channel(ChannelId.BMS_CONTACTOR_CONTROL).onChange(value -> {
-			Optional<Enum<?>> ccOpt = value.asEnumOptional();
-			if (!ccOpt.isPresent()) {
-				return;
-			}
-
-			ContactorControl cc = (ContactorControl) ccOpt.get();
+			ContactorControl cc = value.asEnum();
 
 			switch (cc) {
 			case CONNECTION_INITIATING:
@@ -171,11 +165,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 
 		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
-		Optional<Enum<?>> ccOpt = contactorControlChannel.value().asEnumOptional();
-		if (!ccOpt.isPresent()) {
-			return;
-		}
-		ContactorControl cc = (ContactorControl) ccOpt.get();
+		ContactorControl cc = contactorControlChannel.value().asEnum();
 
 		if (cc == ContactorControl.CONNECTION_INITIATING) {
 			if (timeForSystemInitialization == null || timeForSystemInitialization
@@ -247,76 +237,6 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 			isStopping = true;
 		} catch (OpenemsException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
-		}
-	}
-
-	public enum ChargeIndication implements OptionsEnum {
-
-		STANDING(0, "Standing"), DISCHARGING(1, "Discharging"), CHARGING(2, "Charging");
-
-		private int value;
-		private String option;
-
-		private ChargeIndication(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
-		}
-	}
-
-	public enum ContactorControl implements OptionsEnum {
-
-		CUT_OFF(0, "Cut off"), CONNECTION_INITIATING(1, "Connection initiating"), ON_GRID(3, "On grid");
-
-		int value;
-		String option;
-
-		private ContactorControl(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
-		}
-	}
-
-	public enum ClusterRunState implements OptionsEnum {
-
-		NORMAL(0, "Normal"), STOP_CHARGING(1, "Stop charging"), STOP_DISCHARGE(2, "Stop discharging"),
-		STANDBY(3, "Standby");
-
-		private int value;
-		private String option;
-
-		private ClusterRunState(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
 		}
 	}
 

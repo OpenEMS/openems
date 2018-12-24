@@ -205,7 +205,7 @@ public class RestHandler extends AbstractHandler {
 		// set channel value
 		try {
 			if (jValue.isJsonNull()) {
-				channel.setNextWriteValue(null);
+				channel.setNextWriteValueFromObject(null);
 			} else {
 				channel.setNextWriteValueFromObject(jValue.toString());
 			}

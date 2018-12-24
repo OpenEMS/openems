@@ -144,8 +144,6 @@ public class Utils {
 					case RTC_SECOND:
 					case RTC_YEAR:
 					case SETUP_MODE:
-					case SET_PCS_MODE:
-					case SET_SETUP_MODE:
 					case SET_WORK_STATE:
 					case SET_ACTIVE_POWER_L1:
 					case SET_ACTIVE_POWER_L2:

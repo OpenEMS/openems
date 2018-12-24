@@ -25,7 +25,12 @@ enum SystemState implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
+	public String getName() {
 		return option;
 	}
+	
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
+	}	
 }
