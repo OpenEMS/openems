@@ -1,7 +1,6 @@
 package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -14,13 +13,9 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
-public abstract class AbstractWordElement<T> extends AbstractModbusRegisterElement<T> {
-
-	private final static ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
+public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
-
-	protected ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
 
 	public AbstractWordElement(OpenemsType type, int startAddress) {
 		super(type, startAddress);
@@ -72,4 +67,5 @@ public abstract class AbstractWordElement<T> extends AbstractModbusRegisterEleme
 	 * @return
 	 */
 	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
+
 }
