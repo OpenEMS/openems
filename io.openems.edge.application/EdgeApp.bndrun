@@ -51,6 +51,7 @@ JPM-Command:				openems-edge
 	bnd.identity;id=io.openems.edge.ess.refu,\
 	bnd.identity;id=io.openems.edge.ess.streetscooter,\
 	bnd.identity;id=io.openems.edge.evcs.keba.kecontact,\
+	bnd.identity;id=io.openems.edge.fenecon.dess,\
 	bnd.identity;id=io.openems.edge.fenecon.mini,\
 	bnd.identity;id=io.openems.edge.fenecon.pro,\
 	bnd.identity;id=io.openems.edge.io.kmtronic,\
@@ -115,6 +116,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.refu;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
+	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
