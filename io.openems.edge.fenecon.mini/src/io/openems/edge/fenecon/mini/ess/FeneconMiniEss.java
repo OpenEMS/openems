@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -63,6 +64,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
 		this.getPhase().setNextValue(config.Phase());
+		SinglePhaseEss.initializeCopyPhaseChannel(this, config.Phase());
 	}
 
 	@Deactivate
@@ -76,13 +78,9 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		BATTERY_GROUP_STATE(new Doc().options(BatteryGroupState.values())), //
 		SET_WORK_STATE(new Doc().options(SetWorkState.values())),
 
-		SOC(new Doc().unit(Unit.PERCENT)), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
-		ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
-		ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
-		ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
 
 		BECU1_CHARGE_CURRENT(new Doc().unit(Unit.AMPERE)), //
 		BECU1_DISCHARGE_CURRENT(new Doc().unit(Unit.AMPERE)), //
@@ -298,7 +296,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(100, Priority.HIGH, //
+				new FC3ReadRegistersTask(100, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
 						m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
 						new DummyRegisterElement(102, 103), //
@@ -308,14 +306,17 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(109), //
 						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
 						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(112))), //
+						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
 				new FC3ReadRegistersTask(2007, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007))), //
+						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
+								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(2107, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107))), //
+						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107),
+								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(2207, Priority.HIGH, //
-						m(FeneconMiniEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207))), //
-				new FC3ReadRegistersTask(3000, Priority.HIGH, //
+						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
+								UNSIGNED_POWER_CONVERTER)), //
+				new FC3ReadRegistersTask(3000, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.BECU1_CHARGE_CURRENT, new UnsignedWordElement(3000)), //
 						m(FeneconMiniEss.ChannelId.BECU1_DISCHARGE_CURRENT, new UnsignedWordElement(3001)), //
 						m(FeneconMiniEss.ChannelId.BECU1_VOLT, new UnsignedWordElement(3002)), //
@@ -393,7 +394,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.BECU1_MAX_TEMP_NO, new UnsignedWordElement(3018)), //
 						m(FeneconMiniEss.ChannelId.BECU1_MAX_TEMP, new UnsignedWordElement(3019))), //
 
-				new FC3ReadRegistersTask(3200, Priority.HIGH, //
+				new FC3ReadRegistersTask(3200, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
 						m(FeneconMiniEss.ChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
 						m(FeneconMiniEss.ChannelId.BECU2_VOLT, new UnsignedWordElement(3202)), //
@@ -470,10 +471,10 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP, new UnsignedWordElement(3217)), //
 						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP_NO, new UnsignedWordElement(3218)), //
 						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP, new UnsignedWordElement(3219))), //
-				new FC3ReadRegistersTask(4000, Priority.HIGH, //
+				new FC3ReadRegistersTask(4000, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_STATE, new UnsignedDoublewordElement(4000)), //
 						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_MODE_STATE, new UnsignedDoublewordElement(4002))), //
-				new FC3ReadRegistersTask(4800, Priority.HIGH, //
+				new FC3ReadRegistersTask(4800, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.BECU_NUM, new UnsignedWordElement(4800)), //
 						// TODO BECU_WORK_STATE has been implemented with both registers(4801 and 4807)
 						m(FeneconMiniEss.ChannelId.BECU_WORK_STATE, new UnsignedWordElement(4801)), //
@@ -534,7 +535,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812))//
 				), //
 
-				new FC3ReadRegistersTask(30166, Priority.HIGH, //
+				new FC3ReadRegistersTask(30166, Priority.LOW, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166))), //
 				new FC16WriteRegistersTask(9014, //
 						m(FeneconMiniEss.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
@@ -568,4 +569,19 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 				ModbusSlaveNatureTable.of(FeneconMiniEss.class, 300) //
 						.build());
 	}
+
+	private final static ElementToChannelConverter UNSIGNED_POWER_CONVERTER = new ElementToChannelConverter( //
+			// element -> channel
+			value -> {
+				if (value == null) {
+					return null;
+				}
+				int intValue = (Integer) value;
+				if (intValue == 0) {
+					return 0; // ignore '0'
+				}
+				return intValue - 10_000; // apply delta of 10_000
+			}, //
+				// channel -> element
+			value -> value);
 }
