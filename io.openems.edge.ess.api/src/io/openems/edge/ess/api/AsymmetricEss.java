@@ -1,11 +1,14 @@
 package io.openems.edge.ess.api;
 
+import java.util.function.Consumer;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
@@ -182,5 +185,34 @@ public interface AsymmetricEss extends SymmetricEss {
 	 */
 	default Channel<Integer> getReactivePowerL3() {
 		return this.channel(ChannelId.REACTIVE_POWER_L3);
+	}
+
+	/**
+	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
+	 * value as the sum of L1 + L2 + L3.
+	 * 
+	 * @param ess
+	 * @param phase
+	 */
+	public static void initializePowerSumChannels(AsymmetricEss ess) {
+		// Active Power
+		final Consumer<Value<Integer>> activePowerSum = ignore -> {
+			int sum = ess.getActivePowerL1().value().orElse(0) + ess.getActivePowerL2().value().orElse(0)
+					+ ess.getActivePowerL3().value().orElse(0);
+			ess.getActivePower().setNextValue(sum);
+		};
+		ess.getActivePowerL1().onSetNextValue(activePowerSum);
+		ess.getActivePowerL2().onSetNextValue(activePowerSum);
+		ess.getActivePowerL3().onSetNextValue(activePowerSum);
+
+		// Reactive Power
+		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
+			int sum = ess.getReactivePowerL1().value().orElse(0) + ess.getReactivePowerL2().value().orElse(0)
+					+ ess.getReactivePowerL3().value().orElse(0);
+			ess.getReactivePower().setNextValue(sum);
+		};
+		ess.getReactivePowerL1().onSetNextValue(reactivePowerSum);
+		ess.getReactivePowerL2().onSetNextValue(reactivePowerSum);
+		ess.getReactivePowerL3().onSetNextValue(reactivePowerSum);
 	}
 }

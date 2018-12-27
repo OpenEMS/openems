@@ -1,9 +1,12 @@
 package io.openems.edge.meter.api;
 
+import java.util.function.Consumer;
+
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.value.Value;
 
 /**
  * Represents an Asymmetric Meter.
@@ -245,4 +248,32 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		return this.channel(ChannelId.REACTIVE_POWER_L3);
 	}
 
+	/**
+	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
+	 * value as the sum of L1 + L2 + L3.
+	 * 
+	 * @param ess
+	 * @param phase
+	 */
+	public static void initializePowerSumChannels(AsymmetricMeter meter) {
+		// Active Power
+		final Consumer<Value<Integer>> activePowerSum = ignore -> {
+			int sum = meter.getActivePowerL1().value().orElse(0) + meter.getActivePowerL2().value().orElse(0)
+					+ meter.getActivePowerL3().value().orElse(0);
+			meter.getActivePower().setNextValue(sum);
+		};
+		meter.getActivePowerL1().onSetNextValue(activePowerSum);
+		meter.getActivePowerL2().onSetNextValue(activePowerSum);
+		meter.getActivePowerL3().onSetNextValue(activePowerSum);
+
+		// Reactive Power
+		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
+			int sum = meter.getReactivePowerL1().value().orElse(0) + meter.getReactivePowerL2().value().orElse(0)
+					+ meter.getReactivePowerL3().value().orElse(0);
+			meter.getReactivePower().setNextValue(sum);
+		};
+		meter.getReactivePowerL1().onSetNextValue(reactivePowerSum);
+		meter.getReactivePowerL2().onSetNextValue(reactivePowerSum);
+		meter.getReactivePowerL3().onSetNextValue(reactivePowerSum);
+	}
 }
