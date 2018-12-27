@@ -45,6 +45,9 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 
 	public FeneconDessPvMeter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+
+		// automatically calculate Active/ReactivePower from L1/L2/L3
+		AsymmetricMeter.initializePowerSumChannels(this);
 	}
 
 	@Activate
@@ -66,12 +69,12 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(11144, Priority.LOW, //
+				new FC3ReadRegistersTask(11144, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11144), DELTA_10000)), //
-				new FC3ReadRegistersTask(11174, Priority.LOW, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11144), DELTA_10000)), //
-				new FC3ReadRegistersTask(11204, Priority.LOW, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11144), DELTA_10000)) //
+				new FC3ReadRegistersTask(11174, Priority.HIGH, //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11174), DELTA_10000)), //
+				new FC3ReadRegistersTask(11204, Priority.HIGH, //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11204), DELTA_10000)) //
 		);
 	}
 
@@ -95,7 +98,7 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 				if (intValue == 0) {
 					return 0; // ignore '0'
 				}
-				return (intValue - 10_000) * -1; // apply delta of 10_000 and invert
+				return (intValue - 10_000); // apply delta of 10_000
 			}, //
 				// channel -> element
 			value -> value);
