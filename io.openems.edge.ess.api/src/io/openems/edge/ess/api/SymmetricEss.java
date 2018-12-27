@@ -56,7 +56,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		SOC(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)),
 		/**
 		 * Grid-Mode
 		 * 
@@ -66,7 +68,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(new Doc().type(OpenemsType.INTEGER).options(GridMode.values())),
+		GRID_MODE(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.options(GridMode.values())),
 		/**
 		 * Active Power
 		 * 
@@ -108,7 +112,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_APPARENT_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
+		MAX_APPARENT_POWER(new Doc() //
+				.unit(Unit.VOLT_AMPERE)), //
 		/**
 		 * Active Charge Energy
 		 * 
@@ -119,7 +124,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Active Discharge Energy
@@ -131,7 +136,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
