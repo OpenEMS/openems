@@ -267,4 +267,48 @@ public class TypeUtils {
 		}
 		throw new IllegalArgumentException("Converter for value [" + value + "] to JSON is not implemented.");
 	}
+
+	/**
+	 * Safely add Integers. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public static Integer sum(Integer... values) {
+		Integer result = null;
+		for (Integer value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
+	 * are null, 'null' is returned.
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public static Long sum(Long... values) {
+		Long result = null;
+		for (Long value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
 }

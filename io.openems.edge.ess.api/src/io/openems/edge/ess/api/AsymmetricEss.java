@@ -11,6 +11,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.common.type.TypeUtils;
 
 @ProviderType
 public interface AsymmetricEss extends SymmetricEss {
@@ -197,9 +198,10 @@ public interface AsymmetricEss extends SymmetricEss {
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power
 		final Consumer<Value<Integer>> activePowerSum = ignore -> {
-			int sum = ess.getActivePowerL1().value().orElse(0) + ess.getActivePowerL2().value().orElse(0)
-					+ ess.getActivePowerL3().value().orElse(0);
-			ess.getActivePower().setNextValue(sum);
+			ess.getActivePower().setNextValue(TypeUtils.sum(//
+					ess.getActivePowerL1().value().get(), //
+					ess.getActivePowerL2().value().get(), //
+					ess.getActivePowerL3().value().get()));
 		};
 		ess.getActivePowerL1().onSetNextValue(activePowerSum);
 		ess.getActivePowerL2().onSetNextValue(activePowerSum);
@@ -207,9 +209,10 @@ public interface AsymmetricEss extends SymmetricEss {
 
 		// Reactive Power
 		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
-			int sum = ess.getReactivePowerL1().value().orElse(0) + ess.getReactivePowerL2().value().orElse(0)
-					+ ess.getReactivePowerL3().value().orElse(0);
-			ess.getReactivePower().setNextValue(sum);
+			ess.getReactivePower().setNextValue(TypeUtils.sum(//
+					ess.getReactivePowerL1().value().get(), //
+					ess.getReactivePowerL2().value().get(), //
+					ess.getReactivePowerL3().value().get()));
 		};
 		ess.getReactivePowerL1().onSetNextValue(reactivePowerSum);
 		ess.getReactivePowerL2().onSetNextValue(reactivePowerSum);
