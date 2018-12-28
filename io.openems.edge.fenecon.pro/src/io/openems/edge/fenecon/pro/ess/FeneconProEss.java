@@ -33,7 +33,6 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -71,6 +70,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	public FeneconProEss() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+
+		AsymmetricEss.initializePowerSumChannels(this);
 	}
 
 	@Override
@@ -113,10 +114,9 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		return modbusBridgeId;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.HIGH, //
 						m(FeneconProEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
 						m(FeneconProEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
@@ -436,24 +436,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(FeneconProEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157)), //
 						m(FeneconProEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158)))//
 
-		);//
-
-		new ChannelMergerSumInteger( //
-				/* target */ this.getActivePower(), //
-				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.getActivePowerL1(), //
-						this.getActivePowerL2(), //
-						this.getActivePowerL3() //
-				});
-		new ChannelMergerSumInteger( //
-				/* target */ this.getReactivePower(), //
-				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.getReactivePowerL1(), //
-						this.getReactivePowerL2(), //
-						this.getReactivePowerL3() //
-				});
-
-		return protocol;
+		);
 	}
 
 	@Override
