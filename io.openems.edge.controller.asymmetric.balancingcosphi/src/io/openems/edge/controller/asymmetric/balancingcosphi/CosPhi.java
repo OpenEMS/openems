@@ -43,6 +43,10 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 	private CosPhiDirection direction = DEFAULT_DIRECTION;
 	private double cosPhi = DEFAULT_COS_PHI;
 
+	public CosPhi() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());

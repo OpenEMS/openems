@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class FixDigitalOutput extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(FixDigitalOutput.class);
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -42,6 +42,10 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	 * Takes the configured "isOn" setting.
 	 */
 	private boolean isOn = false;
+	
+	public FixDigitalOutput() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {

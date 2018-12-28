@@ -51,6 +51,10 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Api
 	@Reference
 	protected UserService userService;
 
+	public RestApi() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());

@@ -41,6 +41,10 @@ public class AsymmetricFixActivePower extends AbstractOpenemsComponent implement
 	private int powerL2 = 0;
 	private int powerL3 = 0;
 
+	public AsymmetricFixActivePower() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());

@@ -32,6 +32,10 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 
 	private final Logger log = LoggerFactory.getLogger(ChannelThreshold.class);
 
+	public ChannelThreshold() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -267,9 +271,8 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 *
-	 * @param value
-	 *            true to switch ON, false to switch ON; is inverted if
-	 *            'invertOutput' config is set
+	 * @param value true to switch ON, false to switch ON; is inverted if
+	 *              'invertOutput' config is set
 	 */
 	private void setOutput(boolean value) {
 		Optional<Boolean> currentValueOpt = this.outputChannel.value().asOptional();

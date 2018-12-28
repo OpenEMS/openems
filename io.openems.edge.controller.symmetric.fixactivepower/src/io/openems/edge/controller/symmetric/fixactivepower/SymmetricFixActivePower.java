@@ -39,6 +39,10 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	 */
 	private int power = 0;
 
+	public SymmetricFixActivePower() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());

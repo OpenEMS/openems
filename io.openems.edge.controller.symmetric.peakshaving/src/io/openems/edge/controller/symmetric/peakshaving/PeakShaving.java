@@ -36,7 +36,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class PeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PeakShaving.class);
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -54,6 +54,10 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	 * If grid purchase power is below this value battery is recharged.
 	 */
 	private int rechargePower;
+	
+	public PeakShaving() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {

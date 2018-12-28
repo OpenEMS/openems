@@ -28,7 +28,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class SymmetricFixReactivePower extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(SymmetricFixReactivePower.class);
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -38,6 +38,10 @@ public class SymmetricFixReactivePower extends AbstractOpenemsComponent implemen
 	 * negative values for Charge; positive for Discharge
 	 */
 	private int power = 0;
+	
+	public SymmetricFixReactivePower() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {

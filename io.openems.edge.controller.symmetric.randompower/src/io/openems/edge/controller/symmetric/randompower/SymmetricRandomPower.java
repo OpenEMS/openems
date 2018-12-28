@@ -30,12 +30,16 @@ import io.openems.edge.ess.power.api.Relationship;
 public class SymmetricRandomPower extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(SymmetricRandomPower.class);
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	private int minPower = 0;
 	private int maxPower = 0;
+	
+	public SymmetricRandomPower() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {

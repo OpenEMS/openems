@@ -35,7 +35,11 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 
 	private List<OpenemsComponent> _components = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(!(service.factoryPid=Controller.Debug.Log))")
+	@Reference( //
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(&(enabled=true)(!(service.factoryPid=Controller.Debug.Log)))")
 	void addComponent(OpenemsComponent component) {
 		if (component.isEnabled()) {
 			this._components.add(component);
@@ -44,6 +48,10 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 
 	void removeComponent(OpenemsComponent component) {
 		this._components.remove(component);
+	}
+
+	public DebugLog() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

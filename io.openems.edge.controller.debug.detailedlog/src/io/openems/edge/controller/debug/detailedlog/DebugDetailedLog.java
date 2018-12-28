@@ -50,7 +50,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 
 	@Reference
 	protected ConfigurationAdmin cm;
-
+	
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	void addComponent(OpenemsComponent component) {
 		this._components.add(component);
@@ -58,6 +58,10 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 
 	void removeComponent(OpenemsComponent component) {
 		this._components.remove(component);
+	}
+	
+	public DebugDetailedLog() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

@@ -25,7 +25,7 @@ import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterFixPowerLimit.class);
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -33,6 +33,10 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 	 * the configured Power Limit
 	 */
 	private int powerLimit = 0;
+	
+	public PvInverterFixPowerLimit() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {

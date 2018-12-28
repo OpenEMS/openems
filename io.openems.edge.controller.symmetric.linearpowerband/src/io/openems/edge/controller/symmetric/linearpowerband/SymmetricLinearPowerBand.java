@@ -28,7 +28,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(SymmetricLinearPowerBand.class);
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -40,6 +40,10 @@ public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implement
 
 	enum State {
 		DOWNWARDS, UPWARDS
+	}
+	
+	public SymmetricLinearPowerBand() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

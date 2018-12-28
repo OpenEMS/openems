@@ -63,6 +63,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	protected HighLoadTimeslot(Clock clock) {
 		this.clock = clock;
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

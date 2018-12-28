@@ -91,6 +91,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 
 	public ModbusTcpApi() {
 		this.processImage = new MyProcessImage(this);
+		
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

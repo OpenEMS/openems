@@ -45,6 +45,10 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 	 */
 	private int maxDischargePower = 0;
 
+	public SymmetricLimitActivePower() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());

@@ -81,7 +81,6 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	public LimitTotalDischargeController() {
 		this(Clock.systemDefaultZone());
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	protected LimitTotalDischargeController(Clock clock) {

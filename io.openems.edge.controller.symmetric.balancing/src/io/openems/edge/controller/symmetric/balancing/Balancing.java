@@ -31,6 +31,10 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
+	public Balancing() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
