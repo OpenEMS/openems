@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 public interface WriteChannel<T> extends Channel<T> {
@@ -24,7 +25,7 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * @param value
 	 * @throws OpenemsException
 	 */
-	public default void setNextWriteValue(Enum<?> value) throws OpenemsException {
+	public default void setNextWriteValue(OptionsEnum value) throws OpenemsException {
 		this.setNextWriteValueFromObject(value);
 	}
 
@@ -66,7 +67,9 @@ public interface WriteChannel<T> extends Channel<T> {
 	 */
 	public default Optional<T> getNextWriteValueAndReset() {
 		Optional<T> valueOpt = this._getNextWriteValue();
-		this._setNextWriteValue(null);
+		if (valueOpt.isPresent()) {
+			this._setNextWriteValue(null);
+		}
 		return valueOpt;
 	}
 

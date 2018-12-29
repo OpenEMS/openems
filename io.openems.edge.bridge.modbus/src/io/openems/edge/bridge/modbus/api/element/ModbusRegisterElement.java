@@ -42,7 +42,9 @@ public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 	public default Optional<Register[]> getNextWriteValueAndReset() {
 		Optional<Register[]> valueOpt = this.getNextWriteValue();
 		try {
-			this._setNextWriteValue(Optional.empty());
+			if (valueOpt.isPresent()) {
+				this._setNextWriteValue(Optional.empty());
+			}
 		} catch (OpenemsException e) {
 			// can be safely ignored
 		}
