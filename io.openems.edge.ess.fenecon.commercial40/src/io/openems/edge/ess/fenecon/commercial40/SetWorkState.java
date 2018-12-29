@@ -4,9 +4,9 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum SetWorkState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	START(4, "Start"), //
+	STOP(4, "Stop"), //
 	STANDBY(32, "Standby"), //
-	STOP(64, "Stop");
+	START(64, "Start"); //
 
 	private final int value;
 	private final String name;
