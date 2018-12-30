@@ -1,8 +1,7 @@
 site:
   title: Open Energy Management System
-  # the 404 page and sitemap files only get generated when the url property is set
-  url: https://docs.antora.org
-  start_page: openems::introduction.adoc
+  url: http://openems.io
+
 content:
   sources:
     - url: /antora/.git
@@ -15,4 +14,3 @@ ui:
 
 output:
   dir: /antora/build/www
-
