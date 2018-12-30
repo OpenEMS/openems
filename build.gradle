@@ -27,6 +27,6 @@ node {
 
 task antora(type: NodeTask) {
     dependsOn npmInstall
-    script = file("/doc/build/node_modules/@antora/cli/bin/antora")
+    script = file("doc/build/node_modules/@antora/cli/bin/antora")
     args = ["doc/build/site.yml"]
 }
