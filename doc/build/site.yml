@@ -4,13 +4,13 @@ site:
 
 content:
   sources:
-    - url: /antora/.git
-      branches: 'HEAD'
+    - url: ./../../
+      branches: HEAD
       start_path: doc
 
 ui:
   bundle:
-    url: /antora/doc/build/uibundle_openems.zip
+    url: doc/build/uibundle_openems.zip
 
 output:
-  dir: /antora/build/www
+  dir: build/www
