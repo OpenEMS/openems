@@ -13,15 +13,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -42,12 +40,13 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 */
 	private static final int FORCE_CHARGE_MINUTES = 30;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	private final Logger log = LoggerFactory.getLogger(HighLoadTimeslot.class);
 	private final Clock clock;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss ess;
-
+	private String essId;
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private LocalTime startTime;
@@ -68,6 +67,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.essId = config.ess();
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
@@ -87,8 +87,10 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	@Override
 	public void run() {
-		int power = getPower();
-		this.applyPower(power);
+		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
+
+		int power = getPower(ess);
+		this.applyPower(ess, power);
 	}
 
 	private ChargeState chargeState = ChargeState.NORMAL;
@@ -98,7 +100,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 * 
 	 * @return
 	 */
-	private int getPower() {
+	private int getPower(ManagedSymmetricEss ess) {
 		LocalDateTime now = LocalDateTime.now(this.clock);
 		if (this.isHighLoadTimeslot(now)) {
 			/*
@@ -123,7 +125,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 			 * charge with configured charge-power
 			 */
 			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + this.chargePower + "]");
-			int minPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 			if (minPower >= 0) {
 				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
 				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
@@ -136,8 +138,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 			 * block charging till configured hysteresisSoc
 			 */
 			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
-			if (this.ess.getSoc().value().orElse(0) <= this.hysteresisSoc) {
-				this.logInfo(log, "SoC [" + this.ess.getSoc().value().orElse(0) + " <= " + this.hysteresisSoc
+			if (ess.getSoc().value().orElse(0) <= this.hysteresisSoc) {
+				this.logInfo(log, "SoC [" + ess.getSoc().value().orElse(0) + " <= " + this.hysteresisSoc
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.NORMAL;
 			}
@@ -251,7 +253,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 * 
 	 * @param activePower
 	 */
-	private void applyPower(int activePower) {
+	private void applyPower(ManagedSymmetricEss ess, int activePower) {
 		// adjust value so that it fits into Min/MaxActivePower
 		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
 		if (calculatedPower != activePower) {
@@ -260,10 +262,9 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 		// set result
 		try {
-			this.ess.addPowerConstraintAndValidate("HighLoadTimeslot P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
+			ess.addPowerConstraintAndValidate("HighLoadTimeslot P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
 					calculatedPower); //
-			this.ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS,
-					0);
+			ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 		} catch (PowerException e) {
 			this.logError(this.log, e.getMessage());
 		}

@@ -80,10 +80,11 @@ public interface OpenemsComponent {
 	 * Returns a Channel defined by its ChannelId string representation.
 	 * 
 	 * @param channelName
+	 * @throws IllegalArgumentException on error
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends Channel<?>> T channel(String channelName) {
+	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
 		Channel<?> channel = this._channel(channelName);
 		// check for null
 		if (channel == null) {

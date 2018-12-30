@@ -208,11 +208,6 @@ public class TestController {
 			}
 
 			@Override
-			public String ess_target() {
-				return "";
-			}
-
-			@Override
 			public String ess_id() {
 				return "ess0";
 			}
@@ -220,11 +215,6 @@ public class TestController {
 			@Override
 			public boolean enabled() {
 				return true;
-			}
-
-			@Override
-			public String battery_target() {
-				return "";
 			}
 
 			@Override

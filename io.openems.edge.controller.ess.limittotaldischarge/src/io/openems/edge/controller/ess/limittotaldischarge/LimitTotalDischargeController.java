@@ -4,16 +4,12 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +18,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -40,22 +37,20 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	private final Clock clock;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
 	private final int hysteresis = 5 * 60;
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
+	private String essId;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
 	private Optional<Integer> forceChargePower = Optional.empty();
 	private State state = State.NORMAL;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected ManagedSymmetricEss ess;
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		STATE_MACHINE(new Doc() //
@@ -91,11 +86,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
-			return;
-		}
 
+		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
 		if (config.forceChargePower() > 0) {
@@ -119,8 +111,10 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Override
 	public void run() {
+		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
+
 		// Set to normal state and return if SoC is not available
-		Optional<Integer> socOpt = this.ess.getSoc().value().asOptional();
+		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
 		if (!socOpt.isPresent()) {
 			this.state = State.NORMAL;
 			return;
@@ -177,7 +171,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				if (this.forceChargePower.isPresent()) {
 					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
 				} else {
-					int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 					calculatedPower = maxCharge / 5;
 				}
 
@@ -197,7 +191,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 		// Apply Force-Charge if it was set
 		try {
-			this.ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
 		} catch (OpenemsException e) {
 			this.logError(this.log, e.getMessage());
 		}

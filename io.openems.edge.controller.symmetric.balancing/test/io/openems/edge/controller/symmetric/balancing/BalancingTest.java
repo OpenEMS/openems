@@ -5,9 +5,11 @@ import org.junit.Test;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class BalancingTest {
@@ -33,17 +35,6 @@ public class BalancingTest {
 		public String meter_id() {
 			return this.meterId;
 		}
-
-		@Override
-		public String ess_target() {
-			return "";
-		}
-
-		@Override
-		public String meter_target() {
-			return "";
-		}
-
 	}
 
 	@Test
@@ -51,9 +42,8 @@ public class BalancingTest {
 		// Initialize Controller
 		Balancing controller = new Balancing();
 		// Add referenced services
-		controller.cm = new DummyConfigurationAdmin();
-		controller.ess = new DummyManagedSymmetricEss("ess0");
-		controller.meter = new DummySymmetricMeter("meter0");
+		DummyComponentManager componentManager = new DummyComponentManager();
+		controller.componentManager = componentManager;
 		// Activate (twice, so that reference target is set)
 		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0");
 		controller.activate(null, config);
@@ -63,7 +53,9 @@ public class BalancingTest {
 		ChannelAddress meter0ActivePower = new ChannelAddress("meter0", "ActivePower");
 		ChannelAddress ess0SetActivePowerEquals = new ChannelAddress("ess0", "SetActivePowerEquals");
 		// Build and run test
-		new ControllerTest(controller, controller.ess, controller.meter) //
+		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
+		SymmetricMeter meter = new DummySymmetricMeter("meter0");
+		new ControllerTest(controller, componentManager, ess, meter) //
 				.next(new TestCase() //
 						.input(ess0ActivePower, 1000).input(meter0ActivePower, 2000) //
 						.output(ess0SetActivePowerEquals, 3000)) //

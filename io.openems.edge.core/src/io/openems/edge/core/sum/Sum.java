@@ -299,7 +299,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.AT_LEAST_ONE, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Core.Sum)))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 

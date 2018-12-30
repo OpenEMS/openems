@@ -146,8 +146,17 @@ public abstract class AbstractComponentTest {
 	private final List<TestCase> testCases = new ArrayList<>();
 
 	public AbstractComponentTest(OpenemsComponent... components) {
+		// store Components
 		for (OpenemsComponent component : components) {
 			this.components.put(component.id(), component);
+		}
+	}
+
+	public AbstractComponentTest(OpenemsComponent[] components, DummyComponentManager componentManager) {
+		this(components);
+		// forward Components to ComponentManager
+		for (OpenemsComponent c : components) {
+			componentManager.addComponent(c);
 		}
 	}
 

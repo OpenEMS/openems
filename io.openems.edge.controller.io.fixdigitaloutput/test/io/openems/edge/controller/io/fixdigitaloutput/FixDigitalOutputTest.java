@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
@@ -33,11 +34,6 @@ public class FixDigitalOutputTest {
 			return this.isOn;
 		}
 
-		@Override
-		public String outputComponent_target() {
-			return "";
-		}
-
 	}
 
 	@Test
@@ -55,14 +51,16 @@ public class FixDigitalOutputTest {
 		FixDigitalOutput controller = new FixDigitalOutput();
 		// Add referenced services
 		controller.cm = new DummyConfigurationAdmin();
-		controller.outputComponent = new DummyInputOutput("io0");
+		DummyComponentManager componentManager = new DummyComponentManager();
+		controller.componentManager = componentManager;
 		// Activate (twice, so that reference target is set)s
 		ChannelAddress output0 = new ChannelAddress("io0", "InputOutput0");
 		MyConfig config = new MyConfig("ctrl0", output0.toString(), on);
 		controller.activate(null, config);
 		controller.activate(null, config);
 		// Build and run test
-		new ControllerTest(controller, controller.outputComponent) //
+		DummyInputOutput io0 = new DummyInputOutput("io0");
+		new ControllerTest(controller, componentManager, io0) //
 				.next(new TestCase().output(output0, on)) //
 				.run();
 	}
