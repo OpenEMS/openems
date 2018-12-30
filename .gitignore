@@ -101,6 +101,8 @@ local.properties
 
 # Log file
 *.log
+# do not ignore directories ending in 'log'
+!*.log/
 
 # BlueJ files
 *.ctxt
