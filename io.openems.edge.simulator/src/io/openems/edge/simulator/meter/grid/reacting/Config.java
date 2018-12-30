@@ -3,7 +3,7 @@ package io.openems.edge.simulator.meter.grid.reacting;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Simulator GridMeter Reacting", //
 		description = "This simulates an 'reacting' Grid meter.")
 @interface Config {

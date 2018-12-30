@@ -33,7 +33,7 @@ import io.openems.edge.simulator.meter.MeterUtils;
 @Component(name = "Simulator.NRCMeter.Acting", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class NRCMeter extends AbstractOpenemsComponent
+public class NrcMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -74,7 +74,7 @@ public class NRCMeter extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	public NRCMeter() {
+	public NrcMeter() {
 		MeterUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 

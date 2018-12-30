@@ -1,4 +1,5 @@
 package io.openems.edge.controller.api.rest;
+
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -8,7 +9,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(RestApi c) {
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:

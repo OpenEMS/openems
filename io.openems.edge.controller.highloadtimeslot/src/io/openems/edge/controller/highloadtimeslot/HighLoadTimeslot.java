@@ -201,9 +201,9 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Is the time of 'dateTime' within startTime and endTime?
 	 * 
-	 * @param currentTime
-	 * @param starttime
+	 * @param startTime
 	 * @param endTime
+	 * @param dateTime
 	 * @return
 	 */
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {

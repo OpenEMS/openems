@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 public class Util {
 
-	private final static Logger log = LoggerFactory.getLogger(Util.class);
+	private static final Logger log = LoggerFactory.getLogger(Util.class);
 
-	private final static String SEPARATOR = ",";
+	private static final String SEPARATOR = ",";
 
 	private static String getFileName(Source source) {
 		if (source == null) {
@@ -69,6 +69,7 @@ public class Util {
 				isr.close();
 				is.close();
 			} catch (IOException e) {
+				// ignore
 			}
 		}
 		return result;

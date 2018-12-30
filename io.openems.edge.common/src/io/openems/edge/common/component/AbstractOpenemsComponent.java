@@ -40,7 +40,10 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	/**
 	 * Handles @Activate of implementations. Prints log output.
 	 * 
+	 * @param context
+	 * @param service_pid
 	 * @param id
+	 * @param enabled
 	 */
 	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
 		if (id == null || id.trim().equals("")) {

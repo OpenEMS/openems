@@ -37,10 +37,10 @@ public abstract class AbstractOnOpen implements Runnable {
 	protected abstract void run(WebSocket websocket, ClientHandshake handshake);
 
 	/**
-	 * Converts a Handshake to a JsonObject
+	 * Converts a Handshake to a JsonObject.
 	 * 
-	 * @param handshake
-	 * @return
+	 * @param handshake the ClientHandshake
+	 * @return the Handshake as a JsonObject
 	 */
 	private JsonObject handshakeToJsonObject(ClientHandshake handshake) {
 		JsonObject j = new JsonObject();
@@ -52,9 +52,10 @@ public abstract class AbstractOnOpen implements Runnable {
 	}
 
 	/**
-	 * Get field from cookie in the handshake
+	 * Get field from cookie in the handshake.
 	 *
-	 * @param handshake
+	 * @param handshake the Handshake
+	 * @param fieldname the field name
 	 * @return value as optional
 	 */
 	protected static Optional<String> getFieldFromHandshakeCookie(ClientHandshake handshake, String fieldname) {

@@ -14,7 +14,7 @@ import io.openems.edge.ess.api.SymmetricEss.GridMode;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(OpenemsComponent c) {
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:

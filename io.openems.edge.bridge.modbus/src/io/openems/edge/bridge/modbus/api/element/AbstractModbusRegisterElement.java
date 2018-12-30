@@ -49,7 +49,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	 * Sets the Byte-Order. Default is "BIG_ENDIAN". See
 	 * http://www.simplymodbus.ca/FAQ.htm#Order.
 	 * 
-	 * @param wordOrder
+	 * @param byteOrder
 	 * @return
 	 */
 	public final E byteOrder(ByteOrder byteOrder) {

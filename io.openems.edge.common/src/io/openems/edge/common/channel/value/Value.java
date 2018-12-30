@@ -128,7 +128,6 @@ public class Value<T> {
 	 *
 	 * @throws IllegalArgumentException no matching Enum option existing
 	 * @return
-	 * @throws InvalidValueException
 	 */
 	@SuppressWarnings("unchecked")
 	public <O extends OptionsEnum> O asEnum() {

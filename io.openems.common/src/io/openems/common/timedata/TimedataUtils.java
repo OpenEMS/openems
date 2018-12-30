@@ -49,7 +49,7 @@ public class TimedataUtils {
 		throw new OpenemsException("Undefined Timedata mode.");
 	}
 
-	private final static Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	public static Integer parseNumberFromName(String name) throws OpenemsException {
 		try {

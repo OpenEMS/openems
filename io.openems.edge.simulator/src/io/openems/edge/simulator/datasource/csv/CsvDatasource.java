@@ -22,7 +22,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class CSVDatasource extends AbstractOpenemsComponent implements SimulatorDatasource, EventHandler {
+public class CsvDatasource extends AbstractOpenemsComponent implements SimulatorDatasource, EventHandler {
 
 	private DataContainer data;
 

@@ -23,12 +23,11 @@ import io.openems.edge.common.channel.value.Value;
  * <li>expected OpenemsType via {@link #getType()}
  * <li>descriptive text via {@link #getText()}
  * <li>a Unit via {@link #getUnit()}
- * <li>possible named option values as String or Enum via
- * {@link #getOption(String)}, {@link #getOption(int)}, {@link #getOption(Enum)}
- * methods
+ * <li>possible named option values {@link OptionsEnum} via
+ * {@link #getOptionFromEnumString(String)}, {@link #getOption(Integer)} methods
  * <li>importance {@link Level} via {@link #getLevel()}
  * <li>is debug mode activated via {@link #isDebug()}
- * <li>callback on initialisation of a Channel via {@link #getOnInitCallback()}
+ * <li>callback on initialization of a Channel via {@link #getOnInitCallback()}
  * </ul>
  */
 public class Doc {

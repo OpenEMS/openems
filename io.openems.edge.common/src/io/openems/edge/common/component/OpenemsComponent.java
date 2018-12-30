@@ -102,10 +102,11 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Returns a Channel defined by its ChannelId
+	 * Returns a Channel defined by its ChannelId.
 	 * 
-	 * @param channelId
-	 * @return
+	 * @param           <T> the Type of the Channel. See {@link Doc#getType()}
+	 * @param channelId the Channel-ID
+	 * @return the Channel
 	 */
 	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
 		T channel = this.<T>channel(channelId.id());

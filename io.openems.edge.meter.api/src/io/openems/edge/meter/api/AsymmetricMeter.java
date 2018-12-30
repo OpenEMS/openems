@@ -254,7 +254,6 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 * value as the sum of L1 + L2 + L3.
 	 * 
 	 * @param meter
-	 * @param phase
 	 */
 	public static void initializePowerSumChannels(AsymmetricMeter meter) {
 		// Active Power

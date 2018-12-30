@@ -12,18 +12,18 @@ public class DataContainer {
 	private int currentIndex = 0;
 
 	/**
-	 * Gets the available keys
+	 * Gets the available keys.
 	 * 
-	 * @return
+	 * @return the Channel-Id
 	 */
 	public Set<String> getKeys() {
 		return keys.keySet();
 	}
 
 	/**
-	 * Sets the keys
+	 * Sets the keys.
 	 * 
-	 * @param keys
+	 * @param keys the Channel-Id
 	 */
 	public void setKeys(String[] keys) {
 		for (int i = 0; i < keys.length; i++) {
@@ -32,35 +32,35 @@ public class DataContainer {
 	}
 
 	/**
-	 * Adds a Record to the end
+	 * Adds a Record to the end.
 	 * 
-	 * @param record
+	 * @param record the record values
 	 */
 	public void addRecord(float[] record) {
 		this.records.add(record);
 	}
 
 	/**
-	 * Gets the current record
+	 * Gets the current record.
 	 * 
-	 * @return
+	 * @return the current record
 	 */
 	public float[] getCurrentRecord() {
 		return this.records.get(currentIndex);
 	}
 
 	/**
-	 * Gets the value for the key from the current record
+	 * Gets the value for the key from the current record.
 	 * 
-	 * @param key
-	 * @return
+	 * @param key the Channel-Id
+	 * @return the record value
 	 */
 	public float getValue(String key) {
 		return this.getCurrentRecord()[this.keys.get(key)];
 	}
 
 	/**
-	 * Switch to the next row of values
+	 * Switch to the next row of values.
 	 */
 	public void nextRecord() {
 		this.currentIndex++;

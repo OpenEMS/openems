@@ -22,22 +22,22 @@ import io.openems.common.utils.JsonUtils;
 
 public abstract class CurrentDataWorker {
 
-	protected final static int UPDATE_INTERVAL_IN_SECONDS = 2;
+	protected static final int UPDATE_INTERVAL_IN_SECONDS = 2;
 
 	private final Logger log = LoggerFactory.getLogger(CurrentDataWorker.class);
 
 	/**
-	 * Executor for subscriptions task
+	 * Executor for subscriptions task.
 	 */
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
 	/**
-	 * Holds thingId and channelId, subscribed by this websocket
+	 * Holds thingId and channelId, subscribed by this websocket.
 	 */
 	private final HashMultimap<String, String> channels = HashMultimap.create();
 
 	/**
-	 * Holds the scheduled task for currentData
+	 * Holds the scheduled task for currentData.
 	 */
 	private Optional<ScheduledFuture<?>> futureOpt = Optional.empty();
 
@@ -95,9 +95,9 @@ public abstract class CurrentDataWorker {
 	}
 
 	/**
-	 * Gets a JSON object with all subscribed channels
+	 * Gets a JSON object with all subscribed channels.
 	 *
-	 * @return
+	 * @return the JsonObject
 	 */
 	private JsonObject getSubscribedData() {
 		JsonObject jData = new JsonObject();

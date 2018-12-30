@@ -193,7 +193,6 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * value as the sum of L1 + L2 + L3.
 	 * 
 	 * @param ess
-	 * @param phase
 	 */
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power

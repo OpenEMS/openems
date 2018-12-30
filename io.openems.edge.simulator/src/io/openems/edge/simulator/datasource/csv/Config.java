@@ -3,7 +3,7 @@ package io.openems.edge.simulator.datasource.csv;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Simulator DataSource: CSV Reader", //
 		description = "This service provides CSV-Input data.")
 @interface Config {
