@@ -300,7 +300,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(service.factoryPid=Core.Sum)))")
+			target = "(&(enabled=true)(!(id=_sum)))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	public Sum() {
@@ -470,6 +470,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 
 	@Override
 	public String debugLog() {
+		Level state = this.getState().value().asEnum();
 		Value<Integer> productionAc = this.getProductionAcActivePower().value();
 		Value<Integer> productionDc = this.getProductionDcActualPower().value();
 		String production;
@@ -480,7 +481,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 					+ ",AC:" + productionAc.asString() //
 					+ ",DC:" + productionDc.asString(); //
 		}
-		return "Ess SoC:" + this.getEssSoc().value().asString() //
+		return "State:" + state.getName() //
+				+ " Ess SoC:" + this.getEssSoc().value().asString() //
 				+ "|L:" + this.getEssActivePower().value().asString() //
 				+ " Grid:" + this.getGridActivePower().value().asString() //
 				+ production //

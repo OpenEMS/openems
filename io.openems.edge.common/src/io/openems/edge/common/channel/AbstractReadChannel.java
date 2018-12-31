@@ -47,7 +47,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 						+ "]. Expected [" + channelId.doc().getType().get() + "].");
 			}
 		}
-		
+
 		// validate Access-Mode
 		switch (channelId.doc().getAccessMode()) {
 		case READ_ONLY:
@@ -66,6 +66,16 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		});
 		// set initial value
 		this.setNextValue(initialValue);
+	}
+
+	@Override
+	public void deactivate() {
+		this.onChangeCallbacks.clear();
+		this.onSetNextValueCallbacks.clear();
+		this.onUpdateCallbacks.clear();
+		if (onSetNextWriteCallbacks != null) {
+			this.onSetNextWriteCallbacks.clear();
+		}
 	}
 
 	@Override
@@ -101,7 +111,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	/**
 	 * Sets the next value. Internal method. Do not call directly.
 	 * 
-	 * @param value
+	 * @param value the next value
 	 */
 	@Deprecated
 	public final void _setNextValue(T value) {
@@ -159,8 +169,8 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	/**
 	 * Validates the Type of the Channel.
 	 * 
-	 * @param expected
-	 * @param actual
+	 * @param expected the expected Type
+	 * @param actual   the actual Type
 	 * @return true if validation ok
 	 */
 	private boolean validateType(OpenemsType expected, OpenemsType actual) {

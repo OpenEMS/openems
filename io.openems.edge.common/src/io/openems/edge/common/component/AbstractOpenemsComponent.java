@@ -17,8 +17,8 @@ import io.openems.edge.common.channel.StateChannel;
  * This is the default implementation of the {@link OpenemsComponent} interface.
  * 
  * {@link #activate(ComponentContext, String, String, boolean)} and
- * {@link #deactivate()} methods should be called by the
- * corresponding methods in the OSGi component.
+ * {@link #deactivate()} methods should be called by the corresponding methods
+ * in the OSGi component.
  */
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
@@ -66,6 +66,10 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected void deactivate() {
 		this.logMessage("Deactivate");
+		// deactivate all Channels
+		for (Channel<?> channel : this.channels.values()) {
+			channel.deactivate();
+		}
 	}
 
 	@Override
@@ -102,18 +106,36 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		return channel;
 	}
 
-	protected void addChannel(Channel<?> channel) {
+	/**
+	 * Adds a Channel to this Component.
+	 * 
+	 * @param channel the Channel
+	 * @throws NullPointerException if the Channel was not initialized.
+	 */
+	protected void addChannel(Channel<?> channel) throws NullPointerException {
 		if (channel == null) {
 			throw new NullPointerException(
 					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
 		}
 		// Add Channel to channels list
 		this.channels.put(channel.channelId().id(), channel);
-		/*
-		 * Handle StateChannels
-		 */
+		// Handle StateChannels
 		if (channel instanceof StateChannel) {
 			this.getState().addChannel((StateChannel) channel);
+		}
+	}
+
+	/**
+	 * Removes a Channel from this Component.
+	 * 
+	 * @param channel the Channel
+	 */
+	protected void removeChannel(Channel<?> channel) {
+		// Add Channel to channels list
+		this.channels.remove(channel.channelId().id(), channel);
+		// Handle StateChannels
+		if (channel instanceof StateChannel) {
+			this.getState().removeChannel((StateChannel) channel);
 		}
 	}
 
