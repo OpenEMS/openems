@@ -20,12 +20,13 @@ import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Modbus", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class ModbusSimulator extends AbstractOpenemsComponent
-		implements BridgeModbus, BridgeModbusSerial, BridgeModbusTcp {
+		implements BridgeModbus, BridgeModbusSerial, BridgeModbusTcp, OpenemsComponent {
 
 	// private final Logger log = LoggerFactory.getLogger(ModbusSimulator.class);
 

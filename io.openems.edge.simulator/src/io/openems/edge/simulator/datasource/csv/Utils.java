@@ -4,13 +4,34 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Util {
+import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.component.OpenemsComponent;
 
-	private static final Logger log = LoggerFactory.getLogger(Util.class);
+public class Utils {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(CsvDatasource c) {
+		return Stream.of(//
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case STATE:
+						return new StateCollectorChannel(c, channelId);
+					}
+					return null;
+					// }), Arrays.stream(ComponentManagerImpl.ChannelId.values()).map(channelId -> {
+					// switch (channelId) {
+					// }
+					// return null;
+				}) //
+		).flatMap(channel -> channel);
+	}
+
+	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
 	private static final String SEPARATOR = ",";
 
@@ -31,7 +52,7 @@ public class Util {
 
 	protected static DataContainer getValues(Source source, float multiplier) {
 		DataContainer result = new DataContainer();
-		String fileName = Util.getFileName(source);
+		String fileName = Utils.getFileName(source);
 		// return null on error
 		if (fileName == null) {
 			return result;
@@ -42,7 +63,7 @@ public class Util {
 		BufferedReader br = null;
 		String line = null;
 		try {
-			is = Util.class.getResourceAsStream(fileName);
+			is = Utils.class.getResourceAsStream(fileName);
 			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 			boolean isTitleLine = true;

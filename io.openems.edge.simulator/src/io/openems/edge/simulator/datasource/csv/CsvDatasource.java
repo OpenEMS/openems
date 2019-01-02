@@ -13,6 +13,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
@@ -22,7 +23,8 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
-public class CsvDatasource extends AbstractOpenemsComponent implements SimulatorDatasource, EventHandler {
+public class CsvDatasource extends AbstractOpenemsComponent
+		implements SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	private DataContainer data;
 
@@ -32,6 +34,10 @@ public class CsvDatasource extends AbstractOpenemsComponent implements Simulator
 
 	private long lastIteration;
 
+	public CsvDatasource() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
@@ -40,7 +46,7 @@ public class CsvDatasource extends AbstractOpenemsComponent implements Simulator
 		this.realtime = config.realtime();
 		this.lastIteration = System.currentTimeMillis();
 		// read csv-data
-		this.data = Util.getValues(config.source(), config.factor());
+		this.data = Utils.getValues(config.source(), config.factor());
 
 	}
 
