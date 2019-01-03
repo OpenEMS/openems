@@ -18,7 +18,18 @@ import io.openems.edge.common.worker.AbstractWorker;
  */
 public class OsgiValidateWorker extends AbstractWorker {
 
-	private final static int CYCLE_TIME = 60_000; // in ms
+	/*
+	 * For INITIAL_CYCLES cycles the distance between two checks is
+	 * INITIAL_CYCLE_TIME, afterwards the check runs every REGULAR_CYCLE_TIME
+	 * milliseconds.
+	 * 
+	 * Why? In the beginning it takes a while till all components are up and
+	 * running. So it is likely, that in the beginning not all are immediately
+	 * running.
+	 */
+	private final static int INITIAL_CYCLES = 60;
+	private final static int INITIAL_CYCLE_TIME = 1_000; // in ms
+	private final static int REGULAR_CYCLE_TIME = 60_000; // in ms
 
 	private final Logger log = LoggerFactory.getLogger(OsgiValidateWorker.class);
 
@@ -59,9 +70,16 @@ public class OsgiValidateWorker extends AbstractWorker {
 		return false;
 	}
 
+	private int cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;
+
 	@Override
 	protected int getCycleTime() {
-		return OsgiValidateWorker.CYCLE_TIME;
+		if (this.cycleCountDown > 0) {
+			this.cycleCountDown--;
+			return OsgiValidateWorker.INITIAL_CYCLE_TIME;
+		} else {
+			return OsgiValidateWorker.REGULAR_CYCLE_TIME;
+		}
 	}
 
 }
