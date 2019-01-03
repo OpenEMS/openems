@@ -1,10 +1,14 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.TreeBasedTable;
+import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.Error;
@@ -14,8 +18,11 @@ import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.types.ChannelAddress;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -47,6 +54,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 
+		// Wrap reply in EdgeRpcResponse
 		Consumer<JsonrpcResponse> responseCallback = (response) -> {
 			if (response instanceof JsonrpcResponseSuccess) {
 				edgeRpcResponseCallback
@@ -60,9 +68,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeChannelsRequest.METHOD:
 			this.handleSubscribeChannelsRequest(ws, edgeId, SubscribeChannelsRequest.from(request), responseCallback);
 			break;
+
+		case QueryHistoricTimeseriesDataRequest.METHOD:
+			this.handleQueryHistoricDataRequest(ws, edgeId, QueryHistoricTimeseriesDataRequest.from(request),
+					responseCallback);
+			break;
 		}
 	}
 
+	/**
+	 * Handles a SubscribeChannelsRequest.
+	 * 
+	 * @param ws               the Websocket
+	 * @param edgeId           the Edge-ID
+	 * @param request          the SubscribeChannelsRequest
+	 * @param responseCallback the JSON-RPC Response callback
+	 * @throws OpenemsException on error
+	 */
 	private void handleSubscribeChannelsRequest(WebSocket ws, String edgeId, SubscribeChannelsRequest request,
 			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
 		log.info("UiWs. SubscribeChannelsRequest: " + request.getChannels());
@@ -77,6 +99,47 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		JsonrpcResponse response = new GenericJsonrpcResponseSuccess(request.getId());
 		responseCallback.accept(response);
 	}
+
+	/**
+	 * Handles a QueryHistoricDataRequest.
+	 * 
+	 * @param ws               the Websocket
+	 * @param edgeId           the Edge-ID
+	 * @param request          the QueryHistoricDataRequest
+	 * @param responseCallback the JSON-RPC Response callback
+	 * @throws OpenemsException on error
+	 */
+	private void handleQueryHistoricDataRequest(WebSocket ws, String edgeId, QueryHistoricTimeseriesDataRequest request,
+			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
+		log.info("UiWs. QueryHistoricDataRequest: " + request.getChannels());
+
+		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data = this.parent.timeData.queryHistoricData( //
+				edgeId, //
+				request.getFromDate(), //
+				request.getToDate(), //
+				request.getChannels());
+
+		// JSON-RPC response
+		JsonrpcResponse response = new QueryHistoricTimeseriesDataResponse(request.getId(), data);
+		responseCallback.accept(response);
+	}
+
+	//
+//	/**
+//	 * Query history command
+//	 *
+//	 * @param j
+//	 */
+//	private void historicData(WebSocket websocket, JsonObject jMessageId, int edgeId, JsonObject jHistoricData) {
+//		try {
+
+//			WebSocketUtils.sendOrLogError(websocket, j);
+//			return;
+//		} catch (Exception e) {
+//			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+//					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, "Edge [ID:" + edgeId + "] " + e.getMessage());
+//		}
+//	}
 
 //	/**
 //	 * Handles a GetStatusOfEdgesRequest.
@@ -139,30 +202,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 //			if (!user.getEdgeRole(edgeId).isPresent()) {
 //				WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 //						Notification.BACKEND_FORWARD_TO_EDGE_NOT_ALLOWED, edge.getName(), user.getName());
-//				return;
-//			}
-//
-//			/*
-//			 * Query historic data
-//			 */
-//			Optional<JsonObject> jHistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
-//			if (jHistoricDataOpt.isPresent()) {
-//				JsonObject jHistoricData = jHistoricDataOpt.get();
-//				log.info("User [" + user.getName() + "] queried historic data for Edge [" + edge.getName() + "]: "
-//						+ StringUtils.toShortString(jHistoricData, 50));
-//				this.historicData(websocket, jMessageId, edgeId, jHistoricData);
-//				return;
-//			}
-//
-//			/*
-//			 * Subscribe to currentData
-//			 */
-//			Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
-//			if (jCurrentDataOpt.isPresent()) {
-//				JsonObject jCurrentData = jCurrentDataOpt.get();
-//				log.info("User [" + user.getName() + "] subscribed to current data for Edge [" + edge.getName() + "]: "
-//						+ StringUtils.toShortString(jCurrentData, 50));
-//				this.currentData(websocket, data, jMessageId, edgeId, jCurrentData);
 //				return;
 //			}
 //
@@ -234,24 +273,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 //		} catch (OpenemsException e) {
 //			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 //					Notification.SUBSCRIBE_CURRENT_DATA_FAILED, "Edge [ID:" + edgeId + "] " + e.getMessage());
-//		}
-//	}
-//
-//	/**
-//	 * Query history command
-//	 *
-//	 * @param j
-//	 */
-//	private void historicData(WebSocket websocket, JsonObject jMessageId, int edgeId, JsonObject jHistoricData) {
-//		try {
-//			Edge edge = this.parent.parent.metadataService.getEdge(edgeId);
-//			Tag[] tags = new Tag[] { new Tag("fems", TimedataUtils.parseNumberFromName(edge.getName())) };
-//			JsonObject j = TimedataUtils.handle(this.parent.parent.timeDataService, jMessageId, jHistoricData, tags);
-//			WebSocketUtils.sendOrLogError(websocket, j);
-//			return;
-//		} catch (Exception e) {
-//			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
-//					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, "Edge [ID:" + edgeId + "] " + e.getMessage());
 //		}
 //	}
 

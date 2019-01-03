@@ -3,28 +3,29 @@ import { Component, Input, OnDestroy, EventEmitter, Output } from '@angular/core
 import { Utils } from '../../../shared/service/utils';
 import { Websocket } from '../../../shared/service/websocket';
 import { Edge } from '../../../shared/edge/edge';
+import { ChannelAddress } from '../../../shared/type/channeladdress';
 
 @Component({
-  selector: EnergytableComponent_2018_8.SELECTOR,
+  selector: EnergytableComponent.SELECTOR,
   templateUrl: './energytable.component.html'
 })
-export class EnergytableComponent_2018_8 implements OnDestroy {
+export class EnergytableComponent implements OnDestroy {
 
-  private static readonly SELECTOR = "energytable-2018-8";
+  private static readonly SELECTOR = "energytable";
 
   private _edge: Edge = null;
   @Input() set edge(edge: Edge) {
     this._edge = edge;
     if (edge != null) {
-      edge.subscribeChannels(this.websocket, EnergytableComponent_2018_8.SELECTOR, [
+      edge.subscribeChannels(this.websocket, EnergytableComponent.SELECTOR, [
         // Ess
-        '_sum/EssSoc', '_sum/EssActivePower',
+        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'),
         // Grid
-        '_sum/GridActivePower',
+        new ChannelAddress('_sum', 'GridActivePower'),
         // Production
-        '_sum/ProductionActivePower', '_sum/ProductionDcActualPower', '_sum/ProductionAcActivePower', '_sum/ProductionMaxActivePower',
+        new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
         // Consumption
-        '_sum/ConsumptionActivePower', '_sum/ConsumptionMaxActivePower'
+        new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
       ]);
     }
   }
@@ -38,7 +39,7 @@ export class EnergytableComponent_2018_8 implements OnDestroy {
 
   ngOnDestroy() {
     if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, EnergytableComponent_2018_8.SELECTOR);
+      this.edge.unsubscribeChannels(this.websocket, EnergytableComponent.SELECTOR);
     }
   }
 

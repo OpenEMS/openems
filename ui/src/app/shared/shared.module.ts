@@ -1,3 +1,5 @@
+import 'hammerjs';
+
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
@@ -9,11 +11,8 @@ import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
-
-
-import 'hammerjs';
-
 import { MyMaterialModule } from './material.module';
+import { IonicModule } from '@ionic/angular';
 
 import { appRoutingProviders } from './../app-routing.module';
 
@@ -39,9 +38,7 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 import { AbstractConfigComponent } from './config/abstractconfig.component';
 import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
-import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
-import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
-import { IonicModule } from '@ionic/angular';
+import { SocChartComponent } from '../edge/history/chart/socchart/socchart.component';
 
 @NgModule({
   imports: [
@@ -66,8 +63,7 @@ import { IonicModule } from '@ionic/angular';
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent_2018_8,
-    SocChartComponent_2018_7,
+    SocChartComponent,
     AbstractConfigComponent,
     ChannelComponent,
     ExistingThingComponent
@@ -93,8 +89,7 @@ import { IonicModule } from '@ionic/angular';
     MyDateRangePickerModule,
     ToasterModule,
     // components
-    SocChartComponent_2018_7,
-    SocChartComponent_2018_8,
+    SocChartComponent,
     LoadingModule,
     AbstractConfigComponent,
     ChannelComponent,

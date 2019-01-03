@@ -13,7 +13,8 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSche
 public class B2bWebsocketTest {
 
 	private static TestClient preparteTestClient() throws URISyntaxException, InterruptedException {
-		String uri = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
+//		String uri = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
+		String uri = "ws://fems-test.beegy-dev.cc:10002";
 
 		TestClient client = new TestClient(new URI(uri));
 		client.startBlocking();
@@ -39,7 +40,9 @@ public class B2bWebsocketTest {
 		TestClient client = preparteTestClient();
 
 		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("edge0");
-		request.addScheduleEntry(new GridConnSchedule(System.currentTimeMillis() / 1000, 20, -3000));
+		long now = System.currentTimeMillis() / 1000;
+		request.addScheduleEntry(new GridConnSchedule(now, 60, -3000));
+		request.addScheduleEntry(new GridConnSchedule(now + 60, 60, -5000));
 		System.out.println("Sending Request " + request);
 		client.sendRequest(request, response -> {
 			System.out.println("Response: " + response);

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -15,9 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.timedata.core.EdgeCache;
@@ -50,23 +49,7 @@ public class TimedataDummy implements Timedata {
 		}
 	}
 
-	/**
-	 * Takes a JsonObject and writes the points to influxDB.
-	 *
-	 * Format:
-	 * 
-	 * <pre>
-	 * {
-	 *   "timestamp1" {
-	 * 	   "channel1": value,
-	 *     "channel2": value 
-	 *   }, "timestamp2" {
-	 *     "channel1": value,
-	 *     "channel2": value
-	 *   }
-	 * }
-	 * </pre>
-	 */
+	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		// get existing or create new EdgeCache
 		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
@@ -114,10 +97,11 @@ public class TimedataDummy implements Timedata {
 	}
 
 	@Override
-	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution, io.openems.common.timedata.Tag... tags) throws OpenemsException {
+	public TreeBasedTable<ZonedDateTime, ChannelAddress, Double> queryHistoricData(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsException {
 		this.log.error("Timedata.Dummy does not support querying historic data");
-		return new JsonArray();
+		return TreeBasedTable.create();
 	}
 
 }

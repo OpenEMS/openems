@@ -9,10 +9,11 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { environment } from '../environments';
-import { Service, Websocket } from './shared/shared';
 
 import { PopoverPage } from './shared/popover/popover.component';
 import { Router, NavigationEnd } from '@angular/router';
+import { Websocket } from './shared/service/websocket';
+import { Service } from './shared/service/service';
 
 @Component({
   selector: 'app-root',

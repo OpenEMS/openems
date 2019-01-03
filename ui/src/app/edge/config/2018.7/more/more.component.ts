@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { filter, first } from 'rxjs/operators';
 
-import { Websocket, Service } from '../../../../shared/shared';
 import { Edge } from '../../../../shared/edge/edge';
+import { Service } from '../../../../shared/service/service';
 
 @Component({
   selector: 'more',
@@ -17,18 +17,17 @@ export class MoreComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private websocket: Websocket,
     private service: Service,
     private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route)
-      .pipe(filter(edge => edge != null),
-        first())
-      .subscribe(edge => {
-        this.edge = edge;
-      });
+    this.service.setCurrentEdge(this.route)
+    // .pipe(filter(edge => edge != null),
+    //   first())
+    // .subscribe(edge => {
+    //   this.edge = edge;
+    // });
     this.manualMessageForm = this.formBuilder.group({
       "message": this.formBuilder.control('')
     });

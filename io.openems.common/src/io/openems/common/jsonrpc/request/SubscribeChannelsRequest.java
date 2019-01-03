@@ -1,6 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -26,15 +25,6 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
 			result.addChannel(address);
 		}
-//		JsonObject channels = JsonUtils.getAsJsonObject(p, "channels");
-//		for (Entry<String, JsonElement> entry : channels.entrySet()) {
-//			String componentId = entry.getKey();
-//			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
-//			for (JsonElement channelId : channelIds) {
-//				ChannelAddress address = new ChannelAddress(componentId, JsonUtils.getAsString(channelId));
-//				result.addChannel(address);
-//			}
-//		}
 		return result;
 	}
 
@@ -56,7 +46,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 		this.channels.add(address);
 	}
 
-	public Set<ChannelAddress> getChannels() {
+	public TreeSet<ChannelAddress> getChannels() {
 		return channels;
 	}
 

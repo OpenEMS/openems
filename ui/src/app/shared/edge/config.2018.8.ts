@@ -3,6 +3,7 @@ import { Role } from '../type/role'
 import { Widget } from '../type/widget'
 import { Edge } from './edge';
 import { ConfigImpl } from './config';
+import { ChannelAddress } from '../type/channeladdress';
 
 export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config_2018_8 {
 
@@ -104,12 +105,8 @@ export class ConfigImpl_2018_8 extends ConfigImpl implements DefaultTypes.Config
     /**
      * Returns ChannelAddresses of ESS Soc channels
      */
-    public getEssSocChannels(): DefaultTypes.ChannelAddresses {
-        return {
-            "_sum": [
-                'EssSoc'
-            ]
-        }
+    public getEssSocChannels(): ChannelAddress[] {
+        return []; // TODO
     }
 
     /**

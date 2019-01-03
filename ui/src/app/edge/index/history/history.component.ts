@@ -2,29 +2,19 @@ import { Component, Input, OnChanges } from '@angular/core';
 
 import { ConfigImpl } from '../../../shared/edge/config';
 import { Edge } from '../../../shared/edge/edge';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
+import { ChannelAddress } from '../../../shared/type/channeladdress';
 
 @Component({
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnChanges {
+export class HistoryComponent {
 
-  @Input() public config: ConfigImpl;
-
-  @Input() public edge: Edge;
-
-  ngOnChanges() {
-    if (this.edge != null && this.config != null) {
-      this.socChannels = this.config.getEssSocChannels();
-    } else {
-      this.socChannels = {};
-    }
-  }
-
-  public socChannels: DefaultTypes.ChannelAddresses = {};
+  @Input() protected config: ConfigImpl;
+  @Input() protected edge: Edge;
 
   // show the chart for today
-  public fromDate = new Date();
-  public toDate = new Date();
+  protected fromDate = new Date();
+  protected toDate = new Date();
+
 }

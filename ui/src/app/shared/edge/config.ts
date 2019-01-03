@@ -1,6 +1,7 @@
 import { DefaultTypes } from '../service/defaulttypes'
 import { Role } from '../type/role'
 import { Widget } from '../type/widget';
+import { ChannelAddress } from '../type/channeladdress';
 
 export abstract class ConfigImpl implements DefaultTypes.Config {
 
@@ -27,7 +28,7 @@ export abstract class ConfigImpl implements DefaultTypes.Config {
 
     public abstract getImportantChannels(): DefaultTypes.ChannelAddresses;
 
-    public abstract getEssSocChannels(): DefaultTypes.ChannelAddresses;
+    public abstract getEssSocChannels(): ChannelAddress[];
 
     public abstract getPowerChannels(): DefaultTypes.ChannelAddresses;
 

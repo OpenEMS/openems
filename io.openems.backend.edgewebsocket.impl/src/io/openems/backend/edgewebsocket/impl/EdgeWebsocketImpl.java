@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;

@@ -6,9 +6,10 @@ import { takeUntil, take } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
-
-import { Websocket, Utils, Service } from '../shared/shared';
 import { Edge } from '../shared/edge/edge';
+import { Websocket } from '../shared/service/websocket';
+import { Utils } from '../shared/service/utils';
+import { Service } from '../shared/service/service';
 
 @Component({
   selector: 'index',
@@ -37,7 +38,7 @@ export class IndexComponent {
     });
 
     //Forwarding to device index if there is only 1 edge
-    websocket.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
+    service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
       let edgeIds = Object.keys(edges);
       if (edgeIds.length == 1) {
         let edge = edges[edgeIds[0]];
@@ -51,7 +52,7 @@ export class IndexComponent {
   }
 
   updateFilteredEdges() {
-    let edges = this.websocket.edges.getValue();
+    let edges = this.service.edges.getValue();
     this.allEdgeIds = Object.keys(edges)
     let filter = this.filter.toLowerCase();
     let filteredEdges = Object.keys(edges)

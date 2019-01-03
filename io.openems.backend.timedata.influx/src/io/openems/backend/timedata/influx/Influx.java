@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBIOException;
@@ -21,10 +24,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.metadata.api.Edge;
@@ -32,17 +34,16 @@ import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.timedata.Tag;
-import io.openems.common.timedata.TimedataUtils;
 import io.openems.common.types.ChannelAddress;
 import io.openems.shared.influxdb.InfluxConnector;
+import io.openems.shared.influxdb.InfluxConstants;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Influx implements Timedata {
 
 	private final static String TMP_MINI_MEASUREMENT = "minies";
-	private final static String TAG = "fems";
+	private final static Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
@@ -73,7 +74,7 @@ public class Influx implements Timedata {
 	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		// parse the numeric EdgeId
-		int influxEdgeId = TimedataUtils.parseNumberFromName(edgeId);
+		int influxEdgeId = Influx.parseNumberFromName(edgeId);
 
 		// get existing or create new DeviceCache
 		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
@@ -99,7 +100,8 @@ public class Influx implements Timedata {
 				// incoming data is more recent than cache
 				if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
 					// cache is valid (not elder than 5 minutes)
-					for (Entry<ChannelAddress, JsonElement> cacheEntry : edgeCache.getChannelCacheEntries()) {
+					Set<Entry<ChannelAddress, JsonElement>> cacheEntries = edgeCache.getChannelCacheEntries();
+					for (Entry<ChannelAddress, JsonElement> cacheEntry : cacheEntries) {
 						ChannelAddress channel = cacheEntry.getKey();
 						// check if there is a current value for this timestamp + channel
 						JsonElement existingValue = data.get(timestamp, channel);
@@ -133,11 +135,17 @@ public class Influx implements Timedata {
 		this.writeDataToOldMiniMonitoring(edgeId, influxEdgeId, data);
 	}
 
+	/**
+	 * Actually writes the data to InfluxDB
+	 * 
+	 * @param influxEdgeId the unique, numeric identifier of the Edge
+	 * @param data         the data
+	 */
 	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
 		InfluxDB influxDB = this.influxConnector.getConnection();
 
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
-				.tag(Influx.TAG, String.valueOf(influxEdgeId)) //
+				.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 				.build();
 
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
@@ -156,6 +164,29 @@ public class Influx implements Timedata {
 		} catch (InfluxDBIOException e) {
 			this.log.error("Unable to write data: " + e.getMessage());
 		}
+	}
+
+	public static Integer parseNumberFromName(String name) throws OpenemsException {
+		try {
+			Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				String nameNumberString = matcher.group(1);
+				return Integer.parseInt(nameNumberString);
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		throw new OpenemsException("Unable to parse number from name [" + name + "]");
+	}
+
+	@Override
+	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			throws OpenemsException {
+		// parse the numeric EdgeId
+		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
+
+		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	/**
@@ -213,7 +244,7 @@ public class Influx implements Timedata {
 		InfluxDB influxDB = this.influxConnector.getConnection();
 
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
-				.tag(Influx.TAG, String.valueOf(influxId)) //
+				.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
 				.build();
 
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
@@ -268,6 +299,7 @@ public class Influx implements Timedata {
 		influxDB.write(batchPoints);
 	}
 
+	@Override
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress address) {
 		EdgeCache cache = this.edgeCacheMap.get(edgeId);
 		if (cache != null) {
@@ -276,7 +308,7 @@ public class Influx implements Timedata {
 				return cache.getChannelValue(address);
 			}
 			Edge edge = edgeOpt.get();
-			ChannelFormula[] compatibility = getCompatibilityFormula(edge, address);
+			ChannelFormula[] compatibility = this.getCompatibilityFormula(edge, address);
 			if (compatibility.length == 0) {
 				return cache.getChannelValue(address);
 			}
@@ -295,58 +327,141 @@ public class Influx implements Timedata {
 	 * @param cache
 	 * @return
 	 */
+	@Deprecated
 	private Optional<JsonElement> getCompatibilityChannelValue(ChannelFormula[] compatibility, EdgeCache cache) {
 		int value = 0;
 		for (ChannelFormula formula : compatibility) {
-			ChannelAddress addr = formula.getAddress();
 			switch (formula.getFunction()) {
 			case PLUS:
-				value += cache.getChannelValue(addr).orElse(new JsonPrimitive(0)).getAsInt();
+				value += formula.getValue(cache);
 			}
 		}
 		return Optional.of(new JsonPrimitive(value));
 	}
 
-	enum Function {
-		PLUS
-	}
-
-	class ChannelFormula {
-		private final Function function;
-		private final ChannelAddress address;
-
-		public ChannelFormula(Function function, ChannelAddress address) {
-			this.function = function;
-			this.address = address;
-		}
-
-		public Function getFunction() {
-			return function;
-		}
-
-		public ChannelAddress getAddress() {
-			return address;
-		}
-	}
-
+	/**
+	 * Gets the formula to calculate a '_sum' Channel value.
+	 * 
+	 * @param edge
+	 * @param address
+	 * @return
+	 */
+	@Deprecated
 	private ChannelFormula[] getCompatibilityFormula(Edge edge, ChannelAddress address) {
 		if (address.getComponentId().equals("_sum")) {
-			JsonObject config = edge.getConfig();
 			switch (address.getChannelId()) {
 			case "EssSoc":
 				return new ChannelFormula[] { //
 						new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "Soc")) };
+
 			case "EssActivePower":
+				switch (edge.getProducttype()) {
+				case "Pro 9-12":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL1")), //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL2")), //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL3")) //
+					};
+				default:
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePower")) //
+					};
+				}
+
+			case "EssMaxApparentPower":
+				switch (edge.getProducttype()) {
+				case "Pro 9-12":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, 9_000), //
+					};
+				case "MiniES 3-3":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, 9_000), //
+					};
+				case "COMMERCIAL 40-45":
+				case "":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, 40_000), //
+					};
+				default:
+					this.log.warn(
+							"No formula for EssMaxApparentPower [" + edge.getId() + "|" + edge.getProducttype() + "]");
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, 40_000) //
+					};
+				}
+
+			case "GridActivePower":
 				return new ChannelFormula[] { //
-						new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePower")) };
+						new ChannelFormula(Function.PLUS, new ChannelAddress("meter0", "ActivePower")) //
+				};
+
+			case "GridMinActivePower":
+				return new ChannelFormula[] { //
+						new ChannelFormula(Function.PLUS, new ChannelAddress("meter0", "minActivePower")) //
+				};
+
+			case "GridMaxActivePower":
+				return new ChannelFormula[] { //
+						new ChannelFormula(Function.PLUS, new ChannelAddress("meter0", "maxActivePower")) //
+				};
+
+			case "ProductionActivePower":
+				return ObjectArrays.concat( //
+						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionAcActivePower")), //
+						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionDcActualPower")), //
+						ChannelFormula.class);
+
+			case "ProductionAcActivePower":
+				switch (edge.getProducttype()) {
+				case "Pro 9-12":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePowerL1")), //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePowerL2")), //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePowerL3")) //
+					};
+				default:
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePower")) //
+					};
+				}
+
+			case "ProductionDcActualPower":
+				switch (edge.getProducttype()) {
+				case "COMMERCIAL 40-45":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, new ChannelAddress("charger0", "ActualPower")) //
+					};
+				default:
+					return new ChannelFormula[] { //
+					};
+				}
+
+			case "ProductionMaxActivePower":
+				return new ChannelFormula[] { //
+						new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "maxActivePower")) //
+				};
+
+			case "ConsumptionActivePower":
+				return ObjectArrays.concat( //
+						ObjectArrays.concat( //
+								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "EssActivePower")), //
+								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "GridActivePower")), //
+								ChannelFormula.class),
+						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionAcActivePower")), //
+						ChannelFormula.class);
+
+			case "ConsumptionMaxActivePower":
+				return ObjectArrays.concat( //
+						ObjectArrays.concat( //
+								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "EssMaxApparentPower")), //
+								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "GridMaxActivePower")), //
+								ChannelFormula.class),
+						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionMaxActivePower")), //
+						ChannelFormula.class);
 			}
 		}
 		return new ChannelFormula[0];
 	}
 
-	@Override
-	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution, Tag... tags) throws OpenemsException {
-		return this.influxConnector.queryHistoricData(fromDate, toDate, channels, resolution, tags);
-	}
 }

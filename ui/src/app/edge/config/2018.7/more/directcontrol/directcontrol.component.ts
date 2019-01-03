@@ -4,9 +4,9 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Websocket, Service } from '../../../../../shared/shared';
 import { Edge } from '../../../../../shared/edge/edge';
 import { DefaultMessages } from '../../../../../shared/service/defaultmessages';
+import { Service } from '../../../../../shared/service/service';
 
 @Component({
   selector: 'directcontrol',
@@ -21,16 +21,16 @@ export class DirectControlComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private websocket: Websocket,
+    private service: Service,
     private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route)
-      .pipe(takeUntil(this.stopOnDestroy))
-      .subscribe(edge => {
-        this.edge = edge;
-      });
+    this.service.setCurrentEdge(this.route)
+    // .pipe(takeUntil(this.stopOnDestroy))
+    // .subscribe(edge => {
+    //   this.edge = edge;
+    // });
     this.addLine();
   }
 

@@ -19,21 +19,8 @@ import { CurrentDataAndSummary_2018_8 } from '../edge/currentdata.2018.8';
 
 @Injectable()
 export class Websocket {
-  public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
   private readonly wsdata = new WsData();
-
-  // holds references of edges (=key) to Edge objects (=value)
-  private _edges: BehaviorSubject<{ [edgeId: string]: Edge }> = new BehaviorSubject({});
-  public get edges() {
-    return this._edges;
-  }
-
-  // holds the currently selected edge
-  private _currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
-  public get currentEdge() {
-    return this._currentEdge;
-  }
 
   private socket: WebSocketSubject<any>;
   public status: DefaultTypes.ConnectionStatus = "connecting";
@@ -55,50 +42,6 @@ export class Websocket {
     setTimeout(() => {
       this.connect();
     })
-  }
-
-  /**
-   * Parses the route params and sets the current edge
-   */
-  public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
-    let onTimeout = () => {
-      // Timeout: redirect to index
-      if (this.router.url != '/settings' && this.router.url != '/about') {
-        this.router.navigate(['/index']);
-        subscription.unsubscribe();
-      }
-    }
-
-    let edgeId = route.snapshot.params["edgeId"];
-    let subscription = this.edges
-      .pipe(filter(edges => edgeId in edges),
-        first(),
-        map(edges => edges[edgeId]))
-      .subscribe(edge => {
-        if (edge == null || !edge.isOnline) {
-          onTimeout();
-        } else {
-          // set current edge
-          this.currentEdge.next(edge);
-          edge.markAsCurrentEdge();
-        }
-      }, error => {
-        console.error("Error while setting current edge: ", error);
-      })
-    setTimeout(() => {
-      let edge = this.currentEdge.getValue();
-      if (edge == null || !edge.isOnline) {
-        onTimeout();
-      }
-    }, Websocket.TIMEOUT);
-    return this.currentEdge;
-  }
-
-  /**
-   * Clears the current edge
-   */
-  public clearCurrentEdge() {
-    this.currentEdge.next(null);
   }
 
   /**
@@ -301,7 +244,7 @@ export class Websocket {
   private initialize() {
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
-    this.edges.next({});
+    this.service.initialize();
   }
 
   /**
@@ -455,7 +398,8 @@ export class Websocket {
       );
       newEdges[newEdge.id] = newEdge;
     }
-    this.edges.next(newEdges);
+    console.log("Websocket Edges", newEdges)
+    this.service.edges.next(newEdges);
   }
 
   /**
@@ -480,7 +424,7 @@ export class Websocket {
    * @param message 
    */
   private handleCurrentDataNotification(edgeId: string, message: CurrentDataNotification): void {
-    let edges = this.edges.getValue();
+    let edges = this.service.edges.getValue();
 
     if (edgeId in edges) {
       let edge = edges[edgeId];

@@ -7,7 +7,7 @@ import { JsonrpcRequest, JsonrpcResponse, JsonrpcResponseSuccess } from "../base
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
- *   "params": {
+ *   "result": {
  *     "payload": JsonrpcRequest
  *   }
  * }

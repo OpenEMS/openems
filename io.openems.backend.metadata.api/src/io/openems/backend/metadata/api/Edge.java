@@ -27,7 +27,7 @@ public class Edge {
 	private State state;
 	private String version;
 	private String producttype;
-	private JsonObject jConfig;
+	private JsonObject config;
 	private ZonedDateTime lastMessage = null;
 	private ZonedDateTime lastUpdate = null;
 	private Integer soc = null;
@@ -35,14 +35,14 @@ public class Edge {
 	private boolean isOnline;
 
 	public Edge(String id, String apikey, String comment, State state, String version, String producttype,
-			JsonObject jConfig, Integer soc, String ipv4) {
+			JsonObject config, Integer soc, String ipv4) {
 		this.id = id;
 		this.apikey = apikey;
 		this.comment = comment;
 		this.state = state;
 		this.version = version;
 		this.producttype = producttype;
-		this.jConfig = jConfig;
+		this.config = config;
 		this.soc = soc;
 		this.ipv4 = ipv4;
 	}
@@ -60,7 +60,7 @@ public class Edge {
 	}
 
 	public JsonObject getConfig() {
-		return this.jConfig;
+		return config;
 	}
 
 	public String getVersion() {
@@ -84,9 +84,9 @@ public class Edge {
 	@Override
 	public String toString() {
 		return "Edge [id=" + id + ", comment=" + comment + ", state=" + state + ", version=" + version
-				+ ", producttype=" + producttype + ", jConfig=" + (jConfig.toString().isEmpty() ? "NOT_SET" : "set")
-				+ ", lastMessage=" + lastMessage + ", lastUpdate=" + lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4
-				+ ", isOnline=" + isOnline + "]";
+				+ ", producttype=" + producttype + ", deprecatedConfig="
+				+ (config.toString().isEmpty() ? "NOT_SET" : "set") + ", lastMessage=" + lastMessage + ", lastUpdate="
+				+ lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4 + ", isOnline=" + isOnline + "]";
 	}
 
 	/*
@@ -120,8 +120,8 @@ public class Edge {
 	}
 
 	public synchronized void setConfig(JsonObject jConfig) {
-		if (this.jConfig == null || !jConfig.equals(this.jConfig)) { // on change
-			this.jConfig = jConfig;
+		if (this.config == null || !jConfig.equals(this.config)) { // on change
+			this.config = jConfig;
 			this.onSetConfig.forEach(listener -> listener.accept(jConfig));
 		}
 	}
@@ -225,4 +225,5 @@ public class Edge {
 			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
 		}
 	}
+
 }

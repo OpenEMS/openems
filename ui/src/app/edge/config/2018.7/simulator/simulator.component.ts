@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
-import { Websocket } from '../../../../shared/shared';
 import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
+import { Websocket } from '../../../../shared/service/websocket';
 
 
 interface SimulatorForm {

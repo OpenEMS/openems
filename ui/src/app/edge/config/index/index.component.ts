@@ -4,7 +4,7 @@ import { FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 import { Edge } from '../../../shared/edge/edge';
-import { Websocket, Service } from '../../../shared/shared';
+import { Service } from '../../../shared/service/service';
 
 @Component({
   selector: 'index',
@@ -18,13 +18,12 @@ export class IndexComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    public websocket: Websocket,
     private formBuilder: FormBuilder,
     private service: Service,
   ) {
   }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route);
+    this.service.setCurrentEdge(this.route);
   }
 }

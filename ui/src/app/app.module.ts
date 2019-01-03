@@ -17,7 +17,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 // services
-import { Service } from './shared/shared';
+// import { Service } from './shared/service/service';
 import { MyTranslateLoader } from './shared/translate/translate';
 
 // locale Data
@@ -53,7 +53,7 @@ import { environment as env } from '../environments/environment';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: ErrorHandler, useExisting: Service },
+    // { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }
   ],
   bootstrap: [AppComponent]

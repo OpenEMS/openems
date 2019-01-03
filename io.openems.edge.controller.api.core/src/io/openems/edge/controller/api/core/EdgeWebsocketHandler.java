@@ -17,13 +17,11 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
-import io.openems.common.timedata.TimedataUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket_old.DefaultMessages;
 import io.openems.common.websocket_old.LogBehaviour;
 import io.openems.common.websocket_old.Notification;
 import io.openems.common.websocket_old.WebSocketUtils;
-import io.openems.edge.timedata.api.Timedata;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -127,15 +125,15 @@ public class EdgeWebsocketHandler {
 				this.currentData(jMessageId, jCurrentDataOpt.get());
 				return;
 			}
-
-			/*
-			 * Query historic data
-			 */
-			Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
-			if (jhistoricDataOpt.isPresent()) {
-				this.historicData(jMessageId, jhistoricDataOpt.get());
-				return;
-			}
+//
+//			/*
+//			 * Query historic data
+//			 */
+//			Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
+//			if (jhistoricDataOpt.isPresent()) {
+//				this.historicData(jMessageId, jhistoricDataOpt.get());
+//				return;
+//			}
 
 			/*
 			 * Subscribe to log
@@ -164,22 +162,22 @@ public class EdgeWebsocketHandler {
 			}
 		}
 	}
-
-	private void historicData(JsonObject jMessageId, JsonObject jHistoricData) {
-		Timedata timedataService = this.parent.getTimedata();
-		if (timedataService == null) {
-			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
-					Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
-			return;
-		}
-		try {
-			JsonObject j = TimedataUtils.handle(timedataService, jMessageId, jHistoricData);
-			WebSocketUtils.send(this.websocket, j);
-		} catch (OpenemsException e) {
-			WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
-					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, e.getMessage());
-		}
-	}
+//
+//	private void historicData(JsonObject jMessageId, JsonObject jHistoricData) {
+//		Timedata timedataService = this.parent.getTimedata();
+//		if (timedataService == null) {
+//			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+//					Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
+//			return;
+//		}
+//		try {
+//			JsonObject j = TimedataUtils.handle(timedataService, jMessageId, jHistoricData);
+//			WebSocketUtils.send(this.websocket, j);
+//		} catch (OpenemsException e) {
+//			WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+//					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, e.getMessage());
+//		}
+//	}
 
 	/**
 	 * Handle "config" messages

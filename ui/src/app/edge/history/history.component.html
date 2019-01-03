@@ -39,12 +39,7 @@
 
         <ion-card-content *ngIf="edge">
           <div [style.height]="socChartHeight">
-            <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-              <socchart-2018-8 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-8>
-            </ng-container>
-            <ng-template #version_2018_7>
-              <socchart-2018-7 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-7>
-            </ng-template>
+            <socchart [edge]="edge" [fromDate]="fromDate" [toDate]="toDate"></socchart>
           </div>
           <div [style.height]="energyChartHeight">
             <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></energychart>

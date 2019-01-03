@@ -11,7 +11,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Request for 'getStatusOfEdges'.
+ * Represents a JSON-RPC Response for 'getStatusOfEdges'.
  * 
  * <pre>
  * {

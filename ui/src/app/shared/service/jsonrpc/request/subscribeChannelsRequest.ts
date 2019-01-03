@@ -1,6 +1,7 @@
-import { JsonrpcNotification, JsonrpcRequest } from "../base";
+import { JsonrpcRequest } from "../base";
 import { UUID } from "angular2-uuid";
-import { DefaultTypes } from "../../defaulttypes";
+import { ChannelAddress } from "../../../../shared/type/channeladdress";
+import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
  * Represents a JSON-RPC Request to subscribe to channels. The actual channel 
@@ -22,9 +23,11 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     static METHOD: string = "subscribeChannels";
 
     public constructor(
-        public readonly channels: string[]
+        public readonly channels: ChannelAddress[]
     ) {
-        super(UUID.UUID(), SubscribeChannelsRequest.METHOD, { channels: channels });
+        super(UUID.UUID(), SubscribeChannelsRequest.METHOD, {
+            channels: JsonRpcUtils.channelsToStringArray(channels)
+        });
     }
 
 }

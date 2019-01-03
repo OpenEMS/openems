@@ -8,12 +8,7 @@
 
     <!-- Energytable -->
     <ion-col size="12" size-md="8" size-lg="4">
-      <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-        <energytable-2018-8 [edge]="edge"></energytable-2018-8>
-      </ng-container>
-      <ng-template #version_2018_7>
-        <energytable-2018-7 [currentData]="currentData" [config]="config"></energytable-2018-7>
-      </ng-template>
+      <energytable [edge]="edge"></energytable>
     </ion-col>
 
     <!-- History -->

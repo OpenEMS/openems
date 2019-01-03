@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { format } from 'date-fns';
 
 import { Edge } from '../../../shared/edge/edge';
-import { Websocket } from '../../../shared/shared';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
+import { Service } from '../../../shared/service/service';
 
 @Component({
   selector: 'log',
@@ -24,16 +22,16 @@ export class LogComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private websocket: Websocket,
+    private service: Service
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route)
-      .pipe(takeUntil(this.stopOnDestroy))
-      .subscribe(edge => {
-        this.edge = edge;
-        this.subscribeLog();
-      });
+    this.service.setCurrentEdge(this.route)
+    // .pipe(takeUntil(this.stopOnDestroy))
+    // .subscribe(edge => {
+    //   this.edge = edge;
+    //   this.subscribeLog();
+    // });
   }
 
   public toggleSubscribe(event: CustomEvent) {

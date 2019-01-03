@@ -3,6 +3,7 @@ import { Role } from '../type/role'
 import { Widget } from '../type/widget'
 import { Edge } from './edge';
 import { ConfigImpl } from './config';
+import { ChannelAddress } from '../type/channeladdress';
 
 export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config_2018_7 {
 
@@ -257,16 +258,10 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
     /**
      * Returns ChannelAddresses of ESS Soc channels
      */
-    public getEssSocChannels(): DefaultTypes.ChannelAddresses {
-        let result: DefaultTypes.ChannelAddresses = {}
+    public getEssSocChannels(): ChannelAddress[] {
+        let result: ChannelAddress[] = []
         for (let thingId of this.esss) {
-            let channels = [];
-            // ESS
-            channels.push("Soc");
-            // store result
-            if (channels.length > 0) {
-                result[thingId] = channels;
-            }
+            result.push(new ChannelAddress(thingId, "Soc"));
         }
         return result;
     }
@@ -311,7 +306,6 @@ export class ConfigImpl_2018_7 extends ConfigImpl implements DefaultTypes.Config
         // basic channels
         merge(this.getStateChannels());
         merge(this.getPowerChannels());
-        merge(this.getEssSocChannels());
         // widget channels
         merge(this.getEvcsWidgetChannels());
         merge(this.getThresholdWidgetChannels());

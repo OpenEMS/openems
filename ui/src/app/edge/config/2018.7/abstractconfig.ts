@@ -2,7 +2,7 @@ import { OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, FormArray, FormBuilder } from '@angular/forms';
 
-import { Websocket } from '../../../shared/shared';
+import { Websocket } from '../../../shared/service/websocket';
 import { AbstractConfigForm } from './abstractconfigform';
 
 export type ConfigureRequestModeType = "update" | "create" | "delete";

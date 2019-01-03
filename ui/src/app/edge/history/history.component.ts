@@ -13,7 +13,7 @@ import { Edge } from '../../shared/edge/edge';
 import { ConfigImpl } from '../../shared/edge/config';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
 import { Websocket } from '../../shared/service/websocket';
-import { Service } from '../../shared/shared';
+import { Service } from '../../shared/service/service';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -64,37 +64,37 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(edge => {
-        this.edge = edge;
-        if (edge == null) {
-          this.config = null;
-        } else {
-          edge.config
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(config => {
-              this.config = config;
-              if (config) {
-                this.socChannels = config.getEssSocChannels();
-                this.powerChannels = config.getPowerChannels();
-                this.evcsChannels = config.getEvcsChannels();
-              } else {
-                this.socChannels = {};
-                this.powerChannels = {};
-                this.evcsChannels = {};
-              }
-            });
-        }
-      });
-    this.setPeriod("today");
+    this.service.setCurrentEdge(this.route)
+    //   .pipe(takeUntil(this.ngUnsubscribe))
+    //   .subscribe(edge => {
+    //     this.edge = edge;
+    //     if (edge == null) {
+    //       this.config = null;
+    //     } else {
+    //       edge.config
+    //         .pipe(takeUntil(this.ngUnsubscribe))
+    //         .subscribe(config => {
+    //           this.config = config;
+    //           if (config) {
+    //             // this.socChannels = config.getEssSocChannels();
+    //             this.powerChannels = config.getPowerChannels();
+    //             this.evcsChannels = config.getEvcsChannels();
+    //           } else {
+    //             this.socChannels = {};
+    //             this.powerChannels = {};
+    //             this.evcsChannels = {};
+    //           }
+    //         });
+    //     }
+    //   });
+    // this.setPeriod("today");
 
-    // adjust chart size in the beginning and on window resize
-    setTimeout(() => this.updateOnWindowResize(), 200);
-    const source = fromEvent(window, 'resize', null, null);
-    const subscription = source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
-      this.updateOnWindowResize();
-    });
+    // // adjust chart size in the beginning and on window resize
+    // setTimeout(() => this.updateOnWindowResize(), 200);
+    // const source = fromEvent(window, 'resize', null, null);
+    // const subscription = source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
+    //   this.updateOnWindowResize();
+    // });
   }
 
   updateOnWindowResize() {
@@ -104,11 +104,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.socChartHeight =
       /* minimum size */ Math.max(150,
       /* maximium size */ Math.min(250, ref)
-      ) + "px";
+    ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
       /* maximium size */ Math.min(600, ref)
-      ) + "px";
+    ) + "px";
   }
 
   clickOtherPeriod() {

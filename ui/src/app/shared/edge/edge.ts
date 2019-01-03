@@ -2,20 +2,17 @@ import { Subject, BehaviorSubject, ReplaySubject, Observer, Observable } from 'r
 import { first, map, combineLatest } from 'rxjs/operators';
 import { cmp } from 'semver-compare-multi';
 
-import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
 import { CurrentDataAndSummary } from './currentdata';
-import { CurrentDataAndSummary_2018_7 } from './currentdata.2018.7';
 import { DefaultMessages } from '../service/defaultmessages';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
-import { ConfigImpl_2018_8 } from './config.2018.8';
-import { ConfigImpl_2018_7 } from './config.2018.7';
-import { CurrentDataAndSummary_2018_8 } from './currentdata.2018.8';
 import { SubscribeChannelsRequest } from '../service/jsonrpc/request/subscribeChannelsRequest';
 import { JsonrpcRequest, JsonrpcResponse } from '../service/jsonrpc/base';
 import { EdgeRpcRequest } from '../service/jsonrpc/request/edgeRpcRequest';
-import { EdgeRpcResponse } from '../service/jsonrpc/response/edgeRpcRequest';
+import { ChannelAddress } from '../type/channeladdress';
+import { EdgeRpcResponse } from '../service/jsonrpc/response/edgeRpcResponse';
+import { Websocket } from '../service/websocket';
 
 export class Log {
   timestamp: number;
@@ -38,7 +35,7 @@ export class Edge {
   ) { }
 
   // holds currently subscribed channels, identified by source id
-  private subscribedChannels: { [sourceId: string]: string[] } = {};
+  private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
 
   // holds current data
   public currentData: Subject<CurrentDataAndSummary> = new Subject<CurrentDataAndSummary>();
@@ -49,6 +46,13 @@ export class Edge {
   // holds config
   public config: BehaviorSubject<ConfigImpl> = new BehaviorSubject<ConfigImpl>(null);
 
+  public getConfig(websocket: Websocket): BehaviorSubject<ConfigImpl> {
+    if (this.config.value == null) {
+      // websocket.sendRequest() TODO
+    }
+    return this.config;
+  }
+
   public event = new Subject<Notification>();
   public address: string;
 
@@ -56,40 +60,42 @@ export class Edge {
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private subscribeCurrentDataChannels: string[] = [];
 
-  /*
-   * Called by websocket, when this edge is set as currentEdge
+  /**
+   * Called by Service, when this Edge is set as currentEdge.
    */
   public markAsCurrentEdge() {
-    // if (this.config.getValue() == null) {
-    //   this.refreshConfig();
-    // }
+    if (this.config.value == null) {
+      this.refreshConfig();
+    }
   }
 
-  /*
-   * Refresh the config
+  /**
+   * Refresh the config.
    */
-  // public refreshConfig(): BehaviorSubject<ConfigImpl> {
-  //   // TODO use sendMessageWithReply()
-  //   let message = DefaultMessages.configQuery(this.edgeId);
-  //   let messageId = message.messageId.ui;
-  //   this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-  //   this.send(message);
-  //   // wait for reply
-  //   this.replyStreams[messageId].pipe(first()).subscribe(reply => {
-  //     let config = (<DefaultMessages.ConfigQueryReply>reply).config;
-  //     let configImpl
-  //     if (this.isVersionAtLeast('2018.8')) {
-  //       configImpl = new ConfigImpl_2018_8(this, config);
-  //     } else {
-  //       configImpl = new ConfigImpl_2018_7(this, config);
-  //     }
-  //     this.config.next(configImpl);
-  //     this.replyStreams[messageId].unsubscribe();
-  //     delete this.replyStreams[messageId];
-  //   });
-  //   // TODO add timeout
-  //   return this.config;
-  // }
+  public refreshConfig() {
+    // websocket.sendRequest();
+
+    // // TODO use sendMessageWithReply()
+    // let message = DefaultMessages.configQuery(this.edgeId);
+    // let messageId = message.messageId.ui;
+    // this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    // this.send(message);
+    // // wait for reply
+    // this.replyStreams[messageId].pipe(first()).subscribe(reply => {
+    //   let config = (<DefaultMessages.ConfigQueryReply>reply).config;
+    //   let configImpl
+    //   if (this.isVersionAtLeast('2018.8')) {
+    //     configImpl = new ConfigImpl_2018_8(this, config);
+    //   } else {
+    //     configImpl = new ConfigImpl_2018_7(this, config);
+    //   }
+    //   this.config.next(configImpl);
+    //   this.replyStreams[messageId].unsubscribe();
+    //   delete this.replyStreams[messageId];
+    // });
+    // // TODO add timeout
+    // return this.config;
+  }
 
   /**
    * Sends a message to websocket
@@ -116,29 +122,34 @@ export class Edge {
   /**
    * Add Channels to subscription
    * 
-   * @param ws 
-   * @param id 
-   * @param channels 
+   * @param websocket the Websocket
+   * @param id        a unique ID for this subscription (e.g. the component selector)
+   * @param channels  the subscribed Channel-Adresses
    */
-  public subscribeChannels(ws: Websocket, id: string, channels: string[]) {
+  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]) {
     this.subscribedChannels[id] = channels;
-    this.sendSubscribeChannels(ws);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
    * Removes Channels from subscription
    * 
-   * @param ws 
-   * @param id 
+   * @param ws the Websocket
+   * @param id the unique ID for this subscription
    */
   public unsubscribeChannels(ws: Websocket, id: string) {
     delete this.subscribedChannels[id];
     this.sendSubscribeChannels(ws);
   }
 
+  /**
+   * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
+   * 
+   * @param ws the Websocket
+   */
   private sendSubscribeChannels(ws: Websocket) {
     // merge channels from currentDataSubscribes
-    let channels: string[] = [];
+    let channels: ChannelAddress[] = [];
     for (let componentId in this.subscribedChannels) {
       channels.push.apply(channels, this.subscribedChannels[componentId]);
     }
@@ -151,41 +162,22 @@ export class Edge {
   /**
    * Sends a JSON-RPC Request, wrapped in a EdgeRpcRequest with the Edge-ID.
    * 
-   * @param ws 
-   * @param request 
-   * @param responseCallback 
+   * @param ws               the Websocket
+   * @param request          the JSON-RPC Request
+   * @param responseCallback the JSON-RPC Response callback
    */
-  public sendRequest(ws: Websocket, request: JsonrpcRequest, responseCallback: (response: JsonrpcResponse) => void) {
+  public sendRequest(ws: Websocket, request: JsonrpcRequest, responseCallback: (response: JsonrpcResponse) => void): void {
     let wrap = new EdgeRpcRequest(this.id, request);
     ws.sendRequest(wrap, (response) => {
-      if ("result" in response) {
-        // TODO let payload = (response as EdgeRpcResponse).payload;
-        responseCallback(response);
+      if ("result" in response && "payload" in response['result']) {
+        // unwrap
+        responseCallback(response['result']['payload']);
       } else {
+        // TODO: not successful: wrap in JSON-RPC Error
         responseCallback(response);
       }
     });
   }
-
-  /**
-   * Subscribe to current data of specified channels
-   */
-  // public subscribeCurrentData(channels: DefaultTypes.ChannelAddresses): void {
-  // console.warn("Edge.subscribeCurrentData()", channels);
-  // this.subscribeCurrentDataChannels = channels;
-  // let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.id, channels));
-  // let obs = replyStream
-  //   .pipe(map(message => (message as DefaultMessages.CurrentDataReply).currentData),
-  //     combineLatest(this.config, (currentData, config) => {
-  //       if (this.isVersionAtLeast('2018.8')) {
-  //         return new CurrentDataAndSummary_2018_8(this, currentData, <ConfigImpl_2018_8>config);
-  //       } else {
-  //         return new CurrentDataAndSummary_2018_7(this, currentData, <ConfigImpl_2018_7>config);
-  //       }
-  //     }));
-  // TODO send "unsubscribe" to websocket when nobody is subscribed on this observable anymore
-  // return obs;
-  // }
 
   /**
    * Query data

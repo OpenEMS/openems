@@ -2,9 +2,8 @@ import { OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormArray, AbstractControl } from '@angular/forms';
 import { BehaviorSubject, Subject } from 'rxjs';
 
-
-import { Websocket } from '../../../shared/shared';
 import { Edge } from '../../../shared/edge/edge';
+import { Websocket } from '../../../shared/service/websocket';
 
 export type ConfigureRequestModeType = "update" | "create" | "delete";
 export class ConfigureRequest {

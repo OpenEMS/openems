@@ -1,10 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
-import { Websocket, Service } from '../../../../../shared/shared';
 import { Edge } from '../../../../../shared/edge/edge';
+import { Service } from '../../../../../shared/service/service';
 
 @Component({
   selector: 'systemexecute',
@@ -16,15 +15,15 @@ export class SystemExecuteComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private websocket: Websocket,
+    private service: Service,
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route)
-      .pipe(takeUntil(this.stopOnDestroy))
-      .subscribe(edge => {
-        this.edge = edge;
-      });
+    this.service.setCurrentEdge(this.route)
+    // .pipe(takeUntil(this.stopOnDestroy))
+    // .subscribe(edge => {
+    //   this.edge = edge;
+    // });
   }
 
   public edge: Edge;
