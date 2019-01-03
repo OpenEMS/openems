@@ -31,7 +31,37 @@ public class TypeUtils {
 		}
 		switch (type) {
 		case BOOLEAN:
-			return (T) (Boolean) value;
+			if (value == null) {
+				return (T) (Boolean) value;
+
+			} else if (value instanceof Boolean) {
+				return (T) (Boolean) value;
+
+			} else if (value instanceof Short) {
+				return (T) ((Short) value == 0 ? Boolean.FALSE : Boolean.TRUE);
+
+			} else if (value instanceof Integer) {
+				return (T) ((Integer) value == 0 ? Boolean.FALSE : Boolean.TRUE);
+
+			} else if (value instanceof Long) {
+				return (T) ((Long) value == 0 ? Boolean.FALSE : Boolean.TRUE);
+
+			} else if (value instanceof Float) {
+				return (T) ((Float) value == 0 ? Boolean.FALSE : Boolean.TRUE);
+
+			} else if (value instanceof Double) {
+				return (T) ((Double) value == 0 ? Boolean.FALSE : Boolean.TRUE);
+
+			} else if (value instanceof String) {
+				String stringValue = (String) value;
+				if (stringValue.equalsIgnoreCase("false")) {
+					return (T) Boolean.FALSE;
+				} else if (stringValue.equalsIgnoreCase("true")) {
+					return (T) Boolean.TRUE;
+				} else {
+					throw new IllegalArgumentException("Cannot convert String [" + value + "] to Boolean.");
+				}
+			}
 
 		case SHORT:
 			if (value == null) {
