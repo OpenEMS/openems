@@ -1,19 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-//import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, Subject, fromEvent } from 'rxjs';
-import { takeUntil, debounceTime, delay } from 'rxjs/operators';
-import * as d3 from 'd3';
-import * as d3shape from 'd3-shape';
 import { TranslateService } from '@ngx-translate/core';
-import { IMyDate, IMyDateRange, IMyDrpOptions, IMyDateRangeModel } from 'mydaterangepicker';
-import { format, subDays, addDays, isSameDay, getYear, getMonth, getDate } from 'date-fns';
-
+import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
+import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
+import { Subject } from 'rxjs';
 import { Edge } from '../../shared/edge/edge';
-import { ConfigImpl } from '../../shared/edge/config';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
-import { Websocket } from '../../shared/service/websocket';
 import { Service } from '../../shared/service/service';
+import { Websocket } from '../../shared/service/websocket';
+
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -28,7 +23,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private readonly TOMORROW = addDays(new Date(), 1);
 
   public edge: Edge = null;
-  public config: ConfigImpl = null;
   public socChannels: DefaultTypes.ChannelAddresses = {};
   public powerChannels: DefaultTypes.ChannelAddresses = {};
   public evcsChannels: DefaultTypes.ChannelAddresses = {};

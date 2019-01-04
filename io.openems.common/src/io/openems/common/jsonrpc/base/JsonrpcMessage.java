@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 public abstract class JsonrpcMessage {
 
@@ -28,7 +29,8 @@ public abstract class JsonrpcMessage {
 		} else if (j.has("error")) {
 			return JsonrpcResponseError.from(j);
 		}
-		throw new OpenemsException("JsonrpcMessage is not a valid Request, Result or Notification: " + j);
+		throw new OpenemsException(
+				"JsonrpcMessage is not a valid Request, Result or Notification: " + StringUtils.toShortString(j, 100));
 	}
 
 	public JsonObject toJsonObject() {

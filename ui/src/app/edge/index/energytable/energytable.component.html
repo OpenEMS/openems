@@ -150,14 +150,14 @@
     <ion-card-content *ngIf="currentData.summary.production as sum">
       <table class="full_width">
         <!-- DC -->
-        <tr *ngIf="sum.hasDC != null">
+        <tr *ngIf="sum.hasDC">
           <td style="width:50%">
             <span translate>General.Production</span> DC</td>
           <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
           <td style="width:10%">&nbsp;W</td>
         </tr>
         <!-- Symmetric Meter -->
-        <ng-container *ngIf="sum.isAsymmetric == false && sum.activePowerAC != null">
+        <ng-container *ngIf="!sum.isAsymmetric && sum.activePowerAC != null">
           <tr>
             <td style="width:50%" translate>General.Production
               <span *ngIf="currentData.summary.storage.hasDC"> AC</span>

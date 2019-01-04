@@ -1,18 +1,18 @@
-import { Subject, BehaviorSubject, ReplaySubject, Observer, Observable } from 'rxjs';
-import { first, map, combineLatest } from 'rxjs/operators';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
 
-import { ConfigImpl } from './config';
-import { CurrentDataAndSummary } from './currentdata';
-import { DefaultMessages } from '../service/defaultmessages';
+import { CurrentData } from './currentdata';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
 import { SubscribeChannelsRequest } from '../service/jsonrpc/request/subscribeChannelsRequest';
-import { JsonrpcRequest, JsonrpcResponse } from '../service/jsonrpc/base';
+import { JsonrpcRequest, JsonrpcResponseSuccess } from '../service/jsonrpc/base';
 import { EdgeRpcRequest } from '../service/jsonrpc/request/edgeRpcRequest';
 import { ChannelAddress } from '../type/channeladdress';
-import { EdgeRpcResponse } from '../service/jsonrpc/response/edgeRpcResponse';
 import { Websocket } from '../service/websocket';
+import { GetEdgeConfigRequest } from '../service/jsonrpc/request/getEdgeConfigRequest';
+import { GetEdgeConfigResponse } from '../service/jsonrpc/response/getEdgeConfigResponse';
+import { EdgeConfig } from './edgeconfig';
+import { CurrentDataNotification } from '../service/jsonrpc/notification/currentDataNotification';
 
 export class Log {
   timestamp: number;
@@ -38,17 +38,17 @@ export class Edge {
   private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
 
   // holds current data
-  public currentData: Subject<CurrentDataAndSummary> = new Subject<CurrentDataAndSummary>();
+  public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
 
   // holds log
   public log: Observable<DefaultTypes.Log>;
 
   // holds config
-  public config: BehaviorSubject<ConfigImpl> = new BehaviorSubject<ConfigImpl>(null);
+  public config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig());
 
-  public getConfig(websocket: Websocket): BehaviorSubject<ConfigImpl> {
-    if (this.config.value == null) {
-      // websocket.sendRequest() TODO
+  public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
+    if (!this.config.value.isValid()) {
+      this.refreshConfig(websocket);
     }
     return this.config;
   }
@@ -63,60 +63,34 @@ export class Edge {
   /**
    * Called by Service, when this Edge is set as currentEdge.
    */
-  public markAsCurrentEdge() {
+  public markAsCurrentEdge(websocket: Websocket) {
     if (this.config.value == null) {
-      this.refreshConfig();
+      this.refreshConfig(websocket);
     }
   }
 
   /**
    * Refresh the config.
    */
-  public refreshConfig() {
-    // websocket.sendRequest();
-
-    // // TODO use sendMessageWithReply()
-    // let message = DefaultMessages.configQuery(this.edgeId);
-    // let messageId = message.messageId.ui;
-    // this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    // this.send(message);
-    // // wait for reply
-    // this.replyStreams[messageId].pipe(first()).subscribe(reply => {
-    //   let config = (<DefaultMessages.ConfigQueryReply>reply).config;
-    //   let configImpl
-    //   if (this.isVersionAtLeast('2018.8')) {
-    //     configImpl = new ConfigImpl_2018_8(this, config);
-    //   } else {
-    //     configImpl = new ConfigImpl_2018_7(this, config);
-    //   }
-    //   this.config.next(configImpl);
-    //   this.replyStreams[messageId].unsubscribe();
-    //   delete this.replyStreams[messageId];
-    // });
-    // // TODO add timeout
-    // return this.config;
+  public refreshConfig(websocket: Websocket) {
+    console.log("refreshConfig", websocket)
+    let request = new GetEdgeConfigRequest();
+    this.sendRequest(websocket, request).then(response => {
+      this.config.next((response as GetEdgeConfigResponse).result);
+    }).catch(reason => {
+      console.log("refreshConfig got error", reason)
+      // TODO error
+      this.config.next(new EdgeConfig());
+    });
   }
 
   /**
    * Sends a message to websocket
+   * 
+   * TODO deprecated
    */
   public send(value: any): void {
     console.warn("Edge.send()", value);
-  }
-
-  private sendMessageWithReply(message: DefaultTypes.IdentifiedMessage): void {
-    console.warn("Edge.sendMessageWithReply()", message);
-    // let messageId: string = message.messageId.ui;
-    // this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    // this.send(message);
-    // return this.replyStreams[messageId];
-  }
-
-  private removeReplyStream(reply: DefaultMessages.Reply) {
-    console.warn("Edge.removeReplyStream()", reply);
-    // let messageId: string = reply.messageId.ui;
-    // this.replyStreams[messageId].unsubscribe();
-    // delete this.replyStreams[messageId];
   }
 
   /**
@@ -154,9 +128,14 @@ export class Edge {
       channels.push.apply(channels, this.subscribedChannels[componentId]);
     }
     let request = new SubscribeChannelsRequest(channels);
-    this.sendRequest(ws, request, (response) => {
-      console.log("response to subscribe: ", response);
-    });
+    this.sendRequest(ws, request); // ignore Response
+  }
+
+  /**
+   * Handles a CurrentDataNotification
+   */
+  public handleCurrentDataNotification(message: CurrentDataNotification): void {
+    this.currentData.next(new CurrentData(message.params));
   }
 
   /**
@@ -166,17 +145,15 @@ export class Edge {
    * @param request          the JSON-RPC Request
    * @param responseCallback the JSON-RPC Response callback
    */
-  public sendRequest(ws: Websocket, request: JsonrpcRequest, responseCallback: (response: JsonrpcResponse) => void): void {
+  public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     let wrap = new EdgeRpcRequest(this.id, request);
-    ws.sendRequest(wrap, (response) => {
-      if ("result" in response && "payload" in response['result']) {
-        // unwrap
-        responseCallback(response['result']['payload']);
-      } else {
-        // TODO: not successful: wrap in JSON-RPC Error
-        responseCallback(response);
-      }
-    });
+    return new Promise((resolve, reject) => {
+      ws.sendRequest(wrap).then(response => {
+        resolve(response['result']['payload']);
+      }).catch(reason => {
+        reject(reason);
+      });
+    })
   }
 
   /**

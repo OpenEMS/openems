@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Subject, BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
-import { map, retryWhen, takeUntil, filter, first, delay } from 'rxjs/operators';
+import { retryWhen, takeUntil, filter, first, delay } from 'rxjs/operators';
 
 import { environment as env } from '../../../environments';
 import { Service } from './service';
@@ -15,7 +15,7 @@ import { WsData } from './wsdata';
 import { AuthenticateWithSessionIdNotification } from './jsonrpc/notification/authenticatedWithSessionIdNotification';
 import { CurrentDataNotification } from './jsonrpc/notification/currentDataNotification';
 import { EdgeRpcNotification } from './jsonrpc/notification/edgeRpcNotification';
-import { CurrentDataAndSummary_2018_8 } from '../edge/currentdata.2018.8';
+import { EdgeRpcResponse } from './jsonrpc/response/edgeRpcResponse';
 
 @Injectable()
 export class Websocket {
@@ -38,6 +38,8 @@ export class Websocket {
     private router: Router,
     private service: Service,
   ) {
+    service.websocket = this;
+
     // try to auto connect using token or session_id
     setTimeout(() => {
       this.connect();
@@ -123,30 +125,44 @@ export class Websocket {
 
       })).subscribe(originalMessage => {
         // called on every receive of message from server
-        if (env.debugMode) {
-          console.info("RECV", originalMessage);
-        }
-
         let message: JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError;
         try {
           message = JsonrpcMessage.from(originalMessage);
         } catch (e) {
           // handle deprecated non-JSON-RPC messages
+          if (env.debugMode) {
+            console.info("Convert non-JSON-RPC message", message);
+          }
           message = this.handleNonJsonrpcMessage(originalMessage, e);
         }
 
         if (message instanceof JsonrpcRequest) {
-          console.info("Request", message);
-
           // handle JSON-RPC Request
+          if (env.debugMode) {
+            console.info("Receive Request", message);
+          }
           this.onRequest(message);
 
         } else if (message instanceof JsonrpcResponse) {
           // handle JSON-RPC Response
+          if (env.debugMode) {
+            if (message instanceof EdgeRpcResponse) {
+              console.info("Receive Response", message.params.payload);
+            } else {
+              console.info("Receive Response", message);
+            }
+          }
           this.onResponse(message);
 
         } else if (message instanceof JsonrpcNotification) {
           // handle JSON-RPC Notification
+          if (env.debugMode) {
+            if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
+              console.info("Receive Notification", message.params['payload']);
+            } else {
+              console.info("Receive Notification", message);
+            }
+          }
           this.onNotification(message);
         }
 
@@ -296,8 +312,8 @@ export class Websocket {
    * @param request 
    * @param responseCallback 
    */
-  public sendRequest(request: JsonrpcRequest, responseCallback: (response: JsonrpcResponse) => void) {
-    this.wsdata.sendRequest(this.socket, request, responseCallback);
+  public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    return this.wsdata.sendRequest(this.socket, request);
   }
 
   /**
@@ -428,19 +444,7 @@ export class Websocket {
 
     if (edgeId in edges) {
       let edge = edges[edgeId];
-      let values = {};
-      for (let channel in message.params) {
-        let channelAddress = channel.split('/', 2);
-        let componentId = channelAddress[0];
-        let channelId = channelAddress[1];
-        if (!(componentId in values)) {
-          values[componentId] = {};
-        }
-        values[componentId][channelId] = message.params[channel];
-      }
-
-      let data = new CurrentDataAndSummary_2018_8(edge, values, edge.config.getValue());
-      edge.currentData.next(data);
+      edge.handleCurrentDataNotification(message);
     }
   }
 

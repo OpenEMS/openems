@@ -15,9 +15,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.notification.EdgeConfigurationNotification;
+import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnInternalError;
@@ -119,7 +120,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 		// config
 		if (message.has("config")) {
-			return new EdgeConfigurationNotification(JsonUtils.getAsJsonObject(message, "config"));
+			EdgeConfig config = EdgeConfig.fromJson(JsonUtils.getAsJsonObject(message, "config"));
+			return new EdgeConfigNotification(config);
 		}
 
 		// timedata

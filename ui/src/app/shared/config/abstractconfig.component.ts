@@ -5,8 +5,6 @@ import { takeUntil, filter } from 'rxjs/operators';
 
 import { Utils } from '../service/utils';
 import { Edge } from '../edge/edge';
-import { ConfigImpl } from '../edge/config';
-import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 import { Service } from '../service/service';
 
 @Component({
@@ -17,7 +15,7 @@ export class AbstractConfigComponent implements OnInit {
 
   public showSubThings: boolean = false;
   public edge: Edge = null;
-  public config: ConfigImpl_2018_7 = null;
+  // public config: ConfigImpl_2018_7 = null;
   public things: string[] = [];
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -53,7 +51,8 @@ export class AbstractConfigComponent implements OnInit {
     this.stopOnDestroy.complete();
   }
 
-  protected filterThings(config: ConfigImpl): string[] {
-    return this.utils.keys(this.config.things);
-  }
+  // TODO
+  // protected filterThings(config: ConfigImpl): string[] {
+  //   return this.utils.keys(this.config.things);
+  // }
 }

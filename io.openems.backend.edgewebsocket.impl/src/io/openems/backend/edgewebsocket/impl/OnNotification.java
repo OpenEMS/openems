@@ -13,7 +13,7 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.notification.EdgeConfigurationNotification;
+import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.JsonUtils;
 
@@ -34,8 +34,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		// Handle notification
 		switch (notification.getMethod()) {
-		case EdgeConfigurationNotification.METHOD:
-			this.handleEdgeConfiguration(EdgeConfigurationNotification.from(notification), wsData);
+		case EdgeConfigNotification.METHOD:
+			this.handleEdgeConfiguration(EdgeConfigNotification.from(notification), wsData);
 			return;
 
 		case TimestampedDataNotification.METHOD:
@@ -53,11 +53,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param wsData
 	 * @throws OpenemsException
 	 */
-	private void handleEdgeConfiguration(EdgeConfigurationNotification message, WsData wsData)
+	private void handleEdgeConfiguration(EdgeConfigNotification message, WsData wsData)
 			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
-		edge.setConfig(message.getParams());
+		edge.setConfig(message.getConfig());
 	}
 
 	/**

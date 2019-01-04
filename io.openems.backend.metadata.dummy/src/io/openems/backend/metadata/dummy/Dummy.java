@@ -15,14 +15,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -77,10 +76,9 @@ public class Dummy implements Metadata {
 		// not found -> create
 		int id = this.nextEdgeId.incrementAndGet();
 		String edgeId = "edge" + id;
-		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "",
-				new JsonObject(), null, null);
-		edge.onSetConfig(jConfig -> {
-			log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
+		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null);
+		edge.onSetConfig(config -> {
+			log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 		});
 		edge.onSetSoc(soc -> {
 			log.debug("Edge [" + edgeId + "]. Set SoC: " + soc);

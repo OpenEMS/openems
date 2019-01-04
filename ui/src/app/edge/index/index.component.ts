@@ -3,8 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { Edge } from '../../shared/edge/edge';
-import { ConfigImpl } from '../../shared/edge/config';
-import { CurrentDataAndSummary } from '../../shared/edge/currentdata';
+import { CurrentData } from '../../shared/edge/currentdata';
 import { Widget } from '../../shared/type/widget';
 import { Websocket } from '../../shared/service/websocket';
 import { Utils } from '../..//shared/service/utils';
@@ -17,8 +16,7 @@ import { Service } from '../../shared/service/service';
 export class IndexComponent implements OnInit, OnDestroy {
 
   public edge: Edge = null
-  public config: ConfigImpl = null;
-  public currentData: CurrentDataAndSummary = null;
+  public currentData: CurrentData = null;
   public widgets: Widget[] = [];
   //public customFields: CustomFieldDefinition = {};
 
@@ -60,7 +58,6 @@ export class IndexComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     clearInterval(this.currentDataTimeout);
     this.edge = null;
-    this.config = null;
     this.currentData = null;
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();

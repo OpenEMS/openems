@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 
 public class Edge {
@@ -27,7 +28,7 @@ public class Edge {
 	private State state;
 	private String version;
 	private String producttype;
-	private JsonObject config;
+	private EdgeConfig config;
 	private ZonedDateTime lastMessage = null;
 	private ZonedDateTime lastUpdate = null;
 	private Integer soc = null;
@@ -35,7 +36,7 @@ public class Edge {
 	private boolean isOnline;
 
 	public Edge(String id, String apikey, String comment, State state, String version, String producttype,
-			JsonObject config, Integer soc, String ipv4) {
+			EdgeConfig config, Integer soc, String ipv4) {
 		this.id = id;
 		this.apikey = apikey;
 		this.comment = comment;
@@ -59,7 +60,7 @@ public class Edge {
 		return comment;
 	}
 
-	public JsonObject getConfig() {
+	public EdgeConfig getConfig() {
 		return config;
 	}
 
@@ -113,17 +114,15 @@ public class Edge {
 	/*
 	 * Config
 	 */
-	private final List<Consumer<JsonObject>> onSetConfig = new CopyOnWriteArrayList<>();
+	private final List<Consumer<EdgeConfig>> onSetConfig = new CopyOnWriteArrayList<>();
 
-	public void onSetConfig(Consumer<JsonObject> listener) {
+	public void onSetConfig(Consumer<EdgeConfig> listener) {
 		this.onSetConfig.add(listener);
 	}
 
-	public synchronized void setConfig(JsonObject jConfig) {
-		if (this.config == null || !jConfig.equals(this.config)) { // on change
-			this.config = jConfig;
-			this.onSetConfig.forEach(listener -> listener.accept(jConfig));
-		}
+	public synchronized void setConfig(EdgeConfig config) {
+		this.config = config;
+		this.onSetConfig.forEach(listener -> listener.accept(config));
 	}
 
 	/*

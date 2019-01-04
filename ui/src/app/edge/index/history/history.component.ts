@@ -1,8 +1,6 @@
-import { Component, Input, OnChanges } from '@angular/core';
-
-import { ConfigImpl } from '../../../shared/edge/config';
+import { Component, Input } from '@angular/core';
 import { Edge } from '../../../shared/edge/edge';
-import { ChannelAddress } from '../../../shared/type/channeladdress';
+
 
 @Component({
   selector: 'history',
@@ -10,7 +8,6 @@ import { ChannelAddress } from '../../../shared/type/channeladdress';
 })
 export class HistoryComponent {
 
-  @Input() protected config: ConfigImpl;
   @Input() protected edge: Edge;
 
   // show the chart for today

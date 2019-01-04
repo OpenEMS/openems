@@ -25,6 +25,11 @@ export class Service implements ErrorHandler {
    */
   public readonly edges: BehaviorSubject<{ [edgeId: string]: Edge }> = new BehaviorSubject({});
 
+  /**
+   * Holds reference to Websocket. This is set by Websocket in constructor.
+   */
+  public websocket = null;
+
   constructor(
     private router: Router,
     public translate: TranslateService
@@ -110,7 +115,7 @@ export class Service implements ErrorHandler {
 
       let setCurrentEdge = (edge: Edge) => {
         if (edge != null) {
-          edge.markAsCurrentEdge();
+          edge.markAsCurrentEdge(this.websocket);
         }
         this.currentEdge.next(edge);
         resolve(edge);

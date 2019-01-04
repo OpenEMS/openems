@@ -1,4 +1,4 @@
-import { JsonrpcRequest, JsonrpcResponse, JsonrpcResponseSuccess } from "../base";
+import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a QueryHistoricTimeseriesDataRequest.

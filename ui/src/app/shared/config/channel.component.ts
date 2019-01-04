@@ -1,14 +1,12 @@
-import { Component, Input, Output, OnChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, Output } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
-
-import { DefaultMessages } from '../service/defaultmessages';
-import { Utils } from '../service/utils';
 import { Edge } from '../edge/edge';
+import { DefaultMessages } from '../service/defaultmessages';
 import { DefaultTypes } from '../service/defaulttypes';
+import { Utils } from '../service/utils';
 import { Role } from '../type/role';
-import { ConfigImpl_2018_7 } from '../edge/config.2018.7';
 
 @Component({
   selector: 'channel',
@@ -29,7 +27,8 @@ export class ChannelComponent implements OnChanges, OnDestroy {
 
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
-  @Input() public config: ConfigImpl_2018_7 = null;
+  // TODO
+  @Input() public config: any = null;
   @Input() public role: Role = "guest"; // TODO in edge
   @Input() public edge: Edge = null;
   @Input() public showThings: boolean = false;
@@ -42,91 +41,92 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     private formBuilder: FormBuilder) { }
 
   ngOnChanges() {
-    if (this.config == null || this.thingId == null || !(this.thingId in this.config.things) || this.channelId == null) {
-      return;
-    }
+    // TODO
+    // if (this.config == null || this.thingId == null || !(this.thingId in this.config.things) || this.channelId == null) {
+    //   return;
+    // }
 
-    let thingConfig = this.config.things[this.thingId];
-    let clazz = thingConfig.class;
-    if (clazz instanceof Array) {
-      return;
-    }
-    let thingMeta = this.config.meta[clazz];
-    let channelMeta = thingMeta.channels[this.channelId];
-    this.meta = channelMeta;
-    if (this.title == null) {
-      this.title = channelMeta.title;
-    }
+    // let thingConfig = this.config.things[this.thingId];
+    // let clazz = thingConfig.class;
+    // if (clazz instanceof Array) {
+    //   return;
+    // }
+    // let thingMeta = this.config.meta[clazz];
+    // let channelMeta = thingMeta.channels[this.channelId];
+    // this.meta = channelMeta;
+    // if (this.title == null) {
+    //   this.title = channelMeta.title;
+    // }
 
-    // handle access role
-    this.allowWrite = this.meta.writeRoles.includes(this.role);
-    this.allowRead = this.meta.readRoles.includes(this.role);
-    if (!this.allowRead) {
-      return;
-    }
+    // // handle access role
+    // this.allowWrite = this.meta.writeRoles.includes(this.role);
+    // this.allowRead = this.meta.readRoles.includes(this.role);
+    // if (!this.allowRead) {
+    //   return;
+    // }
 
-    // get value or default value
-    let value = thingConfig[this.channelId];
-    if (value == null) {
-      value = channelMeta.defaultValue;
-    }
-    if (this.meta.array == true && value === "") {
-      // value is still not available and we have an array type: initialize array
-      value = [];
-    }
+    // // get value or default value
+    // let value = thingConfig[this.channelId];
+    // if (value == null) {
+    //   value = channelMeta.defaultValue;
+    // }
+    // if (this.meta.array == true && value === "") {
+    //   // value is still not available and we have an array type: initialize array
+    //   value = [];
+    // }
 
-    // set form input type and specialType-flag
-    let metaType = this.meta.type;
-    switch (metaType) {
-      case 'Boolean':
-        this.specialType = 'boolean';
-        break;
+    // // set form input type and specialType-flag
+    // let metaType = this.meta.type;
+    // switch (metaType) {
+    //   case 'Boolean':
+    //     this.specialType = 'boolean';
+    //     break;
 
-      case 'Integer':
-      case 'Long':
-        this.type = 'number';
-        break;
+    //   case 'Integer':
+    //   case 'Long':
+    //     this.type = 'number';
+    //     break;
 
-      case 'String':
-      case 'Inet4Address':
-        this.type = 'string';
-        break;
+    //   case 'String':
+    //   case 'Inet4Address':
+    //     this.type = 'string';
+    //     break;
 
-      case 'JsonArray':
-      case 'JsonObject':
-        this.specialType = 'simple';
-        this.isJson = true;
-        value = JSON.stringify(value);
-        break;
+    //   case 'JsonArray':
+    //   case 'JsonObject':
+    //     this.specialType = 'simple';
+    //     this.isJson = true;
+    //     value = JSON.stringify(value);
+    //     break;
 
-      default:
-        if (metaType in this.config.meta) {
-          // this is a DeviceNature - will be handled as separate thing -> ignore
-          if (this.showThings) {
-            this.specialType = 'thing';
-          } else {
-            this.specialType = 'ignore';
-          }
-        } else if (this.meta.type instanceof Array && this.meta.type.includes("DeviceNature")) {
-          // this channel takes references to a DeviceNature (like "ess0" for SymmetricEssNature)
-          this.specialType = 'selectNature';
-          this.type = "string";
-          // takes the first nature as requirement;
-          // e.g. takes "AsymmetricEssNature" from ["AsymmetricEssNature", "EssNature", "DeviceNature"]
-          this.deviceNature = this.meta.type[0];
-        } else {
-          console.warn("Unknown type: " + this.meta.type, this.meta);
-          this.type = 'string';
-        }
-    }
+    //   default:
+    //     if (metaType in this.config.meta) {
+    //       // this is a DeviceNature - will be handled as separate thing -> ignore
+    //       if (this.showThings) {
+    //         this.specialType = 'thing';
+    //       } else {
+    //         this.specialType = 'ignore';
+    //       }
+    //     } else if (this.meta.type instanceof Array && this.meta.type.includes("DeviceNature")) {
+    //       // this channel takes references to a DeviceNature (like "ess0" for SymmetricEssNature)
+    //       this.specialType = 'selectNature';
+    //       this.type = "string";
+    //       // takes the first nature as requirement;
+    //       // e.g. takes "AsymmetricEssNature" from ["AsymmetricEssNature", "EssNature", "DeviceNature"]
+    //       this.deviceNature = this.meta.type[0];
+    //     } else {
+    //       console.warn("Unknown type: " + this.meta.type, this.meta);
+    //       this.type = 'string';
+    //     }
+    // }
 
-    // build form
-    this.form = this.buildFormGroup({ channelConfig: value });
+    // // build form
+    // this.form = this.buildFormGroup({ channelConfig: value });
 
-    // subscribe to form changes and build websocket message
-    this.form.valueChanges
-      .pipe(takeUntil(this.stopOnDestroy))
-      .subscribe(() => this.updateMessage());
+    // // subscribe to form changes and build websocket message
+    // this.form.valueChanges
+    //   .pipe(takeUntil(this.stopOnDestroy))
+    //   .subscribe(() => this.updateMessage());
   }
 
   ngOnDestroy() {

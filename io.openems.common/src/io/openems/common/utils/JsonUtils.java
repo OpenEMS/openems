@@ -74,6 +74,22 @@ public class JsonUtils {
 		return jSubElement.getAsJsonArray();
 	};
 
+	/**
+	 * Converts JSON Array to a String Array.
+	 * 
+	 * @param json the JSON Array
+	 * @return a String Array
+	 * @throws OpenemsNamedException on error
+	 */
+	public static String[] getAsStringArray(JsonArray json) throws OpenemsNamedException {
+		String[] result = new String[json.size()];
+		int i = 0;
+		for (JsonElement element : json) {
+			result[i++] = JsonUtils.getAsString(element);
+		}
+		return result;
+	}
+
 	public static JsonElement getAsJsonElement(Object value) {
 		// null
 		if (value == null) {

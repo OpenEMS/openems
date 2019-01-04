@@ -4,7 +4,6 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Edge } from '../../../../shared/edge/edge';
-import { ConfigImpl } from '../../../../shared/edge/config';
 import { DefaultTypes } from '../../../../shared/service/defaulttypes';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
@@ -18,7 +17,8 @@ import { EMPTY_DATASET, Dataset } from '../../../../shared/chart';
 export class EnergyChartComponent implements OnChanges {
 
   @Input() private edge: Edge;
-  @Input() private config: ConfigImpl;
+  // TODO
+  @Input() private config: any;
   @Input() private channels: DefaultTypes.ChannelAddresses;
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
@@ -26,7 +26,6 @@ export class EnergyChartComponent implements OnChanges {
   @ViewChild('energyChart') private chart: BaseChartDirective;
 
   constructor(
-    private utils: Utils,
     private translate: TranslateService
   ) {
     this.grid = this.translate.instant('General.Grid');
@@ -71,7 +70,7 @@ export class EnergyChartComponent implements OnChanges {
   private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;

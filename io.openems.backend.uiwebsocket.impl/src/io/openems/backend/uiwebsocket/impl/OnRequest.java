@@ -16,11 +16,14 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -35,6 +38,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		switch (request.getMethod()) {
+
 		case EdgeRpcRequest.METHOD:
 			return this.handleEdgeRpcRequest(ws, EdgeRpcRequest.from(request));
 
@@ -66,6 +70,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case QueryHistoricTimeseriesDataRequest.METHOD:
 			resultFuture = this.handleQueryHistoricDataRequest(edgeId,
 					QueryHistoricTimeseriesDataRequest.from(request));
+			break;
+
+		case GetEdgeConfigRequest.METHOD:
+			resultFuture = this.handleGetEdgeConfigRequest(edgeId, GetEdgeConfigRequest.from(request));
 			break;
 
 		default:
@@ -129,6 +137,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
+	}
+
+	/**
+	 * Handles a GetEdgeConfigRequest.
+	 * 
+	 * @param ws      the Websocket
+	 * @param edgeId  the Edge-ID
+	 * @param request the GetEdgeConfigRequest
+	 * @throws OpenemsException on error
+	 * @return the Future JSON-RPC Response
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId,
+			GetEdgeConfigRequest request) throws OpenemsNamedException {
+		EdgeConfig config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
+		
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new GetEdgeConfigResponse(request.getId(), config));
 	}
 
 	//

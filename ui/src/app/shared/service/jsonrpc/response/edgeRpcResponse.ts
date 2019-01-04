@@ -17,9 +17,11 @@ export class EdgeRpcResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
-        public readonly payload: JsonrpcRequest
+        public readonly params: {
+            payload: JsonrpcRequest
+        }
     ) {
-        super(id, { payload: payload });
+        super(id, params);
     }
 
 }

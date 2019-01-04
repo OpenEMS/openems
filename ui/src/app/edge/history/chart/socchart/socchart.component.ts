@@ -17,11 +17,11 @@ import { Dataset, EMPTY_DATASET } from '../../../../shared/chart';
 })
 export class SocChartComponent implements OnInit, OnChanges {
 
+  @ViewChild('socChart') protected chart: BaseChartDirective;
+
   @Input() private edge: Edge;
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
-
-  @ViewChild('socChart') protected chart: BaseChartDirective;
 
   ngOnChanges() {
     this.updateChart();
@@ -29,7 +29,6 @@ export class SocChartComponent implements OnInit, OnChanges {
 
   constructor(
     private websocket: Websocket,
-    private utils: Utils,
     private translate: TranslateService
   ) {
   }
@@ -53,24 +52,16 @@ export class SocChartComponent implements OnInit, OnChanges {
   }];
 
   ngOnInit() {
-    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 
   private updateChart() {
-    console.log("Socchart.updateChart", this.edge.config.value);
     this.loading = true;
     let request = new QueryHistoricTimeseriesDataRequest(this.fromDate, this.toDate, this.getChannelAddresses());
-    this.edge.sendRequest(this.websocket, request, (response) => {
-      if (!('result' in response)) {
-        console.error(response); // TODO error message
-        this.datasets = EMPTY_DATASET;
-        this.labels = [];
-        this.loading = false;
-        return;
-      }
+    this.edge.sendRequest(this.websocket, request).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels
@@ -101,8 +92,15 @@ export class SocChartComponent implements OnInit, OnChanges {
       this.datasets = datasets;
 
       this.loading = false;
-    });
-  }
+
+    }).catch(reason => {
+      console.error(reason.message); // TODO error message
+      this.datasets = EMPTY_DATASET;
+      this.labels = [];
+      this.loading = false;
+      return;
+    })
+  };
 
   private getChannelAddresses(): ChannelAddress[] {
     if (this.edge.isVersionAtLeast('2018.8')) {

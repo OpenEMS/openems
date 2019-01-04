@@ -2,9 +2,8 @@ import { Component, Input, OnDestroy, EventEmitter, Output } from '@angular/core
 
 import { Utils } from '../../../shared/service/utils';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary } from '../../../shared/edge/currentdata';
+import { CurrentData } from '../../../shared/edge/currentdata';
 import { THING_STATES } from './thingstates';
-import { ConfigImpl_2018_7 } from '../../../shared/edge/config.2018.7';
 
 interface WarningOrFault {
   channelId: string,
@@ -25,12 +24,12 @@ interface WarningsAndFaults {
   templateUrl: './state.component.html'
 })
 export class StateComponent {
+  // TODO
+  // @Input()
+  // public config: ConfigImpl_2018_7;
 
   @Input()
-  public config: ConfigImpl_2018_7;
-
-  @Input()
-  set currentData(currentData: CurrentDataAndSummary) {
+  set currentData(currentData: CurrentData) {
     this.generateRequiredSubscribes(currentData);
     this.fillWarningsAndFaultsList(currentData);
   }
@@ -43,33 +42,34 @@ export class StateComponent {
    * 
    * @param currentData 
    */
-  private generateRequiredSubscribes(currentData: CurrentDataAndSummary) {
+  private generateRequiredSubscribes(currentData: CurrentData) {
     let subscribesChanged: boolean = false;
     let newRequiredSubscribes: DefaultTypes.ChannelAddresses = {};
-    if (currentData == null && this.lastRequiredSubscribes != {}) {
-      subscribesChanged = true;
-    } else {
-      for (let thingId of Object.keys(currentData.data)) {
-        let thing = currentData.data[thingId];
-        if (thing['State'] != null && thing['State'] != 0) {
-          // Thing has a warning or fault
-          if (thingId in this.lastRequiredSubscribes) {
-            // was like this before -> copy subscribes from last time
-            newRequiredSubscribes[thingId] = this.lastRequiredSubscribes[thingId];
-          } else {
-            // this is new -> generate required subscribes
-            newRequiredSubscribes[thingId] = this.getStateChannelAddresses(thingId);
-            subscribesChanged = true;
-          }
-        } else {
-          // Thing has no warning or fault
-          if (thingId in this.lastRequiredSubscribes) {
-            // it had an error before -> do not add to required subscribes
-            subscribesChanged = true;
-          }
-        }
-      }
-    }
+    // TODO
+    // if (currentData == null && this.lastRequiredSubscribes != {}) {
+    //   subscribesChanged = true;
+    // } else {
+    // for (let thingId of Object.keys(currentData.ch)) {
+    //   let thing = currentData.data[thingId];
+    //   if (thing['State'] != null && thing['State'] != 0) {
+    //     // Thing has a warning or fault
+    //     if (thingId in this.lastRequiredSubscribes) {
+    //       // was like this before -> copy subscribes from last time
+    //       newRequiredSubscribes[thingId] = this.lastRequiredSubscribes[thingId];
+    //     } else {
+    //       // this is new -> generate required subscribes
+    //       newRequiredSubscribes[thingId] = this.getStateChannelAddresses(thingId);
+    //       subscribesChanged = true;
+    //     }
+    //   } else {
+    //     // Thing has no warning or fault
+    //     if (thingId in this.lastRequiredSubscribes) {
+    //       // it had an error before -> do not add to required subscribes
+    //       subscribesChanged = true;
+    //     }
+    //   }
+    //   }
+    // }
     if (subscribesChanged) {
       this.requiredSubscribes.emit(newRequiredSubscribes);
       this.lastRequiredSubscribes = newRequiredSubscribes;
@@ -84,101 +84,107 @@ export class StateComponent {
    * 
    * @param currentData 
    */
-  private fillWarningsAndFaultsList(currentData: CurrentDataAndSummary) {
+  private fillWarningsAndFaultsList(currentData: CurrentData) {
     let warningsAndFaultss: WarningsAndFaults[] = [];
-    if (currentData != null) {
-      for (let thingId in currentData.data) {
-        let thing = currentData.data[thingId];
-        if ('State' in thing && thing['State'] != 0) {
-          let warnings: WarningOrFault[] = [];
-          let faults: WarningOrFault[] = [];
-          for (let channelId of Object.keys(thing)) {
-            if (thing[channelId] != null && thing[channelId] != 0) {
-              if (this.ignoreWarningOrFault(thingId, channelId)) {
-                continue;
-              }
-              if (channelId.startsWith('Fault/')) {
-                faults.push(this.getWarningOrFault(thingId, channelId, 'fault'));
-              } else if (channelId.startsWith('Warning/')) {
-                warnings.push(this.getWarningOrFault(thingId, channelId, 'warning'));
-              }
-            }
-          }
-          if (faults.length > 0 || warnings.length > 0) {
-            // get Thing name
-            let name = null;
-            if (this.config.esss.includes(thingId)) {
-              name = "Speichersystem"
-            }
-            warningsAndFaultss.push({
-              thing: {
-                id: thingId,
-                name: name
-              },
-              warnings: warnings,
-              faults: faults
-            });
-          }
-        }
-      }
-    }
+    // TODO
+    // if (currentData != null) {
+    //   for (let thingId in currentData.data) {
+    //     let thing = currentData.data[thingId];
+    //     if ('State' in thing && thing['State'] != 0) {
+    //       let warnings: WarningOrFault[] = [];
+    //       let faults: WarningOrFault[] = [];
+    //       for (let channelId of Object.keys(thing)) {
+    //         if (thing[channelId] != null && thing[channelId] != 0) {
+    //           if (this.ignoreWarningOrFault(thingId, channelId)) {
+    //             continue;
+    //           }
+    //           if (channelId.startsWith('Fault/')) {
+    //             faults.push(this.getWarningOrFault(thingId, channelId, 'fault'));
+    //           } else if (channelId.startsWith('Warning/')) {
+    //             warnings.push(this.getWarningOrFault(thingId, channelId, 'warning'));
+    //           }
+    //         }
+    //       }
+    //       if (faults.length > 0 || warnings.length > 0) {
+    //         // get Thing name
+    //         let name = null;
+    //         if (this.config.esss.includes(thingId)) {
+    //           name = "Speichersystem"
+    //         }
+    //         warningsAndFaultss.push({
+    //           thing: {
+    //             id: thingId,
+    //             name: name
+    //           },
+    //           warnings: warnings,
+    //           faults: faults
+    //         });
+    //       }
+    //     }
+    //   }
+    // }
     this.warningsAndFaultss = warningsAndFaultss;
   };
 
   public warningsAndFaultss: WarningsAndFaults[] = [];
 
   private getWarningOrFault(thingId: string, channelId: string, type: 'fault' | 'warning'): WarningOrFault {
-    let id = channelId.substr(type.length + 1);
-    let clazz = this.config.things[thingId].class;
-    if (clazz instanceof Array) {
-      clazz = clazz[0];
-    }
-    let name = "Undefined " + type + " (" + channelId + ")";
-    if (clazz in THING_STATES) {
-      let meta = THING_STATES[clazz];
-      if (meta[type + 's'][id]) {
-        name = meta[type + 's'][id];
-      }
-    }
-    return {
-      channelId: channelId,
-      name: name
-    };
+    // TODO
+    // let id = channelId.substr(type.length + 1);
+    // let clazz = this.config.things[thingId].class;
+    // if (clazz instanceof Array) {
+    //   clazz = clazz[0];
+    // }
+    // let name = "Undefined " + type + " (" + channelId + ")";
+    // if (clazz in THING_STATES) {
+    //   let meta = THING_STATES[clazz];
+    //   if (meta[type + 's'][id]) {
+    //     name = meta[type + 's'][id];
+    //   }
+    // }
+    // return {
+    //   channelId: channelId,
+    //   name: name
+    // };
+    return null;
   }
 
   private getStateChannelAddresses(thingId: string): string[] {
-    let result = [];
-    let clazz = this.config.things[thingId].class;
-    if (clazz instanceof Array) {
-      clazz = clazz[0];
-    }
-    if (clazz in THING_STATES) {
-      let meta = THING_STATES[clazz];
-      for (let id in meta.faults) {
-        result.push("Fault/" + id);
-      }
-      for (let id in meta.warnings) {
-        result.push("Warning/" + id);
-      }
-    }
-    return result;
+    // TODO
+    // let result = [];
+    // let clazz = this.config.things[thingId].class;
+    // if (clazz instanceof Array) {
+    //   clazz = clazz[0];
+    // }
+    // if (clazz in THING_STATES) {
+    //   let meta = THING_STATES[clazz];
+    //   for (let id in meta.faults) {
+    //     result.push("Fault/" + id);
+    //   }
+    //   for (let id in meta.warnings) {
+    //     result.push("Warning/" + id);
+    //   }
+    // }
+    // return result;
+    return null;
   }
 
   /*
    * List of Warnings or Faults that should not be displayed
    */
   private ignoreWarningOrFault(thingId: string, channelId: string): boolean {
-    let clazz = this.config.things[thingId].class;
-    if (clazz instanceof Array) {
-      clazz = clazz[0];
-    }
-    switch (clazz) {
-      case 'io.openems.impl.device.minireadonly.FeneconMiniEss':
-        if (['Warning/92'].includes(channelId)) {
-          return true;
-        }
-        break;
-    }
+    // TODO
+    // let clazz = this.config.things[thingId].class;
+    // if (clazz instanceof Array) {
+    //   clazz = clazz[0];
+    // }
+    // switch (clazz) {
+    //   case 'io.openems.impl.device.minireadonly.FeneconMiniEss':
+    //     if (['Warning/92'].includes(channelId)) {
+    //       return true;
+    //     }
+    //     break;
+    // }
     return false;
   }
 
