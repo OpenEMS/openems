@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigurationNotification;
@@ -26,7 +27,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsException {
+	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		// Validate authentication
 		WsData wsData = ws.getAttachment();
 		wsData.assertAuthentication(notification);
@@ -52,7 +53,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param wsData
 	 * @throws OpenemsException
 	 */
-	private void handleEdgeConfiguration(EdgeConfigurationNotification message, WsData wsData) throws OpenemsException {
+	private void handleEdgeConfiguration(EdgeConfigurationNotification message, WsData wsData)
+			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getParams());
@@ -65,7 +67,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param wsData
 	 * @throws OpenemsException
 	 */
-	private void handleTimestampedData(TimestampedDataNotification message, WsData wsData) throws OpenemsException {
+	private void handleTimestampedData(TimestampedDataNotification message, WsData wsData)
+			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 
 		this.parent.timedata.write(edgeId, message.getData());

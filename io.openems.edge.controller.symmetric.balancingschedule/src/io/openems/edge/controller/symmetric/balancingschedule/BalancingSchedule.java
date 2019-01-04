@@ -23,7 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
@@ -72,7 +72,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 			JsonElement scheduleElement = JsonUtils.parse(config.schedule());
 			JsonArray scheduleArray = JsonUtils.getAsJsonArray(scheduleElement);
 			this.applySchedule(scheduleArray);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(log, "Unable to parse Schedule: " + e.getMessage());
 		}
 	}
@@ -147,9 +147,8 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 			SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(message);
 			this.schedule = request.getSchedule();
 			return new GenericJsonrpcResponseSuccess(request.getId(), new JsonObject());
-		} catch (OpenemsException e) {
-			return new JsonrpcResponseError(message.getId(), 0,
-					"Unable to handle SetGridConnScheduleRequest: " + e.getMessage());
+		} catch (OpenemsNamedException e) {
+			return new JsonrpcResponseError(message.getId(), e);
 		}
 	}
 
@@ -157,9 +156,9 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	 * Parses the Schedule and applies it to this Controller
 	 * 
 	 * @param j
-	 * @throws OpenemsException
+	 * @throws OpenemsNamedException
 	 */
-	private void applySchedule(JsonArray j) throws OpenemsException {
+	private void applySchedule(JsonArray j) throws OpenemsNamedException {
 		this.schedule = SetGridConnScheduleRequest.GridConnSchedule.from(j);
 	}
 

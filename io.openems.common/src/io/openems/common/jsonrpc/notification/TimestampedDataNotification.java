@@ -7,7 +7,7 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
@@ -34,7 +34,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class TimestampedDataNotification extends JsonrpcNotification {
 
-	public static TimestampedDataNotification from(JsonrpcNotification notification) throws OpenemsException {
+	public static TimestampedDataNotification from(JsonrpcNotification notification) throws OpenemsNamedException {
 		TimestampedDataNotification result = new TimestampedDataNotification();
 		JsonObject j = notification.getParams();
 		for (Entry<String, JsonElement> e1 : j.entrySet()) {

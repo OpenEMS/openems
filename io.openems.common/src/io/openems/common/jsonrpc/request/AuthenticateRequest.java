@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
@@ -13,13 +13,13 @@ public class AuthenticateRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "authenticate";
 
-	public static AuthenticateRequest from(JsonrpcRequest r) throws OpenemsException {
+	public static AuthenticateRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String name = JsonUtils.getAsString(p, "name");
 		return new AuthenticateRequest(r.getId(), name);
 	}
 
-	public static AuthenticateRequest from(JsonObject j) throws OpenemsException {
+	public static AuthenticateRequest from(JsonObject j) throws OpenemsNamedException {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 

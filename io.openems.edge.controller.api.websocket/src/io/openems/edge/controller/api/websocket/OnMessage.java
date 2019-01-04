@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 // TODO deprecate GSON; replace with org.json
 import com.google.gson.JsonParser;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket_old.AbstractOnMessage;
@@ -105,7 +106,7 @@ public class OnMessage extends AbstractOnMessage {
 			// authenticate by username/password
 			try {
 				authenticate(jAuthenticateOpt.get(), websocket);
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				WebSocketUtils.sendNotificationOrLogError(websocket,
 						new com.google.gson.JsonObject() /* empty message id */, LogBehaviour.WRITE_TO_LOG,
 						Notification.ERROR, e.getMessage());
@@ -150,7 +151,7 @@ public class OnMessage extends AbstractOnMessage {
 	 * @param handler
 	 * @throws OpenemsException
 	 */
-	private void authenticate(com.google.gson.JsonObject jAuthenticate, WebSocket websocket) throws OpenemsException {
+	private void authenticate(com.google.gson.JsonObject jAuthenticate, WebSocket websocket) throws OpenemsNamedException {
 		if (jAuthenticate.has("mode")) {
 			String mode = JsonUtils.getAsString(jAuthenticate, "mode");
 			switch (mode) {

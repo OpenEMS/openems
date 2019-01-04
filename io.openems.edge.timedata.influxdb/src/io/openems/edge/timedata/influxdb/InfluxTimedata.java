@@ -8,8 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.text.html.HTML.Tag;
-
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -30,10 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -165,9 +162,9 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	@Override
-	public TreeBasedTable<ZonedDateTime, ChannelAddress, Double> queryHistoricData(String edgeId,
+	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
 		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);

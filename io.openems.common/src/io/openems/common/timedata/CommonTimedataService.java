@@ -7,7 +7,7 @@ import java.util.Set;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 
 public interface CommonTimedataService {
@@ -22,7 +22,7 @@ public interface CommonTimedataService {
 	 * @param channels the Channels
 	 */
 	public default TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsException {
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// calculate resolution based on the length of the period
 		int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 		int resolution = 10 * 60; // default: 10 Minutes
@@ -48,6 +48,6 @@ public interface CommonTimedataService {
 	 */
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
-			throws OpenemsException;
+			throws OpenemsNamedException;
 
 }

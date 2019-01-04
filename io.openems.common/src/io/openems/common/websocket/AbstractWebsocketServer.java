@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -53,26 +54,28 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 					JsonrpcMessage message;
 					try {
 						message = JsonrpcMessage.from(stringMessage);
-					} catch (OpenemsException e) {
+
+					} catch (OpenemsNamedException e) {
 						// handle deprecated non-JSON-RPC messages
 						message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(stringMessage, e);
 					}
+
 					if (message instanceof JsonrpcRequest) {
 						CompletableFuture.runAsync(new OnRequestHandler(AbstractWebsocketServer.this, ws,
 								(JsonrpcRequest) message, (response) -> {
-									if (response != null) {
-										AbstractWebsocketServer.this.sendMessage(ws, response);
-									}
-									// TODO reply error
+									AbstractWebsocketServer.this.sendMessage(ws, response);
 								}));
+
 					} else if (message instanceof JsonrpcResponse) {
 						CompletableFuture.runAsync(
 								new OnResponseHandler(AbstractWebsocketServer.this, ws, (JsonrpcResponse) message));
+
 					} else if (message instanceof JsonrpcNotification) {
 						CompletableFuture.runAsync(new OnNotificationHandler(AbstractWebsocketServer.this, ws,
 								(JsonrpcNotification) message));
+
 					}
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					AbstractWebsocketServer.this.handleInternalErrorAsync(e);
 				}
 			}
@@ -137,9 +140,9 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @param stringMessage
 	 * @return
 	 */
-	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsException lastException)
-			throws OpenemsException {
-		throw new OpenemsException("Unhandled Non-JSON-RPC message", lastException);
+	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException e)
+			throws OpenemsNamedException {
+		throw new OpenemsException("Unhandled Non-JSON-RPC message", e);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -30,8 +31,6 @@ public class DefaultMessages {
 		j.add("messageId", jMessageId);
 		return j;
 	}
-
-
 
 	/**
 	 * <pre>
@@ -289,7 +288,7 @@ public class DefaultMessages {
 	 * @throws OpenemsException
 	 */
 	public static JsonObject prepareMessageForForwardToEdge(JsonObject jMessage, UUID uuid, Optional<Role> roleOpt)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
 		jMessageId.addProperty("backend", uuid.toString());
 		jMessage.add("messageId", jMessageId);
@@ -300,7 +299,7 @@ public class DefaultMessages {
 		return jMessage;
 	}
 
-	public static JsonObject prepareMessageForForwardToUi(JsonObject jMessage) throws OpenemsException {
+	public static JsonObject prepareMessageForForwardToUi(JsonObject jMessage) throws OpenemsNamedException {
 		JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
 		jMessageId.remove("backend");
 		jMessage.add("messageId", jMessageId);

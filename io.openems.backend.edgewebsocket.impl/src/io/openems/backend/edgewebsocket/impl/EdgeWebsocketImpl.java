@@ -1,7 +1,7 @@
 package io.openems.backend.edgewebsocket.impl;
 
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
@@ -14,11 +14,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.Error;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -85,14 +86,14 @@ public class EdgeWebsocketImpl implements EdgeWebsocket {
 	}
 
 	@Override
-	public void send(String edgeId, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException {
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, JsonrpcRequest request)
+			throws OpenemsNamedException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
-			wsData.send(request, responseCallback);
+			return wsData.send(request);
 		} else {
-			responseCallback.accept(Error.EDGE_NOT_CONNECTED.asJsonrpc(request.getId(), edgeId));
+			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(request.getId(), edgeId);
 		}
 	}
 

@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
@@ -16,7 +16,7 @@ public class EdgeRpcRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "edgeRpc";
 
-	public static EdgeRpcRequest from(JsonrpcRequest r) throws OpenemsException {
+	public static EdgeRpcRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String edgeId = JsonUtils.getAsString(p, "edgeId");
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));

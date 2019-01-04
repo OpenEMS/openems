@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.AccessDeniedException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -142,7 +143,7 @@ public class EdgeWebsocketHandler {
 			if (jLogOpt.isPresent()) {
 				try {
 					this.log(role, jMessageId, jLogOpt.get());
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 							Notification.UNABLE_TO_SUBSCRIBE_TO_LOG, e.getMessage());
 				}
@@ -354,7 +355,7 @@ public class EdgeWebsocketHandler {
 				JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jCurrentData, "channels");
 				this.currentDataWorkerOpt.get().setChannels(jSubscribeChannels, jMessageId);
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.warn(e.getMessage());
 		}
 		return new JsonObject();
@@ -366,7 +367,7 @@ public class EdgeWebsocketHandler {
 	 * @param j
 	 * @throws AccessDeniedException
 	 */
-	private synchronized void log(Role role, JsonObject jMessageId, JsonObject jLog) throws OpenemsException {
+	private synchronized void log(Role role, JsonObject jMessageId, JsonObject jLog) throws OpenemsNamedException {
 		// check permissions
 		switch (role) {
 		case ADMIN:

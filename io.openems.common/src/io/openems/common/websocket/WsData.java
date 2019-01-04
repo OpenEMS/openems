@@ -1,18 +1,21 @@
 package io.openems.common.websocket;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.Error;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseError;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 /**
  * Objects of this class are used to store additional data with websocket
@@ -21,14 +24,14 @@ import io.openems.common.jsonrpc.base.JsonrpcResponse;
 public class WsData {
 
 	/**
-	 * Holds the websocket. Possibly null!
+	 * Holds the Websocket. Possibly null!
 	 */
 	private WebSocket websocket = null;
 
 	/**
-	 * Holds callbacks for JSON-RPC Requests
+	 * Holds Futures for JSON-RPC Requests
 	 */
-	private final ConcurrentHashMap<UUID, Consumer<JsonrpcResponse>> callbacks = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<UUID, CompletableFuture<JsonrpcResponseSuccess>> requestFutures = new ConcurrentHashMap<>();
 
 	/**
 	 * This method is called on close of the parent websocket. Use it to release
@@ -39,7 +42,7 @@ public class WsData {
 	}
 
 	/**
-	 * Sets the websocket.
+	 * Sets the Websocket.
 	 * 
 	 * @param ws
 	 */
@@ -63,17 +66,20 @@ public class WsData {
 	 * @param request
 	 * @param responseCallback
 	 */
-	public void send(JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		Consumer<JsonrpcResponse> existingCallback = this.callbacks.putIfAbsent(request.getId(), responseCallback);
-		if (existingCallback != null) {
-			responseCallback.accept(Error.ID_NOT_UNIQUE.asJsonrpc(request.getId(), request.getId()));
+	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) throws OpenemsNamedException {
+		CompletableFuture<JsonrpcResponseSuccess> future = new CompletableFuture<>();
+		CompletableFuture<JsonrpcResponseSuccess> existingFuture = this.requestFutures.putIfAbsent(request.getId(),
+				future);
+		if (existingFuture != null) {
+			throw OpenemsError.JSONRPC_ID_NOT_UNIQUE.exception(request.getId());
 		} else {
 			this.sendMessage(request);
+			return future;
 		}
 	}
 
 	/**
-	 * Sends a JSON-RPC notification to a Websocket.
+	 * Sends a JSON-RPC Notification to a Websocket.
 	 * 
 	 * @param ws
 	 * @param notification
@@ -101,21 +107,36 @@ public class WsData {
 	}
 
 	/**
-	 * Handles a JSON-RPC response by calling the previously registers request
-	 * callback.
+	 * Handles a JSON-RPC response by completing the previously registers request
+	 * Future.
 	 * 
 	 * @param response
-	 * @throws OpenemsException
+	 * @throws OpenemsNamedException
 	 */
-	public void handleJsonrpcResponse(JsonrpcResponse response) throws OpenemsException {
-		Consumer<JsonrpcResponse> callback = this.callbacks.remove(response.getId());
-		if (callback != null) {
+	public void handleJsonrpcResponse(JsonrpcResponse response) throws OpenemsNamedException {
+		CompletableFuture<JsonrpcResponseSuccess> future = this.requestFutures.remove(response.getId());
+		if (future != null) {
 			// this was a response on a request
-			callback.accept(response);
+			if (response instanceof JsonrpcResponseSuccess) {
+				// Success Response -> complete future
+				future.complete((JsonrpcResponseSuccess) response);
+
+			} else if (response instanceof JsonrpcResponseError) {
+				// Named OpenEMS-Error Response -> cancel future
+				JsonrpcResponseError error = ((JsonrpcResponseError) response);
+				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(), error.getParams());
+				future.completeExceptionally(exception);
+
+			} else {
+				// Undefined Error Response -> cancel future
+				OpenemsNamedException exception = new OpenemsNamedException(OpenemsError.GENERIC,
+						"Reponse is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
+				future.completeExceptionally(exception);
+			}
+
 		} else {
 			// this was a response without a request
-			throw new OpenemsException("Got Response without Request: " + response.toString());
+			throw OpenemsError.JSONRPC_RESPONSE_WITHOUT_REQUEST.exception(response.toJsonObject());
 		}
 	}
-
 }

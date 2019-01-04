@@ -1,12 +1,16 @@
 package io.openems.common.websocket;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 public class OnRequestHandler implements Runnable {
 
@@ -25,13 +29,21 @@ public class OnRequestHandler implements Runnable {
 
 	@Override
 	public final void run() {
+		JsonrpcResponse response;
 		try {
-			this.parent.getOnRequest().run(this.ws, this.request, this.responseCallback);
-		} catch (Exception e) {
-			// TODO catch Exception with explicit Error-enum
-			responseCallback.accept(new JsonrpcResponseError(request.getId(), 0, e.getMessage()));
-			this.parent.handleInternalErrorSync(e);
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.parent.getOnRequest().run(this.ws,
+					this.request);
+			// Get success response
+			response = responseFuture.get();
+		} catch (OpenemsNamedException e) {
+			// Get Named Exception error response
+			response = new JsonrpcResponseError(request.getId(), e);
+		} catch (ExecutionException | InterruptedException e) {
+			// Get GENERIC error response
+			response = new JsonrpcResponseError(request.getId(), e.getMessage());
 		}
+
+		responseCallback.accept(response);
 	}
 
 }

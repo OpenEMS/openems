@@ -4,14 +4,14 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
 public class ComponentJsonApiRequest extends JsonrpcRequest {
 
-	public static ComponentJsonApiRequest from(JsonrpcRequest r) throws OpenemsException {
+	public static ComponentJsonApiRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String componentId = JsonUtils.getAsString(p, "componentId");
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));

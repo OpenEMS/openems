@@ -16,7 +16,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
@@ -67,7 +67,7 @@ public abstract class CurrentDataWorker {
 					String channel = JsonUtils.getAsString(jChannel);
 					channels.put(thing, channel);
 				}
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				this.log.warn("Unable to add channel subscription: " + e.getMessage());
 			}
 		}

@@ -30,8 +30,9 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		this.onOpen = (ws, handshake) -> {
 			log.info("OnOpen: " + handshake);
 		};
-		this.onRequest = (ws, request, responseCallback) -> {
+		this.onRequest = (ws, request) -> {
 			log.info("OnRequest: " + request);
+			return null;
 		};
 		this.onNotification = (ws, notification) -> {
 			log.info("OnNotification: " + notification);

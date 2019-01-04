@@ -11,6 +11,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -40,7 +41,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
 	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("YYYY-MM-DD");
 
-	public static QueryHistoricTimeseriesDataRequest from(JsonrpcRequest r) throws OpenemsException {
+	public static QueryHistoricTimeseriesDataRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
 		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
@@ -55,7 +56,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 		return result;
 	}
 
-	public static QueryHistoricTimeseriesDataRequest from(JsonObject j) throws OpenemsException {
+	public static QueryHistoricTimeseriesDataRequest from(JsonObject j) throws OpenemsNamedException {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 
@@ -65,7 +66,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
 	public QueryHistoricTimeseriesDataRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		super(id, METHOD);
 
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -77,7 +78,8 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 		this.toDate = toDate;
 	}
 
-	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate) throws OpenemsException {
+	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
+			throws OpenemsNamedException {
 		this(UUID.randomUUID(), fromDate, toDate);
 	}
 

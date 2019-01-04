@@ -33,6 +33,7 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.timedata.core.EdgeCache;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.shared.influxdb.InfluxConnector;
@@ -182,7 +183,7 @@ public class Influx implements Timedata {
 	@Override
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
 

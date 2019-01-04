@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnInternalError;
@@ -70,8 +71,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsException lastException)
-			throws OpenemsException {
+	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException lastException)
+			throws OpenemsNamedException {
 		log.info("UiWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("UiWs. handleNonJsonrpcMessage", lastException);
 	}

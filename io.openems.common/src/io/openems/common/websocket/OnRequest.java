@@ -1,22 +1,25 @@
 package io.openems.common.websocket;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 @FunctionalInterface
 public interface OnRequest {
 
 	/**
-	 * Handle a JSON-RPC request, receive a JSON-RPC response via callback.
+	 * Handle a JSON-RPC Request, receive a JSON-RPC Response via callback.
 	 * 
-	 * @param ws
-	 * @param request
-	 * @param responseCallback
+	 * @param ws      the Websocket
+	 * @param request the JSON-RPC Request
+	 * @throws OpenemsNamedException on error
+	 * @return the JSON-RPC Success Response Future
 	 */
-	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback);
+	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+			throws OpenemsNamedException;
 
 }

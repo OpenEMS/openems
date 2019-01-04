@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 
 @Designate(ocd = Config.class, factory = false)
@@ -97,9 +98,9 @@ public class TimedataDummy implements Timedata {
 	}
 
 	@Override
-	public TreeBasedTable<ZonedDateTime, ChannelAddress, Double> queryHistoricData(String edgeId,
+	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		this.log.error("Timedata.Dummy does not support querying historic data");
 		return TreeBasedTable.create();
 	}

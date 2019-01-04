@@ -4,16 +4,16 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
 public class GenericJsonrpcRequest extends JsonrpcRequest {
 
-	public static GenericJsonrpcRequest from(String json) throws OpenemsException {
+	public static GenericJsonrpcRequest from(String json) throws OpenemsNamedException {
 		return from(JsonUtils.parseToJsonObject(json));
 	}
 
-	public static GenericJsonrpcRequest from(JsonObject j) throws OpenemsException {
+	public static GenericJsonrpcRequest from(JsonObject j) throws OpenemsNamedException {
 		String id = JsonUtils.getAsString(j, "id");
 		String method = JsonUtils.getAsString(j, "method");
 		JsonObject params = JsonUtils.getAsJsonObject(j, "params");

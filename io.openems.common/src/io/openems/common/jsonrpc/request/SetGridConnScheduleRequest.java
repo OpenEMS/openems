@@ -8,7 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
@@ -33,7 +33,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class SetGridConnScheduleRequest extends JsonrpcRequest {
 
-	public static SetGridConnScheduleRequest from(JsonrpcRequest r) throws OpenemsException {
+	public static SetGridConnScheduleRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String edgeId = JsonUtils.getAsString(p, "id");
 		JsonArray s = JsonUtils.getAsJsonArray(p, "schedule");
@@ -90,7 +90,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 
 	public static class GridConnSchedule {
 
-		public static List<GridConnSchedule> from(JsonArray j) throws OpenemsException {
+		public static List<GridConnSchedule> from(JsonArray j) throws OpenemsNamedException {
 			List<GridConnSchedule> schedule = new ArrayList<>();
 			for (JsonElement se : j) {
 				long startTimestamp = JsonUtils.getAsLong(se, "startTimestamp");

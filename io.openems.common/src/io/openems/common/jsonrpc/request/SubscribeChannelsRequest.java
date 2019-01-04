@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.types.ChannelAddress;
@@ -17,7 +17,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "subscribeChannels";
 
-	public static SubscribeChannelsRequest from(JsonrpcRequest r) throws OpenemsException {
+	public static SubscribeChannelsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		SubscribeChannelsRequest result = new SubscribeChannelsRequest(r.getId());
 		JsonObject p = r.getParams();
 		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
@@ -28,7 +28,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 		return result;
 	}
 
-	public static SubscribeChannelsRequest from(JsonObject j) throws OpenemsException {
+	public static SubscribeChannelsRequest from(JsonObject j) throws OpenemsNamedException {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 

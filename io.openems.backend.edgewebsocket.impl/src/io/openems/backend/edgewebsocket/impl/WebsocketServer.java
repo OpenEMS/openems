@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.EdgeConfigurationNotification;
@@ -112,8 +113,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsException lastException)
-			throws OpenemsException {
+	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException lastException)
+			throws OpenemsNamedException {
 		JsonObject message = JsonUtils.parseToJsonObject(stringMessage);
 
 		// config

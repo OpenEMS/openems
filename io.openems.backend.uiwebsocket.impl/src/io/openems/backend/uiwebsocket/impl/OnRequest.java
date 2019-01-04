@@ -1,21 +1,19 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.time.ZonedDateTime;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.java_websocket.WebSocket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.Error;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
-import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
@@ -26,7 +24,7 @@ import io.openems.common.types.ChannelAddress;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
-	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
+//	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 	private final UiWebsocketImpl parent;
 
 	public OnRequest(UiWebsocketImpl parent) {
@@ -34,61 +32,73 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
-		log.info("UiWs. OnRequest: " + request);
+	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		switch (request.getMethod()) {
+		case EdgeRpcRequest.METHOD:
+			return this.handleEdgeRpcRequest(ws, EdgeRpcRequest.from(request));
 
-		try {
-			switch (request.getMethod()) {
-			case EdgeRpcRequest.METHOD:
-				this.handleEdgeRpcRequest(ws, EdgeRpcRequest.from(request), responseCallback);
-				break;
-			}
-		} catch (OpenemsException e) {
-			responseCallback.accept(
-					new JsonrpcResponseError(request.getId(), 0, "Error while handling request: " + e.getMessage()));
+		default:
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 	}
 
-	private void handleEdgeRpcRequest(WebSocket ws, EdgeRpcRequest edgeRpcRequest,
-			Consumer<JsonrpcResponse> edgeRpcResponseCallback) throws OpenemsException {
+	/**
+	 * Handles an EdgeRpcRequest
+	 * 
+	 * @param ws             the Websocket
+	 * @param edgeRpcRequest the JSON-RPC Request
+	 * @return the JSON-RPC Success Response Future
+	 * @throws ErrorException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WebSocket ws, EdgeRpcRequest edgeRpcRequest)
+			throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 
-		// Wrap reply in EdgeRpcResponse
-		Consumer<JsonrpcResponse> responseCallback = (response) -> {
-			if (response instanceof JsonrpcResponseSuccess) {
-				edgeRpcResponseCallback
-						.accept(new EdgeRpcResponse(edgeRpcRequest.getId(), (JsonrpcResponseSuccess) response));
-			} else {
-				edgeRpcResponseCallback.accept(Error.GENERIC.asJsonrpc(edgeRpcRequest.getId(), response.toString()));
-			}
-		};
-
+		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
+
 		case SubscribeChannelsRequest.METHOD:
-			this.handleSubscribeChannelsRequest(ws, edgeId, SubscribeChannelsRequest.from(request), responseCallback);
+			resultFuture = this.handleSubscribeChannelsRequest(ws, edgeId, SubscribeChannelsRequest.from(request));
 			break;
 
 		case QueryHistoricTimeseriesDataRequest.METHOD:
-			this.handleQueryHistoricDataRequest(ws, edgeId, QueryHistoricTimeseriesDataRequest.from(request),
-					responseCallback);
+			resultFuture = this.handleQueryHistoricDataRequest(edgeId,
+					QueryHistoricTimeseriesDataRequest.from(request));
 			break;
+
+		default:
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+
+		// Get Response
+		JsonrpcResponseSuccess result;
+		try {
+			result = resultFuture.get();
+		} catch (InterruptedException | ExecutionException e) {
+			if (e.getCause() instanceof OpenemsNamedException) {
+				throw (OpenemsNamedException) e.getCause();
+			} else {
+				throw OpenemsError.GENERIC.exception(e.getMessage());
+			}
+		}
+
+		// Wrap reply in EdgeRpcResponse
+		return CompletableFuture.completedFuture(new EdgeRpcResponse(edgeRpcRequest.getId(), result));
 	}
 
 	/**
 	 * Handles a SubscribeChannelsRequest.
 	 * 
-	 * @param ws               the Websocket
-	 * @param edgeId           the Edge-ID
-	 * @param request          the SubscribeChannelsRequest
-	 * @param responseCallback the JSON-RPC Response callback
-	 * @throws OpenemsException on error
+	 * @param ws      the Websocket
+	 * @param edgeId  the Edge-ID
+	 * @param request the SubscribeChannelsRequest
+	 * @throws ErrorException on error
+	 * @return the JSON-RPC Success Response Future
 	 */
-	private void handleSubscribeChannelsRequest(WebSocket ws, String edgeId, SubscribeChannelsRequest request,
-			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		log.info("UiWs. SubscribeChannelsRequest: " + request.getChannels());
-
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WebSocket ws, String edgeId,
+			SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// activate SubscribedChannelsWorker
 		WsData wsData = ws.getAttachment();
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
@@ -96,32 +106,29 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		worker.setChannels(request.getChannels());
 
 		// JSON-RPC response
-		JsonrpcResponse response = new GenericJsonrpcResponseSuccess(request.getId());
-		responseCallback.accept(response);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**
 	 * Handles a QueryHistoricDataRequest.
 	 * 
-	 * @param ws               the Websocket
-	 * @param edgeId           the Edge-ID
-	 * @param request          the QueryHistoricDataRequest
-	 * @param responseCallback the JSON-RPC Response callback
+	 * @param ws      the Websocket
+	 * @param edgeId  the Edge-ID
+	 * @param request the QueryHistoricDataRequest
 	 * @throws OpenemsException on error
+	 * @return the Future JSON-RPC Response
 	 */
-	private void handleQueryHistoricDataRequest(WebSocket ws, String edgeId, QueryHistoricTimeseriesDataRequest request,
-			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-		log.info("UiWs. QueryHistoricDataRequest: " + request.getChannels());
-
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data = this.parent.timeData.queryHistoricData( //
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId,
+			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
+		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
+		data = this.parent.timeData.queryHistoricData( //
 				edgeId, //
 				request.getFromDate(), //
 				request.getToDate(), //
 				request.getChannels());
 
 		// JSON-RPC response
-		JsonrpcResponse response = new QueryHistoricTimeseriesDataResponse(request.getId(), data);
-		responseCallback.accept(response);
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
 	}
 
 	//

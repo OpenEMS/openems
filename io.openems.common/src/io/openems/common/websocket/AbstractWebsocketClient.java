@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -19,10 +18,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.StringUtils;
 
 /**
@@ -82,15 +83,14 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 					if (message instanceof JsonrpcRequest) {
 						CompletableFuture.runAsync(new OnRequestHandler(AbstractWebsocketClient.this, ws,
 								(JsonrpcRequest) message, (response) -> {
-									if (response != null) {
-										AbstractWebsocketClient.this.sendMessage(response);
-									}
+									AbstractWebsocketClient.this.sendMessage(response);
 								}));
+
 					} else if (message instanceof JsonrpcResponse) {
 						CompletableFuture.runAsync(
 								new OnResponseHandler(AbstractWebsocketClient.this, ws, (JsonrpcResponse) message));
 					}
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					AbstractWebsocketClient.this.handleInternalErrorAsync(e);
 				}
 			}
@@ -124,7 +124,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		T wsData = AbstractWebsocketClient.this.createWsData();
 		wsData.setWebsocket(ws);
 		this.ws.setAttachment(wsData);
-		
+
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
 		}
@@ -190,10 +190,16 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		}
 	}
 
-	public void sendRequest(JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback)
-			throws OpenemsException {
+	/**
+	 * Sends a JSON-RPC Request and returns a future Response.
+	 * 
+	 * @param request the JSON-RPC Request
+	 * @return the future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	public CompletableFuture<JsonrpcResponseSuccess> sendRequest(JsonrpcRequest request) throws OpenemsNamedException {
 		WsData wsData = this.ws.getAttachment();
-		wsData.send(request, responseCallback);
+		return wsData.send(request);
 	}
 
 }

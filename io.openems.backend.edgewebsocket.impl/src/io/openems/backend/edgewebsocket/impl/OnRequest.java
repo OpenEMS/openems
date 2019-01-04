@@ -1,13 +1,15 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -19,8 +21,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcRequest request, Consumer<JsonrpcResponse> responseCallback) {
+	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+			throws OpenemsException, OpenemsNamedException {
 		log.info("EdgeWs. OnRequest: " + request);
+		return null;
 	}
 
 //	private void handleCompatibilty(JsonObject jMessage) {

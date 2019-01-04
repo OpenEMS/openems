@@ -2,10 +2,13 @@ package io.openems.backend.b2bwebsocket;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
@@ -22,34 +25,25 @@ public class B2bWebsocketTest {
 	}
 
 	@Test
-	public void testGetStatusOfEdgesRequest() throws URISyntaxException, InterruptedException, OpenemsException {
+	public void testGetStatusOfEdgesRequest()
+			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		TestClient client = preparteTestClient();
 
 		GetStatusOfEdgesRequest request = new GetStatusOfEdgesRequest();
-		client.sendRequest(request, response -> {
-			System.out.println(response);
-		});
-
-		while (true) {
-			Thread.sleep(5000);
-		}
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+		System.out.println(responseFuture.get().toString());
 	}
 
 	@Test
-	public void testSetGridConnSchedule() throws URISyntaxException, InterruptedException, OpenemsException {
+	public void testSetGridConnSchedule()
+			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		TestClient client = preparteTestClient();
 
 		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("edge0");
 		long now = System.currentTimeMillis() / 1000;
 		request.addScheduleEntry(new GridConnSchedule(now, 60, -3000));
 		request.addScheduleEntry(new GridConnSchedule(now + 60, 60, -5000));
-		System.out.println("Sending Request " + request);
-		client.sendRequest(request, response -> {
-			System.out.println("Response: " + response);
-		});
-
-		while (true) {
-			Thread.sleep(5000);
-		}
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+		System.out.println(responseFuture.get().toString());
 	}
 }

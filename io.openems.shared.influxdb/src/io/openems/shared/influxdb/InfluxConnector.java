@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 
@@ -108,7 +109,7 @@ public class InfluxConnector {
 	 */
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(InfluxConnector.toChannelAddressString(channels));
@@ -144,7 +145,7 @@ public class InfluxConnector {
 	 * @throws OpenemsException on error
 	 */
 	private static TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> convertHistoricDataQueryResult(
-			QueryResult queryResult, ZoneId timezone) throws OpenemsException {
+			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
 		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> table = TreeBasedTable.create();
 		for (Result result : queryResult.getResults()) {
 			List<Series> seriess = result.getSeries();
