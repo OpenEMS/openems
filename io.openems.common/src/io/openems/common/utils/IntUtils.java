@@ -9,12 +9,13 @@ public class IntUtils {
 	/**
 	 * Rounds a value to a defined precision.
 	 * 
+	 * <p>
 	 * Example: roundToPrecision(1234, Round.AWAY_FROM_ZERO, 100) -&gt; 1300
 	 * 
-	 * @param value
-	 * @param round
-	 * @param precision
-	 * @return
+	 * @param value     the value
+	 * @param round     the rounding mode
+	 * @param precision the decimal precision
+	 * @return the rounded value
 	 */
 	public static int roundToPrecision(double value, Round round, int precision) {
 		if (value == 0) {

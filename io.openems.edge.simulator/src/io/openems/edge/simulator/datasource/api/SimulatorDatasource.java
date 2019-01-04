@@ -7,25 +7,26 @@ import io.openems.common.types.OpenemsType;
 public interface SimulatorDatasource {
 
 	/**
-	 * Gets the available keys
+	 * Gets the available keys.
 	 * 
-	 * @return
+	 * @return the Channel-Id
 	 */
 	Set<String> getKeys();
 
 	/**
-	 * Returns the delta between two values in seconds
+	 * Returns the delta between two values in seconds.
 	 * 
-	 * @return
+	 * @return the delta in seconds
 	 */
 	int getTimeDelta();
 
 	/**
-	 * Gets the value for the given key (channelId) in the given type
+	 * Gets the value for the given key (channelId) in the given type.
 	 * 
-	 * @param type
-	 * @param channelId
-	 * @return
+	 * @param           <T> the type
+	 * @param type      the expected type
+	 * @param channelId the Channel-Id
+	 * @return the value
 	 */
 	<T> T getValue(OpenemsType type, String channelId);
 

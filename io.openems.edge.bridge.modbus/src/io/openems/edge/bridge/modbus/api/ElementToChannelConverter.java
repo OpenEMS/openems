@@ -20,35 +20,42 @@ public class ElementToChannelConverter {
 			value -> value);
 
 	/**
-	 * Applies a scale factor of -1.
+	 * Applies a scale factor of -1. Converts value [1] to [0.1].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
-	
+
 	/**
-	 * Applies a scale factor of -2.
+	 * Applies a scale factor of -2. Converts value [1] to [0.01].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_2 = new ElementToChannelScaleFactorConverter(-2);
 
 	/**
-	 * Applies a scale factor of 1.
+	 * Applies a scale factor of -3. Converts value [1] to [0.001].
+	 * 
+	 * @see ElementToChannelScaleFactorConverter
+	 */
+	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_3 = new ElementToChannelScaleFactorConverter(-2);
+
+	/**
+	 * Applies a scale factor of 1. Converts value [1] to [10].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_1 = new ElementToChannelScaleFactorConverter(1);
 
 	/**
-	 * Applies a scale factor of 2.
+	 * Applies a scale factor of 2. Converts value [1] to [100].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public final static ElementToChannelConverter SCALE_FACTOR_2 = new ElementToChannelScaleFactorConverter(2);
 
 	/**
-	 * Applies a scale factor of 3.
+	 * Applies a scale factor of 3. Converts value [1] to [1000].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */

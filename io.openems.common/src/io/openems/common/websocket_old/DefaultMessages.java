@@ -14,6 +14,8 @@ import io.openems.common.utils.JsonUtils;
 public class DefaultMessages {
 
 	/**
+	 * Creates a new message.
+	 * 
 	 * <pre>
 	 * 	{
 	 * 		messageId: {
@@ -23,8 +25,8 @@ public class DefaultMessages {
 	 * 	}
 	 * </pre>
 	 * 
-	 * @param jMessageId
-	 * @return
+	 * @param jMessageId the Message-ID
+	 * @return the message
 	 */
 	private static JsonObject newMessage(JsonObject jMessageId) {
 		JsonObject j = new JsonObject();

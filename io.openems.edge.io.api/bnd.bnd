@@ -2,8 +2,9 @@ Bundle-Name: OpenEMS Edge Input/Output Api
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:  \
-	io.openems.edge.io.api
+Export-Package: \
+	io.openems.edge.io.api,\
+	io.openems.edge.io.test
 Require-Capability: \
 	compile-only
 

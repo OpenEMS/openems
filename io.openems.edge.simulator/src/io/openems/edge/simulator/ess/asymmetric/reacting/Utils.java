@@ -16,7 +16,7 @@ import io.openems.edge.ess.api.SymmetricEss.GridMode;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(OpenemsComponent c) {
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -45,6 +45,7 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId, 0);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;

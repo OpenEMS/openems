@@ -28,8 +28,8 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case ACTIVE_CHARGE_ENERGY: // TODO ACTIVE_CHARGE_ENERGY
-					case ACTIVE_DISCHARGE_ENERGY: // TODO ACTIVE_DISCHARGE_ENERGY
+					case ACTIVE_CHARGE_ENERGY: 
+					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(ess, channelId);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(ess, channelId, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER);
@@ -46,6 +46,7 @@ public class Utils {
 						return new IntegerReadChannel(ess, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(ess, channelId);
 					}
 					return null;

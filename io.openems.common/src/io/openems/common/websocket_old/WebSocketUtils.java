@@ -56,7 +56,7 @@ public class WebSocketUtils {
 	}
 
 	/**
-	 * Send a message to a websocket
+	 * Send a message to a websocket.
 	 *
 	 * @param websocket
 	 * @param json
@@ -71,7 +71,7 @@ public class WebSocketUtils {
 	}
 
 	/**
-	 * Send a message to a websocket
+	 * Send a message to a websocket.
 	 *
 	 * @param websocket
 	 * @param j
@@ -86,7 +86,7 @@ public class WebSocketUtils {
 	}
 
 	/**
-	 * Send a message to a websocket. If sending fails, it is logged as an error
+	 * Send a message to a websocket. If sending fails, it is logged as an error.
 	 *
 	 * @param j
 	 */

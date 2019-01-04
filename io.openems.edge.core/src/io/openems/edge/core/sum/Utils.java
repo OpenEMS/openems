@@ -32,7 +32,10 @@ public class Utils {
 					case PRODUCTION_MAX_DC_ACTUAL_POWER:
 					case CONSUMPTION_ACTIVE_POWER:
 					case CONSUMPTION_MAX_ACTIVE_POWER:
+					case GRID_MODE:
+					case ESS_MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, 0);
+						
 					}
 					return null;
 				}) //

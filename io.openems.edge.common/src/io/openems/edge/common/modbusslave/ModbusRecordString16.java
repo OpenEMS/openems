@@ -18,6 +18,11 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return "ModbusRecordString16 [value=" + this.value + ", type=" + getType() + "]";
+	}
+
 	public static byte[] toByteArray(String value) {
 		byte[] result = new byte[BYTE_LENGTH];
 		byte[] converted = value.getBytes(StandardCharsets.US_ASCII);

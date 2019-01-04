@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Test;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -13,28 +14,29 @@ import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.power.api.SolverStrategy;
 import io.openems.edge.ess.power.api.ThreePhaseInverter;
 
 public class SolverTest {
 
 	private static Data prepareDataAndSetSymmetricMode(boolean symmetricMode, ManagedSymmetricEss... esss) {
-		Data data = new Data();
-		data.setSymmetricMode(symmetricMode);
 		PowerComponent c = new PowerComponent();
+		Data data = new Data(c);
+		data.setSymmetricMode(symmetricMode);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess);
 			c.addEss(ess);
+			data.addEss(ess.id());
 		}
 		data.initializeCycle();
 		return data;
 	}
 
 	private static Data prepareData(ManagedSymmetricEss... esss) {
-		Data data = new Data();
 		PowerComponent c = new PowerComponent();
+		Data data = new Data(c);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess);
 			c.addEss(ess);
+			data.addEss(ess.id());
 		}
 		data.initializeCycle();
 		return data;
@@ -59,10 +61,10 @@ public class SolverTest {
 		Data d = prepareDataAndSetSymmetricMode(false, ess0, ess1, ess2);
 		Solver s = new Solver(d);
 
-		d.addSimpleConstraint("", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		d.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
 		s.solve();
 		d.initializeCycle();
-		d.addSimpleConstraint("", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -9000);
+		d.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -9000);
 		s.solve();
 	}
 
@@ -82,10 +84,10 @@ public class SolverTest {
 				.allowedCharge(-50000).allowedDischarge(50000).maxApparentPower(12000).soc(70);
 		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2, ess3, ess4, ess5, ess6); //
 		Data d = prepareData(ess0, ess1, ess2, ess3, ess4, ess5, ess6);
-		Solver s = new Solver(d);
+		final Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint("#1", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 30000);
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 30000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(9864).expectQ(0); // third largest SoC
 		ess3.expectP(0).expectQ(0);
@@ -96,7 +98,7 @@ public class SolverTest {
 
 		// #2
 		d.initializeCycle();
-		d.addSimpleConstraint("#2", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 25000);
+		d.addSimpleConstraint("#2", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 25000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(8113).expectQ(0);
 		ess3.expectP(0).expectQ(0);
@@ -107,7 +109,7 @@ public class SolverTest {
 
 		// #3
 		d.initializeCycle();
-		d.addSimpleConstraint("#3", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
+		d.addSimpleConstraint("#3", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 5000);
 		ess1.expectP(0).expectQ(0);
 		ess2.expectP(1569).expectQ(0);
 		ess3.expectP(0).expectQ(0);
@@ -118,12 +120,12 @@ public class SolverTest {
 
 		// #4 not strictly defined force charge
 		d.initializeCycle();
-		d.addSimpleConstraint("#4", ess1, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess2, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess3, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess4, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess5, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
-		d.addSimpleConstraint("#4", ess6, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess1.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess2.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess3.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess4.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess5.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#4", ess6.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess1.expectP(-2000).expectQ(0);
 		ess2.expectP(-2000).expectQ(0);
 		ess3.expectP(-2000).expectQ(0);
@@ -142,35 +144,35 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint("#1", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 610);
 		ess0.expectP(700);
 		s.solve();
 
 		// #2
 		d.initializeCycle();
 		ess0.soc(49);
-		d.addSimpleConstraint("#2", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
+		d.addSimpleConstraint("#2", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 590);
 		ess0.expectP(500);
 		s.solve();
 
 		// #3
 		d.initializeCycle();
 		ess0.soc(49);
-		d.addSimpleConstraint("#3", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
+		d.addSimpleConstraint("#3", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.expectP(-400);
 		s.solve();
 
 		// #4
 		d.initializeCycle();
 		ess0.soc(51);
-		d.addSimpleConstraint("#4", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
+		d.addSimpleConstraint("#4", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -310);
 		ess0.expectP(-300);
 		s.solve();
 
 		// #5 not strictly defined force charge
 		d.initializeCycle();
 		ess0.soc(50);
-		d.addSimpleConstraint("#5", ess0, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
+		d.addSimpleConstraint("#5", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, -2000);
 		ess0.expectP(-2000);
 		s.solve();
 	}
@@ -185,13 +187,19 @@ public class SolverTest {
 
 	@Test
 	public void testInvertersSortByWeight() {
-		List<Inverter> is = new ArrayList<>();
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess0").soc(50)));
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess1").soc(70)));
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess2").soc(40)));
-		is.add(new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess3").soc(70)));
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").soc(50);
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").soc(70);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").soc(40);
+		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3").soc(70);
 
-		Data.invertersUpdateWeights(is);
+		List<Inverter> is = new ArrayList<>();
+		is.add(new ThreePhaseInverter(ess0.id()));
+		is.add(new ThreePhaseInverter(ess1.id()));
+		is.add(new ThreePhaseInverter(ess2.id()));
+		is.add(new ThreePhaseInverter(ess3.id()));
+
+		// TODO change to non-static
+		// Data.invertersUpdateWeights(is);
 		Data.invertersSortByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -202,19 +210,24 @@ public class SolverTest {
 
 	@Test
 	public void testInvertersAdjustSortingByWeights() {
-		List<Inverter> is = new ArrayList<>();
+		ManagedSymmetricEssDummy ess0 = new ManagedSymmetricEssDummy("ess0").soc(50);
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").soc(70);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").soc(40);
+		ManagedSymmetricEssDummy ess3 = new ManagedSymmetricEssDummy("ess3").soc(70);
 
-		Inverter inv0 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess0").soc(50));
-		Inverter inv1 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess1").soc(70));
-		Inverter inv2 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess2").soc(40));
-		Inverter inv3 = new ThreePhaseInverter(new ManagedSymmetricEssDummy("ess3").soc(70));
+		List<Inverter> is = new ArrayList<>();
+		Inverter inv0 = new ThreePhaseInverter(ess0.id());
+		Inverter inv1 = new ThreePhaseInverter(ess1.id());
+		Inverter inv2 = new ThreePhaseInverter(ess2.id());
+		Inverter inv3 = new ThreePhaseInverter(ess3.id());
 
 		is.add(inv0);
 		is.add(inv1);
 		is.add(inv2);
 		is.add(inv3);
 
-		Data.invertersUpdateWeights(is);
+		// TODO change to non-static
+		// Data.invertersUpdateWeights(is);
 		Data.invertersSortByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -223,7 +236,7 @@ public class SolverTest {
 		assertEquals("ess2", is.get(3).toString());
 
 		// #1 ess3 weight is slightly below ess0 -> no resorting
-		inv3.weight = 49;
+		inv3.setWeight(49);
 		Data.invertersAdjustSortingByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -232,7 +245,7 @@ public class SolverTest {
 		assertEquals("ess2", is.get(3).toString());
 
 		// #2 ess3 weight is clearly below ess0 -> resort
-		inv3.weight = 35;
+		inv3.setWeight(35);
 		Data.invertersAdjustSortingByWeights(is);
 
 		assertEquals("ess1", is.get(0).toString());
@@ -248,12 +261,101 @@ public class SolverTest {
 		Solver s = new Solver(d);
 
 		// #1
-		d.addSimpleConstraint("", esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
-		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
+		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
+		assertEquals(TargetDirection.KEEP_ZERO, s.getTargetDirection());
 		d.initializeCycle();
 
 		// #2
-		d.addSimpleConstraint("", esss[0], Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
+		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
 		assertEquals(TargetDirection.CHARGE, s.getTargetDirection());
+		d.initializeCycle();
+
+		// #3
+		d.addSimpleConstraint("", esss[0].id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1);
+		assertEquals(TargetDirection.DISCHARGE, s.getTargetDirection());
+	}
+
+	@Test
+	public void testCommercial40Cluster() throws Exception {
+		ManagedSymmetricEssDummy ess1 = new ManagedSymmetricEssDummy("ess1").maxApparentPower(40000).allowedCharge(-500)
+				.allowedDischarge(500).precision(100).soc(1);
+		ManagedSymmetricEssDummy ess2 = new ManagedSymmetricEssDummy("ess2").maxApparentPower(40000).allowedCharge(-500)
+				.allowedDischarge(500).precision(100).soc(97);
+		EssClusterDummy ess0 = new EssClusterDummy("ess0", ess1, ess2);
+		Data d = prepareData(ess0, ess1, ess2);
+		Solver s = new Solver(d);
+		s.setStrategy(SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER);
+
+		// #1
+		int p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-500);
+		ess2.expectP(-500);
+		// TODO: Q should not be -1000 & 1000!
+		s.solve();
+		d.initializeCycle();
+
+		// #2
+		ess1.allowedCharge(-1000);
+		ess2.allowedCharge(-1000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-1000);
+		ess2.expectP(-1000);
+		s.solve();
+		d.initializeCycle();
+
+		// #3
+		ess1.allowedCharge(-2000);
+		ess2.allowedCharge(-2000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-2000);
+		ess2.expectP(-2000);
+		s.solve();
+		d.initializeCycle();
+
+		// #4
+		ess1.allowedCharge(-3000);
+		ess2.allowedCharge(-3000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-3000);
+		ess2.expectP(-2000);
+		s.solve();
+		d.initializeCycle();
+
+		// #5
+		ess1.allowedCharge(-3500);
+		ess2.allowedCharge(-3500);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		// TODO: should prefer ess1, because it is empty!
+		ess1.expectP(-3500);
+		ess2.expectP(-1500);
+		s.solve();
+		d.initializeCycle();
+
+		// #6
+		ess1.allowedCharge(-4000);
+		ess2.allowedCharge(-4000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		// TODO: should prefer ess1, because it is empty!
+		ess1.expectP(-4000);
+		ess2.expectP(-1000);
+		s.solve();
+		d.initializeCycle();
+
+		// #6
+		ess1.allowedCharge(-5000);
+		ess2.allowedCharge(-5000);
+		p = Math.max(-5000, (int) s.getActivePowerExtrema("ess0", Phase.ALL, Pwr.ACTIVE, GoalType.MINIMIZE));
+		d.addSimpleConstraint("#1", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, p);
+		ess1.expectP(-5000);
+		ess2.expectP(0);
+		s.solve();
+		d.initializeCycle();
+
 	}
 }

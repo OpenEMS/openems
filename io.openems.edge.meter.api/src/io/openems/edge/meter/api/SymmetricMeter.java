@@ -128,25 +128,25 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * Active Production Energy
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Active Consumption Energy
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Voltage
@@ -157,7 +157,9 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
+		VOLTAGE(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
 		/**
 		 * Current
 		 * 
@@ -167,7 +169,9 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)); //
+		CURRENT(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)); //
 
 		private final Doc doc;
 

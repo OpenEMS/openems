@@ -38,7 +38,7 @@ public class JsonUtils {
 			throw OpenemsError.JSON_NO_BOOLEAN.exception(jPrimitive);
 		}
 		return jPrimitive.getAsBoolean();
-	};
+	}
 
 	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
@@ -46,7 +46,7 @@ public class JsonUtils {
 			throw OpenemsError.JSON_NO_BOOLEAN_MEMBER.exception(memberName, jPrimitive);
 		}
 		return jPrimitive.getAsBoolean();
-	};
+	}
 
 	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
@@ -64,7 +64,7 @@ public class JsonUtils {
 			throw OpenemsError.JSON_NO_ARRAY.exception(jElement);
 		}
 		return jElement.getAsJsonArray();
-	};
+	}
 
 	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
@@ -72,7 +72,7 @@ public class JsonUtils {
 			throw OpenemsError.JSON_NO_ARRAY_MEMBER.exception(memberName, jSubElement);
 		}
 		return jSubElement.getAsJsonArray();
-	};
+	}
 
 	/**
 	 * Converts JSON Array to a String Array.
@@ -411,11 +411,11 @@ public class JsonUtils {
 	 * Takes a json in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with
 	 * hour, minute and second set to zero.
 	 * 
-	 * @param jElement
-	 * @param memberName
-	 * @param timezone
-	 * @return
-	 * @throws OpenemsException
+	 * @param element    the JsonElement
+	 * @param memberName the name of the member of the JsonObject
+	 * @param timezone   the timezone
+	 * @return the ZonedDateTime
+	 * @throws OpenemsException on parse error
 	 */
 	public static ZonedDateTime getAsZonedDateTime(JsonElement jElement, String memberName, ZoneId timezone)
 			throws OpenemsNamedException {
@@ -474,11 +474,11 @@ public class JsonUtils {
 	}
 
 	/**
-	 * Parses a string to a JsonElement
+	 * Parses a string to a JsonElement.
 	 * 
-	 * @param string
-	 * @return
-	 * @throws OpenemsNamedException
+	 * @param string to be parsed
+	 * @return the JsonElement
+	 * @throws OpenemsNamedException on error
 	 */
 	public static JsonElement parse(String string) throws OpenemsNamedException {
 		try {
@@ -490,9 +490,9 @@ public class JsonUtils {
 	}
 
 	/**
-	 * Pretty print a JsonElement
+	 * Pretty print a JsonElement.
 	 *
-	 * @param j
+	 * @param j the JsonElement
 	 */
 	public static void prettyPrint(JsonElement j) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();

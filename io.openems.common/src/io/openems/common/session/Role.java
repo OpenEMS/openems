@@ -1,6 +1,5 @@
 package io.openems.common.session;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 public enum Role {
@@ -9,8 +8,8 @@ public enum Role {
 	/**
 	 * Returns the Role ENUM for this name or "GUEST" if it was not found.
 	 * 
-	 * @param name
-	 * @return
+	 * @param name the name of the Role
+	 * @return the Role
 	 */
 	public static Role getRole(String name) {
 		switch (name.toLowerCase()) {
@@ -26,11 +25,21 @@ public enum Role {
 		}
 	}
 
+	/**
+	 * Gets the default Role.
+	 * 
+	 * @return the Role
+	 */
 	public static Role getDefaultRole() {
 		return GUEST;
 	}
 
-	public JsonElement asJson() {
+	/**
+	 * Gets the Role as a JsonPrimitive.
+	 * 
+	 * @return the JsonPrimitive
+	 */
+	public JsonPrimitive asJson() {
 		return new JsonPrimitive(this.name().toLowerCase());
 	}
 }

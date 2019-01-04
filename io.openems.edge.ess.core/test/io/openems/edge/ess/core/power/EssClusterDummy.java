@@ -21,7 +21,7 @@ public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements 
 
 	public EssClusterDummy(String id, SymmetricEss... esss) {
 		super(id);
-		Stream.of( //
+		Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -61,6 +61,7 @@ public class EssClusterDummy extends DummyComponent<EssClusterDummy> implements 
 						return new IntegerReadChannel(this, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;

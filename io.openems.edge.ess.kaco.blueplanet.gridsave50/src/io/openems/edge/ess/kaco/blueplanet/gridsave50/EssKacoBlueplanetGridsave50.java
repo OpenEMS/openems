@@ -59,7 +59,7 @@ import io.openems.edge.ess.power.api.Relationship;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { 	EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-						EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE }		
+		}		
 ) //
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
@@ -74,19 +74,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private int maxApparentPowerUnscaled = 0;
 	private int maxApparentPowerScaleFactor = 0;
 
-	// These variables are used to calculate the energy 
-	LocalDateTime lastPowerValuesTimestamp = null;
-	int lastCurrentValue = 0;
-	int lastVoltageValue = 0;
-	int lastPowerFactorValue = 0;	
-	double accumulatedChargeEnergy = 0;
-	double accumulatedDischargeEnergy = 0;
-	
 	/*
 	 * Is Power allowed? This is set to false on error or if the inverter is not
 	 * fully initialized.
 	 */
-	private boolean isPowerAllowed = true;
+	private boolean isActivePowerAllowed = true;
 
 	@Reference
 	private Power power;
@@ -130,7 +122,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void initializePower() {
-		this.isPowerAllowed = true;
+		this.isActivePowerAllowed = true;
 
 		this.channel(ChannelId.W_MAX).onChange(value -> {
 			@SuppressWarnings("unchecked")
@@ -161,15 +153,29 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public Constraint[] getStaticConstraints() {
+		if (this.isActivePowerAllowed) {
+			return new Constraint[] { 
+				this.createPowerConstraint("Reactive power is not allowed", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0)
+			};
+		} else {
+			return new Constraint[] { 
+					this.createPowerConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
+					this.createPowerConstraint("Reactive power is not allowed", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0)
+			};
+		}
+	}
+	
+	@Override
 	public void applyPower(int activePower, int reactivePower) {
 
 		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
 		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
 
-		Optional<Integer> wSetPctOpt = wSetPct_SFChannel.value().asOptional();
-		if (wSetPctOpt.isPresent()) {
+		Optional<Integer> wSetPctSFOpt = wSetPct_SFChannel.value().asOptional();
+		if (wSetPctSFOpt.isPresent()) {
 
-			int scalefactor = wSetPctOpt.get();
+			int scalefactor = wSetPctSFOpt.get();
 
 			int max = maxApparentPower;
 			if (max == 0) {
@@ -178,16 +184,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 			/**
 			 * according to manual active power has to be set in % of maximum active power
-			 * with scale factor see page 10 WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled
-			 * * 10^W_Max_SF * 10^WSetPct_SF)
+			 * with scale factor see page 10 
+			 * WSetPct = (WSet_Watt * 100) / ( W_Max_unscaled * 10^W_Max_SF * 10^WSetPct_SF)
 			 */
 			int WSetPct = (int) ((activePower * 100) / (max * Math.pow(10, scalefactor)));
-
-			// If the battery system is not ready yet or inverter is not in grid (=normal)
-			// mode, set power to zero to avoid damaging or improper system states
-			if (!battery.getReadyForWorking().value().orElse(false) || !isSystemInGridmode()) {
-				WSetPct = 0;
-			}
 
 			try {
 				wSetPctChannel.setNextWriteValue(WSetPct);
@@ -200,18 +200,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private void handleStateMachine() {
 		// by default: block Power
-		this.isPowerAllowed = false;
+		this.isActivePowerAllowed = false;
 
 		// do always
 		setBatteryRanges();
 		setWatchdog();
 
 		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
-		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
-		if (!currentStateOpt.isPresent()) {
-			return;
-		}
-		CurrentState currentState = (CurrentState) currentStateOpt.get();
+		CurrentState currentState = currentStateChannel.value().asEnum();
 		switch (currentState) {
 		case OFF:
 			doOffHandling();
@@ -232,22 +228,30 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		case STARTING:
 		case THROTTLED:
 		case CURRENTLY_UNKNOWN:
+		case UNDEFINED:
 			// Do nothing because these states are only temporarily reached
 			break;
 		}
 	}
 
 	private void doStandbyHandling() {
+		this.isActivePowerAllowed = false;
 		startGridMode();
 	}
 
 	private void doOffHandling() {
+		this.isActivePowerAllowed = false;
 		startSystem();
 	}
 
-	private void doGridConnectedHandling() {
-		// Allow Power
-		this.isPowerAllowed = true;
+	private void doGridConnectedHandling() {		
+		// If the battery system is not ready yet set power to zero to avoid damaging or improper system states
+		if (!battery.getReadyForWorking().value().orElse(false)) {
+			this.isActivePowerAllowed = false;
+		} else {
+			this.isActivePowerAllowed = true;
+		}
+		
 	}
 
 	private void doErrorHandling() {
@@ -268,7 +272,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
 		int batSoC = battery.getSoc().value().orElse(0);
 		int batSoH = battery.getSoh().value().orElse(0);
-		int batTemp = battery.getBatteryTemp().value().orElse(0);
+		int batTemp = battery.getMaxCellTemperature().value().orElse(0);
 
 		// Update Power Constraints
 		// TODO: The actual AC allowed charge and discharge should come from the KACO
@@ -309,12 +313,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		return this.power;
 	}
 
-	private boolean isSystemInGridmode() {
-		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
-		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
-		return currentStateOpt.isPresent() && currentStateOpt.get() == CurrentState.GRID_CONNECTED;
-	}
-
 	@Override
 	public int getPowerPrecision() {
 		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
@@ -329,46 +327,54 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			calculateEnergy();
-			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			calculateEnergy();
 			handleStateMachine();
 			break;
 		}
 	}
 
-
+	// These variables are used to calculate the energy 
+	LocalDateTime lastPowerValuesTimestamp = null;
+	double lastCurrentValue = 0;
+	double lastVoltageValue = 0;
+	double lastActivePowerValue = 0;	
+	double accumulatedChargeEnergy = 0;
+	double accumulatedDischargeEnergy = 0;
+	
+	/*
+	 * This calculates charge/discharge energy using voltage value given from the connected battery and current value from the inverter 
+	 * */
 	private void calculateEnergy() {
-		if (lastPowerValuesTimestamp != null) {						
+		if (this.lastPowerValuesTimestamp != null) {						
 			
-			long passedTimeInMilliSeconds = Duration.between(lastPowerValuesTimestamp, LocalDateTime.now()).toMillis();
-			lastPowerValuesTimestamp = LocalDateTime.now();
+			long passedTimeInMilliSeconds = Duration.between(this.lastPowerValuesTimestamp, LocalDateTime.now()).toMillis();
+			this.lastPowerValuesTimestamp = LocalDateTime.now();
 			
-			double energy = lastCurrentValue * lastVoltageValue * (passedTimeInMilliSeconds / 1000) / 3600; // calculate energy in watt hours
+			double lastPowerValue = this.lastCurrentValue * this.lastVoltageValue; 
+			double energy = lastPowerValue  * ( ((double) passedTimeInMilliSeconds) / 1000.0) / 3600.0; // calculate energy in watt hours
 			
-			if (lastPowerFactorValue < 0) {
-				accumulatedChargeEnergy = accumulatedChargeEnergy + energy;
-			} else if (lastPowerFactorValue > 0) {
-				accumulatedDischargeEnergy = accumulatedDischargeEnergy + energy;
+			if (this.lastActivePowerValue < 0) {
+				this.accumulatedChargeEnergy = this.accumulatedChargeEnergy + energy;
+				this.getActiveChargeEnergy().setNextValue(accumulatedChargeEnergy);
+			} else if (this.lastActivePowerValue > 0) {
+				this.accumulatedDischargeEnergy = this.accumulatedDischargeEnergy + energy;
+				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
 			}
 			
-			this.channel(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY).setNextValue(accumulatedChargeEnergy);
-			this.channel(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY).setNextValue(accumulatedDischargeEnergy);
+			log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
+			log.debug("accumulated discharge energy :" + accumulatedDischargeEnergy);
 			
 		} else {
-			lastPowerValuesTimestamp = LocalDateTime.now();			
+			this.lastPowerValuesTimestamp = LocalDateTime.now();			
 		}
 		
-		@SuppressWarnings("unchecked")
-		Optional<Integer> lastWSetPctOpt = (Optional<Integer>) this.channel(ChannelId.W_SET_PCT).value().asOptional();
-		@SuppressWarnings("unchecked")
-		Optional<Integer> lastCurrentValueOpt = (Optional<Integer>) this.channel(ChannelId.DC_CURRENT).value().asOptional();
-		Optional<Integer> lastVoltageValueOpt = (Optional<Integer>) this.battery.getVoltage().value().asOptional();
-		
-		lastCurrentValue = lastCurrentValueOpt.orElse(0);
-		lastVoltageValue = lastVoltageValueOpt.orElse(0);
-		lastPowerFactorValue = lastWSetPctOpt.orElse(0);
+		this.lastActivePowerValue = this.getActivePower().value().orElse(0);
+				
+		IntegerReadChannel lastCurrentValueChannel = this.channel(ChannelId.DC_CURRENT);
+		this.lastCurrentValue = lastCurrentValueChannel.value().orElse(0) / 1000.0;
+
+		this.lastVoltageValue = this.battery.getVoltage().value().orElse(0);
 	}
 
 	private void startGridMode() {
@@ -423,7 +429,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.channel(ChannelId.BAT_SOH).setNextValue(value.get());
 		});
 
-		this.battery.getBatteryTemp().onChange(value -> {
+		this.battery.getMaxCellTemperature().onChange(value -> {
 			this.channel(ChannelId.BAT_TEMP).setNextValue(value.get());
 		});
 	}
@@ -445,7 +451,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		W_MAX_SF(new Doc().unit(Unit.NONE)), //
 		AC_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
 		AC_ENERGY_SF(new Doc().unit(Unit.NONE)), //
-		DC_CURRENT(new Doc().unit(Unit.AMPERE)), //
+		DC_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		DC_CURRENT_SF(new Doc().unit(Unit.NONE)), //	-2	
 		DC_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		DC_VOLTAGE_SF(new Doc().unit(Unit.NONE)), // -1
@@ -570,7 +576,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(SUNSPEC_103 + 24, Priority.LOW, //
 						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY, new UnsignedDoublewordElement(SUNSPEC_103 + 24)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.AC_ENERGY_SF, new SignedWordElement(SUNSPEC_103 + 26)), //
-						m(EssKacoBlueplanetGridsave50.ChannelId.DC_CURRENT, new UnsignedWordElement(SUNSPEC_103 + 27), ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+						m(EssKacoBlueplanetGridsave50.ChannelId.DC_CURRENT, new UnsignedWordElement(SUNSPEC_103 + 27), ElementToChannelConverter.SCALE_FACTOR_1),
 						m(EssKacoBlueplanetGridsave50.ChannelId.DC_CURRENT_SF, new SignedWordElement(SUNSPEC_103 + 28)),
 						m(EssKacoBlueplanetGridsave50.ChannelId.DC_VOLTAGE, new UnsignedWordElement(SUNSPEC_103 + 29), ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(EssKacoBlueplanetGridsave50.ChannelId.DC_VOLTAGE_SF, new SignedWordElement(SUNSPEC_103 + 30)),
@@ -669,16 +675,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private IntegerWriteChannel getBatteryTempChannel() {
 		return this.channel(ChannelId.BAT_TEMP);
-	}
-
-	@Override
-	public Constraint[] getStaticConstraints() {
-		if (this.isPowerAllowed) {
-			return new Constraint[] {};
-		} else {
-			return new Constraint[] { this.createPowerConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE,
-					Relationship.EQUALS, 0) };
-		}
 	}
 
 	@Override

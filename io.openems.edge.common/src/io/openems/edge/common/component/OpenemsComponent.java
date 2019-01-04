@@ -26,7 +26,8 @@ import io.openems.edge.common.channel.doc.Level;
  * <li>an enabled/disabled state (see {@link #isEnabled()})
  * <li>an OSGi service PID (see {@link #servicePid()}
  * <li>Channels (see {@link Channel}), identified by {@link ChannelId} or
- * String-ID and provided via {@link #channel(String)}, {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
+ * String-ID and provided via {@link #channel(String)},
+ * {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
  * {@link #channels()}
  * <li>a kind of 'toString' method which provides the most important info about
  * the component. (see {@link #debugLog()})
@@ -79,10 +80,11 @@ public interface OpenemsComponent {
 	 * Returns a Channel defined by its ChannelId string representation.
 	 * 
 	 * @param channelName
+	 * @throws IllegalArgumentException on error
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends Channel<?>> T channel(String channelName) {
+	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
 		Channel<?> channel = this._channel(channelName);
 		// check for null
 		if (channel == null) {
@@ -101,10 +103,11 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Returns a Channel defined by its ChannelId
+	 * Returns a Channel defined by its ChannelId.
 	 * 
-	 * @param channelId
-	 * @return
+	 * @param           <T> the Type of the Channel. See {@link Doc#getType()}
+	 * @param channelId the Channel-ID
+	 * @return the Channel
 	 */
 	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
 		T channel = this.<T>channel(channelId.id());
@@ -120,11 +123,7 @@ public interface OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new Doc().unit(Unit.NONE) //
-				.option(0, "Ok") //
-				.option(1, Level.INFO) //
-				.option(2, Level.WARNING) //
-				.option(3, Level.FAULT));
+		STATE(new Doc().unit(Unit.NONE).options(Level.values()));
 
 		private final Doc doc;
 

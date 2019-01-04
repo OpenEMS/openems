@@ -2,17 +2,17 @@ import 'hammerjs';
 
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NgModule, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { LoadingModule } from 'ngx-loading';
+import { NgxLoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 import { MyMaterialModule } from './material.module';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, InfiniteScroll } from '@ionic/angular';
 
 import { appRoutingProviders } from './../app-routing.module';
 
@@ -51,7 +51,7 @@ import { SocChartComponent } from '../edge/history/chart/socchart/socchart.compo
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
-    LoadingModule,
+    NgxLoadingModule,
     MyDateRangePickerModule,
     ToasterModule
   ],
@@ -90,10 +90,10 @@ import { SocChartComponent } from '../edge/history/chart/socchart/socchart.compo
     ToasterModule,
     // components
     SocChartComponent,
-    LoadingModule,
+    NgxLoadingModule,
     AbstractConfigComponent,
     ChannelComponent,
-    ExistingThingComponent
+    ExistingThingComponent,
   ],
   providers: [
     Utils,
@@ -103,4 +103,6 @@ import { SocChartComponent } from '../edge/history/chart/socchart/socchart.compo
     appRoutingProviders
   ]
 })
-export class SharedModule { }
+export class SharedModule {
+  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+}

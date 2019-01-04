@@ -95,7 +95,7 @@ public class TestController {
 		dummyBattery.getSoc().setNextValue(10);
 		sut.run();
 		assertEquals(State.INITIALIZING, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
+		dummyBattery.getMinCellVoltage().setNextValue(3000);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
 		dummyBattery.getVoltage().setNextValue(600);
@@ -104,10 +104,10 @@ public class TestController {
 		dummyBattery.getVoltage().setNextValue(700);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(2700);
+		dummyBattery.getMinCellVoltage().setNextValue(2700);
 		sut.run();
 		assertEquals(State.CHARGING, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
+		dummyBattery.getMinCellVoltage().setNextValue(3000);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
 		dummyBattery.getSoc().setNextValue(2);
@@ -116,13 +116,13 @@ public class TestController {
 		dummyBattery.getSoc().setNextValue(10);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(2830);
+		dummyBattery.getMinCellVoltage().setNextValue(2830);
 		sut.run();
 		assertEquals(State.PENDING, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
+		dummyBattery.getMinCellVoltage().setNextValue(3000);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(2830);
+		dummyBattery.getMinCellVoltage().setNextValue(2830);
 		sut.run();
 		assertEquals(State.PENDING, sut.getStatus());
 		try {
@@ -133,7 +133,9 @@ public class TestController {
 		}
 		sut.run();
 		assertEquals(State.CHARGING, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
+		dummyBattery.getMinCellVoltage().setNextValue(3000);
+		sut.run();
+		assertEquals(State.NORMAL, sut.getStatus());
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
 	}
@@ -147,7 +149,7 @@ public class TestController {
 		dummyBattery.getSoc().setNextValue(10);
 		sut.run();
 		assertEquals(State.INITIALIZING, sut.getStatus());
-		dummyBattery.getMinimalCellVoltage().setNextValue(3000);
+		dummyBattery.getMinCellVoltage().setNextValue(3000);
 		sut.run();
 		assertEquals(State.NORMAL, sut.getStatus());
 	}
@@ -206,11 +208,6 @@ public class TestController {
 			}
 
 			@Override
-			public String ess_target() {
-				return "";
-			}
-
-			@Override
 			public String ess_id() {
 				return "ess0";
 			}
@@ -218,11 +215,6 @@ public class TestController {
 			@Override
 			public boolean enabled() {
 				return true;
-			}
-
-			@Override
-			public String battery_target() {
-				return "";
 			}
 
 			@Override
@@ -246,51 +238,51 @@ public class TestController {
 	private Battery getDummyBattery() {
 		return new BatteryDummy();
 	}
-	
+
 	private static class EssDummy extends AbstractOpenemsComponent implements ManagedSymmetricEss {
 
 		@Override
 		public Power getPower() {
 			// TODO Auto-generated method stub
 			return new Power() {
-				
+
 				@Override
 				public void removeConstraint(Constraint constraint) {
 					// TODO Auto-generated method stub
-					
+
 				}
-				
+
 				@Override
 				public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
 					// TODO Auto-generated method stub
 					return 0;
 				}
-				
+
 				@Override
 				public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
 					// TODO Auto-generated method stub
 					return 0;
 				}
-				
+
 				@Override
 				public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
 					// TODO Auto-generated method stub
 					return null;
 				}
-				
+
 				@Override
-				public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-						Relationship relationship, double value) {
+				public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase,
+						Pwr pwr, Relationship relationship, double value) {
 					// TODO Auto-generated method stub
 					return null;
 				}
-				
+
 				@Override
 				public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
 					// TODO Auto-generated method stub
 					return null;
 				}
-				
+
 				@Override
 				public Constraint addConstraint(Constraint constraint) {
 					// TODO Auto-generated method stub
@@ -300,15 +292,15 @@ public class TestController {
 		}
 
 		@Override
-		public void applyPower(int activePower, int reactivePower) {			
-			
+		public void applyPower(int activePower, int reactivePower) {
+
 		}
 
 		@Override
 		public int getPowerPrecision() {
 			return 1;
 		}
-		
+
 	}
 
 	private static class BatteryDummy extends AbstractOpenemsComponent implements Battery {
@@ -337,10 +329,12 @@ public class TestController {
 						switch (channelId) {
 						case SOC:
 						case SOH:
-						case BATTERY_TEMP:
-						case MAX_CAPACITY:
-						case MINIMAL_CELL_VOLTAGE:
 						case VOLTAGE:
+						case MAX_CELL_TEMPERATURE:
+						case MAX_CELL_VOLTAGE:
+						case MAX_POWER:
+						case MIN_CELL_TEMPERATURE:
+						case MIN_CELL_VOLTAGE:
 							return new IntegerReadChannel(s, channelId);
 						case CHARGE_MAX_CURRENT:
 							return new IntegerReadChannel(s, channelId, BatteryDummy.CHARGE_MAX_A);
@@ -352,9 +346,9 @@ public class TestController {
 							return new IntegerReadChannel(s, channelId, BatteryDummy.DISCHARGE_MIN_V);
 						case READY_FOR_WORKING:
 							return new BooleanReadChannel(s, channelId);
-						case CAPACITY_KWH:
+						case CAPACITY:
 							return new IntegerReadChannel(s, channelId, BatteryDummy.CAPACITY_KWH);
-						default:
+						case CURRENT:
 							break;
 						}
 						return null;

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractOnMessage implements Runnable {
 
-	public final String COMPATIBILITY_METHOD = "_compatibility";
+	public static final String COMPATIBILITY_METHOD = "_compatibility";
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOnMessage.class);
 

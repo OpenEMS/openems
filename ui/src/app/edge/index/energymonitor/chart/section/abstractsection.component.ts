@@ -96,6 +96,13 @@ export class EnergyFlow {
     }
 }
 
+
+export enum GridMode {
+    "undefined",
+    "ongrid",
+    "offgrid"
+}
+
 export abstract class AbstractSection {
 
     public url: string = window.location.href;
@@ -108,6 +115,7 @@ export abstract class AbstractSection {
     public sectionId: string = "";
 
     protected valueRatio: number = 0;
+    protected powerRatio: number = 0;
     protected valueText: string = "";
     protected valueText2: string = "";
     protected innerRadius: number = 0;
@@ -115,6 +123,7 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
     protected lastValue = { valueAbsolute: 0, valueRatio: 0, sumRatio: 0 };
+    protected gridMode: GridMode;
 
     constructor(
         translateName: string,
@@ -122,7 +131,7 @@ export abstract class AbstractSection {
         protected startAngle: number,
         protected endAngle: number,
         public color: string,
-        protected translate: TranslateService
+        protected translate: TranslateService,
     ) {
         this.sectionId = translateName;
         this.name = translate.instant(translateName);
@@ -236,17 +245,21 @@ export abstract class AbstractSection {
         return valueRatio;
     }
 
-    private getArc(): any {
+    protected getArc(): any {
         return d3.arc()
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius);
     }
 
-    private deg2rad(value: number): number {
+    protected deg2rad(value: number): number {
         return value * (Math.PI / 180)
     }
 
     protected getValueStartAngle(): number {
         return this.startAngle;
+    }
+
+    protected getStorageValueStartAngle(): number {
+        return (this.startAngle + this.endAngle) / 2
     }
 }

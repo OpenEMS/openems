@@ -113,7 +113,12 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Stops the websocket server
+	 * <<<<<<< HEAD Stops the websocket server ======= Send a message to a
+	 * websocket.
+	 *
+	 * @param websocket the Websocket
+	 * @param j         the JsonObject
+	 * @return true if successful, otherwise false >>>>>>> origin/develop
 	 */
 	public void stop() {
 		int tries = 3;

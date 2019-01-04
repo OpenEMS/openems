@@ -3,7 +3,10 @@ package io.openems.edge.ess.api;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum Phase implements OptionsEnum {
-	L1("L1", 1), L2("L2", 2), L3("L3", 3);
+	UNDEFINED("Undefined", -1), //
+	L1("L1", 1), //
+	L2("L2", 2), //
+	L3("L3", 3);
 
 	private final String symbol;
 	private final int value;
@@ -23,7 +26,12 @@ public enum Phase implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
+	public String getName() {
 		return this.symbol;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
 	}
 }

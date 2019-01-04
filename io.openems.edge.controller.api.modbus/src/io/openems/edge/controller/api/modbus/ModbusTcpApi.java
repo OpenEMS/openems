@@ -91,6 +91,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 
 	public ModbusTcpApi() {
 		this.processImage = new MyProcessImage(this);
+		
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
@@ -312,9 +314,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
+	
 
 	@Override
 	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {
