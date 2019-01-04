@@ -3,6 +3,7 @@ package io.openems.edge.evcs.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
@@ -13,6 +14,17 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Evcs extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * Charge Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		CHARGE_POWER(new Doc().accessMode(AccessMode.READ_ONLY).type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		/**
 		 * Set Charge Power
 		 * 
@@ -47,6 +59,15 @@ public interface Evcs extends OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Charge Power in [W].
+	 * 
+	 * @return
+	 */
+	public default Channel<Integer> getChargePower() {
+		return this.channel(ChannelId.CHARGE_POWER);
 	}
 
 	/**

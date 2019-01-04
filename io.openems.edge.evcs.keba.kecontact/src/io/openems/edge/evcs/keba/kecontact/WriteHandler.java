@@ -48,6 +48,7 @@ public class WriteHandler implements Runnable {
 	 * </ul>
 	 */
 	private void setDisplay() {
+		// FIXME this (and all other functions) should use "channel.getNextWriteValueAndReset()"
 		WriteChannel<String> channel = this.parent.channel(Evcs.ChannelId.SET_DISPLAY_TEXT);
 		Optional<String> valueOpt = channel.value().asOptional();
 		if (valueOpt.isPresent()) {
