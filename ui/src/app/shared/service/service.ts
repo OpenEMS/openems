@@ -7,6 +7,7 @@ import { DefaultTypes } from './defaulttypes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Edge } from '../edge/edge';
 import { filter, first, map } from 'rxjs/operators';
+import { EdgeConfig } from '../edge/edgeconfig';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -115,9 +116,13 @@ export class Service implements ErrorHandler {
 
       let setCurrentEdge = (edge: Edge) => {
         if (edge != null) {
-          edge.markAsCurrentEdge(this.websocket);
+          if (edge != this.currentEdge.value) {
+            edge.markAsCurrentEdge(this.websocket);
+          }
         }
-        this.currentEdge.next(edge);
+        if (edge != this.currentEdge.value) {
+          this.currentEdge.next(edge);
+        }
         resolve(edge);
       }
 
@@ -136,6 +141,33 @@ export class Service implements ErrorHandler {
           console.error("Error while setting current edge: ", error);
           setCurrentEdge(null);
         })
+    });
+  }
+
+  /**
+   * Gets the current Edge - or waits for a Edge if it is not available yet.
+   */
+  public getCurrentEdge(): Promise<Edge> {
+    return this.currentEdge.pipe(
+      filter(edge => edge != null),
+      first()
+    ).toPromise();
+  }
+
+  /**
+   * Gets the EdgeConfig of the current Edge - or waits for Edge and Config if they are not available yet.
+   */
+  public getConfig(): Promise<EdgeConfig> {
+    return new Promise<EdgeConfig>((resolve, reject) => {
+      this.getCurrentEdge().then(edge => {
+        edge.getConfig(this.websocket).pipe(
+          filter(config => config.isValid()),
+          first()
+        ).toPromise()
+          .then(config => resolve(config))
+          .catch(reason => reject(reason));
+      })
+        .catch(reason => reject(reason));
     });
   }
 

@@ -158,7 +158,12 @@ export class Websocket {
           // handle JSON-RPC Notification
           if (env.debugMode) {
             if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
-              console.info("Receive Notification", message.params['payload']);
+              let payload = message.params['payload'] as JsonrpcNotification;
+              if (payload.method == 'currentData') {
+                // do not log
+              } else {
+                console.info("Receive Notification", message.params['payload']);
+              }
             } else {
               console.info("Receive Notification", message);
             }
@@ -414,7 +419,6 @@ export class Websocket {
       );
       newEdges[newEdge.id] = newEdge;
     }
-    console.log("Websocket Edges", newEdges)
     this.service.edges.next(newEdges);
   }
 

@@ -87,7 +87,7 @@ export module DefaultTypes {
       dischargeActivePowerDC: number,
       maxDischargeActivePower?: number,
       powerRatio: number,
-      maxApparent: number
+      maxApparentPower: number
     }, production: {
       powerRatio: number,
       isAsymmetric: boolean,

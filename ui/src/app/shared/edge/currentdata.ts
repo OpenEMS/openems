@@ -30,7 +30,9 @@ export class CurrentData {
                 dischargeActivePowerACL2: null,
                 dischargeActivePowerACL3: null,
                 dischargeActivePowerDC: null,
-                maxDischargeActivePower: null
+                maxDischargeActivePower: null,
+                powerRatio: null,
+                maxApparentPower: null
             }, production: {
                 isAsymmetric: false,
                 hasDC: false,
@@ -43,6 +45,7 @@ export class CurrentData {
                 activePowerDC: null, // TODO rename to actualPower
                 maxActivePower: null
             }, grid: {
+                gridMode: null,
                 powerRatio: null,
                 buyActivePower: null,
                 maxBuyActivePower: null,
@@ -62,13 +65,25 @@ export class CurrentData {
              */
             result.storage.soc = c['_sum/EssSoc'];
             const essActivePower: number = c['_sum/EssActivePower'];
-            result.storage.chargeActivePowerAC = essActivePower < 0 ? essActivePower * -1 : 0;
-            result.storage.chargeActivePower = result.storage.chargeActivePowerAC; // TODO
-            result.storage.dischargeActivePowerAC = essActivePower > 0 ? essActivePower : 0;
-            result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC; // TODO
+            result.storage.maxApparentPower = c['_sum/MaxApparentPower'];
             result.storage.chargeActivePowerDC = c['_sum/ProductionDcActualPower'];
             if (result.storage.chargeActivePowerDC) {
                 result.storage.hasDC = true;
+            }
+            if (essActivePower > 0) {
+                result.storage.chargeActivePower = 0;
+                result.storage.dischargeActivePower = essActivePower;
+                // TODO: should consider DC-Power of ratio
+                result.storage.powerRatio = Utils.roundSafely(
+                    Utils.divideSafely(result.storage.dischargeActivePower,
+                        Utils.multiplySafely(result.storage.maxApparentPower, 100)));
+            }
+            else {
+                result.storage.chargeActivePower = Utils.multiplySafely(essActivePower, -1);
+                result.storage.dischargeActivePower = 0;
+                result.storage.powerRatio = Utils.roundSafely(
+                    Utils.divideSafely(result.storage.chargeActivePower,
+                        Utils.multiplySafely(result.storage.maxApparentPower, -100)));
             }
         }
 
@@ -81,6 +96,7 @@ export class CurrentData {
             const gridActivePower: number = c['_sum/GridActivePower'];
             result.grid.maxBuyActivePower = c['_sum/GridMaxActivePower'];
             result.grid.maxSellActivePower = c['_sum/GridMinActivePower'] * -1;
+            result.grid.gridMode = c['_sum/GridMode'];
             if (gridActivePower > 0) {
                 result.grid.sellActivePower = 0;
                 result.grid.buyActivePower = gridActivePower;

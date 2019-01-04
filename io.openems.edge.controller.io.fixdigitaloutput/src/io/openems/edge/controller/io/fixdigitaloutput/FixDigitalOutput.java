@@ -49,7 +49,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		// parse config
 		this.isOn = config.isOn();
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());

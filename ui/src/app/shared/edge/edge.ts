@@ -46,6 +46,13 @@ export class Edge {
   // holds config
   public config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig());
 
+  /**
+   * Gets the Config. If not available yet, it requests it via Websocket.
+   * 
+   * Alternatively use Service.getEdgeConfig() which gives you a Promise.
+   * 
+   * @param websocket the Websocket connection
+   */
   public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
     if (!this.config.value.isValid()) {
       this.refreshConfig(websocket);
@@ -73,10 +80,9 @@ export class Edge {
    * Refresh the config.
    */
   public refreshConfig(websocket: Websocket) {
-    console.log("refreshConfig", websocket)
     let request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
-      this.config.next((response as GetEdgeConfigResponse).result);
+      this.config.next(new EdgeConfig(response as GetEdgeConfigResponse));
     }).catch(reason => {
       console.log("refreshConfig got error", reason)
       // TODO error
@@ -155,24 +161,6 @@ export class Edge {
       });
     })
   }
-
-  /**
-   * Query data
-   */
-  // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  // public historicDataQuery(fromDate: Date, toDate: Date, channels: DefaultTypes.ChannelAddresses): void {
-  // console.warn("Edge.historicDataQuery()", fromDate, toDate, channels);
-  // let timezone = new Date().getTimezoneOffset() * 60;
-  // let replyStream = this.sendMessageWithReply(DefaultMessages.historicDataQuery(this.edgeId, fromDate, toDate, timezone, channels));
-  // // wait for reply
-  // return new Promise((resolve, reject) => {
-  //   replyStream.pipe(first()).subscribe(reply => {
-  //     let historicData = (reply as DefaultMessages.HistoricDataReply).historicData;
-  //     this.removeReplyStream(reply);
-  //     resolve(historicData);
-  //   });
-  // })
-  // }
 
   /**
    * Mark this edge as online or offline

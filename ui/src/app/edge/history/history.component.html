@@ -37,16 +37,16 @@
           </ion-label>
         </ion-item>
 
-        <ion-card-content *ngIf="edge">
+        <ion-card-content>
           <div [style.height]="socChartHeight">
-            <socchart [edge]="edge" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+            <socchart [fromDate]="fromDate" [toDate]="toDate"></socchart>
           </div>
           <div [style.height]="energyChartHeight">
-            <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></energychart>
+            <energychart [fromDate]="fromDate" [toDate]="toDate"></energychart>
           </div>
-          <div *ngIf="(evcsChannels | json) != '{}'" [style.height]="socChartHeight">
+          <!-- TODO <div *ngIf="(evcsChannels | json) != '{}'" [style.height]="socChartHeight">
             <evcschart [edge]="edge" [channels]="evcsChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></evcschart>
-          </div>
+          </div> -->
         </ion-card-content>
 
       </ion-card>

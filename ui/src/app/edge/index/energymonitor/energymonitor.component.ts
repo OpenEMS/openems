@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Edge } from '../../../shared/edge/edge';
 import { Websocket } from '../../../shared/service/websocket';
 import { ChannelAddress } from '../../../shared/type/channeladdress';
+import { Service } from '../../../shared/service/service';
 
 @Component({
   selector: EnergymonitorComponent.SELECTOR,
@@ -29,6 +30,15 @@ export class EnergymonitorComponent {
     return this._edge;
   }
 
-  constructor(private websocket: Websocket) { }
+  ngOnDestroy() {
+    if (this.edge != null) {
+      this.edge.unsubscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR);
+    }
+  }
+
+  constructor(
+    private service: Service,
+    private websocket: Websocket
+  ) { }
 
 }

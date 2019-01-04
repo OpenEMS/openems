@@ -37,6 +37,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
@@ -114,11 +115,11 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		Optional<Enum<?>> gridMode = this.ess.getGridMode().value().asEnumOptional();
-		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) == SymmetricEss.GridMode.UNDEFINED) {
+		GridMode gridMode = this.ess.getGridMode().value().asEnum();
+		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
 		}
-		if (gridMode.orElse(SymmetricEss.GridMode.UNDEFINED) != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode != SymmetricEss.GridMode.ON_GRID) {
 			return;
 		}
 		/*

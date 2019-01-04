@@ -27,7 +27,7 @@ JPM-Command:				openems-backend
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED",\
 	org.osgi.service.http.port=8079
 
--runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
+-runfw: org.eclipse.osgi
 -runee: JavaSE-1.8
 -runsystempackages: sun.misc
 
@@ -58,7 +58,6 @@ JPM-Command:				openems-backend
 	org.apache.felix.webconsole;version='[4.2.16,4.2.17)',\
 	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
 	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
-	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.10.1,1.10.2)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.10.1,1.10.2)',\
 	org.osgi.compendium;version='[4.1.0,4.1.1)',\
@@ -68,5 +67,4 @@ JPM-Command:				openems-backend
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	org.osgi.compendium;version='[4.1.0,4.1.1)',\
-	org.jsr-305;version='[3.0.2,3.0.3)'
+	org.osgi.compendium;version='[4.1.0,4.1.1)'

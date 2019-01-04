@@ -7,5 +7,7 @@
 	org.msgpack:msgpack-core;version=0.8,\
 	com.squareup.okhttp3:okhttp;version=3.11,\
 	com.squareup.okio:okio;version=1.14,\
-	com.squareup.okhttp3:logging-interceptor;version=3.11
+	com.squareup.okhttp3:logging-interceptor;version=3.11,\
+	com.squareup.retrofit2:converter-moshi;version=2.4,\
+	com.squareup.retrofit2:retrofit;version=2.4
 	
