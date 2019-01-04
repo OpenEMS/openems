@@ -1,15 +1,4 @@
-package io.openems.edge.simulator.pvinverter;
-
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
-import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+package io.openems.edge.simulator.evcs;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -29,15 +18,23 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.PvInverter", //
+@Component(name = "Simulator.Evcs", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class PvInverter extends AbstractOpenemsComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SIMULATED_ACTIVE_POWER(new Doc().unit(Unit.WATT));
+		SIMULATED_CHARGE_POWER(new Doc().unit(Unit.WATT));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -70,7 +67,7 @@ public class PvInverter extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	public PvInverter() {
+	public SimulatedEvcs() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -85,31 +82,27 @@ public class PvInverter extends AbstractOpenemsComponent
 
 	private void updateChannels() {
 		// copy write value to read value
-		this.getActivePowerLimit().setNextValue(this.getActivePowerLimit().getNextWriteValueAndReset());
+		this.setChargePower().setNextValue(this.setChargePower().getNextWriteValueAndReset());
 
 		/*
-		 * get and store Simulated Active Power
+		 * get and store Simulated Charge Power
 		 */
-		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
-		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
+		int simulatedChargePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
+		this.channel(ChannelId.SIMULATED_CHARGE_POWER).setNextValue(simulatedChargePower);
 
-		// Apply Active Power Limit
-		Optional<Integer> activePowerLimitOpt = this.getActivePowerLimit().value().asOptional();
-		if (activePowerLimitOpt.isPresent()) {
-			int activePowerLimit = activePowerLimitOpt.get();
-			simulatedActivePower = Math.min(simulatedActivePower, activePowerLimit);
+		// Apply Charge Limit
+		Optional<Integer> chargePowerLimitOpt = this.setChargePower().value().asOptional();
+		if (chargePowerLimitOpt.isPresent()) {
+			int chargePowerLimit = chargePowerLimitOpt.get();
+			simulatedChargePower = Math.min(simulatedChargePower, chargePowerLimit);
 		}
 
-		this.getActivePower().setNextValue(simulatedActivePower);
+		this.getChargePower().setNextValue(simulatedChargePower);
 	}
 
 	@Override
 	public String debugLog() {
-		return this.getActivePower().value().asString();
+		return this.getChargePower().value().asString();
 	}
 
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.PRODUCTION;
-	}
 }
