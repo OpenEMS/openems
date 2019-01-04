@@ -34,8 +34,9 @@ import org.slf4j.LoggerFactory;
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class RestApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
 
-	final Logger log = LoggerFactory.getLogger(RestApi.class);
-	private final ApiWorker apiWorker = new ApiWorker();
+	private final Logger log = LoggerFactory.getLogger(RestApi.class);
+	
+	protected final ApiWorker apiWorker = new ApiWorker();
 
 	private Server server = null;
 
