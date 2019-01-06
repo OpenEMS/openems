@@ -1,6 +1,7 @@
 package io.openems.edge.battery.soltaro;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -89,8 +90,8 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();

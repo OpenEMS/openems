@@ -1,5 +1,7 @@
 package io.openems.edge.controller.asymmetric.balancingcosphi;
 
+import java.util.Map;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,8 +49,8 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.meterId = config.meter_id();

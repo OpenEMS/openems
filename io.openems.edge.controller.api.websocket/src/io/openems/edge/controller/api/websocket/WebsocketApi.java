@@ -2,6 +2,7 @@ package io.openems.edge.controller.api.websocket;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
@@ -59,8 +60,8 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	}
 	
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 
 		if (!this.isEnabled()) {
 			// abort if disabled

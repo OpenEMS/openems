@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -66,7 +67,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsException {
 		this.essId = config.ess();
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
@@ -77,7 +78,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		this.hysteresisSoc = config.hysteresisSoc();
 		this.weekdayDayFilter = config.weekdayFilter();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, properties, config.id(), config.enabled());
 	}
 
 	@Deactivate

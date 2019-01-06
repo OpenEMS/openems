@@ -1,6 +1,7 @@
 package io.openems.edge.pvinverter.test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -49,7 +50,7 @@ public class DummySymmetricPvInverter extends AbstractOpenemsComponent implement
 					channel.nextProcessImage();
 					this.addChannel(channel);
 				});
-		super.activate(null, "", id, true);
+		super.activate(null, new HashMap<>(), id, true);
 	}
 
 }

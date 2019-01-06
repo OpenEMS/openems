@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Api Websocket", //
 		description = "This controller provides an HTTP Websocket/JSON api. It is required for OpenEMS UI.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlApiWebsocket0";
 
 	boolean enabled() default true;

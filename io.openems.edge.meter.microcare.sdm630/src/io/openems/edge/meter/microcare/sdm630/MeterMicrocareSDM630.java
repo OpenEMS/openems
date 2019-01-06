@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 
 import java.nio.ByteOrder;
+import java.util.Map;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Microcare.SDM630", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -44,12 +45,10 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
 		this.meterType = config.type();
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, properties, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
-		this._initializeMinMaxActivePower(this.cm, // Initialize Min/MaxActivePower channels
-				config.service_pid(), config.minActivePower(), config.maxActivePower());
 	}
 
 	@Deactivate

@@ -1,5 +1,7 @@
 package io.openems.edge.io.test;
 
+import java.util.HashMap;
+
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -56,7 +58,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 			channel.nextProcessImage();
 			this.addChannel(channel);
 		}
-		super.activate(null, "", id, true);
+		super.activate(null, new HashMap<>(), id, true);
 	}
 
 	@Override

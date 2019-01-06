@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -43,8 +44,8 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private InetAddress ipAddress = null;
 
 	@Activate
-	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	protected void activate(ComponentContext context, Map<String, Object> properties, ConfigTcp config) throws UnknownHostException {
+		super.activate(context, properties, config.id(), config.enabled());
 		this.setIpAddress(InetAddress.getByName(config.ip()));
 	}
 

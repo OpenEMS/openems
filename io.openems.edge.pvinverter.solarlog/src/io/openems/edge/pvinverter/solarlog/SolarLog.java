@@ -1,5 +1,6 @@
 package io.openems.edge.pvinverter.solarlog;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -69,8 +70,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 
 		this.maxActivePower = config.maxActivePower();

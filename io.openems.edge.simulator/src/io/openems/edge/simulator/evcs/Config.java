@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "This simulates a Electric Vehicle Charging Station using data provided by a data source.")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "evcs0";
 
 	boolean enabled() default true;

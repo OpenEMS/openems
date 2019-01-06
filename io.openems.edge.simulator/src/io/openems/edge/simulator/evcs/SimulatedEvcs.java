@@ -1,6 +1,7 @@
 package io.openems.edge.simulator.evcs;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -53,11 +54,11 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, Ope
 	protected SimulatorDatasource datasource;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
+		super.activate(context, properties, config.id(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "datasource", config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
 	}

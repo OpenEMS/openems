@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator NRCMeter Acting", //
 		description = "This simulates an 'acting' non-regulated-consumption meter using data provided by a data source.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter2";
 
 	boolean enabled() default true;

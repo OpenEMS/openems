@@ -1,8 +1,15 @@
 package io.openems.edge.core.componentmanager;
 
+import java.io.IOException;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,17 +31,24 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.JsonApi;
 
 @Component( //
 		name = "Core.ComponentManager", //
 		immediate = true, //
 		property = { //
-				"id=_componentManager", //
+				"id=" + OpenemsConstants.COMPONENT_MANAGER_ID, //
 				"enabled=true" //
 		})
-public class ComponentManagerImpl extends AbstractOpenemsComponent implements ComponentManager, OpenemsComponent {
+public class ComponentManagerImpl extends AbstractOpenemsComponent
+		implements ComponentManager, OpenemsComponent, JsonApi {
 
 	private final OsgiValidateWorker osgiValidateWorker;
+
+	private BundleContext bundleContext;
+
+	@Reference
+	private MetaTypeService metaTypeService;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -69,8 +83,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent implements Co
 	}
 
 	@Activate
-	void activate(ComponentContext context) throws OpenemsException {
-		super.activate(context, "_componentManager", "_componentManager", true);
+	void activate(ComponentContext componentContext, BundleContext bundleContext, Map<String, Object> properties) throws OpenemsException {
+		super.activate(componentContext, properties, OpenemsConstants.COMPONENT_MANAGER_ID,
+				true);
+
+		this.bundleContext = bundleContext;
 
 		// Start OSGi Validate Worker
 		this.osgiValidateWorker.activate(this.id());

@@ -1,5 +1,6 @@
 package io.openems.edge.kostal.piko.gridmeter;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -52,10 +53,10 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 		// update filter for 'Core'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Core", config.core_id())) {
 			return;
 		}
 	}

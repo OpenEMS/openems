@@ -3,6 +3,7 @@ package io.openems.edge.scheduler.allalphabetically;
 import static org.junit.Assert.*;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class AllAlphabeticallyTest {
 		s.addController(new DummyController("c4"));
 		s.addController(new DummyController("c5"));
 
-		s.activate(null, new Config() {
+		s.activate(null, new HashMap<>(),  new Config() {
 
 			@Override
 			public Class<? extends Annotation> annotationType() {
@@ -29,11 +30,6 @@ public class AllAlphabeticallyTest {
 
 			@Override
 			public String webconsole_configurationFactory_nameHint() {
-				return null;
-			}
-
-			@Override
-			public String service_pid() {
 				return null;
 			}
 

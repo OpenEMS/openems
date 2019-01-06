@@ -1,5 +1,6 @@
 package io.openems.edge.controller.channelthreshold;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -65,7 +66,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsNamedException {
 		/*
 		 * parse config
 		 */
@@ -76,7 +77,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, properties, config.id(), config.enabled());
 	}
 
 	@Deactivate

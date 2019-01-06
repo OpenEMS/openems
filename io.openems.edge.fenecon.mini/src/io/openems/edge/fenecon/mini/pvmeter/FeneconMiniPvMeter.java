@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.mini.pvmeter;
 
+import java.util.Map;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -52,8 +54,8 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}

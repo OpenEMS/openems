@@ -67,10 +67,10 @@ public class BackendApi extends AbstractOpenemsComponent
 	public BackendApi() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
-	
+
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 		this.cycleTime = config.cycleTime();
 		this.debug = config.debug();
 

@@ -9,8 +9,6 @@ import io.openems.edge.ess.api.SymmetricEss.GridMode;
 		name = "Simulator EssSymmetric Reacting", //
 		description = "This simulates a 'reacting' symmetric Energy Storage System.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ess0";
 
 	boolean enabled() default true;

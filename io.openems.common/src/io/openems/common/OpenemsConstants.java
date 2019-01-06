@@ -82,4 +82,10 @@ public class OpenemsConstants {
 	 */
 	public final static String MANUFACTURER_EMS_SERIAL_NUMBER = "";
 
+	/*
+	 * Static OpenEMS Component-IDs
+	 */
+	public final static String COMPONENT_MANAGER_ID = "_componentManager";
+	public final static String META_ID = "_meta";
+	public final static String SUM_ID = "_sum";
 }

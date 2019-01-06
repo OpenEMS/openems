@@ -16,6 +16,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -47,7 +48,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		name = "Core.Sum", //
 		immediate = true, //
 		property = { //
-				"id=_sum", //
+				"id=" + OpenemsConstants.SUM_ID, //
 				"enabled=true", //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
@@ -300,7 +301,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(id=_sum)))")
+			target = "(&(enabled=true)(!(id=" + OpenemsConstants.SUM_ID + ")))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	public Sum() {
@@ -309,7 +310,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent, M
 
 	@Activate
 	void activate(ComponentContext context, Map<String, Object> properties) {
-		super.activate(context, "_sum", "_sum", true);
+		super.activate(context, properties, OpenemsConstants.SUM_ID, true);
 	}
 
 	@Deactivate

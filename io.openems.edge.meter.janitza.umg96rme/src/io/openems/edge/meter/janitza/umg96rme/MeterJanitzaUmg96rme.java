@@ -1,5 +1,7 @@
 package io.openems.edge.meter.janitza.umg96rme;
 
+import java.util.Map;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -59,16 +61,12 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
 		this.meterType = config.type();
 		this.invert = config.invert();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, properties, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
-
-		// Initialize Min/MaxActivePower channels
-		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
-				config.maxActivePower());
 	}
 
 	@Deactivate

@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "The MPP tracker 1 implementation of a FENECON DESS (PRO Hybrid, PRO Compact,...)")
 @interface Config1 {
 
-	String service_pid();
-
 	String id() default "charger0";
 
 	boolean enabled() default true;

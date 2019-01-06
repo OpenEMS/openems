@@ -2,6 +2,7 @@ package io.openems.edge.controller.symmetric.balancingschedule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,8 +27,7 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
-import io.openems.common.jsonrpc.base.JsonrpcResponseError;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
 import io.openems.common.utils.JsonUtils;
@@ -58,14 +58,14 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	private List<GridConnSchedule> schedule = new ArrayList<>();
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 		// parse Schedule
@@ -143,14 +143,10 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	}
 
 	@Override
-	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {
-		try {
-			SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(message);
-			this.schedule = request.getSchedule();
-			return new GenericJsonrpcResponseSuccess(request.getId(), new JsonObject());
-		} catch (OpenemsNamedException e) {
-			return new JsonrpcResponseError(message.getId(), e);
-		}
+	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest message) throws OpenemsNamedException {
+		SetGridConnScheduleRequest request = SetGridConnScheduleRequest.from(message);
+		this.schedule = request.getSchedule();
+		return new GenericJsonrpcResponseSuccess(request.getId(), new JsonObject());
 	}
 
 	/**

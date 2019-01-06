@@ -29,6 +29,11 @@ public class DummyController implements Controller {
 	public String servicePid() {
 		return "";
 	}
+	
+	@Override
+	public String factoryPid() {
+		return "";
+	}
 
 	@Override
 	public ComponentContext componentContext() {

@@ -33,7 +33,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
 
 	private String id = null;
-	private String servicePid = null;
+	private String servicePid = "";
+	private String factoryPid = "";
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
 
@@ -41,17 +42,18 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Handles @Activate of implementations. Prints log output.
 	 * 
 	 * @param context
-	 * @param service_pid
+	 * @param properties
 	 * @param id
 	 * @param enabled
 	 */
-	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
+	protected void activate(ComponentContext context, Map<String, Object> properties, String id, boolean enabled) {
 		if (id == null || id.trim().equals("")) {
 			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
 		} else {
 			this.id = id;
 		}
-		this.servicePid = service_pid;
+		this.servicePid = properties.getOrDefault("service.pid", "").toString();
+		this.factoryPid = properties.getOrDefault("service.factoryPid", "").toString();
 		this.enabled = enabled;
 		this.componentContext = context;
 		if (isEnabled()) {
@@ -80,6 +82,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public String servicePid() {
 		return this.servicePid;
+	}
+
+	@Override
+	public String factoryPid() {
+		return this.factoryPid;
 	}
 
 	@Override

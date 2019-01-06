@@ -178,11 +178,6 @@ public class TestController {
 			}
 
 			@Override
-			public String service_pid() {
-				return "";
-			}
-
-			@Override
 			public float secondCellVoltageLimit() {
 				return 2.8f;
 			}

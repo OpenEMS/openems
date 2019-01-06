@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 
 import org.junit.Test;
 
@@ -64,8 +65,8 @@ public class LimitTotalDischargeTest {
 		controller.componentManager = componentManager;
 		// Activate (twice, so that reference target is set)
 		MyConfig config = new MyConfig("ctrl0", "ess0", 15, 10, 1000);
-		controller.activate(null, config);
-		controller.activate(null, config);
+		controller.activate(null, new HashMap<>(), config);
+		controller.activate(null, new HashMap<>(), config);
 		// Prepare Channels
 		ChannelAddress ess0Soc = new ChannelAddress("ess0", "Soc");
 		ChannelAddress ess0SetActivePowerLessOrEquals = new ChannelAddress("ess0", "SetActivePowerLessOrEquals");

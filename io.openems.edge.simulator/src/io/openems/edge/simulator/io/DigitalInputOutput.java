@@ -9,6 +9,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -42,8 +43,8 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 
 		// Generate OutputChannels
 		this.channels = new BooleanWriteChannel[config.numberOfOutputs()];

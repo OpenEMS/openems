@@ -129,11 +129,6 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 	}
 
 	@Override
-	public String servicePid() {
-		return "no_service_pid";
-	}
-
-	@Override
 	public boolean isEnabled() {
 		return true;
 	}

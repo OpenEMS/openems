@@ -58,6 +58,13 @@ public interface OpenemsComponent {
 	 * @return
 	 */
 	String servicePid();
+	
+	/**
+	 * Returns the Service Factory PID.
+	 * 
+	 * @return
+	 */
+	String factoryPid();
 
 	/**
 	 * Returns the ComponentContext

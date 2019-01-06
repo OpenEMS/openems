@@ -1,5 +1,6 @@
 package io.openems.edge.ess.fenecon.commercial40.charger;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -91,8 +92,8 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), this.ess.get().getUnitId(),
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled(), this.ess.get().getUnitId(),
 				this.cm, "Modbus", this.ess.get().getModbusBridgeId());
 	}
 

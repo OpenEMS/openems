@@ -7,6 +7,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -137,8 +138,8 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	private InetAddress ip = null;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws UnknownHostException {
+		super.activate(context, properties, config.id(), config.enabled());
 
 		this.ip = Inet4Address.getByName(config.ip());
 

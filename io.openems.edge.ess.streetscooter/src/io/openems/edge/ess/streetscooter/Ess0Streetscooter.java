@@ -1,5 +1,7 @@
 package io.openems.edge.ess.streetscooter;
 
+import java.util.Map;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -47,8 +49,8 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), config0.readonly(), UNIT_ID,
+	protected void activate(ComponentContext context, Map<String, Object> properties, Config0 config0) {
+		super.activate(context, properties, config0.id(), config0.enabled(), config0.readonly(), UNIT_ID,
 				this.cm, "Modbus", config0.modbus_id());
 	}
 

@@ -2,6 +2,7 @@ package io.openems.edge.timedata.influxdb;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -78,8 +79,8 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
 				config.database());
 

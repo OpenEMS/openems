@@ -2,6 +2,7 @@ package io.openems.edge.ess.cluster;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -93,13 +94,13 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsException {
 		// update filter for 'esss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "esss", config.ess_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "esss", config.ess_ids())) {
 			return;
 		}
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, properties, config.id(), config.enabled());
 	}
 
 	@Deactivate

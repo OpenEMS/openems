@@ -12,6 +12,7 @@ import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -56,11 +57,11 @@ public class PvInverter extends AbstractOpenemsComponent
 	protected SimulatorDatasource datasource;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
+		super.activate(context, properties, config.id(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "datasource", config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
 	}

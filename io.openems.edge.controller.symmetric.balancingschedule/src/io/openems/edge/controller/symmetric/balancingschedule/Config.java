@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Balancing Schedule Symmetric", //
 		description = "Controls an ESS with the target to keep the grid-meter on a value defined in a Schedule.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlBalancingSchedule0";
 
 	boolean enabled() default true;

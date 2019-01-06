@@ -27,6 +27,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Designate(ocd = Config.class, factory = true)
@@ -62,12 +63,8 @@ public class GridMeter extends AbstractOpenemsComponent
 	private volatile List<SymmetricMeter> symmetricMeters = new CopyOnWriteArrayList<>();
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-
-		// Initialize Min/MaxActivePower channels
-		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
-				config.maxActivePower());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
+		super.activate(context, properties, config.id(), config.enabled());
 	}
 
 	@Deactivate

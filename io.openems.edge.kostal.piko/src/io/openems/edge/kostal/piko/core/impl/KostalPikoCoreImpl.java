@@ -1,5 +1,7 @@
 package io.openems.edge.kostal.piko.core.impl;
 
+import java.util.Map;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -299,8 +301,8 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, properties, config.id(), config.enabled());
 		this.socketConnection = new SocketConnection(config.ip(), config.port(), (byte) config.unitID());
 		Protocol protocol = new Protocol(socketConnection);
 		this.worker = new Worker(protocol, this.readTasksManager);
