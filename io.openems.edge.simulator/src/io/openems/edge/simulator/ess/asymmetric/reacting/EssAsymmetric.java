@@ -40,17 +40,17 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	/**
-	 * Current state of charge
+	 * Current state of charge.
 	 */
 	private float soc = 0;
 
 	/**
-	 * Total configured capacity in Wh
+	 * Total configured capacity in Wh.
 	 */
 	private int capacity = 0;
 
 	/**
-	 * Configured max Apparent Power in VA
+	 * Configured max Apparent Power in VA.
 	 */
 	private int maxApparentPower = 0;
 
@@ -132,7 +132,6 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
-		int reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 		/*
 		 * calculate State of charge
 		 */
@@ -152,6 +151,8 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		this.getActivePowerL2().setNextValue(activePowerL2);
 		this.getActivePowerL3().setNextValue(activePowerL3);
 		this.getActivePower().setNextValue(activePower);
+
+		int reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 		this.getReactivePowerL1().setNextValue(reactivePowerL1);
 		this.getReactivePowerL2().setNextValue(reactivePowerL2);
 		this.getReactivePowerL3().setNextValue(reactivePowerL3);
@@ -178,7 +179,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable() {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(), //
 				SymmetricEss.getModbusSlaveNatureTable(), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(), //

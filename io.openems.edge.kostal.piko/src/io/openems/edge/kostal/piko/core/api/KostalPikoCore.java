@@ -74,7 +74,7 @@ public interface KostalPikoCore {
 		/*
 		 * ESS
 		 */
-		BATTERY_CURRENT_DIRECTION(new Doc().option(0, "charge").option(1, "discharge").type(OpenemsType.FLOAT)), //
+		BATTERY_CURRENT_DIRECTION(new Doc().options(BatteryCurrentDirection.values()).type(OpenemsType.FLOAT)), //
 		BATTERY_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		BATTERY_VOLTAGE(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		BATTERY_TEMPERATURE(new Doc().type(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)), //

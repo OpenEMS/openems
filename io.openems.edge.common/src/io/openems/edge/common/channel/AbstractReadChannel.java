@@ -39,13 +39,15 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		this.type = type;
 		this.parent = parent;
 		this.channelId = channelId;
+
 		// validate Type
 		if (channelId.doc().getType().isPresent()) {
-			if (!type.equals(channelId.doc().getType().get())) {
+			if (!validateType(channelId.doc().getType().get(), type)) {
 				throw new IllegalArgumentException("[" + this.address() + "]: Types do not match. Got [" + type
 						+ "]. Expected [" + channelId.doc().getType().get() + "].");
 			}
 		}
+
 		// validate Access-Mode
 		switch (channelId.doc().getAccessMode()) {
 		case READ_ONLY:
@@ -64,6 +66,16 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		});
 		// set initial value
 		this.setNextValue(initialValue);
+	}
+
+	@Override
+	public void deactivate() {
+		this.onChangeCallbacks.clear();
+		this.onSetNextValueCallbacks.clear();
+		this.onUpdateCallbacks.clear();
+		if (onSetNextWriteCallbacks != null) {
+			this.onSetNextWriteCallbacks.clear();
+		}
 	}
 
 	@Override
@@ -99,7 +111,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	/**
 	 * Sets the next value. Internal method. Do not call directly.
 	 * 
-	 * @param value
+	 * @param value the next value
 	 */
 	@Deprecated
 	public final void _setNextValue(T value) {
@@ -152,5 +164,48 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 			this.onSetNextWriteCallbacks = new CopyOnWriteArrayList<>();
 		}
 		return this.onSetNextWriteCallbacks;
+	}
+
+	/**
+	 * Validates the Type of the Channel.
+	 * 
+	 * @param expected the expected Type
+	 * @param actual   the actual Type
+	 * @return true if validation ok
+	 */
+	private boolean validateType(OpenemsType expected, OpenemsType actual) {
+		switch (expected) {
+		case BOOLEAN:
+		case FLOAT:
+		case SHORT:
+		case STRING:
+			return actual == expected;
+		case DOUBLE:
+			switch (actual) {
+			case DOUBLE:
+			case FLOAT:
+				return true;
+			default:
+				return false;
+			}
+		case INTEGER:
+			switch (actual) {
+			case SHORT:
+			case INTEGER:
+				return true;
+			default:
+				return false;
+			}
+		case LONG:
+			switch (actual) {
+			case SHORT:
+			case INTEGER:
+			case LONG:
+				return true;
+			default:
+				return false;
+			}
+		}
+		return false;
 	}
 }

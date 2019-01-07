@@ -9,6 +9,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.controller.api.core.WritePOJO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -170,19 +171,18 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles HTTP POST request.
 	 *
-	 * @param readChannel the affected channel
+	 * @param channel     the affected channel
 	 * @param baseRequest the HTTP POST base-request
 	 * @param request     the HTTP POST request
 	 * @param response    the result to be returned
 	 * @throws OpenemsException on error
 	 */
-	private void handlePost(Channel<?> readChannel, Request baseRequest, HttpServletRequest request,
+	private void handlePost(Channel<?> channel, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws OpenemsException {
 		// check for writable channel
-		if (!(readChannel instanceof WriteChannel<?>)) {
-			throw new OpenemsException("[" + readChannel + "] is not a Write Channel");
+		if (!(channel instanceof WriteChannel<?>)) {
+			throw new OpenemsException("[" + channel + "] is not a Write Channel");
 		}
-		WriteChannel<?> channel = (WriteChannel<?>) readChannel;
 
 		// parse json
 		JsonParser parser = new JsonParser();
@@ -203,17 +203,14 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// set channel value
-		try {
-			if (jValue.isJsonNull()) {
-				channel.setNextWriteValue(null);
-			} else {
-				channel.setNextWriteValueFromObject(jValue.toString());
-			}
-			log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
-		} catch (OpenemsException e) {
-			e.printStackTrace();
-			throw new OpenemsException("Unable to set value: " + e.getMessage());
+		Object value;
+		if (jValue.isJsonNull()) {
+			value = null;
+		} else {
+			value = jValue.toString();
 		}
+		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePOJO(value));
+		log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
 
 		this.sendOkResponse(baseRequest, response, new JsonObject());
 	}

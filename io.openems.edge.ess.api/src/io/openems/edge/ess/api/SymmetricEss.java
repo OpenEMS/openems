@@ -17,16 +17,16 @@ public interface SymmetricEss extends OpenemsComponent {
 	public final static String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
 
 	public enum GridMode implements OptionsEnum {
-		UNDEFINED(0, "Undefined"), //
+		UNDEFINED(-1, "Undefined"), //
 		ON_GRID(1, "On-Grid"), //
 		OFF_GRID(2, "Off-Grid");
 
 		private int value;
-		private String option;
+		private String name;
 
-		private GridMode(int value, String option) {
+		private GridMode(int value, String name) {
 			this.value = value;
-			this.option = option;
+			this.name = name;
 		}
 
 		@Override
@@ -35,8 +35,13 @@ public interface SymmetricEss extends OpenemsComponent {
 		}
 
 		@Override
-		public String getOption() {
-			return option;
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
 		}
 	}
 
@@ -51,7 +56,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		SOC(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)),
 		/**
 		 * Grid-Mode
 		 * 
@@ -61,7 +68,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(new Doc().type(OpenemsType.INTEGER).options(GridMode.values())),
+		GRID_MODE(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.options(GridMode.values())),
 		/**
 		 * Active Power
 		 * 
@@ -103,7 +112,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_APPARENT_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
+		MAX_APPARENT_POWER(new Doc() //
+				.unit(Unit.VOLT_AMPERE)), //
 		/**
 		 * Active Charge Energy
 		 * 
@@ -114,7 +124,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Active Discharge Energy
@@ -126,7 +136,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
@@ -201,7 +211,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActiveChargeEnergy() {
+	default Channel<Long> getActiveChargeEnergy() {
 		return this.channel(ChannelId.ACTIVE_CHARGE_ENERGY);
 	}
 
@@ -210,7 +220,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getActiveDischargeEnergy() {
+	default Channel<Long> getActiveDischargeEnergy() {
 		return this.channel(ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 }

@@ -4,10 +4,15 @@ import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
 
-public class SignedWordElement extends AbstractWordElement<Short> {
+public class SignedWordElement extends AbstractWordElement<SignedWordElement, Short> {
 
 	public SignedWordElement(int address) {
 		super(OpenemsType.SHORT, address);
+	}
+
+	@Override
+	protected SignedWordElement self() {
+		return this;
 	}
 
 	protected Short fromByteBuffer(ByteBuffer buff) {

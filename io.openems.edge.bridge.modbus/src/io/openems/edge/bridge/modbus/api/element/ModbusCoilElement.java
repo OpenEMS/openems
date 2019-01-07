@@ -40,7 +40,9 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 	public default Optional<Boolean> getNextWriteValueAndReset() {
 		Optional<Boolean> valueOpt = this.getNextWriteValue();
 		try {
-			this._setNextWriteValue(Optional.empty());
+			if (valueOpt.isPresent()) {
+				this._setNextWriteValue(Optional.empty());
+			}
 		} catch (OpenemsException e) {
 			// can be safely ignored
 		}

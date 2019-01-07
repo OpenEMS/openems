@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 public abstract class JsonrpcMessage {
 
-	public final static String JSONRPC_VERSION = "2.0";
+	public static final String JSONRPC_VERSION = "2.0";
 
 	private final String id;
 
@@ -25,7 +25,7 @@ public abstract class JsonrpcMessage {
 	public abstract JSONObject toJsonObject();
 
 	/**
-	 * Returns this JsonrpcMessage as a JSON String
+	 * Returns this JsonrpcMessage as a JSON String.
 	 */
 	@Override
 	public String toString() {

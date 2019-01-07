@@ -34,8 +34,9 @@ import org.slf4j.LoggerFactory;
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class RestApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
 
-	final Logger log = LoggerFactory.getLogger(RestApi.class);
-	private final ApiWorker apiWorker = new ApiWorker();
+	private final Logger log = LoggerFactory.getLogger(RestApi.class);
+	
+	protected final ApiWorker apiWorker = new ApiWorker();
 
 	private Server server = null;
 
@@ -51,6 +52,10 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Api
 	@Reference
 	protected UserService userService;
 
+	public RestApi() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());

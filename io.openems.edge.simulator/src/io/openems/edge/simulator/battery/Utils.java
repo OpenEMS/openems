@@ -12,9 +12,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
 	public static Stream<? extends Channel<?>> initializeChannels(BatteryDummy s) {
-		// Define the channels. Using streams + switch enables Eclipse IDE to tell us if
-		// we are missing an Enum value.
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:

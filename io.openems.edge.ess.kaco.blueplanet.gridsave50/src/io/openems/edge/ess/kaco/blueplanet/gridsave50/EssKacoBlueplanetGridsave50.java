@@ -207,11 +207,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		setWatchdog();
 
 		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
-		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
-		if (!currentStateOpt.isPresent()) {
-			return;
-		}
-		CurrentState currentState = (CurrentState) currentStateOpt.get();
+		CurrentState currentState = currentStateChannel.value().asEnum();
 		switch (currentState) {
 		case OFF:
 			doOffHandling();
@@ -232,6 +228,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		case STARTING:
 		case THROTTLED:
 		case CURRENTLY_UNKNOWN:
+		case UNDEFINED:
 			// Do nothing because these states are only temporarily reached
 			break;
 		}

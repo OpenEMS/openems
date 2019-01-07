@@ -10,7 +10,7 @@ import io.openems.common.exceptions.OpenemsException;
 public interface CommonTimedataService {
 
 	/**
-	 * Queries the database and returns a JsonArray of the form
+	 * Queries the database and returns a JsonArray of the form.
 	 *
 	 * <pre>
 	 *	[{
@@ -22,6 +22,14 @@ public interface CommonTimedataService {
 	 *		}
 	 * 	}]
 	 * </pre>
+	 * 
+	 * @param fromDate   the From-Date
+	 * @param toDate     the To-Date
+	 * @param channels   the Channels
+	 * @param resolution the resolution
+	 * @param tags       the Tags
+	 * @return the historic data
+	 * @throws OpenemsException on error
 	 */
 	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
 			int resolution, Tag... tags) throws OpenemsException;

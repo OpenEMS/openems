@@ -7,11 +7,11 @@ public enum RequestedState implements OptionsEnum {
 	OFF(1, "Off"), STANDBY(8, "Standby"), GRID_CONNECTED(11, "Grid connected");
 
 	int value;
-	String option;
+	String name;
 
-	private RequestedState(int value, String option) {
+	private RequestedState(int value, String name) {
 		this.value = value;
-		this.option = option;
+		this.name = name;
 	}
 
 	@Override
@@ -20,7 +20,12 @@ public enum RequestedState implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
-		return option;
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public OptionsEnum getUndefined() {
+		return CurrentState.UNDEFINED;
 	}
 }

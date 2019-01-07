@@ -13,10 +13,20 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		this.channelId = channelId;
 	}
 
+	/**
+	 * Gets the Component-ID.
+	 * 
+	 * @return the Component-ID
+	 */
 	public String getComponentId() {
 		return componentId;
 	}
 
+	/**
+	 * Gets the Channel-Id.
+	 * 
+	 * @return the Channel-Id
+	 */
 	public String getChannelId() {
 		return channelId;
 	}
@@ -26,6 +36,13 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		return componentId + "/" + channelId;
 	}
 
+	/**
+	 * Parses a string "Component-ID/Channel-ID" to a ChannelAddress.
+	 * 
+	 * @param address the address as a String
+	 * @return the ChannelAddress
+	 * @throws OpenemsException on parse error
+	 */
 	public static ChannelAddress fromString(String address) throws OpenemsException {
 		try {
 			String[] addressArray = address.split("/");
@@ -49,12 +66,15 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		ChannelAddress other = (ChannelAddress) obj;
 		return this.toString().equals(other.toString());
 	}

@@ -20,7 +20,7 @@ import io.openems.common.utils.StringUtils;
 public abstract class AbstractWebsocketServer extends WebSocketServer {
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 
-	private final static int MAX_CONCURRENT_THREADS = 20;
+	private static final int MAX_CONCURRENT_THREADS = 20;
 
 	private final ExecutorService executor = Executors.newFixedThreadPool(MAX_CONCURRENT_THREADS);
 
@@ -81,9 +81,10 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	}
 
 	/**
-	 * Send a message to a websocket
+	 * Send a message to a websocket.
 	 *
-	 * @param j
+	 * @param websocket the Websocket
+	 * @param j         the JsonObject
 	 * @return true if successful, otherwise false
 	 */
 	@Deprecated

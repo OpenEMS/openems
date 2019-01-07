@@ -171,16 +171,18 @@ public class Solver {
 			}
 		}
 
-		// Evaluates whether it is a CHARGE or DISCHARGE problem.
-		TargetDirection targetDirection = this.getTargetDirection();
-
 		SolveSolution solution = new SolveSolution(SolverStrategy.NONE, null);
+		TargetDirection targetDirection = null;
 		try {
+			// Evaluates whether it is a CHARGE or DISCHARGE problem.
+			targetDirection = this.getTargetDirection();
+
 			// Gets the target-Inverters, i.e. the Inverters that are minimally required to
 			// solve the Problem.
 			List<Inverter> targetInverters = this.getTargetInverters(data.getInverters(), targetDirection);
 
 			switch (this.strategy) {
+			case UNDEFINED:
 			case ALL_CONSTRAINTS:
 			case NONE:
 				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints);
@@ -239,6 +241,7 @@ public class Solver {
 		PointValuePair solution = null;
 		for (SolverStrategy strategy : strategies) {
 			switch (strategy) {
+			case UNDEFINED:
 			case NONE:
 				break;
 			case ALL_CONSTRAINTS:

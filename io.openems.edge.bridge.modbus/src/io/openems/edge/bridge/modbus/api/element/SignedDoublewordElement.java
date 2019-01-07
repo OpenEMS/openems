@@ -4,14 +4,14 @@ import io.openems.common.types.OpenemsType;
 
 import java.nio.ByteBuffer;
 
-public class SignedDoublewordElement extends AbstractDoubleWordElement<Long> {
+public class SignedDoublewordElement extends AbstractDoubleWordElement<SignedDoublewordElement, Long> {
 
 	public SignedDoublewordElement(int address) {
 		super(OpenemsType.LONG, address);
 	}
 
-	public SignedDoublewordElement wordOrder(WordOrder wordOrder) {
-		this.wordOrder = wordOrder;
+	@Override
+	protected SignedDoublewordElement self() {
 		return this;
 	}
 

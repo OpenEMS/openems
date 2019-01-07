@@ -65,7 +65,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTUAL_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
