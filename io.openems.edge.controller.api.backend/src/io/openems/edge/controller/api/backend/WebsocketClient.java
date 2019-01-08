@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnInternalError;
-import io.openems.common.websocket.OnOpen;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
@@ -26,10 +25,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	protected WebsocketClient(BackendApi parent, String name, URI serverUri, Map<String, String> httpHeaders,
 			Proxy proxy) {
 		super(name, serverUri, httpHeaders, proxy);
-		this.onOpen = (ws, handshake) -> {
-			log.info("Connected to OpenEMS Backend [" + serverUri.toString() + //
-			(proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
-		};
+		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification();
 		this.onError = new OnError();

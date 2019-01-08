@@ -118,10 +118,6 @@ class BackendWorker extends AbstractWorker {
 					if (jLastValue == null || !jLastValue.equals(jValue)) {
 						// this value differs from the last sent value
 						this.last.put(address, jValue);
-						// TODO do not add 'null' values; this should be done directly at InfluxDB
-//						if (jValue.equals(JsonNull.INSTANCE)) {
-//							return;
-//						}
 						values.put(address, jValue);
 					}
 				});

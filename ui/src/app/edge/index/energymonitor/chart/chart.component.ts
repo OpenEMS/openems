@@ -1,13 +1,11 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { Subject, fromEvent } from 'rxjs';
-import { takeUntil, debounceTime, delay } from 'rxjs/operators';
-
-
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { fromEvent, Subject } from 'rxjs';
+import { debounceTime, delay, takeUntil } from 'rxjs/operators';
+import { CurrentData } from '../../../../shared/edge/currentdata';
 import { ConsumptionSectionComponent } from './section/consumptionsection.component';
 import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
 import { StorageSectionComponent } from './section/storagesection.component';
-import { CurrentData } from '../../../../shared/edge/currentdata';
 
 @Component({
   selector: 'energymonitor-chart',

@@ -3,12 +3,12 @@
 
     <!-- Energymonitor -->
     <ion-col size="12" size-md="8" size-lg="4">
-      <energymonitor [edge]="edge"></energymonitor>
+      <energymonitor></energymonitor>
     </ion-col>
 
     <!-- Energytable -->
     <ion-col size="12" size-md="8" size-lg="4">
-      <energytable [edge]="edge"></energytable>
+      <energytable></energytable>
     </ion-col>
 
     <!-- History -->
@@ -18,16 +18,13 @@
       <!-- Widgets -->
       <!-- todo: place widgets 'reactable' to the right -->
       <ng-container *ngFor="let widget of widgets">
-        <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-          <!-- No widgets yet for 2018.8 -->
-        </ng-container>
-        <ng-template #version_2018_7>
-          <ion-col size="12" size-md="8" size-lg="4">
-            <evcs-2018-7 *ngIf="widget == 'EVCS'" [edge]="edge" [currentData]="currentData" [config]="config"></evcs-2018-7>
-            <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
-              [config]="config"></channelthreshold-2018-7>
-          </ion-col>
-        </ng-template>
+        <ion-col [ngSwitch]="widget.type" size="12" size-md="8" size-lg="4">
+          <ng-container *ngSwitchCase="'EVCS'">
+            <evcs [componentId]="widget.componentId"></evcs>
+          </ng-container>
+          <!-- <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
+            [config]="config"></channelthreshold-2018-7> -->
+        </ion-col>
       </ng-container>
     </ion-col>
   </ion-row>

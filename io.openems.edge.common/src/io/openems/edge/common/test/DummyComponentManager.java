@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,6 +45,11 @@ public class DummyComponentManager implements ComponentManager {
 		if (component != this) {
 			this.components.add(component);
 		}
+	}
+
+	@Override
+	public EdgeConfig getEdgeConfig() {
+		return new EdgeConfig();
 	}
 
 }

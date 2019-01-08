@@ -1,6 +1,6 @@
 import { JsonrpcRequest } from "../base";
 import { UUID } from "angular2-uuid";
-import { ChannelAddress } from "../../../../shared/type/channeladdress";
+import { ChannelAddress } from "../../../shared/type/channeladdress";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**

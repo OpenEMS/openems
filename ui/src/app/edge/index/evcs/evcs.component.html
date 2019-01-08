@@ -1,4 +1,26 @@
-<ng-container *ngIf="currentData && config">
+<ion-card *ngIf="edge">
+  <ion-item>
+    <ion-icon slot="start" name="today" color="primary"></ion-icon>
+    <ion-label>
+      <ion-card-title translate>Edge.Index.Energytable.Title</ion-card-title>
+    </ion-label>
+  </ion-item>
+
+  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+  <ng-container *ngIf="edge.currentData | async as currentData">
+
+    <!-- <ion-item color="light">
+        <ion-img style="width:40px" src="assets/img/storage.png"></ion-img>
+        <ion-label translate>General.StorageSystem</ion-label>
+      </ion-item> -->
+
+    <p>{{ currentData['channel'][componentId + "/ChargePower"] | json }}</p>
+
+  </ng-container>
+</ion-card>
+
+
+<!-- <ng-container *ngIf="currentData && config">
   <ng-container *ngFor="let thing of config.evcsDevices">
     <ion-card>
       <ion-item>
@@ -81,4 +103,4 @@
       </ion-card-content>
     </ion-card>
   </ng-container>
-</ng-container>
+</ng-container> -->

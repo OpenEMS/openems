@@ -1,18 +1,18 @@
-import { Subject, BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
-
-import { CurrentData } from './currentdata';
+import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
+import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
+import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
+import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
+import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
+import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
 import { DefaultTypes } from '../service/defaulttypes';
-import { Role } from '../type/role';
-import { SubscribeChannelsRequest } from '../service/jsonrpc/request/subscribeChannelsRequest';
-import { JsonrpcRequest, JsonrpcResponseSuccess } from '../service/jsonrpc/base';
-import { EdgeRpcRequest } from '../service/jsonrpc/request/edgeRpcRequest';
-import { ChannelAddress } from '../type/channeladdress';
 import { Websocket } from '../service/websocket';
-import { GetEdgeConfigRequest } from '../service/jsonrpc/request/getEdgeConfigRequest';
-import { GetEdgeConfigResponse } from '../service/jsonrpc/response/getEdgeConfigResponse';
+import { ChannelAddress } from '../type/channeladdress';
+import { Role } from '../type/role';
+import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
-import { CurrentDataNotification } from '../service/jsonrpc/notification/currentDataNotification';
 
 export class Log {
   timestamp: number;
@@ -41,6 +41,7 @@ export class Edge {
   public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
 
   // holds log
+  // TODO deprecated
   public log: Observable<DefaultTypes.Log>;
 
   // holds config
@@ -60,12 +61,8 @@ export class Edge {
     return this.config;
   }
 
+  // TODO deprecated
   public event = new Subject<Notification>();
-  public address: string;
-
-  //public historykWh = new BehaviorSubject<any[]>(null);
-  private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
-  private subscribeCurrentDataChannels: string[] = [];
 
   /**
    * Called by Service, when this Edge is set as currentEdge.
@@ -145,6 +142,18 @@ export class Edge {
   }
 
   /**
+   * Updates the configuration of a OpenEMS Edge Component-ID.
+   * 
+   * @param ws          the Websocket
+   * @param componentId the OpenEMS Edge Component-ID 
+   * @param update      the attributes to be updated.
+   */
+  public updateComponentConfig(ws: Websocket, componentId: string, update: [{ property: string, value: any }]): Promise<JsonrpcResponseSuccess> {
+    let request = new UpdateComponentConfigRequest(componentId, update);
+    return this.sendRequest(ws, request);
+  }
+
+  /**
    * Sends a JSON-RPC Request, wrapped in a EdgeRpcRequest with the Edge-ID.
    * 
    * @param ws               the Websocket
@@ -173,6 +182,8 @@ export class Edge {
 
   /**
    * Subscribe to log
+   * 
+   * TODO deprecated
    */
   public subscribeLog(): void {
     console.warn("Edge.subscribeLog()");
@@ -183,6 +194,8 @@ export class Edge {
 
   /**
    * Unsubscribe from log
+   * 
+   * TODO deprecated
    */
   public unsubscribeLog(messageId: string) {
     console.warn("Edge.unsubscribeLog()");
@@ -192,6 +205,8 @@ export class Edge {
 
   /**
    * System Execute
+   * 
+   * TODO deprecated
    */
   public systemExecute(password: string, command: string, background: boolean, timeout: number): void {
     console.warn("Edge.systemExecute()", password, command);

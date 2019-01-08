@@ -1,7 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { Edge } from '../../../shared/edge/edge';
-import { Service } from '../../../shared/service/service';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Edge, Service } from '../../../shared/shared';
 
 @Component({
   selector: 'history',

@@ -1,5 +1,5 @@
+import { EdgeConfig } from "../../../shared/shared";
 import { JsonrpcResponseSuccess } from "../base";
-import { EdgeConfig } from "../../../../shared/edge/edgeconfig";
 
 /**
  * Wraps a JSON-RPC Response for a GetEdgeConfigRequest.

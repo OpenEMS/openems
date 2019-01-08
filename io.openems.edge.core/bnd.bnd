@@ -16,4 +16,5 @@ Private-Package: \
 	io.openems.edge.meter.api;version=latest,\
 	io.openems.wrapper.sdnotify;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
-	io.openems.edge.controller.api;version=latest
+	io.openems.edge.controller.api;version=latest,\
+	com.google.gson

@@ -4,11 +4,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
 import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
 import { Subject } from 'rxjs';
-import { Edge } from '../../shared/edge/edge';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
-import { Service } from '../../shared/service/service';
-import { Websocket } from '../../shared/service/websocket';
-
+import { Edge, Service, Websocket } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiController;
@@ -54,6 +55,9 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile Timedata timedata = null;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference
 	private ConfigurationAdmin configAdmin;
@@ -136,6 +140,15 @@ public class BackendApi extends AbstractOpenemsComponent
 	@Override
 	public ConfigurationAdmin getConfigurationAdmin() {
 		return this.configAdmin;
+	}
+
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override

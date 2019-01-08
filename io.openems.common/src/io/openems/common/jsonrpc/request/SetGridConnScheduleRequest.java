@@ -68,11 +68,7 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 	public JsonObject getParams() {
 		JsonArray schedule = new JsonArray();
 		for (GridConnSchedule se : this.schedule) {
-			schedule.add(JsonUtils.buildJsonObject() //
-					.addProperty("startTimestamp", se.getStartTimestamp()) //
-					.addProperty("duration", se.getDuration()) //
-					.addProperty("activePowerSetPoint", se.activePowerSetPoint) //
-					.build());
+			schedule.add(se.toJson());
 		}
 		return JsonUtils.buildJsonObject() //
 				.addProperty("id", this.getEdgeId()) //
@@ -126,6 +122,14 @@ public class SetGridConnScheduleRequest extends JsonrpcRequest {
 
 		public int getActivePowerSetPoint() {
 			return activePowerSetPoint;
+		}
+
+		public JsonObject toJson() {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("startTimestamp", this.getStartTimestamp()) //
+					.addProperty("duration", this.getDuration()) //
+					.addProperty("activePowerSetPoint", this.activePowerSetPoint) //
+					.build();
 		}
 	}
 }

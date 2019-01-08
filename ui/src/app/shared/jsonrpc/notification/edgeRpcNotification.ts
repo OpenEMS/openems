@@ -1,6 +1,4 @@
-import { JsonrpcNotification, JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
-import { DefaultTypes } from "../../defaulttypes";
+import { JsonrpcNotification } from "../base";
 
 /**
  * Wraps a JSON-RPC Notification for a specific Edge-ID.

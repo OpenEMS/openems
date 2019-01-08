@@ -1,21 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Subject, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
-import { retryWhen, takeUntil, filter, first, delay } from 'rxjs/operators';
-
+import { BehaviorSubject, Subject } from 'rxjs';
+import { delay, filter, first, retryWhen, takeUntil } from 'rxjs/operators';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment as env } from '../../../environments';
-import { Service } from './service';
 import { Edge } from '../edge/edge';
+import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
+import { AuthenticateWithSessionIdNotification } from '../jsonrpc/notification/authenticatedWithSessionIdNotification';
+import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification';
+import { EdgeRpcResponse } from '../jsonrpc/response/edgeRpcResponse';
 import { Role } from '../type/role';
-import { DefaultTypes } from './defaulttypes';
 import { DefaultMessages } from './defaultmessages';
-import { JsonrpcRequest, JsonrpcResponse, JsonrpcMessage, JsonrpcNotification, JsonrpcResponseError, JsonrpcResponseSuccess } from './jsonrpc/base';
+import { DefaultTypes } from './defaulttypes';
+import { Service } from './service';
 import { WsData } from './wsdata';
-import { AuthenticateWithSessionIdNotification } from './jsonrpc/notification/authenticatedWithSessionIdNotification';
-import { CurrentDataNotification } from './jsonrpc/notification/currentDataNotification';
-import { EdgeRpcNotification } from './jsonrpc/notification/edgeRpcNotification';
-import { EdgeRpcResponse } from './jsonrpc/response/edgeRpcResponse';
 
 @Injectable()
 export class Websocket {

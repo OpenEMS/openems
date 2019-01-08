@@ -22,10 +22,13 @@ public enum OpenemsError {
 	/*
 	 * Edge errors. 2000-2999
 	 */
+	EDGE_NO_COMPONENT_WITH_ID(2000, "Unable to find OpenEMS Component with ID [%s]"), //
+	EDGE_MULTIPLE_COMPONENTS_WITH_ID(2001, "Found more than one OpenEMS Component with ID [%s]"), //
+	EDGE_UNABLE_TO_APPLY_CONFIG(2002, "Unable to apply configuration to Component [%s]: [%s]"), //
 	/*
 	 * Backend errors. 3000-3999
 	 */
-	BACKEND_EDGE_NOT_CONNECTED(2000, "Edge [%s] is not connected."), //
+	BACKEND_EDGE_NOT_CONNECTED(3000, "Edge [%s] is not connected."), //
 
 	/*
 	 * JSON-RPC Request/Response/Notification. 4000-4999

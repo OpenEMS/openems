@@ -1,13 +1,10 @@
-import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs';
-import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
-import { Edge } from '../../../../shared/edge/edge';
+import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { Subject } from 'rxjs';
 import { DefaultTypes } from '../../../../shared/service/defaulttypes';
-import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from '../shared';
-import { Utils } from '../../../../shared/service/utils';
-import { EMPTY_DATASET, Dataset } from '../../../../shared/chart';
+import { Edge, Utils } from '../../../../shared/shared';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
 
 // TODO grid should be shown as "Netzeinspeisung"/"Netzbezug" instead of positive/negative value
 @Component({

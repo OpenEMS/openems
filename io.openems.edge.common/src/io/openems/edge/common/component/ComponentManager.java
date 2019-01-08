@@ -1,6 +1,7 @@
 package io.openems.edge.common.component;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 
 /**
@@ -25,5 +26,12 @@ public interface ComponentManager {
 	 * @return the Channel
 	 */
 	public <T extends Channel<?>> T getChannel(ChannelAddress channelAddress) throws IllegalArgumentException;
+
+	/**
+	 * Gets the complete configuration of this OpenEMS Edge.
+	 * 
+	 * @return the EdgeConfig object
+	 */
+	public EdgeConfig getEdgeConfig();
 
 }

@@ -53,8 +53,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param wsData
 	 * @throws OpenemsException
 	 */
-	private void handleEdgeConfiguration(EdgeConfigNotification message, WsData wsData)
-			throws OpenemsNamedException {
+	private void handleEdgeConfiguration(EdgeConfigNotification message, WsData wsData) throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getConfig());
@@ -71,7 +70,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 
-		this.parent.timedata.write(edgeId, message.getData());
+		try {
+			this.parent.timedata.write(edgeId, message.getData());
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
 
 		// Read some specific channels
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
@@ -96,6 +99,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 				edge.setIpv4(ipv4);
 			}
 			if (data.has("_meta/Version")) {
+				// TODO this could be JSON-Null here: throws Exception JSON [null] is not a JSON-Primitive
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(version);
 			}

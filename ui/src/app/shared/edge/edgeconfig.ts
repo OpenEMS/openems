@@ -1,4 +1,4 @@
-import { GetEdgeConfigResponse } from "../service/jsonrpc/response/getEdgeConfigResponse";
+import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
 
 export class EdgeConfig {
 
@@ -9,14 +9,25 @@ export class EdgeConfig {
         }
 
         // Fill 'natures' map
-        for (let componentId in this.components) {
-            let component = this.components[componentId];
-            let factory = this.factories[component.factoryPid];
-            for (let nature of factory.natures) {
-                if (!(nature in this.natures)) {
-                    this.natures[nature] = [];
+        if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
+            console.warn("Factory definitions are missing.");
+        } else {
+            for (let componentId in this.components) {
+                let component = this.components[componentId];
+                if (component.factoryPid === "") {
+                    continue; // Singleton components have no factory-PID
                 }
-                this.natures[nature].push(componentId);
+                let factory = this.factories[component.factoryPid];
+                if (!factory) {
+                    console.warn("Factory definition for [" + component.factoryPid + "] is missing.");
+                    continue;
+                }
+                for (let nature of factory.natures) {
+                    if (!(nature in this.natures)) {
+                        this.natures[nature] = [];
+                    }
+                    this.natures[nature].push(componentId);
+                }
             }
         }
     }

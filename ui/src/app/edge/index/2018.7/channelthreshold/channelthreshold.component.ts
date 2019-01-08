@@ -1,10 +1,9 @@
 import { Component, Input } from '@angular/core';
-
-import { Utils } from '../../../../shared/service/utils';
-import { DefaultTypes } from '../../../../shared/service/defaulttypes';
 import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
-import { Edge } from '../../../../shared/edge/edge';
+import { DefaultTypes } from '../../../../shared/service/defaulttypes';
+import { Edge, Utils } from '../../../../shared/shared';
 
+// TODO deprecated
 @Component({
   selector: 'channelthreshold-2018-7',
   templateUrl: './channelthreshold.component.html'
