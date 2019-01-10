@@ -55,11 +55,11 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+	void activate(ComponentContext context, Config config) {
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();
 
-		super.activate(context, properties, config.id(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.enabled(), config.cycleTime());
 		
 		// update filter for 'Controller'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controller",

@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -34,7 +35,7 @@ public class Utils {
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(ess, channelId, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(ess, channelId, SymmetricEss.GridMode.ON_GRID);
+						return new IntegerReadChannel(ess, channelId, GridMode.ON_GRID);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {

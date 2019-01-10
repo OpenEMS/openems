@@ -1,7 +1,6 @@
 package io.openems.edge.ess.test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -9,6 +8,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -41,7 +41,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent implement
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.ON_GRID.ordinal());
+						return new IntegerReadChannel(this, channelId, GridMode.ON_GRID);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(this, channelId, MAX_APPARENT_POWER);
 					}
@@ -63,7 +63,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent implement
 					channel.nextProcessImage();
 					this.addChannel(channel);
 				});
-		super.activate(null, new HashMap<>(), id, true);
+		super.activate(null, id, true);
 	}
 
 	@Override

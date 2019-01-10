@@ -1,7 +1,6 @@
 package io.openems.edge.controller.debuglog;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.component.ComponentContext;
@@ -45,8 +44,8 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate

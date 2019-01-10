@@ -1,34 +1,38 @@
 <ion-card *ngIf="edge">
-  <ion-item>
-    <ion-icon slot="start" name="today" color="primary"></ion-icon>
-    <ion-label>
-      <ion-card-title translate>Edge.Index.Energytable.Title</ion-card-title>
-    </ion-label>
+  <ion-item color="light">
+    <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
+    <ion-label translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-label>
   </ion-item>
 
-  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
-  <ng-container *ngIf="edge.currentData | async as currentData">
-
-    <!-- <ion-item color="light">
-        <ion-img style="width:40px" src="assets/img/storage.png"></ion-img>
-        <ion-label translate>General.StorageSystem</ion-label>
-      </ion-item> -->
-
-    <p>{{ currentData['channel'][componentId + "/ChargePower"] | json }}</p>
-
-  </ng-container>
+  <ion-card-content>
+    <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <table class="full_width">
+        <tr>
+          <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingPower</td>
+          <td style="width:15%"></td>
+          <td style="width:35%" class="align_right">{{ currentData['channel'][componentId + "/ChargePower"] |
+            number:'1.0-0' }}</td>
+          <td style="width:10%">&nbsp;W</td>
+        </tr>
+        <tr *ngIf="controller">
+          <td style="width:50%" translate>Belademodus</td>
+          <td colspan="3" class="align_right" style="width:50%">
+            <ion-item>
+              <ion-select (ionChange)="updateChargeMode($event)" [value]="controller.properties.chargeMode" interface="popover">
+                <ion-select-option value="DEFAULT">Standard</ion-select-option>
+                <ion-select-option value="FORCE_CHARGE">Zwangsbeladung</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+  </ion-card-content>
 </ion-card>
 
 
-<!-- <ng-container *ngIf="currentData && config">
-  <ng-container *ngFor="let thing of config.evcsDevices">
-    <ion-card>
-      <ion-item>
-        <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
-        <ion-label translate>Edge.Index.Widgets.EVCS.ChargingStation<br>{{thing}}</ion-label>
-      </ion-item>
-      <ion-card-content *ngIf="currentData.data[thing] as data">
-        <table class="full_width">
+<!--
           <ng-container *ngIf="data.State != null">
             <tr>
               <td style="width:50%" translate>Edge.Index.Widgets.EVCS.Status</td>
@@ -62,14 +66,6 @@
               <td style="width:10%">&nbsp;mA</td>
             </tr>
           </ng-container>
-          <ng-container *ngIf="data.ActualPower != null">
-            <tr>
-              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingPower</td>
-              <td style="width:15%"></td>
-              <td style="width:35%" class="align_right">{{ data.ActualPower / 1000 | number:'1.0-0' }}</td>
-              <td style="width:10%">&nbsp;W</td>
-            </tr>
-          </ng-container>
           <ng-container *ngIf="data.EnergySession != null">
             <tr class="underline">
               <td style="width:50%" translate>Edge.Index.Widgets.EVCS.CurrentCharge</td>
@@ -86,19 +82,7 @@
               <td style="width:10%">&nbsp;kWh</td>
             </tr>
           </ng-container>
-          <ng-container *ngFor="let controllerId of config.controllers">
-            <ng-container *ngIf="config.things[controllerId].class == 'io.openems.impl.controller.evcs.EvcsController'">
-              <ng-container *ngIf="config.things[controllerId] as controller">
-                <tr *ngIf="config.things[controllerId] as controller">
-                  <td style="width:50%" translate>Edge.Index.Widgets.EVCS.EnforceCharging</td>
-                  <td colspan="3" class="align_right" style="width:50%">
-                    <channel [thingId]="controllerId" channelId="forceCharge" [config]="config" [role]="edge.role"
-                      [edge]="edge" title="" style="width:100%"></channel>
-                  </td>
-                </tr>
-              </ng-container>
-            </ng-container>
-          </ng-container>
+
         </table>
       </ion-card-content>
     </ion-card>

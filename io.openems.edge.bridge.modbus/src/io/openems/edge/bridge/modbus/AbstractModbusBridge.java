@@ -3,7 +3,6 @@ package io.openems.edge.bridge.modbus;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,8 +83,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	private final Multimap<String, ModbusProtocol> protocols = Multimaps
 			.synchronizedListMultimap(ArrayListMultimap.create());
 
-	protected void activate(ComponentContext context, Map<String, Object> properties, String id, boolean enabled) {
-		super.activate(context, properties, id, enabled);
+	protected void activate(ComponentContext context, String id, boolean enabled) {
+		super.activate(context, id, enabled);
 		if (this.isEnabled()) {
 			this.worker.activate(id);
 		}

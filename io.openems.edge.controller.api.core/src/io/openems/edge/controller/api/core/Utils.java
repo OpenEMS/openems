@@ -52,7 +52,7 @@ public class Utils {
 							});
 					jComponent.add("implements", jImplements);
 
-					j.add(component.componentContext().getProperties().get("component.name").toString(), jComponent);
+					j.add(component.getComponentContext().getProperties().get("component.name").toString(), jComponent);
 				});
 		return j;
 	}

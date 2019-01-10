@@ -1,16 +1,6 @@
 package io.openems.edge.controller.api.rest;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.UserService;
-import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
-import io.openems.edge.controller.api.core.ApiWorker;
-import io.openems.edge.timedata.api.Timedata;
-
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jetty.server.Server;
@@ -27,6 +17,15 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.UserService;
+import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.api.core.ApiController;
+import io.openems.edge.controller.api.core.ApiWorker;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -58,8 +57,8 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Api
 	}
 	
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsException {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) throws OpenemsException {
+		super.activate(context, config.id(), config.enabled());
 
 		if (!this.isEnabled()) {
 			// abort if disabled

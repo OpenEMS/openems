@@ -1,7 +1,5 @@
 package io.openems.edge.fenecon.dess.ess;
 
-import java.util.Map;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -26,6 +24,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -55,8 +54,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID,
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
 	}
 
@@ -77,10 +76,10 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						Channel<Integer> gridMode = channel.getComponent().channel(SymmetricEss.ChannelId.GRID_MODE);
 						switch (state) {
 						case ON_GRID:
-							gridMode.setNextValue(SymmetricEss.GridMode.ON_GRID);
+							gridMode.setNextValue(GridMode.ON_GRID);
 							break;
 						case OFF_GRID:
-							gridMode.setNextValue(SymmetricEss.GridMode.OFF_GRID);
+							gridMode.setNextValue(GridMode.OFF_GRID);
 							break;
 						case FAULT:
 						case UNDEFINED:
@@ -91,7 +90,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						case INIT:
 						case LOW_CONSUMPTION:
 						case PRE_CHARGE:
-							gridMode.setNextValue(SymmetricEss.GridMode.UNDEFINED);
+							gridMode.setNextValue(GridMode.UNDEFINED);
 							break;
 						}
 					});

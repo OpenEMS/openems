@@ -1,9 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge } from '../../../shared/edge/edge';
-import { Service } from '../../../shared/service/service';
-import { Websocket } from '../../../shared/service/websocket';
-import { ChannelAddress } from '../../../shared/type/channeladdress';
+import { UpdateComponentConfigRequest } from '../../../shared/jsonrpc/request/updateComponentConfigRequest';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: 'evcs',
@@ -16,6 +14,7 @@ export class EvcsComponent {
   @Input() private componentId: string;
 
   public edge: Edge = null;
+  public controller: EdgeConfig.Component = null;
 
   constructor(
     private service: Service,
@@ -24,12 +23,26 @@ export class EvcsComponent {
   ) { }
 
   ngOnInit() {
+    // Subscribe to CurrentData
     this.service.setCurrentEdge(this.route).then(edge => {
       this.edge = edge;
       edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR, [
         // Ess
         new ChannelAddress(this.componentId, 'ChargePower')
       ]);
+    });
+
+    // Gets the Controller for the given EVCS-Component.
+    this.service.getConfig().then(config => {
+      let controllers = config.getComponentsByFactory("Controller.Evcs");
+      for (let controller of controllers) {
+        let properties = controller.properties;
+        if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
+          // this 'controller' is the Controller responsible for this EVCS
+          this.controller = controller;
+          return;
+        }
+      }
     });
   }
 
@@ -39,25 +52,24 @@ export class EvcsComponent {
     }
   }
 
-  // @ViewChildren(ChannelComponent)
-  // private channelComponentChildren: QueryList<ChannelComponent>;
-  // private stopOnDestroy: Subject<void> = new Subject<void>();
-  // private formInitialized: boolean = false;
-
-  // ngAfterViewChecked() {
-  //   // unfortunately components are not available yet in ngAfterViewInit, so we need to call it again and again, till they are there.
-  //   if (this.formInitialized || this.channelComponentChildren.length == 0) {
-  //     return;
-  //   }
-  //   this.channelComponentChildren.forEach(channelComponent => {
-  //     channelComponent.message
-  //       .pipe(takeUntil(this.stopOnDestroy))
-  //       .subscribe((message) => {
-  //         if (message != null) {
-  //           this.edge.send(message);
-  //         }
-  //       });
-  //   });
-  //   this.formInitialized = true;
-  // }
+  /**
+   * Updates the Charge-Mode of the EVCS-Controller.
+   * 
+   * @param event 
+   */
+  updateChargeMode(event: CustomEvent) {
+    let oldChargeMode = this.controller.properties.chargeMode;
+    let newChargeMode = event.detail.value
+    if (this.edge != null) {
+      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+        { property: 'chargeMode', value: newChargeMode }
+      ]).then(response => {
+        console.log(response);
+        this.controller.properties.chargeMode = newChargeMode;
+      }).catch(reason => {
+        this.controller.properties.chargeMode = oldChargeMode;
+        console.warn(reason);
+      });
+    }
+  }
 }

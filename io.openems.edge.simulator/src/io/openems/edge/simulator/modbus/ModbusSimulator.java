@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -45,8 +44,8 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) throws IOException {
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate

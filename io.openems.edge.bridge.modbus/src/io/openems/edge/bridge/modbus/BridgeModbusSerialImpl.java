@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus;
 
-import java.util.Map;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -65,8 +63,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	private Parity parity;
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, ConfigSerial config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, ConfigSerial config) {
+		super.activate(context, config.id(), config.enabled());
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();

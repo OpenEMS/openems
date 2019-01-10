@@ -96,8 +96,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws ModbusException, OpenemsException {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
+		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'components'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Component",

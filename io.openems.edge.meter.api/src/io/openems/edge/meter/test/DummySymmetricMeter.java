@@ -1,7 +1,6 @@
 package io.openems.edge.meter.test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -45,7 +44,7 @@ public class DummySymmetricMeter extends AbstractOpenemsComponent implements Sym
 					channel.nextProcessImage();
 					this.addChannel(channel);
 				});
-		super.activate(null, new HashMap<>(), id, true);
+		super.activate(null, id, true);
 	}
 
 	@Override

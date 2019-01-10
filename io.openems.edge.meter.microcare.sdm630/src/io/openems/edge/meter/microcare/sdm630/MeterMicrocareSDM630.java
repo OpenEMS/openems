@@ -1,5 +1,19 @@
 package io.openems.edge.meter.microcare.sdm630;
 
+import java.nio.ByteOrder;
+
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.metatype.annotations.Designate;
+
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -16,13 +30,6 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
-import org.osgi.service.metatype.annotations.Designate;
-
-import java.nio.ByteOrder;
-import java.util.Map;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Microcare.SDM630", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -45,9 +52,9 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
-		super.activate(context, properties, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 	}
 

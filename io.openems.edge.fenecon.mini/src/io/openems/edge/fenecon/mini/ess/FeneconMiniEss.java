@@ -1,7 +1,5 @@
 package io.openems.edge.fenecon.mini.ess;
 
-import java.util.Map;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -58,8 +56,8 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
 		this.getPhase().setNextValue(config.Phase());
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.Phase());

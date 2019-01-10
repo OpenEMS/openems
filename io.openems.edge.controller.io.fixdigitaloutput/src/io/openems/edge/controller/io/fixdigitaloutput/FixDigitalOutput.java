@@ -1,6 +1,5 @@
 package io.openems.edge.controller.io.fixdigitaloutput;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -50,12 +49,12 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsNamedException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		// parse config
 		this.isOn = config.isOn();
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		super.activate(context, properties, config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate

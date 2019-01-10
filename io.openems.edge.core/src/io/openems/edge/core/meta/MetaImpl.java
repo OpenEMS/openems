@@ -1,7 +1,5 @@
 package io.openems.edge.core.meta;
 
-import java.util.Map;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,8 +25,8 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties) {
-		super.activate(context, properties, OpenemsConstants.META_ID, true);
+	void activate(ComponentContext context) {
+		super.activate(context, OpenemsConstants.META_ID, true);
 	}
 
 	@Deactivate

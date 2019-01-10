@@ -1,7 +1,5 @@
 package io.openems.edge.meter.socomec.dirisa10;
 
-import java.util.Map;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -52,10 +50,10 @@ public class MeterSocomecDirisA10 extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, properties, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 	}
 

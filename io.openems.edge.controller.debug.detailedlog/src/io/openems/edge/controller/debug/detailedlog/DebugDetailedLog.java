@@ -51,8 +51,8 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 

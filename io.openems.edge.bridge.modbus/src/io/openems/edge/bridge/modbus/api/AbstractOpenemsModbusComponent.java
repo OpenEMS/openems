@@ -59,9 +59,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbusId        The ID of the Modbus brige. Typically
 	 *                        'config.modbus_id()'
 	 */
-	protected void activate(ComponentContext context, Map<String, Object> properties, String id, boolean enabled, int unitId,
+	protected void activate(ComponentContext context, String id, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
-		super.activate(context, properties, id, enabled);
+		super.activate(context, id, enabled);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
 			return;
@@ -74,7 +74,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	@Override
-	protected void activate(ComponentContext context, Map<String, Object> properties, String id, boolean enabled) {
+	protected void activate(ComponentContext context, String id, boolean enabled) {
 		throw new IllegalArgumentException("Use the other activate() for Modbus compoenents!");
 	}
 

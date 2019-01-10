@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.limittotaldischarge;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -85,8 +84,8 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();

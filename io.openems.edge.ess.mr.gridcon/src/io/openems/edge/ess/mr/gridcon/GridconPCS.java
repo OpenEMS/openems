@@ -49,6 +49,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -137,8 +138,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private DigitalInput inputComponent = null;
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsNamedException {
-		super.activate(context, properties, config.id(), config.enabled(), config.unit_id(), this.cm,
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm,
 				"Modbus", config.modbus_id());
 		
 		// TODO use ComponentManager to replace the following hard references
@@ -247,14 +248,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
 		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
 
-		SymmetricEss.GridMode gridMode;
+		GridMode gridMode;
 		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
-			gridMode = SymmetricEss.GridMode.UNDEFINED;
+			gridMode = GridMode.UNDEFINED;
 		} else {
 			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-				gridMode = SymmetricEss.GridMode.ON_GRID;
+				gridMode = GridMode.ON_GRID;
 			} else {
-				gridMode = SymmetricEss.GridMode.OFF_GRID;
+				gridMode = GridMode.OFF_GRID;
 			}
 		}
 		this.getGridMode().setNextValue(gridMode);

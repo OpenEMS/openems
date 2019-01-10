@@ -1,18 +1,6 @@
 package io.openems.edge.simulator.pvinverter;
 
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
-import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
-
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -29,6 +17,17 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.PvInverter", //
@@ -57,8 +56,8 @@ public class PvInverter extends AbstractOpenemsComponent
 	protected SimulatorDatasource datasource;
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) throws IOException {
+		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {

@@ -3,7 +3,7 @@ package io.openems.edge.simulator.ess.symmetric.reacting;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.api.SymmetricEss.GridMode;
+import io.openems.edge.common.sum.GridMode;
 
 @ObjectClassDefinition(//
 		name = "Simulator EssSymmetric Reacting", //

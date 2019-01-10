@@ -15,7 +15,7 @@ import io.openems.common.types.EdgeConfig;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     EdgeConfig
+ *      {@link EdgeConfig#toJson()}   
  *   }
  * }
  * </pre>

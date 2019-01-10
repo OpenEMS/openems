@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -39,7 +40,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
+						return new IntegerReadChannel(this, channelId, GridMode.UNDEFINED);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {

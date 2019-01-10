@@ -2,7 +2,6 @@ package io.openems.edge.ess.cluster;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -30,13 +29,14 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -94,13 +94,13 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsException {
 		// update filter for 'esss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "esss", config.ess_ids())) {
 			return;
 		}
 
-		super.activate(context, properties, config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate

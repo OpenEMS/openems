@@ -2,7 +2,6 @@ package io.openems.edge.simulator.meter.grid.acting;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -70,8 +69,8 @@ public class GridMeter extends AbstractOpenemsComponent
 	// private List<Meter> productionMeters = new CopyOnWriteArrayList<>();
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) throws IOException {
+		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {

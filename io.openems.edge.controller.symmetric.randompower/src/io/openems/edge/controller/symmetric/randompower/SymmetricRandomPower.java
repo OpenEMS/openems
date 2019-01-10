@@ -1,6 +1,5 @@
 package io.openems.edge.controller.symmetric.randompower;
 
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.osgi.service.component.ComponentContext;
@@ -39,8 +38,8 @@ public class SymmetricRandomPower extends AbstractOpenemsComponent implements Co
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 

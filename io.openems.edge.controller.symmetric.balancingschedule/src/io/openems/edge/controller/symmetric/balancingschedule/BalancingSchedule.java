@@ -2,7 +2,6 @@ package io.openems.edge.controller.symmetric.balancingschedule;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -34,10 +33,9 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
@@ -58,8 +56,8 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 	private List<GridConnSchedule> schedule = new ArrayList<>();
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
@@ -119,7 +117,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [" + gridMode + "]");
 		}
-		if (gridMode != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode != GridMode.ON_GRID) {
 			return;
 		}
 		/*

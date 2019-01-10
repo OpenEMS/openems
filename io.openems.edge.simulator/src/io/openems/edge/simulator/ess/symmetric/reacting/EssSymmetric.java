@@ -1,9 +1,10 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
+import static io.openems.edge.ess.api.ManagedSymmetricEss.log;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -78,8 +79,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	protected ConfigurationAdmin cm;
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) throws IOException {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) throws IOException {
+		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource",

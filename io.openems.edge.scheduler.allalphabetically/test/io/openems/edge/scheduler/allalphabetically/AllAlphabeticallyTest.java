@@ -1,12 +1,12 @@
 package io.openems.edge.scheduler.allalphabetically;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Test;
+
 import io.openems.edge.controller.api.Controller;
 
 public class AllAlphabeticallyTest {
@@ -21,7 +21,7 @@ public class AllAlphabeticallyTest {
 		s.addController(new DummyController("c4"));
 		s.addController(new DummyController("c5"));
 
-		s.activate(null, new HashMap<>(),  new Config() {
+		s.activate(null, new Config() {
 
 			@Override
 			public Class<? extends Annotation> annotationType() {

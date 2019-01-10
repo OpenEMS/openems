@@ -1,4 +1,5 @@
 import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
+import { Component } from "@angular/compiler/src/core";
 
 export class EdgeConfig {
 
@@ -8,7 +9,17 @@ export class EdgeConfig {
             this.factories = source.result.factories;
         }
 
-        // Fill 'natures' map
+        // initialize Components
+        for (let componentId in this.components) {
+            this.components[componentId].id = componentId;
+        }
+
+        // initialize Factorys
+        for (let factoryPid in this.factories) {
+            this.factories[factoryPid].pid = factoryPid;
+            this.factories[factoryPid].componentIds = [];
+        }
+
         if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
             console.warn("Factory definitions are missing.");
         } else {
@@ -22,6 +33,11 @@ export class EdgeConfig {
                     console.warn("Factory definition for [" + component.factoryPid + "] is missing.");
                     continue;
                 }
+
+                // Complete 'factories' map
+                factory.componentIds.push(componentId);
+
+                // Fill 'natures' map
                 for (let nature of factory.natures) {
                     if (!(nature in this.natures)) {
                         this.natures[nature] = [];
@@ -52,14 +68,42 @@ export class EdgeConfig {
     }
 
     /**
+     * Get Component-IDs of Component instances by the given Factory.
+     * 
+     * @param nature the given Nature.
+     */
+    public getComponentIdsByFactory(factoryPid: string): string[] {
+        let factory = this.factories[factoryPid];
+        if (factory) {
+            return factory.componentIds;
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Get Component instances by the given Factory.
+     * 
+     * @param nature the given Nature.
+     */
+    public getComponentsByFactory(factoryPid: string): EdgeConfig.Component[] {
+        let componentIds = this.getComponentIdsByFactory(factoryPid);
+        let result: EdgeConfig.Component[] = [];
+        for (let componentId of componentIds) {
+            result.push(this.components[componentId]);
+        }
+        return result;
+    }
+
+    /**
      * Get Component-IDs of Components that implement the given Nature.
      * 
      * @param nature the given Nature.
      */
     public getComponentsImplementingNature(nature: string): string[] {
-        let natures = this.natures[nature];
-        if (natures) {
-            return natures;
+        let components = this.natures[nature];
+        if (components) {
+            return components;
         } else {
             return [];
         }
@@ -69,12 +113,18 @@ export class EdgeConfig {
 export module EdgeConfig {
 
     export class Component {
+        public id: string = "";
+
         constructor(
-            public readonly factoryPid: string = ""
+            public readonly factoryPid: string = "",
+            public readonly properties: { [key: string]: any } = {}
         ) { }
     }
 
     export class Factory {
+        public pid: string = "";
+        public componentIds: string[] = [];
+
         constructor(
             public readonly natures: string[] = []
         ) { }

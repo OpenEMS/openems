@@ -142,7 +142,13 @@ public class JsonUtils {
 			 * String-Array
 			 */
 			JsonArray js = new JsonArray();
-			for (String s : (String[]) value) {
+			String[] v = (String[]) value;
+			if (v.length == 1 && v[0].isEmpty()) {
+				// special case: String-Array with one entry which is an empty String. Return an
+				// empty JsonArray.
+				return js;
+			}
+			for (String s : v) {
 				js.add(new JsonPrimitive((String) s));
 			}
 			return js;

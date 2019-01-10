@@ -1,7 +1,5 @@
 package io.openems.edge.controller.symmetric.balancing;
 
-import java.util.HashMap;
-
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -48,8 +46,8 @@ public class BalancingTest {
 		controller.componentManager = componentManager;
 		// Activate (twice, so that reference target is set)
 		MyConfig config = new MyConfig("ctrl0", "ess0", "meter0");
-		controller.activate(null, new HashMap<>(), config);
-		controller.activate(null, new HashMap<>(), config);
+		controller.activate(null, config);
+		controller.activate(null, config);
 		// Prepare Channels
 		ChannelAddress ess0ActivePower = new ChannelAddress("ess0", "ActivePower");
 		ChannelAddress meter0ActivePower = new ChannelAddress("meter0", "ActivePower");

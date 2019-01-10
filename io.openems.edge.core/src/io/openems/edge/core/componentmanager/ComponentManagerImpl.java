@@ -2,8 +2,10 @@ package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -37,6 +41,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.google.gson.JsonElement;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
@@ -69,7 +75,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 				"enabled=true" //
 		})
 public class ComponentManagerImpl extends AbstractOpenemsComponent
-		implements ComponentManager, OpenemsComponent, JsonApi {
+		implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
 	private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
 
@@ -113,9 +119,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext componentContext, BundleContext bundleContext, Map<String, Object> properties)
-			throws OpenemsException {
-		super.activate(componentContext, properties, OpenemsConstants.COMPONENT_MANAGER_ID, true);
+	void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
+		super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, true);
 
 		this.bundleContext = bundleContext;
 
@@ -203,15 +208,17 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		Configuration config = this.getConfigForId(request.getComponentId());
 
 		// Create map with changed configuration attributes
-		Hashtable<String, Object> attributes = new Hashtable<>();
+		Dictionary<String, Object> properties = config.getProperties();
 		for (UpdateComponentConfigRequest.Update update : request.getUpdate()) {
-			// TODO do not allow certain properties, like pid and service.pid
-			attributes.put(update.getProperty(), JsonUtils.getAsBestType(update.getValue()));
+			// do not allow certain properties to be updated, like pid and service.pid
+			if (!this.ignorePropertyKey(update.getProperty())) {
+				properties.put(update.getProperty(), JsonUtils.getAsBestType(update.getValue()));
+			}
 		}
 
 		// Update Configuration
 		try {
-			config.update(attributes);
+			config.update(properties);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
@@ -249,10 +256,34 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public EdgeConfig getEdgeConfig() {
-		EdgeConfig config = new EdgeConfig();
-		final List<OpenemsComponent> components = this.components;
-		for (OpenemsComponent component : components) {
-			config.addComponent(component.id(), new EdgeConfig.Component(component.factoryPid()));
+		EdgeConfig result = new EdgeConfig();
+
+		// get configurations that have an 'id' property -> OpenEMS Components
+		try {
+			Configuration[] configs = this.cm.listConfigurations("(id=*)");
+			for (Configuration config : configs) {
+				Dictionary<String, Object> properties = config.getProperties();
+				String componentId = properties.get("id").toString();
+				// get Factory-PID
+				Object factoryPid = config.getFactoryPid();
+				if (factoryPid == null) {
+					this.logWarn(this.log, "Component [" + componentId + "] has no Factory-PID");
+					continue;
+				}
+				// get configuration properties
+				Map<String, JsonElement> propertyMap = new HashMap<>();
+				Enumeration<String> keys = properties.keys();
+				while (keys.hasMoreElements()) {
+					String key = keys.nextElement();
+					if (!this.ignorePropertyKey(key)) {
+						propertyMap.put(key, JsonUtils.getAsJsonElement(properties.get(key)));
+					}
+				}
+				result.addComponent(componentId, new EdgeConfig.Component(factoryPid.toString(), propertyMap));
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			this.logWarn(this.log,
+					"Unable to list configurations " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 
 		final Bundle[] bundles = this.bundleContext.getBundles();
@@ -280,11 +311,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					// Get Natures implemented by this Factory-PID
 					String[] natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
-					config.addFactory(factoryPid, new EdgeConfig.Factory(natures));
+					result.addFactory(factoryPid, new EdgeConfig.Factory(natures));
 				}
 			}
 		}
-		return config;
+		return result;
 	}
 
 	/**
@@ -356,5 +387,34 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			this.logWarn(this.log, "Unable to get Natures. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 		return new String[0];
+	}
+
+	@Override
+	public void configurationEvent(ConfigurationEvent event) {
+		// trigger immediate validation on configuration event
+		this.osgiValidateWorker.triggerForceRun();
+	}
+
+	/**
+	 * Internal Method to decide whether a configuration property should be ignored.
+	 * 
+	 * @param key the property key
+	 * @return true if it should get ignored
+	 */
+	private boolean ignorePropertyKey(String key) {
+		if (key.endsWith(".target")) {
+			return true;
+		}
+		switch (key) {
+		case OpenemsConstants.PROPERTY_COMPONENT_ID:
+		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
+		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME:
+		case OpenemsConstants.PROPERTY_FACTORY_PID:
+		case OpenemsConstants.PROPERTY_PID:
+		case "webconsole.configurationFactory.nameHint":
+			return true;
+		default:
+			return false;
+		}
 	}
 }

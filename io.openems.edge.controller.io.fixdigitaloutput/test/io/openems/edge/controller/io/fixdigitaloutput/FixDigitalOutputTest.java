@@ -1,7 +1,5 @@
 package io.openems.edge.controller.io.fixdigitaloutput;
 
-import java.util.HashMap;
-
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -58,8 +56,8 @@ public class FixDigitalOutputTest {
 		// Activate (twice, so that reference target is set)s
 		ChannelAddress output0 = new ChannelAddress("io0", "InputOutput0");
 		MyConfig config = new MyConfig("ctrl0", output0.toString(), on);
-		controller.activate(null, new HashMap<>(), config);
-		controller.activate(null, new HashMap<>(), config);
+		controller.activate(null, config);
+		controller.activate(null, config);
 		// Build and run test
 		DummyInputOutput io0 = new DummyInputOutput("io0");
 		new ControllerTest(controller, componentManager, io0) //

@@ -142,7 +142,7 @@ export class Edge {
   }
 
   /**
-   * Updates the configuration of a OpenEMS Edge Component-ID.
+   * Updates the configuration of a OpenEMS Edge Component.
    * 
    * @param ws          the Websocket
    * @param componentId the OpenEMS Edge Component-ID 

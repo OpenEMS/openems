@@ -1,15 +1,5 @@
 package io.openems.edge.simulator.io;
 
-import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.io.api.DigitalInput;
-import io.openems.edge.io.api.DigitalOutput;
-
-import java.util.Map;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -18,9 +8,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.io.api.DigitalOutput;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -43,8 +41,8 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 
 		// Generate OutputChannels
 		this.channels = new BooleanWriteChannel[config.numberOfOutputs()];

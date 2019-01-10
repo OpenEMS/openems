@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -18,13 +20,61 @@ public class EdgeConfig {
 	public static class Component {
 
 		private final String factoryPid;
+		private final Map<String, JsonElement> properties;
 
-		public Component(String factoryPid) {
+		public Component(String factoryPid, Map<String, JsonElement> properties) {
 			this.factoryPid = factoryPid;
+			this.properties = properties;
 		}
 
 		public String getFactoryPid() {
 			return factoryPid;
+		}
+
+		public Map<String, JsonElement> getProperties() {
+			return properties;
+		}
+
+		/**
+		 * Returns the Component configuration as a JSON Object.
+		 * 
+		 * <pre>
+		 * {
+		 *   factoryPid: string,
+		 *	 properties: {
+		 *     [key: string]: value
+		 *   }
+		 * }
+		 * </pre>
+		 * 
+		 * @return configuration as a JSON Object
+		 */
+		public JsonObject toJson() {
+			JsonObject properties = new JsonObject();
+			for (Entry<String, JsonElement> property : this.getProperties().entrySet()) {
+				properties.add(property.getKey(), property.getValue());
+			}
+			return JsonUtils.buildJsonObject() //
+					.addProperty("factoryPid", this.getFactoryPid()) //
+					.add("properties", properties) //
+					.build();
+		}
+
+		/**
+		 * Creates a Component from JSON.
+		 * 
+		 * @param json the JSON
+		 * @return the Component
+		 * @throws OpenemsNamedException on error
+		 */
+		public static Component fromJson(JsonElement json) throws OpenemsNamedException {
+			Map<String, JsonElement> properties = new HashMap<>();
+			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "properties").entrySet()) {
+				properties.put(entry.getKey(), entry.getValue());
+			}
+			return new Component(//
+					JsonUtils.getAsString(json, "factoryPid"), //
+					properties);
 		}
 	}
 
@@ -38,6 +88,39 @@ public class EdgeConfig {
 
 		public String[] getNatures() {
 			return natures;
+		}
+
+		/**
+		 * Returns the Factory configuration as a JSON Object.
+		 * 
+		 * <pre>
+		 * {
+		 *   natures: string[]
+		 * }
+		 * </pre>
+		 * 
+		 * @return configuration as a JSON Object
+		 */
+		public JsonObject toJson() {
+			JsonArray natures = new JsonArray();
+			for (String nature : this.getNatures()) {
+				natures.add(nature);
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("natures", natures) //
+					.build();
+		}
+
+		/**
+		 * Creates a Factory from JSON.
+		 * 
+		 * @param json the JSON
+		 * @return the Factory
+		 * @throws OpenemsNamedException on error
+		 */
+		public static Factory fromJson(JsonElement json) throws OpenemsNamedException {
+			String[] natures = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(json, "natures"));
+			return new Factory(natures);
 		}
 
 	}
@@ -69,11 +152,7 @@ public class EdgeConfig {
 	 * 
 	 * <pre>
 	 * {
-	 *   components: {
-	 *     [id: string]: {
-	 *       factoryPid: string
-	 *     }
-	 *   },
+	 *   components: { {@link EdgeConfig.Component#toJson()} }, 
 	 *   factories: {
 	 *     [pid: string]: {
 	 *       natures: string[]
@@ -87,24 +166,12 @@ public class EdgeConfig {
 	public JsonObject toJson() {
 		JsonObject components = new JsonObject();
 		for (Entry<String, Component> entry : this.getComponents().entrySet()) {
-			Component component = entry.getValue();
-			components.add(entry.getKey(), //
-					JsonUtils.buildJsonObject() //
-							.addProperty("factoryPid", component.getFactoryPid()) //
-							.build());
+			components.add(entry.getKey(), entry.getValue().toJson());
 		}
 
 		JsonObject factories = new JsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
-			Factory factory = entry.getValue();
-			JsonArray natures = new JsonArray();
-			for (String nature : factory.getNatures()) {
-				natures.add(nature);
-			}
-			factories.add(entry.getKey(), //
-					JsonUtils.buildJsonObject() //
-							.add("natures", natures) //
-							.build());
+			factories.add(entry.getKey(), entry.getValue().toJson());
 		}
 
 		return JsonUtils.buildJsonObject() //
@@ -127,22 +194,11 @@ public class EdgeConfig {
 		}
 
 		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "components").entrySet()) {
-			JsonObject component = JsonUtils.getAsJsonObject(entry.getValue());
-			result.addComponent(//
-					entry.getKey(), //
-					new Component(//
-							JsonUtils.getAsString(component, "factoryPid") //
-					));
+			result.addComponent(entry.getKey(), Component.fromJson(entry.getValue()));
 		}
 
 		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "factories").entrySet()) {
-			JsonObject factory = JsonUtils.getAsJsonObject(entry.getValue());
-			String[] natures = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(factory, "natures"));
-			result.addFactory(//
-					entry.getKey(), //
-					new Factory(//
-							natures //
-					));
+			result.addFactory(entry.getKey(), Factory.fromJson(entry.getValue()));
 		}
 
 		return result;
@@ -157,7 +213,7 @@ public class EdgeConfig {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
 			String clazz = JsonUtils.getAsString(config, "class");
-			result.addComponent(id, new EdgeConfig.Component(clazz));
+			result.addComponent(id, new EdgeConfig.Component(clazz, new HashMap<>() /* no properties */));
 		}
 
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");

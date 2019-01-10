@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -84,8 +83,8 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	private ScheduledFuture<?> configFuture = null;
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, properties, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		/*
 		 * Async Create Channels dynamically from ea-config.xml file
