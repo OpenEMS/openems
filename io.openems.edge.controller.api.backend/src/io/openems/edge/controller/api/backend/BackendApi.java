@@ -153,7 +153,7 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	@Override
 	public void doAppend(PaxLoggingEvent event) {
-		if (!this.isEnabled()) {
+		if (this.websocket == null || !this.isEnabled()) {
 			return;
 		}
 		this.websocket.sendLog(event);
