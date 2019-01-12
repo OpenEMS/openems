@@ -42,7 +42,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
-import io.openems.edge.controller.api.core.WritePOJO;
+import io.openems.edge.controller.api.core.WritePojo;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -277,7 +277,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 					return;
 				}
 				WriteChannel<?> channel = (WriteChannel<?>) readChannel;
-				this.apiWorker.addValue(channel, new WritePOJO(value));
+				this.apiWorker.addValue(channel, new WritePojo(value));
 			});
 		}
 

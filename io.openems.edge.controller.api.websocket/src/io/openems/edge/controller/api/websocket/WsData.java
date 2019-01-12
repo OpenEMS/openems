@@ -10,11 +10,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final SubscribedChannelsWorker subscribedChannelsWorker;
 
 	/**
-	 * Unique ID for this websocket (i.e. the browser tab).
-	 */
-	private final UUID browserTabId = UUID.randomUUID();
-
-	/**
 	 * The token that is stored in the Browser Cookie. Be aware that this can be
 	 * 'null' for a short period of time on open of the websocket.
 	 */
@@ -24,10 +19,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	public WsData(WebsocketApi parent) {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
-	}
-
-	public UUID getBrowserTabId() {
-		return browserTabId;
 	}
 
 	public void setSessionToken(UUID sessionToken) {

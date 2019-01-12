@@ -51,22 +51,24 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
-
+		
 		// special handling for 'authenticate' request
 		if (request.getMethod().equals(AuthenticateWithPasswordRequest.METHOD)) {
-			return this.handleAuthenticateWithPasswordRequest(ws, AuthenticateWithPasswordRequest.from(request));
+			return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
 		}
 
 		// is user authenticated?
 		if (!wsData.isUserAuthenticated()) {
-			throw OpenemsError.EDGE_USER_NOT_AUTHENTICATED.exception(
+			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception(
 					"Session [" + wsData.getSessionToken() + "]. Ignoring request [" + request.getMethod() + "]");
 		}
+
+		// TODO add Check if user Role is sufficient 
 
 		switch (request.getMethod()) {
 
 		case EdgeRpcRequest.METHOD:
-			return this.handleEdgeRpcRequest(ws, EdgeRpcRequest.from(request));
+			return this.handleEdgeRpcRequest(wsData, EdgeRpcRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -74,14 +76,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles an EdgeRpcRequest
+	 * Handles an EdgeRpcRequest.
 	 * 
-	 * @param ws             the Websocket
-	 * @param edgeRpcRequest the JSON-RPC Request
+	 * @param wsData         the WebSocket attachment
+	 * @param edgeRpcRequest the EdgeRpcRequest
 	 * @return the JSON-RPC Success Response Future
-	 * @throws ErrorException on error
+	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WebSocket ws, EdgeRpcRequest edgeRpcRequest)
+	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData, EdgeRpcRequest edgeRpcRequest)
 			throws OpenemsNamedException {
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 
@@ -89,7 +91,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		switch (request.getMethod()) {
 
 		case SubscribeChannelsRequest.METHOD:
-			resultFuture = this.handleSubscribeChannelsRequest(ws, SubscribeChannelsRequest.from(request));
+			resultFuture = this.handleSubscribeChannelsRequest(wsData, SubscribeChannelsRequest.from(request));
 			break;
 
 		case QueryHistoricTimeseriesDataRequest.METHOD:
@@ -107,6 +109,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case ComponentJsonApiRequest.METHOD:
 			resultFuture = this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
 			break;
+
+		// TODO: to be implemented: UI Logout
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -131,15 +135,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a AuthenticateWithPasswordRequest.
 	 * 
-	 * @param ws      the Websocket
+	 * @param wsData         the WebSocket attachment
 	 * @param request the AuthenticateWithPasswordRequest
-	 * @throws ErrorException on error
 	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WebSocket ws,
+	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-		WsData wsData = ws.getAttachment();
-
 		Optional<User> userOpt = this.parent.userService.authenticate(request.getPassword());
 		if (!userOpt.isPresent()) {
 			wsData.unsetUser();
@@ -158,15 +160,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a SubscribeChannelsRequest.
 	 * 
-	 * @param ws      the Websocket
+	 * @param wsData         the WebSocket attachment
 	 * @param request the SubscribeChannelsRequest
-	 * @throws ErrorException on error
 	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WebSocket ws,
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData,
 			SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// activate SubscribedChannelsWorker
-		WsData wsData = ws.getAttachment();
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
 		worker.setChannels(request.getChannels());
 
@@ -178,13 +179,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a QueryHistoricDataRequest.
 	 * 
 	 * @param request the QueryHistoricDataRequest
-	 * @throws OpenemsException on error
 	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
 		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
-		data = this.parent.timedata.queryHistoricData( //
+		data = this.parent.timedata.queryHistoricData(//
 				null, /* igore Edge-ID */
 				request.getFromDate(), //
 				request.getToDate(), //
@@ -197,9 +198,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a UpdateComponentConfigRequest.
 	 * 
-	 * @param request the UpdateComponentConfigRequest
-	 * @throws OpenemsException on error
+	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(
 			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
@@ -211,11 +212,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a GetEdgeConfigRequest
+	 * Handles a GetEdgeConfigRequest.
 	 * 
-	 * @param request the GetEdgeConfigRequest
-	 * @throws OpenemsException on error
+	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
 	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(
 			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
@@ -227,11 +228,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a ComponentJsonApiRequest
+	 * Handles a ComponentJsonApiRequest.
 	 * 
 	 * @param request the ComponentJsonApiRequest
-	 * @throws OpenemsException on error
 	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(ComponentJsonApiRequest request)
 			throws OpenemsNamedException {
@@ -256,47 +257,51 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
 	}
 
-//			case "logout":
-//				/*
-//				 * Logout and close session
-//				 */
-//				String sessionToken = "none";
-//				String username = "UNKNOWN";
-//				try {
-//					UiEdgeWebsocketHandler handler = this.parent.getHandlerOrCloseWebsocket(websocket);
-//					Optional<User> thisUserOpt = handler.getUserOpt();
-//					if (thisUserOpt.isPresent()) {
-//						username = thisUserOpt.get().getName();
-//						handler.unsetRole();
-//					}
-//					sessionToken = handler.getSessionToken();
-//					this.parent.sessionTokens.remove(sessionToken);
-//					this.parent.parent.logInfo(this.log,
-//							"User [" + username + "] logged out. Invalidated token [" + sessionToken + "]");
-//
-//					// find and close all websockets for this user
-//					if (thisUserOpt.isPresent()) {
-//						User thisUser = thisUserOpt.get();
-//						for (UiEdgeWebsocketHandler h : this.parent.handlers.values()) {
-//							Optional<User> otherUserOpt = h.getUserOpt();
-//							if (otherUserOpt.isPresent()) {
-//								if (otherUserOpt.get().equals(thisUser)) {
-//									com.google.gson.JsonObject jReply = DefaultMessages.uiLogoutReply();
-//									h.send(jReply);
-//									h.dispose();
-//								}
-//							}
-//						}
-//					}
-//					com.google.gson.JsonObject jReply = DefaultMessages.uiLogoutReply();
-//					WebSocketUtils.send(websocket, jReply);
-//				} catch (OpenemsException e) {
-//					WebSocketUtils.sendNotificationOrLogError(websocket,
-//							new com.google.g	son.JsonObject() /* empty message id */, LogBehaviour.WRITE_TO_LOG,
-//							Notification.ERROR, "Unable to close session [" + sessionToken + "]: " + e.getMessage());
-//				}
-//			}
-//		}
-//	}
+	// case "logout":
+	// /*
+	// * Logout and close session
+	// */
+	// String sessionToken = "none";
+	// String username = "UNKNOWN";
+	// try {
+	// UiEdgeWebsocketHandler handler =
+	// this.parent.getHandlerOrCloseWebsocket(websocket);
+	// Optional<User> thisUserOpt = handler.getUserOpt();
+	// if (thisUserOpt.isPresent()) {
+	// username = thisUserOpt.get().getName();
+	// handler.unsetRole();
+	// }
+	// sessionToken = handler.getSessionToken();
+	// this.parent.sessionTokens.remove(sessionToken);
+	// this.parent.parent.logInfo(this.log,
+	// "User [" + username + "] logged out. Invalidated token [" + sessionToken +
+	// "]");
+	//
+	// // find and close all websockets for this user
+	// if (thisUserOpt.isPresent()) {
+	// User thisUser = thisUserOpt.get();
+	// for (UiEdgeWebsocketHandler h : this.parent.handlers.values()) {
+	// Optional<User> otherUserOpt = h.getUserOpt();
+	// if (otherUserOpt.isPresent()) {
+	// if (otherUserOpt.get().equals(thisUser)) {
+	// com.google.gson.JsonObject jReply = DefaultMessages.uiLogoutReply();
+	// h.send(jReply);
+	// h.dispose();
+	// }
+	// }
+	// }
+	// }
+	// com.google.gson.JsonObject jReply = DefaultMessages.uiLogoutReply();
+	// WebSocketUtils.send(websocket, jReply);
+	// } catch (OpenemsException e) {
+	// WebSocketUtils.sendNotificationOrLogError(websocket,
+	// new com.google.g son.JsonObject() /* empty message id */,
+	// LogBehaviour.WRITE_TO_LOG,
+	// Notification.ERROR, "Unable to close session [" + sessionToken + "]: " +
+	// e.getMessage());
+	// }
+	// }
+	// }
+	// }
 
 }

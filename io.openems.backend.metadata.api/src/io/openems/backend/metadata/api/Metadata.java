@@ -17,19 +17,20 @@ public interface Metadata {
 	public abstract Optional<String> getEdgeIdForApikey(String apikey);
 
 	/**
-	 * Get an Edge by its unique Edge-ID
+	 * Get an Edge by its unique Edge-ID.
 	 * 
-	 * @param edgeId
-	 * @return
+	 * @param edgeId the Edge-ID
+	 * @return the Edge as Optional
 	 */
 	public abstract Optional<Edge> getEdge(String edgeId);
 
 	/**
-	 * Get an Edge by its unique Edge-ID. Throws an Exception if there is no Edge with this ID.
+	 * Get an Edge by its unique Edge-ID. Throws an Exception if there is no Edge
+	 * with this ID.
 	 * 
-	 * @param edgeId
-	 * @return
-	 * @throws OpenemsException
+	 * @param edgeId the Edge-ID
+	 * @return the Edge
+	 * @throws OpenemsException on error
 	 */
 	public default Edge getEdgeOrError(String edgeId) throws OpenemsException {
 		Optional<Edge> edgeOpt = this.getEdge(edgeId);

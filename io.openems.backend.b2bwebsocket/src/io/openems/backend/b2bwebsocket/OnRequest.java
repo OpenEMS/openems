@@ -47,12 +47,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a GetStatusOfEdgesRequest
+	 * Handles a GetStatusOfEdgesRequest.
 	 * 
 	 * @param messageId the JSON-RPC Message-ID
 	 * @param request   the JSON-RPC Request
 	 * @return the JSON-RPC Success Response Future
-	 * @throws ErrorException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetStatusOfEdgesRequest(UUID messageId,
 			GetStatusOfEdgesRequest request) throws OpenemsNamedException {
@@ -67,12 +67,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a SetGridConnScheduleRequest
+	 * Handles a SetGridConnScheduleRequest.
 	 * 
-	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the JSON-RPC Request
+	 * @param messageId                  the JSON-RPC Message-ID
+	 * @param setGridConnScheduleRequest the SetGridConnScheduleRequest
 	 * @return the JSON-RPC Success Response Future
-	 * @throws ErrorException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSetGridConnScheduleRequest(UUID messageId,
 			SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {

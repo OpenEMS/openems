@@ -22,6 +22,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.userId = Optional.ofNullable(userId);
 	}
 
+	/**
+	 * Gets the authenticated User-ID.
+	 * 
+	 * @return the User-ID or Optional.Empty if the User was not authenticated.
+	 */
 	public synchronized Optional<String> getUserId() {
 		return userId;
 	}

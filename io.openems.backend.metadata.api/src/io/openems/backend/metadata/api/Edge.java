@@ -105,6 +105,8 @@ public class Edge {
 
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.
+	 * 
+	 * @param isOnline true if the Edge is online
 	 */
 	public synchronized void setOnline(boolean isOnline) {
 		this.isOnline = isOnline;
@@ -120,6 +122,11 @@ public class Edge {
 		this.onSetConfig.add(listener);
 	}
 
+	/**
+	 * Sets the configuration for this Edge.
+	 * 
+	 * @param config the configuration
+	 */
 	public synchronized void setConfig(EdgeConfig config) {
 		this.config = config;
 		this.onSetConfig.forEach(listener -> listener.accept(config));

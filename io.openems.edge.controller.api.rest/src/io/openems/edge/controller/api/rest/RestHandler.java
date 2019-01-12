@@ -26,7 +26,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.controller.api.core.WritePOJO;
+import io.openems.edge.controller.api.core.WritePojo;
 
 public class RestHandler extends AbstractHandler {
 
@@ -203,7 +203,7 @@ public class RestHandler extends AbstractHandler {
 		} else {
 			value = jValue.toString();
 		}
-		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePOJO(value));
+		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePojo(value));
 		log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
 
 		this.sendOkResponse(baseRequest, response, new JsonObject());

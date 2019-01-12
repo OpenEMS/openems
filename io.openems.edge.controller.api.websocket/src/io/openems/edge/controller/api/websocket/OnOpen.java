@@ -63,9 +63,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		wsData.setSessionToken(token);
 
 		// if we are here, automatic authentication was not possible -> notify client
-// TODO		// send authentication notification
-//		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(
-//				token, Utils.getEdgeMetadata(user.getRole()));
+		// TODO // send authentication notification
+		// AuthenticateWithSessionIdNotification notification = new
+		// AuthenticateWithSessionIdNotification(
+		// token, Utils.getEdgeMetadata(user.getRole()));
 	}
 
 }

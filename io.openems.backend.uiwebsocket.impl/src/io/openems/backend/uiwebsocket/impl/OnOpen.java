@@ -19,7 +19,7 @@ import io.openems.common.session.Role;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
-//	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
+	// private final Logger log = LoggerFactory.getLogger(OnOpen.class);
 	private final UiWebsocketImpl parent;
 
 	public OnOpen(UiWebsocketImpl parent) {
@@ -47,12 +47,12 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 
 		} catch (OpenemsException e) {
-			// login using session_id failed. Still keeping the websocket opened to give the
+			// login using session_id failed. Still keeping the WebSocket opened to give the
 			// user the change to authenticate manually.
 			return;
 		}
 
-		// store userId together with the websocket
+		// store userId together with the WebSocket
 		wsData.setUserId(user.getId());
 
 		// generate token
@@ -60,7 +60,6 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		wsData.setToken(token);
 
 		// send connection successful reply
-		// TODO migrate
 		List<EdgeMetadata> metadatas = new ArrayList<>();
 		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
 			String edgeId = edgeRole.getKey();

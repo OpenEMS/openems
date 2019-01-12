@@ -14,7 +14,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(WebsocketApi c) {
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -28,7 +28,8 @@ public class Utils {
 	/**
 	 * Gets the EdgeMetadata for one Edge.
 	 * 
-	 * @return
+	 * @param role the Role for this Edge
+	 * @return a list of EdgeMetadatas
 	 */
 	public static List<EdgeMetadata> getEdgeMetadata(Role role) {
 		List<EdgeMetadata> metadatas = new ArrayList<>();

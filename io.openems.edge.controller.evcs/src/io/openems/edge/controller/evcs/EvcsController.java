@@ -31,7 +31,7 @@ import io.openems.edge.evcs.api.Evcs;
 )
 public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final static int RUN_EVERY_MINUTES = 1;
+	private static final int RUN_EVERY_MINUTES = 1;
 
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;

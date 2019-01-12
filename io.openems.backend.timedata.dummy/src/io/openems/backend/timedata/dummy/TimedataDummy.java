@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsException;
@@ -26,19 +27,23 @@ import io.openems.common.types.ChannelAddress;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Timedata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class TimedataDummy implements Timedata {
+public class TimedataDummy extends AbstractOpenemsBackendComponent implements Timedata {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataDummy.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
 
+	public TimedataDummy() {
+		super("Timedata.Dummy");
+	}
+
 	@Activate
 	void activate(Config config) throws OpenemsException {
-		log.info("Activate Timedata.Dummy");
+		this.logInfo(this.log, "Activate");
 	}
 
 	@Deactivate
 	void deactivate() {
-		log.info("Deactivate Timedata.Dummy");
+		this.logInfo(this.log, "Deactivate");
 	}
 
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
@@ -80,8 +85,8 @@ public class TimedataDummy implements Timedata {
 				} else {
 					// cache is not anymore valid (elder than 5 minutes)
 					// clear cache
-					if (cacheTimestamp != 0l) {
-						log.info("Edge [" + edgeId + "]: invalidate cache. This timestamp [" + timestamp
+					if (cacheTimestamp != 0L) {
+						this.logInfo(this.log, "Edge [" + edgeId + "]: invalidate cache. This timestamp [" + timestamp
 								+ "]. Cache timestamp [" + cacheTimestamp + "]");
 					}
 					edgeCache.clear();
@@ -101,7 +106,7 @@ public class TimedataDummy implements Timedata {
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
-		this.log.error("Timedata.Dummy does not support querying historic data");
+		this.logWarn(this.log, "I do not support querying historic data");
 		return TreeBasedTable.create();
 	}
 

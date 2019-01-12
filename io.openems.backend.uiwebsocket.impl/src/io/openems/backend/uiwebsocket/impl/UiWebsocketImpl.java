@@ -18,7 +18,7 @@ import io.openems.backend.uiwebsocket.api.UiWebsocket;
 @Component(name = "Ui.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
 public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket {
 
-//	private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
+	// private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
 
 	protected WebsocketServer server = null;
 
@@ -46,9 +46,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	/**
-	 * Create and start new server
+	 * Create and start new server.
 	 * 
-	 * @param port
+	 * @param port the port
 	 */
 	private synchronized void startServer(int port) {
 		this.server = new WebsocketServer(this, "Ui.Websocket", port);
@@ -56,7 +56,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	/**
-	 * Stop existing websocket server
+	 * Stop existing websocket server.
 	 */
 	private synchronized void stopServer() {
 		if (this.server != null) {

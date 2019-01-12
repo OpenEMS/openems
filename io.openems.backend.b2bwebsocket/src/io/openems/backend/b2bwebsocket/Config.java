@@ -3,7 +3,7 @@ package io.openems.backend.b2bwebsocket;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Backend2Backend.Websocket", //
 		description = "Provides a websocket server for backend-to-backend communication.")
 @interface Config {

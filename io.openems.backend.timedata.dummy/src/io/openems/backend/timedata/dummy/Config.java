@@ -2,7 +2,7 @@ package io.openems.backend.timedata.dummy;
 
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Timedata.Dummy", //
 		description = "Configures the Dummy timedata provider")
 @interface Config {

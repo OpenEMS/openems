@@ -9,7 +9,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Controller extends OpenemsComponent {
 
 	/**
-	 * Execute the Controller logic
+	 * Executes the Controller logic.
 	 */
 	// TODO should throw OpenemsNamedException -> set State to 'FAULT'
 	public void run();

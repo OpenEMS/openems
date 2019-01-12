@@ -11,7 +11,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
@@ -49,9 +48,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	/**
 	 * Handle JSON-RPC Notification 'edgeConfiguration'.
 	 * 
-	 * @param message
-	 * @param wsData
-	 * @throws OpenemsException
+	 * @param message the EdgeConfigNotification
+	 * @param wsData  the WebSocket attachment
+	 * @throws OpenemsNamedException on error
 	 */
 	private void handleEdgeConfiguration(EdgeConfigNotification message, WsData wsData) throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
@@ -62,9 +61,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	/**
 	 * Handle JSON-RPC Notification 'timestampedData'.
 	 * 
-	 * @param message
-	 * @param wsData
-	 * @throws OpenemsException
+	 * @param message the TimestampedDataNotification
+	 * @param wsData  the WebSocket attachment
+	 * @throws OpenemsNamedException on error
 	 */
 	private void handleTimestampedData(TimestampedDataNotification message, WsData wsData)
 			throws OpenemsNamedException {
@@ -99,7 +98,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 				edge.setIpv4(ipv4);
 			}
 			if (data.has("_meta/Version")) {
-				// TODO this could be JSON-Null here: throws Exception JSON [null] is not a JSON-Primitive
+				// TODO this could be JSON-Null here: throws Exception JSON [null] is not a
+				// JSON-Primitive
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(version);
 			}

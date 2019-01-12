@@ -40,8 +40,8 @@ import io.openems.edge.timedata.api.Timedata;
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Backend")
 public class BackendApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
 
-	protected final static int DEFAULT_CYCLE_TIME = 10000;
-	protected final static String COMPONENT_NAME = "Controller.Api.Backend";
+	protected static final int DEFAULT_CYCLE_TIME = 10000;
+	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
 	private final ApiWorker apiWorker = new ApiWorker();
@@ -145,6 +145,6 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 			return;
 		}
 		// TODO send log
-//		this.websocket.sendLog(event);
+		// this.websocket.sendLog(event);
 	}
 }

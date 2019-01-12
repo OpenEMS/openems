@@ -15,7 +15,7 @@ public interface Evcs extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Charge Power
+		 * Charge Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -26,7 +26,7 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		CHARGE_POWER(new Doc().accessMode(AccessMode.READ_ONLY).type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		/**
-		 * Set Charge Power
+		 * Set Charge Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -37,7 +37,7 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		SET_CHARGE_POWER(new Doc().accessMode(AccessMode.READ_WRITE).type(OpenemsType.INTEGER).unit(Unit.WATT)),
 		/**
-		 * Set Display Text
+		 * Set Display Text.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -64,7 +64,7 @@ public interface Evcs extends OpenemsComponent {
 	/**
 	 * Gets the Charge Power in [W].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	public default Channel<Integer> getChargePower() {
 		return this.channel(ChannelId.CHARGE_POWER);
@@ -73,6 +73,7 @@ public interface Evcs extends OpenemsComponent {
 	/**
 	 * Sets the allowed maximum charge power of the EVCS in [W].
 	 * 
+	 * <p>
 	 * Actual charge power depends on
 	 * <ul>
 	 * <li>whether the electric vehicle is connected at all and ready for charging
@@ -81,7 +82,7 @@ public interface Evcs extends OpenemsComponent {
 	 * <li>...
 	 * </ul>
 	 * 
-	 * @return
+	 * @return the WriteChannel
 	 */
 	public default WriteChannel<Integer> setChargePower() {
 		return this.channel(ChannelId.SET_CHARGE_POWER);
@@ -91,7 +92,7 @@ public interface Evcs extends OpenemsComponent {
 	 * Sets a Text that is shown at the display of the EVCS. Be aware that the EVCS
 	 * might not have a display or the text might be restricted.
 	 * 
-	 * @return
+	 * @return the WriteChannel
 	 */
 	public default WriteChannel<String> setDisplayText() {
 		return this.channel(ChannelId.SET_DISPLAY_TEXT);

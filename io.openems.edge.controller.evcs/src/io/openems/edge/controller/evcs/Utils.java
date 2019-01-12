@@ -18,12 +18,12 @@ public class Utils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-//				}), Arrays.stream(EvcsController.ChannelId.values()).map(channelId -> {
-//					switch (channelId) {
-//					case STATE_MACHINE:
-//						return new IntegerReadChannel(c, channelId);
-//					}
-//					return null;
+					// }), Arrays.stream(EvcsController.ChannelId.values()).map(channelId -> {
+					// switch (channelId) {
+					// case STATE_MACHINE:
+					// return new IntegerReadChannel(c, channelId);
+					// }
+					// return null;
 				}) //
 		).flatMap(channel -> channel);
 	}

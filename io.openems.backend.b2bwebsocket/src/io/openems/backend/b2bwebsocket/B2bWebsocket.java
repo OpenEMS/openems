@@ -15,14 +15,14 @@ import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Backend2Backend.Websocket", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
-	public final static int DEFAULT_PORT = 8076;
+	public static final int DEFAULT_PORT = 8076;
 
 	private WebsocketServer server = null;
 
@@ -47,17 +47,17 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	}
 
 	/**
-	 * Create and start new server
+	 * Create and start new server.
 	 * 
-	 * @param port
+	 * @param port the port
 	 */
 	private synchronized void startServer(int port) {
-		this.server = new WebsocketServer(this, "Backend2Backend.Websocket", port);
+		this.server = new WebsocketServer(this, this.getName(), port);
 		this.server.start();
 	}
 
 	/**
-	 * Stop existing websocket server
+	 * Stop existing websocket server.
 	 */
 	private synchronized void stopServer() {
 		if (this.server != null) {

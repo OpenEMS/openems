@@ -18,7 +18,7 @@ public class Utils {
 	/**
 	 * Gets Meta information about active components.
 	 * 
-	 * @param components
+	 * @param components the Components
 	 * @return a JsonObject in the form
 	 * 
 	 *         <pre>
@@ -58,9 +58,9 @@ public class Utils {
 	}
 
 	/**
-	 * Get the configuration of active components.
+	 * Converts the configuration of components to Json.
 	 * 
-	 * @param configs
+	 * @param configs the Configurations
 	 * @return a JsonObject in the form
 	 * 
 	 *         <pre>
@@ -102,10 +102,10 @@ public class Utils {
 	}
 
 	/**
-	 * Converts an object to a JsonPrimitive
+	 * Converts an object to a JsonPrimitive.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the object
+	 * @return the JsonPrimitive
 	 */
 	private static JsonPrimitive toJson(Object value) {
 		if (value instanceof Number) {

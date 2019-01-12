@@ -32,6 +32,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throws OpenemsException, OpenemsNamedException {
 		log.info("BackendApi. OnRequest: " + request);
 
+		// TODO add Check if user Role is sufficient
+
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:
@@ -46,10 +48,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a GetEdgeConfigRequest
-	 * 
-	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the JSON-RPC Request
+	 * Handles a GetEdgeConfigRequest.
+	 *
+	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
@@ -63,10 +64,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
-	 * Handles a ComponentJsonApiRequest
+	 * Handles a ComponentJsonApiRequest.
 	 * 
-	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the JSON-RPC Request
+	 * @param request the ComponentJsonApiRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */

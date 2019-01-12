@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
@@ -26,7 +27,7 @@ import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Dummy implements Metadata {
+public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(Dummy.class);
 
@@ -36,16 +37,20 @@ public class Dummy implements Metadata {
 	private Map<String, User> users = new HashMap<>();
 	private Map<String, Edge> edges = new HashMap<>();
 
+	public Dummy() {
+		super("Metadata.Dummy");
+	}
+
 	@Activate
 	void activate() {
-		log.info("Activate Metadata.Dummy");
+		this.logInfo(this.log, "Activate");
 		this.users.clear();
 		this.edges.clear();
 	}
 
 	@Deactivate
 	void deactivate() {
-		log.info("Deactivate Metadata.Dummy");
+		this.logInfo(this.log, "Deactivate");
 	}
 
 	@Override
@@ -78,13 +83,14 @@ public class Dummy implements Metadata {
 		String edgeId = "edge" + id;
 		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null);
 		edge.onSetConfig(config -> {
-			log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
+			this.logDebug(this.log,
+					"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 		});
 		edge.onSetSoc(soc -> {
-			log.debug("Edge [" + edgeId + "]. Set SoC: " + soc);
+			this.logDebug(this.log, "Edge [" + edgeId + "]. Set SoC: " + soc);
 		});
 		edge.onSetIpv4(ipv4 -> {
-			log.debug("Edge [" + edgeId + "]. Set IPv4: " + ipv4);
+			this.logDebug(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);

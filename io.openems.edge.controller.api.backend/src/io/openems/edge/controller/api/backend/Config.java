@@ -5,7 +5,7 @@ import java.net.Proxy;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Api Backend", //
 		description = "This controller connects to OpenEMS Backend")
 @interface Config {

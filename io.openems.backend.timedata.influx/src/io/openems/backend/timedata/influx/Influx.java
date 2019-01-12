@@ -29,6 +29,7 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
@@ -41,22 +42,26 @@ import io.openems.shared.influxdb.InfluxConstants;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Influx implements Timedata {
+public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 
-	private final static String TMP_MINI_MEASUREMENT = "minies";
-	private final static Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	private static final String TMP_MINI_MEASUREMENT = "minies";
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
 
 	private InfluxConnector influxConnector = null;
 
+	public Influx() {
+		super("Timedata.InfluxDB");
+	}
+
 	@Reference
 	protected volatile Metadata metadata;
 
 	@Activate
 	void activate(Config config) throws OpenemsException {
-		log.info("Activate Timedata.InfluxDB [url=" + config.url() + ";port=" + config.port() + ";database="
+		this.logInfo(this.log, "Activate [url=" + config.url() + ";port=" + config.port() + ";database="
 				+ config.database() + ";username=" + config.username() + ";password="
 				+ (config.password() != null ? "ok" : "NOT_SET") + ";measurement=" + config.measurement() + "]");
 
@@ -66,7 +71,7 @@ public class Influx implements Timedata {
 
 	@Deactivate
 	void deactivate() {
-		log.info("Deactivate Timedata.InfluxDB");
+		this.logInfo(this.log, "Deactivate");
 		if (this.influxConnector != null) {
 			this.influxConnector.deactivate();
 		}
@@ -113,8 +118,8 @@ public class Influx implements Timedata {
 					}
 				} else {
 					// cache is not anymore valid (elder than 5 minutes)
-					if (cacheTimestamp != 0l) {
-						log.info("Edge [" + edgeId + "]: invalidate cache for influxId [" + influxEdgeId
+					if (cacheTimestamp != 0L) {
+						this.logInfo(this.log, "Edge [" + edgeId + "]: invalidate cache for influxId [" + influxEdgeId
 								+ "]. This timestamp [" + timestamp + "]. Cache timestamp [" + cacheTimestamp + "]");
 					}
 					// clear cache
@@ -137,13 +142,13 @@ public class Influx implements Timedata {
 	}
 
 	/**
-	 * Actually writes the data to InfluxDB
+	 * Actually writes the data to InfluxDB.
 	 * 
 	 * @param influxEdgeId the unique, numeric identifier of the Edge
 	 * @param data         the data
 	 */
 	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
-		InfluxDB influxDB = this.influxConnector.getConnection();
+		InfluxDB influxDb = this.influxConnector.getConnection();
 
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
@@ -161,9 +166,9 @@ public class Influx implements Timedata {
 
 		// write to DB
 		try {
-			influxDB.write(batchPoints);
+			influxDb.write(batchPoints);
 		} catch (InfluxDBIOException e) {
-			this.log.error("Unable to write data: " + e.getMessage());
+			this.logError(this.log, "Unable to write data: " + e.getMessage());
 		}
 	}
 
@@ -191,10 +196,11 @@ public class Influx implements Timedata {
 	}
 
 	/**
-	 * Adds the value in the correct data format for InfluxDB
+	 * Adds the value in the correct data format for InfluxDB.
 	 *
-	 * @param channel
-	 * @param jValueElement
+	 * @param builder the Influx PointBuilder
+	 * @param field   the field name
+	 * @param element the value
 	 * @return
 	 */
 	private static void addValue(Builder builder, String field, JsonElement element) {
@@ -227,13 +233,15 @@ public class Influx implements Timedata {
 	}
 
 	/**
-	 * Writes data to old database for old Mini monitoring
+	 * Writes data to old database for old Mini monitoring.
 	 * 
+	 * </p>
 	 * XXX remove after full migration
 	 *
-	 * @param device
-	 * @param data
-	 * @throws OpenemsException
+	 * @param edgeId   the Edge-ID
+	 * @param influxId the Influx-Edge-ID
+	 * @param data     the received data
+	 * @throws OpenemsException on error
 	 */
 	private void writeDataToOldMiniMonitoring(String edgeId, int influxId,
 			TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
@@ -242,7 +250,7 @@ public class Influx implements Timedata {
 			return;
 		}
 
-		InfluxDB influxDB = this.influxConnector.getConnection();
+		InfluxDB influxDb = this.influxConnector.getConnection();
 
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
@@ -297,7 +305,7 @@ public class Influx implements Timedata {
 		}
 
 		// write to DB
-		influxDB.write(batchPoints);
+		influxDb.write(batchPoints);
 	}
 
 	@Override
@@ -324,9 +332,9 @@ public class Influx implements Timedata {
 	 * Handles compatibility with elder OpenEMS Edge version, e.g. calculate the
 	 * '_sum' Channels.
 	 * 
-	 * @param compatibility
-	 * @param cache
-	 * @return
+	 * @param compatibility the formula to calculate the channel value
+	 * @param cache         the EdgeCache
+	 * @return the value as an Optional
 	 */
 	@Deprecated
 	private Optional<JsonElement> getCompatibilityChannelValue(ChannelFormula[] compatibility, EdgeCache cache) {
@@ -343,9 +351,9 @@ public class Influx implements Timedata {
 	/**
 	 * Gets the formula to calculate a '_sum' Channel value.
 	 * 
-	 * @param edge
-	 * @param address
-	 * @return
+	 * @param edge    the Edge
+	 * @param address the ChannelAddress
+	 * @return the formula to calculate the channel value
 	 */
 	@Deprecated
 	private ChannelFormula[] getCompatibilityFormula(Edge edge, ChannelAddress address) {
@@ -385,7 +393,7 @@ public class Influx implements Timedata {
 							new ChannelFormula(Function.PLUS, 40_000), //
 					};
 				default:
-					this.log.warn(
+					this.logWarn(this.log,
 							"No formula for EssMaxApparentPower [" + edge.getId() + "|" + edge.getProducttype() + "]");
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 40_000) //
@@ -408,7 +416,7 @@ public class Influx implements Timedata {
 				};
 
 			case "ProductionActivePower":
-				return ObjectArrays.concat( //
+				return ObjectArrays.concat(//
 						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionAcActivePower")), //
 						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionDcActualPower")), //
 						ChannelFormula.class);
@@ -444,8 +452,8 @@ public class Influx implements Timedata {
 				};
 
 			case "ConsumptionActivePower":
-				return ObjectArrays.concat( //
-						ObjectArrays.concat( //
+				return ObjectArrays.concat(//
+						ObjectArrays.concat(//
 								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "EssActivePower")), //
 								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "GridActivePower")), //
 								ChannelFormula.class),
@@ -453,8 +461,8 @@ public class Influx implements Timedata {
 						ChannelFormula.class);
 
 			case "ConsumptionMaxActivePower":
-				return ObjectArrays.concat( //
-						ObjectArrays.concat( //
+				return ObjectArrays.concat(//
+						ObjectArrays.concat(//
 								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "EssMaxApparentPower")), //
 								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "GridMaxActivePower")), //
 								ChannelFormula.class),

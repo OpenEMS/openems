@@ -14,21 +14,21 @@ public interface EdgeWebsocket {
 
 	/**
 	 * Send a JSON-RPC Request to an Edge via Websocket and expect a JSON-RPC
-	 * Response
+	 * Response.
 	 * 
 	 * @param edgeId  the Edge-ID
-	 * @param request the JSON-RPC Request
-	 * @throws OpenemsNamedException on error
+	 * @param request the JsonrpcRequest
 	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, JsonrpcRequest request)
 			throws OpenemsNamedException;
 
 	/**
-	 * Send a JSON-RPC Notification to an Edge
+	 * Send a JSON-RPC Notification to an Edge.
 	 * 
-	 * @param edgeId  the Edge-ID
-	 * @param request the JSON-RPC Notification
+	 * @param edgeId       the Edge-ID
+	 * @param notification the JsonrpcNotification
 	 * @throws OpenemsNamedException on error
 	 */
 	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;

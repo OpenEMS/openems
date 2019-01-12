@@ -22,8 +22,8 @@ import io.openems.edge.common.channel.WriteChannel;
  */
 public class ApiWorker {
 
-	private final static Logger log = LoggerFactory.getLogger(ApiWorker.class);
-	public final static int DEFAULT_TIMEOUT_SECONDS = 10;
+	private static final Logger log = LoggerFactory.getLogger(ApiWorker.class);
+	public static final int DEFAULT_TIMEOUT_SECONDS = 10;
 
 	/**
 	 * Holds the mapping between WriteChannel and the value that it should be set
@@ -72,10 +72,11 @@ public class ApiWorker {
 	}
 
 	/**
-	 * Sets the timeout in seconds. Default is 60. If set to '0', timeout is
-	 * deactivated.
+	 * Sets the timeout in seconds. Default is 60, which means that for 60 seconds
+	 * in each cycle a value is rewritten to the WriteChannel. If set to '0',
+	 * timeout is deactivated.
 	 *
-	 * @param timeoutSeconds
+	 * @param timeoutSeconds the timeout for this ApiWorker
 	 */
 	public void setTimeoutSeconds(int timeoutSeconds) {
 		this.timeoutSeconds = timeoutSeconds;

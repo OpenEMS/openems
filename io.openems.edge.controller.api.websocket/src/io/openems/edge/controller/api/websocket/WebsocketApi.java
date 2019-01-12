@@ -35,19 +35,18 @@ import io.openems.edge.timedata.api.Timedata;
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Websocket")
 public class WebsocketApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
 
-	public final static String EDGE_ID = "0";
-	public final static String EDGE_COMMENT = "";
-	public final static String EDGE_PRODUCT_TYPE = "";
+	public static final String EDGE_ID = "0";
+	public static final String EDGE_COMMENT = "";
+	public static final String EDGE_PRODUCT_TYPE = "";
 
-	public final static int DEFAULT_PORT = 8075;
+	public static final int DEFAULT_PORT = 8075;
 
 	private final ApiWorker apiWorker = new ApiWorker();
 
 	protected WebsocketServer server = null;
 
 	/**
-	 * Stores valid session tokens for authentication via Cookie (this maps to a
-	 * browser window)
+	 * Stores valid session tokens for authentication via Cookie.
 	 */
 	protected final Map<UUID, User> sessionTokens = new ConcurrentHashMap<>();
 
@@ -82,9 +81,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	/**
-	 * Create and start new server
+	 * Create and start new server.
 	 * 
-	 * @param port
+	 * @param port the port
 	 */
 	private synchronized void startServer(int port) {
 		this.server = new WebsocketServer(this, "Websocket Api", port);
@@ -92,7 +91,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	/**
-	 * Stop existing websocket server
+	 * Stop existing websocket server.
 	 */
 	private synchronized void stopServer() {
 		if (this.server != null) {
@@ -117,7 +116,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 
 	@Override
 	public void doAppend(PaxLoggingEvent event) {
-//		TODO
-//		this.websocketApiServer.sendLog(event);
+		// TODO
+		// this.websocketApiServer.sendLog(event);
 	}
 }

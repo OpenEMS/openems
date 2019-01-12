@@ -19,15 +19,15 @@ public enum OpenemsError {
 	 * Common errors. 1000-1999
 	 */
 	COMMON_NO_VALID_CHANNEL_ADDRESS(1000, "This [%s] is not a valid channel address"), //
+	COMMON_USER_NOT_AUTHENTICATED(1001, "User is not authenticated. [%s]"), //
+	COMMON_ROLE_ACCESS_DENIED(1001, "Access to this ressource [%s] is denied for User with Role [%s]"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */
 	EDGE_NO_COMPONENT_WITH_ID(2000, "Unable to find OpenEMS Component with ID [%s]"), //
 	EDGE_MULTIPLE_COMPONENTS_WITH_ID(2001, "Found more than one OpenEMS Component with ID [%s]"), //
 	EDGE_UNABLE_TO_APPLY_CONFIG(2002, "Unable to apply configuration to Component [%s]: [%s]"), //
-	EDGE_USER_NOT_AUTHENTICATED(2003, "User is not authenticated. [%s]"), //
-	EDGE_USER_AUTHENTICATION_WITH_PASSWORD_FAILED(2004, "Authentication with Password failed"), //
-
+	EDGE_USER_AUTHENTICATION_WITH_PASSWORD_FAILED(2003, "Authentication with Password failed"), //
 	/*
 	 * Backend errors. 3000-3999
 	 */

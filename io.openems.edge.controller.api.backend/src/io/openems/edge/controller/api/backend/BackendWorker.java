@@ -17,9 +17,9 @@ import io.openems.edge.common.worker.AbstractWorker;
 
 class BackendWorker extends AbstractWorker {
 
-	private final static int MAX_CACHED_MESSAGES = 1000;
+	private static final int MAX_CACHED_MESSAGES = 1000;
 
-//	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
+	// private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 	private final BackendApi parent;
 
 	private Optional<Integer> increasedCycleTime = Optional.empty();
@@ -29,9 +29,6 @@ class BackendWorker extends AbstractWorker {
 	// Unsent queue (FIFO)
 	private EvictingQueue<JsonrpcMessage> unsent = EvictingQueue.create(MAX_CACHED_MESSAGES);
 
-	/**
-	 * @param backendApi
-	 */
 	BackendWorker(BackendApi parent) {
 		this.parent = parent;
 	}
@@ -101,8 +98,10 @@ class BackendWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Goes through all Channels and gets the value. If the value changed since last
-	 * check, it is added to the queue.
+	 * Cycles through all Channels and gets the value. If the value changed since
+	 * last check, it is added to the queue.
+	 * 
+	 * @return a map of channels who's value changed since last check
 	 */
 	private Map<ChannelAddress, JsonElement> getChangedValues() {
 		final ConcurrentHashMap<ChannelAddress, JsonElement> values = new ConcurrentHashMap<>();
