@@ -1,8 +1,13 @@
 = Internal Component Communication
-:imagesdir: ../assets/images
-:sectnumlevels: 0
+:sectnums:
+:sectnumlevels: 4
 :toc:
-:toclevels: 0
+:toclevels: 4
+:experimental:
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
 
 This page describes the internal communication protocol between OpenEMS Edge, OpenEMS Backend and OpenEMS UI. The components keep an open https://de.wikipedia.org/wiki/WebSocket[Websocket] connection which is used for bi-directional communication. The protocol is based on https://www.jsonrpc.org/specification[JSON-RPC]. For details about JSON-RPC please refer to the specification. As a rough summary, the protocol is divided into
 
@@ -28,7 +33,8 @@ mermaid:authenticatedWithSessionId.mmd[]
 
 == Authenticate UI to Edge using password
 
-mermaid:authenticateWithPassword.mmd[]
+image::authenticateWithPassword.png[]
+
 
 == Subscribe to Channels
 
