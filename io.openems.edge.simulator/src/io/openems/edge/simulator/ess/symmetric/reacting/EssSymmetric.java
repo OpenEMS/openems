@@ -1,7 +1,5 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
-import static io.openems.edge.ess.api.ManagedSymmetricEss.log;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -83,8 +81,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource",
-				config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
 

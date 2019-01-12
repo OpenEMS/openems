@@ -36,7 +36,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;
 
-	private Config config;
+	private int minPower = 0;
+	private ChargeMode chargeMode;
+	private String evcsId;
 	private LocalDateTime lastRun = LocalDateTime.MIN;
 
 	@Reference
@@ -74,7 +76,10 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
-		this.config = config;
+
+		this.minPower = Math.max(0, config.minPower()); // at least '0'
+		this.chargeMode = config.chargeMode();
+		this.evcsId = config.evcs_id();
 
 		// update filter for 'evcs'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", config.evcs_id())) {
@@ -94,15 +99,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			return;
 		}
 
-		Evcs evcs = this.componentManager.getComponent(this.config.evcs_id());
+		Evcs evcs = this.componentManager.getComponent(this.evcsId);
 
 		int nextChargePower = 0;
-		switch (this.config.chargeMode()) {
+		switch (this.chargeMode) {
 		case DEFAULT:
-			nextChargePower = //
-					this.sum.getGridActivePower().value().orElse(0) // Sell-to-Grid Power
-							+ this.sum.getEssActivePower().value().orElse(0) // ESS Charge Power
-							+ evcs.getChargePower().value().orElse(0); // EVCS Charge Power
+			int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
+			int essDischarge = this.sum.getEssActivePower().value().orElse(0);
+			int evcsCharge = evcs.getChargePower().value().orElse(0);
+			nextChargePower = evcsCharge - buyFromGrid - essDischarge;
 			break;
 
 		case FORCE_CHARGE:
@@ -111,8 +116,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 
 		// test min-Power
-		if (nextChargePower < this.config.minPower()) {
-			nextChargePower = this.config.minPower();
+		if (nextChargePower < this.minPower) {
+			nextChargePower = this.minPower;
 		}
 
 		// set charge power

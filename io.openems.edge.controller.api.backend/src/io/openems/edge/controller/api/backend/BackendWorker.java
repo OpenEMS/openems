@@ -48,7 +48,8 @@ class BackendWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
-		// TODO send all data once after reconnect. The Backend might have been restartet.
+		// TODO send all data once after reconnect. The Backend might have been
+		// restartet.
 		Map<ChannelAddress, JsonElement> values = this.getChangedValues();
 		boolean canSendFromCache;
 
@@ -105,7 +106,7 @@ class BackendWorker extends AbstractWorker {
 	 */
 	private Map<ChannelAddress, JsonElement> getChangedValues() {
 		final ConcurrentHashMap<ChannelAddress, JsonElement> values = new ConcurrentHashMap<>();
-		this.parent.getComponents().parallelStream() //
+		this.parent.componentManager.getComponents().parallelStream() //
 				.filter(c -> c.isEnabled()) //
 				.flatMap(component -> component.channels().parallelStream()) //
 				.filter(channel -> // Ignore WRITE_ONLY Channels

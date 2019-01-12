@@ -9,13 +9,12 @@ import { Widget } from './widget';
 })
 export class IndexComponent implements OnInit {
 
-  public edge: Edge = null
-  public widgets: Widget[] = [];
+  protected edge: Edge = null
+  protected widgets: Widget[] = [];
 
   constructor(
-    public websocket: Websocket,
     private route: ActivatedRoute,
-    public utils: Utils,
+    protected utils: Utils,
     private service: Service,
   ) {
   }

@@ -11,6 +11,7 @@ public interface Controller extends OpenemsComponent {
 	/**
 	 * Execute the Controller logic
 	 */
+	// TODO should throw OpenemsNamedException -> set State to 'FAULT'
 	public void run();
 	
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {

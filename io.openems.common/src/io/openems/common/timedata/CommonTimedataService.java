@@ -40,7 +40,7 @@ public interface CommonTimedataService {
 	/**
 	 * Queries historic data.
 	 * 
-	 * @param edgeId     the Edge-ID
+	 * @param edgeId     the Edge-ID; or null query all
 	 * @param fromDate   the From-Date
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels

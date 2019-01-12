@@ -25,6 +25,8 @@ public enum OpenemsError {
 	EDGE_NO_COMPONENT_WITH_ID(2000, "Unable to find OpenEMS Component with ID [%s]"), //
 	EDGE_MULTIPLE_COMPONENTS_WITH_ID(2001, "Found more than one OpenEMS Component with ID [%s]"), //
 	EDGE_UNABLE_TO_APPLY_CONFIG(2002, "Unable to apply configuration to Component [%s]: [%s]"), //
+	EDGE_USER_NOT_AUTHENTICATED(2003, "User is not authenticated. [%s]"), //
+	
 	/*
 	 * Backend errors. 3000-3999
 	 */

@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { UpdateComponentConfigRequest } from '../../../shared/jsonrpc/request/updateComponentConfigRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
+type ChargeMode = 'FORCE_CHARGE' | 'DEFAULT';
+
 @Component({
   selector: 'evcs',
   templateUrl: './evcs.component.html'
@@ -13,8 +15,8 @@ export class EvcsComponent {
 
   @Input() private componentId: string;
 
-  public edge: Edge = null;
-  public controller: EdgeConfig.Component = null;
+  protected edge: Edge = null;
+  protected controller: EdgeConfig.Component = null;
 
   constructor(
     private service: Service,
@@ -59,7 +61,13 @@ export class EvcsComponent {
    */
   updateChargeMode(event: CustomEvent) {
     let oldChargeMode = this.controller.properties.chargeMode;
-    let newChargeMode = event.detail.value
+    let newChargeMode: ChargeMode;
+    if (event.detail.checked) {
+      newChargeMode = 'FORCE_CHARGE';
+    } else {
+      newChargeMode = 'DEFAULT';
+    }
+
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
         { property: 'chargeMode', value: newChargeMode }

@@ -34,6 +34,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return token;
 	}
 
+	/**
+	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
+	 * 
+	 * @return the SubscribedChannelsWorker
+	 */
 	public SubscribedChannelsWorker getSubscribedChannelsWorker() {
 		return subscribedChannelsWorker;
 	}

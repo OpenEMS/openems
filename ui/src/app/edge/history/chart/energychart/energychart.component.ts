@@ -6,6 +6,7 @@ import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/
 import { ChannelAddress, Edge, Service, Utils } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
+import { formatNumber } from '@angular/common';
 
 @Component({
   selector: 'energychart',
@@ -75,7 +76,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           label = this.gridSell;
         }
       }
-      return label + ": " + value.toPrecision(3) + " kW";
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
     this.options = options;
   }
@@ -105,7 +106,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           if (value == null) {
             return null
           } else {
-            return Math.round(value / 1000); // convert to kW
+            return value / 1000; // convert to kW
           }
         });
         datasets.push({
@@ -123,7 +124,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           if (value == null) {
             return null
           } else if (value > 0) {
-            return Math.round(value / 1000); // convert to kW
+            return value / 1000; // convert to kW
           } else {
             return 0;
           }
@@ -141,7 +142,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           if (value == null) {
             return null
           } else if (value < 0) {
-            return Math.round(value / -1000); // convert to kW and invert value
+            return value / -1000; // convert to kW and invert value
           } else {
             return 0;
           }
@@ -161,7 +162,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           if (value == null) {
             return null
           } else {
-            return Math.round(value / 1000); // convert to kW
+            return value / 1000; // convert to kW
           }
         });
         datasets.push({
@@ -179,7 +180,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           if (value == null) {
             return null
           } else if (value < 0) {
-            return Math.round(value / -1000); // convert to kW and invert value
+            return value / -1000; // convert to kW and invert value
           } else {
             return 0;
           }
@@ -197,7 +198,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           if (value == null) {
             return null
           } else if (value > 0) {
-            return Math.round(value / 1000); // convert to kW
+            return value / 1000; // convert to kW
           } else {
             return 0;
           }

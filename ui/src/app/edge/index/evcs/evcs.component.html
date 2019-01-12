@@ -16,14 +16,16 @@
           <td style="width:10%">&nbsp;W</td>
         </tr>
         <tr *ngIf="controller">
-          <td style="width:50%" translate>Belademodus</td>
-          <td colspan="3" class="align_right" style="width:50%">
+          <td colspan="2" translate>Erzwinge Beladung mit maximaler Leistung?</td>
+          <td colspan="2" class="align_right" style="width:50%">
+            <ion-toggle (ionChange)="updateChargeMode($event)" [checked]="controller.properties.chargeMode == 'FORCE_CHARGE'"></ion-toggle>
+            <!-- might use this in future if we have more than two charge-modes. Need to work a bit on the layout...
             <ion-item>
-              <ion-select (ionChange)="updateChargeMode($event)" [value]="controller.properties.chargeMode" interface="popover">
+              <ion-select  [value]="controller.properties.chargeMode" interface="popover">
                 <ion-select-option value="DEFAULT">Standard</ion-select-option>
                 <ion-select-option value="FORCE_CHARGE">Zwangsbeladung</ion-select-option>
               </ion-select>
-            </ion-item>
+            </ion-item> -->
           </td>
         </tr>
       </table>
@@ -81,10 +83,4 @@
               <td style="width:35%" class="align_right">{{ data.EnergyTotal / 10000 | number:'1.0-0' }}</td>
               <td style="width:10%">&nbsp;kWh</td>
             </tr>
-          </ng-container>
-
-        </table>
-      </ion-card-content>
-    </ion-card>
-  </ng-container>
-</ng-container> -->
+          </ng-container> -->

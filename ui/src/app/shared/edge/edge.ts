@@ -131,6 +131,7 @@ export class Edge {
       channels.push.apply(channels, this.subscribedChannels[componentId]);
     }
     let request = new SubscribeChannelsRequest(channels);
+    // TODO use a debouncing mechanism to avoid sending multiple subscribe requests. Because in the end it is unsure which one 'wins'. Alternative idea: use 'subscribeChannelsRequest-Counter' to be able to decide which one is the most recent request.
     this.sendRequest(ws, request); // ignore Response
   }
 

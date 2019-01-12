@@ -37,7 +37,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port) {
 		super(name, port);
 		this.onOpen = new OnOpen(parent);
-		this.onRequest = new OnRequest(parent);
+		this.onRequest = new OnRequest();
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError();
 		this.onClose = new OnClose(parent);
@@ -47,30 +47,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		};
 	}
 
-//	public boolean isOnline(int edgeId) {
-//		return this.websocketsMap.containsKey(edgeId);
-//	}
-//
-//	protected String[] getEdgeNames(int[] edgeIds) {
-//		String[] edgeNames = new String[edgeIds.length];
-//		for (int i = 0; i < edgeIds.length; i++) {
-//			Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeIds[i]);
-//			if (edgeOpt.isPresent()) {
-//				edgeNames[i] = edgeOpt.get().getName();
-//			} else {
-//				edgeNames[i] = "ID:" + edgeIds[i];
-//			}
-//		}
-//		return edgeNames;
-//	}
-
-//	public void forwardMessageFromUi(int edgeId, JsonObject jMessage) throws OpenemsException {
-//		WebSocket websocket = this.websocketsMap.get(edgeId);
-//		if (websocket != null) {
-//			WebSocketUtils.send(websocket, jMessage);
-//		}
-//	}
-//
 	@Override
 	protected WsData createWsData() {
 		WsData wsData = new WsData();

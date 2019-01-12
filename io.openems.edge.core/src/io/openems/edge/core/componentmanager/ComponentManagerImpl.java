@@ -2,6 +2,7 @@ package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -54,11 +55,9 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
@@ -136,21 +135,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		this.osgiValidateWorker.deactivate();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends OpenemsComponent> T getComponent(String componentId) {
-		List<OpenemsComponent> components = this.components;
-		for (OpenemsComponent component : components) {
-			if (component.id().equals(componentId)) {
-				return (T) component;
-			}
-		}
-		throw new IllegalArgumentException("Component [" + componentId + "] is not available.");
-	}
-
 	@Override
-	public <T extends Channel<?>> T getChannel(ChannelAddress channelAddress) throws IllegalArgumentException {
-		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
-		return component.channel(channelAddress.getChannelId());
+	public List<OpenemsComponent> getComponents() {
+		return Collections.unmodifiableList(this.components);
 	}
 
 	protected StateChannel configNotActivatedChannel() {

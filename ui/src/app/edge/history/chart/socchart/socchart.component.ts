@@ -5,7 +5,8 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, Service, Utils, Websocket } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
-import { ChartOptions, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET } from './../shared';
+import { ChartOptions, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem, Data } from './../shared';
+import { formatNumber } from '@angular/common';
 
 @Component({
   selector: 'socchart',
@@ -53,6 +54,19 @@ export class SocChartComponent extends AbstractHistoryChart implements OnInit, O
     this.service.setCurrentEdge(this.route);
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
+    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      let label = data.datasets[tooltipItem.datasetIndex].label;
+      let value = tooltipItem.yLabel;
+      if (label == this.grid) {
+        if (value < 0) {
+          value *= -1;
+          label = this.gridBuy;
+        } else {
+          label = this.gridSell;
+        }
+      }
+      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+    }
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
@@ -82,7 +96,7 @@ export class SocChartComponent extends AbstractHistoryChart implements OnInit, O
           } else if (value > 100 || value < 0) {
             return null;
           } else {
-            return Math.round(value);
+            return value;
           }
         });
         datasets.push({

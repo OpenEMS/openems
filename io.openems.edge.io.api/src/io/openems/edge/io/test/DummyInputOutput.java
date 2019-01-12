@@ -1,7 +1,5 @@
 package io.openems.edge.io.test;
 
-import java.util.HashMap;
-
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;

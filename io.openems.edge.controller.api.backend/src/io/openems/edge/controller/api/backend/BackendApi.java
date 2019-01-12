@@ -30,7 +30,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -39,8 +38,7 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Backend")
-public class BackendApi extends AbstractOpenemsComponent
-		implements Controller, ApiController, OpenemsComponent, PaxAppender {
+public class BackendApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
 
 	protected final static int DEFAULT_CYCLE_TIME = 10000;
 	protected final static String COMPONENT_NAME = "Controller.Api.Backend";
@@ -57,7 +55,7 @@ public class BackendApi extends AbstractOpenemsComponent
 	protected volatile Timedata timedata = null;
 
 	@Reference
-	private ComponentManager componentManager;
+	protected ComponentManager componentManager;
 
 	@Reference
 	private ConfigurationAdmin configAdmin;
@@ -127,27 +125,17 @@ public class BackendApi extends AbstractOpenemsComponent
 		this.apiWorker.run();
 	}
 
-	@Override
-	public Timedata getTimedata() {
-		return this.timedata;
-	}
-
-	@Override
-	public List<OpenemsComponent> getComponents() {
-		return this.components;
-	}
-
-	@Override
-	public ConfigurationAdmin getConfigurationAdmin() {
-		return this.configAdmin;
-	}
-
 	public ComponentManager getComponentManager() {
 		return this.componentManager;
 	}
 
 	@Override
 	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
 		super.logInfo(log, message);
 	}
 

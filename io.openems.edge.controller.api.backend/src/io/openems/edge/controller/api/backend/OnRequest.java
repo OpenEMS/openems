@@ -75,13 +75,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throws OpenemsNamedException {
 		// get Component
 		String componentId = request.getComponentId();
-		OpenemsComponent component = null;
-		for (OpenemsComponent c : this.parent.getComponents()) {
-			if (c.id().equals(componentId)) {
-				component = c;
-				break;
-			}
-		}
+		OpenemsComponent component = this.parent.componentManager.getComponent(componentId);
+
 		if (component == null) {
 			throw new OpenemsException("Unable to find Component [" + componentId + "]");
 		}

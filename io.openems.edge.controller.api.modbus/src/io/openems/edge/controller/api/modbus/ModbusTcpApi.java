@@ -1,8 +1,6 @@
 package io.openems.edge.controller.api.modbus;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -43,7 +41,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.controller.api.core.WritePOJO;
 import io.openems.edge.timedata.api.Timedata;
@@ -53,8 +50,7 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "Controller.Api.ModbusTcp", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class ModbusTcpApi extends AbstractOpenemsComponent
-		implements Controller, ApiController, OpenemsComponent, JsonApi {
+public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, JsonApi {
 
 	public final static int UNIT_ID = 1;
 	public final static int DEFAULT_PORT = 502;
@@ -100,8 +96,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'components'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Component",
-				config.component_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Component", config.component_ids())) {
 			return;
 		}
 
@@ -293,25 +288,6 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	@Override
 	public void run() {
 		this.apiWorker.run();
-	}
-
-	@Override
-	public List<OpenemsComponent> getComponents() {
-		List<OpenemsComponent> result = new ArrayList<>();
-		for (ModbusSlave component : this._components.values()) {
-			result.add(component);
-		}
-		return result;
-	}
-
-	@Override
-	public ConfigurationAdmin getConfigurationAdmin() {
-		return this.cm;
-	}
-
-	@Override
-	public Timedata getTimedata() {
-		return this.timedataService;
 	}
 
 	@Override

@@ -44,9 +44,15 @@
           <div [style.height]="energyChartHeight">
             <energychart [fromDate]="fromDate" [toDate]="toDate"></energychart>
           </div>
-          <!-- TODO <div *ngIf="(evcsChannels | json) != '{}'" [style.height]="socChartHeight">
-            <evcschart [edge]="edge" [channels]="evcsChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></evcschart>
-          </div> -->
+          <ng-container *ngFor="let widget of widgets">
+            <ng-container [ngSwitch]="widget">
+              <div *ngSwitchCase="'EVCS'" [style.height]="socChartHeight">
+                <evcschart [fromDate]="fromDate" [toDate]="toDate"></evcschart>
+              </div>
+              <!-- <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
+                [config]="config"></channelthreshold-2018-7> -->
+            </ng-container>
+          </ng-container>
         </ion-card-content>
 
       </ion-card>
