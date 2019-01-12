@@ -14,7 +14,7 @@ public enum OpenemsError {
 	/*
 	 * Generic error.
 	 */
-	GENERIC(1, "An error happend: %s"),
+	GENERIC(1, "%s"),
 	/*
 	 * Common errors. 1000-1999
 	 */
@@ -26,7 +26,8 @@ public enum OpenemsError {
 	EDGE_MULTIPLE_COMPONENTS_WITH_ID(2001, "Found more than one OpenEMS Component with ID [%s]"), //
 	EDGE_UNABLE_TO_APPLY_CONFIG(2002, "Unable to apply configuration to Component [%s]: [%s]"), //
 	EDGE_USER_NOT_AUTHENTICATED(2003, "User is not authenticated. [%s]"), //
-	
+	EDGE_USER_AUTHENTICATION_WITH_PASSWORD_FAILED(2004, "Authentication with Password failed"), //
+
 	/*
 	 * Backend errors. 3000-3999
 	 */

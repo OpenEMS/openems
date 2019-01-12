@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -50,7 +49,7 @@ public class GetStatusOfEdgesResponse extends JsonrpcResponseSuccess {
 	}
 
 	@Override
-	public JsonElement getResult() {
+	public JsonObject getResult() {
 		JsonObject j = new JsonObject();
 		for (Entry<String, EdgeInfo> entry : this.edgeInfos.entrySet()) {
 			EdgeInfo edge = entry.getValue();

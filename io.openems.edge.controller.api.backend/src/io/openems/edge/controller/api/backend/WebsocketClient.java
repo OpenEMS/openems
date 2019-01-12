@@ -15,6 +15,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
+	private final BackendApi parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
@@ -25,6 +26,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	protected WebsocketClient(BackendApi parent, String name, URI serverUri, Map<String, String> httpHeaders,
 			Proxy proxy) {
 		super(name, serverUri, httpHeaders, proxy);
+		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification();
@@ -71,5 +73,10 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected WsData createWsData() {
 		return new WsData();
+	}
+	
+	@Override
+	protected void logWarn(Logger log, String message) {
+		this.parent.logWarn(log, message);
 	}
 }

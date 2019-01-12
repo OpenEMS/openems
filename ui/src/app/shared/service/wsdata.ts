@@ -86,7 +86,7 @@ export class WsData {
       }
     } else {
       // TODO throw exception
-      console.warn("Got Response without Request: " + response);
+      console.warn("Got Response without Request", response);
     }
   }
 }

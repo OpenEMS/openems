@@ -8,7 +8,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
 
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
 
@@ -18,7 +20,7 @@ import io.openems.backend.metadata.api.Metadata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class B2bWebsocket {
+public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	public final static int DEFAULT_PORT = 8076;
 
@@ -29,6 +31,10 @@ public class B2bWebsocket {
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
+
+	public B2bWebsocket() {
+		super("Backend2Backend.Websocket");
+	}
 
 	@Activate
 	void activate(Config config) {
@@ -59,4 +65,8 @@ public class B2bWebsocket {
 		}
 	}
 
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
+	}
 }

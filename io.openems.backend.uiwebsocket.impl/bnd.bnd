@@ -18,7 +18,8 @@ Private-Package: io.openems.backend.uiwebsocket.impl
 	io.openems.backend.timedata.api;version=latest,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
 	json,\
-	slf4j.api
+	slf4j.api,\
+	io.openems.backend.common;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

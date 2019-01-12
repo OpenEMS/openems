@@ -1,6 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
-import { DefaultTypes } from '../../../../shared/service/defaulttypes';
 import { Edge, Utils } from '../../../../shared/shared';
 
 // TODO deprecated
@@ -10,11 +8,11 @@ import { Edge, Utils } from '../../../../shared/shared';
 })
 export class ChannelthresholdComponent_2018_7 {
 
-  @Input()
-  public currentData: CurrentDataAndSummary_2018_7;
+  // @Input()
+  // public currentData: CurrentDataAndSummary_2018_7;
 
-  @Input()
-  public config: DefaultTypes.Config_2018_7;
+  // @Input()
+  // public config: DefaultTypes.Config_2018_7;
 
   @Input()
   public edge: Edge;

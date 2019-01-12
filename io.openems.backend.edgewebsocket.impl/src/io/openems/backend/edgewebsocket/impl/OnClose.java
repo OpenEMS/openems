@@ -36,6 +36,8 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			edgeOpt.get().setOnline(isOnline);
 		}
 
+		// TODO send notification, to UI
+		
 		// log
 		log.info("Edge [" + edgeId + "] disconnected.");
 	}

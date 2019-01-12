@@ -60,6 +60,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			edge.setLastMessageTimestamp();
 			wsData.setAuthenticated(true);
 
+			// TODO send notification to UI
 		} catch (OpenemsException e) {
 			log.warn("Error in Websocket.OnOpen. Apikey [" + apikey + "]: " + e.getMessage());
 

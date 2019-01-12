@@ -2,7 +2,6 @@ package io.openems.common.jsonrpc.base;
 
 import java.util.UUID;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
@@ -20,6 +19,6 @@ public abstract class JsonrpcResponseSuccess extends JsonrpcResponse {
 				.build();
 	}
 
-	public abstract JsonElement getResult();
+	public abstract JsonObject getResult();
 
 }

@@ -2,7 +2,7 @@ package io.openems.common.jsonrpc.response;
 
 import java.util.UUID;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
@@ -30,7 +30,7 @@ public class EdgeRpcResponse extends JsonrpcResponseSuccess {
 	}
 
 	@Override
-	public JsonElement getResult() {
+	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
 				.add("payload", this.payload.toJsonObject()) //
 				.build();

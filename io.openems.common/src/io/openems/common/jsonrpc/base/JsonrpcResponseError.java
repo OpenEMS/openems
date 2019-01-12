@@ -59,12 +59,20 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	@Override
 	public JsonObject toJsonObject() {
+		Object[] params = new Object[this.params.size()];
+		for (int i = 0; i < params.length; i++) {
+			try {
+				params[i] = JsonUtils.getAsBestType(this.params.get(i));
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+		}
 		return JsonUtils.buildJsonObject(super.toJsonObject()) //
 				.add("error", JsonUtils.buildJsonObject() //
 						// A Number that indicates the error type that occurred.
 						.addProperty("code", this.openemsError.getCode()) //
 						// A String providing a short description of the error.
-						.addProperty("message", this.openemsError.getMessage(this.params)) //
+						.addProperty("message", this.openemsError.getMessage(params)) //
 						// A Primitive or Structured value that contains additional information about
 						// the error. This may be omitted.
 						.add("data", this.params) //

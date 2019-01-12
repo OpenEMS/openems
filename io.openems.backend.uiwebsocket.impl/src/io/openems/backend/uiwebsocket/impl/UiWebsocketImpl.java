@@ -6,7 +6,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
 
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
@@ -14,7 +16,7 @@ import io.openems.backend.uiwebsocket.api.UiWebsocket;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Ui.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
-public class UiWebsocketImpl implements UiWebsocket {
+public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket {
 
 //	private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
 
@@ -28,6 +30,10 @@ public class UiWebsocketImpl implements UiWebsocket {
 
 	@Reference
 	protected volatile Timedata timeData;
+
+	public UiWebsocketImpl() {
+		super("Ui.Websocket");
+	}
 
 	@Activate
 	void activate(Config config) {
@@ -56,6 +62,11 @@ public class UiWebsocketImpl implements UiWebsocket {
 		if (this.server != null) {
 			this.server.stop();
 		}
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
 	}
 
 }

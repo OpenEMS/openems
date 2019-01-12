@@ -35,6 +35,10 @@ import io.openems.edge.timedata.api.Timedata;
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Websocket")
 public class WebsocketApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
 
+	public final static String EDGE_ID = "0";
+	public final static String EDGE_COMMENT = "";
+	public final static String EDGE_PRODUCT_TYPE = "";
+
 	public final static int DEFAULT_PORT = 8075;
 
 	private final ApiWorker apiWorker = new ApiWorker();

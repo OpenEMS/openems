@@ -5,6 +5,7 @@ import com.google.gson.JsonNull;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 
@@ -29,6 +30,6 @@ public class SubscribedChannelsWorker extends io.openems.common.websocket.Subscr
 
 	@Override
 	protected JsonrpcNotification getJsonRpcNotification(CurrentDataNotification currentData) {
-		return currentData;
+		return new EdgeRpcNotification(WebsocketApi.EDGE_ID, currentData);
 	}
 }

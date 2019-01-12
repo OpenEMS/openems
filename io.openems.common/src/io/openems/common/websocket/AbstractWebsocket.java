@@ -2,6 +2,8 @@ package io.openems.common.websocket;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+
 public abstract class AbstractWebsocket<T extends WsData> {
 
 	private final String name;
@@ -86,5 +88,13 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	protected void handleInternalErrorSync(Exception e) {
 		this.getOnInternalError().run(e);
 	}
+
+	/**
+	 * Log a warn message.
+	 * 
+	 * @param log
+	 * @param message
+	 */
+	protected abstract void logWarn(Logger log, String message);
 
 }

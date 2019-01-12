@@ -13,6 +13,22 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a JSON-RPC Request to subscribe to Channels.
+ * 
+ * This is used by UI to get regular updates on specific channels.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "subscribeChannels",
+ *   "params": {
+ *     "channels": string[]
+ *   }
+ * }
+ * </pre>
+ */
 public class SubscribeChannelsRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "subscribeChannels";

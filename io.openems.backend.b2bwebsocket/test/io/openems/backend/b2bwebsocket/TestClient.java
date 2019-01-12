@@ -83,4 +83,9 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	protected WsData createWsData() {
 		return new WsData();
 	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		log.warn(message);
+	}
 }

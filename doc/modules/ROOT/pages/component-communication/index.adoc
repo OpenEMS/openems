@@ -26,6 +26,10 @@ NOTE: On opening of the websocket connection to Edge/Backend, the UI is authenti
 
 mermaid:authenticatedWithSessionId.mmd[]
 
+== Authenticate UI to Edge using password
+
+mermaid:authenticateWithPassword.mmd[]
+
 == Subscribe to Channels
 
 NOTE: Allows a Component to subscribe on certain Channel values. The latest Channel values are then periodically sent.

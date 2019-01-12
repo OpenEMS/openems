@@ -27,6 +27,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketServer.class);
 
+	private final EdgeWebsocketImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
@@ -36,6 +37,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port) {
 		super(name, port);
+		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest();
 		this.onNotification = new OnNotification(parent);
@@ -131,4 +133,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		throw new OpenemsException("EdgeWs. handleNonJsonrpcMessage", lastException);
 	}
 
+	@Override
+	protected void logWarn(Logger log, String message) {
+		this.parent.logWarn(log, message);
+	}
 }

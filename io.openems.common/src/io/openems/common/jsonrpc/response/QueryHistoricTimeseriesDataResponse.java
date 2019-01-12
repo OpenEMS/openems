@@ -56,7 +56,7 @@ public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
 	}
 
 	@Override
-	public JsonElement getResult() {
+	public JsonObject getResult() {
 		JsonObject result = new JsonObject();
 
 		JsonArray timestamps = new JsonArray();

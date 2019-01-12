@@ -26,7 +26,7 @@ public class OnError implements io.openems.common.websocket.OnError {
 
 		String logMessage;
 		if (user.isPresent()) {
-			logMessage = "User [" + user + "] error: ";
+			logMessage = "User [" + user.get().getName() + "] error: ";
 		} else {
 			logMessage = "Unknown User [" + wsData.getSessionToken() + "] error: ";
 		}

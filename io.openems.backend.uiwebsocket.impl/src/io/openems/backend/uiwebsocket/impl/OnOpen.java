@@ -14,9 +14,8 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
-import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification.EdgeMetadata;
+import io.openems.common.jsonrpc.shared.EdgeMetadata;
 import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -31,12 +30,13 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
-		
+
 		// declare user
 		User user;
 
-		// login using session_id from the cookie
-		Optional<String> sessionIdOpt = JsonUtils.getAsOptionalString(handshake, "session_id");
+		// login using session_id from the handshake
+		Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
+				"session_id");
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID
@@ -72,7 +72,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 						e.isOnline()));
 			}
 		}
-		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(token, metadatas);
+		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(token,
+				metadatas);
 		this.parent.server.sendMessage(ws, notification);
 	}
 

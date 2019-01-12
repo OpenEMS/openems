@@ -27,7 +27,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		// print log message
 		String logMessage;
 		if (user.isPresent()) {
-			logMessage = "User [" + user + "] closed websocket connection.";
+			logMessage = "User [" + user.get() + "] closed websocket connection.";
 		} else {
 			logMessage = "Unknown User [" + wsData.getSessionToken() + "] closed websocket connection.";
 		}

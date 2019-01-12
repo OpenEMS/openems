@@ -20,7 +20,7 @@ export class ExistingThingComponent implements OnChanges {
   public meta = null;
   public role: Role = "guest";
   public formPristine: boolean = true;
-  public messages: { [channelId: string]: DefaultTypes.ConfigUpdate } = {};
+  // public messages: { [channelId: string]: DefaultTypes.ConfigUpdate } = {};
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -58,25 +58,25 @@ export class ExistingThingComponent implements OnChanges {
    * Receive form.pristine state
    */
   ngAfterViewInit() {
-    this.channelComponentChildren.forEach(channelComponent => {
-      channelComponent.message
-        .pipe(takeUntil(this.stopOnDestroy))
-        .subscribe((message) => {
-          if (message == null) {
-            delete this.messages[channelComponent.channelId];
-            this.formPristine = true;
-          } else {
-            // set pristine flag
-            let pristine = true;
-            this.channelComponentChildren.forEach(channelComponent => {
-              pristine = pristine && channelComponent.form.pristine;
-            });
-            this.formPristine = pristine;
-            // store message
-            this.messages[channelComponent.channelId] = message;
-          }
-        });
-    });
+    // this.channelComponentChildren.forEach(channelComponent => {
+    //   channelComponent.message
+    //     .pipe(takeUntil(this.stopOnDestroy))
+    //     .subscribe((message) => {
+    //       if (message == null) {
+    //         delete this.messages[channelComponent.channelId];
+    //         this.formPristine = true;
+    //       } else {
+    //         // set pristine flag
+    //         let pristine = true;
+    //         this.channelComponentChildren.forEach(channelComponent => {
+    //           pristine = pristine && channelComponent.form.pristine;
+    //         });
+    //         this.formPristine = pristine;
+    //         // store message
+    //         this.messages[channelComponent.channelId] = message;
+    //       }
+    //     });
+    // });
   }
 
   ngOnChanges() {
@@ -93,10 +93,10 @@ export class ExistingThingComponent implements OnChanges {
   }
 
   public save() {
-    for (let message of this.utils.values(this.messages)) {
-      this.edge.send(message);
-    }
-    this.messages = {};
-    this.formPristine = true;
+    //   for (let message of this.utils.values(this.messages)) {
+    //     this.edge.send(message);
+    //   }
+    //   this.messages = {};
+    //   this.formPristine = true;
   }
 }

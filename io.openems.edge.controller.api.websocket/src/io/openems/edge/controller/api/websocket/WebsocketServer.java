@@ -67,4 +67,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		return this.onClose;
 	}
 
+	@Override
+	protected void logWarn(Logger log, String message) {
+		this.parent.logWarn(log, message);
+	}
 }

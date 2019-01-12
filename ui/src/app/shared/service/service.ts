@@ -8,6 +8,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Edge } from '../edge/edge';
 import { filter, first, map } from 'rxjs/operators';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { Edges } from '../jsonrpc/shared';
+import { UUID } from 'angular2-uuid';
+import { Role } from '../type/role';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -171,4 +174,28 @@ export class Service implements ErrorHandler {
     });
   }
 
+  /**
+   * Handles being authenticated. Updates the list of Edges.
+   */
+  public handleAuthentication(token: string, edges: Edges) {
+    this.websocket.status = 'online';
+
+    // received login token -> save in cookie
+    this.setToken(token);
+
+    // Metadata
+    let newEdges = {};
+    for (let edge of edges) {
+      let newEdge = new Edge(
+        edge.id,
+        edge.comment,
+        edge.producttype,
+        ("version" in edge) ? edge["version"] : "0.0.0",
+        Role.getRole(edge.role),
+        edge.isOnline
+      );
+      newEdges[newEdge.id] = newEdge;
+    }
+    this.edges.next(newEdges);
+  }
 }

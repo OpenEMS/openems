@@ -1,18 +1,16 @@
 package io.openems.edge.controller.api.modbus;
 
 import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.modbusslave.ModbusRecord;
-
-import java.util.TreeMap;
-import java.util.UUID;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 
@@ -28,7 +26,7 @@ public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 	}
 
 	@Override
-	public JsonElement getResult() {
+	public JsonObject getResult() {
 		JsonArray table = new JsonArray();
 		for (Entry<Integer, ModbusRecord> entry : this.tableRecords.entrySet()) {
 			ModbusRecord record = entry.getValue();

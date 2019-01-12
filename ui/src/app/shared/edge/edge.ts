@@ -155,7 +155,7 @@ export class Edge {
   }
 
   /**
-   * Sends a JSON-RPC Request, wrapped in a EdgeRpcRequest with the Edge-ID.
+   * Sends a JSON-RPC Request. The Request is wrapped in a EdgeRpcRequest.
    * 
    * @param ws               the Websocket
    * @param request          the JSON-RPC Request
@@ -169,7 +169,7 @@ export class Edge {
       }).catch(reason => {
         reject(reason);
       });
-    })
+    });
   }
 
   /**

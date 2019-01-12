@@ -170,7 +170,6 @@ export class Websocket {
           this.onNotification(message);
         }
 
-
         // /*
         //  * Authenticate
         //  */
@@ -189,20 +188,6 @@ export class Websocket {
         //       }
         //     } else if (env.backend === "OpenEMS Edge") {
         //       this.router.navigate(['/index']);
-        //     }
-        //   }
-        // }
-
-        // /*
-        //  * Query reply
-        //  */
-        // if ("messageId" in message && "ui" in message.messageId) {
-        //   // Receive a reply with a message id -> find edge and forward to edges' replyStream
-        //   let messageId = message.messageId.ui;
-        //   for (let edgeId in this.replyStreams) {
-        //     if (messageId in this.replyStreams[edgeId]) {
-        //       this.replyStreams[edgeId][messageId].next(message);
-        //       break;
         //     }
         //   }
         // }
@@ -259,44 +244,37 @@ export class Websocket {
   }
 
   /**
-   * Reset everything to default
-   */
-  private initialize() {
-    this.stopOnInitialize.next();
-    this.stopOnInitialize.complete();
-    this.service.initialize();
-  }
-
-  /**
    * Opens the websocket and logs in
    */
+  // deprecated
   public logIn(password: string) {
-    if (this.isWebsocketConnected.getValue()) {
-      // websocket was connected
-      this.send(DefaultMessages.authenticateLogin(password));
-    } else {
-      // websocket was NOT connected
-      this.connect()
-        .pipe(takeUntil(this.stopOnInitialize),
-          filter(isConnected => isConnected),
-          first())
-        .subscribe(isConnected => {
-          setTimeout(() => {
-            this.send(DefaultMessages.authenticateLogin(password))
-          }, 500);
-        });
-    }
+    // if (this.isWebsocketConnected.getValue()) {
+    //   // websocket was connected
+    //   this.send(DefaultMessages.authenticateLogin(password));
+    // } else {
+    //   // websocket was NOT connected
+    //   this.connect()
+    //     .pipe(takeUntil(this.stopOnInitialize),
+    //       filter(isConnected => isConnected),
+    //       first())
+    //     .subscribe(isConnected => {
+    //       setTimeout(() => {
+    //         this.send(DefaultMessages.authenticateLogin(password))
+    //       }, 500);
+    //     });
+    // }
   }
 
   /**
    * Logs out and closes the websocket
    */
+  // deprecated
   public logOut() {
-    // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
-    this.send(DefaultMessages.authenticateLogout());
-    this.status = "waiting for authentication";
-    this.service.removeToken();
-    this.initialize();
+    // // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
+    // this.send(DefaultMessages.authenticateLogout());
+    // this.status = "waiting for authentication";
+    // this.service.removeToken();
+    // this.initialize();
   }
 
   /**
@@ -317,6 +295,9 @@ export class Websocket {
    * @param responseCallback 
    */
   public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    if (!this.isWebsocketConnected.value) {
+      return Promise.reject("Websocket is not connected! Unable to send Request: " + JSON.stringify(request));
+    }
     return this.wsdata.sendRequest(this.socket, request);
   }
 
@@ -325,7 +306,10 @@ export class Websocket {
    * 
    * @param notification 
    */
-  public sendNotification(notification: JsonrpcNotification) {
+  public sendNotification(notification: JsonrpcNotification): void {
+    if (!this.isWebsocketConnected.value) {
+      console.warn("Websocket is not connected! Unable to send Notification", notification);
+    }
     this.wsdata.sendNotification(this.socket, notification);
   }
 
@@ -390,6 +374,7 @@ export class Websocket {
    */
   private onClose(): void {
     console.info("Websocket closed.");
+    // TODO: reconnect
   }
 
   /**
@@ -398,27 +383,7 @@ export class Websocket {
    * @param message 
    */
   private handleAuthenticateWithSessionId(message: AuthenticateWithSessionIdNotification): void {
-    let p = message.params;
-    this.status = "online"
-
-    // received login token -> save in cookie
-    this.service.setToken(p.token);
-
-    // Metadata
-    let edges = p.edges;
-    let newEdges = {};
-    for (let edge of edges) {
-      let newEdge = new Edge(
-        edge.id,
-        edge.comment,
-        edge.producttype,
-        ("version" in edge) ? edge["version"] : "0.0.0",
-        Role.getRole(edge.role),
-        edge.isOnline
-      );
-      newEdges[newEdge.id] = newEdge;
-    }
-    this.service.edges.next(newEdges);
+    this.service.handleAuthentication(message.params.token, message.params.edges);
   }
 
   /**

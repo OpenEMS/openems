@@ -35,12 +35,12 @@ export class DirectControlComponent {
   }
 
   public send() {
-    for (let form of this.forms) {
-      let thing = form.value["thing"];
-      let channel = form.value["channel"];
-      let value = form.value["value"];
-      this.edge.send(DefaultMessages.configUpdate(this.edge.id, thing, channel, value));
-    }
+    // for (let form of this.forms) {
+    //   let thing = form.value["thing"];
+    //   let channel = form.value["channel"];
+    //   let value = form.value["value"];
+    //   this.edge.send(DefaultMessages.configUpdate(this.edge.id, thing, channel, value));
+    // }
   }
 
   public addLine() {

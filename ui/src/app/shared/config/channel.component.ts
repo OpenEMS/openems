@@ -34,7 +34,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public showThings: boolean = false;
   @Input() public title: string = null;
 
-  @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
+  // @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
 
   constructor(
     public utils: Utils,
@@ -135,18 +135,18 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   private updateMessage() {
-    if (!this.allowWrite) return;
-    let value = this.form.value["channelConfig"];
-    if (this.isJson) {
-      try {
-        value = JSON.parse(value);
-        this.message.next(DefaultMessages.configUpdate(this.edge.id, this.thingId, this.channelId, value));
-      } catch (e) {
-        this.message.next(null);
-      }
-    } else {
-      this.message.next(DefaultMessages.configUpdate(this.edge.id, this.thingId, this.channelId, value));
-    }
+    // if (!this.allowWrite) return;
+    // let value = this.form.value["channelConfig"];
+    // if (this.isJson) {
+    //   try {
+    //     value = JSON.parse(value);
+    //     this.message.next(DefaultMessages.configUpdate(this.edge.id, this.thingId, this.channelId, value));
+    //   } catch (e) {
+    //     this.message.next(null);
+    //   }
+    // } else {
+    //   this.message.next(DefaultMessages.configUpdate(this.edge.id, this.thingId, this.channelId, value));
+    // }
 
   }
 

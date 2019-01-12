@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,11 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
-import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification.EdgeMetadata;
-import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.user.User;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
@@ -34,7 +28,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 		// get token from cookie or generate new token
 		UUID token = null;
-		Optional<String> cookieToken = JsonUtils.getAsOptionalString(handshake, "token");
+		Optional<String> cookieToken = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
+				"token");
 		if (cookieToken.isPresent()) {
 			try {
 				// read token from Cookie
@@ -50,10 +45,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 					wsData.setUser(user);
 
 					// send authentication notification
-					List<EdgeMetadata> metadatas = new ArrayList<>();
-					metadatas.add(new EdgeMetadata("edge0", "", "", OpenemsConstants.VERSION, Role.GUEST, true));
 					AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(
-							token, metadatas);
+							token, Utils.getEdgeMetadata(user.getRole()));
 					this.parent.server.sendMessage(ws, notification);
 
 					// log
@@ -70,10 +63,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		wsData.setSessionToken(token);
 
 		// if we are here, automatic authentication was not possible -> notify client
-// TODO
-		// WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /*
-		// empty message id */,
-//				LogBehaviour.WRITE_TO_LOG, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, cookieTokenOpt.orElse(""));
+// TODO		// send authentication notification
+//		AuthenticateWithSessionIdNotification notification = new AuthenticateWithSessionIdNotification(
+//				token, Utils.getEdgeMetadata(user.getRole()));
 	}
 
 }

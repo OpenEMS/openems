@@ -12,7 +12,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
@@ -87,11 +86,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		JsonrpcResponse response = jsonApi.handleJsonrpcRequest(request.getPayload());
+		JsonrpcResponseSuccess response = jsonApi.handleJsonrpcRequest(request.getPayload());
 
 		// Wrap reply in EdgeRpcResponse
 		return CompletableFuture
-				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.toJsonObject()));
+				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
 	}
 
 }
