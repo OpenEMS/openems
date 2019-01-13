@@ -31,11 +31,11 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(Dummy.class);
 
-	private AtomicInteger nextUserId = new AtomicInteger(-1);
-	private AtomicInteger nextEdgeId = new AtomicInteger(-1);
+	private final AtomicInteger nextUserId = new AtomicInteger(-1);
+	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
-	private Map<String, User> users = new HashMap<>();
-	private Map<String, Edge> edges = new HashMap<>();
+	private final Map<String, User> users = new HashMap<>();
+	private final Map<String, Edge> edges = new HashMap<>();
 
 	public Dummy() {
 		super("Metadata.Dummy");
@@ -44,8 +44,6 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	@Activate
 	void activate() {
 		this.logInfo(this.log, "Activate");
-		this.users.clear();
-		this.edges.clear();
 	}
 
 	@Deactivate
@@ -99,7 +97,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public Optional<Edge> getEdge(String edgeId) {
 		Edge edge = this.edges.get(edgeId);
-		return Optional.of(edge);
+		return Optional.ofNullable(edge);
 	}
 
 	@Override

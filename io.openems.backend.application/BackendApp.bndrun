@@ -17,6 +17,7 @@ JPM-Command:				openems-backend
 	bnd.identity;version='latest';id='io.openems.backend.b2bwebsocket',\
 	bnd.identity;version='latest';id='io.openems.backend.edgewebsocket.impl',\
 	bnd.identity;version='latest';id='io.openems.backend.metadata.dummy',\
+	bnd.identity;version='latest';id='io.openems.backend.metadata.file',\
 	bnd.identity;version='latest';id='io.openems.backend.timedata.core',\
 	bnd.identity;version='latest';id='io.openems.backend.timedata.dummy',\
 	bnd.identity;version='latest';id='io.openems.backend.timedata.influx',\
@@ -68,4 +69,5 @@ JPM-Command:				openems-backend
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	org.osgi.compendium;version='[4.1.0,4.1.1)',\
-	io.openems.backend.common;version=snapshot
+	io.openems.backend.common;version=snapshot,\
+	io.openems.backend.metadata.file;version=snapshot

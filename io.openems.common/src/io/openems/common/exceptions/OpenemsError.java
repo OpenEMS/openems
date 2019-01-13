@@ -20,7 +20,7 @@ public enum OpenemsError {
 	 */
 	COMMON_NO_VALID_CHANNEL_ADDRESS(1000, "This [%s] is not a valid channel address"), //
 	COMMON_USER_NOT_AUTHENTICATED(1001, "User is not authenticated. [%s]"), //
-	COMMON_ROLE_ACCESS_DENIED(1001, "Access to this ressource [%s] is denied for User with Role [%s]"), //
+	COMMON_ROLE_ACCESS_DENIED(1002, "Access to this ressource [%s] is denied for User with Role [%s]"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */

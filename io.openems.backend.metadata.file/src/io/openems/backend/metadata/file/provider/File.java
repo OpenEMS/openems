@@ -9,161 +9,168 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
-import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
-import io.openems.common.utils.StringUtils;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 
 /**
- * This implementation of MetadataService reads Edges configuration from a
- * csv-file. The layout of the fil is as follows:
+ * This implementation of MetadataService reads Edges configuration from a file.
+ * The layout of the file is as follows:
  * 
  * <pre>
- * 	name;comment;producttype;role;edgeId;apikey
+ * {
+ *   edges: {
+ *     [edgeId: string]: {
+ *       comment: string,
+ *       apikey: string
+ *     } 
+ *   }
+ * }
  * </pre>
  * 
+ * <p>
  * This implementation does not require any login. It always serves the same
- * user, which is has 'role'-permissions on all given Edges.
+ * user, which has 'ADMIN'-permissions on all given Edges.
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Metadata.File", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class File implements Metadata {
+public class File extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(File.class);
 
+	private final User user = new User("admin");
+	private final Map<String, Edge> edges = new HashMap<>();
+
 	private String path = "";
 
-	private User user = null;
-	private Map<Integer, MyEdge> edges = new HashMap<>();
-
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	private volatile EdgeWebsocket edgeWebsocketService;
+	public File() {
+		super("Metadata.File");
+	}
 
 	@Activate
 	void activate(Config config) {
-		log.info("Activate MetadataFile [path=" + config.path() + "]");
+		log.info("Activate [path=" + config.path() + "]");
 		this.path = config.path();
-		this.edges.clear();
+
+		// Read the data async
+		CompletableFuture.runAsync(() -> {
+			this.refreshData();
+		});
 	}
 
 	@Deactivate
 	void deactivate() {
-		log.info("Deactivate MetadataFile");
-	}
-
-	private void refreshData() {
-		if (this.edges.isEmpty()) {
-			try {
-				// read file
-				FileReader fr = new FileReader(this.path);
-				BufferedReader br = new BufferedReader(fr);
-				String s;
-				while ((s = br.readLine()) != null) {
-					try {
-						String[] parameters = s.split(";");
-						String name = parameters[0];
-						String comment = parameters[1];
-						String producttype = parameters[2];
-						Role role = Role.getRole(parameters[3]);
-						int edgeId = Integer.parseInt(parameters[4]);
-						String apikey = parameters[5];
-						MyEdge edge = new MyEdge(edgeId, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION,
-								producttype, new JsonObject(), role);
-						edge.onSetConfig(jConfig -> {
-							log.debug(
-									"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
-						});
-						edge.onSetSoc(soc -> {
-							log.debug("Edge [" + edgeId + "]. Set SoC: " + soc);
-						});
-						edge.onSetIpv4(ipv4 -> {
-							log.debug("Edge [" + edgeId + "]. Set IPv4: " + ipv4);
-						});
-						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getInternalId()));
-						this.edges.put(edgeId, edge);
-					} catch (Throwable e) {
-						log.error("Unable to parse line [" + s + "]. " + e.getClass().getSimpleName() + ": "
-								+ e.getMessage());
-					}
-				}
-				fr.close();
-			} catch (IOException e) {
-				log.error("Unable to read file [" + this.path + "]: " + e.getMessage());
-			}
-			// refresh user
-			this.user = new User(0, "admin");
-			for (int edgeId : this.edges.keySet()) {
-				this.user.addEdgeRole(edgeId, Role.ADMIN);
-			}
-		}
-
+		this.logInfo(this.log, "Deactivate");
 	}
 
 	@Override
 	public User authenticate() throws OpenemsException {
-		this.refreshData();
 		return this.user;
 	}
 
 	@Override
 	public User authenticate(String sessionId) throws OpenemsException {
-		return this.authenticate(); // ignore sessionId
+		return this.user;
 	}
 
 	@Override
-	public int[] getEdgeIdsForApikey(String apikey) {
+	public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
 		this.refreshData();
-		List<Integer> ids = new ArrayList<>();
-		for (MyEdge edge : this.edges.values()) {
+		for (Entry<String, Edge> entry : this.edges.entrySet()) {
+			Edge edge = entry.getValue();
 			if (edge.getApikey().equals(apikey)) {
-				ids.add(edge.getInternalId());
+				return Optional.of(edge.getId());
 			}
 		}
-		int[] result = new int[ids.size()];
-		for (int i = 0; i < ids.size(); i++) {
-			result[i] = ids.get(i);
-		}
-		return result;
+		return Optional.empty();
 	}
 
 	@Override
-	public Optional<Edge> getEdgeOpt(int edgeId) {
+	public synchronized Optional<Edge> getEdge(String edgeId) {
 		this.refreshData();
-		return Optional.ofNullable(this.edges.get(edgeId));
+		Edge edge = this.edges.get(edgeId);
+		return Optional.ofNullable(edge);
 	}
 
 	@Override
-	public Optional<User> getUser(int userId) {
+	public Optional<User> getUser(String userId) {
+		return Optional.of(this.user);
+	}
+
+	@Override
+	public synchronized Collection<Edge> getAllEdges() {
 		this.refreshData();
-		if (this.user != null && userId == this.user.getId()) {
-			return Optional.of(this.user);
-		} else {
-			return Optional.empty();
-		}
-	}
-
-	@Override
-	public Collection<Edge> getAllEdges() {
 		return Collections.unmodifiableCollection(this.edges.values());
+	}
+
+	private synchronized void refreshData() {
+		if (this.edges.isEmpty()) {
+			// read file
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			try (BufferedReader br = new BufferedReader(new FileReader(this.path))) {
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+				}
+			} catch (IOException e) {
+				this.logWarn(this.log, "Unable to read file [" + this.path + "]: " + e.getMessage());
+				e.printStackTrace();
+				return;
+			}
+
+			List<Edge> edges = new ArrayList<>();
+
+			// parse to JSON
+			try {
+				JsonElement config = JsonUtils.parse(sb.toString());
+				JsonObject jEdges = JsonUtils.getAsJsonObject(config, "edges");
+				for (Entry<String, JsonElement> entry : jEdges.entrySet()) {
+					JsonObject edge = JsonUtils.getAsJsonObject(entry.getValue());
+					edges.add(new Edge(//
+							entry.getKey(), // Edge-ID
+							JsonUtils.getAsString(edge, "apikey"), //
+							JsonUtils.getAsString(edge, "comment"), //
+							State.ACTIVE, // State
+							"", // Version
+							"", // Product-Type
+							new EdgeConfig(), // Config
+							null, // State of Charge
+							null // IPv4
+					));
+				}
+			} catch (OpenemsNamedException e) {
+				this.logWarn(this.log, "Unable to JSON-parse file [" + this.path + "]: " + e.getMessage());
+				e.printStackTrace();
+				return;
+			}
+
+			// Add Edges and configure User permissions
+			for (Edge edge : edges) {
+				this.edges.put(edge.getId(), edge);
+				this.user.addEdgeRole(edge.getId(), Role.ADMIN);
+			}
+		}
 	}
 }

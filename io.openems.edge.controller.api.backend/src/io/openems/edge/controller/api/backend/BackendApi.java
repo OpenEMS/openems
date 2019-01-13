@@ -118,6 +118,7 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 	protected void deactivate() {
 		super.deactivate();
 		this.backendWorker.deactivate();
+		this.websocket.stop();
 	}
 
 	@Override

@@ -168,7 +168,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		try {
 			ws.send(message.toString());
 		} catch (Exception e) {
-			throw new OpenemsException("Unable to send JSON-RPC message: " + e.getClass().getSimpleName() + "; "
+			throw new OpenemsException("Unable to send JSON-RPC message. " + e.getClass().getSimpleName() + ": "
 					+ StringUtils.toShortString(message.toString(), 100));
 		}
 	}
