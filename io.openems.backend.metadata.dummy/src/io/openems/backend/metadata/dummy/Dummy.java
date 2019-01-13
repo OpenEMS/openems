@@ -60,7 +60,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	public User authenticate(String sessionId) throws OpenemsException {
 		int id = this.nextUserId.incrementAndGet();
 		String userId = "user" + id;
-		User user = new User(userId);
+		User user = new User(userId, "User #" + id);
 		for (String edgeId : this.edges.keySet()) {
 			user.addEdgeRole(edgeId, Role.ADMIN);
 		}

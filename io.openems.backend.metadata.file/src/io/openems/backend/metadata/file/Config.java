@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.file.provider;
+package io.openems.backend.metadata.file;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

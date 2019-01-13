@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.file.provider;
+package io.openems.backend.metadata.file;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -54,13 +54,13 @@ import io.openems.common.utils.JsonUtils;
  * This implementation does not require any login. It always serves the same
  * user, which has 'ADMIN'-permissions on all given Edges.
  */
-@Designate(ocd = Config.class, factory = true)
+@Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.File", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class File extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(File.class);
 
-	private final User user = new User("admin");
+	private final User user = new User("admin", "Administrator");
 	private final Map<String, Edge> edges = new HashMap<>();
 
 	private String path = "";

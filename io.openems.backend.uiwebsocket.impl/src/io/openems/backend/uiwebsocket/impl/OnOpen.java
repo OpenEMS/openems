@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
@@ -45,10 +46,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				// authenticate without Session-ID
 				user = this.parent.metadata.authenticate();
 			}
-
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			// login using session_id failed. Still keeping the WebSocket opened to give the
-			// user the change to authenticate manually.
+			// user the chance to authenticate manually.
 			return;
 		}
 

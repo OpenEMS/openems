@@ -31,8 +31,8 @@ public enum OpenemsError {
 	/*
 	 * Backend errors. 3000-3999
 	 */
-	BACKEND_EDGE_NOT_CONNECTED(3000, "Edge [%s] is not connected."), //
-
+	BACKEND_EDGE_NOT_CONNECTED(3000, "Edge [%s] is not connected"), //
+	BACKEND_USER_AUTHENTICATION_FAILED(3001, "User-Authentication failed"), //
 	/*
 	 * JSON-RPC Request/Response/Notification. 4000-4999
 	 */
