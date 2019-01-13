@@ -39,9 +39,9 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		super(name, port);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
-		this.onRequest = new OnRequest();
+		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
-		this.onError = new OnError();
+		this.onError = new OnError(parent);
 		this.onClose = new OnClose(parent);
 		this.onInternalError = (ex) -> {
 			log.info("OnInternalError: " + ex.getMessage());

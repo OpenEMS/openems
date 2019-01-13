@@ -9,12 +9,17 @@ import io.openems.common.exceptions.OpenemsException;
 public class OnError implements io.openems.common.websocket.OnError {
 
 	private final Logger log = LoggerFactory.getLogger(OnError.class);
+	private final UiWebsocketImpl parent;
+
+	public OnError(UiWebsocketImpl parent) {
+		this.parent = parent;
+	}
 
 	@Override
 	public void run(WebSocket ws, Exception ex) throws OpenemsException {
 		WsData wsData = ws.getAttachment();
-		log.warn("User [" + wsData.getUserId().orElse("UNKNOWN") + "] websocket error. " + ex.getClass().getSimpleName()
-				+ ": " + ex.getMessage());
+		this.parent.logWarn(this.log, "User [" + wsData.getUserId().orElse("UNKNOWN") + "] websocket error. "
+				+ ex.getClass().getSimpleName() + ": " + ex.getMessage());
 	}
 
 }

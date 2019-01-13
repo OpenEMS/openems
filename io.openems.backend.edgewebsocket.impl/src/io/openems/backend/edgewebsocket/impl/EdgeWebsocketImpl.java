@@ -133,6 +133,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}

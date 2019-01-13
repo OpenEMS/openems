@@ -42,7 +42,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			return;
 		}
 
-		log.info("EdgeWs. OnNotification: " + notification);
+		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
 	}
 
 	/**

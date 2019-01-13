@@ -387,6 +387,10 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 9_000), //
 					};
+				case "Commercial 50-Serie":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, 50_000), //
+					};
 				case "COMMERCIAL 40-45":
 				case "":
 					return new ChannelFormula[] { //

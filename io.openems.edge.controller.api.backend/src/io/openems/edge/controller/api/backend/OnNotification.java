@@ -10,10 +10,15 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
 	private final Logger log = LoggerFactory.getLogger(OnNotification.class);
+	private final BackendApi parent;
+
+	public OnNotification(BackendApi parent) {
+		this.parent = parent;
+	}
 
 	@Override
 	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsException {
-		log.info("BackendApi. OnNotification: " + notification);
+		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
 	}
 
 }

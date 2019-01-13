@@ -30,8 +30,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
-		log.info("BackendApi. OnRequest: " + request);
-
 		// TODO add Check if user Role is sufficient
 
 		switch (request.getMethod()) {
@@ -43,6 +41,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			return this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
 
 		default:
+			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 	}

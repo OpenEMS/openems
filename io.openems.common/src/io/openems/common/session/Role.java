@@ -60,10 +60,10 @@ public enum Role {
 	 * than the given Role.
 	 * 
 	 * @param role the compared Role
-	 * @return true if the current Role is equal or higher
+	 * @return true if the current Role privileges are  equal or higher
 	 */
 	public boolean isAtLeast(Role role) {
-		return this.level >= role.level;
+		return this.level <= role.level;
 	}
 
 	/**
@@ -71,10 +71,10 @@ public enum Role {
 	 * given Role.
 	 * 
 	 * @param role the compared Role
-	 * @return true if the current Role is less
+	 * @return true if the current Role is less privileged
 	 */
 	public boolean isLessThan(Role role) {
-		return this.level < role.level;
+		return this.level > role.level;
 	}
 
 	/**

@@ -53,7 +53,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			Edge edge = edgeOpt.get();
 
 			// log
-			log.info("Edge [" + edge.getId() + "] connected.");
+			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "] connected.");
 
 			// announce Edge as online
 			edge.setOnline(true);
@@ -62,7 +62,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 			// TODO send notification to UI
 		} catch (OpenemsException e) {
-			log.warn("Error in Websocket.OnOpen. Apikey [" + apikey + "]: " + e.getMessage());
+			this.parent.logWarn(this.log, "Error in Websocket.OnOpen. Apikey [" + apikey + "]: " + e.getMessage());
 
 			// close websocket
 			ws.closeConnection(CloseFrame.REFUSE,

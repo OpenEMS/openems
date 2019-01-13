@@ -11,8 +11,10 @@ import io.openems.common.exceptions.OpenemsException;
 public class OnClose implements io.openems.common.websocket.OnClose {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
+	private final UiWebsocketImpl parent;
 
-	public OnClose() {
+	public OnClose(UiWebsocketImpl parent) {
+		this.parent = parent;
 	}
 
 	@Override
@@ -20,7 +22,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		// get current User
 		WsData wsData = ws.getAttachment();
 		Optional<String> userId = wsData.getUserId();
-		this.log.info("User [" + userId.orElse("UNKNOWN") + "] disconnected.");
+		this.parent.logInfo(this.log, "User [" + userId.orElse("UNKNOWN") + "] disconnected.");
 
 		wsData.dispose();
 	}

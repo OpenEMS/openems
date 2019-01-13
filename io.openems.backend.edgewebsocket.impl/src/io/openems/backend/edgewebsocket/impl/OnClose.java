@@ -39,7 +39,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		// TODO send notification, to UI
 		
 		// log
-		log.info("Edge [" + edgeId + "] disconnected.");
+		this.parent.logInfo(this.log, "Edge [" + edgeId + "] disconnected.");
 	}
 
 }

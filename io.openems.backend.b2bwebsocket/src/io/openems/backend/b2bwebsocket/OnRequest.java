@@ -8,6 +8,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError;
@@ -24,6 +26,7 @@ import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse.EdgeInfo;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
+	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 	private final B2bWebsocket parent;
 
 	public OnRequest(B2bWebsocket parent) {
@@ -42,6 +45,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			return this.handleSetGridConnScheduleRequest(request.getId(), SetGridConnScheduleRequest.from(request));
 
 		default:
+			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 	}

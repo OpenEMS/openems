@@ -6,6 +6,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
@@ -32,7 +34,7 @@ import io.openems.common.types.EdgeConfig;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
-	// private final Logger log = LoggerFactory.getLogger(OnRequest.class);
+	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 	private final UiWebsocketImpl parent;
 
 	public OnRequest(UiWebsocketImpl parent) {
@@ -50,6 +52,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			return this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 
 		default:
+			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 	}
@@ -117,6 +120,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			break;
 
 		default:
+			this.parent.logWarn(this.log, "Unhandled EdgeRpcRequest: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 
@@ -217,24 +221,5 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		return this.parent.edgeWebsocket.send(edgeId, request);
 	}
-
-	//	/**
-	//	 * Handles a GetStatusOfEdgesRequest.
-	//	 * 
-	//	 * @param jsonrpcRequest
-	//	 * @param responseCallback
-	//	 * @throws OpenemsException
-	//	 */
-	//	private void handleGetStatusOfEdgesRequest(JsonrpcRequest jsonrpcRequest,
-	//			Consumer<JsonrpcResponse> responseCallback) throws OpenemsException {
-	//		GetStatusOfEdgesRequest request = GetStatusOfEdgesRequest.from(jsonrpcRequest);
-	//		Collection<Edge> edges = this.parent.metadata.getAllEdges();
-	//		Map<String, EdgeInfo> result = new HashMap<>();
-	//		for (Edge edge : edges) {
-	//			EdgeInfo info = new EdgeInfo(edge.isOnline());
-	//			result.put(edge.getId(), info);
-	//		}
-	//		GetStatusOfEdgesResponse response = new GetStatusOfEdgesResponse(request.getId(), result);
-	//		responseCallback.accept(response);
 
 }

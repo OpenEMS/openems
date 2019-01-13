@@ -47,8 +47,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
-		log.info("WebsocketApi. OnRequest: " + request);
-
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
 		
@@ -71,6 +69,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			return this.handleEdgeRpcRequest(wsData, EdgeRpcRequest.from(request));
 
 		default:
+			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 	}

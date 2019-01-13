@@ -65,6 +65,11 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+	
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}

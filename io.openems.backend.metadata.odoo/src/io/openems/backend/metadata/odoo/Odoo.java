@@ -7,7 +7,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -177,6 +179,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 				this.edges.add(edge);
 			}
 		}
+		this.logInfo(this.log, "Reading batches finished");
 	};
 
 	/**
@@ -304,15 +307,19 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 					JsonUtils.getAsInt(jUser, "id"), //
 					JsonUtils.getAsString(jUser, "name"));
 			JsonArray jDevices = JsonUtils.getAsJsonArray(result, "devices");
+			List<String> notAvailableEdges = new ArrayList<>();
 			for (JsonElement jDevice : jDevices) {
 				int odooId = JsonUtils.getAsInt(jDevice, "id");
 				MyEdge edge = this.edges.getEdgeFromOdooId(odooId);
 				if (edge == null) {
-					this.logWarn(this.log,
-							"Edge [Odoo-ID:" + odooId + "] is not available for User [" + user.getId() + "]");
+					notAvailableEdges.add(String.valueOf(odooId));
 				} else {
 					user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 				}
+			}
+			if (!notAvailableEdges.isEmpty()) {
+				this.logWarn(this.log, "For User [" + user.getId() + "] following Edges are not available: "
+						+ String.join(",", notAvailableEdges));
 			}
 			this.users.put(user.getId(), user);
 			return user;

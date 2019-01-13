@@ -7,6 +7,7 @@ import { environment as env } from '../../../environments';
 import { Edge } from '../edge/edge';
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { AuthenticateWithSessionIdNotification } from '../jsonrpc/notification/authenticatedWithSessionIdNotification';
+import { AuthenticateWithSessionIdFailedNotification } from '../jsonrpc/notification/authenticatedWithSessionIdFailedNotification';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification';
 import { EdgeRpcResponse } from '../jsonrpc/response/edgeRpcResponse';
@@ -64,6 +65,9 @@ export class Websocket {
           if (env.debugMode) {
             console.info("Websocket connection opened");
           }
+
+          // TODO handle opening without authenticating on backend! -> redirect or authenticate using user/password
+
           this.isWebsocketConnected.next(true);
           if (this.status == 'online') {
             this.service.notify({
@@ -180,15 +184,6 @@ export class Websocket {
         //     this.status = "failed";
         //     this.service.removeToken();
         //     this.initialize();
-        //     if (env.backend === "OpenEMS Backend") {
-        //       if (env.production) {
-        //         window.location.href = "/web/login?redirect=/m/index";
-        //       } else {
-        //         console.info("would redirect...");
-        //       }
-        //     } else if (env.backend === "OpenEMS Edge") {
-        //       this.router.navigate(['/index']);
-        //     }
         //   }
         // }
 
@@ -354,6 +349,10 @@ export class Websocket {
         this.handleAuthenticateWithSessionId(message as AuthenticateWithSessionIdNotification);
         break;
 
+      case AuthenticateWithSessionIdFailedNotification.METHOD:
+        this.handleAuthenticateWithSessionIdFailed(message as AuthenticateWithSessionIdNotification);
+        break;
+
       case EdgeRpcNotification.METHOD:
         this.handleEdgeRpcNotification(message as EdgeRpcNotification);
         break;
@@ -384,6 +383,23 @@ export class Websocket {
    */
   private handleAuthenticateWithSessionId(message: AuthenticateWithSessionIdNotification): void {
     this.service.handleAuthentication(message.params.token, message.params.edges);
+  }
+
+  /**
+   * Handles a AuthenticateWithSessionIdFailedNotification.
+   * 
+   * @param message 
+   */
+  private handleAuthenticateWithSessionIdFailed(message: AuthenticateWithSessionIdFailedNotification): void {
+    if (env.backend === "OpenEMS Backend") {
+      if (env.production) {
+        window.location.href = "/web/login?redirect=/m/index";
+      } else {
+        console.info("would redirect...");
+      }
+    } else if (env.backend === "OpenEMS Edge") {
+      this.router.navigate(['/index']);
+    }
   }
 
   /**

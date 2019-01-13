@@ -43,7 +43,7 @@
       <ion-col size="12" size-sm="6" size-md="4">
         <ion-list lines="full">
 
-          <ion-item *ngFor="let edge of edges | slice:0:slice; let i=index" [routerLink]="edge.isOnline ? ['/device', edge.id] : null"
+          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" [routerLink]="edge.isOnline ? ['/device', edge.id] : null"
             [color]="edge.isOnline ? null : 'light'">
             <ion-label>
               <h2 text-wrap>{{ edge.comment }}</h2>

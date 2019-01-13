@@ -21,11 +21,11 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	public WebsocketServer(B2bWebsocket parent, String name, int port) {
 		super(name, port);
 		this.parent = parent;
-		this.onOpen = new OnOpen();
+		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
-		this.onNotification = new OnNotification();
-		this.onError = new OnError();
-		this.onClose = new OnClose();
+		this.onNotification = new OnNotification(parent);
+		this.onError = new OnError(parent);
+		this.onClose = new OnClose(parent);
 		this.onInternalError = (ex) -> {
 			log.info("OnInternalError: " + ex.getMessage());
 			ex.printStackTrace();
