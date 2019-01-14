@@ -84,7 +84,7 @@ public class OdooWriteWorker {
 			if (ids.length > 0) {
 				try {
 					OdooUtils.write(odooCredentials, Odoo.ODOO_MODEL, ids,
-							new FieldValue(Field.FemsDevice.LAST_MESSAGE, time));
+							new FieldValue(Field.EdgeDevice.LAST_MESSAGE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastMessage to ids [" + ids + "]: " + e.getMessage());
 				}
@@ -99,7 +99,7 @@ public class OdooWriteWorker {
 			if (ids.length > 0) {
 				try {
 					OdooUtils.write(odooCredentials, Odoo.ODOO_MODEL, ids,
-							new FieldValue(Field.FemsDevice.LAST_UPDATE, time));
+							new FieldValue(Field.EdgeDevice.LAST_UPDATE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastUpdate to ids [" + ids + "]: " + e.getMessage());
 				}

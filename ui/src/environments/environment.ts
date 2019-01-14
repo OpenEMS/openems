@@ -10,6 +10,5 @@ export const environment: Environment = {
 
   // For OpenEMS Backend
   url: "ws://" + location.hostname + ":8078",
-  // url: "ws://fems-test.beegy-dev.cc:10003",
   backend: "OpenEMS Backend",
 };

@@ -14,9 +14,9 @@ public class EdgeCache {
 	 */
 	private ConcurrentHashMap<String, MyEdge> edgeIdToEdge = new ConcurrentHashMap<>();
 	/**
-	 * Maps Odoo-ID to Edge
+	 * Maps Odoo-ID to Edge-ID
 	 */
-	private ConcurrentHashMap<Integer, MyEdge> odooIdToEdge = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Integer, String> odooIdToEdgeId = new ConcurrentHashMap<>();
 	/**
 	 * Maps API-Key to Edge-ID
 	 */
@@ -29,7 +29,7 @@ public class EdgeCache {
 	 */
 	public void add(MyEdge edge) {
 		this.edgeIdToEdge.put(edge.getId(), edge);
-		this.odooIdToEdge.put(edge.getOdooId(), edge);
+		this.odooIdToEdgeId.put(edge.getOdooId(), edge.getId());
 		this.apikeyToEdgeId.put(edge.getApikey(), edge.getId());
 	}
 
@@ -47,17 +47,21 @@ public class EdgeCache {
 	 * Gets an Edge from its Odoo-ID.
 	 * 
 	 * @param odooId the Odoo-ID
-	 * @return the Edge, or Empty
+	 * @return the Edge, or null
 	 */
 	public MyEdge getEdgeFromOdooId(int odooId) {
-		return this.odooIdToEdge.get(odooId);
+		String edgeId = this.odooIdToEdgeId.get(odooId);
+		if (edgeId == null) {
+			return null;
+		}
+		return this.getEdgeFromEdgeId(edgeId);
 	}
 
 	/**
 	 * Gets an Edge-ID from an API-Key.
 	 * 
 	 * @param apikey the API-Key
-	 * @return the Edge-ID, or Empty
+	 * @return the Edge-ID, or null
 	 */
 	public Optional<String> getEdgeIdFromApikey(String apikey) {
 		return Optional.ofNullable(this.apikeyToEdgeId.get(apikey));

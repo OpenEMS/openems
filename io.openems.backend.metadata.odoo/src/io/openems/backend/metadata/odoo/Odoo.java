@@ -44,7 +44,7 @@ import io.openems.common.utils.StringUtils;
 @Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 
-	public final static String ODOO_MODEL = "fems.device";
+	public final static String ODOO_MODEL = "edge.device";
 
 	private final static int READ_BATCH_SIZE = 300;
 
@@ -120,10 +120,10 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			try {
 				edgeMaps = OdooUtils.readMany(Odoo.this.odooCredentials, ODOO_MODEL, //
 						batchEdgeIds, //
-						new Field[] { Field.FemsDevice.ID, Field.FemsDevice.APIKEY, Field.FemsDevice.NAME,
-								Field.FemsDevice.COMMENT, Field.FemsDevice.OPENEMS_VERSION,
-								Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG, Field.FemsDevice.SOC,
-								Field.FemsDevice.IPV4, Field.FemsDevice.STATE });
+						new Field[] { Field.EdgeDevice.ID, Field.EdgeDevice.APIKEY, Field.EdgeDevice.NAME,
+								Field.EdgeDevice.COMMENT, Field.EdgeDevice.OPENEMS_VERSION,
+								Field.EdgeDevice.PRODUCT_TYPE, Field.EdgeDevice.OPENEMS_CONFIG, Field.EdgeDevice.SOC,
+								Field.EdgeDevice.IPV4, Field.EdgeDevice.STATE });
 			} catch (OpenemsException e) {
 				this.logError(this.log, "Unable to read Edges from Odoo: " + e.getMessage());
 				e.printStackTrace();
@@ -133,18 +133,18 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			// parse fields from Odoo
 			for (Map<String, Object> edgeMap : edgeMaps) {
 				// simple fields
-				Integer odooId = OdooUtils.getAsInteger(edgeMap.get(Field.FemsDevice.ID.n()));
-				String edgeId = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.NAME.n()));
-				String apikey = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.APIKEY.n()));
-				String comment = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.COMMENT.n()));
-				String version = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_VERSION.n()));
-				String productType = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
-				String initialIpv4 = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.IPV4.n()));
-				Integer initialSoc = OdooUtils.getAsInteger(edgeMap.get(Field.FemsDevice.SOC.n()));
+				Integer odooId = OdooUtils.getAsInteger(edgeMap.get(Field.EdgeDevice.ID.n()));
+				String edgeId = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.NAME.n()));
+				String apikey = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.APIKEY.n()));
+				String comment = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.COMMENT.n()));
+				String version = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.OPENEMS_VERSION.n()));
+				String productType = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.PRODUCT_TYPE.n()));
+				String initialIpv4 = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.IPV4.n()));
+				Integer initialSoc = OdooUtils.getAsInteger(edgeMap.get(Field.EdgeDevice.SOC.n()));
 
 				// Config
 				EdgeConfig config;
-				String configString = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_CONFIG.n()));
+				String configString = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.OPENEMS_CONFIG.n()));
 				if (configString.isEmpty()) {
 					config = new EdgeConfig();
 				}
@@ -159,7 +159,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 				}
 
 				// State
-				String stateString = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.STATE.n()));
+				String stateString = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.STATE.n()));
 				State state;
 				try {
 					state = State.valueOf(stateString.toUpperCase().replaceAll("-", "_"));
@@ -194,7 +194,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 				this.logInfo(this.log,
 						"Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
 				edge.setState(State.ACTIVE);
-				this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
+				this.write(edge, new FieldValue(Field.EdgeDevice.STATE, "active"));
 			}
 		});
 		edge.onSetConfig(config -> {
@@ -203,7 +203,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 			JsonObject jConfig = config.toJson();
 			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
-			this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, conf));
+			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG, conf));
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo
@@ -215,15 +215,15 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 		edge.onSetVersion(version -> {
 			// Set Version in Odoo
-			this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_VERSION, version));
+			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_VERSION, version));
 		});
 		edge.onSetSoc(soc -> {
 			// Set SoC in Odoo
-			this.write(edge, new FieldValue(Field.FemsDevice.SOC, String.valueOf(soc)));
+			this.write(edge, new FieldValue(Field.EdgeDevice.SOC, String.valueOf(soc)));
 		});
 		edge.onSetIpv4(ipv4 -> {
 			// Set IPv4 in Odoo
-			this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)));
+			this.write(edge, new FieldValue(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
 		});
 	}
 
@@ -334,7 +334,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	 */
 	private void write(MyEdge edge, FieldValue fieldValue) {
 		try {
-			OdooUtils.write(this.odooCredentials, "fems.device", new Integer[] { edge.getOdooId() }, fieldValue);
+			OdooUtils.write(this.odooCredentials, ODOO_MODEL, new Integer[] { edge.getOdooId() }, fieldValue);
 		} catch (OpenemsException e) {
 			this.logError(this.log, "Unable to update Edge [" + edge.getId() + "] Odoo-ID [" + edge.getOdooId()
 					+ "] Field [" + fieldValue.getField().n() + "] : " + e.getMessage());

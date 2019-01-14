@@ -16,10 +16,7 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSche
 public class B2bWebsocketTest {
 
 	private static TestClient preparteTestClient() throws URISyntaxException, InterruptedException {
-		// TODO
-		// String uri = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
-		String uri = "ws://fems-test.beegy-dev.cc:10002";
-
+		String uri = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
 		TestClient client = new TestClient(new URI(uri));
 		client.startBlocking();
 		return client;
