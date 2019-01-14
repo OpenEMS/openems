@@ -24,6 +24,7 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "method": "subscribeChannels",
  *   "params": {
+ *     "count": number // Request-Counter: the higher count wins
  *     "channels": string[]
  *   }
  * }
@@ -34,8 +35,9 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 	public final static String METHOD = "subscribeChannels";
 
 	public static SubscribeChannelsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		SubscribeChannelsRequest result = new SubscribeChannelsRequest(r.getId());
 		JsonObject p = r.getParams();
+		int count = JsonUtils.getAsInt(p, "count");
+		SubscribeChannelsRequest result = new SubscribeChannelsRequest(r.getId(), count);
 		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
 			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
@@ -48,18 +50,24 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 
+	private final int count;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
-	public SubscribeChannelsRequest(UUID id) {
+	public SubscribeChannelsRequest(UUID id, int count) {
 		super(id, METHOD);
+		this.count = count;
 	}
 
-	public SubscribeChannelsRequest() {
-		this(UUID.randomUUID());
+	public SubscribeChannelsRequest(int count) {
+		this(UUID.randomUUID(), count);
 	}
 
 	private void addChannel(ChannelAddress address) {
 		this.channels.add(address);
+	}
+
+	public int getCount() {
+		return count;
 	}
 
 	public TreeSet<ChannelAddress> getChannels() {
@@ -73,6 +81,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 			channels.add(address.toString());
 		}
 		return JsonUtils.buildJsonObject() //
+				.addProperty("count", this.count) //
 				.add("channels", channels) //
 				.build();
 	}

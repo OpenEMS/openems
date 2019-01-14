@@ -47,6 +47,9 @@ export class Edge {
   // holds config
   public config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig());
 
+  // holds the last SubscribeChannelsRequest count. This is used in Backend to identify the latest Request.
+  public lastSubscribeChannelsRequestCount: number = 0;
+
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
    * 
@@ -130,8 +133,7 @@ export class Edge {
     for (let componentId in this.subscribedChannels) {
       channels.push.apply(channels, this.subscribedChannels[componentId]);
     }
-    let request = new SubscribeChannelsRequest(channels);
-    // TODO use a debouncing mechanism to avoid sending multiple subscribe requests. Because in the end it is unsure which one 'wins'. Alternative idea: use 'subscribeChannelsRequest-Counter' to be able to decide which one is the most recent request.
+    let request = new SubscribeChannelsRequest(this.lastSubscribeChannelsRequestCount++, channels);
     this.sendRequest(ws, request); // ignore Response
   }
 

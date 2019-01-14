@@ -29,6 +29,7 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -49,7 +50,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throws OpenemsException, OpenemsNamedException {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
-		
+
 		// special handling for 'authenticate' request
 		if (request.getMethod().equals(AuthenticateWithPasswordRequest.METHOD)) {
 			return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
@@ -61,7 +62,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 					"Session [" + wsData.getSessionToken() + "]. Ignoring request [" + request.getMethod() + "]");
 		}
 
-		// TODO add Check if user Role is sufficient 
+		// TODO add Check if user Role is sufficient
 
 		switch (request.getMethod()) {
 
@@ -134,7 +135,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a AuthenticateWithPasswordRequest.
 	 * 
-	 * @param wsData         the WebSocket attachment
+	 * @param wsData  the WebSocket attachment
 	 * @param request the AuthenticateWithPasswordRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
@@ -159,7 +160,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a SubscribeChannelsRequest.
 	 * 
-	 * @param wsData         the WebSocket attachment
+	 * @param wsData  the WebSocket attachment
 	 * @param request the SubscribeChannelsRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
@@ -168,7 +169,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// activate SubscribedChannelsWorker
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
-		worker.setChannels(request.getChannels());
+		worker.handleSubscribeChannelsRequest(Role.GUEST /* TODO: get Role as parameter */, request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

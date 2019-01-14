@@ -17,6 +17,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
+import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
 public abstract class SubscribedChannelsWorker {
@@ -42,11 +44,31 @@ public abstract class SubscribedChannelsWorker {
 
 	protected final WsData wsData;
 
+	private int lastRequestCount = Integer.MIN_VALUE;
+
 	public SubscribedChannelsWorker(WsData wsData) {
 		this.wsData = wsData;
 	}
 
-	public synchronized void setChannels(Set<ChannelAddress> channels) {
+	/**
+	 * Applies a SubscribeChannelsRequest.
+	 * 
+	 * @param role    the Role - no specific level required
+	 * @param request the SubscribeChannelsRequest
+	 */
+	public synchronized void handleSubscribeChannelsRequest(Role role, SubscribeChannelsRequest request) {
+		if (this.lastRequestCount < request.getCount()) {
+			this.setChannels(request.getChannels());
+			this.lastRequestCount = request.getCount();
+		}
+	}
+
+	/**
+	 * Sets the subscribed Channels.
+	 * 
+	 * @param channels Set of ChannelAddresses
+	 */
+	private synchronized void setChannels(Set<ChannelAddress> channels) {
 		// stop current thread
 		if (this.futureOpt.isPresent()) {
 			this.futureOpt.get().cancel(true);

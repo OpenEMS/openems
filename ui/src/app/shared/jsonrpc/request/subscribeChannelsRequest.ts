@@ -13,6 +13,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  *   "id": UUID,
  *   "method": "subscribeChannels",
  *   "params": {
+ *     "count": number
  *     "channels": string[]
  *   }
  * }
@@ -23,9 +24,11 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     static METHOD: string = "subscribeChannels";
 
     public constructor(
+        public readonly count: number,
         public readonly channels: ChannelAddress[]
     ) {
         super(UUID.UUID(), SubscribeChannelsRequest.METHOD, {
+            count: count,
             channels: JsonRpcUtils.channelsToStringArray(channels)
         });
     }

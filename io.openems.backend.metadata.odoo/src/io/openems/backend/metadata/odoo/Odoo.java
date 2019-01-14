@@ -102,8 +102,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		}
 
 		// read Edge records from Odoo in batches
-//		for (int firstIndex = 0; firstIndex < edgeIds.length; firstIndex += READ_BATCH_SIZE) {
-		for (int firstIndex = 0; firstIndex < 1; firstIndex++) { // TODO: CHANGE BEFORE GO-LIVE!
+		for (int firstIndex = 0; firstIndex < edgeIds.length; firstIndex += READ_BATCH_SIZE) {
 			this.logInfo(this.log, "Reading batch of [" + READ_BATCH_SIZE + "] starting from [" + firstIndex + "]");
 
 			// collect Odoo-IDs for batch

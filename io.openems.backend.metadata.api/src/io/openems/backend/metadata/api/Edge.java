@@ -209,7 +209,7 @@ public class Edge {
 
 	public synchronized void setSoc(int soc) {
 		if (this.soc == null || this.soc.intValue() != soc) { // on change
-			log.info("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
+			log.debug("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
 			this.soc = soc;
 			this.onSetSoc.forEach(listener -> listener.accept(soc));
 		}
@@ -226,7 +226,7 @@ public class Edge {
 
 	public synchronized void setIpv4(String ipv4) {
 		if (this.ipv4 == null || !ipv4.equals(this.ipv4)) { // on change
-			log.info("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
+			log.debug("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
 			this.ipv4 = ipv4;
 			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
 		}

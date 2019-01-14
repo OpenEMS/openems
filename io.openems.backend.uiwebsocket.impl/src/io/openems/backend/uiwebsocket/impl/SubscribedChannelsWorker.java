@@ -21,6 +21,11 @@ public class SubscribedChannelsWorker extends io.openems.common.websocket.Subscr
 		this.parent = parent;
 	}
 
+	/**
+	 * Sets the Edge-ID.
+	 * 
+	 * @param edgeId the Edge-ID
+	 */
 	public void setEdgeId(String edgeId) {
 		this.edgeId = edgeId;
 	}

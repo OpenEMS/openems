@@ -265,36 +265,41 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			for (Entry<ChannelAddress, JsonElement> valueEntry : entry.getValue().entrySet()) {
 				String channel = valueEntry.getKey().toString();
 				JsonElement element = valueEntry.getValue();
-				if (element.isJsonPrimitive()) {
-					long value = element.getAsJsonPrimitive().getAsLong();
+				if (!element.isJsonPrimitive()) {
+					continue;
+				}
+				JsonPrimitive jValue = element.getAsJsonPrimitive();
+				if (!jValue.isNumber()) {
+					continue;
+				}
+				long value = jValue.getAsNumber().longValue();
 
-					// convert channel ids to old identifiers
-					if (channel.equals("ess0/Soc")) {
-						fields.put("Stack_SOC", value);
-						edge.setSoc((int) value);
-					} else if (channel.equals("meter0/ActivePower")) {
-						fields.put("PCS_Grid_Power_Total", value * -1);
-					} else if (channel.equals("meter1/ActivePower")) {
-						fields.put("PCS_PV_Power_Total", value);
-					} else if (channel.equals("meter2/ActivePower")) {
-						fields.put("PCS_Load_Power_Total", value);
-					}
+				// convert channel ids to old identifiers
+				if (channel.equals("ess0/Soc")) {
+					fields.put("Stack_SOC", value);
+					edge.setSoc((int) value);
+				} else if (channel.equals("meter0/ActivePower")) {
+					fields.put("PCS_Grid_Power_Total", value * -1);
+				} else if (channel.equals("meter1/ActivePower")) {
+					fields.put("PCS_PV_Power_Total", value);
+				} else if (channel.equals("meter2/ActivePower")) {
+					fields.put("PCS_Load_Power_Total", value);
+				}
 
-					// from here value needs to be divided by 10 for backwards compatibility
-					value = value / 10;
-					if (channel.equals("meter2/Energy")) {
-						fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
-						fields.put("PCS_Summary_Consumption_Accumulative", value);
-					} else if (channel.equals("meter0/BuyFromGridEnergy")) {
-						fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
-						fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
-					} else if (channel.equals("meter0/SellToGridEnergy")) {
-						fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
-						fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
-					} else if (channel.equals("meter1/EnergyL1")) {
-						fields.put("PCS_Summary_PV_Accumulative_cor", value);
-						fields.put("PCS_Summary_PV_Accumulative", value);
-					}
+				// from here value needs to be divided by 10 for backwards compatibility
+				value = value / 10;
+				if (channel.equals("meter2/Energy")) {
+					fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
+					fields.put("PCS_Summary_Consumption_Accumulative", value);
+				} else if (channel.equals("meter0/BuyFromGridEnergy")) {
+					fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
+					fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
+				} else if (channel.equals("meter0/SellToGridEnergy")) {
+					fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
+					fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
+				} else if (channel.equals("meter1/EnergyL1")) {
+					fields.put("PCS_Summary_PV_Accumulative_cor", value);
+					fields.put("PCS_Summary_PV_Accumulative", value);
 				}
 			}
 

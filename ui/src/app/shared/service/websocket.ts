@@ -161,73 +161,13 @@ export class Websocket {
           // handle JSON-RPC Notification
           if (env.debugMode) {
             if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
-              let payload = message.params['payload'] as JsonrpcNotification;
-              if (payload.method == 'currentData') {
-                // do not log
-              } else {
-                console.info("Receive Notification", message.params['payload']);
-              }
+              console.info("Receive Notification", message.params['payload']);
             } else {
               console.info("Receive Notification", message);
             }
           }
           this.onNotification(message);
         }
-
-        // /*
-        //  * Authenticate
-        //  */
-        // if ("authenticate" in message && "mode" in message.authenticate) {
-        //   let mode = message.authenticate.mode;
-        //   } else {
-        //     // authentication denied -> close websocket
-        //     this.status = "failed";
-        //     this.service.removeToken();
-        //     this.initialize();
-        //   }
-        // }
-
-        // /*
-        //  * receive notification
-        //  */
-        // if ("notification" in message) {
-        //   let notification = message.notification;
-        //   let n: DefaultTypes.Notification;
-        //   let notify: boolean = true;
-        //   if ("code" in notification) {
-        //     // handle specific notification codes - see Java source for details
-        //     let code = notification.code;
-        //     let params = notification.params;
-        //     if (code == 100 /* edge disconnected -> mark as offline */) {
-        //       let edgeId = params[0];
-        //       if (edgeId in this.edges.getValue()) {
-        //         this.edges.getValue()[edgeId].setOnline(false);
-        //       }
-        //     } else if (code == 101 /* edge reconnected -> mark as online */) {
-        //       let edgeId = params[0];
-        //       if (edgeId in this.edges.getValue()) {
-        //         let edge = this.edges.getValue()[edgeId];
-        //         edge.setOnline(true);
-        //       }
-        //     } else if (code == 103 /* authentication by token failed */) {
-        //       let token: string = params[0];
-        //       if (token !== "") {
-        //         // remove old token
-        //         this.service.removeToken();
-        //       }
-        //       // ask for authentication info
-        //       this.status = "waiting for authentication";
-        //       notify = false;
-        //       setTimeout(() => {
-        //         this.clearCurrentEdge();
-        //         this.router.navigate(["/index"]);
-        //       });
-        //     }
-        //   }
-        //   if (notify) {
-        //     this.service.notify(<DefaultTypes.Notification>notification);
-        //   }
-        // }
       }, error => {
         this.onError(error);
 
