@@ -12,18 +12,22 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
   templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit {
-
-  protected widgets: string[] = [];
-
+  
   private readonly TODAY = new Date();
   private readonly YESTERDAY = subDays(new Date(), 1);
   private readonly TOMORROW = addDays(new Date(), 1);
+  
+  public widgets: string[] = [];
+  public activePeriodText: string = "";
+  // sets the height for a chart. This is recalculated on every window resize.
+  public socChartHeight: string = "250px";
+  public energyChartHeight: string = "250px";
+  public activePeriod: PeriodString = "today";
+  public fromDate = this.TODAY;
+  public toDate = this.TODAY;
 
   protected edge: Edge = null;
   protected dateRange: IMyDateRange;
-  protected fromDate = this.TODAY;
-  protected toDate = this.TODAY;
-  protected activePeriodText: string = "";
   protected dateRangePickerOptions: IMyDrpOptions = {
     inline: true,
     showClearBtn: false,
@@ -36,13 +40,8 @@ export class HistoryComponent implements OnInit {
     editableDateRangeField: false,
     openSelectorOnInputClick: true,
   };
-  // sets the height for a chart. This is recalculated on every window resize.
-  protected socChartHeight: string = "250px";
-  protected energyChartHeight: string = "250px";
-  protected activePeriod: PeriodString = "today";
 
   constructor(
-    public websocket: Websocket,
     private route: ActivatedRoute,
     private translate: TranslateService,
     private service: Service,

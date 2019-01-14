@@ -1,6 +1,6 @@
-<div *ngIf="(websocket.currentEdge | async) as edge" fxLayout fxLayoutAlign="center start" fxLayout="row wrap">
+<!-- <div *ngIf="(websocket.currentEdge | async) as edge" fxLayout fxLayoutAlign="center start" fxLayout="row wrap">
   <ng-container *ngIf="(edge.config | async) as config">
-    <!--call bridge configuration-->
+    !--call bridge configuration--
     <div *ngIf="!edge.isVersionAtLeast('2018.8')" fxFlex="50%" fxFlex.xs="100%">
       <mat-card routerLink="/device/{{ edge.id }}/config/bridge" class="single">
         <mat-card-header>
@@ -19,7 +19,7 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <!--call scheduler configuration-->
+    !--call scheduler configuration--
     <div *ngIf="!edge.isVersionAtLeast('2018.8')" fxFlex="50%" fxFlex.xs="100%">
       <mat-card routerLink="/device/{{ edge.id }}/config/scheduler" class="single">
         <mat-card-header>
@@ -38,7 +38,7 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <!--call controller configuration-->
+    !--call controller configuration--
     <div *ngIf="!edge.isVersionAtLeast('2018.8')" routerLink="/device/{{ edge.id }}/config/controller" fxFlex="50%"
       fxFlex.xs="100%">
       <mat-card class="single">
@@ -58,7 +58,7 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <!--call controller configuration-->
+    !--call controller configuration--
     <div *ngIf="!edge.isVersionAtLeast('2018.8')" routerLink="/device/{{ edge.id }}/config/persistence" fxFlex="50%"
       fxFlex.xs="100%">
       <mat-card class="single">
@@ -78,10 +78,10 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <!-- call simulator ui: -->
-    <!-- <ng-container *ngIf="config.simulatorDevices"> -->
-    <!-- TODO there could be more than one -->
-    <!-- <div routerLink="/device/{{ device.name }}/config/simulator" fxFlex="50%" fxFlex.xs="100%">
+    !-- call simulator ui: --
+    !-- <ng-container *ngIf="config.simulatorDevices"> --
+    !-- TODO there could be more than one --
+    !-- <div routerLink="/device/{{ device.name }}/config/simulator" fxFlex="50%" fxFlex.xs="100%">
         <mat-card class="single">
           <mat-card-header>
             <mat-icon mat-card-avatar>explore</mat-icon>
@@ -96,8 +96,8 @@
           </mat-card-content>
         </mat-card>
       </div>
-    </ng-container> -->
-    <!-- call log -->
+    </ng-container> --
+    !-- call log --
     <div *ngIf="edge.role == 'owner' || edge.role == 'installer' || edge.role == 'admin'" routerLink="/device/{{ edge.id }}/log"
       fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
@@ -116,7 +116,7 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <!--call more configuration-->
+    !--call more configuration--
     <div *ngIf="!edge.isVersionAtLeast('2018.8') && edge.role == 'admin'" routerLink="/device/{{ edge.id }}/config/more"
       fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
@@ -136,4 +136,4 @@
       </mat-card>
     </div>
   </ng-container>
-</div>
+</div> -->

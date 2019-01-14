@@ -15,8 +15,8 @@ export class EvcsComponent {
 
   @Input() private componentId: string;
 
-  protected edge: Edge = null;
-  protected controller: EdgeConfig.Component = null;
+  public edge: Edge = null;
+  public controller: EdgeConfig.Component = null;
 
   constructor(
     private service: Service,

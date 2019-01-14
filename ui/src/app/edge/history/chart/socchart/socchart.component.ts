@@ -1,12 +1,12 @@
+import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils, Websocket } from '../../../../shared/shared';
+import { ChannelAddress, Edge, Service, Utils } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
-import { ChartOptions, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem, Data } from './../shared';
-import { formatNumber } from '@angular/common';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
 
 @Component({
   selector: 'socchart',
@@ -26,15 +26,15 @@ export class SocChartComponent extends AbstractHistoryChart implements OnInit, O
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
-    private websocket: Websocket,
     private translate: TranslateService
   ) {
     super(service);
   }
 
+  public loading: boolean = true;
+
   protected labels: Date[] = [];
   protected datasets: Dataset[] = EMPTY_DATASET;
-  protected loading: boolean = true;
   protected options: ChartOptions;
   protected colors = [{
     backgroundColor: 'rgba(0,152,70,0.05)',

@@ -26,15 +26,15 @@ export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, 
   constructor(
     protected service: Service,
     private route: ActivatedRoute,
-    private websocket: Websocket,
     private translate: TranslateService
   ) {
     super(service);
   }
+  
+  public loading: boolean = true;
 
   protected labels: Date[] = [];
   protected datasets: Dataset[] = EMPTY_DATASET;
-  protected loading: boolean = true;
   protected options: ChartOptions;
   protected colors = [{
     // Actual Power

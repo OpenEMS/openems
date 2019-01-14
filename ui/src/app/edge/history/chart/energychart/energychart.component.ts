@@ -22,6 +22,8 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
   ngOnChanges() {
     this.updateChart();
   };
+  
+  public loading: boolean = true;
 
   constructor(
     protected service: Service,
@@ -33,7 +35,6 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
 
   protected labels: Date[] = [];
   protected datasets: Dataset[] = EMPTY_DATASET;
-  protected loading: boolean = true;
   protected options: ChartOptions;
   private colors = [{
     // Production

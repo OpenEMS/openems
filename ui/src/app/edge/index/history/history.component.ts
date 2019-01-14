@@ -9,10 +9,10 @@ import { Edge, Service } from '../../../shared/shared';
 export class HistoryComponent {
 
   // show the chart for today
-  protected fromDate = new Date();
-  protected toDate = new Date();
-
-  protected edge: Edge;
+  public fromDate = new Date();
+  public toDate = new Date();
+  
+  public edge: Edge;
 
   constructor(
     private service: Service,

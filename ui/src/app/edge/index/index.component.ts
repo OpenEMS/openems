@@ -9,8 +9,8 @@ import { Widget } from './widget';
 })
 export class IndexComponent implements OnInit {
 
-  protected edge: Edge = null
-  protected widgets: Widget[] = [];
+  public edge: Edge = null
+  public widgets: Widget[] = [];
 
   constructor(
     private route: ActivatedRoute,

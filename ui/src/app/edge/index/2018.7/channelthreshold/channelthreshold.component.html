@@ -1,4 +1,4 @@
-<ng-container *ngIf="currentData && config">
+<!-- <ng-container *ngIf="currentData && config">
   <ion-card>
     <ion-item>
       <ion-img style="width:40px" src="assets/img/consumption.png"></ion-img>
@@ -7,8 +7,8 @@
     <ion-card-content>
       <table class="full_width">
         <tr>
-          <!-- last element of array is 'state'
-              .slice(0, -1) creates a copy of the array without the last element -->
+          !-- last element of array is 'state'
+              .slice(0, -1) creates a copy of the array without the last element --
           <ng-container *ngFor="let rel of this.keys(this.currentData.data.output0).slice(0, -1)">
             <td *ngIf="this.currentData.data.output0[rel]==true" style="text-align:center">
               Ausgang {{rel}}
@@ -29,4 +29,4 @@
       </table>
     </ion-card-content>
   </ion-card>
-</ng-container>
+</ng-container> -->
