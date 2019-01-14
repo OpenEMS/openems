@@ -80,7 +80,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				metadatas);
 		this.parent.server.sendMessage(ws, notification);
 
-		this.parent.logInfo(this.log, "User [" + user.getId() + ";" + user.getName() + "] connected.");
+		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
 	}
 
 }
