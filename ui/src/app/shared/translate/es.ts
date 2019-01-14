@@ -152,7 +152,8 @@ export const TRANSLATION = {
         CurrentDevelopments: "Desarrollos actuales",
         Build: "Esta compilación",
         Contact: "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro FEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
-        Language: "Seleccionar idioma:"
+        Language: "Seleccionar idioma:",
+        FAQ: "Preguntas frecuentes (FAQ)"
     },
     Notifications: {
         Failed: "Error al configurar la conexión.",

@@ -147,7 +147,8 @@ export const TRANSLATION = {
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
         Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Zvolte jazyk:"
+        Language: "Zvolte jazyk:",
+        FAQ: "Často kladené otázky (FAQ)"
     },
     Notifications: {
         Failed: "Připojení selhalo.",
