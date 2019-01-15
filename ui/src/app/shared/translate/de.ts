@@ -150,8 +150,7 @@ export const TRANSLATION = {
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
         Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Sprache wählen:",
-        FAQ: "Häufig gestellte Fragen (FAQ)"
+        Language: "Sprache wählen:"
     },
     Notifications: {
         Failed: "Verbindungsaufbau fehlgeschlagen.",

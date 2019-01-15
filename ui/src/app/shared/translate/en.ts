@@ -150,8 +150,7 @@ export const TRANSLATION = {
         CurrentDevelopments: "Current developments",
         Build: "This build",
         Contact: "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Select language:",
-        FAQ: "Frequently asked questions (FAQ)"
+        Language: "Select language:"
     },
     Notifications: {
         Failed: "Connection failed.",

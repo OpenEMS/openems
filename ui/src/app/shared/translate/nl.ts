@@ -147,8 +147,7 @@ export const TRANSLATION = {
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
         Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Selecteer taal: ",
-        FAQ: "Veel Gestelde Vragen (FAQ)"
+        Language: "Selecteer taal: "
     },
     Notifications: {
         Failed: "Verbinding mislukt.",
