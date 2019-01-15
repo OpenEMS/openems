@@ -33,6 +33,7 @@ JPM-Command:				openems-edge
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.dischargelimitconsideringcellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
+	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
@@ -160,6 +161,7 @@ JPM-Command:				openems-edge
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
-	io.openems.edge.controller.evcs;version=snapshot
-		
+	io.openems.edge.controller.evcs;version=snapshot,\
+	io.openems.edge.controller.ess.onefullcycle;version=snapshot,\
+
 -runee: JavaSE-1.8
