@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+
+import io.openems.edge.evcs.api.Evcs;
 
 /**
  * Handles replys to Report Querys sent by {@link ReadWorker}
@@ -39,7 +41,7 @@ public class ReadHandler implements Consumer<String> {
 			JsonElement jMessageElement;
 			try {
 				jMessageElement = JsonUtils.parse(message);
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				log.error("Error while parsing KEBA message: " + e.getMessage());
 				return;
 			}
@@ -94,6 +96,14 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaKeContact.ChannelId.COS_PHI, jMessage, "PF");
 					setInt(KebaKeContact.ChannelId.ENERGY_SESSION, jMessage, "E pres");
 					setInt(KebaKeContact.ChannelId.ENERGY_TOTAL, jMessage, "E total");
+
+					// Set CHARGE_POWER
+					Optional<Integer> power_mw = JsonUtils.getAsOptionalInt(jMessage, "P"); // in [mW]
+					Integer power = null;
+					if (power_mw.isPresent()) {
+						power = power_mw.get() / 1000; // convert to [W]
+					}
+					this.parent.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power);
 				}
 
 			} else {

@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 import { PopoverController } from '@ionic/angular';
-import { Service, Websocket } from '../shared';
 
 import { environment } from '../../../environments';
 import { Router, RouterModule } from '@angular/router';
-
+import { Websocket } from '../service/websocket';
 
 @Component({
     selector: 'popover',

@@ -5,19 +5,11 @@
       <ion-card-title translate>General.History</ion-card-title>
     </ion-label>
   </ion-item>
-
   <ion-card-content>
     <div style="height: 150px">
-      <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-        <socchart-2018-8 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-8>
-      </ng-container>
-      <ng-template #version_2018_7>
-        <socchart-2018-7 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-7>
-      </ng-template>
+      <socchart [fromDate]="fromDate" [toDate]="toDate"></socchart>
     </div>
-
-
-    <ion-button float-right routerLink="/device/{{ edge.name }}/history">
+    <ion-button float-right routerLink="/device/{{ edge.id }}/history">
       <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
     </ion-button>
   </ion-card-content>

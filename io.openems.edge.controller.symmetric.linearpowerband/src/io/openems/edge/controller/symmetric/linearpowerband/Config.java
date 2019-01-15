@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Linear Power Band Symmetric", //
 		description = "Defines a fixed max/min power to a symmetric energy storage system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlLinearPowerBand0";
 
 	boolean enabled() default true;

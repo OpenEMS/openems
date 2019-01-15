@@ -45,7 +45,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate

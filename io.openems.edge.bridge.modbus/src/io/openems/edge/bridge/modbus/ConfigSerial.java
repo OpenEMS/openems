@@ -10,8 +10,6 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 		name = "Bridge Modbus/RTU Serial", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/RTU device.")
 @interface ConfigSerial {
-	String service_pid();
-
 	String id() default "modbus0";
 
 	@AttributeDefinition(name = "Port-Name", description = "The name of the serial port - e.g. '/dev/ttyUSB0' or 'COM3'")

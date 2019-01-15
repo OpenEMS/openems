@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
@@ -43,14 +45,14 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	 * @return the ChannelAddress
 	 * @throws OpenemsException on parse error
 	 */
-	public static ChannelAddress fromString(String address) throws OpenemsException {
+	public static ChannelAddress fromString(String address) throws OpenemsNamedException {
 		try {
 			String[] addressArray = address.split("/");
 			String componentId = addressArray[0];
 			String channelId = addressArray[1];
 			return new ChannelAddress(componentId, channelId);
 		} catch (Exception e) {
-			throw new OpenemsException("This [" + address + "] is not a valid channel address.");
+			throw OpenemsError.COMMON_NO_VALID_CHANNEL_ADDRESS.exception(address);
 		}
 	}
 

@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "IO KMtronic Relay Board", //
 		description = "Implements the KMtronic Relay Board.")
 @interface Config {
-	String service_pid();
-
 	String id() default "io0";
 
 	boolean enabled() default true;

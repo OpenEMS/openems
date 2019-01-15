@@ -57,7 +57,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, boolean readonly,
+	protected void activate(ComponentContext context, String id, boolean enabled, boolean readonly,
 			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		this.readonly = readonly;
 
@@ -66,7 +66,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			this.getMaxApparentPower().setNextValue(0);
 		}
 
-		super.activate(context, servicePid, id, enabled, unitId, cm, modbusReference, modbusId);
+		super.activate(context, id, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override

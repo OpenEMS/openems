@@ -13,7 +13,8 @@ Require-Capability: \
 	io.openems.common;version=latest,\
 	io.openems.backend.common;version=latest,\
 	com.google.gson,\
-	com.google.guava;version=27
+	com.google.guava;version=27,\
+	io.openems.backend.edgewebsocket.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

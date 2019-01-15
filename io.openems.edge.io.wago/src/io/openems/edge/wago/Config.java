@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "IO WAGO Fieldbus Coupler 750-352", //
 		description = "Implements the WAGO Fieldbus Coupler 750-352")
 @interface Config {
-	String service_pid();
-
 	String id() default "io0";
 
 	boolean enabled() default true;

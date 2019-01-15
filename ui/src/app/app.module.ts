@@ -17,8 +17,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 // services
-import { Service } from './shared/shared';
-import { MyTranslateLoader } from './shared/translate/translate';
+import { Language } from './shared/translate/language';
 
 // locale Data
 import { LOCALE_ID } from '@angular/core';
@@ -29,7 +28,7 @@ import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment';
+import { environment as env } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -44,16 +43,16 @@ import { environment } from '../environments/environment';
     EdgeModule,
     IndexModule,
     TranslateModule.forRoot({
-      loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
+      loader: { provide: TranslateLoader, useClass: Language }
     }),
     PopoverPageModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
+    env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: ErrorHandler, useExisting: Service },
+    // { provide: ErrorHandler, useExisting: Service },
     { provide: LOCALE_ID, useValue: 'de' }
   ],
   bootstrap: [AppComponent]

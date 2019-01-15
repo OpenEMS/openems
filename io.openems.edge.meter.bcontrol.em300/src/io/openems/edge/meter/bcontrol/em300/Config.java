@@ -9,8 +9,6 @@ import io.openems.edge.meter.api.MeterType;
 		name = "Meter B-Control EM300", //
 		description = "Implements the B-Control EM300 meter.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter0";
 
 	boolean enabled() default true;

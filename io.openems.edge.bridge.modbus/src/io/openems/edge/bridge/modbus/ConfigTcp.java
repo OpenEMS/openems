@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Bridge Modbus/TCP", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/TCP device.")
 @interface ConfigTcp {
-	String service_pid();
-
 	String id() default "modbus0";
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Modbus/TCP device.")

@@ -1,30 +1,45 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
-import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
+import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
+import { Utils } from '../../../../../shared/shared';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[gridsection]',
     templateUrl: './section.component.html'
 })
 export class GridSectionComponent extends AbstractSection {
+
     constructor(translate: TranslateService) {
-        super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
+        super('General.Grid', "left", "#1d1d1d", translate);
     }
 
-    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number, gridMode: number) {
-        this.gridMode = gridMode;
-        valueRatio = valueRatio / 2; // interval from -50 to 50
-        if (buyAbsolute != null && buyAbsolute > 0) {
+    protected getStartAngle(): number {
+        return 226;
+    }
+
+    protected getEndAngle(): number {
+        return 314;
+    }
+
+    protected getRatioType(): Ratio {
+        return 'Negative and Positive [-1,1]';
+    }
+
+    public _updateCurrentData(sum: DefaultTypes.Summary): void {
+        if (sum.grid.buyActivePower && sum.grid.buyActivePower > 0) {
             this.name = this.translate.instant('General.GridBuy');
-            super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
-        } else if (sellAbsolute != null && sellAbsolute > 0) {
+            super.updateSectionData(sum.grid.buyActivePower, sum.grid.powerRatio, Utils.divideSafely(sum.grid.buyActivePower, sum.system.inPower));
+        } else if (sum.grid.sellActivePower && sum.grid.sellActivePower > 0) {
             this.name = this.translate.instant('General.GridSell');
-            super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
+            super.updateSectionData(sum.grid.sellActivePower, sum.grid.powerRatio, Utils.divideSafely(sum.grid.sellActivePower, sum.system.outPower));
         } else {
             this.name = this.translate.instant('General.Grid')
-            super.updateValue(0, 0, 0);
+            super.updateSectionData(0, 0, 0);
         }
+
+        // set grid mode
+        this.gridMode = sum.grid.gridMode;
         if (this.square) {
             this.square.image.image = "assets/img/" + this.getImagePath()
         }
@@ -44,19 +59,6 @@ export class GridSectionComponent extends AbstractSection {
         }
     }
 
-    public getValueRatio(value: number) {
-        if (value > 50) {
-            return 50;
-        } else if (value < -50) {
-            return 50;
-        }
-        return value;
-    }
-
-    protected getValueStartAngle(): number {
-        return (this.startAngle + this.endAngle) / 2;
-    }
-
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
             return "";
@@ -69,21 +71,22 @@ export class GridSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "100%", y1: "50%", x2: "0%", y2: "50%" });
     }
 
-    protected getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow {
+    protected getSvgEnergyFlow(value: number, ratio: number, radius: number): SvgEnergyFlow {
         let p = {
-            topLeft: { x: r * -1, y: v * -1 },
-            middleLeft: { x: r * -1 + v, y: 0 },
-            bottomLeft: { x: r * -1, y: v },
-            topRight: { x: v * -1, y: v * -1 },
-            bottomRight: { x: v * -1, y: v },
+            topLeft: { x: radius * -1, y: ratio * -1 },
+            middleLeft: { x: radius * -1 + ratio, y: 0 },
+            bottomLeft: { x: radius * -1, y: ratio },
+            topRight: { x: ratio * -1, y: ratio * -1 },
+            bottomRight: { x: ratio * -1, y: ratio },
             middleRight: { x: 0, y: 0 }
         }
-        if (ratio > 0) {
+        if (value < 0) {
             // towards left
-            p.topLeft.x = p.topLeft.x + v;
-            p.middleLeft.x = p.middleLeft.x - v;
-            p.bottomLeft.x = p.bottomLeft.x + v;
+            p.topLeft.x = p.topLeft.x + ratio;
+            p.middleLeft.x = p.middleLeft.x - ratio;
+            p.bottomLeft.x = p.bottomLeft.x + ratio;
         }
         return p;
     }
+
 }

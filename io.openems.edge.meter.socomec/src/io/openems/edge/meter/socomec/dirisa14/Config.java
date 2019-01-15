@@ -9,8 +9,6 @@ import io.openems.edge.meter.api.MeterType;
 		name = "Meter SOCOMEC Diris A14", //
 		description = "Implements the SOCOMEC Diris A14 meter.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter0";
 
 	boolean enabled() default true;

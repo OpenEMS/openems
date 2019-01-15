@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "This controller provides a REST/JSON api.")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "ctrlApiRest0";
 
 	boolean enabled() default true;

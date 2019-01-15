@@ -83,8 +83,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	private final Multimap<String, ModbusProtocol> protocols = Multimaps
 			.synchronizedListMultimap(ArrayListMultimap.create());
 
-	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
-		super.activate(context, service_pid, id, enabled);
+	protected void activate(ComponentContext context, String id, boolean enabled) {
+		super.activate(context, id, enabled);
 		if (this.isEnabled()) {
 			this.worker.activate(id);
 		}

@@ -1,0 +1,62 @@
+= Internal Component Communication
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+
+This page describes the internal communication protocol between OpenEMS Edge, OpenEMS Backend and OpenEMS UI. The components keep an open https://de.wikipedia.org/wiki/WebSocket[Websocket] connection which is used for bi-directional communication. The protocol is based on https://www.jsonrpc.org/specification[JSON-RPC]. For details about JSON-RPC please refer to the specification. As a rough summary, the protocol is divided into
+
+JSON-RPC Request::
+  Identified by a unique ID and method name with specific params. Expects a Response.
+
+JSON-RPC Success Response::
+  Referring to the ID of the Request, providing a result which can be empty or hold specific data.
+
+JSON-RPC Error Response::
+  Referring to the ID of the Request, providing error code, message and optionally data.
+
+JSON-RPC Notification::
+  Identified by a unique method name with specific params. Does not expect a Response.
+
+The information on this page is useful to understand the internal communication structure and can help if your plan is to replace one component by a custom implementation, e.g. implementing your own frontend application, or if you plan to extend the provided feature-set.
+
+== Authenticate UI to Edge/Backend using token
+
+NOTE: On opening of the websocket connection to Edge/Backend, the UI is authenticated using an existing token.
+
+mermaid:authenticatedWithSessionId.mmd[]
+
+== Authenticate UI to Edge using password
+
+image::authenticateWithPassword.png[]
+
+
+== Subscribe to Channels
+
+NOTE: Allows a Component to subscribe on certain Channel values. The latest Channel values are then periodically sent.
+
+mermaid:subscribeChannels+currentData.mmd[]
+
+== Store channel data in Time-Series database
+
+NOTE: Edge Backend Api-Controller periodically sends data of Channels to Backend, where it is stored in a Time-Series database (like InfluxDB) via a Timedata service.
+
+mermaid:timestampedData.mmd[]
+
+
+mermaid:edgeConfiguration[]
+
+mermaid:authenticate[]
+
+mermaid:getStatusOfEdges[]
+
+== Communicate with a specific Edge Component
+
+NOTE: This provides a way to send a JSON-RPC Request directly to a specific Edge Component identified by its Component-ID - e.g. to a specific Controller. To enable this, the Edge Component needs to implement the 'JsonApi' interface.
+
+mermaid:componentJsonApi[]

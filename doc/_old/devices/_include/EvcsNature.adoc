@@ -1,4 +1,0 @@
-3+|*<<EvcsNature,EvcsNature>>*
-|CurrUser   |mA |Current preset value of the user via UDP; Default = 63000mA.
-|SetCurrent |mA |
-|SetEnabled | |

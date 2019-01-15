@@ -1,5 +1,6 @@
 package io.openems.edge.meter.api;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -22,8 +23,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
  *
  */
 public interface SymmetricMeter extends OpenemsComponent {
-
-	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -76,7 +75,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
+				.text(OpenemsConstants.POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						/*
@@ -123,7 +122,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT)), //
+				.text(OpenemsConstants.POWER_DOC_TEXT)), //
 		/**
 		 * Active Production Energy
 		 * 

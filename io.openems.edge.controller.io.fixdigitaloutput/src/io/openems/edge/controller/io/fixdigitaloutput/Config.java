@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "This controller sets a digital output channel according to the given value")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "ctrlIoFixDigitalOutput0";
 
 	boolean enabled() default true;

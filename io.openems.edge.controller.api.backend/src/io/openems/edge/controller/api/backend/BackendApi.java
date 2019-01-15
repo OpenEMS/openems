@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
@@ -26,10 +25,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -38,21 +38,24 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Backend")
-public class BackendApi extends AbstractOpenemsComponent
-		implements Controller, ApiController, OpenemsComponent, PaxAppender {
+public class BackendApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
 
-	protected final static int DEFAULT_CYCLE_TIME = 10000;
+	protected static final int DEFAULT_CYCLE_TIME = 10000;
+	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
 	private final ApiWorker apiWorker = new ApiWorker();
 	private final BackendWorker backendWorker = new BackendWorker(this);
 
-	protected MyWebSocketClient websocket = null;
+	protected WebsocketClient websocket = null;
 	protected int cycleTime = DEFAULT_CYCLE_TIME; // default, is going to be overwritten by config
 	protected boolean debug = false;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedataService = null;
+	protected volatile Timedata timedata = null;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference
 	private ConfigurationAdmin configAdmin;
@@ -60,16 +63,16 @@ public class BackendApi extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(service.factoryPid=Controller.Api.Backend)))")
+			target = "(&(enabled=true)(!(service.factoryPid=" + COMPONENT_NAME + ")))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	public BackendApi() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.cycleTime = config.cycleTime();
 		this.debug = config.debug();
 
@@ -77,6 +80,7 @@ public class BackendApi extends AbstractOpenemsComponent
 			return;
 		}
 
+		// initialize ApiWorker
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 
 		// Get URI
@@ -89,39 +93,24 @@ public class BackendApi extends AbstractOpenemsComponent
 		}
 
 		// Get Proxy configuration
-		Optional<Proxy> proxy;
+		Proxy proxy;
 		if (config.proxyAddress().trim().equals("") || config.proxyPort() == 0) {
-			proxy = Optional.empty();
+			proxy = AbstractWebsocketClient.NO_PROXY;
 		} else {
-			proxy = Optional.of(
-					new Proxy(config.proxyType(), new InetSocketAddress(config.proxyAddress(), config.proxyPort())));
+			proxy = new Proxy(config.proxyType(), new InetSocketAddress(config.proxyAddress(), config.proxyPort()));
 		}
 
 		// create http headers
 		Map<String, String> httpHeaders = new HashMap<>();
 		httpHeaders.put("apikey", config.apikey());
 
-		/*
-		 * Create ReconnectingWebsocket instance
-		 */
-		this.websocket = new MyWebSocketClient(this, uri, httpHeaders, proxy, (websocket) -> {
-			/*
-			 * onOpen
-			 */
-			log.info("Connected to OpenEMS Backend [" + config.uri() + (proxy.isPresent() ? " via Proxy" : "") + "]");
-			// Send current config
-			// TODO send config now and on change
-			// this.onConfigUpdate.call();
-		}, () -> {
-			/*
-			 * onClose
-			 */
-			log.error("Disconnected from OpenEMS Backend [" + config.uri() + (proxy.isPresent() ? " via Proxy" : "")
-					+ "]");
-		});
-		// TODO: re-enable connection lost detection
-		this.websocket.setConnectionLostTimeout(0);
-		this.websocket.connect();
+		// Create Websocket instance
+		this.websocket = new WebsocketClient(this, COMPONENT_NAME, uri, httpHeaders, proxy);
+		// TODO: do we need to disable connection lost detection?
+		// this.websocket.setConnectionLostTimeout(0);
+		this.websocket.start();
+
+		// Activate worker
 		this.backendWorker.activate(config.id());
 	}
 
@@ -129,6 +118,7 @@ public class BackendApi extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.backendWorker.deactivate();
+		this.websocket.stop();
 	}
 
 	@Override
@@ -136,19 +126,18 @@ public class BackendApi extends AbstractOpenemsComponent
 		this.apiWorker.run();
 	}
 
-	@Override
-	public Timedata getTimedataService() {
-		return this.timedataService;
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
-		return this.components;
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override
-	public ConfigurationAdmin getConfigurationAdmin() {
-		return this.configAdmin;
+	protected void logWarn(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override
@@ -156,6 +145,7 @@ public class BackendApi extends AbstractOpenemsComponent
 		if (this.websocket == null || !this.isEnabled()) {
 			return;
 		}
-		this.websocket.sendLog(event);
+		// TODO send log
+		// this.websocket.sendLog(event);
 	}
 }

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
-import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
+import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
+import { Utils } from '../../../../../shared/shared';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[productionsection]',
@@ -10,14 +11,23 @@ import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlo
 export class ProductionSectionComponent extends AbstractSection {
 
     constructor(translate: TranslateService) {
-        super('General.Production', "up", 316, 404, "#008DD2", translate);
+        super('General.Production', "up", "#008DD2", translate);
     }
 
-    /**
-     * This method is called on every change of values.
-     */
-    public updateValue(valueAbsolute: number, valueRatio: number, sumRatio: number) {
-        super.updateValue(valueAbsolute, valueRatio, sumRatio * -1)
+    protected getStartAngle(): number {
+        return 316;
+    }
+
+    protected getEndAngle(): number {
+        return 404;
+    }
+
+    protected getRatioType(): Ratio {
+        return 'Only Positive [0,1]';
+    }
+
+    protected _updateCurrentData(sum: DefaultTypes.Summary): void {
+        super.updateSectionData(sum.production.activePower, sum.production.powerRatio, Utils.divideSafely(sum.production.activePower, sum.system.inPower));
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -42,20 +52,20 @@ export class ProductionSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "50%", y1: "100%", x2: "50%", y2: "0%" });
     }
 
-    protected getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow {
+    protected getSvgEnergyFlow(value: number, ratio: number, radius: number): SvgEnergyFlow {
         let p = {
-            topLeft: { x: v * -1, y: r * -1 },
-            bottomLeft: { x: v * -1, y: v * -1 },
-            topRight: { x: v, y: r * -1 },
-            bottomRight: { x: v, y: v * -1 },
+            topLeft: { x: ratio * -1, y: radius * -1 },
+            bottomLeft: { x: ratio * -1, y: ratio * -1 },
+            topRight: { x: ratio, y: radius * -1 },
+            bottomRight: { x: ratio, y: ratio * -1 },
             middleBottom: { x: 0, y: 0 },
-            middleTop: { x: 0, y: r * -1 + v }
+            middleTop: { x: 0, y: radius * -1 + ratio }
         }
-        if (ratio > 0) {
+        if (value < 0) {
             // towards top
-            p.topLeft.y = p.topLeft.y + v;
-            p.middleTop.y = p.middleTop.y - v;
-            p.topRight.y = p.topRight.y + v;
+            p.topLeft.y = p.topLeft.y + radius;
+            p.middleTop.y = p.middleTop.y - radius;
+            p.topRight.y = p.topRight.y + radius;
         }
         return p;
     }

@@ -8,8 +8,6 @@ import io.openems.edge.meter.api.MeterType;
 		name = "Meter Microcare SDM 630", //
 		description = "Implements the Microcare SDM630 meter.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter0";
 
 	boolean enabled() default true;

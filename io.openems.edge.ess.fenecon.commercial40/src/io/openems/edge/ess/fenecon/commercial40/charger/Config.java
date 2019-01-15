@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "ESS FENECON Commercial 40 DC Charger", //
 		description = "Implements the FENECON Commercial 40 DC Charger.")
 @interface Config {
-	String service_pid();
-
 	String id() default "charger0";
 
 	boolean enabled() default true;

@@ -38,23 +38,17 @@ public class OdooUtils {
 	/**
 	 * Executes a search on Odoo
 	 * 
-	 * @param url
-	 *            URL of Odoo instance
-	 * @param database
-	 *            Database name
-	 * @param uid
-	 *            UID of user (e.g. '1' for admin)
-	 * @param password
-	 *            Password of user
-	 * @param model
-	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param domains
-	 *            Odoo domain filters
+	 * @param url      URL of Odoo instance
+	 * @param database Database name
+	 * @param uid      UID of user (e.g. '1' for admin)
+	 * @param password Password of user
+	 * @param model    Odoo model to query (e.g. 'res.partner')
+	 * @param domains  Odoo domain filters
 	 * @return Odoo object ids
 	 * @throws OpenemsException
 	 */
-	protected static int[] search(String url, String database, int uid, String password, String model,
-			Domain... domains) throws OpenemsException {
+	protected static int[] search(OdooCredentials credentials, String model, Domain... domains)
+			throws OpenemsException {
 		// Add domain filter
 		Object[] domain = new Object[domains.length];
 		for (int i = 0; i < domains.length; i++) {
@@ -65,10 +59,11 @@ public class OdooUtils {
 		// Create request params
 		HashMap<Object, Object> paramsRules = new HashMap<Object, Object>();
 		String action = "search";
-		Object[] params = new Object[] { database, uid, password, model, action, paramsDomain, paramsRules };
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, paramsDomain, paramsRules };
 		try {
 			// Execute XML request
-			Object[] resultObjs = (Object[]) executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(credentials.getUrl(), params);
 			// Parse results
 			int[] results = new int[resultObjs.length];
 			for (int i = 0; i < resultObjs.length; i++) {
@@ -83,25 +78,18 @@ public class OdooUtils {
 	/**
 	 * Reads a record from Odoo
 	 * 
-	 * @param url
-	 *            URL of Odoo instance
-	 * @param database
-	 *            Database name
-	 * @param uid
-	 *            UID of user (e.g. '1' for admin)
-	 * @param password
-	 *            Password of user
-	 * @param model
-	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param id
-	 *            id of model to read
-	 * @param fields
-	 *            fields that should be read
+	 * @param url      URL of Odoo instance
+	 * @param database Database name
+	 * @param uid      UID of user (e.g. '1' for admin)
+	 * @param password Password of user
+	 * @param model    Odoo model to query (e.g. 'res.partner')
+	 * @param id       id of model to read
+	 * @param fields   fields that should be read
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static Map<String, Object> readOne(String url, String database, int uid, String password, String model,
-			int id, Field... fields) throws OpenemsException {
+	protected static Map<String, Object> readOne(OdooCredentials credentials, String model, int id, Field... fields)
+			throws OpenemsException {
 		// Create request params
 		String action = "read";
 		// Add ids
@@ -115,10 +103,11 @@ public class OdooUtils {
 		Map<String, String[]> paramsFields = new HashMap<>();
 		paramsFields.put("fields", fieldStrings);
 		// Create request params
-		Object[] params = new Object[] { database, uid, password, model, action, paramsIds, paramsFields };
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, paramsIds, paramsFields };
 		try {
 			// Execute XML request
-			Object[] resultObjs = (Object[]) executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(credentials.getUrl(), params);
 			// Parse results
 			for (int i = 0; i < resultObjs.length;) {
 				@SuppressWarnings("unchecked")
@@ -134,26 +123,22 @@ public class OdooUtils {
 	/**
 	 * Executes a Search and read on Odoo
 	 * 
-	 * @see <a href="https://www.odoo.com/documentation/10.0/api_integration.html">Odoo API Integration</a>
+	 * @see <a href=
+	 *      "https://www.odoo.com/documentation/10.0/api_integration.html">Odoo API
+	 *      Integration</a>
 	 * 
-	 * @param url
-	 *            URL of Odoo instance
-	 * @param database
-	 *            Database name
-	 * @param uid
-	 *            UID of user (e.g. '1' for admin)
-	 * @param password
-	 *            Password of user
-	 * @param model
-	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param domains
-	 *            Odoo domain filters
+	 * @param url      URL of Odoo instance
+	 * @param database Database name
+	 * @param uid      UID of user (e.g. '1' for admin)
+	 * @param password Password of user
+	 * @param model    Odoo model to query (e.g. 'res.partner')
+	 * @param domains  Odoo domain filters
 	 * @return Odoo object ids
 	 * @throws OpenemsException
 	 */
 	// TODO this method is not yet functional
-	protected static Map<String, Object>[] searchAndRead(String url, String database, int uid, String password,
-			String model, Domain[] domains, Field[] fields) throws OpenemsException {
+	protected static Map<String, Object>[] searchAndRead(OdooCredentials credentials, String model, Domain[] domains,
+			Field[] fields) throws OpenemsException {
 		// Add domain filter
 		Object[] domain = new Object[domains.length];
 		for (int i = 0; i < domains.length; i++) {
@@ -170,10 +155,11 @@ public class OdooUtils {
 		paramsFields.put("fields", fieldStrings);
 		// Create request params
 		String action = "search_read";
-		Object[] params = new Object[] { database, uid, password, model, action, paramsDomain, paramsFields };
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, paramsDomain, paramsFields };
 		try {
 			// Execute XML request
-			executeKw(url, params);
+			executeKw(credentials.getUrl(), params);
 			// Object[] resultObjs = (Object[]) executeKw(url, params);
 			// Parse results
 			// int[] results = new int[resultObjs.length];
@@ -189,25 +175,18 @@ public class OdooUtils {
 	/**
 	 * Reads multiple records from Odoo
 	 * 
-	 * @param url
-	 *            URL of Odoo instance
-	 * @param database
-	 *            Database name
-	 * @param uid
-	 *            UID of user (e.g. '1' for admin)
-	 * @param password
-	 *            Password of user
-	 * @param model
-	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param ids
-	 *            ids of model to read
-	 * @param fields
-	 *            fields that should be read
+	 * @param url      URL of Odoo instance
+	 * @param database Database name
+	 * @param uid      UID of user (e.g. '1' for admin)
+	 * @param password Password of user
+	 * @param model    Odoo model to query (e.g. 'res.partner')
+	 * @param ids      ids of model to read
+	 * @param fields   fields that should be read
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static Map<String, Object>[] readMany(String url, String database, int uid, String password, String model,
-			Integer[] ids, Field... fields) throws OpenemsException {
+	protected static Map<String, Object>[] readMany(OdooCredentials credentials, String model, Integer[] ids,
+			Field... fields) throws OpenemsException {
 		// Create request params
 		String action = "read";
 		// Add ids
@@ -224,10 +203,11 @@ public class OdooUtils {
 		// Map<String, String[]> paramsFields = new HashMap<>();
 		// paramsFields.put("fields", fieldStrings);
 		// Create request params
-		Object[] params = new Object[] { database, uid, password, model, action, new Object[] { ids, fieldStrings } };
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, new Object[] { ids, fieldStrings } };
 		try {
 			// Execute XML request
-			Object[] resultObjs = (Object[]) executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(credentials.getUrl(), params);
 			// Parse results
 			@SuppressWarnings("unchecked")
 			Map<String, Object>[] results = (Map<String, Object>[]) new Map[resultObjs.length];
@@ -245,25 +225,18 @@ public class OdooUtils {
 	/**
 	 * Search-Reads multiple records from Odoo
 	 * 
-	 * @param url
-	 *            URL of Odoo instance
-	 * @param database
-	 *            Database name
-	 * @param uid
-	 *            UID of user (e.g. '1' for admin)
-	 * @param password
-	 *            Password of user
-	 * @param model
-	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param fields
-	 *            fields that should be read
-	 * @param domains
-	 *            filter domains
+	 * @param url      URL of Odoo instance
+	 * @param database Database name
+	 * @param uid      UID of user (e.g. '1' for admin)
+	 * @param password Password of user
+	 * @param model    Odoo model to query (e.g. 'res.partner')
+	 * @param fields   fields that should be read
+	 * @param domains  filter domains
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static Map<String, Object>[] searchRead(String url, String database, int uid, String password,
-			String model, Field[] fields, Domain... domains) throws OpenemsException {
+	protected static Map<String, Object>[] searchRead(OdooCredentials credentials, String model, Field[] fields,
+			Domain... domains) throws OpenemsException {
 		// Create request params
 		String action = "search_read";
 		// Add domain filter
@@ -281,10 +254,11 @@ public class OdooUtils {
 		Map<String, String[]> paramsFields = new HashMap<>();
 		paramsFields.put("fields", fieldStrings);
 		// Create request params
-		Object[] params = new Object[] { database, uid, password, model, action, paramsDomain, paramsFields };
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, paramsDomain, paramsFields };
 		try {
 			// Execute XML request
-			Object[] resultObjs = (Object[]) executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(credentials.getUrl(), params);
 			// Parse results
 			@SuppressWarnings("unchecked")
 			Map<String, Object>[] results = (Map<String, Object>[]) new Map[resultObjs.length];
@@ -302,24 +276,17 @@ public class OdooUtils {
 	/**
 	 * Update a record in Odoo
 	 * 
-	 * @param url
-	 *            URL of Odoo instance
-	 * @param database
-	 *            Database name
-	 * @param uid
-	 *            UID of user (e.g. '1' for admin)
-	 * @param password
-	 *            Password of user
-	 * @param model
-	 *            Odoo model to query (e.g. 'res.partner')
-	 * @param ids
-	 *            ids of model to update
-	 * @param fieldValues
-	 *            fields and values that should be written
+	 * @param url         URL of Odoo instance
+	 * @param database    Database name
+	 * @param uid         UID of user (e.g. '1' for admin)
+	 * @param password    Password of user
+	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param ids         ids of model to update
+	 * @param fieldValues fields and values that should be written
 	 * @throws OpenemsException
 	 */
-	protected static void write(String url, String database, int uid, String password, String model, Integer[] ids,
-			FieldValue... fieldValues) throws OpenemsException {
+	protected static void write(OdooCredentials credentials, String model, Integer[] ids, FieldValue... fieldValues)
+			throws OpenemsException {
 		// // for debugging:
 		// StringBuilder b = new StringBuilder("Odoo Write: " + model + "; ");
 		// for (int id : ids) {
@@ -339,11 +306,11 @@ public class OdooUtils {
 			paramsFieldValues.put(fieldValue.getField().n(), fieldValue.getValue());
 		}
 		// Create request params
-		Object[] params = new Object[] { database, uid, password, model, action,
-				new Object[] { ids, paramsFieldValues } };
+		Object[] params = new Object[] { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(),
+				model, action, new Object[] { ids, paramsFieldValues } };
 		try {
 			// Execute XML request
-			Boolean resultObj = (Boolean) executeKw(url, params);
+			Boolean resultObj = (Boolean) executeKw(credentials.getUrl(), params);
 			if (!resultObj) {
 				throw new OpenemsException("Returned False.");
 			}

@@ -7,53 +7,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.api.Edge;
-import io.openems.common.websocket.AbstractOnClose;
+import io.openems.common.exceptions.OpenemsException;
 
-public class OnClose extends AbstractOnClose {
+public class OnClose implements io.openems.common.websocket.OnClose {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
+	private final EdgeWebsocketImpl parent;
 
-	private final EdgeWebsocketServer parent;
-
-	public OnClose(EdgeWebsocketServer parent, WebSocket websocket, int code, String reason, boolean remote) {
-		super(websocket, code, reason, remote);
+	public OnClose(EdgeWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	protected void run(WebSocket websocket, int code, String reason, boolean remote) {
-		// get edgeIds from websocket
-		Attachment attachment = websocket.getAttachment();
-		int[] edgeIds = attachment.getEdgeIds();
-
-		// remove websocket from local map
-		for (int edgeId : edgeIds) {
-			synchronized (this.parent.websocketsMap) {
-				this.parent.websocketsMap.remove(edgeId, websocket);
-			}
+	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
+		// get edgeId from websocket
+		WsData wsData = ws.getAttachment();
+		Optional<String> edgeIdOpt = wsData.getEdgeId();
+		if (!edgeIdOpt.isPresent()) {
+			return;
 		}
 
-		for (int edgeId : edgeIds) {
-			/*
-			 * if there is no other websocket connection for this edgeId -> announce Edge as
-			 * offline (Another connection could have been opened in the meantime when the
-			 * Edge reconnected)
-			 */
-			synchronized (this.parent.websocketsMap) {
-				if (this.parent.websocketsMap.containsKey(edgeId)) {
-					continue;
-				}
-			}
-			Optional<Edge> edgeOpt = this.parent.parent.metadataService.getEdgeOpt(edgeId);
-			if (edgeOpt.isPresent()) {
-				edgeOpt.get().setOnline(false);
-			}
+		// if there is no other websocket connection for this edgeId -> announce Edge as
+		// offline
+		String edgeId = edgeIdOpt.get();
+		Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+		if (edgeOpt.isPresent()) {
+			boolean isOnline = this.parent.isOnline(edgeId);
+			edgeOpt.get().setOnline(isOnline);
 		}
 
+		// TODO send notification, to UI
+		
 		// log
-		for (String edgeName : this.parent.getEdgeNames(edgeIds)) {
-			log.info("Edge [" + edgeName + "] disconnected.");
-		}
+		this.parent.logInfo(this.log, "Edge [" + edgeId + "] disconnected.");
 	}
 
 }

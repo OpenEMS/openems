@@ -1,7 +1,9 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -43,7 +45,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
-	private final int hysteresis = 5 * 60;
+	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	private String essId;
@@ -85,7 +87,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
@@ -208,7 +210,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	 */
 	private boolean changeState(State nextState) {
 		if (this.state != nextState) {
-			if (this.lastStateChange.plusSeconds(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
 				this.state = nextState;
 				this.lastStateChange = LocalDateTime.now(this.clock);
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);
