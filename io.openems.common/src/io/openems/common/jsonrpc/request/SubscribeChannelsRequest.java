@@ -67,7 +67,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 	}
 
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	public TreeSet<ChannelAddress> getChannels() {

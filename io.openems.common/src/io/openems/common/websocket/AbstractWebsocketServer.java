@@ -113,12 +113,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * <<<<<<< HEAD Stops the websocket server ======= Send a message to a
-	 * websocket.
-	 *
-	 * @param websocket the Websocket
-	 * @param j         the JsonObject
-	 * @return true if successful, otherwise false >>>>>>> origin/develop
+	 * Stops the websocket server
 	 */
 	public void stop() {
 		int tries = 3;
@@ -130,7 +125,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				log.warn("Unable to stop websocket server [" + this.getName() + "]. " + e.getClass().getSimpleName()
 						+ ": " + e.getMessage());
 				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch (InterruptedException e1) {
 					/* ignore */
 				}

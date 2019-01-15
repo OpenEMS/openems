@@ -214,6 +214,8 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 		edge.onSetVersion(version -> {
 			// Set Version in Odoo
+			this.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
+					+ "]. It was [" + edge.getVersion() + "]");
 			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_VERSION, version));
 		});
 		edge.onSetSoc(soc -> {
@@ -225,21 +227,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			this.write(edge, new FieldValue(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
 		});
 	}
-
-//			
-
-//
-//	/**
-//	 * Tries to authenticate at the Odoo server WITHOUT a sessionId. This is always
-//	 * denied.
-//	 *
-//	 * @return
-//	 * @throws OpenemsException
-//	 */
-//	public User authenticate() throws OpenemsException {
-//		throw new OpenemsException("Session-ID is missing. Authentication to Odoo denied.");
-//	}
-//
 
 	/**
 	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.

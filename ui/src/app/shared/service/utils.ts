@@ -181,6 +181,8 @@ export class Utils {
   public static divideSafely(v1: number, v2: number): number {
     if (v1 == null || v2 == null) {
       return null;
+    } else if (v2 == 0) {
+      return null; // divide by zero
     } else {
       return v1 / v2;
     }
@@ -213,21 +215,18 @@ export class Utils {
     }
   }
 
-
   /**
-   * Receive meta information for thing/channel/...
+   * Gets the value; or if it is null, gets the 'orElse' value
+   * 
+   * @param v      the value or null
+   * @param orElse the default value
+   * @returns      the value or the default value
    */
-  // TODO
-  // public meta(identifier: string, type: 'controller' | 'channel'): {} {
-  //   let property = type == 'controller' ? 'availableControllers' : type;
-  //   let edge = this.websocket.currentEdge;
-  //   if (edge) {
-  //     let config = edge.config.getValue();
-  //     let meta = config._meta[property];
-  //     if (identifier in meta) {
-  //       return (meta[identifier]);
-  //     }
-  //   }
-  //   return null;
-  // }
+  public static orElse(v: number, orElse: number): number {
+    if (v == null) {
+      return orElse;
+    } else {
+      return v;
+    }
+  }
 }

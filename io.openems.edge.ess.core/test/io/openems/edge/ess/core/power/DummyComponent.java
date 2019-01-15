@@ -64,6 +64,9 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
 					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
@@ -82,6 +85,18 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case SET_REACTIVE_POWER_L1_EQUALS:
 					case SET_REACTIVE_POWER_L2_EQUALS:
 					case SET_REACTIVE_POWER_L3_EQUALS:
+					case SET_ACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;

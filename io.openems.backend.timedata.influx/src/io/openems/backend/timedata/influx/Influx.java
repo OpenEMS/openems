@@ -106,8 +106,8 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				// incoming data is more recent than cache
 				if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
 					// cache is valid (not elder than 5 minutes)
-					Set<Entry<ChannelAddress, JsonElement>> cacheEntries = edgeCache.getChannelCacheEntries();
-					for (Entry<ChannelAddress, JsonElement> cacheEntry : cacheEntries) {
+					for (Entry<ChannelAddress, JsonElement> cacheEntry : edgeCache.getChannelCacheEntries()
+							.entrySet()) {
 						ChannelAddress channel = cacheEntry.getKey();
 						// check if there is a current value for this timestamp + channel
 						JsonElement existingValue = data.get(timestamp, channel);
@@ -385,18 +385,24 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			case "EssMaxApparentPower":
 				switch (edge.getProducttype()) {
 				case "Pro 9-12":
+				case "PRO Hybrid 9-10":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 9_000), //
 					};
+				case "Pro Hybrid 10-Serie":
+					return new ChannelFormula[] { //
+							new ChannelFormula(Function.PLUS, 10_000), //
+					};
 				case "MiniES 3-3":
 					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 9_000), //
+							new ChannelFormula(Function.PLUS, 3_000), //
 					};
 				case "Commercial 50-Serie":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 50_000), //
 					};
 				case "COMMERCIAL 40-45":
+				case "INDUSTRIAL":
 				case "":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 40_000), //

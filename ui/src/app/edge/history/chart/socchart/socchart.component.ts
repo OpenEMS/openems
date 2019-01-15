@@ -65,7 +65,7 @@ export class SocChartComponent extends AbstractHistoryChart implements OnInit, O
           label = this.gridSell;
         }
       }
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     }
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;

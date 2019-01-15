@@ -17,8 +17,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 // services
-// import { Service } from './shared/service/service';
-import { MyTranslateLoader } from './shared/translate/translate';
+import { Language } from './shared/translate/language';
 
 // locale Data
 import { LOCALE_ID } from '@angular/core';
@@ -44,7 +43,7 @@ import { environment as env } from '../environments/environment';
     EdgeModule,
     IndexModule,
     TranslateModule.forRoot({
-      loader: { provide: TranslateLoader, useClass: MyTranslateLoader }
+      loader: { provide: TranslateLoader, useClass: Language }
     }),
     PopoverPageModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],

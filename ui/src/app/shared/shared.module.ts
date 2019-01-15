@@ -1,44 +1,36 @@
-import 'hammerjs';
-
 import { CommonModule } from '@angular/common';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { InfiniteScroll, IonicModule } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { ToasterModule, ToasterService } from 'angular2-toaster';
+import 'hammerjs';
+import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
-import { TranslateModule } from '@ngx-translate/core';
-import { MyDateRangePickerModule } from 'mydaterangepicker';
-import { ToasterModule, ToasterService } from 'angular2-toaster';
-import { MyMaterialModule } from './material.module';
-import { IonicModule, InfiniteScroll } from '@ionic/angular';
-
+import { SocChartComponent } from '../edge/history/chart/socchart/socchart.component';
 import { appRoutingProviders } from './../app-routing.module';
-
 /*
- * Services
+ * Components
  */
-import { Service } from './service/service';
-import { Websocket } from './service/websocket';
-import { Utils } from './service/utils';
-
+import { MyMaterialModule } from './material.module';
+import { ClassnamePipe } from './pipe/classname/classname.pipe';
+import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
+import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 /*
  * Pipes
  */
 import { KeysPipe } from './pipe/keys/keys.pipe';
-import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
-import { IsclassPipe } from './pipe/isclass/isclass.pipe';
-import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
-
 /*
- * Components
+ * Services
  */
-import { AbstractConfigComponent } from './config/abstractconfig.component';
-import { ExistingThingComponent } from './config/existingthing.component';
-import { ChannelComponent } from './config/channel.component';
-import { SocChartComponent } from '../edge/history/chart/socchart/socchart.component';
+import { Service } from './service/service';
+import { Utils } from './service/utils';
+import { Websocket } from './service/websocket';
 
 @NgModule({
   imports: [
@@ -64,9 +56,6 @@ import { SocChartComponent } from '../edge/history/chart/socchart/socchart.compo
     HasclassPipe,
     // components
     SocChartComponent,
-    AbstractConfigComponent,
-    ChannelComponent,
-    ExistingThingComponent
   ],
   exports: [
     // pipes
@@ -91,9 +80,6 @@ import { SocChartComponent } from '../edge/history/chart/socchart/socchart.compo
     // components
     SocChartComponent,
     NgxLoadingModule,
-    AbstractConfigComponent,
-    ChannelComponent,
-    ExistingThingComponent,
   ],
   providers: [
     Utils,

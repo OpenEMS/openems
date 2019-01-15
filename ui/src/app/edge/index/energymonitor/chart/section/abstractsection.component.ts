@@ -1,5 +1,8 @@
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
+import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
+
+export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
 export class SectionValue {
     absolute: number;
@@ -96,7 +99,6 @@ export class EnergyFlow {
     }
 }
 
-
 export enum GridMode {
     "undefined",
     "ongrid",
@@ -114,22 +116,19 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
 
-    protected valueRatio: number = 0;
-    protected powerRatio: number = 0;
     protected valueText: string = "";
     protected valueText2: string = "";
     protected innerRadius: number = 0;
     protected outerRadius: number = 0;
     protected height: number = 0;
     protected width: number = 0;
-    protected lastValue = { valueAbsolute: 0, valueRatio: 0, sumRatio: 0 };
     protected gridMode: GridMode;
+
+    private lastCurrentData: DefaultTypes.Summary = null;
 
     constructor(
         translateName: string,
         protected direction: "left" | "right" | "down" | "up" = "left",
-        protected startAngle: number,
-        protected endAngle: number,
         public color: string,
         protected translate: TranslateService,
     ) {
@@ -139,45 +138,102 @@ export abstract class AbstractSection {
     }
 
     /**
-     * This method is called on every change of values.
+     * Gets the Start-Angle in Degree
      */
-    protected updateValue(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+    protected abstract getStartAngle(): number;
+
+    /**
+     * Gets the End-Angle in Degree
+     */
+    protected abstract getEndAngle(): number;
+
+    /**
+     * Gets the Ratio-Type of this Section
+     */
+    protected abstract getRatioType(): Ratio;
+
+    /**
+     * Gets the SVG for EnergyFlow
+     * 
+     * @param value  the Power
+     * @param ratio  the ratio of the value [0,1] or [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgEnergyFlow(value: number, ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
+     * Updates the Values for this Section.
+     * 
+     * @param sum the CurrentData.Summary
+     */
+    public updateCurrentData(sum: DefaultTypes.Summary): void {
+        this.lastCurrentData = sum;
+        this._updateCurrentData(sum);
+    }
+
+    /**
+     * Updates the Values for this Section. Should internally call updateSectionData().
+     * 
+     * @param sum the CurrentData.Summary
+     */
+    protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
+
+    /**
+     * This method is called on every change of values.
+     * 
+     * @param valueAbsolute the absolute value of the Section
+     * @param valueRatio    the relative value of the Secion in [-1,1]
+     * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
+     */
+    protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
         // TODO smoothly resize the arc
-        this.lastValue = { valueAbsolute: valueAbsolute, valueRatio: valueRatio, sumRatio: sumRatio };
-        this.valueRatio = this.getValueRatio(valueRatio);
         this.valueText = this.getValueText(valueAbsolute);
-        let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
+
+        /*
+         * Create the percentage Arc
+         */
+        let startAngle;
+        switch (this.getRatioType()) {
+            case "Only Positive [0,1]":
+                startAngle = this.getStartAngle();
+                valueRatio = Math.min(1, Math.max(0, valueRatio));
+                break;
+            case "Negative and Positive [-1,1]":
+                startAngle = (this.getStartAngle() + this.getEndAngle()) / 2;
+                valueRatio = Math.min(1, Math.max(-1, valueRatio));
+                break;
+        }
+        let valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
         let valueArc = this.getArc()
-            .startAngle(this.deg2rad(this.getValueStartAngle()))
+            .startAngle(this.deg2rad(startAngle))
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
 
-        let energyFlowValue = Math.abs(Math.round(sumRatio * 10));
-        if (energyFlowValue < -10) {
-            energyFlowValue = -10;
-        } else if (energyFlowValue > 10) {
-            energyFlowValue = 10;
+        /* 
+         * Create the energy flow direction arrow
+         */
+        if(sumRatio <= 0) {
+            sumRatio = 0;
+        } else if(sumRatio < 0.1) {
+            sumRatio = 0.1 // scale ratio to [0.1,1] for getSvgEnergyFlow
         }
-        let svgEnergyFlow;
-        if (isNaN(sumRatio) || isNaN(energyFlowValue)) {
-            svgEnergyFlow = null;
-        } else {
-            svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
-        }
+        sumRatio *= 10;
+        
+        let svgEnergyFlow = this.getSvgEnergyFlow(valueAbsolute, sumRatio, this.energyFlow.radius);
         this.energyFlow.update(svgEnergyFlow);
     }
 
     /**
      * This method is called on every change of resolution of the browser window.
      */
-    public update(outerRadius: number, innerRadius: number, height: number, width: number) {
+    public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
         this.outerRadius = outerRadius;
         this.innerRadius = innerRadius;
         this.height = height;
         this.width = width;
         let outlineArc = this.getArc()
-            .startAngle(this.deg2rad(this.startAngle))
-            .endAngle(this.deg2rad(this.endAngle));
+            .startAngle(this.deg2rad(this.getStartAngle()))
+            .endAngle(this.deg2rad(this.getEndAngle()));
         this.outlinePath = outlineArc();
 
         /**
@@ -193,7 +249,9 @@ export abstract class AbstractSection {
         this.energyFlow = this.initEnergyFlow(availableInnerRadius);
 
         // now update also the value specific elements
-        this.updateValue(this.lastValue.valueAbsolute, this.lastValue.valueRatio, this.lastValue.sumRatio);
+        if (this.lastCurrentData) {
+            this.updateCurrentData(this.lastCurrentData);
+        }
     }
 
     /**
@@ -201,9 +259,8 @@ export abstract class AbstractSection {
      * ...length of square and image;
      * ...x and y of text and image;
      * ...fontsize of text;
-     *
      */
-    protected getSquare(innerRadius: any): SvgSquare {
+    private getSquare(innerRadius: any): SvgSquare {
         let width = innerRadius / 2.5;
 
         let textSize = width / 4;
@@ -231,19 +288,6 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
-    // v is between -10 and 10
-    protected abstract getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow;
-
-    protected getValueRatio(valueRatio: number): number {
-        if (valueRatio > 100) {
-            return 100;
-        } else if (valueRatio < 0) {
-            return 0;
-        } else if (valueRatio == null || Number.isNaN(valueRatio)) {
-            return 0;
-        }
-        return valueRatio;
-    }
 
     protected getArc(): any {
         return d3.arc()
@@ -255,11 +299,4 @@ export abstract class AbstractSection {
         return value * (Math.PI / 180)
     }
 
-    protected getValueStartAngle(): number {
-        return this.startAngle;
-    }
-
-    protected getStorageValueStartAngle(): number {
-        return (this.startAngle + this.endAngle) / 2
-    }
 }

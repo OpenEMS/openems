@@ -21,14 +21,16 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  */
 export class SubscribeChannelsRequest extends JsonrpcRequest {
 
+    // holds the global last count. This is used in Backend to identify the latest Request.
+    private static lastCount: number = 0;
+
     static METHOD: string = "subscribeChannels";
 
     public constructor(
-        public readonly count: number,
         public readonly channels: ChannelAddress[]
     ) {
         super(UUID.UUID(), SubscribeChannelsRequest.METHOD, {
-            count: count,
+            count: SubscribeChannelsRequest.lastCount++,
             channels: JsonRpcUtils.channelsToStringArray(channels)
         });
     }

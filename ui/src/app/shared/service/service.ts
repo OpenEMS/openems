@@ -1,16 +1,15 @@
-import { Injectable, ErrorHandler } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject, BehaviorSubject } from 'rxjs';
-import { Cookie } from 'ng2-cookies';
-
-import { DefaultTypes } from './defaulttypes';
+import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Edge } from '../edge/edge';
+import { TranslateService } from '@ngx-translate/core';
+import { Cookie } from 'ng2-cookies';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
+import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { Edges } from '../jsonrpc/shared';
-import { UUID } from 'angular2-uuid';
+import { LanguageTag, Language } from '../translate/language';
 import { Role } from '../type/role';
+import { DefaultTypes } from './defaulttypes';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -39,9 +38,9 @@ export class Service implements ErrorHandler {
     public translate: TranslateService
   ) {
     // add language
-    translate.addLangs(["de", "en", "cz", "nl", "es"]);
+    translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang('de');
+    translate.setDefaultLang(LanguageTag.DE);
   }
 
   /**
@@ -55,7 +54,7 @@ export class Service implements ErrorHandler {
   /**
    * Sets the application language
    */
-  public setLang(id: DefaultTypes.LanguageTag) {
+  public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
   }
@@ -93,6 +92,7 @@ export class Service implements ErrorHandler {
    */
   public handleError(error: any) {
     console.error(error);
+    // TODO: show notification
     // let notification: Notification = {
     //     type: "error",
     //     message: error

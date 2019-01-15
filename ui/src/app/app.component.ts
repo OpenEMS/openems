@@ -1,19 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ToasterService } from 'angular2-toaster';
-import { filter } from 'rxjs/operators';
-
-import { Platform, PopoverController, ToastController } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-
+import { Platform, PopoverController, ToastController } from '@ionic/angular';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
-
 import { PopoverPage } from './shared/popover/popover.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { Websocket } from './shared/service/websocket';
-import { Service } from './shared/service/service';
+import { Service, Websocket } from './shared/shared';
+import { LanguageTag } from './shared/translate/language';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +31,7 @@ export class AppComponent {
     public toastController: ToastController
   ) {
     // this.initializeApp();
-    service.setLang('de');
+    service.setLang(LanguageTag.DE);
   }
 
   initializeApp() {

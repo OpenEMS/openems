@@ -10,8 +10,16 @@ export module DefaultTypes {
     [componentId: string]: string[];
   }
 
+  /**
+   * CurrentData Summary
+   * 
+   * ratio is [-1,1]
+   */
   export interface Summary {
-    storage: {
+    system: {
+      inPower: number, // all power that enters the system (production, discharge, buy-from-grid)
+      outPower: number // all power that leaves the system (consumption, charge, sell-to-grid)
+    }, storage: {
       soc: number,
       isAsymmetric: boolean,
       hasDC: boolean,
@@ -63,15 +71,5 @@ export module DefaultTypes {
     code?: number,
     params?: string[]
   }
-
-  export interface Log {
-    time: number | string,
-    level: string,
-    source: string,
-    message: string,
-    color?: string /* is added later */
-  }
-
-  export type LanguageTag = "de" | "en" | "cz" | "nl";
 
 }

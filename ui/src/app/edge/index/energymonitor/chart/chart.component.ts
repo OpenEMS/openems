@@ -30,7 +30,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   @Input()
   set currentData(currentData: CurrentData) {
     this.loading = false;
-    this.updateValue(currentData);
+    this.updateCurrentData(currentData);
   }
 
   public translation: string;
@@ -60,20 +60,15 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   /**
    * This method is called on every change of values.
    */
-  updateValue(currentData: CurrentData) {
+  updateCurrentData(currentData: CurrentData) {
     /*
      * Set values for energy monitor
      */
     let summary = currentData.summary;
-    // calculate sum for sumRatio
-    let producersAbsolute = Math.abs(summary.storage.dischargeActivePower + summary.grid.buyActivePower + summary.production.activePower);
-    let consumersAbsolute = Math.abs(summary.storage.chargeActivePower + summary.grid.sellActivePower + summary.consumption.activePower);
-
-    // TODO Use Utils.safely... to avoid null pointers
-    this.storageSection.updateStorageValue(summary.storage.chargeActivePower, summary.storage.dischargeActivePower, summary.storage.soc, summary.storage.chargeActivePower / consumersAbsolute, summary.storage.dischargeActivePower / producersAbsolute, summary.storage.powerRatio);
-    this.gridSection.updateGridValue(summary.grid.buyActivePower, summary.grid.sellActivePower, summary.grid.powerRatio, summary.grid.buyActivePower / producersAbsolute, summary.grid.sellActivePower / consumersAbsolute, summary.grid.gridMode);
-    this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio), summary.consumption.activePower / consumersAbsolute);
-    this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio, summary.production.activePower / producersAbsolute);
+    this.storageSection.updateCurrentData(summary);
+    this.gridSection.updateCurrentData(summary);
+    this.consumptionSection.updateCurrentData(summary);
+    this.productionSection.updateCurrentData(summary);
   }
 
   /**
@@ -93,7 +88,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     var innerRadius = outerRadius - (outerRadius * 0.1378);
     // All sections from update() in section
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection].forEach(section => {
-      section.update(outerRadius, innerRadius, this.height, this.width);
+      section.updateOnWindowResize(outerRadius, innerRadius, this.height, this.width);
     });
   }
 

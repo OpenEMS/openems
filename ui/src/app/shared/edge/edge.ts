@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
@@ -7,7 +7,6 @@ import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
 import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
 import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
-import { DefaultTypes } from '../service/defaulttypes';
 import { Websocket } from '../service/websocket';
 import { ChannelAddress } from '../type/channeladdress';
 import { Role } from '../type/role';
@@ -40,15 +39,8 @@ export class Edge {
   // holds current data
   public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
 
-  // holds log
-  // TODO deprecated
-  public log: Observable<DefaultTypes.Log>;
-
   // holds config
   public config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig());
-
-  // holds the last SubscribeChannelsRequest count. This is used in Backend to identify the latest Request.
-  public lastSubscribeChannelsRequestCount: number = 0;
 
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
@@ -63,9 +55,6 @@ export class Edge {
     }
     return this.config;
   }
-
-  // TODO deprecated
-  public event = new Subject<Notification>();
 
   /**
    * Called by Service, when this Edge is set as currentEdge.
@@ -88,15 +77,6 @@ export class Edge {
       // TODO error
       this.config.next(new EdgeConfig());
     });
-  }
-
-  /**
-   * Sends a message to websocket
-   * 
-   * TODO deprecated
-   */
-  public send(value: any): void {
-    console.warn("Edge.send()", value);
   }
 
   /**
@@ -133,7 +113,7 @@ export class Edge {
     for (let componentId in this.subscribedChannels) {
       channels.push.apply(channels, this.subscribedChannels[componentId]);
     }
-    let request = new SubscribeChannelsRequest(this.lastSubscribeChannelsRequestCount++, channels);
+    let request = new SubscribeChannelsRequest(channels);
     this.sendRequest(ws, request); // ignore Response
   }
 
@@ -181,29 +161,6 @@ export class Edge {
    */
   public setOnline(isOnline: boolean) {
     this.isOnline = isOnline;
-  }
-
-  /**
-   * Subscribe to log
-   * 
-   * TODO deprecated
-   */
-  public subscribeLog(): void {
-    console.warn("Edge.subscribeLog()");
-    // const message = DefaultMessages.logSubscribe(this.edgeId);
-    // let replyStream = this.sendMessageWithReply(message);
-    // return { messageId: message.messageId.ui, logs: replyStream.pipe(map(message => message.log as DefaultTypes.Log)) };
-  }
-
-  /**
-   * Unsubscribe from log
-   * 
-   * TODO deprecated
-   */
-  public unsubscribeLog(messageId: string) {
-    console.warn("Edge.unsubscribeLog()");
-    // let message = DefaultMessages.logUnsubscribe(messageId, this.edgeId);
-    // this.send(message);
   }
 
   /**

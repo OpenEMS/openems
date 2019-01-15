@@ -1,18 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { delay, filter, first, retryWhen, takeUntil } from 'rxjs/operators';
+import { delay, retryWhen } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment as env } from '../../../environments';
-import { Edge } from '../edge/edge';
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
-import { AuthenticateWithSessionIdNotification } from '../jsonrpc/notification/authenticatedWithSessionIdNotification';
 import { AuthenticateWithSessionIdFailedNotification } from '../jsonrpc/notification/authenticatedWithSessionIdFailedNotification';
+import { AuthenticateWithSessionIdNotification } from '../jsonrpc/notification/authenticatedWithSessionIdNotification';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification';
 import { EdgeRpcResponse } from '../jsonrpc/response/edgeRpcResponse';
-import { Role } from '../type/role';
-import { DefaultMessages } from './defaultmessages';
 import { DefaultTypes } from './defaulttypes';
 import { Service } from './service';
 import { WsData } from './wsdata';
@@ -65,9 +62,6 @@ export class Websocket {
           if (env.debugMode) {
             console.info("Websocket connection opened");
           }
-
-          // TODO handle opening without authenticating on backend! -> redirect or authenticate using user/password
-
           this.isWebsocketConnected.next(true);
           if (this.status == 'online') {
             this.service.notify({
@@ -83,6 +77,7 @@ export class Websocket {
       },
       closeObserver: {
         next: (value) => {
+          // TODO: reconnect
           if (env.debugMode) {
             console.info("Websocket connection closed");
           }
@@ -90,36 +85,6 @@ export class Websocket {
         }
       }
     });
-
-    // this.socket = WebSocketSubject.create({
-    //   url: env.url,
-    //   openObserver: {
-    //     next: (value) => {
-    //       if (env.debugMode) {
-    //         console.info("Websocket connection opened");
-    //       }
-    //       this.isWebsocketConnected.next(true);
-    //       if (this.status == 'online') {
-    //         this.service.notify({
-    //           message: "Connection lost. Trying to reconnect.", // TODO translate
-    //           type: 'warning'
-    //         });
-    //         // TODO show spinners everywhere
-    //         this.status = 'connecting';
-    //       } else {
-    //         this.status = 'waiting for authentication';
-    //       }
-    //     }
-    //   },
-    //   closeObserver: {
-    //     next: (value) => {
-    //       if (env.debugMode) {
-    //         console.info("Websocket connection closed");
-    //       }
-    //       this.isWebsocketConnected.next(false);
-    //     }
-    //   }
-    // });
 
     this.socket.pipe(
       retryWhen(errors => {
@@ -176,51 +141,6 @@ export class Websocket {
 
       })
     return this.isWebsocketConnected;
-  }
-
-  /**
-   * Opens the websocket and logs in
-   */
-  // deprecated
-  public logIn(password: string) {
-    // if (this.isWebsocketConnected.getValue()) {
-    //   // websocket was connected
-    //   this.send(DefaultMessages.authenticateLogin(password));
-    // } else {
-    //   // websocket was NOT connected
-    //   this.connect()
-    //     .pipe(takeUntil(this.stopOnInitialize),
-    //       filter(isConnected => isConnected),
-    //       first())
-    //     .subscribe(isConnected => {
-    //       setTimeout(() => {
-    //         this.send(DefaultMessages.authenticateLogin(password))
-    //       }, 500);
-    //     });
-    // }
-  }
-
-  /**
-   * Logs out and closes the websocket
-   */
-  // deprecated
-  public logOut() {
-    // // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
-    // this.send(DefaultMessages.authenticateLogout());
-    // this.status = "waiting for authentication";
-    // this.service.removeToken();
-    // this.initialize();
-  }
-
-  /**
-   * Sends a message to the websocket
-   */
-  // TODO deprecated
-  public send(message: any): void {
-    if (env.debugMode) {
-      console.info("SEND: ", message);
-    }
-    this.socket.next(message);
   }
 
   /**
