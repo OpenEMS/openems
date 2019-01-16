@@ -57,7 +57,7 @@ public class MeterWeidmuller525 extends AbstractOpenemsModbusComponent implement
 
 	@Override
 	public MeterType getMeterType() {
-		return null;
+		return this.meterType;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {

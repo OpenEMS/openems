@@ -1,5 +1,7 @@
 package io.openems.edge.sma;
 
+import java.util.Optional;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -10,6 +12,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -23,10 +27,14 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -41,9 +49,11 @@ import io.openems.edge.io.api.DigitalInput;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
-		implements SinglePhaseEss, SymmetricEss, ManagedSymmetricEss, OpenemsComponent {
+		implements SinglePhaseEss, SymmetricEss, ManagedSymmetricEss, OpenemsComponent, EventHandler {
 
-	ChannelAddress fireDetection = null;
+	ChannelAddress inputFireDetection = null;
+	ChannelAddress outputMainSwitch = null;
+	ChannelAddress inputBatteryLevelWarning = null;
 
 	@Reference
 	private Power power;
@@ -54,7 +64,13 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	DigitalInput fireDetectionComponent;
+	DigitalInput inputFireDetectionComponent;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput inputBatteryLevelWarningComponent;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput outputMainSwitchComponent;
 
 	public SunnyIsland6Ess() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -66,7 +82,6 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	}
 
 	// TODO IMP!! LOAD_POWER "30861"
-
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
 		IntegerWriteChannel setControlMode = this.channel(ChannelId.SET_CONTROL_MODE);
@@ -81,14 +96,34 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		}
 	}
 
+//	private IntegerWriteChannel getSetControlMode() {
+//		return this.channel(SunnyIsland6Ess.ChannelId.SET_CONTROL_MODE);
+//	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 		this.getPhase().setNextValue(config.Phase());
-		this.fireDetection = ChannelAddress.fromString(config.fireDtection());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "fireDetectionComponent",
-				this.fireDetection.getComponentId())) {
+
+		// update filter for 'fireDetection'
+		this.inputFireDetection = ChannelAddress.fromString(config.inputFireDetection());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputFireDetectionComponent",
+				this.inputFireDetection.getComponentId())) {
+			return;
+		}
+
+		// update filter for 'BatteryLevelWarning'
+		this.inputBatteryLevelWarning = ChannelAddress.fromString(config.inputBatteryLevelWarning());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputBatteryLevelWarningComponent",
+				this.inputBatteryLevelWarning.getComponentId())) {
+			return;
+		}
+
+		// update filter for 'outputMainSwitch'
+		this.outputMainSwitch = ChannelAddress.fromString(config.outputMainSwitch());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputMainSwitchComponent",
+				this.outputMainSwitch.getComponentId())) {
 			return;
 		}
 	}
@@ -96,6 +131,49 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	private void handleState() {
+		BooleanReadChannel inputBatteryLevelWarning = this.inputBatteryLevelWarningComponent
+				.channel(this.inputBatteryLevelWarning.getChannelId());
+		Value<Boolean> isBatteryLevelWarning = inputBatteryLevelWarning.getNextValue();
+		BooleanReadChannel inputFireDetection = this.inputFireDetectionComponent
+				.channel(this.inputFireDetection.getChannelId());
+		Optional<Boolean> isFireDetection = inputFireDetection.value().asOptional();
+		if (!isFireDetection.isPresent() && isFireDetection.get()) {
+			setOutputMainSwitch(false);
+		}
+		return;
+	}
+
+	private void setOutputMainSwitch(boolean value) {
+		BooleanWriteChannel outputMainSwitch = this.outputMainSwitchComponent
+				.channel(this.outputMainSwitch.getChannelId());
+		this.setOutput(outputMainSwitch, value);
+	}
+
+	private void setOutput(BooleanWriteChannel channel, boolean value) {
+		Optional<Boolean> currentValueOpt = channel.value().asOptional();
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
+			log.info("Set output [" + channel.address() + "] " + (value ? "ON" : "OFF") + ".");
+			try {
+				channel.setNextWriteValue(value);
+			} catch (OpenemsException e) {
+				this.logError(this.log, "Unable to set output: [" + channel.address() + "] " + e.getMessage());
+			}
+		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			handleState();
+			break;
+		}
 	}
 
 	@Override

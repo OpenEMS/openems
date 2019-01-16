@@ -51,6 +51,17 @@ public class JsonUtils {
 		throw new OpenemsException("Element [" + memberName + "] is not an Integer: " + jPrimitive);
 	}
 
+	public static double getAsDouble(JsonElement jElement, String memberName) throws OpenemsException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsDouble();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Double.parseDouble(string);
+		}
+		throw new OpenemsException("Element [" + memberName + "] is not a Double: " + jPrimitive);
+	}
+	
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonArray()) {
 			throw new OpenemsException("This is not a JsonArray: " + jElement);
