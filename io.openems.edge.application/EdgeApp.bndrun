@@ -46,7 +46,6 @@ JPM-Command:				openems-edge
 	bnd.identity;id='io.openems.edge.ess.cluster',\
 	bnd.identity;id='io.openems.edge.ess.core',\
 	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
-	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.wago',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
@@ -97,10 +96,8 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.cluster;version=snapshot,\
 	io.openems.edge.ess.core;version=snapshot,\
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
-	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
-	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
@@ -141,7 +138,7 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.edcom;version=snapshot,\
 	org.eclipse.jetty.io;version='[9.3.8,9.3.9)',\
 	org.osgi.compendium;version='[4.1.0,4.1.1)',\
-	io.openems.edge.ess.mr.gridcon;version=snapshot,\
-	io.openems.edge.pvinverter.solarlog;version=snapshot
+	io.openems.edge.pvinverter.solarlog;version=snapshot,\
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot
 		
 -runee: JavaSE-1.8
