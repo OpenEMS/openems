@@ -40,6 +40,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
+
 @Designate(ocd = Config.class, factory = true)
 @Component( //
 		name = "KACO.bpCom", //
@@ -63,6 +64,10 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 	private InetAddress inverterAddress;
 	private String userkey;
 	private String serialNumber;
+	
+	public EdCom() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {

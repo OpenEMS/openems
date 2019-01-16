@@ -3,9 +3,6 @@ package com.ed.openems.centurio.pv;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import com.ed.openems.centurio.ess.CenturioErrorChannel;
-import com.ed.openems.centurio.ess.CenturioEss;
-
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;

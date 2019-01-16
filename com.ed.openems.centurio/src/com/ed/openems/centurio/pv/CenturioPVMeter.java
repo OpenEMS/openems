@@ -20,10 +20,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.ed.data.InverterData;
 import com.ed.openems.centurio.CenturioConstants;
 import com.ed.openems.centurio.datasource.api.EdComData;
-import com.ed.openems.centurio.ess.CenturioEss;
 
 import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
