@@ -33,7 +33,7 @@
     "@ionic-native/status-bar": "5.0.0-beta.21",
     "@ionic/angular": "^4.0.0-rc.1",
     "@ngx-translate/core": "^11.0.1",
-    "@types/d3": "5.5.0",
+    "@types/d3": "5.7.0",
     "angular2-toaster": "7.0.0",
     "angular2-uuid": "^1.1.1",
     "chart.js": "^2.7.3",
