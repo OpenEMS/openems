@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -110,8 +111,9 @@ public class DBUtils {
 
 	public MyUser getUserFromDB(String login, String sessionId) throws OpenemsException {
 
-		MyUser user = null;
+		MyUser user = createUser(sessionId);
 		
+		/*
 		if(createUser(sessionId) == false) {
 			log.warn("Error in createUser");
 		}
@@ -146,16 +148,16 @@ public class DBUtils {
 		} catch (SQLException e) {
 
 			e.printStackTrace();
-		}
+		}*/
 
 		return user;
 
 	}
 
-	private boolean createUser(String sessionId) throws OpenemsException {
+	private MyUser createUser(String sessionId) throws OpenemsException {
 
 		if (sessionId == null) {
-			return false;
+			return null;
 			
 		}
 
@@ -166,7 +168,7 @@ public class DBUtils {
 		String nick = j.get("nickname").getAsString();
 		String role = j.get("primusrole").getAsString();
 		String primus = j.get("primus").getAsString();
-		String[] edges = primus.split(",");
+		ArrayList<String> edges = new ArrayList<String>(Arrays.asList(primus.split(",")));
 
 		j = getWPResponse("/user/get_currentuserinfo/?cookie=" + sessionId);
 		if (j == null) {
@@ -178,8 +180,10 @@ public class DBUtils {
 		if (!name.matches(".*\\w.*")) {
 			name = nick;
 		}
-		String email = userinfo.get("email").getAsString();
-
+		//String email = userinfo.get("email").getAsString();
+		
+		MyUser user = new MyUser(userinfo.get("id").getAsInt(), name, edges, role);
+		/*
 		try {
 			reconnect();
 			Statement stmt;
@@ -212,8 +216,8 @@ public class DBUtils {
 		} catch (SQLException e) {
 
 			log.warn(e.getMessage());
-		}
-			return false;
+		}*/
+			return user;
 	}
 
 	public JsonObject getWPResponse(String urlparams) throws OpenemsException {

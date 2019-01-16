@@ -6,16 +6,16 @@ import io.openems.backend.metadata.api.User;
 
 public class MyUser extends User {
 
-	private  ArrayList<Integer> edgeids;
+	private  ArrayList<String> edgeids;
 	private String role;
 
-	public MyUser(int id, String name, ArrayList<Integer> edgeids, String role) {
+	public MyUser(int id, String name, ArrayList<String> edgeids, String role) {
 		super(id, name);
 		this.edgeids = edgeids;
 		this.role = role;
 	}
 
-	public ArrayList<Integer> getEdgeids() {
+	public ArrayList<String> getEdgeids() {
 		return this.edgeids;
 	}
 	

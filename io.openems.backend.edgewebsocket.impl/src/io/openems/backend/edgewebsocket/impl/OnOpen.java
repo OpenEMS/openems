@@ -49,7 +49,12 @@ public class OnOpen extends AbstractOnOpen {
 
 			// verify apikey (is also empty, when Odoo is not initialized)
 			if (edgeIds.length == 0) {
-				throw new OpenemsException("Unable to authenticate this Apikey.");
+				
+				
+				
+				throw new OpenemsException("Unable to authenticate this Apikey. key: " + apikey);
+				
+				
 			}
 
 			// get Edge object for edgeIds
@@ -93,6 +98,7 @@ public class OnOpen extends AbstractOnOpen {
 			}
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());
+			log.warn("Catch exception");
 			// send connection failed to OpenEMS
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
 			WebSocketUtils.sendOrLogError(websocket, jReply);

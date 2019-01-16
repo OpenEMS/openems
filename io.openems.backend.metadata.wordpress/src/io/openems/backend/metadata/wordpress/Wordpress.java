@@ -81,8 +81,8 @@ public class Wordpress implements MetadataService {
 			throw new OpenemsException("User not found: Gastzugang");
 		}
 
-		for (int edgeId : user.getEdgeids()) {
-			user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
+		for (String edgeId : user.getEdgeids()) {
+			user.addEdgeRole(Integer.parseInt(edgeId), Role.getRole(user.getRole()));
 		}
 
 		synchronized (this.users) {
@@ -119,9 +119,9 @@ public class Wordpress implements MetadataService {
 						user.addEdgeRole(edgeId, Role.ADMIN);
 					}
 				} else {
-					for (int edgeId : user.getEdgeids())
+					for (String edgeId : user.getEdgeids())
 
-						user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
+						user.addEdgeRole(Integer.parseInt(edgeId), Role.getRole(user.getRole()));
 				}
 
 				synchronized (this.users) {
@@ -143,7 +143,7 @@ public class Wordpress implements MetadataService {
 	}
 
 	@Override
-	public int[] getEdgeIdsForApikey(String apikey) {
+	public int[] getEdgeIdsForApikey(String apikey)  {
 
 		updateEdges();
 
@@ -168,8 +168,13 @@ public class Wordpress implements MetadataService {
 		for (int i = 0; i < ids.size(); i++) {
 			result[i] = ids.get(i);
 		}
+		
+		if(result.length == 0) {
+			
+		}
+		
 		return result;
-
+		
 	}
 
 	@Override
