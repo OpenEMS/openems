@@ -1,108 +1,118 @@
-import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs';
-import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, Service, Utils, Websocket } from '../../../../shared/shared';
+import { AbstractHistoryChart } from '../../abstracthistorychart';
+import { ChartOptions, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem, Data } from './../shared';
+import { formatNumber } from '@angular/common';
 
-import { Edge } from '../../../../shared/edge/edge';
-import { ConfigImpl } from '../../../../shared/edge/config';
-import { DefaultTypes } from '../../../../shared/service/defaulttypes';
-import { Dataset, EMPTY_DATASET } from '../../../../shared/shared';
-import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from '../shared';
-import { Utils } from '../../../../shared/service/utils';
-import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
-import { CurrentDataAndSummary_2018_8 } from '../../../../shared/edge/currentdata.2018.8';
-import { ConfigImpl_2018_8 } from '../../../../shared/edge/config.2018.8';
-import { ConfigImpl_2018_7 } from '../../../../shared/edge/config.2018.7';
-
-// TODO grid should be shown as "Netzeinspeisung"/"Netzbezug" instead of positive/negative value
 @Component({
   selector: 'evcschart',
   templateUrl: './evcschart.component.html'
 })
-export class EvcsChartComponent implements OnChanges {
+export class EvcsChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private edge: Edge;
-  @Input() private config: ConfigImpl;
-  @Input() private channels: DefaultTypes.ChannelAddresses;
+  @ViewChild('socChart') protected chart: BaseChartDirective;
+
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
 
-  @ViewChild('evcsChart') private chart: BaseChartDirective;
+  ngOnChanges() {
+    this.updateChart();
+  };
 
   constructor(
-    private utils: Utils,
+    protected service: Service,
+    private route: ActivatedRoute,
     private translate: TranslateService
   ) {
-    this.grid = this.translate.instant('General.Grid');
-    this.gridBuy = this.translate.instant('General.GridBuy');
-    this.gridSell = this.translate.instant('General.GridSell');
+    super(service);
   }
-
-  public labels: Date[] = [];
-  public datasets: Dataset[] = EMPTY_DATASET;
+  
   public loading: boolean = true;
 
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-  private grid: String = "";
-  private gridBuy: String = "";
-  private gridSell: String = "";
-
-  private colors = [{
+  protected labels: Date[] = [];
+  protected datasets: Dataset[] = EMPTY_DATASET;
+  protected options: ChartOptions;
+  protected colors = [{
     // Actual Power
     backgroundColor: 'rgba(173,255,47,0.1)',
     borderColor: 'rgba(173,255,47,1)',
   }];
-  private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    this.service.setCurrentEdge(this.route);
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + value.toPrecision(2) + " kW";
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
     this.options = options;
   }
 
-  ngOnChanges() {
-    if (Object.keys(this.channels).length === 0) {
-      this.loading = true;
-      return;
-    }
+  private updateChart() {
     this.loading = true;
-    this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
-      // prepare datas array and prefill with each device
+    this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
+      let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-      // prepare datasets and labels
-      let actualPowers: number[] = [];
+      // convert labels
       let labels: Date[] = [];
-      for (let record of historicData.data) {
-        for (let componentId in record.channels) {
-          let d = record.channels[componentId];
-          if ("ActualPower" in d) {
-            actualPowers.push(Utils.divideSafely(d.ActualPower, 1000000));  // convert to kW
-          }
-        }
-        labels.push(new Date(record.time));
+      for (let timestamp of result.timestamps) {
+        labels.push(new Date(timestamp));
       }
-      this.datasets = [{
-        label: this.translate.instant('General.ActualPower'),
-        data: actualPowers,
-        hidden: false
-      }];
       this.labels = labels;
-      // stop loading spinner
+
+      // show Component-ID if there is more than one Channel
+      let showComponentId = Object.keys(result.data).length > 1 ? true : false;
+
+      // convert datasets
+      let datasets = [];
+      for (let channel in result.data) {
+        let address = ChannelAddress.fromString(channel);
+        let data = result.data[channel].map(value => {
+          if (value == null) {
+            return null
+          } else {
+            return value / 1000; // convert to kW
+          }
+        });
+        datasets.push({
+          label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+          data: data
+        });
+      }
+      this.datasets = datasets;
+
       this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
-      });
-    }).catch(error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
+
+    }).catch(reason => {
+      console.error(reason); // TODO error message
+      this.initializeChart();
+      return;
     });
   }
+
+  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+    return new Promise((resolve, reject) => {
+      this.service.getConfig().then(config => {
+        let channeladdresses = [];
+        // find all EVCS components
+        for (let componentId of config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
+          channeladdresses.push(new ChannelAddress(componentId, 'ChargePower'));
+        }
+        resolve(channeladdresses);
+      }).catch(reason => reject(reason));
+    });
+  }
+
+  private initializeChart() {
+    this.datasets = EMPTY_DATASET;
+    this.labels = [];
+    this.loading = false;
+  }
+
 }

@@ -1,59 +1,54 @@
 package io.openems.backend.metadata.dummy;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
-import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class Dummy implements MetadataService {
+public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 
 	private final Logger log = LoggerFactory.getLogger(Dummy.class);
 
-	private int nextUserId = 0;
-	private int nextEdgeId = 0;
+	private final AtomicInteger nextUserId = new AtomicInteger(-1);
+	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
-	private Map<Integer, User> users = new HashMap<>();
-	private Map<Integer, Edge> edges = new HashMap<>();
+	private final Map<String, User> users = new HashMap<>();
+	private final Map<String, Edge> edges = new HashMap<>();
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	private volatile EdgeWebsocketService edgeWebsocketService;
+	public Dummy() {
+		super("Metadata.Dummy");
+	}
 
 	@Activate
 	void activate() {
-		log.info("Activate Metadata.Dummy");
-		this.nextUserId = 0;
-		this.nextEdgeId = 0;
-		this.users.clear();
-		this.edges.clear();
+		this.logInfo(this.log, "Activate");
 	}
 
 	@Deactivate
 	void deactivate() {
-		log.info("Deactivate Metadata.Dummy");
+		this.logInfo(this.log, "Deactivate");
 	}
 
 	@Override
@@ -63,50 +58,55 @@ public class Dummy implements MetadataService {
 
 	@Override
 	public User authenticate(String sessionId) throws OpenemsException {
-		int id = this.nextUserId++;
-		User user = new User(id, "USER:" + sessionId);
-		for (int edgeId : this.edges.keySet()) {
+		int id = this.nextUserId.incrementAndGet();
+		String userId = "user" + id;
+		User user = new User(userId, "User #" + id);
+		for (String edgeId : this.edges.keySet()) {
 			user.addEdgeRole(edgeId, Role.ADMIN);
 		}
-		this.users.put(id, user);
+		this.users.put(userId, user);
 		return user;
 	}
 
 	@Override
-	public int[] getEdgeIdsForApikey(String apikey) {
-		int[] edgeIds = this.edges.values().stream() //
+	public Optional<String> getEdgeIdForApikey(String apikey) {
+		Optional<Edge> edgeOpt = this.edges.values().stream() //
 				.filter(edge -> apikey.equals(edge.getApikey())) //
-				.mapToInt(edge -> edge.getId()).toArray();
-		if (edgeIds.length > 0) {
-			return edgeIds;
+				.findFirst();
+		if (edgeOpt.isPresent()) {
+			return Optional.ofNullable(edgeOpt.get().getId());
 		}
 		// not found -> create
-		int id = this.nextEdgeId++;
-		Edge edge = new Edge(id, apikey, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE,
-				OpenemsConstants.VERSION, "producttype [" + id + "]", new JsonObject(), null, null);
-		edge.onSetConfig(jConfig -> {
-			log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
+		int id = this.nextEdgeId.incrementAndGet();
+		String edgeId = "edge" + id;
+		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null);
+		edge.onSetConfig(config -> {
+			this.logDebug(this.log,
+					"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 		});
 		edge.onSetSoc(soc -> {
-			log.debug("Edge [" + id + "]. Set SoC: " + soc);
+			this.logDebug(this.log, "Edge [" + edgeId + "]. Set SoC: " + soc);
 		});
 		edge.onSetIpv4(ipv4 -> {
-			log.debug("Edge [" + id + "]. Set IPv4: " + ipv4);
+			this.logDebug(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
 		});
-		edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
-		this.edges.put(id, edge);
-		return new int[] { id };
+		this.edges.put(edgeId, edge);
+		return Optional.ofNullable(edgeId);
 	}
 
 	@Override
-	public Optional<Edge> getEdgeOpt(int edgeId) {
+	public Optional<Edge> getEdge(String edgeId) {
 		Edge edge = this.edges.get(edgeId);
-		return Optional.of(edge);
+		return Optional.ofNullable(edge);
 	}
 
 	@Override
-	public Optional<User> getUser(int userId) {
+	public Optional<User> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 
+	@Override
+	public Collection<Edge> getAllEdges() {
+		return Collections.unmodifiableCollection(this.edges.values());
+	}
 }

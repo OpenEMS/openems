@@ -39,7 +39,7 @@ public class SymmetricRandomPower extends AbstractOpenemsComponent implements Co
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 

@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator PV-Inverter", //
 		description = "This simulates a PV-Inverter using data provided by a data source.")
 @interface Config {
-	
-	String service_pid();
 
 	String id() default "meter1";
 

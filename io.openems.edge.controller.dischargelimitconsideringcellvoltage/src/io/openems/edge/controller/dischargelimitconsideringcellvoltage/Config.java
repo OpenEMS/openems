@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Discharge Limit Considering Cell Voltage", //
 		description = "Limits discharge for a battery considering the minimal cell voltage.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlDischargeLimitConsideringCellVoltage0";
 
 	boolean enabled() default true;

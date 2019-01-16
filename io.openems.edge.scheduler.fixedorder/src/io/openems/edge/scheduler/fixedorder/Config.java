@@ -9,8 +9,6 @@ import io.openems.edge.scheduler.api.Scheduler;
 		name = "Scheduler Fixed Order", //
 		description = "This Scheduler takes a list of Component IDs and returns the Controllers statically sorted by this order.")
 @interface Config {
-	String service_pid();
-
 	String id() default "scheduler0";
 
 	boolean enabled() default true;

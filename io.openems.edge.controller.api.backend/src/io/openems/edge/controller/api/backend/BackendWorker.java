@@ -2,26 +2,24 @@ package io.openems.edge.controller.api.backend;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.StringUtils;
-import io.openems.common.websocket.DefaultMessages;
+import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.worker.AbstractWorker;
 
 class BackendWorker extends AbstractWorker {
 
-	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
+	private static final int MAX_CACHED_MESSAGES = 1000;
 
+	// private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 	private final BackendApi parent;
 
 	private Optional<Integer> increasedCycleTime = Optional.empty();
@@ -29,11 +27,8 @@ class BackendWorker extends AbstractWorker {
 	// Last cached values
 	private final HashMap<ChannelAddress, JsonElement> last = new HashMap<>();
 	// Unsent queue (FIFO)
-	private EvictingQueue<JsonObject> unsent = EvictingQueue.create(1000);
+	private EvictingQueue<JsonrpcMessage> unsent = EvictingQueue.create(MAX_CACHED_MESSAGES);
 
-	/**
-	 * @param backendApi
-	 */
 	BackendWorker(BackendApi parent) {
 		this.parent = parent;
 	}
@@ -50,30 +45,33 @@ class BackendWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
-		JsonObject jValues = getChangedValues();
+		// TODO send all data once after reconnect. The Backend might have been
+		// restartet.
+		Map<ChannelAddress, JsonElement> values = this.getChangedValues();
 		boolean canSendFromCache;
 
 		/*
 		 * send, if list is not empty
 		 */
-		if (!jValues.entrySet().isEmpty()) {
+		if (!values.isEmpty()) {
 			// Get timestamp and round to Cycle-Time
 			int cycleTime = this.getCycleTime();
 			long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
 
-			// create websocket message
-			JsonObject j = DefaultMessages.timestampedData(timestamp, jValues);
+			// create JSON-RPC notification
+			TimestampedDataNotification message = new TimestampedDataNotification();
+			message.add(timestamp, values);
 
 			// reset cycleTime to default
 			resetCycleTime();
 
-			boolean wasSent = this.sendOrLogError(j);
+			boolean wasSent = this.parent.websocket.sendMessage(message);
 			if (!wasSent) {
 				// increase cycleTime
 				increaseCycleTime();
 
 				// cache data for later
-				this.unsent.add(j);
+				this.unsent.add(message);
 			}
 
 			canSendFromCache = wasSent;
@@ -83,9 +81,9 @@ class BackendWorker extends AbstractWorker {
 
 		// send from cache
 		if (canSendFromCache && !this.unsent.isEmpty()) {
-			for (Iterator<JsonObject> iterator = this.unsent.iterator(); iterator.hasNext();) {
-				JsonObject jCached = iterator.next();
-				boolean cacheWasSent = this.sendOrLogError(jCached);
+			for (Iterator<JsonrpcMessage> iterator = this.unsent.iterator(); iterator.hasNext();) {
+				JsonrpcMessage cached = iterator.next();
+				boolean cacheWasSent = this.parent.websocket.sendMessage(cached);
 				if (cacheWasSent) {
 					// sent successfully -> remove from cache & try next
 					iterator.remove();
@@ -100,57 +98,30 @@ class BackendWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Goes through all Channels and gets the value. If the value changed since last
-	 * check, it is added to the queue.
+	 * Cycles through all Channels and gets the value. If the value changed since
+	 * last check, it is added to the queue.
+	 * 
+	 * @return a map of channels who's value changed since last check
 	 */
-	private JsonObject getChangedValues() {
-		final JsonObject j = new JsonObject();
-		this.parent.getComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
-			component.channels().forEach(channel -> {
-				// Ignore WRITE_ONLY Channels
-				switch (channel.channelDoc().getAccessMode()) {
-				case READ_ONLY:
-				case READ_WRITE:
-					break;
-				case WRITE_ONLY:
-					return;
-				}
-
-				ChannelAddress address = channel.address();
-				JsonElement jValue = channel.value().asJson();
-				JsonElement jLastValue = this.last.get(address);
-				if (jLastValue == null || !jLastValue.equals(jValue)) {
-					// this value differs from the last sent value -> add to queue
-					// TODO use JsonNull in Backend
-					if (jValue.equals(JsonNull.INSTANCE)) {
-						return;
+	private Map<ChannelAddress, JsonElement> getChangedValues() {
+		final ConcurrentHashMap<ChannelAddress, JsonElement> values = new ConcurrentHashMap<>();
+		this.parent.componentManager.getComponents().parallelStream() //
+				.filter(c -> c.isEnabled()) //
+				.flatMap(component -> component.channels().parallelStream()) //
+				.filter(channel -> // Ignore WRITE_ONLY Channels
+				channel.channelDoc().getAccessMode() == AccessMode.READ_ONLY
+						|| channel.channelDoc().getAccessMode() == AccessMode.READ_WRITE)
+				.forEach(channel -> {
+					ChannelAddress address = channel.address();
+					JsonElement jValue = channel.value().asJson();
+					JsonElement jLastValue = this.last.get(address);
+					if (jLastValue == null || !jLastValue.equals(jValue)) {
+						// this value differs from the last sent value
+						this.last.put(address, jValue);
+						values.put(address, jValue);
 					}
-					j.add(address.toString(), jValue);
-					this.last.put(address, jValue);
-				}
-			});
-		});
-		return j;
-	}
-
-	/**
-	 * Send message to websocket
-	 *
-	 * @param j
-	 * @return
-	 * @throws OpenemsException
-	 */
-	private boolean sendOrLogError(JsonObject j) {
-		try {
-			this.parent.websocket.send(j);
-			if (this.parent.debug) {
-				log.info("Sent successfully: " + StringUtils.toShortString(j, 100));
-			}
-			return true;
-		} catch (OpenemsException e) {
-			log.warn("Unable to send! " + e.getMessage() + ". Content: " + StringUtils.toShortString(j, 100));
-			return false;
-		}
+				});
+		return values;
 	}
 
 	private void increaseCycleTime() {

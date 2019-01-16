@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.ess.api.SymmetricEss.GridMode;
+import io.openems.edge.common.sum.GridMode;
 
 /**
  * Helper class to find the effective Grid-Mode of multiple Ess.

@@ -1,0 +1,87 @@
+<ion-card *ngIf="edge">
+  <ion-item color="light">
+    <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
+    <ion-label translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-label>
+  </ion-item>
+
+  <ion-card-content>
+    <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+    <ng-container *ngIf="edge.currentData | async as currentData">
+      <table class="full_width">
+        <tr>
+          <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingPower</td>
+          <td style="width:15%"></td>
+          <td style="width:35%" class="align_right">{{ currentData['channel'][componentId + "/ChargePower"] |
+            number:'1.0-0' }}</td>
+          <td style="width:10%">&nbsp;W</td>
+        </tr>
+        <tr *ngIf="controller">
+          <td colspan="2" translate>Erzwinge Beladung mit maximaler Leistung?</td>
+          <td colspan="2" class="align_right" style="width:50%">
+              <!-- TODO check permissions here already and disable ion-toggle if not sufficient -->
+            <ion-toggle (ionChange)="updateChargeMode($event)" [checked]="controller.properties.chargeMode == 'FORCE_CHARGE'"></ion-toggle>
+            <!-- might use this in future if we have more than two charge-modes. Need to work a bit on the layout...
+            <ion-item>
+              <ion-select  [value]="controller.properties.chargeMode" interface="popover">
+                <ion-select-option value="DEFAULT">Standard</ion-select-option>
+                <ion-select-option value="FORCE_CHARGE">Zwangsbeladung</ion-select-option>
+              </ion-select>
+            </ion-item> -->
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+  </ion-card-content>
+</ion-card>
+
+
+<!--
+          <ng-container *ngIf="data.State != null">
+            <tr>
+              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.Status</td>
+              <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.State">
+                <span *ngSwitchCase="'0'" translate>Edge.Index.Widgets.EVCS.Starting</span>
+                <span *ngSwitchCase="'1'" translate>Edge.Index.Widgets.EVCS.NotReadyForCharging</span>
+                <span *ngSwitchCase="'2'" translate>Edge.Index.Widgets.EVCS.ReadyForCharging</span>
+                <span *ngSwitchCase="'3'" translate>Edge.Index.Widgets.EVCS.Charging</span>
+                <span *ngSwitchCase="'4'" translate>Edge.Index.Widgets.EVCS.Error</span>
+                <span *ngSwitchCase="'5'" translate>Edge.Index.Widgets.EVCS.NotAuthorized</span>
+              </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="data.Plug != null">
+            <tr class="underline">
+              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.Cable</td>
+              <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.Plug">
+                <span *ngSwitchCase="'0'" translate>Edge.Index.Widgets.EVCS.Unplugged</span>
+                <span *ngSwitchCase="'1'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedIn</span>
+                <span *ngSwitchCase="'3'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedInLocked</span>
+                <span *ngSwitchCase="'5'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedInEV</span>
+                <span *ngSwitchCase="'7'" translate>Edge.Index.Widgets.EVCS.ChargingStationPluggedInEVLocked</span>
+              </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="data.CurrUser != null">
+            <tr>
+              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.ChargingLimit</td>
+              <td style="width:15%"></td>
+              <td style="width:35%" class="align_right">{{ data.CurrUser | number:'1.0-0' }}</td>
+              <td style="width:10%">&nbsp;mA</td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="data.EnergySession != null">
+            <tr class="underline">
+              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.CurrentCharge</td>
+              <td style="width:15%"></td>
+              <td style="width:35%" class="align_right">{{ data.EnergySession / 10000 | number:'1.0-0' }}</td>
+              <td style="width:10%">&nbsp;kWh</td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="data.EnergyTotal != null">
+            <tr class="underline">
+              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.TotalCharge</td>
+              <td style="width:15%"></td>
+              <td style="width:35%" class="align_right">{{ data.EnergyTotal / 10000 | number:'1.0-0' }}</td>
+              <td style="width:10%">&nbsp;kWh</td>
+            </tr>
+          </ng-container> -->

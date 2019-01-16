@@ -725,7 +725,6 @@ public class Solver {
 		// high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight
 		// inverters (e.g. low state-of-charge) on CHARGE.
 		List<Inverter> allInvertersTargetDirection;
-		// TODO disabled for now
 		if (this.activeTargetDirection == TargetDirection.DISCHARGE) {
 			allInvertersTargetDirection = Lists.reverse(allInverters);
 		} else {

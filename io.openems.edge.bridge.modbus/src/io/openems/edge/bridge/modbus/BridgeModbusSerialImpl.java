@@ -64,7 +64,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Activate
 	void activate(ComponentContext context, ConfigSerial config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();

@@ -49,7 +49,7 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 
 	@Activate
 	protected void activate(ComponentContext context, Config1 config1) {
-		super.activate(context, config1.service_pid(), config1.id(), config1.enabled(), config1.readonly(), UNIT_ID,
+		super.activate(context, config1.id(), config1.enabled(), config1.readonly(), UNIT_ID,
 				this.cm, "Modbus", config1.modbus_id());
 	}
 

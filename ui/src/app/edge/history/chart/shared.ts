@@ -1,5 +1,14 @@
-import { format } from 'date-fns';
-import * as deLocale from 'date-fns/locale/de/index.js'
+export interface Dataset {
+    label: string;
+    data: number[];
+    hidden: boolean;
+}
+
+export const EMPTY_DATASET = [{
+    label: "",
+    data: [],
+    hidden: false
+}];
 
 export type Data = {
     labels: Date,

@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "The grid-meter implementation of a FENECON DESS (PRO Hybrid, PRO Compact,...)")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "meter0";
 
 	boolean enabled() default true;

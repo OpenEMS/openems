@@ -106,8 +106,8 @@ export class Utils {
   /**
    * Creates a deep copy of the object
    */
-  public deepCopy(obj) {
-    var copy;
+  public static deepCopy(obj) {
+    let copy: any;
 
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
@@ -122,7 +122,7 @@ export class Utils {
     // Handle Array
     if (obj instanceof Array) {
       copy = [];
-      for (var i = 0, len = obj.length; i < len; i++) {
+      for (let i = 0, len = obj.length; i < len; i++) {
         copy[i] = this.deepCopy(obj[i]);
       }
       return copy;
@@ -131,7 +131,7 @@ export class Utils {
     // Handle Object
     if (obj instanceof Object) {
       copy = {};
-      for (var attr in obj) {
+      for (let attr in obj) {
         if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopy(obj[attr]);
       }
       return copy;
@@ -140,6 +140,12 @@ export class Utils {
     throw new Error("Unable to copy obj! Its type isn't supported.");
   }
 
+  /**
+   * Safely adds two - possibly 'null' - values: v1 + v2
+   * 
+   * @param v1 
+   * @param v2 
+   */
   public static addSafely(v1: number, v2: number): number {
     if (v1 == null) {
       return v2;
@@ -150,6 +156,12 @@ export class Utils {
     }
   }
 
+  /**
+   * Safely subtracts two - possibly 'null' - values: v1 - v2
+   * 
+   * @param v1 
+   * @param v2 
+   */
   public static subtractSafely(v1: number, v2: number): number {
     if (v1 == null) {
       return v2;
@@ -160,14 +172,28 @@ export class Utils {
     }
   }
 
+  /**
+   * Safely divides two - possibly 'null' - values: v1 / v2
+   * 
+   * @param v1 
+   * @param v2 
+   */
   public static divideSafely(v1: number, v2: number): number {
     if (v1 == null || v2 == null) {
       return null;
+    } else if (v2 == 0) {
+      return null; // divide by zero
     } else {
       return v1 / v2;
     }
   }
 
+  /**
+   * Safely multiplies two - possibly 'null' - values: v1 * v2
+   * 
+   * @param v1 
+   * @param v2 
+   */
   public static multiplySafely(v1: number, v2: number): number {
     if (v1 == null || v2 == null) {
       return null;
@@ -177,19 +203,30 @@ export class Utils {
   }
 
   /**
-   * Receive meta information for thing/channel/...
+   * Safely rounds a - possibly 'null' - value: Math.round(v)
+   * 
+   * @param v 
    */
-  // TODO
-  // public meta(identifier: string, type: 'controller' | 'channel'): {} {
-  //   let property = type == 'controller' ? 'availableControllers' : type;
-  //   let edge = this.websocket.currentEdge;
-  //   if (edge) {
-  //     let config = edge.config.getValue();
-  //     let meta = config._meta[property];
-  //     if (identifier in meta) {
-  //       return (meta[identifier]);
-  //     }
-  //   }
-  //   return null;
-  // }
+  public static roundSafely(v: number): number {
+    if (v == null) {
+      return v;
+    } else {
+      return Math.round(v);
+    }
+  }
+
+  /**
+   * Gets the value; or if it is null, gets the 'orElse' value
+   * 
+   * @param v      the value or null
+   * @param orElse the default value
+   * @returns      the value or the default value
+   */
+  public static orElse(v: number, orElse: number): number {
+    if (v == null) {
+      return orElse;
+    } else {
+      return v;
+    }
+  }
 }

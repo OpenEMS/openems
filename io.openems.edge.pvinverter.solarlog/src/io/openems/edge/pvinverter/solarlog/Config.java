@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Implements the Solar-Log PV Inverter abstraction.")
 @interface Config {
 	
-	String service_pid();
-
 	String id() default "pvInverter0";
 
 	boolean enabled() default true;

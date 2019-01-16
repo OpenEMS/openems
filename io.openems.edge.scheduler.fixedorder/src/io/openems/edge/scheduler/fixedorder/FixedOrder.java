@@ -56,16 +56,16 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		// update filter for 'Controller'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Controller",
-				config.controllers_ids())) {
-			return;
-		}
-
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.enabled(), config.cycleTime());
+		
+		// update filter for 'Controller'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controller",
+				config.controllers_ids())) {
+			return;
+		}
 	}
 
 	/**

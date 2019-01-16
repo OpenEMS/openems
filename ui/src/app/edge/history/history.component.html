@@ -23,13 +23,6 @@
             <ion-col size="12" *ngIf="activePeriod === 'otherPeriod'" style="text-align:center">
               <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
             </ion-col>
-            <ion-col>
-              <ion-item>
-                <ion-label translate>Edge.History.Cumulative
-                  <ion-checkbox [(ngModel)]="cumulative"></ion-checkbox>
-                </ion-label>
-              </ion-item>
-            </ion-col>
           </ion-row>
         </ion-grid>
       </ion-card>
@@ -40,27 +33,26 @@
         <ion-item>
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
           <ion-label>
-            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}<span
-                *ngIf="cumulative">, {{ 'Edge.History.Cumulative' | translate }}</span></ion-card-title>
+            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}</ion-card-title>
           </ion-label>
         </ion-item>
 
-        <ion-card-content *ngIf="edge">
+        <ion-card-content>
           <div [style.height]="socChartHeight">
-            <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-              <socchart-2018-8 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-8>
-            </ng-container>
-            <ng-template #version_2018_7>
-              <socchart-2018-7 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-7>
-            </ng-template>
+            <socchart [fromDate]="fromDate" [toDate]="toDate"></socchart>
           </div>
           <div [style.height]="energyChartHeight">
-            <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"
-              [cumulative]="cumulative"></energychart>
+            <energychart [fromDate]="fromDate" [toDate]="toDate"></energychart>
           </div>
-          <div *ngIf="(evcsChannels | json) != '{}'" [style.height]="socChartHeight">
-            <evcschart [edge]="edge" [channels]="evcsChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></evcschart>
-          </div>
+          <ng-container *ngFor="let widget of widgets">
+            <ng-container [ngSwitch]="widget">
+              <div *ngSwitchCase="'EVCS'" [style.height]="socChartHeight">
+                <evcschart [fromDate]="fromDate" [toDate]="toDate"></evcschart>
+              </div>
+              <!-- <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
+                [config]="config"></channelthreshold-2018-7> -->
+            </ng-container>
+          </ng-container>
         </ion-card-content>
 
       </ion-card>

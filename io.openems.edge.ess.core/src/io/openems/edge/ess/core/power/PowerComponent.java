@@ -129,8 +129,8 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, "_power", "_power", true);
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, "_power", true);
 		this.data.setSymmetricMode(config.symmetricMode());
 		this.debugMode = config.debugMode();
 		this.solver.setDebugMode(config.debugMode());

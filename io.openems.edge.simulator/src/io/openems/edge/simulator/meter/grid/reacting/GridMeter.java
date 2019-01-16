@@ -1,15 +1,9 @@
 package io.openems.edge.simulator.meter.grid.reacting;
 
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.simulator.meter.MeterUtils;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -25,9 +19,16 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.simulator.meter.MeterUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.GridMeter.Reacting", //
@@ -63,11 +64,7 @@ public class GridMeter extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-
-		// Initialize Min/MaxActivePower channels
-		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
-				config.maxActivePower());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate

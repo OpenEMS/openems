@@ -1,0 +1,19 @@
+sequenceDiagram
+
+participant Backend B2bWs
+participant Backend EdgeWs
+participant Edge BackendApi
+participant Edge JsonApiComponent
+
+Note over Backend B2bWs: Receives command<br/>from external<br/>service
+Backend B2bWs ->>+ Backend EdgeWs: Request componentJsonApi
+
+Note over Backend EdgeWs,Edge BackendApi: Forward to Edge
+Backend EdgeWs ->>+ Edge BackendApi: Request componentJsonApi
+
+Note over Edge BackendApi,Edge JsonApiComponent: Forward to JsonApi-Component
+Edge BackendApi ->>+ Edge JsonApiComponent: Request componentJsonApi
+
+Edge JsonApiComponent ->>+ Edge BackendApi: Response
+Edge BackendApi ->>+ Backend EdgeWs: Response
+Backend EdgeWs ->>+ Backend B2bWs: Response

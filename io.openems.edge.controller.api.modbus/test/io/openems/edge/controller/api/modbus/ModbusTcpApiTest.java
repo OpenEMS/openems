@@ -35,9 +35,16 @@ public class ModbusTcpApiTest {
 	public void testVersion() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readInputRegisters(2, 3);
-		assertEquals(OpenemsConstants.VERSION_MAJOR, registers[0].getValue());
-		assertEquals(OpenemsConstants.VERSION_MINOR, registers[1].getValue());
-		assertEquals(OpenemsConstants.VERSION_PATCH, registers[2].getValue());
+
+		int versionMajor = registers[0].getValue();
+		int versionMinor = registers[1].getValue();
+		int versionPatch = registers[2].getValue();
+
+		System.out.println(versionMajor + "-" + versionMinor + "-" + versionPatch);
+
+		assertEquals(OpenemsConstants.VERSION_MAJOR, versionMajor);
+		assertEquals(OpenemsConstants.VERSION_MINOR, versionMinor);
+		assertEquals(OpenemsConstants.VERSION_PATCH, versionPatch);
 		master.disconnect();
 	}
 
