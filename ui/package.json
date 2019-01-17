@@ -25,7 +25,7 @@
     "@angular/material": "~7.0.3",
     "@angular/platform-browser": "~7.0.3",
     "@angular/platform-browser-dynamic": "~7.0.3",
-    "@angular/pwa": "^0.12.1",
+    "@angular/pwa": "^0.12.2",
     "@angular/router": "~7.0.3",
     "@angular/service-worker": "~7.0.3",
     "@ionic-native/core": "5.0.0-beta.21",
