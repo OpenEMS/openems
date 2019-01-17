@@ -14,8 +14,7 @@ export class CurrentData {
     private getSummary(c: { [channelAddress: string]: any }): DefaultTypes.Summary {
         let result: DefaultTypes.Summary = {
             system: {
-                inPower: null,
-                outPower: null
+                totalPower: null,
             }, storage: {
                 soc: null,
                 isAsymmetric: false,
@@ -136,20 +135,25 @@ export class CurrentData {
             /*
              * Consumption
              */
-            result.consumption.activePower = c['_sum/ConsumptionActivePower'];
+            result.consumption.activePower = Utils.orElse(c['_sum/ConsumptionActivePower'], 0);
             let consumptionMaxActivePower = c['_sum/ConsumptionMaxActivePower'];
             if (!consumptionMaxActivePower) {
                 consumptionMaxActivePower = 10000;
             }
             result.consumption.powerRatio = Utils.orElse(Utils.divideSafely(result.consumption.activePower, consumptionMaxActivePower), 0);
+            if (result.consumption.powerRatio < 0) {
+                result.consumption.powerRatio = 0;
+            }
         }
 
         {
             /*
              * Total
              */
-            result.system.inPower = Utils.orElse(Utils.addSafely(result.grid.buyActivePower, Utils.addSafely(result.production.activePower, result.storage.dischargeActivePower)), 0);
-            result.system.outPower = Utils.orElse(Utils.addSafely(result.grid.sellActivePower, Utils.addSafely(result.consumption.activePower, result.storage.chargeActivePower)), 0);
+            result.system.totalPower = Utils.orElse(Utils.addSafely(result.grid.buyActivePower, Utils.addSafely(result.production.activePower, result.storage.dischargeActivePower)), 0);
+            if (result.system.totalPower < 0) {
+                result.system.totalPower = 0;
+            }
         }
         return result;
     }

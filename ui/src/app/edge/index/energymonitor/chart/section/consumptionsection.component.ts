@@ -27,7 +27,7 @@ export class ConsumptionSectionComponent extends AbstractSection {
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
-        super.updateSectionData(sum.consumption.activePower, sum.consumption.powerRatio, Utils.divideSafely(sum.consumption.activePower, sum.system.outPower));
+        super.updateSectionData(sum.consumption.activePower, sum.consumption.powerRatio, Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower));
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -52,20 +52,22 @@ export class ConsumptionSectionComponent extends AbstractSection {
         return new EnergyFlow(radius, { x1: "0%", y1: "50%", x2: "100%", y2: "50%" });
     }
 
-    protected getSvgEnergyFlow(value: number, ratio: number, radius: number): SvgEnergyFlow {
+    protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
+        let v = Math.abs(ratio);
+        let r = radius;
         let p = {
-            topLeft: { x: ratio, y: ratio * -1 },
+            topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
-            bottomLeft: { x: ratio, y: ratio },
-            topRight: { x: radius, y: ratio * -1 },
-            bottomRight: { x: radius, y: ratio },
-            middleRight: { x: radius - ratio, y: 0 }
+            bottomLeft: { x: v, y: v },
+            topRight: { x: r, y: v * -1 },
+            bottomRight: { x: r, y: v },
+            middleRight: { x: r - v, y: 0 }
         }
-        if (value > 0) {
+        if (ratio > 0) {
             // towards right
-            p.topRight.x = p.topRight.x - ratio;
-            p.middleRight.x = p.middleRight.x + ratio;
-            p.bottomRight.x = p.bottomRight.x - ratio;
+            p.topRight.x = p.topRight.x - v;
+            p.middleRight.x = p.middleRight.x + v;
+            p.bottomRight.x = p.bottomRight.x - v;
         }
         return p;
     }

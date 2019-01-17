@@ -38,10 +38,17 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         if (sum.storage.chargeActivePower && sum.storage.chargeActivePower > 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
-            super.updateSectionData(sum.storage.chargeActivePower, sum.storage.powerRatio, Utils.divideSafely(sum.storage.chargeActivePower, sum.system.outPower));
+            super.updateSectionData(
+                sum.storage.chargeActivePower,
+                sum.storage.powerRatio,
+                Utils.divideSafely(sum.storage.chargeActivePower, sum.system.totalPower));
         } else if (sum.storage.dischargeActivePower && sum.storage.dischargeActivePower > 0) {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
-            super.updateSectionData(sum.storage.dischargeActivePower, sum.grid.powerRatio, Utils.divideSafely(sum.storage.dischargeActivePower, sum.system.inPower));
+            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge');
+            super.updateSectionData(
+                sum.storage.dischargeActivePower,
+                sum.storage.powerRatio,
+                Utils.multiplySafely(
+                    Utils.divideSafely(sum.storage.dischargeActivePower, sum.system.totalPower), -1));
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateSectionData(0, 0, 0);
@@ -90,20 +97,22 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         return new EnergyFlow(radius, { x1: "50%", y1: "0%", x2: "50%", y2: "100%" });
     }
 
-    protected getSvgEnergyFlow(value: number, ratio: number, radius: number): SvgEnergyFlow {
+    protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
+        let v = Math.abs(ratio);
+        let r = radius;
         let p = {
-            topLeft: { x: ratio * -1, y: ratio },
-            bottomLeft: { x: ratio * -1, y: radius },
-            topRight: { x: ratio, y: ratio },
-            bottomRight: { x: ratio, y: radius },
-            middleBottom: { x: 0, y: radius - ratio },
+            topLeft: { x: v * -1, y: v },
+            bottomLeft: { x: v * -1, y: r },
+            topRight: { x: v, y: v },
+            bottomRight: { x: v, y: r },
+            middleBottom: { x: 0, y: r - v },
             middleTop: { x: 0, y: 0 }
         }
-        if (value > 0) {
+        if (ratio > 0) {
             // towards bottom
-            p.bottomLeft.y = p.bottomLeft.y - ratio;
-            p.middleBottom.y = p.middleBottom.y + ratio;
-            p.bottomRight.y = p.bottomRight.y - ratio;
+            p.bottomLeft.y = p.bottomLeft.y - v;
+            p.middleBottom.y = p.middleBottom.y + v;
+            p.bottomRight.y = p.bottomRight.y - v;
         }
         return p;
     }

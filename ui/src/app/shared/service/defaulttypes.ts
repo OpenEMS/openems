@@ -17,8 +17,8 @@ export module DefaultTypes {
    */
   export interface Summary {
     system: {
-      inPower: number, // all power that enters the system (production, discharge, buy-from-grid)
-      outPower: number // all power that leaves the system (consumption, charge, sell-to-grid)
+      // the balance sheet total power of all power that enters the the system (production, discharge, buy-from-grid), respectively leaves the system (consumption, charge, sell-to-grid)
+      totalPower: number,
     }, storage: {
       soc: number,
       isAsymmetric: boolean,

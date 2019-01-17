@@ -4,7 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { InfiniteScroll, IonicModule } from '@ionic/angular';
+import { IonicModule, IonInfiniteScroll } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 import 'hammerjs';
@@ -90,5 +90,5 @@ import { Websocket } from './service/websocket';
   ]
 })
 export class SharedModule {
-  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 }

@@ -108,6 +108,48 @@ export class EdgeConfig {
             return [];
         }
     }
+
+    /**
+     * Get the implemented Natures by Factory-ID.
+     * 
+     * @param factoryId the Factory-ID
+     */
+    public getNaturesByFactoryId(factoryId: string): string[] {
+        let factory = this.factories[factoryId];
+        if (factory) {
+            return factory.natures;
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Get the implemented Natures by Component-ID.
+     * 
+     * @param componentId the Component-ID
+     */
+    public getNaturesByComponentId(componentId: string): string[] {
+        let component = this.components[componentId];
+        if (!component) {
+            return [];
+        }
+        let factoryPid = component.factoryPid;
+        return this.getNaturesByFactoryId(factoryPid);
+    }
+
+    /**
+     * Get the Component properties.
+     * 
+     * @param componentId the Component-ID
+     */
+    public getComponentProperties(componentId: string): { [key: string]: any } {
+        let component = this.components[componentId];
+        if (component) {
+            return component.properties;
+        } else {
+            return {};
+        }
+    }
 }
 
 export module EdgeConfig {
