@@ -52,7 +52,11 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		} catch (OpenemsNamedException e) {
 			// login using session_id failed. Still keeping the WebSocket opened to give the
 			// user the chance to authenticate manually.
-			wsData.send(new AuthenticateWithSessionIdFailedNotification());
+			try {
+				wsData.send(new AuthenticateWithSessionIdFailedNotification());
+			} catch (OpenemsException e1) {
+				this.parent.logWarn(this.log, e.getMessage());
+			}
 			return;
 		}
 

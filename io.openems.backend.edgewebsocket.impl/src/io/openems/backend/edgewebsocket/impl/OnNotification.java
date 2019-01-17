@@ -29,7 +29,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		// Validate authentication
 		WsData wsData = ws.getAttachment();
-		wsData.assertAuthentication(notification);
+		try {
+			wsData.assertAuthentication(notification);
+		} catch (OpenemsNamedException e) {
+			this.parent.logWarn(this.log, e.getMessage());
+		}
 
 		// Handle notification
 		switch (notification.getMethod()) {
