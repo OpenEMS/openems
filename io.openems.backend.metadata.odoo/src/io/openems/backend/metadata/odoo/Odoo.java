@@ -47,6 +47,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	public final static String ODOO_MODEL = "edge.device";
 
 	private final static int READ_BATCH_SIZE = 300;
+	private final static int MAX_TRIES = 10;
 
 	private final Logger log = LoggerFactory.getLogger(Odoo.class);
 	private final OdooWriteWorker writeWorker;
@@ -115,17 +116,26 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			}
 
 			// read data from Odoo
-			Map<String, Object>[] edgeMaps;
-			try {
-				edgeMaps = OdooUtils.readMany(Odoo.this.odooCredentials, ODOO_MODEL, //
-						batchEdgeIds, //
-						new Field[] { Field.EdgeDevice.ID, Field.EdgeDevice.APIKEY, Field.EdgeDevice.NAME,
-								Field.EdgeDevice.COMMENT, Field.EdgeDevice.OPENEMS_VERSION,
-								Field.EdgeDevice.PRODUCT_TYPE, Field.EdgeDevice.OPENEMS_CONFIG, Field.EdgeDevice.SOC,
-								Field.EdgeDevice.IPV4, Field.EdgeDevice.STATE });
-			} catch (OpenemsException e) {
-				this.logError(this.log, "Unable to read Edges from Odoo: " + e.getMessage());
-				e.printStackTrace();
+			Map<String, Object>[] edgeMaps = null;
+			boolean retry = true;
+			int tries = MAX_TRIES;
+			while (tries-- > 0 && retry) {
+				try {
+					edgeMaps = OdooUtils.readMany(Odoo.this.odooCredentials, ODOO_MODEL, //
+							batchEdgeIds, //
+							new Field[] { Field.EdgeDevice.ID, Field.EdgeDevice.APIKEY, Field.EdgeDevice.NAME,
+									Field.EdgeDevice.COMMENT, Field.EdgeDevice.OPENEMS_VERSION,
+									Field.EdgeDevice.PRODUCT_TYPE, Field.EdgeDevice.OPENEMS_CONFIG,
+									Field.EdgeDevice.SOC, Field.EdgeDevice.IPV4, Field.EdgeDevice.STATE });
+					retry = false;
+				} catch (OpenemsException e) {
+					this.logError(this.log, "Unable to read Edges from Odoo: " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+			if (tries == 0 || edgeMaps == null) {
+				this.logError(this.log,
+						"Unable to read read batch of [" + READ_BATCH_SIZE + "] from [" + firstIndex + "]");
 				continue;
 			}
 
