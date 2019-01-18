@@ -250,6 +250,60 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Gets the Voltage for L1 in [mV].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getVoltageL1() {
+		return this.channel(ChannelId.VOLTAGE_L1);
+	}
+
+	/**
+	 * Gets the Voltage for L2 in [mV].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getVoltageL2() {
+		return this.channel(ChannelId.VOLTAGE_L2);
+	}
+
+	/**
+	 * Gets the Voltage for L3 in [mV].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getVoltageL3() {
+		return this.channel(ChannelId.VOLTAGE_L3);
+	}
+
+	/**
+	 * Gets the Current for L1 in [mA].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getCurrentL1() {
+		return this.channel(ChannelId.CURRENT_L1);
+	}
+
+	/**
+	 * Gets the Current for L2 in [mA].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getCurrentL2() {
+		return this.channel(ChannelId.CURRENT_L2);
+	}
+
+	/**
+	 * Gets the Current for L3 in [mA].
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getCurrentL3() {
+		return this.channel(ChannelId.CURRENT_L3);
+	}
+
+	/**
 	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
 	 * value as the sum of L1 + L2 + L3.
 	 * 
