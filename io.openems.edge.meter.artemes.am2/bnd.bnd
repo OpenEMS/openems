@@ -1,0 +1,31 @@
+#
+# io.openems.edge.meter.artemes.am2 PROVIDER BUNDLE
+#
+Bundle-Name: OpenEMS Edge Meter artemes am2
+Bundle-Vendor: FENECON GmbH
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: \
+	The provider bundle for io.openems.edge.meter.artemes.am2. \
+	\
+	${warning;Please update this Bundle-Description in io.openems.edge.meter.artemes.am2/api.bnd}
+
+Export-Package:  \
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.asymmetric.api,\
+	io.openems.edge.meter.symmetric.api
+
+Private-Package:  io.openems.edge.meter.artemes.am2
+	
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
