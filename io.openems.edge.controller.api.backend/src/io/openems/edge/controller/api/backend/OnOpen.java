@@ -26,6 +26,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		EdgeConfig config = this.parent.getComponentManager().getEdgeConfig();
 		EdgeConfigNotification message = new EdgeConfigNotification(config);
 		this.parent.websocket.sendMessage(message);
+
+		// Send all Channel values
+		this.parent.backendWorker.sendValuesOfAllChannelsOnce();
 	}
 
 }

@@ -43,9 +43,10 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 	protected static final int DEFAULT_CYCLE_TIME = 10000;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
+	protected final BackendWorker backendWorker = new BackendWorker(this);
+
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
 	private final ApiWorker apiWorker = new ApiWorker();
-	private final BackendWorker backendWorker = new BackendWorker(this);
 
 	protected WebsocketClient websocket = null;
 	protected int cycleTime = DEFAULT_CYCLE_TIME; // default, is going to be overwritten by config
