@@ -75,8 +75,14 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
 				Edge e = edgeOpt.get();
-				metadatas.add(new EdgeMetadata(e.getId(), e.getComment(), e.getProducttype(), e.getVersion(), role,
-						e.isOnline()));
+				metadatas.add(new EdgeMetadata(//
+						e.getId(), // Edge-ID
+						e.getComment(), // Comment
+						e.getProducttype(), // Product-Type
+						e.getVersion(), // Version
+						role, // Role
+						e.isOnline() // Online-State
+				));
 			}
 		}
 

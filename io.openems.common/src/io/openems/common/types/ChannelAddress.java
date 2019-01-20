@@ -2,7 +2,6 @@ package io.openems.common.types;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
 
@@ -43,7 +42,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	 * 
 	 * @param address the address as a String
 	 * @return the ChannelAddress
-	 * @throws OpenemsException on parse error
+	 * @throws OpenemsNamedException on parse error
 	 */
 	public static ChannelAddress fromString(String address) throws OpenemsNamedException {
 		try {

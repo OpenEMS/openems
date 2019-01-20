@@ -226,7 +226,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			// Set Version in Odoo
 			this.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
-			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_VERSION, version));
+			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		});
 		edge.onSetSoc(soc -> {
 			// Set SoC in Odoo

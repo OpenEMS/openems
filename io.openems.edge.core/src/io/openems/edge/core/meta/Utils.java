@@ -22,7 +22,7 @@ public class Utils {
 				}), Arrays.stream(Meta.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case VERSION:
-						return new StringReadChannel(c, channelId, OpenemsConstants.VERSION);
+						return new StringReadChannel(c, channelId, OpenemsConstants.VERSION.toString());
 					}
 					return null;
 				}) //

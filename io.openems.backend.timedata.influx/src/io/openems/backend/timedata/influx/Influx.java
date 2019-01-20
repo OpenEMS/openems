@@ -37,6 +37,7 @@ import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.SemanticVersion;
 import io.openems.shared.influxdb.InfluxConnector;
 import io.openems.shared.influxdb.InfluxConstants;
 
@@ -317,14 +318,21 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress address) {
 		EdgeCache cache = this.edgeCacheMap.get(edgeId);
 		if (cache != null) {
-			Optional<Edge> edgeOpt = this.metadata.getEdge(edgeId);
-			if (!edgeOpt.isPresent()) {
-				return cache.getChannelValue(address);
+			Optional<JsonElement> value = cache.getChannelValue(address);
+			if (value.isPresent()) {
+				return value;
 			}
-			Edge edge = edgeOpt.get();
-			ChannelFormula[] compatibility = this.getCompatibilityFormula(edge, address);
+			Optional<Edge> edge = this.metadata.getEdge(edgeId);
+			if (!edge.isPresent()) {
+				return Optional.empty();
+			}
+			if (edge.get().getVersion().isAtLeast(new SemanticVersion(2018, 11, 0))) {
+				return Optional.empty();
+			}
+			// Old version: start compatibility mode
+			ChannelFormula[] compatibility = this.getCompatibilityFormula(edge.get(), address);
 			if (compatibility.length == 0) {
-				return cache.getChannelValue(address);
+				return Optional.empty();
 			}
 			// handle compatibility with elder OpenEMS Edge version
 			return this.getCompatibilityChannelValue(compatibility, cache);
@@ -371,15 +379,21 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			case "EssActivePower":
 				switch (edge.getProducttype()) {
 				case "Pro 9-12":
+				case "MiniES 3-3":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL1")), //
 							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL2")), //
 							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL3")) //
 					};
-				default:
+				case "COMMERCIAL 40-45":
+				case "INDUSTRIAL":
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePower")) //
 					};
+				default:
+					this.logWarn(this.log,
+							"No formula for " + address + " [" + edge.getId() + "|" + edge.getProducttype() + "]");
+					return new ChannelFormula[0];
 				}
 
 			case "EssMaxApparentPower":
@@ -409,7 +423,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 					};
 				default:
 					this.logWarn(this.log,
-							"No formula for EssMaxApparentPower [" + edge.getId() + "|" + edge.getProducttype() + "]");
+							"No formula for " + address + " [" + edge.getId() + "|" + edge.getProducttype() + "]");
 					return new ChannelFormula[] { //
 							new ChannelFormula(Function.PLUS, 40_000) //
 					};
