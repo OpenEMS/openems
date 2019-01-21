@@ -63,7 +63,7 @@
     "rxjs": "6.3.3",
     "semver-compare-multi": "^1.0.3",
     "web-animations-js": "^2.3.1",
-    "zone.js": "^0.8.27"
+    "zone.js": "^0.8.28"
   },
   "devDependencies": {
     "@angular-devkit/architect": "~0.12.1",
