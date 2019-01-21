@@ -20,19 +20,18 @@ public enum OpenemsError {
 	 */
 	COMMON_NO_VALID_CHANNEL_ADDRESS(1000, "This [%s] is not a valid channel address"), //
 	COMMON_USER_NOT_AUTHENTICATED(1001, "User is not authenticated. [%s]"), //
-	COMMON_ROLE_ACCESS_DENIED(1002, "Access to this ressource [%s] is denied for User with Role [%s]"), //
+	COMMON_ROLE_ACCESS_DENIED(1002, "Access to this resource [%s] is denied for User with Role [%s]"), //
+	COMMON_AUTHENTICATION_FAILED(1003, "Authentication failed"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */
 	EDGE_NO_COMPONENT_WITH_ID(2000, "Unable to find OpenEMS Component with ID [%s]"), //
 	EDGE_MULTIPLE_COMPONENTS_WITH_ID(2001, "Found more than one OpenEMS Component with ID [%s]"), //
 	EDGE_UNABLE_TO_APPLY_CONFIG(2002, "Unable to apply configuration to Component [%s]: [%s]"), //
-	EDGE_USER_AUTHENTICATION_WITH_PASSWORD_FAILED(2003, "Authentication with Password failed"), //
 	/*
 	 * Backend errors. 3000-3999
 	 */
 	BACKEND_EDGE_NOT_CONNECTED(3000, "Edge [%s] is not connected"), //
-	BACKEND_USER_AUTHENTICATION_FAILED(3001, "User-Authentication failed"), //
 	/*
 	 * JSON-RPC Request/Response/Notification. 4000-4999
 	 */
@@ -114,8 +113,9 @@ public enum OpenemsError {
 	static {
 		for (OpenemsError error : OpenemsError.values()) {
 			OpenemsError duplicate = ALL_ERRORS.putIfAbsent(error.code, error);
-			if (duplicate != null)
+			if (duplicate != null) {
 				log.warn("Duplicate OpenEMS-Error with code [" + error.code + "]");
+			}
 		}
 	}
 

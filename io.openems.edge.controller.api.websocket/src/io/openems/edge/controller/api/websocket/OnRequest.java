@@ -145,7 +145,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		Optional<User> userOpt = this.parent.userService.authenticate(request.getPassword());
 		if (!userOpt.isPresent()) {
 			wsData.unsetUser();
-			throw OpenemsError.EDGE_USER_AUTHENTICATION_WITH_PASSWORD_FAILED.exception();
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
 
 		// authentication successful

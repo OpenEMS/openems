@@ -1,6 +1,7 @@
 package io.openems.backend.b2bwebsocket;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,8 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	private final OnClose onClose;
 	private final OnInternalError onInternalError;
 
-	protected TestClient(URI serverUri) {
-		super("B2bwebsocket.Unittest", serverUri);
+	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
+		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
 		this.onOpen = (ws, handshake) -> {
 			log.info("OnOpen: " + handshake);
 		};
