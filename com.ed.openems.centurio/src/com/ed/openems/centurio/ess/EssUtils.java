@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -24,7 +25,7 @@ public class EssUtils {
 		}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 			switch (channelId) {
 			case GRID_MODE:
-				return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+				return new IntegerReadChannel(c, channelId, GridMode.UNDEFINED);
 			case SOC:
 			case ACTIVE_POWER:
 			case REACTIVE_POWER:

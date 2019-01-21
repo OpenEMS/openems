@@ -182,7 +182,7 @@ public class DBUtils {
 		}
 		//String email = userinfo.get("email").getAsString();
 		
-		MyUser user = new MyUser(userinfo.get("id").getAsInt(), name, edges, role);
+		MyUser user = new MyUser(userinfo.get("id").getAsString(), name, edges, role);
 		/*
 		try {
 			reconnect();

@@ -9,7 +9,7 @@ public class MyUser extends User {
 	private  ArrayList<String> edgeids;
 	private String role;
 
-	public MyUser(int id, String name, ArrayList<String> edgeids, String role) {
+	public MyUser(String id, String name, ArrayList<String> edgeids, String role) {
 		super(id, name);
 		this.edgeids = edgeids;
 		this.role = role;

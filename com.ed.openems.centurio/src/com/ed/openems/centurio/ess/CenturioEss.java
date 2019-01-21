@@ -34,6 +34,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -68,7 +69,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
@@ -164,7 +165,7 @@ public class CenturioEss extends AbstractOpenemsComponent
 		Integer soc = null;
 		Integer activePower = null;
 		Integer reactivePower = null;
-		SymmetricEss.GridMode gridMode = SymmetricEss.GridMode.UNDEFINED;
+		GridMode gridMode = GridMode.UNDEFINED;
 		float bmsVoltage = 0;
 		float riso = 0;
 
@@ -186,11 +187,11 @@ public class CenturioEss extends AbstractOpenemsComponent
 			if (status != null) {
 				switch (status.getInverterStatus()) {
 				case 12:
-					gridMode = SymmetricEss.GridMode.OFF_GRID;
+					gridMode = GridMode.OFF_GRID;
 					break;
 				case 13:
 				case 14:
-					gridMode = SymmetricEss.GridMode.ON_GRID;
+					gridMode = GridMode.ON_GRID;
 					break;
 				
 				}

@@ -71,7 +71,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		// System.setProperty("java.net.preferIPv4Stack" , "true");
 

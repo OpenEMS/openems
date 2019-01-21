@@ -46,7 +46,7 @@ public class Vectis extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {

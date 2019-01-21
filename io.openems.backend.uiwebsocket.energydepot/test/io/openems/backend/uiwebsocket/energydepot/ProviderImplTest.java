@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.backend.uiwebsocket.energydepot.UiWebsocket;
+import io.openems.backend.uiwebsocket.energydepot.UiWebsocketKaco;
 
 /*
  * Example JUNit test case
@@ -19,7 +19,7 @@ public class ProviderImplTest {
 
 	@Test
 	public void simple() {
-		UiWebsocket impl = new UiWebsocket();
+		UiWebsocketKaco impl = new UiWebsocketKaco();
 		assertNotNull(impl);
 	}
 

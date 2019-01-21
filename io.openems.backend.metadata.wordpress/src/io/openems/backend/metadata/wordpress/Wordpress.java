@@ -3,10 +3,12 @@ package io.openems.backend.metadata.wordpress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -25,31 +27,42 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.metadata.wordpress.MyEdge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "io.openems.backend.metadata.wordpress")
-public class Wordpress implements MetadataService {
+public class Wordpress extends AbstractOpenemsBackendComponent implements Metadata {
+
+	public Wordpress() {
+		super("Metadata.Wordpress");
+		// TODO Auto-generated constructor stub
+	}
 
 	private final Logger log = LoggerFactory.getLogger(Wordpress.class);
 
-	private Map<Integer, MyUser> users = new HashMap<>();
-	private Map<Integer, MyEdge> edges = new HashMap<>();
+	/**
+	 * Maps User-ID to User
+	 */
+	private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+	private Map<String, MyEdge> edges = new HashMap<>();
 	private final ExecutorService readEdgeExecutor = Executors.newSingleThreadExecutor();
 	private Future<?> readEdgeFuture = null;
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 	private DBUtils dbu = null;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	private volatile EdgeWebsocketService edgeWebsocketService;
+	private volatile EdgeWebsocket edgeWebsocket;
 
 	@Activate
 	void activate(Config config) {
@@ -82,7 +95,7 @@ public class Wordpress implements MetadataService {
 		}
 
 		for (String edgeId : user.getEdgeids()) {
-			user.addEdgeRole(Integer.parseInt(edgeId), Role.getRole(user.getRole()));
+			user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
 		}
 
 		synchronized (this.users) {
@@ -115,13 +128,13 @@ public class Wordpress implements MetadataService {
 				}
 				// admin, guest, installer, owner
 				if (user.getRole().equals("admin")) {
-					for (int edgeId : this.edges.keySet()) {
+					for (String edgeId : this.edges.keySet()) {
 						user.addEdgeRole(edgeId, Role.ADMIN);
 					}
 				} else {
 					for (String edgeId : user.getEdgeids())
 
-						user.addEdgeRole(Integer.parseInt(edgeId), Role.getRole(user.getRole()));
+						user.addEdgeRole(edgeId, Role.getRole(user.getRole()));
 				}
 
 				synchronized (this.users) {
@@ -143,42 +156,7 @@ public class Wordpress implements MetadataService {
 	}
 
 	@Override
-	public int[] getEdgeIdsForApikey(String apikey)  {
-
-		updateEdges();
-
-		/*
-		 * this.user = new User(0, "admin"); for (int edgeId : this.edges.keySet()) {
-		 * this.user.addEdgeRole(edgeId, Role.ADMIN); }
-		 */
-		List<Integer> ids = new ArrayList<>();
-
-		/*
-		 * Map<Integer, MyEdge> tmpedges = this.dbu.getEdges();
-		 * if(!this.edges.equals(tmpedges)) { this.edges = tmpedges; }
-		 */
-
-		for (MyEdge edge : this.edges.values()) {
-			if (edge.getApikey().equals(apikey)) {
-				ids.add(edge.getId());
-				edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
-			}
-		}
-		int[] result = new int[ids.size()];
-		for (int i = 0; i < ids.size(); i++) {
-			result[i] = ids.get(i);
-		}
-		
-		if(result.length == 0) {
-			
-		}
-		
-		return result;
-		
-	}
-
-	@Override
-	public Optional<Edge> getEdgeOpt(int edgeId) {
+	public Optional<Edge> getEdge(String edgeId) {
 		synchronized (this.edges) {
 			if (this.edges.containsKey(edgeId)) {
 				return Optional.of(this.edges.get(edgeId));
@@ -189,7 +167,7 @@ public class Wordpress implements MetadataService {
 	}
 
 	@Override
-	public Optional<User> getUser(int userId) {
+	public Optional<User> getUser(String userId) {
 		// try to read from cache
 		synchronized (this.users) {
 			return Optional.ofNullable(this.users.get(userId));
@@ -212,26 +190,20 @@ public class Wordpress implements MetadataService {
 				 * result.getString("producttype");
 				 */
 
-				int id = result.getInt("id");
+				String id = result.getString("id");
 
 				String name = result.getString("edge_name");
 				String comment = result.getString("edge_comment");
 				String apikey = result.getString("apikey");
 				String producttype = result.getString("producttype");
+				
+				EdgeConfig config = new EdgeConfig();
 
 				Role role = Role.getRole("ADMIN");
-				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION,
-						producttype, new JsonObject(), role);
+				MyEdge edge = new MyEdge(id, apikey, name, comment, State.ACTIVE, OpenemsConstants.VERSION, producttype,
+						config, role);
 
-				edge.onSetConfig(jConfig -> {
-					log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
-				});
-				edge.onSetSoc(soc -> {
-					log.debug("Edge [" + id + "]. Set SoC: " + soc);
-				});
-				edge.onSetIpv4(ipv4 -> {
-					log.debug("Edge [" + id + "]. Set IPv4: " + ipv4);
-				});
+				this.addListeners(edge);
 
 				synchronized (this.edges) {
 					if (!this.edges.containsKey(id)) {
@@ -248,6 +220,51 @@ public class Wordpress implements MetadataService {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Optional<String> getEdgeIdForApikey(String apikey) {
+		updateEdges();
+
+		/*
+		 * this.user = new User(0, "admin"); for (int edgeId : this.edges.keySet()) {
+		 * this.user.addEdgeRole(edgeId, Role.ADMIN); }
+		 */
+		String id = null;
+
+		/*
+		 * Map<Integer, MyEdge> tmpedges = this.dbu.getEdges();
+		 * if(!this.edges.equals(tmpedges)) { this.edges = tmpedges; }
+		 */
+
+		for (MyEdge edge : this.edges.values()) {
+			if (edge.getApikey().equals(apikey)) {
+				id = edge.getId();
+				//edge.setOnline(true);
+				break;
+			}
+		}
+		// edge.setOnline(this.edgeWebsocket.isOnline(edge.getId()));
+		
+		return Optional.ofNullable(id);
+	}
+
+	@Override
+	public Collection<Edge> getAllEdges() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private void addListeners(MyEdge edge) {
+		edge.onSetConfig(config -> {
+			log.debug("Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
+		});
+		edge.onSetSoc(soc -> {
+			log.debug("Edge [" + edge.getId() + "]. Set SoC: " + soc);
+		});
+		edge.onSetIpv4(ipv4 -> {
+			log.debug("Edge [" + edge.getId() + "]. Set IPv4: " + ipv4);
+		});
 	}
 
 }

@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Energydepot UiWebsocket", //
+		name = "Energydepot UiWebsocketKaco", //
 		description = "Configures the Websockets to Primus UI")
 @interface Config {
 	@AttributeDefinition(name = "Port", description = "The port of the websocket server.")

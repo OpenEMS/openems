@@ -1,42 +1,36 @@
 package io.openems.backend.uiwebsocket.energydepot;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.websocket.AbstractOnClose;
+import io.openems.backend.metadata.api.User;
+import io.openems.common.exceptions.OpenemsException;
 
-public class OnClose extends AbstractOnClose {
+public class OnClose implements io.openems.common.websocket.OnClose {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
+	private final UiWebsocketKaco parent;
 
-	private final UiWebsocketServer parent;
-
-	public OnClose(UiWebsocketServer parent, WebSocket websocket, int code, String reason, boolean remote) {
-		super(websocket, code, reason, remote);
+	public OnClose(UiWebsocketKaco parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	protected void run(WebSocket websocket, int code, String reason, boolean remote) {
+	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
 		// get current User
-		WebsocketData data = websocket.getAttachment();
-		log.info("User [" + this.parent.getUserName(data) + "] disconnected.");
+		WsData wsData = ws.getAttachment();
+		Optional<User> userOpt = wsData.getUser(this.parent.metadata);
+		if (userOpt.isPresent()) {
+			User user = userOpt.get();
+			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] disconnected.");
+		} else {
+			this.parent.logInfo(this.log, "User [" + wsData.getUserId().orElse("UNKNOWN") + "] disconnected.");
+		}
 
-		// stop CurrentDataWorker
-		Optional<BackendCurrentDataWorker> currentDataWorkerOpt = data.getCurrentDataWorker();
-		if (currentDataWorkerOpt.isPresent()) {
-			currentDataWorkerOpt.get().dispose();
-		}
-		// remove websocket from local cache
-		UUID uuid = data.getUuid();
-		if (uuid != null) {
-			synchronized (this.parent.websocketsMap) {
-				this.parent.websocketsMap.remove(uuid);
-			}
-		}
+		wsData.dispose();
 	}
+
 }

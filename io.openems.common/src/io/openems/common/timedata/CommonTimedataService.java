@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -50,7 +51,6 @@ public interface CommonTimedataService {
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException;
 
-	public JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
-			boolean cumulative, Tag[] tags) throws OpenemsException;
+	
 
 }
