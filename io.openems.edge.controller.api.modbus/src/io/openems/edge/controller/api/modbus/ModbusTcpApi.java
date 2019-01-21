@@ -1,8 +1,6 @@
 package io.openems.edge.controller.api.modbus;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -25,8 +23,9 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.websocket.JsonrpcRequest;
-import io.openems.common.websocket.JsonrpcResponse;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -41,10 +40,10 @@ import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
-import io.openems.edge.controller.api.core.WritePOJO;
+import io.openems.edge.controller.api.core.WritePojo;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -52,10 +51,11 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "Controller.Api.ModbusTcp", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class ModbusTcpApi extends AbstractOpenemsComponent
-		implements Controller, ApiController, OpenemsComponent, JsonApi {
+public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, JsonApi {
 
 	public final static int UNIT_ID = 1;
+	public final static int DEFAULT_PORT = 502;
+	public final static int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusTcpApi.class);
 
@@ -83,20 +83,26 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 
 	protected volatile Map<String, ModbusSlave> _components = new HashMap<>();
 	private String[] componentIds = new String[0];
+	private int port = ModbusTcpApi.DEFAULT_PORT;
+	private int maxConcurrentConnections = ModbusTcpApi.DEFAULT_MAX_CONCURRENT_CONNECTIONS;
 
 	public ModbusTcpApi() {
 		this.processImage = new MyProcessImage(this);
+
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
+		super.activate(context, config.id(), config.enabled());
+
 		// update filter for 'components'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Component",
-				config.component_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Component", config.component_ids())) {
 			return;
 		}
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
+		this.port = config.port();
+		this.maxConcurrentConnections = config.maxConcurrentConnections();
 		this.componentIds = config.component_ids();
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 
@@ -111,33 +117,59 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 		// Initialize Modbus Records
 		this.initializeModbusRecords();
 
-		/*
-		 * Start Modbus-Server
-		 */
-		try {
-			ModbusSlaveFactory.close();
-			com.ghgande.j2mod.modbus.slave.ModbusSlave slave = ModbusSlaveFactory.createTCPSlave(config.port(),
-					config.maxConcurrentConnections());
-			slave.addProcessImage(UNIT_ID, this.processImage);
-			slave.open();
-			String error = slave.getError();
-			if (error != null) {
-				throw new OpenemsException(error);
-			}
-			log.info("Modbus/TCP Api started on port [" + config.port() + "] with UnitId [" + ModbusTcpApi.UNIT_ID
-					+ "].");
-		} catch (ModbusException | OpenemsException e) {
-			this.logError(this.log,
-					"Unable to start Modbus/TCP Api on port [" + config.port() + "]: " + e.getMessage());
-			throw e;
-		}
+		// Start Modbus-Server
+		this.startApiWorker.activate(config.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.startApiWorker.deactivate();
 		ModbusSlaveFactory.close();
 		super.deactivate();
 	}
+
+	private final AbstractWorker startApiWorker = new AbstractWorker() {
+
+		private final static int DEFAULT_WAIT_TIME = 5000; // 5 seconds
+
+		private com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
+
+		@Override
+		protected void forever() {
+			if (this.slave == null) {
+				try {
+					// start new server
+					this.slave = ModbusSlaveFactory.createTCPSlave(ModbusTcpApi.this.port,
+							ModbusTcpApi.this.maxConcurrentConnections);
+					slave.addProcessImage(UNIT_ID, ModbusTcpApi.this.processImage);
+					slave.open();
+					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port ["
+							+ ModbusTcpApi.this.port + "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
+				} catch (ModbusException e) {
+					ModbusSlaveFactory.close();
+					ModbusTcpApi.this.logError(ModbusTcpApi.this.log, "Unable to start Modbus/TCP Api on port ["
+							+ ModbusTcpApi.this.port + "]: " + e.getMessage());
+				}
+
+			} else {
+				// regular check for errors
+				String error = slave.getError();
+				if (error != null) {
+					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
+							"Unable to start Modbus/TCP Api on port [" + ModbusTcpApi.this.port + "]: " + error);
+					this.slave = null;
+					// stop server
+					ModbusSlaveFactory.close();
+				}
+			}
+		}
+
+		@Override
+		protected int getCycleTime() {
+			return DEFAULT_WAIT_TIME;
+		}
+
+	};
 
 	private void initializeModbusRecords() {
 		// Add generic header
@@ -246,7 +278,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 					return;
 				}
 				WriteChannel<?> channel = (WriteChannel<?>) readChannel;
-				this.apiWorker.addValue(channel, new WritePOJO(value));
+				this.apiWorker.addValue(channel, new WritePojo(value));
 			});
 		}
 
@@ -260,22 +292,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
-		List<OpenemsComponent> result = new ArrayList<>();
-		for (ModbusSlave component : this._components.values()) {
-			result.add(component);
-		}
-		return result;
-	}
-
-	@Override
-	public ConfigurationAdmin getConfigurationAdmin() {
-		return this.cm;
-	}
-
-	@Override
-	public Timedata getTimedataService() {
-		return this.timedataService;
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override
@@ -284,10 +302,10 @@ public class ModbusTcpApi extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public JsonrpcResponse handleJsonrpcRequest(JsonrpcRequest message) {
+	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest message) throws OpenemsNamedException {
 		switch (message.getMethod()) {
-		case JsonApiGetModbusProtocol.METHOD:
-			return JsonApiGetModbusProtocol.of(message.getId(), this.records);
+		case GetModbusProtocolRequest.METHOD:
+			return new GetModbusProtocolResponse(message.getId(), this.records);
 		}
 		return null;
 	}

@@ -15,8 +15,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
-		name = "Bms.Simulated", //
+@Component(//
+		name = "Simulator.Bms", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
@@ -32,8 +32,8 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int temperature;
 	private int capacityKWh;
 	private int voltage;
-	private int minCellVoltage_mV;
-	private int maximalPower_W;
+	private int minCellVoltage; // in mV
+	private int maximalPower; // in W
 
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -41,18 +41,18 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		disChargeMinVoltage = config.disChargeMinVoltage();
-		chargeMaxVoltage = config.chargeMaxVoltage();
-		disChargeMaxCurrent = config.disChargeMaxCurrent();
-		chargeMaxCurrent = config.chargeMaxCurrent();
-		soc = config.soc();
-		soh = config.soh();
-		temperature = config.temperature();
-		capacityKWh = config.capacityKWh();
-		voltage = config.voltage();
-		minCellVoltage_mV = config.minCellVoltage_mV();
-		maximalPower_W = config.maximalPower_W();
+		super.activate(context, config.id(), config.enabled());
+		this.disChargeMinVoltage = config.disChargeMinVoltage();
+		this.chargeMaxVoltage = config.chargeMaxVoltage();
+		this.disChargeMaxCurrent = config.disChargeMaxCurrent();
+		this.chargeMaxCurrent = config.chargeMaxCurrent();
+		this.soc = config.soc();
+		this.soh = config.soh();
+		this.temperature = config.temperature();
+		this.capacityKWh = config.capacityKWh();
+		this.voltage = config.voltage();
+		this.minCellVoltage = config.minCellVoltage_mV();
+		this.maximalPower = config.maximalPower_W();
 	}
 
 	@Override
@@ -65,21 +65,21 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	private void updateChannels() {
-		this.getDischargeMinVoltage().setNextValue(disChargeMinVoltage);
-		this.getChargeMaxVoltage().setNextValue(chargeMaxVoltage);
-		this.getDischargeMaxCurrent().setNextValue(disChargeMaxCurrent);
-		this.getChargeMaxCurrent().setNextValue(chargeMaxCurrent);
-		this.getSoc().setNextValue(soc);
-		this.getSoh().setNextValue(soh);
-		this.getMinCellTemperature().setNextValue(temperature);
-		this.getMaxCellTemperature().setNextValue(temperature);
-		this.getCapacity().setNextValue(capacityKWh);
+		this.getDischargeMinVoltage().setNextValue(this.disChargeMinVoltage);
+		this.getChargeMaxVoltage().setNextValue(this.chargeMaxVoltage);
+		this.getDischargeMaxCurrent().setNextValue(this.disChargeMaxCurrent);
+		this.getChargeMaxCurrent().setNextValue(this.chargeMaxCurrent);
+		this.getSoc().setNextValue(this.soc);
+		this.getSoh().setNextValue(this.soh);
+		this.getMinCellTemperature().setNextValue(this.temperature);
+		this.getMaxCellTemperature().setNextValue(this.temperature);
+		this.getCapacity().setNextValue(this.capacityKWh);
 
-		this.getVoltage().setNextValue(voltage);
-		this.getMinCellVoltage().setNextValue(minCellVoltage_mV);
-		this.getMaxCellVoltage().setNextValue(minCellVoltage_mV);
+		this.getVoltage().setNextValue(this.voltage);
+		this.getMinCellVoltage().setNextValue(this.minCellVoltage);
+		this.getMaxCellVoltage().setNextValue(this.minCellVoltage);
 
-		this.getMaxPower().setNextValue(maximalPower_W);
+		this.getMaxPower().setNextValue(this.maximalPower);
 	}
 
 }

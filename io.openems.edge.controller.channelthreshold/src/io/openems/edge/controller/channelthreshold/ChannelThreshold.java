@@ -2,26 +2,26 @@ package io.openems.edge.controller.channelthreshold;
 
 import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
@@ -33,23 +33,39 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	private final Logger log = LoggerFactory.getLogger(ChannelThreshold.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	protected ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent inputComponent = null;
+	public ChannelThreshold() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent outputComponent = null;
-
-	private Channel<?> inputChannel = null;
-	private WriteChannel<Boolean> outputChannel = null;
+	private ChannelAddress inputChannelAddress;
+	private ChannelAddress outputChannelAddress;
 	private int lowThreshold = 0;
 	private int highThreshold = 0;
 	private int hysteresis = 0;
 	private boolean invertOutput = false;
 
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		STATE_MACHINE(new Doc() //
+				.level(Level.INFO) //
+				.text("Current State of State-Machine") //
+				.options(State.values()));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		/*
 		 * parse config
 		 */
@@ -57,47 +73,15 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 		this.highThreshold = config.highThreshold();
 		this.hysteresis = config.hysteresis();
 		this.invertOutput = config.invert();
-		ChannelAddress inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-		ChannelAddress outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
+		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		// update filter for 'Input' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputComponent",
-				inputChannelAddress.getComponentId())) {
-			return;
-		}
-
-		// update filter for 'Output' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputComponent",
-				outputChannelAddress.getComponentId())) {
-			return;
-		}
-
-		/*
-		 * get actual input and output channel
-		 */
-		this.inputChannel = this.inputComponent.channel(inputChannelAddress.getChannelId());
-		this.outputChannel = this.outputComponent.channel(outputChannelAddress.getChannelId());
-
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	/**
-	 * Available states in the State-Machine
-	 */
-	private enum State {
-		UNDEFINED, /* Unknown state on first start */
-		BELOW_LOW, /* Value is smaller than the low threshold */
-		PASS_LOW_COMING_FROM_BELOW, /* Value just passed the low threshold. Last value was even lower. */
-		PASS_LOW_COMING_FROM_ABOVE, /* Value just passed the low threshold. Last value was higher. */
-		BETWEEN_LOW_AND_HIGH, /* Value is between low and high threshold */
-		PASS_HIGH_COMING_FROM_BELOW, /* Value just passed the high threshold. Last value was lower. */
-		PASS_HIGH_COMING_FROM_ABOVE, /* Value just passed the high threshold. Last value was higher. */
-		ABOVE_HIGH /* Value is bigger than the high threshold */
 	}
 
 	/**
@@ -121,7 +105,8 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 		 */
 		int value;
 		try {
-			value = TypeUtils.getAsType(OpenemsType.INTEGER, this.inputChannel.value().getOrError());
+			Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
+			value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
 		} catch (Exception e) {
 			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
 			return;
@@ -267,21 +252,20 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 *
-	 * @param value
-	 *            true to switch ON, false to switch ON; is inverted if
-	 *            'invertOutput' config is set
+	 * @param value true to switch ON, false to switch ON; is inverted if
+	 *              'invertOutput' config is set
 	 */
 	private void setOutput(boolean value) {
-		Optional<Boolean> currentValueOpt = this.outputChannel.value().asOptional();
-		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
-			log.info("Set output [" + this.outputChannel.address() + "] " + (value ^ this.invertOutput ? "ON" : "OFF")
-					+ ".");
-			try {
-				this.outputChannel.setNextWriteValue(value ^ invertOutput);
-			} catch (OpenemsException e) {
-				this.logError(this.log,
-						"Unable to set output: [" + this.outputChannel.address() + "] " + e.getMessage());
+		try {
+			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
+			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
+				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
+						+ (value ^ this.invertOutput ? "ON" : "OFF") + ".");
+				outputChannel.setNextWriteValue(value ^ invertOutput);
 			}
+		} catch (OpenemsException e) {
+			this.logError(this.log, "Unable to set output: [" + this.outputChannelAddress + "] " + e.getMessage());
 		}
 	}
 }

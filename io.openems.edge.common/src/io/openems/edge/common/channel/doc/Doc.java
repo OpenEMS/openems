@@ -5,29 +5,29 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.value.Value;
 
 /**
  * Provides static meta information for a {@link Channel} using Builder pattern.
  * 
  * Possible meta information:
  * <ul>
- * <li>access-mode (read-only/read-write/write-only) flag {@link #accessMode(AccessMode)}
+ * <li>access-mode (read-only/read-write/write-only) flag
+ * {@link #accessMode(AccessMode)}
  * <li>expected OpenemsType via {@link #getType()}
  * <li>descriptive text via {@link #getText()}
  * <li>a Unit via {@link #getUnit()}
- * <li>possible named option values as String or Enum via
- * {@link #getOption(String)}, {@link #getOption(int)}, {@link #getOption(Enum)} methods
+ * <li>possible named option values {@link OptionsEnum} via
+ * {@link #getOptionFromEnumString(String)}, {@link #getOption(Integer)} methods
  * <li>importance {@link Level} via {@link #getLevel()}
  * <li>is debug mode activated via {@link #isDebug()}
- * <li>callback on initialisation of a Channel via
- * {@link #getOnInitCallback()}
+ * <li>callback on initialization of a Channel via {@link #getOnInitCallback()}
  * </ul>
  */
 public class Doc {
@@ -119,35 +119,31 @@ public class Doc {
 	}
 
 	/*
-	 * Options. Value is either a String or an Enum.
+	 * Options.
 	 */
-	private BiMap<Integer, Object> options = HashBiMap.create();
+	private BiMap<Integer, OptionsEnum> options = HashBiMap.create();
 
-	public boolean hasOptions() {
-		return this.options.size() > 0;
-	}
-
-	public Doc option(int value, Enum<?> option) {
-		this.options.put(value, option);
-		return this;
-	}
-
-	public Doc option(Enum<?> option) {
-		this.options.put(option.ordinal(), option);
-		// this.options.put(option.ordinal(), option.name());
-		return this;
-	}
-
+	/**
+	 * Set the possible options using an OptionsEnum
+	 * 
+	 * @param options
+	 * @return
+	 */
 	public Doc options(Enum<? extends OptionsEnum>[] options) {
 		for (Enum<? extends OptionsEnum> option : options) {
-			this.option(((OptionsEnum) option).getValue(), option);
+			OptionsEnum o = (OptionsEnum) option;
+			this.options.put(o.getValue(), o);
 		}
 		return this;
 	}
 
-	public Doc option(int value, String option) {
-		this.options.put(value, option);
-		return this;
+	/**
+	 * Gets whether this Doc has registered Options
+	 * 
+	 * @return
+	 */
+	public boolean hasOptions() {
+		return !this.options.isEmpty();
 	}
 
 	/**
@@ -157,67 +153,49 @@ public class Doc {
 	 * @param name
 	 * @return
 	 */
-	public int getOption(String name) {
-		Integer value = this.options.inverse().get(name);
+	public int getOptionFromEnumString(String name) {
+		for (OptionsEnum e : this.options.values()) {
+			if (e.getName().equalsIgnoreCase(name)) {
+				return e.getValue();
+			}
+		}
+		throw new IllegalArgumentException(
+				"Channel has no option [" + name + "]! Existing options: " + this.options.values());
+	}
+
+	/**
+	 * Get the Option Enum.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public OptionsEnum getOption(Integer value) {
+		if (this.options.isEmpty()) {
+			return null;
+		}
+		OptionsEnum undefined = this.options.values().iterator().next().getUndefined();
 		if (value == null) {
-			throw new IllegalArgumentException(
-					"Channel has no option [" + name + "]! Existing options: " + this.options.values());
+			return undefined;
 		}
-		return value;
+		OptionsEnum option = this.options.get(value);
+		if (option == null) {
+			return undefined;
+		}
+		return option;
 	}
 
 	/**
-	 * Get the Option value. Throws IllegalArgumentException if there is no option
-	 * with that name
-	 * 
-	 * @param nameEnum
-	 * @return
-	 */
-	public int getOption(Enum<?> nameEnum) {
-		Integer value = this.options.inverse().get(nameEnum);
-		if (value != null) {
-			return value;
-		}
-		return this.getOption(nameEnum.name());
-	}
-
-	/**
-	 * Get the Option name. Throws IllegalArgumentException if there is no option
-	 * with that value
+	 * Get the Option name or Undefined if there is no option with that value
 	 * 
 	 * @param value
 	 * @return
 	 */
-	public String getOption(int value) {
-		Object option = this.options.get(value);
+	public String getOptionString(Integer value) {
+		OptionsEnum option = this.getOption(value);
 		if (option == null) {
-			throw new IllegalArgumentException(
-					"Channel has no option value [" + value + "]! Existing options: " + this.options.values());
+			return Value.UNDEFINED_VALUE_STRING;
 		}
-		if (option instanceof Enum<?>) {
-			return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, ((Enum<?>) option).name());
-		}
-		return option.toString();
-	}
-
-	/**
-	 * Get the Option Enum. Throws IllegalArgumentException if there is no Enum
-	 * option with that value
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public Enum<?> getOptionEnum(int value) {
-		Object option = this.options.get(value);
-		if (option == null) {
-			throw new IllegalArgumentException(
-					"Channel has no option value [" + value + "]! Existing options: " + this.options.values());
-		}
-		if (!(option instanceof Enum<?>)) {
-			throw new IllegalArgumentException(
-					"Channel has no Enum option value [" + value + "]! Existing options: " + this.options.values());
-		}
-		return (Enum<?>) option;
+		return option.getName();
 	}
 
 	/*

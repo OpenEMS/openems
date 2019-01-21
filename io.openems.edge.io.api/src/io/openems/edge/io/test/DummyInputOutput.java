@@ -56,7 +56,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 			channel.nextProcessImage();
 			this.addChannel(channel);
 		}
-		super.activate(null, "", id, true);
+		super.activate(null, id, true);
 	}
 
 	@Override

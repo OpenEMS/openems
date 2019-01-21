@@ -37,12 +37,19 @@ public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 	/**
 	 * Gets the next write value and resets it.
 	 * 
+	 * This method is called once in every cycle. It makes sure, that the
+	 * nextWriteValue gets initialized in every Cycle. If registers need to be
+	 * written again in every cycle, next setNextWriteValue()-method needs to called
+	 * on every Cycle.
+	 * 
 	 * @return
 	 */
 	public default Optional<Register[]> getNextWriteValueAndReset() {
 		Optional<Register[]> valueOpt = this.getNextWriteValue();
 		try {
-			this._setNextWriteValue(Optional.empty());
+			if (valueOpt.isPresent()) {
+				this._setNextWriteValue(Optional.empty());
+			}
 		} catch (OpenemsException e) {
 			// can be safely ignored
 		}

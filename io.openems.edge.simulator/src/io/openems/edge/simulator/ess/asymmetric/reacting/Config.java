@@ -3,12 +3,10 @@ package io.openems.edge.simulator.ess.asymmetric.reacting;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Simulator EssAsymmetric Reacting", //
 		description = "This simulates a 'reacting' asymmetric Energy Storage System.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ess0";
 
 	boolean enabled() default true;

@@ -1,21 +1,18 @@
 package io.openems.edge.controller.asymmetric.balancingcosphi;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -38,32 +35,26 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 	private final Logger log = LoggerFactory.getLogger(CosPhi.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	protected ComponentManager componentManager;
 
+	private String essId;
+	private String meterId;
 	private CosPhiDirection direction = DEFAULT_DIRECTION;
 	private double cosPhi = DEFAULT_COS_PHI;
 
+	public CosPhi() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
-			return;
-		}
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.enabled());
 
+		this.essId = config.ess_id();
+		this.meterId = config.meter_id();
 		this.direction = config.direction();
 		this.cosPhi = Math.abs(config.cosPhi());
 	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedAsymmetricEss ess;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private AsymmetricMeter meter;
 
 	@Deactivate
 	protected void deactivate() {
@@ -72,16 +63,19 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 
 	@Override
 	public void run() {
-		this.addConstraint(Phase.L1, this.meter.getActivePowerL1(), this.meter.getReactivePowerL1(),
-				this.ess.getActivePowerL1(), this.ess.getReactivePowerL1());
-		this.addConstraint(Phase.L2, this.meter.getActivePowerL2(), this.meter.getReactivePowerL2(),
-				this.ess.getActivePowerL2(), this.ess.getReactivePowerL2());
-		this.addConstraint(Phase.L3, this.meter.getActivePowerL3(), this.meter.getReactivePowerL3(),
-				this.ess.getActivePowerL3(), this.ess.getReactivePowerL3());
+		AsymmetricMeter meter = this.componentManager.getComponent(this.meterId);
+		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.essId);
+
+		this.addConstraint(ess, Phase.L1, meter.getActivePowerL1(), meter.getReactivePowerL1(), ess.getActivePowerL1(),
+				ess.getReactivePowerL1());
+		this.addConstraint(ess, Phase.L2, meter.getActivePowerL2(), meter.getReactivePowerL2(), ess.getActivePowerL2(),
+				ess.getReactivePowerL2());
+		this.addConstraint(ess, Phase.L3, meter.getActivePowerL3(), meter.getReactivePowerL3(), ess.getActivePowerL3(),
+				ess.getReactivePowerL3());
 	}
 
-	private void addConstraint(Phase phase, Channel<Integer> meterActivePower, Channel<Integer> meterReactivePower,
-			Channel<Integer> essActivePower, Channel<Integer> essReactivePower) {
+	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, Channel<Integer> meterActivePower,
+			Channel<Integer> meterReactivePower, Channel<Integer> essActivePower, Channel<Integer> essReactivePower) {
 		// Calculate the startpoint of the cosPhi line in relation to the ess zero power
 		long pNull = meterActivePower.value().orElse(0) + essActivePower.value().orElse(0);
 		long qNull = meterReactivePower.value().orElse(0) + essReactivePower.value().orElse(0);
@@ -94,10 +88,10 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 		double staticValueOfEquation = m * pNull * qNull;
 
 		try {
-			Power power = this.ess.getPower();
+			Power power = ess.getPower();
 			Constraint c = new Constraint(ess.id() + phase + ": CosPhi [" + cosPhi + "]", new LinearCoefficient[] { //
-					new LinearCoefficient(power.getCoefficient(this.ess, phase, Pwr.ACTIVE), m), //
-					new LinearCoefficient(power.getCoefficient(this.ess, phase, Pwr.REACTIVE), 1) //
+					new LinearCoefficient(power.getCoefficient(ess, phase, Pwr.ACTIVE), m), //
+					new LinearCoefficient(power.getCoefficient(ess, phase, Pwr.REACTIVE), 1) //
 			}, Relationship.EQUALS, staticValueOfEquation);
 			System.out.println("Add CosPhi: " + c);
 			power.addConstraintAndValidate(c);

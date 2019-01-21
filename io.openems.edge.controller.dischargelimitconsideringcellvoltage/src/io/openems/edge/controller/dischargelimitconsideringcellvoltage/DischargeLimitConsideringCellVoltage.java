@@ -1,21 +1,16 @@
 package io.openems.edge.controller.dischargelimitconsideringcellvoltage;
 
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +20,7 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -52,13 +48,10 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	private final Logger log = LoggerFactory.getLogger(DischargeLimitConsideringCellVoltage.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	protected ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss ess;
-	
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private Battery battery;
+	private String essId;
+	private String batteryId;
 
 	private State status = State.UNDEFINED;
 	private float minCellVoltage;
@@ -175,7 +168,8 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	private void forbidDischarging() {
 		debug("DischargeLimitConsideringCellVoltage.forbidDischarging()");
 		try {
-			this.ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 0);
+			this.getEss().addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
+					Relationship.LESS_OR_EQUALS, 0);
 		} catch (PowerException e) {
 			error("Exception occurred in DischargeLimitConsideringCellVoltage.forbidCharging()\n" + e.getMessage());
 		}		
@@ -189,12 +183,13 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 
 	private void startCharging() {
 		debug("DischargeLimitConsideringCellVoltage.startCharging()");
+		ManagedSymmetricEss ess = this.getEss();
 		timeSinceMinCellVoltageWasBelowLimit = null;
-		int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+		int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
         int calculatedPower = maxCharge / 5;
         debug("Calculated power: " + calculatedPower);
 		try {
-			this.ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
+			ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
 					Relationship.LESS_OR_EQUALS, calculatedPower);
 			this.setStatus(State.CHARGING);
 		} catch (PowerException e) {
@@ -241,6 +236,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 
 	private Map<String, Float> getValuesFromChannels() {
 		debug("DischargeLimitConsideringCellVoltage.getValuesFromChannels()");
+		Battery battery = this.getBattery();
 		Optional<Integer> vOpt = battery.getVoltage().getNextValue().asOptional();
 		Optional<Integer> mcvOpt = battery.getMinCellVoltage().getNextValue().asOptional();
 		Optional<Integer> socOpt = battery.getSoc().getNextValue().asOptional();
@@ -266,17 +262,10 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		debug("DischargeLimitConsideringCellVoltage.activate()");
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
-			return;
-		}
-		
-		// update filter for 'battery'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "battery", config.battery_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.enabled());
+
+		this.essId = config.ess_id();
+		this.batteryId = config.battery_id();
 
 		// Write data from configuration into field variables
 		writeDataFromConfigIntoFields(config);
@@ -290,8 +279,8 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		absolutMinCellVoltage = config.secondCellVoltageLimit();
 		minimalSystemVoltage = config.minimalTotalVoltage();
 		chargeSoC = config.chargeSoc();
-		minSoC = config.minSoc();		
-		timeUntilChargeIsForced = config.timeSpan();		
+		minSoC = config.minSoc();
+		timeUntilChargeIsForced = config.timeSpan();
 	}
 	
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -315,14 +304,22 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		super.deactivate();
 	}
 	
+
+	private ManagedSymmetricEss getEss() {
+		return this.componentManager.getComponent(this.essId);
+	}
+
+	private Battery getBattery() {
+		return this.componentManager.getComponent(this.batteryId);
+	}
+
 	public enum State implements OptionsEnum {
-		UNDEFINED(0, "Undefined"),
-		INITIALIZING(1, "Initializing"),
-		NO_VALUES_PRESENT(2, "No values present"),
-		NORMAL(3, "Normal"),
-		PENDING(4, "Pending"),
-		CHARGING(5, "Charging"), 
-		;
+		UNDEFINED(-1, "Undefined"), //
+		INITIALIZING(1, "Initializing"), //
+		NO_VALUES_PRESENT(2, "No values present"), //
+		NORMAL(3, "Normal"), //
+		PENDING(4, "Pending"), //
+		CHARGING(5, "Charging");
 
 		@Override
 		public int getValue() {
@@ -330,17 +327,22 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		}
 
 		@Override
-		public String getOption() {
-			return this.option;
+		public String getName() {
+			return this.name;
 		}
 		
-		State(int value, String option) {
+		State(int value, String name) {
 			this.value = value;
-			this.option = option;
+			this.name = name;
 		}
 		
 		private int value;
-		private String option;		
+		private String name;		
+	
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
 	}
 
 }

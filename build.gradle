@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.node-gradle.node" version "1.3.0"
+}
+
 /*
  * Javadoc
  */
@@ -17,8 +21,14 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 /*
  * Antora docs
  */
-task antora(type:Exec) {
-    commandLine 'docker', 'run', '--privileged', '-v', "$projectDir:/antora", '--rm', '-t', 'antora/antora', 'doc/build/site.yml'
+node {
+    nodeModulesDir = file("${projectDir}/doc/build")
+}
+
+task antora(type: NodeTask) {
+    dependsOn npmInstall
+    script = file("doc/build/node_modules/@antora/cli/bin/antora")
+    args = ["doc/build/site.yml"]
     doLast {
         copy {
             from "doc/build/.nojekyll", "doc/build/CNAME"

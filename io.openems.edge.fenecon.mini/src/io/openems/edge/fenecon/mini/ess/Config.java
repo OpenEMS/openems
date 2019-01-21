@@ -3,18 +3,19 @@ package io.openems.edge.fenecon.mini.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.ess.api.Phase;
+
 @ObjectClassDefinition( //
 		name = "FENECON Mini ESS", //
 		description = "The energy storage system implementation of a FENECON Mini.")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "ess0";
 
-	String Phase() default "L1";
-
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Phase", description = "On which Phase is the Mini connected?")
+	Phase Phase() default Phase.L1;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id();

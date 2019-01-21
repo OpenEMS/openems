@@ -8,7 +8,7 @@ Export-Package: \
 	io.openems.edge.common.worker,\
 	io.openems.edge.common.channel.doc,\
 	io.openems.edge.common.event,\
-	io.openems.edge.common.channel.merger,\
+	io.openems.edge.common.channel.calculate,\
 	io.openems.edge.common.converter,\
 	io.openems.edge.common.channel.value,\
 	io.openems.edge.common.channel,\
@@ -19,7 +19,8 @@ Export-Package: \
 	io.openems.edge.common.modbusslave,\
 	io.openems.edge.common.meta,\
 	io.openems.edge.common.jsonapi,\
-	io.openems.edge.common.test
+	io.openems.edge.common.test,\
+	io.openems.edge.common.sum
 
 -includeresource: {readme.md}
 

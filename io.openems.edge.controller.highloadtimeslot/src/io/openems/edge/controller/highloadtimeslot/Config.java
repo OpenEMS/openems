@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller High-Load Timeslot", //
 		description = "This controller discharges the storage system at a defined time with a defined load; charges within remaining time.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlHighLoadTimeslot0";
 
 	boolean enabled() default true;

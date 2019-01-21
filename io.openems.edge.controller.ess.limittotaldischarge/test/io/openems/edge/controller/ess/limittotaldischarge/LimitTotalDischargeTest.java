@@ -7,9 +7,10 @@ import org.junit.Test;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class LimitTotalDischargeTest {
@@ -36,11 +37,6 @@ public class LimitTotalDischargeTest {
 		}
 
 		@Override
-		public String ess_target() {
-			return "";
-		}
-
-		@Override
 		public int minSoc() {
 			return this.minSoc;
 		}
@@ -64,8 +60,8 @@ public class LimitTotalDischargeTest {
 		// Initialize Controller
 		LimitTotalDischargeController controller = new LimitTotalDischargeController(clock);
 		// Add referenced services
-		controller.cm = new DummyConfigurationAdmin();
-		controller.ess = new DummyManagedSymmetricEss("ess0");
+		DummyComponentManager componentManager = new DummyComponentManager();
+		controller.componentManager = componentManager;
 		// Activate (twice, so that reference target is set)
 		MyConfig config = new MyConfig("ctrl0", "ess0", 15, 10, 1000);
 		controller.activate(null, config);
@@ -75,7 +71,8 @@ public class LimitTotalDischargeTest {
 		ChannelAddress ess0SetActivePowerLessOrEquals = new ChannelAddress("ess0", "SetActivePowerLessOrEquals");
 		ChannelAddress ctrl0AwaitingHysteresis = new ChannelAddress("ctrl0", "AwaitingHysteresis");
 		// Build and run test
-		new ControllerTest(controller, controller, controller.ess) //
+		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
+		new ControllerTest(controller, componentManager, ess, controller) //
 				.next(new TestCase() //
 						.input(ess0Soc, 20) //
 						.output(ess0SetActivePowerLessOrEquals, null).output(ctrl0AwaitingHysteresis, false)) //

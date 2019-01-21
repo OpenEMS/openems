@@ -1,0 +1,26 @@
+sequenceDiagram
+
+participant UI Widget
+participant UI Edge
+participant UI Ws
+participant Backend UiWs
+
+Note over UI Widget,UI Edge: Widget calls subscribeChannels()<br/>method of 'Edge' object
+UI Widget ->>+ UI Edge: subscribeChannels()
+
+Note over UI Edge,UI Ws: Creates JSON-RPC Request<br/>'subscribeChannels'
+UI Edge ->>+ UI Ws: Request subscribeChannels
+
+Note over UI Ws,Backend UiWs: Wraps the request in an 'edgeRpc'<br/>JSON-RPC Request
+UI Ws ->>+ Backend UiWs: Request edgeRpc
+
+Note over Backend UiWs,UI Ws: Sends a JSON-RPC Success Response
+Backend UiWs ->>+ UI Ws: Response edgeRpc
+
+Note over UI Ws,UI Edge: Unwraps the 'edgeRpc' Response
+UI Ws ->>+ UI Edge: Response subscribeChannels
+
+Note over Backend UiWs,UI Widget: Keeps sending 'currentData' Notifications
+Backend UiWs ->> UI Ws: Notification edgeRpc
+UI Ws ->> UI Edge: Notification 'currentData'
+UI Edge ->> UI Widget: Observable currentData

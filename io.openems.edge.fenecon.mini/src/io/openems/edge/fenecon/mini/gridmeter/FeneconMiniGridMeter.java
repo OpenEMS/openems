@@ -19,6 +19,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -50,7 +51,7 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
+		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
 	}
 
@@ -64,10 +65,15 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4004, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4004),
-								ElementToChannelConverter.INVERT)), //
-				new FC3ReadRegistersTask(5003, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(5003)), //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(5005))));//
+								SIGNED_POWER_CONVERTER_AND_INVERT)), //
+				new FC3ReadRegistersTask(5003, Priority.LOW, //
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+								new UnsignedDoublewordElement(5003).wordOrder(WordOrder.MSWLSW),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								new UnsignedDoublewordElement(5005).wordOrder(WordOrder.MSWLSW),
+								ElementToChannelConverter.SCALE_FACTOR_2)) //
+		);
 	}
 
 	@Override
@@ -79,4 +85,19 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 	public String debugLog() {
 		return "L:" + this.getActivePower().value().asString();
 	}
+
+	private final static ElementToChannelConverter SIGNED_POWER_CONVERTER_AND_INVERT = new ElementToChannelConverter( //
+			// element -> channel
+			value -> {
+				if (value == null) {
+					return null;
+				}
+				int intValue = (Short) value;
+				if (intValue == -10_000) {
+					return 0; // ignore '-10_000'
+				}
+				return intValue * -1; // invert
+			}, //
+				// channel -> element
+			value -> value);
 }

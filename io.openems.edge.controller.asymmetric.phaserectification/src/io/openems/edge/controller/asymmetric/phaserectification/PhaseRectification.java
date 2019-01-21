@@ -1,20 +1,17 @@
 package io.openems.edge.controller.asymmetric.phaserectification;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -34,26 +31,19 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 	private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	protected ComponentManager componentManager;
+
+	private Config config;
+
+	public PhaseRectification() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
-			return;
-		}
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.enabled());
+		this.config = config;
 	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedAsymmetricEss ess;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private AsymmetricMeter meter;
 
 	@Deactivate
 	protected void deactivate() {
@@ -62,6 +52,9 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 
 	@Override
 	public void run() {
+		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		AsymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+
 		int meterL1 = meter.getActivePowerL1().value().orElse(0) * -1;
 		int meterL2 = meter.getActivePowerL2().value().orElse(0) * -1;
 		int meterL3 = meter.getActivePowerL3().value().orElse(0) * -1;
@@ -77,14 +70,14 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 		int activePowerL3 = essL3 + meterL3Delta;
 
 		try {
-			Power power = this.ess.getPower();
+			Power power = ess.getPower();
 			power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-					new LinearCoefficient(power.getCoefficient(this.ess, Phase.L1, Pwr.ACTIVE), 1), //
-					new LinearCoefficient(power.getCoefficient(this.ess, Phase.L2, Pwr.ACTIVE), -1) //
+					new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
+					new LinearCoefficient(power.getCoefficient(ess, Phase.L2, Pwr.ACTIVE), -1) //
 			}, Relationship.EQUALS, activePowerL1 - activePowerL2));
 			power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-					new LinearCoefficient(power.getCoefficient(this.ess, Phase.L1, Pwr.ACTIVE), 1), //
-					new LinearCoefficient(power.getCoefficient(this.ess, Phase.L3, Pwr.ACTIVE), -1) //
+					new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
+					new LinearCoefficient(power.getCoefficient(ess, Phase.L3, Pwr.ACTIVE), -1) //
 			}, Relationship.EQUALS, activePowerL1 - activePowerL3));
 		} catch (PowerException e) {
 			this.logError(this.log, e.getMessage());

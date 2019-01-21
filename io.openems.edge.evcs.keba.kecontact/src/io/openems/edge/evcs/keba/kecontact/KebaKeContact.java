@@ -50,14 +50,6 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
 
-	private enum Status {
-		STARTING, NOT_READY_FOR_CHARGING, READY_FOR_CHARGING, CHARGING, ERROR, AUTHORIZATION_REJECTED
-	}
-
-	private enum Plug {
-		UNPLUGGED, PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED, PLUGGED_ON_EVCS_AND_ON_EV, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/*
 		 * Report 1
@@ -69,26 +61,13 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		/*
 		 * Report 2
 		 */
-		STATUS(new Doc().type(OpenemsType.INTEGER).text("Current state of the charging station") //
-				.option(0, Status.STARTING) //
-				.option(1, Status.NOT_READY_FOR_CHARGING) // e.g. unplugged, X1 or "ena" not enabled, RFID not
-															// enabled,...
-				.option(2, Status.READY_FOR_CHARGING) // waiting for EV charging request
-				.option(3, Status.CHARGING) //
-				.option(4, Status.ERROR) //
-				.option(5, Status.AUTHORIZATION_REJECTED) //
-		), //
+		STATUS(new Doc().type(OpenemsType.INTEGER).text("Current state of the charging station")
+				.options(Status.values())),
 		ERROR_1(new Doc().type(OpenemsType.INTEGER)
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 		ERROR_2(new Doc().type(OpenemsType.INTEGER)
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-		PLUG(new Doc().type(OpenemsType.INTEGER) //
-				.option(0, Plug.UNPLUGGED) //
-				.option(1, Plug.PLUGGED_ON_EVCS) //
-				.option(3, Plug.PLUGGED_ON_EVCS_AND_LOCKED) //
-				.option(5, Plug.PLUGGED_ON_EVCS_AND_ON_EV) //
-				.option(7, Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) //
-		), //
+		PLUG(new Doc().type(OpenemsType.INTEGER).options(Plug.values())),
 		ENABLE_SYS(new Doc().type(OpenemsType.BOOLEAN)
 				.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 		ENABLE_USER(new Doc().type(OpenemsType.BOOLEAN).text("Enable condition via UDP")), //
@@ -159,7 +138,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		this.ip = Inet4Address.getByName(config.ip());
 

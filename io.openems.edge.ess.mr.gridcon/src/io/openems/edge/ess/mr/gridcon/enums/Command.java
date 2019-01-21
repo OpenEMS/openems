@@ -2,18 +2,22 @@ package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
-public enum Command implements OptionsEnum { // see manual(Betriebsanleitung Feldbus Konfiguration (Anybus-Modul)) page 15
-	PLAY(1, "Start active filter"),
-	PAUSE(2, "Set outgoing current of ACF to zero"),
-	ACKNOWLEDGE(4, "Achnowledge errors"),
+/*
+ * see manual (Betriebsanleitung Feldbus Konfiguration (Anybus-Modul)) page 15
+ */
+public enum Command implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	PLAY(1, "Start active filter"), //
+	PAUSE(2, "Set outgoing current of ACF to zero"), //
+	ACKNOWLEDGE(4, "Achnowledge errors"), //
 	STOP(8, "Switch off");
 
 	int value;
-	String option;
+	String name;
 
-	private Command(int value, String option) {
+	private Command(int value, String name) {
 		this.value = value;
-		this.option = option;
+		this.name = name;
 	}
 
 	@Override
@@ -22,7 +26,12 @@ public enum Command implements OptionsEnum { // see manual(Betriebsanleitung Fel
 	}
 
 	@Override
-	public String getOption() {
-		return option;
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
 	}
 }

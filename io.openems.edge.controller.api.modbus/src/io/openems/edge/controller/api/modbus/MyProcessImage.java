@@ -34,6 +34,7 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized InputRegister[] getInputRegisterRange(int offset, int count) throws MyIllegalAddressException {
+		this.parent.logInfo(this.log, "Reading Input Registers. Address [" + offset + "] Count [" + count + "].");
 		Register[] registers = this.getRegisterRange(offset, count);
 		Register[] result = new Register[registers.length];
 		for (int i = 0; i < registers.length; i++) {
@@ -44,6 +45,7 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized Register[] getRegisterRange(int offset, int count) throws MyIllegalAddressException {
+		this.parent.logInfo(this.log, "Reading Registers. Address [" + offset + "] Count [" + count + "].");
 		SortedMap<Integer, ModbusRecord> records = this.parent.records.subMap(offset, offset + count);
 		Register[] result = new Register[count];
 		for (int i = 0; i < count;) {
@@ -74,6 +76,7 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized Register getRegister(int ref) throws MyIllegalAddressException {
+		this.parent.logInfo(this.log, "Get Register. Address [" + ref + "].");
 		ModbusRecord record = this.parent.records.get(ref);
 
 		// Get Registers from Record

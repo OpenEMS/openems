@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.modbus;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Test;
 
@@ -34,9 +35,16 @@ public class ModbusTcpApiTest {
 	public void testVersion() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readInputRegisters(2, 3);
-		assertEquals(OpenemsConstants.VERSION_MAJOR, registers[0].getValue());
-		assertEquals(OpenemsConstants.VERSION_MINOR, registers[1].getValue());
-		assertEquals(OpenemsConstants.VERSION_PATCH, registers[2].getValue());
+
+		int versionMajor = registers[0].getValue();
+		int versionMinor = registers[1].getValue();
+		int versionPatch = registers[2].getValue();
+
+		System.out.println(versionMajor + "-" + versionMinor + "-" + versionPatch);
+
+		assertEquals(OpenemsConstants.VERSION_MAJOR, versionMajor);
+		assertEquals(OpenemsConstants.VERSION_MINOR, versionMinor);
+		assertEquals(OpenemsConstants.VERSION_PATCH, versionPatch);
 		master.disconnect();
 	}
 
@@ -69,4 +77,19 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
+	@Test
+	public void testFloat32() throws Exception {
+		ModbusTCPMaster master = getMaster();
+		InputRegister[] registers = master.readInputRegisters(884, 2);
+		ByteBuffer buff = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+		buff.put(registers[0].toBytes());
+		buff.put(registers[1].toBytes());
+		buff.rewind();
+		float value = buff.order(ByteOrder.BIG_ENDIAN).getFloat(0);
+		
+		System.out.println(value);
+		
+		master.disconnect();
+	}
+	
 }

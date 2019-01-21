@@ -14,7 +14,9 @@ Private-Package: \
 	io.openems.edge.simulator.ess.asymmetric.reacting,\
 	io.openems.edge.simulator.io,\
 	io.openems.edge.simulator.battery,\
-	io.openems.edge.simulator.pvinverter
+	io.openems.edge.simulator.pvinverter,\
+	io.openems.edge.simulator.evcs,\
+	io.openems.edge.simulator.modbus
 
 Export-Package: \
 	io.openems.edge.ess.api,\
@@ -25,7 +27,8 @@ Export-Package: \
 	io.openems.edge.ess.power.api,\
 	io.openems.edge.battery.api,\
 	io.openems.edge.io.api,\
-	io.openems.edge.pvinverter.api
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.evcs.api
 	
 -includeresource: {readme.md}
 
@@ -37,7 +40,9 @@ Export-Package: \
 	io.openems.edge.ess.api;version=latest,\
 	com.google.guava;version=27,\
 	io.openems.edge.battery.api;version=latest,\
-	io.openems.edge.io.api;version=latest
+	io.openems.edge.io.api;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.evcs.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

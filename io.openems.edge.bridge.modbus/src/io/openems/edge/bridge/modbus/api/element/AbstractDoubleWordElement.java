@@ -13,15 +13,20 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
-public abstract class AbstractDoubleWordElement<T> extends AbstractModbusRegisterElement<T> {
+public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
-	
-	protected WordOrder wordOrder = WordOrder.MSWLSW;
 
 	public AbstractDoubleWordElement(OpenemsType type, int startAddress) {
 		super(type, startAddress);
 	}
+
+	/**
+	 * Gets an instance of the correct subclass of myself.
+	 * 
+	 * @return
+	 */
+	protected abstract E self();
 
 	@Override
 	public final int getLength() {
@@ -82,5 +87,19 @@ public abstract class AbstractDoubleWordElement<T> extends AbstractModbusRegiste
 	 * @return
 	 */
 	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
+
+	/**
+	 * Sets the Word-Order. Default is "MSWLSW" - "Most Significant Word; Least
+	 * Significant Word". See http://www.simplymodbus.ca/FAQ.htm#Order.
+	 * 
+	 * @param wordOrder
+	 * @return
+	 */
+	public final E wordOrder(WordOrder wordOrder) {
+		this.wordOrder = wordOrder;
+		return this.self();
+	}
+
+	private WordOrder wordOrder = WordOrder.MSWLSW;
 
 }

@@ -20,47 +20,37 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.merger.AverageInteger;
-import io.openems.edge.common.channel.merger.SumInteger;
+import io.openems.edge.common.channel.calculate.CalculateAverage;
+import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
+import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.CalculateGridMode;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
 		name = "Ess.Cluster", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
-)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		})
 public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 //	private final Logger log = LoggerFactory.getLogger(EssCluster.class);
-
-	private final AverageInteger<SymmetricEss> soc;
-	private final SumInteger<SymmetricEss> activePower;
-	private final SumInteger<SymmetricEss> reactivePower;
-	private final SumInteger<AsymmetricEss> activePowerL1;
-	private final SumInteger<AsymmetricEss> reactivePowerL1;
-	private final SumInteger<AsymmetricEss> activePowerL2;
-	private final SumInteger<AsymmetricEss> reactivePowerL2;
-	private final SumInteger<AsymmetricEss> activePowerL3;
-	private final SumInteger<AsymmetricEss> reactivePowerL3;
-	private final SumInteger<SymmetricEss> maxApparentPower;
-	private final SumInteger<SymmetricEss> activeChargeEnergy;
-	private final SumInteger<SymmetricEss> activeDischargeEnergy;
-	private final SumInteger<ManagedSymmetricEss> allowedChargePower;
-	private final SumInteger<ManagedSymmetricEss> allowedDischargePower;
 
 	@Reference
 	private Power power = null;
@@ -71,39 +61,20 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
 	private final List<ManagedSymmetricEss> managedEsss = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference( //
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(enabled=true)")
 	protected void addEss(SymmetricEss ess) {
 		// Do not add myself
 		if (ess == this) {
 			return;
 		}
-		// Do not add disabled Ess
-		if (!ess.isEnabled()) {
-			return;
-		}
 
 		this.esss.add(ess);
 		if (ess instanceof ManagedSymmetricEss) {
-			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
-			this.managedEsss.add(e);
-			this.allowedChargePower.addComponent(e);
-			this.allowedDischargePower.addComponent(e);
-		}
-
-		this.soc.addComponent(ess);
-		this.activePower.addComponent(ess);
-		this.reactivePower.addComponent(ess);
-		this.maxApparentPower.addComponent(ess);
-		this.activeChargeEnergy.addComponent(ess);
-		this.activeDischargeEnergy.addComponent(ess);
-		if (ess instanceof AsymmetricEss) {
-			AsymmetricEss e = (AsymmetricEss) ess;
-			this.activePowerL1.addComponent(e);
-			this.reactivePowerL1.addComponent(e);
-			this.activePowerL2.addComponent(e);
-			this.reactivePowerL2.addComponent(e);
-			this.activePowerL3.addComponent(e);
-			this.reactivePowerL3.addComponent(e);
+			this.managedEsss.add((ManagedSymmetricEss) ess);
 		}
 	}
 
@@ -114,73 +85,22 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 		this.esss.remove(ess);
 		if (ess instanceof ManagedSymmetricEss) {
-			ManagedSymmetricEss e = (ManagedSymmetricEss) ess;
-			this.managedEsss.remove(e);
-			this.allowedChargePower.removeComponent(e);
-			this.allowedDischargePower.removeComponent(e);
-		}
-
-		this.soc.removeComponent(ess);
-		this.activePower.removeComponent(ess);
-		this.reactivePower.removeComponent(ess);
-		this.maxApparentPower.removeComponent(ess);
-		this.activeChargeEnergy.removeComponent(ess);
-		this.activeDischargeEnergy.removeComponent(ess);
-		if (ess instanceof AsymmetricEss) {
-			AsymmetricEss e = (AsymmetricEss) ess;
-			this.activePowerL1.removeComponent(e);
-			this.reactivePowerL1.removeComponent(e);
-			this.activePowerL2.removeComponent(e);
-			this.reactivePowerL2.removeComponent(e);
-			this.activePowerL3.removeComponent(e);
-			this.reactivePowerL3.removeComponent(e);
+			this.managedEsss.remove((ManagedSymmetricEss) ess);
 		}
 	}
 
 	public EssCluster() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		/*
-		 * Define Channel Mergers
-		 */
-		this.soc = new AverageInteger<SymmetricEss>(this, SymmetricEss.ChannelId.SOC, SymmetricEss.ChannelId.SOC);
-		this.activePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_POWER,
-				SymmetricEss.ChannelId.ACTIVE_POWER);
-		this.reactivePower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.REACTIVE_POWER,
-				SymmetricEss.ChannelId.REACTIVE_POWER);
-		this.activePowerL1 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.ACTIVE_POWER_L1,
-				AsymmetricEss.ChannelId.ACTIVE_POWER_L1);
-		this.reactivePowerL1 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.REACTIVE_POWER_L1,
-				AsymmetricEss.ChannelId.REACTIVE_POWER_L1);
-		this.activePowerL2 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.ACTIVE_POWER_L2,
-				AsymmetricEss.ChannelId.ACTIVE_POWER_L2);
-		this.reactivePowerL2 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.REACTIVE_POWER_L2,
-				AsymmetricEss.ChannelId.REACTIVE_POWER_L2);
-		this.activePowerL3 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.ACTIVE_POWER_L3,
-				AsymmetricEss.ChannelId.ACTIVE_POWER_L3);
-		this.reactivePowerL3 = new SumInteger<AsymmetricEss>(this, AsymmetricEss.ChannelId.REACTIVE_POWER_L3,
-				AsymmetricEss.ChannelId.REACTIVE_POWER_L3);
-		this.maxApparentPower = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.MAX_APPARENT_POWER,
-				SymmetricEss.ChannelId.MAX_APPARENT_POWER);
-		this.activeChargeEnergy = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
-				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-		this.activeDischargeEnergy = new SumInteger<SymmetricEss>(this, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
-				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
-		this.allowedChargePower = new SumInteger<ManagedSymmetricEss>(this,
-				ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-		this.allowedDischargePower = new SumInteger<ManagedSymmetricEss>(this,
-				ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
-				ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		// update filter for 'esss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "esss", config.ess_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "esss", config.ess_ids())) {
 			return;
 		}
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate
@@ -191,6 +111,11 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
+
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.calculateChannelValues();
+			break;
+
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.refreshGridMode();
 			break;
@@ -198,7 +123,63 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	/**
-	 * Derives the GridMode from all
+	 * Calculates the sum-value for each Channel.
+	 */
+	private void calculateChannelValues() {
+		final CalculateAverage soc = new CalculateAverage();
+		final CalculateGridMode gridMode = new CalculateGridMode();
+		final CalculateIntegerSum activePower = new CalculateIntegerSum();
+		final CalculateIntegerSum reactivePower = new CalculateIntegerSum();
+		final CalculateIntegerSum maxApparentPower = new CalculateIntegerSum();
+		final CalculateLongSum activeChargeEnergy = new CalculateLongSum();
+		final CalculateLongSum activeDischargeEnergy = new CalculateLongSum();
+
+		final CalculateIntegerSum activePowerL1 = new CalculateIntegerSum();
+		final CalculateIntegerSum reactivePowerL1 = new CalculateIntegerSum();
+		final CalculateIntegerSum activePowerL2 = new CalculateIntegerSum();
+		final CalculateIntegerSum reactivePowerL2 = new CalculateIntegerSum();
+		final CalculateIntegerSum activePowerL3 = new CalculateIntegerSum();
+		final CalculateIntegerSum reactivePowerL3 = new CalculateIntegerSum();
+
+		for (SymmetricEss ess : this.esss) {
+			soc.addValue(ess.getSoc());
+			gridMode.addValue(ess.getGridMode());
+			activePower.addValue(ess.getActivePower());
+			reactivePower.addValue(ess.getReactivePower());
+			maxApparentPower.addValue(ess.getMaxApparentPower());
+			activeChargeEnergy.addValue(ess.getActiveChargeEnergy());
+			activeDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
+
+			if (ess instanceof AsymmetricEss) {
+				AsymmetricEss e = (AsymmetricEss) ess;
+				activePowerL1.addValue(e.getActivePowerL1());
+				reactivePowerL1.addValue(e.getReactivePowerL1());
+				activePowerL2.addValue(e.getActivePowerL2());
+				reactivePowerL2.addValue(e.getReactivePowerL2());
+				activePowerL3.addValue(e.getActivePowerL3());
+				reactivePowerL3.addValue(e.getReactivePowerL3());
+			}
+		}
+
+		// Set values
+		this.getSoc().setNextValue(soc.calculate());
+		this.getGridMode().setNextValue(gridMode.calculate());
+		this.getActivePower().setNextValue(activePower.calculate());
+		this.getReactivePower().setNextValue(reactivePower.calculate());
+		this.getMaxApparentPower().setNextValue(maxApparentPower.calculate());
+		this.getActiveChargeEnergy().setNextValue(activeChargeEnergy.calculate());
+		this.getActiveDischargeEnergy().setNextValue(activeDischargeEnergy.calculate());
+
+		this.getActivePowerL1().setNextValue(activePowerL1.calculate());
+		this.getReactivePowerL1().setNextValue(reactivePowerL1.calculate());
+		this.getActivePowerL2().setNextValue(activePowerL2.calculate());
+		this.getReactivePowerL2().setNextValue(reactivePowerL2.calculate());
+		this.getActivePowerL3().setNextValue(activePowerL3.calculate());
+		this.getReactivePowerL3().setNextValue(reactivePowerL3.calculate());
+	}
+
+	/**
+	 * Derives the GridMode from all.
 	 */
 	private void refreshGridMode() {
 		Integer gridMode = null;

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
-import { Alerts } from '../shared/shared';
+import { LanguageTag, Language } from '../shared/translate/language';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'settings',
@@ -11,16 +12,22 @@ export class SettingsComponent {
 
   public env = environment;
 
+  public readonly languages: LanguageTag[];
+  public currentLanguage: LanguageTag;
+
   constructor(
     public translate: TranslateService,
-    private alerts: Alerts
-  ) { }
+  ) {
+    this.languages = Language.getLanguageTags();
+    this.currentLanguage = translate.currentLang as LanguageTag;
+  }
 
   public toggleDebugMode(event: CustomEvent) {
     this.env.debugMode = event.detail['checked'];
   }
 
-  public clearLogin() {
-    this.alerts.confirmLoginDelete();
+  public setLanguage(language: LanguageTag): void {
+    this.currentLanguage = language;
+    this.translate.use(language);
   }
 }

@@ -7,9 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "ESS Refu", //
 		description = "The energy storage system implementation of a Refu Ess.")
 @interface Config {
-
-	String service_pid();
-
 	String id() default "ess0";
 	
 	boolean enabled() default true;
