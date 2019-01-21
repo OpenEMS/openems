@@ -20,6 +20,7 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -53,11 +54,6 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 
 	@Override
 	public User authenticate() throws OpenemsException {
-		return this.authenticate("NO_SESSION_ID");
-	}
-
-	@Override
-	public User authenticate(String sessionId) throws OpenemsException {
 		int id = this.nextUserId.incrementAndGet();
 		String userId = "user" + id;
 		User user = new User(userId, "User #" + id);
@@ -66,6 +62,16 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		}
 		this.users.put(userId, user);
 		return user;
+	}
+
+	@Override
+	public User authenticate(String username, String password) throws OpenemsNamedException {
+		return this.authenticate();
+	}
+
+	@Override
+	public User authenticate(String sessionId) throws OpenemsException {
+		return this.authenticate();
 	}
 
 	@Override

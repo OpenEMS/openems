@@ -6,8 +6,8 @@ public class MyUser extends User {
 
 	private final int odooId;
 
-	public MyUser(int odooId, String name) {
-		super(String.valueOf(odooId), name);
+	public MyUser(int odooId, String name, String sessionId) {
+		super(String.valueOf(odooId), name, sessionId);
 		this.odooId = odooId;
 	}
 
