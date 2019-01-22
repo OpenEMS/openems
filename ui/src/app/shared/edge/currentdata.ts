@@ -17,33 +17,21 @@ export class CurrentData {
                 totalPower: null,
             }, storage: {
                 soc: null,
-                isAsymmetric: false,
-                hasDC: false,
                 chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
                 chargeActivePowerAC: null,
-                chargeActivePowerACL1: null,
-                chargeActivePowerACL2: null,
-                chargeActivePowerACL3: null,
                 chargeActivePowerDC: null,
                 maxChargeActivePower: null,
-                dischargeActivePower: null, // sum of dischargeActivePowerAC and dischargeActivePowerDC
+                dischargeActivePower: null, // equals dischargeActivePowerAC
                 dischargeActivePowerAC: null,
-                dischargeActivePowerACL1: null,
-                dischargeActivePowerACL2: null,
-                dischargeActivePowerACL3: null,
                 dischargeActivePowerDC: null,
                 maxDischargeActivePower: null,
                 powerRatio: null,
                 maxApparentPower: null
             }, production: {
-                isAsymmetric: false,
                 hasDC: false,
                 powerRatio: null,
                 activePower: null, // sum of activePowerAC and activePowerDC
                 activePowerAC: null,
-                activePowerACL1: null,
-                activePowerACL2: null,
-                activePowerACL3: null,
                 activePowerDC: null,
                 maxActivePower: null
             }, grid: {
@@ -72,19 +60,20 @@ export class CurrentData {
                 result.storage.maxApparentPower = 5000;
             }
             result.storage.chargeActivePowerDC = c['_sum/ProductionDcActualPower'];
-            if (result.storage.chargeActivePowerDC) {
-                result.storage.hasDC = true;
-            }
-            if (essActivePower > 0) {
-                result.storage.chargeActivePower = 0;
-                result.storage.dischargeActivePower = essActivePower;
+            if (essActivePower == null) {
+                // keep 'null'
+            } else if (essActivePower > 0) {
+                result.storage.chargeActivePowerAC = 0;
+                result.storage.dischargeActivePowerAC = essActivePower;
                 // TODO: should consider DC-Power of ratio
                 result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
             } else {
-                result.storage.chargeActivePower = Utils.multiplySafely(essActivePower, -1);
-                result.storage.dischargeActivePower = 0;
+                result.storage.chargeActivePowerAC = Utils.multiplySafely(essActivePower, -1);
+                result.storage.dischargeActivePowerAC = 0;
                 result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
             }
+            result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
+            result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC;
         }
 
         {
@@ -126,9 +115,6 @@ export class CurrentData {
             }
             result.production.powerRatio = Utils.orElse(Utils.divideSafely(result.production.activePower, result.production.maxActivePower), 0);
             result.production.activePowerDC = c['_sum/ProductionDcActualPower'];
-            if (result.production.activePowerDC) {
-                result.production.hasDC = true;
-            }
         }
 
         {
