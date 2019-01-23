@@ -1,8 +1,7 @@
-import { JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
-import { ChannelAddress } from "../../../shared/type/channeladdress";
-import { JsonRpcUtils } from "../jsonrpcutils";
 import { format } from 'date-fns';
+import { ChannelAddress } from "../../../shared/type/channeladdress";
+import { JsonrpcRequest } from "../base";
+import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
  * Represents a JSON-RPC Request to query Historic Timeseries Data.
@@ -30,7 +29,7 @@ export class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
         public readonly toDate: Date,
         public readonly channels: ChannelAddress[]
     ) {
-        super(UUID.UUID(), QueryHistoricTimeseriesDataRequest.METHOD, {
+        super(QueryHistoricTimeseriesDataRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),

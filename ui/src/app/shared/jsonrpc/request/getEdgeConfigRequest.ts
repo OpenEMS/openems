@@ -1,5 +1,4 @@
 import { JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
 
 /**
  * Represents a JSON-RPC Request for 'getEdgeConfig'.
@@ -19,7 +18,7 @@ export class GetEdgeConfigRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(UUID.UUID(), GetEdgeConfigRequest.METHOD, {});
+        super(GetEdgeConfigRequest.METHOD, {});
     }
 
 }

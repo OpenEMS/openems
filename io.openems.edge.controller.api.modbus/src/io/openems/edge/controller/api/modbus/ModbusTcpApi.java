@@ -89,6 +89,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	public ModbusTcpApi() {
 		this.processImage = new MyProcessImage(this);
 
+		// TODO: add Debug-Channels for writes to Channels via Modbus/TCP
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -289,6 +290,11 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	@Override
 	public void run() {
 		this.apiWorker.run();
+	}
+
+	@Override
+	protected void logDebug(Logger log, String message) {
+		super.logDebug(log, message);
 	}
 
 	@Override

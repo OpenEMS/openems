@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UpdateComponentConfigRequest } from '../../../shared/jsonrpc/request/updateComponentConfigRequest';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { UpdateComponentConfigRequest } from '../../../../shared/jsonrpc/request/updateComponentConfigRequest';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'DEFAULT';
 
