@@ -113,7 +113,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 				if (ess instanceof MetaEss) {
 					// ignore this Ess
-					return;
+					continue;
 				}
 				essSoc.addValue(ess.getSoc());
 				essActivePower.addValue(ess.getActivePower());
@@ -177,6 +177,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		Integer essMaxApparentPowerSum = essMaxApparentPower.calculate();
 		this.getEssMaxApparentPower().setNextValue(essMaxApparentPowerSum);
 		this.getGridMode().setNextValue(essGridMode.calculate());
+		// TODO calculate Sum for AllowedCharge/Discharge
 
 		// Grid
 		Integer gridActivePowerSum = gridActivePower.calculate();
