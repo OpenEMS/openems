@@ -36,22 +36,22 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        if (sum.storage.chargeActivePower && sum.storage.chargeActivePower > 0) {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
-            super.updateSectionData(
-                sum.storage.chargeActivePower,
-                sum.storage.powerRatio,
-                Utils.divideSafely(sum.storage.chargeActivePower, sum.system.totalPower));
-        } else if (sum.storage.dischargeActivePower && sum.storage.dischargeActivePower > 0) {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge');
-            super.updateSectionData(
-                sum.storage.dischargeActivePower,
-                sum.storage.powerRatio,
-                Utils.multiplySafely(
-                    Utils.divideSafely(sum.storage.dischargeActivePower, sum.system.totalPower), -1));
-        } else {
+        let power = Utils.subtractSafely(sum.storage.chargeActivePowerAC, sum.storage.dischargeActivePowerAC);
+        if (power == null || power == 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateSectionData(0, 0, 0);
+        } else if (power > 0) {
+            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
+            super.updateSectionData(
+                power,
+                sum.storage.powerRatio,
+                Utils.divideSafely(power, sum.system.totalPower));
+        } else {
+            this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge');
+            super.updateSectionData(
+                power * -1,
+                sum.storage.powerRatio,
+                Utils.divideSafely(power, sum.system.totalPower));
         }
 
         this.socValue = sum.storage.soc;

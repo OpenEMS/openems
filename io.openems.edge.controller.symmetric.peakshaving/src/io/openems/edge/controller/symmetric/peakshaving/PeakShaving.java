@@ -94,7 +94,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		Power power = ess.getPower();
-		calculatedPower = power.fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = power.fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result

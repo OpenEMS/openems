@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service, Utils, Websocket } from '../../shared/shared';
-import { Widget } from './widget';
+import { Edge, Service, Utils } from '../../shared/shared';
 
 @Component({
   selector: 'index',
@@ -10,7 +9,6 @@ import { Widget } from './widget';
 export class IndexComponent implements OnInit {
 
   public edge: Edge = null
-  public widgets: Widget[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -23,20 +21,6 @@ export class IndexComponent implements OnInit {
     this.service.setCurrentEdge(this.route).then(edge => {
       this.edge = edge
     });
-    this.setWidgets();
-  }
-
-  /**
-   * Defines the widgets that should be shown.
-   */
-  private setWidgets() {
-    this.service.getConfig().then(config => {
-      let widgets = [];
-      for (let componentId of config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
-        widgets.push({ type: 'EVCS', componentId: componentId })
-      }
-      this.widgets = widgets;
-    })
   }
 
 }

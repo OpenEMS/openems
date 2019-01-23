@@ -1,7 +1,10 @@
 <ion-card *ngIf="edge">
-  <ion-item color="light">
+  <ion-item>
     <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
-    <ion-label translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-label>
+    <!-- TODO Fix formatting -->
+    <ion-label>
+      <ion-card-title translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-card-title>
+    </ion-label>
   </ion-item>
 
   <ion-card-content>
@@ -18,7 +21,7 @@
         <tr *ngIf="controller">
           <td colspan="2" translate>Erzwinge Beladung mit maximaler Leistung?</td>
           <td colspan="2" class="align_right" style="width:50%">
-              <!-- TODO check permissions here already and disable ion-toggle if not sufficient -->
+            <!-- TODO check permissions here already and disable ion-toggle if not sufficient -->
             <ion-toggle (ionChange)="updateChargeMode($event)" [checked]="controller.properties.chargeMode == 'FORCE_CHARGE'"></ion-toggle>
             <!-- might use this in future if we have more than two charge-modes. Need to work a bit on the layout...
             <ion-item>

@@ -80,7 +80,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		// TODO this should not be anymore required, as it is done within
+		// ManagedSymmetricEss.SET_ACTIVE_POWER_EQUALS Channel
 
 		/*
 		 * set result

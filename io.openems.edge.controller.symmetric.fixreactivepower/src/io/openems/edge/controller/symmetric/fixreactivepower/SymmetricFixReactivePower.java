@@ -51,7 +51,7 @@ public class SymmetricFixReactivePower extends AbstractOpenemsComponent implemen
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.REACTIVE,
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.REACTIVE,
 				this.config.power());
 
 		/*

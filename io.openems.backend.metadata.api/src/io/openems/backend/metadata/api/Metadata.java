@@ -23,8 +23,18 @@ public interface Metadata {
 	 * @throws OpenemsNamedException on error
 	 */
 	public default User authenticate() throws OpenemsNamedException {
-		throw OpenemsError.BACKEND_USER_AUTHENTICATION_FAILED.exception();
+		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
+
+	/**
+	 * Authenticates the User by username and password.
+	 * 
+	 * @param username the Username
+	 * @param password the Password
+	 * @return the User
+	 * @throws OpenemsNamedException on error
+	 */
+	public User authenticate(String username, String password) throws OpenemsNamedException;
 
 	/**
 	 * Authenticates the User by a Session-ID.

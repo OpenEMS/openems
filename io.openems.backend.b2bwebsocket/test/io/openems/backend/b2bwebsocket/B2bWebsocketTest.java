@@ -2,6 +2,10 @@ package io.openems.backend.b2bwebsocket;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -15,9 +19,16 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSche
 
 public class B2bWebsocketTest {
 
+	private static final String URI = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
+	private static final String USERNAME = "demo@fenecon.de";
+	private static final String PASSWORD = "femsdemo";
+
 	private static TestClient preparteTestClient() throws URISyntaxException, InterruptedException {
-		String uri = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
-		TestClient client = new TestClient(new URI(uri));
+		Map<String, String> httpHeaders = new HashMap<>();
+		String auth = new String(Base64.getEncoder().encode((USERNAME + ":" + PASSWORD).getBytes()),
+				StandardCharsets.UTF_8);
+		httpHeaders.put("Authorization", "Basic " + auth);
+		TestClient client = new TestClient(new URI(URI), httpHeaders);
 		client.startBlocking();
 		return client;
 	}
@@ -30,6 +41,7 @@ public class B2bWebsocketTest {
 		GetStatusOfEdgesRequest request = new GetStatusOfEdgesRequest();
 		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
 		System.out.println(responseFuture.get().toString());
+		client.stop();
 	}
 
 	@Test

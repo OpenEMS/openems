@@ -35,9 +35,9 @@ export abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
 
 export class JsonrpcRequest extends AbstractJsonrpcRequest {
     public constructor(
-        public readonly id: string,
         public readonly method: string,
-        public readonly params: {}
+        public readonly params: {},
+        public readonly id: string = UUID.UUID()
     ) {
         super(method, params);
     }

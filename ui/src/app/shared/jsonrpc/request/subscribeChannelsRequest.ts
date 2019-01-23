@@ -1,6 +1,5 @@
-import { JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
 import { ChannelAddress } from "../../../shared/type/channeladdress";
+import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
@@ -29,7 +28,7 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     public constructor(
         public readonly channels: ChannelAddress[]
     ) {
-        super(UUID.UUID(), SubscribeChannelsRequest.METHOD, {
+        super(SubscribeChannelsRequest.METHOD, {
             count: SubscribeChannelsRequest.lastCount++,
             channels: JsonRpcUtils.channelsToStringArray(channels)
         });

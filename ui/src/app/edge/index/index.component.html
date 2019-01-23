@@ -15,17 +15,7 @@
     <ion-col size="12" size-md="8" size-lg="4">
       <history></history>
 
-      <!-- Widgets -->
-      <!-- todo: place widgets 'reactable' to the right -->
-      <ng-container *ngFor="let widget of widgets">
-        <ion-col [ngSwitch]="widget.type" size="12" size-md="8" size-lg="4">
-          <ng-container *ngSwitchCase="'EVCS'">
-            <evcs [componentId]="widget.componentId"></evcs>
-          </ng-container>
-          <!-- <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
-            [config]="config"></channelthreshold-2018-7> -->
-        </ion-col>
-      </ng-container>
+      <widget></widget>
     </ion-col>
   </ion-row>
 </ion-grid>

@@ -1,8 +1,9 @@
 package io.openems.backend.b2bwebsocket;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -23,6 +25,7 @@ import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse;
 import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse.EdgeInfo;
+import io.openems.common.session.Role;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -36,13 +39,17 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
+		WsData wsData = ws.getAttachment();
+		User user = wsData.assertUser();
+
 		switch (request.getMethod()) {
 
 		case GetStatusOfEdgesRequest.METHOD:
-			return this.handleGetStatusOfEdgesRequest(request.getId(), GetStatusOfEdgesRequest.from(request));
+			return this.handleGetStatusOfEdgesRequest(user, request.getId(), GetStatusOfEdgesRequest.from(request));
 
 		case SetGridConnScheduleRequest.METHOD:
-			return this.handleSetGridConnScheduleRequest(request.getId(), SetGridConnScheduleRequest.from(request));
+			return this.handleSetGridConnScheduleRequest(user, request.getId(),
+					SetGridConnScheduleRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -53,33 +60,40 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a GetStatusOfEdgesRequest.
 	 * 
+	 * @param user      the User
 	 * @param messageId the JSON-RPC Message-ID
 	 * @param request   the JSON-RPC Request
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetStatusOfEdgesRequest(UUID messageId,
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetStatusOfEdgesRequest(User user, UUID messageId,
 			GetStatusOfEdgesRequest request) throws OpenemsNamedException {
-		Collection<Edge> edges = this.parent.metadata.getAllEdges();
 		Map<String, EdgeInfo> result = new HashMap<>();
-		for (Edge edge : edges) {
-			EdgeInfo info = new EdgeInfo(edge.isOnline());
-			result.put(edge.getId(), info);
+		for (Entry<String, Role> entry : user.getEdgeRoles().entrySet()) {
+			String edgeId = entry.getKey();
+			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+			if (edgeOpt.isPresent()) {
+				Edge edge = edgeOpt.get();
+				EdgeInfo info = new EdgeInfo(edge.isOnline());
+				result.put(edge.getId(), info);
+			}
 		}
-
 		return CompletableFuture.completedFuture(new GetStatusOfEdgesResponse(messageId, result));
 	}
 
 	/**
 	 * Handles a SetGridConnScheduleRequest.
 	 * 
+	 * @param user                       the User
 	 * @param messageId                  the JSON-RPC Message-ID
 	 * @param setGridConnScheduleRequest the SetGridConnScheduleRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSetGridConnScheduleRequest(UUID messageId,
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetGridConnScheduleRequest(User user, UUID messageId,
 			SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
+		user.assertEdgeRoleIsAtLeast("SetGridConnSchedule", setGridConnScheduleRequest.getEdgeId(), Role.ADMIN);
+
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = "ctrlBalancingSchedule0"; // TODO find dynamic Component-ID of BalancingScheduleController
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, setGridConnScheduleRequest);

@@ -1,12 +1,12 @@
+import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils, EdgeConfig } from '../../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
-import { formatNumber } from '@angular/common';
 
 @Component({
   selector: 'energychart',
@@ -192,7 +192,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
               }
             });
             datasets.push({
-              label: this.translate.instant('General.ChargePower'),
+              label: this.translate.instant('General.ChargePower') + " AC",
               data: chargeData,
               hidden: true
             });
@@ -252,29 +252,44 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
         ]);
       } else {
         this.service.getConfig().then(config => {
+          let ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
           // TODO: remove after full migration
           let result: ChannelAddress[] = [];
-          result.push.apply(result, this.getAsymmetric(config.getComponentsImplementingNature("FeneconMiniEss")));
-          result.push.apply(result, this.getAsymmetric(config.getComponentsImplementingNature("FeneconMiniGridMeter")));
-          result.push.apply(result, this.getAsymmetric(config.getComponentsImplementingNature("FeneconMiniProductionMeter")));
 
-          result.push.apply(result, this.getAsymmetric(config.getComponentsImplementingNature("FeneconProEss")));
-          result.push.apply(result, this.getAsymmetric(config.getComponentsImplementingNature("FeneconProPvMeter")));
+          // Ess
+          let asymmetricEssChannels = this.getAsymmetric(config.getComponentsImplementingNature("AsymmetricEssNature"), ignoreIds);
+          if (asymmetricEssChannels.length > 0) {
+            // this is an AsymmetricEss Nature
+            result.push.apply(result, asymmetricEssChannels);
+          } else {
+            // this is a SymmetricEss Nature
+            result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("SymmetricEssNature"), ignoreIds));
+          }
 
-          result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("FeneconCommercialAC")));
-          result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("FeneconCommercialDC")));
+          // Chargers
+          result.push.apply(result, this.getCharger(config.getComponentsImplementingNature("ChargerNature"), ignoreIds));
 
-          result.push.apply(result, this.getAsymmetric(config.getComponentsImplementingNature("AsymmetricMeterNature")));
-          result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("SymmetricMeterNature")));
+          // Meters
+          let asymmetricMeterChannels = this.getAsymmetric(config.getComponentsImplementingNature("AsymmetricMeterNature"), ignoreIds);
+          if (asymmetricMeterChannels.length > 0) {
+            // this is an AsymmetricMeter Nature
+            result.push.apply(result, asymmetricMeterChannels);
+          } else {
+            // this is a SymmetricMeter Nature
+            result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("SymmetricMeterNature"), ignoreIds));
+          }
           resolve(result);
         })
       }
     })
   }
 
-  private getAsymmetric(ids: string[]): ChannelAddress[] {
+  private getAsymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
     let result: ChannelAddress[] = [];
     for (let id of ids) {
+      if (ignoreIds.includes(id)) {
+        continue;
+      }
       result.push.apply(result, [
         new ChannelAddress(id, 'ActivePowerL1'),
         new ChannelAddress(id, 'ActivePowerL2'),
@@ -284,11 +299,27 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
     return result;
   }
 
-  private getSymmetric(ids: string[]): ChannelAddress[] {
+  private getSymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
     let result: ChannelAddress[] = [];
     for (let id of ids) {
+      if (ignoreIds.includes(id)) {
+        continue;
+      }
       result.push.apply(result, [
         new ChannelAddress(id, 'ActivePower'),
+      ]);
+    }
+    return result;
+  }
+
+  private getCharger(ids: string[], ignoreIds: string[]): ChannelAddress[] {
+    let result: ChannelAddress[] = [];
+    for (let id of ids) {
+      if (ignoreIds.includes(id)) {
+        continue;
+      }
+      result.push.apply(result, [
+        new ChannelAddress(id, 'ActualPower'),
       ]);
     }
     return result;
@@ -304,6 +335,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
     let sumEssActivePower = [];
     let sumGridActivePower = [];
     let sumProductionActivePower = [];
+
     for (let channel of Object.keys(data)) {
       let channelAddress = ChannelAddress.fromString(channel)
       let componentId = channelAddress.componentId;
@@ -325,7 +357,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
           sumEssActivePower = data[channel];
         } else {
           sumEssActivePower = data[channel].map((value, index) => {
-            return sumEssActivePower[index] + value;
+            return Utils.addSafely(sumEssActivePower[index], value);
           });
         }
       }
@@ -336,7 +368,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
             sumGridActivePower = data[channel];
           } else {
             sumGridActivePower = data[channel].map((value, index) => {
-              return sumGridActivePower[index] + value;
+              return Utils.addSafely(sumGridActivePower[index], value);
             });
           }
         } else {
@@ -344,9 +376,19 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
             sumProductionActivePower = data[channel];
           } else {
             sumProductionActivePower = data[channel].map((value, index) => {
-              return sumProductionActivePower[index] + value;
+              return Utils.addSafely(sumProductionActivePower[index], value);
             });
           }
+        }
+      }
+
+      if (natures.includes('ChargerNature') && channelId === 'ActualPower') {
+        if (sumProductionActivePower.length == 0) {
+          sumProductionActivePower = data[channel];
+        } else {
+          sumProductionActivePower = data[channel].map((value, index) => {
+            return sumProductionActivePower[index] + value;
+          });
         }
       }
 
@@ -355,7 +397,7 @@ export class EnergyChartComponent extends AbstractHistoryChart implements OnChan
       data['_sum/GridActivePower'] = sumGridActivePower;
       data['_sum/ProductionActivePower'] = sumProductionActivePower;
       data['_sum/ConsumptionActivePower'] = sumEssActivePower.map((ess, index) => {
-        return ess + Utils.addSafely(sumProductionActivePower[index], sumGridActivePower[index]);
+        return Utils.addSafely(ess, Utils.addSafely(sumProductionActivePower[index], sumGridActivePower[index]));
       });
     }
   }

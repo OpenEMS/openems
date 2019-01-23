@@ -5,6 +5,8 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 
 /**
@@ -14,11 +16,17 @@ public class User {
 
 	private final String id;
 	private final String name;
+	private final String sessionId;
 	private final NavigableMap<String, Role> edgeRoles = new TreeMap<>();
 
 	public User(String id, String name) {
+		this(id, name, "NO_SESSION_ID");
+	}
+
+	public User(String id, String name, String sessionId) {
 		this.id = id;
 		this.name = name;
+		this.sessionId = sessionId;
 	}
 
 	public String getId() {
@@ -27,6 +35,10 @@ public class User {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getSessionId() {
+		return sessionId;
 	}
 
 	/**
@@ -56,6 +68,40 @@ public class User {
 	 */
 	public Optional<Role> getEdgeRole(String edgeId) {
 		return Optional.ofNullable(this.edgeRoles.get(edgeId));
+	}
+
+	/**
+	 * Gets the information whether the current Role is equal or more privileged
+	 * than the given Role.
+	 * 
+	 * @param edgeId the Edge-Id
+	 * @param role   the compared Role
+	 * @return true if the current Role privileges are equal or higher
+	 */
+	public boolean edgeRoleIsAtLeast(String edgeId, Role role) {
+		Role thisRole = this.edgeRoles.get(edgeId);
+		if (thisRole == null) {
+			return false;
+		}
+		return thisRole.isAtLeast(role);
+	}
+
+	/**
+	 * Throws an exception if the current Role is equal or more privileged than the
+	 * given Role.
+	 * 
+	 * @param resource a resource identifier; used for the exception
+	 * @param edgeId   the Edge-ID
+	 * @param role     the compared Role
+	 * @throws OpenemsNamedException if the current Role privileges are less
+	 */
+	public void assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
+		Role thisRole = this.edgeRoles.get(edgeId);
+		if (thisRole != null && thisRole.isAtLeast(role)) {
+			// Ok
+		} else {
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, thisRole);
+		}
 	}
 
 	@Override

@@ -227,32 +227,31 @@ public interface Sum extends OpenemsComponent {
 
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
 		return ModbusSlaveNatureTable.of(Sum.class, 220) //
-				.channel(0, OpenemsComponent.ChannelId.STATE, ModbusType.UINT16) //
-				.channel(1, ChannelId.ESS_SOC, ModbusType.UINT16) //
-				.channel(2, ChannelId.ESS_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.float32Reserved(4) // ChannelId.ESS_MIN_ACTIVE_POWER
-				.float32Reserved(6) // ChannelId.ESS_MAX_ACTIVE_POWER
-				.float32Reserved(8) // ChannelId.ESS_REACTIVE_POWER
-				.float32Reserved(10) // ChannelId.ESS_MIN_REACTIVE_POWER
-				.float32Reserved(12) // ChannelId.ESS_MAX_REACTIVE_POWER
-				.channel(14, ChannelId.GRID_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(16, ChannelId.GRID_MIN_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(18, ChannelId.GRID_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.float32Reserved(20) // ChannelId.GRID_REACTIVE_POWER
-				.float32Reserved(22) // ChannelId.GRID_MIN_REACTIVE_POWER
-				.float32Reserved(24) // ChannelId.GRID_MAX_REACTIVE_POWER
-				.channel(26, ChannelId.PRODUCTION_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(28, ChannelId.PRODUCTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(30, ChannelId.PRODUCTION_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(32, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.float32Reserved(34) // ChannelId.PRODUCTION_AC_REACTIVE_POWER
-				.float32Reserved(36) // ChannelId.PRODUCTION_MAX_AC_REACTIVE_POWER
-				.channel(38, ChannelId.PRODUCTION_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
-				.channel(40, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
-				.channel(42, ChannelId.CONSUMPTION_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.channel(44, ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
-				.float32Reserved(46) // ChannelId.CONSUMPTION_REACTIVE_POWER
-				.float32Reserved(48) // ChannelId.CONSUMPTION_MAX_REACTIVE_POWER
+				.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //
+				.channel(1, ChannelId.ESS_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(3) // ChannelId.ESS_MIN_ACTIVE_POWER
+				.float32Reserved(5) // ChannelId.ESS_MAX_ACTIVE_POWER
+				.float32Reserved(7) // ChannelId.ESS_REACTIVE_POWER
+				.float32Reserved(9) // ChannelId.ESS_MIN_REACTIVE_POWER
+				.float32Reserved(11) // ChannelId.ESS_MAX_REACTIVE_POWER
+				.channel(13, ChannelId.GRID_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(15, ChannelId.GRID_MIN_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(17, ChannelId.GRID_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(19) // ChannelId.GRID_REACTIVE_POWER
+				.float32Reserved(21) // ChannelId.GRID_MIN_REACTIVE_POWER
+				.float32Reserved(23) // ChannelId.GRID_MAX_REACTIVE_POWER
+				.channel(25, ChannelId.PRODUCTION_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(27, ChannelId.PRODUCTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(29, ChannelId.PRODUCTION_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(31, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(33) // ChannelId.PRODUCTION_AC_REACTIVE_POWER
+				.float32Reserved(35) // ChannelId.PRODUCTION_MAX_AC_REACTIVE_POWER
+				.channel(37, ChannelId.PRODUCTION_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
+				.channel(39, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER, ModbusType.FLOAT32) //
+				.channel(41, ChannelId.CONSUMPTION_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(43, ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.float32Reserved(45) // ChannelId.CONSUMPTION_REACTIVE_POWER
+				.float32Reserved(47) // ChannelId.CONSUMPTION_MAX_REACTIVE_POWER
 				.build();
 	}
 

@@ -60,6 +60,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	protected volatile Timedata timedata = null;
 
 	public WebsocketApi() {
+		// TODO: add Debug-Channels for writes to Channels via Websocket-Api
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 

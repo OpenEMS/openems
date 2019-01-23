@@ -52,6 +52,7 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 	protected UserService userService;
 
 	public RestApi() {
+		// TODO: add Debug-Channels for writes to Channels via REST-Api
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
