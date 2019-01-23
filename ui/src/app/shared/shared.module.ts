@@ -1,47 +1,36 @@
 import { CommonModule } from '@angular/common';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { IonicModule, IonInfiniteScroll } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { ToasterModule, ToasterService } from 'angular2-toaster';
+import 'hammerjs';
+import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
-import { TranslateModule } from '@ngx-translate/core';
-import { MyDateRangePickerModule } from 'mydaterangepicker';
-import { ToasterModule, ToasterService } from 'angular2-toaster';
-
-
-import 'hammerjs';
-
-import { MyMaterialModule } from './material.module';
-
+import { SocChartComponent } from '../edge/history/chart/socchart/socchart.component';
 import { appRoutingProviders } from './../app-routing.module';
-
 /*
- * Services
+ * Components
  */
-import { Service } from './service/service';
-import { Websocket } from './service/websocket';
-import { Utils } from './service/utils';
-
+import { MyMaterialModule } from './material.module';
+import { ClassnamePipe } from './pipe/classname/classname.pipe';
+import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
+import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 /*
  * Pipes
  */
 import { KeysPipe } from './pipe/keys/keys.pipe';
-import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
-import { IsclassPipe } from './pipe/isclass/isclass.pipe';
-import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
-
 /*
- * Components
+ * Services
  */
-import { AbstractConfigComponent } from './config/abstractconfig.component';
-import { ExistingThingComponent } from './config/existingthing.component';
-import { ChannelComponent } from './config/channel.component';
-import { SocChartComponent_2018_7 } from '../edge/history/chart/socchart.2018.7/socchart.2018.7.component';
-import { SocChartComponent_2018_8 } from '../edge/history/chart/socchart.2018.8/socchart.2018.8.component';
-import { IonicModule, InfiniteScroll } from '@ionic/angular';
+import { Service } from './service/service';
+import { Utils } from './service/utils';
+import { Websocket } from './service/websocket';
 
 @NgModule({
   imports: [
@@ -66,11 +55,7 @@ import { IonicModule, InfiniteScroll } from '@ionic/angular';
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent_2018_8,
-    SocChartComponent_2018_7,
-    AbstractConfigComponent,
-    ChannelComponent,
-    ExistingThingComponent
+    SocChartComponent,
   ],
   exports: [
     // pipes
@@ -93,12 +78,8 @@ import { IonicModule, InfiniteScroll } from '@ionic/angular';
     MyDateRangePickerModule,
     ToasterModule,
     // components
-    SocChartComponent_2018_7,
-    SocChartComponent_2018_8,
+    SocChartComponent,
     NgxLoadingModule,
-    AbstractConfigComponent,
-    ChannelComponent,
-    ExistingThingComponent,
   ],
   providers: [
     Utils,
@@ -109,5 +90,5 @@ import { IonicModule, InfiniteScroll } from '@ionic/angular';
   ]
 })
 export class SharedModule {
-  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 }

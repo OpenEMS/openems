@@ -11,6 +11,7 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
@@ -37,7 +38,7 @@ public class Utils {
 				result.add(new IntegerReadChannel(c, channelId, 3000));
 				break;
 			case GRID_MODE:
-				result.add(new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED));
+				result.add(new IntegerReadChannel(c, channelId, GridMode.UNDEFINED));
 				break;
 			case ACTIVE_DISCHARGE_ENERGY:
 			case ACTIVE_CHARGE_ENERGY:

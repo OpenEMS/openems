@@ -214,3 +214,6 @@ gradle-app.setting
 
 
 # End of https://www.gitignore.io/api/java,maven,gradle,angular,eclipse,node
+
+# docs
+/doc/build/package-lock.json

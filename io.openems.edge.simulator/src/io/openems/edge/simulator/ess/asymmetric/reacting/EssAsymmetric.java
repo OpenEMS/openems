@@ -78,13 +78,14 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
+		super.activate(context, config.id(), config.enabled());
+		
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "datasource",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource",
 				config.datasource_id())) {
 			return;
 		}
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
 		this.getSoc().setNextValue(config.initialSoc());
 		this.soc = config.initialSoc();
 		this.capacity = config.capacity();

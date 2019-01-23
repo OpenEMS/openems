@@ -1,53 +1,42 @@
-import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs';
-import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { AbstractHistoryChart } from '../../abstracthistorychart';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
 
-import { Edge } from '../../../../shared/edge/edge';
-import { ConfigImpl } from '../../../../shared/edge/config';
-import { DefaultTypes } from '../../../../shared/service/defaulttypes';
-import { Dataset, EMPTY_DATASET } from './../../../../shared/shared';
-import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
-import { Utils } from './../../../../shared/service/utils';
-import { CurrentDataAndSummary_2018_7 } from '../../../../shared/edge/currentdata.2018.7';
-import { CurrentDataAndSummary_2018_8 } from '../../../../shared/edge/currentdata.2018.8';
-import { ConfigImpl_2018_8 } from '../../../../shared/edge/config.2018.8';
-import { ConfigImpl_2018_7 } from '../../../../shared/edge/config.2018.7';
-
-// TODO grid should be shown as "Netzeinspeisung"/"Netzbezug" instead of positive/negative value
 @Component({
   selector: 'energychart',
   templateUrl: './energychart.component.html'
 })
-export class EnergyChartComponent implements OnChanges {
+export class EnergyChartComponent extends AbstractHistoryChart implements OnChanges {
 
-  @Input() private edge: Edge;
-  @Input() private config: ConfigImpl;
-  @Input() private channels: DefaultTypes.ChannelAddresses;
+  @ViewChild('energyChart') protected chart: BaseChartDirective;
+
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
 
-  @ViewChild('energyChart') private chart: BaseChartDirective;
+  ngOnChanges() {
+    this.updateChart();
+  };
 
-  constructor(
-    private utils: Utils,
-    private translate: TranslateService
-  ) {
-    this.grid = this.translate.instant('General.Grid');
-    this.gridBuy = this.translate.instant('General.GridBuy');
-    this.gridSell = this.translate.instant('General.GridSell');
-  }
-
-  public labels: Date[] = [];
-  public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
 
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-  private grid: String = "";
-  private gridBuy: String = "";
-  private gridSell: String = "";
+  constructor(
+    protected service: Service,
+    private route: ActivatedRoute,
+    private translate: TranslateService
+  ) {
+    super(service);
+  }
 
-  private colors = [{
+  protected labels: Date[] = [];
+  protected datasets: Dataset[] = EMPTY_DATASET;
+  protected options: ChartOptions;
+  protected colors = [{
     // Production
     backgroundColor: 'rgba(45,143,171,0.1)',
     borderColor: 'rgba(45,143,171,1)',
@@ -72,10 +61,10 @@ export class EnergyChartComponent implements OnChanges {
     backgroundColor: 'rgba(200,0,0,0.1)',
     borderColor: 'rgba(200,0,0,1)',
   }];
-  private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    this.service.setCurrentEdge(this.route);
+    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
@@ -88,82 +77,335 @@ export class EnergyChartComponent implements OnChanges {
           label = this.gridSell;
         }
       }
-      return label + ": " + value.toPrecision(3) + " kW";
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
     }
     this.options = options;
   }
 
-  ngOnChanges() {
-    if (Object.keys(this.channels).length === 0) {
-      this.loading = true;
-      return;
-    }
+  private updateChart() {
     this.loading = true;
-    this.edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
-      // prepare datas array and prefill with each device
+    this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
+      this.service.getCurrentEdge().then(edge => {
+        this.service.getConfig().then(config => {
 
-      // prepare datasets and labels
-      let activePowers = {
-        production: [],
-        gridBuy: [],
-        gridSell: [],
-        consumption: [],
-        storageCharge: [],
-        storageDischarge: []
-      }
-      let labels: Date[] = [];
-      for (let record of historicData.data) {
-        labels.push(new Date(record.time));
-        let data;
-        if (this.edge.isVersionAtLeast('2018.8')) {
-          data = new CurrentDataAndSummary_2018_8(this.edge, record.channels, <ConfigImpl_2018_8>this.config);
-        } else {
-          data = new CurrentDataAndSummary_2018_7(this.edge, record.channels, <ConfigImpl_2018_7>this.config);
-        }
-        activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
-        activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
-        activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
-        activePowers.consumption.push(Utils.divideSafely(data.summary.consumption.activePower, 1000)); // convert to kW
-        activePowers.storageCharge.push(Utils.divideSafely(data.summary.storage.chargeActivePower, 1000)); // convert to kW
-        activePowers.storageDischarge.push(Utils.divideSafely(data.summary.storage.dischargeActivePower, 1000)); // convert to kW
-      }
-      this.datasets = [{
-        label: this.translate.instant('General.Production'),
-        data: activePowers.production,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.GridBuy'),
-        data: activePowers.gridBuy,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.GridSell'),
-        data: activePowers.gridSell,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.Consumption'),
-        data: activePowers.consumption,
-        hidden: false
-      }, {
-        label: this.translate.instant('General.ChargePower'),
-        data: activePowers.storageCharge,
-        hidden: true
-      }, {
-        label: this.translate.instant('General.DischargePower'),
-        data: activePowers.storageDischarge,
-        hidden: true
-      }];
-      this.labels = labels;
-      // stop loading spinner
-      this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
+          let result = (response as QueryHistoricTimeseriesDataResponse).result;
+
+          // convert labels
+          let labels: Date[] = [];
+          for (let timestamp of result.timestamps) {
+            labels.push(new Date(timestamp));
+          }
+          this.labels = labels;
+
+          // convert datasets
+          let datasets = [];
+
+          if (!edge.isVersionAtLeast('2018.8')) {
+            this.convertDeprecatedData(config, result.data); // TODO deprecated
+          }
+
+          if ('_sum/ProductionActivePower' in result.data) {
+            /*
+            * Production
+            */
+            let productionData = result.data['_sum/ProductionActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value / 1000; // convert to kW
+              }
+            });
+            datasets.push({
+              label: this.translate.instant('General.Production'),
+              data: productionData,
+              hidden: false
+            });
+          }
+
+          if ('_sum/GridActivePower' in result.data) {
+            /*
+             * Buy From Grid
+             */
+            let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 0) {
+                return value / 1000; // convert to kW
+              } else {
+                return 0;
+              }
+            });
+            datasets.push({
+              label: this.translate.instant('General.GridBuy'),
+              data: buyFromGridData,
+              hidden: false
+            });
+
+            /*
+            * Sell To Grid
+            */
+            let sellToGridData = result.data['_sum/GridActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value < 0) {
+                return value / -1000; // convert to kW and invert value
+              } else {
+                return 0;
+              }
+            });
+            datasets.push({
+              label: this.translate.instant('General.GridSell'),
+              data: sellToGridData,
+              hidden: false
+            });
+          }
+
+          if ('_sum/ConsumptionActivePower' in result.data) {
+            /*
+            * Consumption
+             */
+            let consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else {
+                return value / 1000; // convert to kW
+              }
+            });
+            datasets.push({
+              label: this.translate.instant('General.Consumption'),
+              data: consumptionData,
+              hidden: false
+            });
+          }
+
+          if ('_sum/EssActivePower' in result.data) {
+            /*
+            * Storage Charge
+             */
+            let chargeData = result.data['_sum/EssActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value < 0) {
+                return value / -1000; // convert to kW and invert value
+              } else {
+                return 0;
+              }
+            });
+            datasets.push({
+              label: this.translate.instant('General.ChargePower') + " AC",
+              data: chargeData,
+              hidden: true
+            });
+
+            /*
+            * Storage Discharge
+            */
+            let dischargeData = result.data['_sum/EssActivePower'].map(value => {
+              if (value == null) {
+                return null
+              } else if (value > 0) {
+                return value / 1000; // convert to kW
+              } else {
+                return 0;
+              }
+            });
+            datasets.push({
+              label: this.translate.instant('General.DischargePower'),
+              data: dischargeData,
+              hidden: true
+            });
+          }
+
+          this.datasets = datasets;
+
+          this.loading = false;
+
+        }).catch(reason => {
+          console.error(reason); // TODO error message
+          this.initializeChart();
+          return;
+        });
+      }).catch(reason => {
+        console.error(reason); // TODO error message
+        this.initializeChart();
+        return;
       });
-    }).catch(error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
+    }).catch(reason => {
+      console.error(reason); // TODO error message
+      this.initializeChart();
+      return;
     });
   }
+
+  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+    return new Promise((resolve, reject) => {
+      if (edge.isVersionAtLeast('2018.8')) {
+        resolve([
+          // Ess
+          new ChannelAddress('_sum', 'EssActivePower'),
+          // Grid
+          new ChannelAddress('_sum', 'GridActivePower'),
+          // Production
+          new ChannelAddress('_sum', 'ProductionActivePower'),
+          // Consumption
+          new ChannelAddress('_sum', 'ConsumptionActivePower')
+        ]);
+      } else {
+        this.service.getConfig().then(config => {
+          let ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
+          // TODO: remove after full migration
+          let result: ChannelAddress[] = [];
+
+          // Ess
+          let asymmetricEssChannels = this.getAsymmetric(config.getComponentsImplementingNature("AsymmetricEssNature"), ignoreIds);
+          if (asymmetricEssChannels.length > 0) {
+            // this is an AsymmetricEss Nature
+            result.push.apply(result, asymmetricEssChannels);
+          } else {
+            // this is a SymmetricEss Nature
+            result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("SymmetricEssNature"), ignoreIds));
+          }
+
+          // Chargers
+          result.push.apply(result, this.getCharger(config.getComponentsImplementingNature("ChargerNature"), ignoreIds));
+
+          // Meters
+          let asymmetricMeterChannels = this.getAsymmetric(config.getComponentsImplementingNature("AsymmetricMeterNature"), ignoreIds);
+          if (asymmetricMeterChannels.length > 0) {
+            // this is an AsymmetricMeter Nature
+            result.push.apply(result, asymmetricMeterChannels);
+          } else {
+            // this is a SymmetricMeter Nature
+            result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("SymmetricMeterNature"), ignoreIds));
+          }
+          resolve(result);
+        })
+      }
+    })
+  }
+
+  private getAsymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
+    let result: ChannelAddress[] = [];
+    for (let id of ids) {
+      if (ignoreIds.includes(id)) {
+        continue;
+      }
+      result.push.apply(result, [
+        new ChannelAddress(id, 'ActivePowerL1'),
+        new ChannelAddress(id, 'ActivePowerL2'),
+        new ChannelAddress(id, 'ActivePowerL3'),
+      ]);
+    }
+    return result;
+  }
+
+  private getSymmetric(ids: string[], ignoreIds: string[]): ChannelAddress[] {
+    let result: ChannelAddress[] = [];
+    for (let id of ids) {
+      if (ignoreIds.includes(id)) {
+        continue;
+      }
+      result.push.apply(result, [
+        new ChannelAddress(id, 'ActivePower'),
+      ]);
+    }
+    return result;
+  }
+
+  private getCharger(ids: string[], ignoreIds: string[]): ChannelAddress[] {
+    let result: ChannelAddress[] = [];
+    for (let id of ids) {
+      if (ignoreIds.includes(id)) {
+        continue;
+      }
+      result.push.apply(result, [
+        new ChannelAddress(id, 'ActualPower'),
+      ]);
+    }
+    return result;
+  }
+
+  /**
+   * Calculates '_sum' values.
+   * 
+   * @param data 
+   */
+  private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
+    let sumEssSoc = [];
+    let sumEssActivePower = [];
+    let sumGridActivePower = [];
+    let sumProductionActivePower = [];
+
+    for (let channel of Object.keys(data)) {
+      let channelAddress = ChannelAddress.fromString(channel)
+      let componentId = channelAddress.componentId;
+      let channelId = channelAddress.channelId;
+      let natures = config.getNaturesByComponentId(componentId);
+
+      if (natures.includes('EssNature') && channelId === 'Soc') {
+        if (sumEssSoc.length == 0) {
+          sumEssSoc = data[channel];
+        } else {
+          sumEssSoc = data[channel].map((value, index) => {
+            return (sumEssSoc[index] + value) / 2;
+          });
+        }
+      }
+
+      if (natures.includes('EssNature') && channelId.startsWith('ActivePower')) {
+        if (sumEssActivePower.length == 0) {
+          sumEssActivePower = data[channel];
+        } else {
+          sumEssActivePower = data[channel].map((value, index) => {
+            return Utils.addSafely(sumEssActivePower[index], value);
+          });
+        }
+      }
+
+      if (natures.includes('MeterNature') && channelId.startsWith('ActivePower')) {
+        if (componentId === 'meter0') {
+          if (sumGridActivePower.length == 0) {
+            sumGridActivePower = data[channel];
+          } else {
+            sumGridActivePower = data[channel].map((value, index) => {
+              return Utils.addSafely(sumGridActivePower[index], value);
+            });
+          }
+        } else {
+          if (sumProductionActivePower.length == 0) {
+            sumProductionActivePower = data[channel];
+          } else {
+            sumProductionActivePower = data[channel].map((value, index) => {
+              return Utils.addSafely(sumProductionActivePower[index], value);
+            });
+          }
+        }
+      }
+
+      if (natures.includes('ChargerNature') && channelId === 'ActualPower') {
+        if (sumProductionActivePower.length == 0) {
+          sumProductionActivePower = data[channel];
+        } else {
+          sumProductionActivePower = data[channel].map((value, index) => {
+            return sumProductionActivePower[index] + value;
+          });
+        }
+      }
+
+      data['_sum/EssSoc'] = sumEssSoc;
+      data['_sum/EssActivePower'] = sumEssActivePower;
+      data['_sum/GridActivePower'] = sumGridActivePower;
+      data['_sum/ProductionActivePower'] = sumProductionActivePower;
+      data['_sum/ConsumptionActivePower'] = sumEssActivePower.map((ess, index) => {
+        return Utils.addSafely(ess, Utils.addSafely(sumProductionActivePower[index], sumGridActivePower[index]));
+      });
+    }
+  }
+
+  private initializeChart() {
+    this.datasets = EMPTY_DATASET;
+    this.labels = [];
+    this.loading = false;
+  }
+
 }

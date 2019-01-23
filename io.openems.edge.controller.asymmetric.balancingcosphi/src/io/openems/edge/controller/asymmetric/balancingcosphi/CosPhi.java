@@ -48,7 +48,7 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.meterId = config.meter_id();

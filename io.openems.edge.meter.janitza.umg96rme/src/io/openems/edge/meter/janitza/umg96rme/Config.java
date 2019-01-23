@@ -9,8 +9,6 @@ import io.openems.edge.meter.api.MeterType;
 		name = "Meter Janitza UMG 96RM-E", //
 		description = "Implements the Janitza UMG 96RM-E power analyser.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter0";
 
 	boolean enabled() default true;

@@ -37,7 +37,7 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 
@@ -51,7 +51,7 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE,
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
 				this.config.power());
 
 		/*

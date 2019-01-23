@@ -128,7 +128,6 @@ public class TestController {
 		try {
 			Thread.sleep(TIME_WHILE_PENDING * 1000 + 1);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		sut.run();
@@ -175,11 +174,6 @@ public class TestController {
 			@Override
 			public int timeSpan() {
 				return TIME_WHILE_PENDING;
-			}
-
-			@Override
-			public String service_pid() {
-				return "";
 			}
 
 			@Override
@@ -243,49 +237,41 @@ public class TestController {
 
 		@Override
 		public Power getPower() {
-			// TODO Auto-generated method stub
 			return new Power() {
 
 				@Override
 				public void removeConstraint(Constraint constraint) {
-					// TODO Auto-generated method stub
 
 				}
 
 				@Override
 				public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 
 				@Override
 				public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 
 				@Override
 				public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase,
 						Pwr pwr, Relationship relationship, double value) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public Constraint addConstraint(Constraint constraint) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 			};

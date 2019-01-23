@@ -6,8 +6,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator Modbus Bridge", //
 		description = "This simulates a Modbus Bridge")
 @interface Config {
-	String service_pid();
-
 	String id() default "modbus0";
 
 	boolean enabled() default true;

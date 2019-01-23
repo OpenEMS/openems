@@ -37,7 +37,7 @@ public class AsymmetricFixReactivePower extends AbstractOpenemsComponent impleme
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 
@@ -57,7 +57,7 @@ public class AsymmetricFixReactivePower extends AbstractOpenemsComponent impleme
 
 	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, int power) {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, phase, Pwr.REACTIVE, power);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, phase, Pwr.REACTIVE, power);
 
 		/*
 		 * set result

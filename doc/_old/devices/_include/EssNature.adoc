@@ -1,9 +1,0 @@
-3+|*<<EssNature,EssNature>>*
-|GridMode                  | 1=Off-Grid, 2=On-Grid  |
-|Soc                       |%       | State of Charge
-|SystemState               |        |
-|AllowedCharge             |W       |
-|AllowedDischarge          |W       |
-|AllowedApparent           |VA      |
-|capacity                  |Wh      |
-|maxNominalPower           |W       |

@@ -1,19 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-//import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, Subject, fromEvent } from 'rxjs';
-import { takeUntil, debounceTime, delay } from 'rxjs/operators';
-import * as d3 from 'd3';
-import * as d3shape from 'd3-shape';
 import { TranslateService } from '@ngx-translate/core';
-import { IMyDate, IMyDateRange, IMyDrpOptions, IMyDateRangeModel } from 'mydaterangepicker';
-import { format, subDays, addDays, isSameDay, getYear, getMonth, getDate } from 'date-fns';
-
-import { Edge } from '../../shared/edge/edge';
-import { ConfigImpl } from '../../shared/edge/config';
-import { DefaultTypes } from '../../shared/service/defaulttypes';
-import { Websocket } from '../../shared/service/websocket';
-import { Service } from '../../shared/shared';
+import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
+import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
+import { Edge, Service, Websocket } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -21,23 +11,24 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit, OnDestroy {
-
+export class HistoryComponent implements OnInit {
+  
   private readonly TODAY = new Date();
   private readonly YESTERDAY = subDays(new Date(), 1);
   private readonly TOMORROW = addDays(new Date(), 1);
-
-  public edge: Edge = null;
-  public config: ConfigImpl = null;
-  public socChannels: DefaultTypes.ChannelAddresses = {};
-  public powerChannels: DefaultTypes.ChannelAddresses = {};
-  public evcsChannels: DefaultTypes.ChannelAddresses = {};
-  public Channels: DefaultTypes.ChannelAddresses = {};
-  private dateRange: IMyDateRange;
+  
+  public widgets: string[] = [];
+  public activePeriodText: string = "";
+  // sets the height for a chart. This is recalculated on every window resize.
+  public socChartHeight: string = "250px";
+  public energyChartHeight: string = "250px";
+  public activePeriod: PeriodString = "today";
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
-  public activePeriodText: string = "";
-  private dateRangePickerOptions: IMyDrpOptions = {
+
+  protected edge: Edge = null;
+  protected dateRange: IMyDateRange;
+  protected dateRangePickerOptions: IMyDrpOptions = {
     inline: true,
     showClearBtn: false,
     showApplyBtn: false,
@@ -49,14 +40,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
     editableDateRangeField: false,
     openSelectorOnInputClick: true,
   };
-  // sets the height for a chart. This is recalculated on every window resize.
-  public socChartHeight: string = "250px";
-  public energyChartHeight: string = "250px";
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-  public activePeriod: PeriodString = "today";
 
   constructor(
-    public websocket: Websocket,
     private route: ActivatedRoute,
     private translate: TranslateService,
     private service: Service,
@@ -64,37 +49,21 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.websocket.setCurrentEdge(this.route)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(edge => {
-        this.edge = edge;
-        if (edge == null) {
-          this.config = null;
-        } else {
-          edge.config
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(config => {
-              this.config = config;
-              if (config) {
-                this.socChannels = config.getEssSocChannels();
-                this.powerChannels = config.getPowerChannels();
-                this.evcsChannels = config.getEvcsChannels();
-              } else {
-                this.socChannels = {};
-                this.powerChannels = {};
-                this.evcsChannels = {};
-              }
-            });
-        }
-      });
-    this.setPeriod("today");
+    this.service.setCurrentEdge(this.route)
+    this.setWidgets();
+  }
 
-    // adjust chart size in the beginning and on window resize
-    setTimeout(() => this.updateOnWindowResize(), 200);
-    const source = fromEvent(window, 'resize', null, null);
-    const subscription = source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
-      this.updateOnWindowResize();
-    });
+  /**
+   * Defines the widgets that should be shown.
+   */
+  private setWidgets() {
+    this.service.getConfig().then(config => {
+      let widgets: string[] = [];
+      if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").length > 0) {
+        widgets.push('EVCS');
+      }
+      this.widgets = widgets;
+    })
   }
 
   updateOnWindowResize() {
@@ -104,11 +73,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.socChartHeight =
       /* minimum size */ Math.max(150,
       /* maximium size */ Math.min(250, ref)
-      ) + "px";
+    ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
       /* maximium size */ Math.min(600, ref)
-      ) + "px";
+    ) + "px";
   }
 
   clickOtherPeriod() {
@@ -137,6 +106,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   /**
    * This is called by the input button on the UI.
+   * 
    * @param period
    * @param from
    * @param to
@@ -169,6 +139,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Sets the current time period.
+   * 
+   * @param fromDate the starting date
+   * @param toDate   the end date
+   */
   private setDateRange(fromDate: Date, toDate: Date) {
     this.fromDate = fromDate;
     this.toDate = toDate;
@@ -178,12 +154,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Converts a 'Date' to 'IMyDate' format.
+   * 
+   * @param date the 'Date'
+   * @returns the 'IMyDate'
+   */
   private toIMyDate(date: Date): IMyDate {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
   }
 
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-  }
 }

@@ -50,7 +50,7 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.essId = config.ess_id();
 		this.maxChargePower = config.maxChargePower() * -1;
 		this.maxDischargePower = config.maxDischargePower();
@@ -66,9 +66,9 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedMaxDischargePower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE,
+		int calculatedMaxDischargePower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
 				this.maxDischargePower);
-		int calculatedMaxChargePower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE,
+		int calculatedMaxChargePower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
 				this.maxChargePower);
 
 		/*

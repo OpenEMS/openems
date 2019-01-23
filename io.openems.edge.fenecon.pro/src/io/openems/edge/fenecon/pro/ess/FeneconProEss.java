@@ -38,6 +38,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -100,7 +101,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
@@ -462,14 +463,14 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						case STANDBY:
 						case START:
 						case FAULT:
-							gridMode.setNextValue(SymmetricEss.GridMode.ON_GRID);
+							gridMode.setNextValue(GridMode.ON_GRID);
 							break;
 						case START_OFF_GRID:
 						case OFF_GRID_PV:
-							gridMode.setNextValue(SymmetricEss.GridMode.OFF_GRID);
+							gridMode.setNextValue(GridMode.OFF_GRID);
 							break;
 						case UNDEFINED:
-							gridMode.setNextValue(SymmetricEss.GridMode.UNDEFINED);
+							gridMode.setNextValue(GridMode.UNDEFINED);
 							break;
 						}
 					});

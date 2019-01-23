@@ -82,4 +82,11 @@ public class OsgiValidateWorker extends AbstractWorker {
 		}
 	}
 
+	@Override
+	public void triggerForceRun() {
+		// Reset Cycle-Counter on explicit run
+		this.cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;
+		super.triggerForceRun();
+	}
+
 }

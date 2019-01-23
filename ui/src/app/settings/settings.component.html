@@ -13,9 +13,9 @@
                 <ion-card-content>
                     <ul translate>
                         About.Language
-                        <select #langSelect (change)="translate.use(langSelect.value)">
-                            <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{
-                                lang }}</option>
+                        <select #langSelect (change)="setLanguage(langSelect.value)">
+                            <option *ngFor="let language of languages" [value]="language" [selected]="language == currentLanguage">{{
+                                language }}</option>
                         </select>
                     </ul>
                 </ion-card-content>

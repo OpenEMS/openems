@@ -1,15 +1,14 @@
 import { Environment } from "../app/shared/type/environment";
-import { DefaultTypes } from "../app/shared/service/defaulttypes";
 
-class DefaultEnvironment extends Environment {
-  public readonly production = false;
+export const environment: Environment = {
+  production: false,
+  debugMode: true,
+
   // For OpenEMS Edge
-  public readonly url = "ws://" + location.hostname + ":8085";
-  public readonly backend: DefaultTypes.Backend = "OpenEMS Edge";
-  // For OpenEMS Backend
-  // public readonly url = "ws://" + location.hostname + ":8087";
-  // public readonly backend: DefaultTypes.Backend = "OpenEMS Backend";
-  public debugMode = true;
-}
+  url: "ws://" + location.hostname + ":8085",
+  backend: "OpenEMS Edge"
 
-export const environment = new DefaultEnvironment();
+  // For OpenEMS Backend
+  // url: "ws://" + location.hostname + ":8078",
+  // backend: "OpenEMS Backend",
+};

@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller PV-Inverter Fix Power Limit", //
 		description = "Defines a fixed power limitation to PV inverter.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlPvInverterFixPowerLimit0";
 
 	boolean enabled() default true;

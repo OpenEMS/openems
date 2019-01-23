@@ -33,7 +33,6 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
 
 	private String id = null;
-	private String servicePid = null;
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
 
@@ -41,17 +40,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Handles @Activate of implementations. Prints log output.
 	 * 
 	 * @param context
-	 * @param service_pid
+	 * @param properties
 	 * @param id
 	 * @param enabled
 	 */
-	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
+	protected void activate(ComponentContext context, String id, boolean enabled) {
 		if (id == null || id.trim().equals("")) {
 			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
 		} else {
 			this.id = id;
 		}
-		this.servicePid = service_pid;
+
 		this.enabled = enabled;
 		this.componentContext = context;
 		if (isEnabled()) {
@@ -78,12 +77,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public String servicePid() {
-		return this.servicePid;
-	}
-
-	@Override
-	public ComponentContext componentContext() {
+	public ComponentContext getComponentContext() {
+		if (this.componentContext == null) {
+			this.logWarn(this.log,
+					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
+		}
 		return this.componentContext;
 	}
 
@@ -142,6 +140,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public Collection<Channel<?>> channels() {
 		return this.channels.values();
+	}
+
+	/**
+	 * Log a debug message including the Component ID.
+	 * 
+	 * @param log
+	 * @param message
+	 */
+	protected void logDebug(Logger log, String message) {
+		// TODO use log.debug(String, Object...) to improve speed
+		log.debug("[" + this.id() + "] " + message);
 	}
 
 	/**

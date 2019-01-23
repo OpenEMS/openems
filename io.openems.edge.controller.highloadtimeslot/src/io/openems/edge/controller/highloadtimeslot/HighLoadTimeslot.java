@@ -77,7 +77,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		this.hysteresisSoc = config.hysteresisSoc();
 		this.weekdayDayFilter = config.weekdayFilter();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate
@@ -255,7 +255,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 */
 	private void applyPower(ManagedSymmetricEss ess, int activePower) {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
 		if (calculatedPower != activePower) {
 			this.logInfo(log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
 		}

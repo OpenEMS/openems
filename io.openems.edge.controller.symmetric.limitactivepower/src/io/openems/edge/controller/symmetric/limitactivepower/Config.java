@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Limit Active Power Symmetric", //
 		description = "Defines charge and discharge limits for a symmetric energy storage system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlLimitActivePower0";
 
 	boolean enabled() default true;

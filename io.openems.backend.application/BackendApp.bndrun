@@ -8,24 +8,28 @@ Bundle-SymbolicName:		io.openems.backend.application.launch
 JPM-Command:				openems-backend
 
 -runrequires: \
-	bnd.identity;id=io.openems.backend.application,\
-	bnd.identity;id=io.openems.backend.edgewebsocket.impl,\
-	bnd.identity;id=io.openems.backend.metadata.dummy,\
-	bnd.identity;id=io.openems.backend.metadata.file,\
-	bnd.identity;id=io.openems.backend.metadata.odoo,\
-	bnd.identity;id=io.openems.backend.timedata.influx,\
-	bnd.identity;id=io.openems.backend.uiwebsocket.impl,\
-	bnd.identity;id=org.apache.felix.webconsole,\
-	bnd.identity;id=org.ops4j.pax.logging.pax-logging-api,\
-	bnd.identity;id=org.ops4j.pax.logging.pax-logging-service,\
-	bnd.identity;id=osgi.enroute.webconsole.xray.provider
+	bnd.identity;version='latest';id='org.ops4j.pax.logging.pax-logging-service',\
+	bnd.identity;version='latest';id='org.ops4j.pax.logging.pax-logging-api',\
+	bnd.identity;version='latest';id='osgi.enroute.webconsole.xray.provider',\
+	bnd.identity;version='20160212.0.0';id='json',\
+	bnd.identity;version='latest';id='org.apache.felix.webconsole',\
+	bnd.identity;version='latest';id='io.openems.backend.application',\
+	bnd.identity;version='latest';id='io.openems.backend.b2bwebsocket',\
+	bnd.identity;version='latest';id='io.openems.backend.edgewebsocket.impl',\
+	bnd.identity;version='latest';id='io.openems.backend.metadata.dummy',\
+	bnd.identity;version='latest';id='io.openems.backend.metadata.file',\
+	bnd.identity;version='latest';id='io.openems.backend.metadata.odoo',\
+	bnd.identity;version='latest';id='io.openems.backend.timedata.core',\
+	bnd.identity;version='latest';id='io.openems.backend.timedata.dummy',\
+	bnd.identity;version='latest';id='io.openems.backend.timedata.influx',\
+	bnd.identity;version='latest';id='io.openems.backend.uiwebsocket.impl'
 
 -runproperties: \
 	felix.cm.dir=c:/openems-backend-config,\
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED",\
 	org.osgi.service.http.port=8079
 
--runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
+-runfw: org.eclipse.osgi
 -runee: JavaSE-1.8
 -runsystempackages: sun.misc
 
@@ -34,19 +38,16 @@ JPM-Command:				openems-backend
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.google.guava;version='[27.0.1,27.0.2)',\
 	io.openems.backend.application;version=snapshot,\
+	io.openems.backend.b2bwebsocket;version=snapshot,\
 	io.openems.backend.edgewebsocket.impl;version=snapshot,\
 	io.openems.backend.metadata.dummy;version=snapshot,\
-	io.openems.backend.metadata.file;version=snapshot,\
-	io.openems.backend.metadata.odoo;version=snapshot,\
+	io.openems.backend.timedata.core;version=snapshot,\
+	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
 	io.openems.backend.uiwebsocket.impl;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
-	io.openems.wrapper.moshi;version=snapshot,\
-	io.openems.wrapper.msgpack;version=snapshot,\
-	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
-	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\
 	json;version='[20160212.0.0,20160212.0.1)',\
 	org.apache.commons.fileupload;version='[1.3.2,1.3.3)',\
@@ -57,13 +58,8 @@ JPM-Command:				openems-backend
 	org.apache.felix.log;version='[1.0.1,1.0.2)',\
 	org.apache.felix.scr;version='[2.0.2,2.0.3)',\
 	org.apache.felix.webconsole;version='[4.2.16,4.2.17)',\
-	org.apache.servicemix.bundles.okhttp;version='[3.10.0,3.10.1)',\
-	org.apache.servicemix.bundles.okio;version='[1.13.0,1.13.1)',\
-	org.apache.servicemix.bundles.ws-commons-util;version='[1.0.2,1.0.3)',\
-	org.apache.servicemix.bundles.xmlrpc-client;version='[3.1.3,3.1.4)',\
 	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
 	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
-	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.10.1,1.10.2)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.10.1,1.10.2)',\
 	org.osgi.compendium;version='[4.1.0,4.1.1)',\
@@ -72,4 +68,10 @@ JPM-Command:				openems-backend
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
+	org.osgi.compendium;version='[4.1.0,4.1.1)',\
+	io.openems.backend.common;version=snapshot,\
+	io.openems.backend.metadata.file;version=snapshot,\
+	io.openems.backend.metadata.odoo;version=snapshot,\
+	org.apache.servicemix.bundles.ws-commons-util;version='[1.0.2,1.0.3)',\
+	org.apache.servicemix.bundles.xmlrpc-client;version='[3.1.3,3.1.4)'

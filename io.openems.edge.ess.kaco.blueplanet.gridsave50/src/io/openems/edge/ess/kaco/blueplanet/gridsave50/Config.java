@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "ESS KACO blueplanet gridsave 50.0 TL3", //
 		description = "Implements the FENECON Commercial 40 energy storage system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ess0";
 
 	boolean enabled() default true;

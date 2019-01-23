@@ -24,6 +24,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -48,6 +49,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -136,50 +138,54 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private DigitalInput inputComponent = null;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm,
+				"Modbus", config.modbus_id());
+		
+		// TODO use ComponentManager to replace the following hard references
 		// update filter for 'batteryStringA'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "BatteryStringA", config.battery_string_A_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "BatteryStringA", config.battery_string_A_id())) {
 			return;
 		}
 		// update filter for 'batteryStringB'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "BatteryStringB", config.battery_string_B_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "BatteryStringB", config.battery_string_B_id())) {
 			return;
 		}
 		// update filter for 'batteryStringC'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "BatteryStringC", config.battery_string_C_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "BatteryStringC", config.battery_string_C_id())) {
 			return;
 		}
 		// update filter for 'Grid-Meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "GridMeter", config.meter())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "GridMeter", config.meter())) {
 			return;
 		}
 		// update filter for 'inputNAProtection1'
 		this.inputNAProtection1 = ChannelAddress.fromString(config.inputNAProtection1());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputNAProtection1Component",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "inputNAProtection1Component",
 				this.inputNAProtection1.getComponentId())) {
 			return;
 		}
 		// update filter for 'inputNAProtection2'
 		this.inputNAProtection2 = ChannelAddress.fromString(config.inputNAProtection1());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputNAProtection2Component",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "inputNAProtection2Component",
 				this.inputNAProtection2.getComponentId())) {
 			return;
 		}
 		// update filter for 'inputSyncDeviceBridge'
 		this.inputSyncDeviceBridge = ChannelAddress.fromString(config.inputSyncDeviceBridge());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputSyncDeviceBridgeComponent",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "inputSyncDeviceBridgeComponent",
 				this.inputSyncDeviceBridge.getComponentId())) {
 			return;
 		}
 		// update filter for 'outputSyncDeviceBridgeComponent'
 		this.outputSyncDeviceBridge = ChannelAddress.fromString(config.outputSyncDeviceBridge());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputSyncDeviceBridgeComponent",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "outputSyncDeviceBridgeComponent",
 				this.outputSyncDeviceBridge.getComponentId())) {
 			return;
 		}
 		// update filter for 'outputMRHardReset'
 		this.outputMRHardReset = ChannelAddress.fromString(config.outputMRHardReset());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputMRHardResetComponent",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "outputMRHardResetComponent",
 				this.outputMRHardReset.getComponentId())) {
 			return;
 		}
@@ -226,9 +232,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// Max Apparent
 		// TODO adjust apparent power from modbus element
 //		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
-
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.unit_id(), this.cm,
-				"Modbus", config.modbus_id());
 	}
 
 	@Deactivate
@@ -245,14 +248,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
 		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
 
-		SymmetricEss.GridMode gridMode;
+		GridMode gridMode;
 		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
-			gridMode = SymmetricEss.GridMode.UNDEFINED;
+			gridMode = GridMode.UNDEFINED;
 		} else {
 			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-				gridMode = SymmetricEss.GridMode.ON_GRID;
+				gridMode = GridMode.ON_GRID;
 			} else {
-				gridMode = SymmetricEss.GridMode.OFF_GRID;
+				gridMode = GridMode.OFF_GRID;
 			}
 		}
 		this.getGridMode().setNextValue(gridMode);

@@ -10,8 +10,6 @@ import io.openems.edge.ess.api.Phase;
 		description = "The energy storage system implementation of a FENECON Mini.")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "ess0";
 
 	boolean enabled() default true;

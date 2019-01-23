@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "BMS FENECON Soltaro", //
 		description = "Implements the Soltaro battery rack system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "bms0";
 
 	boolean enabled() default true;

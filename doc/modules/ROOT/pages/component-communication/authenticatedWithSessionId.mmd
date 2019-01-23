@@ -1,0 +1,13 @@
+sequenceDiagram
+
+participant UI Ws
+participant Backend UiWs
+
+Note over UI Ws,Backend UiWs: Sends an existing 'session_id' from<br/>Cookie
+UI Ws ->>+ Backend UiWs: open Websocket
+
+Note over Backend UiWs,Backend Metadata: Validates the 'session_id'
+Backend UiWs --> Backend Metadata: authenticate()
+
+Note over Backend UiWs,UI Ws: Sends 'authenticatedWithSessionId'<br/>Notification
+Backend UiWs ->> UI Ws: Notification authenticatedWithSessionId

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Dictionary;
 
+import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -11,10 +12,10 @@ import org.osgi.service.component.ComponentContext;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.common.channel.doc.Level;
 
 /**
  * This is the base interface for and should be implemented by every service
@@ -57,12 +58,22 @@ public interface OpenemsComponent {
 	 * 
 	 * @return
 	 */
-	String servicePid();
+	default String servicePid() {
+		ComponentContext context = this.getComponentContext();
+		if (context != null) {
+			Dictionary<String, Object> properties = context.getProperties();
+			Object servicePid = properties.get(Constants.SERVICE_PID);
+			if (servicePid != null) {
+				return servicePid.toString();
+			}
+		}
+		return "";
+	}
 
 	/**
 	 * Returns the ComponentContext
 	 */
-	ComponentContext componentContext();
+	ComponentContext getComponentContext();
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.

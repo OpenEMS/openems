@@ -19,7 +19,8 @@ Export-Package: \
 	io.openems.edge.common.modbusslave,\
 	io.openems.edge.common.meta,\
 	io.openems.edge.common.jsonapi,\
-	io.openems.edge.common.test
+	io.openems.edge.common.test,\
+	io.openems.edge.common.sum
 
 -includeresource: {readme.md}
 

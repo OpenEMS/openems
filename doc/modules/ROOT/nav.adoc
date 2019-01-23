@@ -1,4 +1,4 @@
-* xref:index.adoc[Introduction]
+* xref:introduction.adoc[Introduction]
 * xref:openems_as.adoc[OpenEMS Association]
 * xref:gettingstarted.adoc[Getting Started]
 * xref:coreconcepts.adoc[Core concepts & terminology]
@@ -16,6 +16,7 @@
 * OpenEMS Backend
 ** xref:backend/architecture.adoc[Architecture]
 ** xref:backend/configuration.adoc[Configuration]
+* xref:component-communication/index.adoc[Component Communication]
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]

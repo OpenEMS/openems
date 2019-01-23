@@ -64,12 +64,12 @@ public interface Power {
 	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
 
 	/**
-	 * Adjusts the given value so that it fits into Min/MaxActivePower.
+	 * Adjusts the given value so that it fits into Min/MaxPower.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the target value
+	 * @return a value that fits into Min/MaxPower
 	 */
-	public default int fitValueIntoMinMaxActivePower(ManagedSymmetricEss ess, Phase phase, Pwr pwr, int value) {
+	public default int fitValueIntoMinMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr, int value) {
 		if (value > 0) {
 			/*
 			 * Discharge

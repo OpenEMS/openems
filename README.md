@@ -52,23 +52,23 @@ Indepth documentation is currently in progress. Please find the latest documents
 
 OpenEMS development was started by [FENECON GmbH](https://www.fenecon.de), a German company specialized in manufacturing and project development of energy storage systems. It is the software stack behind [FEMS - FENECON Energy Management System](https://fenecon.de/page/fems) and widely used in private, commercial and industrial applications.
 
-We are inviting third parties - like universities, hardware manufacturers, software companies, commercial and private owners,... - to use OpenEMS for their own projects and are glad to support them with their first steps. In any case if you are interested in OpenEMS our development team would be glad to hear from you at fems@fenecon.de.
+In 2019 governance of the OpenEMS project was taken over by the newly founded "OpenEMS Association e.V. (i.Gr.)". We are inviting third parties - like universities, hardware manufacturers, software companies, commercial and private owners,... - to use OpenEMS for their own projects and are glad to support them with their first steps. In any case if you are interested in OpenEMS our development team would be glad to hear from you at info@openems.io.
 
-OpenEMS is funded by several federal and EU funding projects. If you are a developer and you would like to get hired by one of the partner companies or universities for working on OpenEMS, please send your motivation letter to fems@fenecon.de.
+OpenEMS is funded by several federal and EU funding projects. If you are a developer and you would like to get hired by one of the partner companies or universities for working on OpenEMS, please send your motivation letter to info@openems.io.
 
 ## License
 
 * OpenEMS Edge 
 * OpenEMS Backend
 
-Copyright (C) 2016-2018 FENECON GmbH.
+Copyright (C) 2016-2019 FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [Eclipse Public License version 2.0](LICENSE-EPL-2.0). 
 
  * OpenEMS UI
 
-Copyright (C) 2016-2018 FENECON GmbH.
+Copyright (C) 2016-2019 FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).

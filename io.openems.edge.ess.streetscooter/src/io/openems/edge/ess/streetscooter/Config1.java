@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "ESS Ess1Streetscooter", //
 		description = "Implements the streetscooter energy storage system.")
 @interface Config1 {
-	String service_pid();
-
 	String id() default "ess1";
 
 	boolean enabled() default true;

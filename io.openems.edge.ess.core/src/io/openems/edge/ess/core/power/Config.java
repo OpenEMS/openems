@@ -12,8 +12,6 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 		name = "ESS Power", //
 		description = "This component solves Power distribution among energy storage systems.")
 @interface Config {
-	String service_pid();
-
 	@AttributeDefinition(name = "Strategy", description = "The strategy for solving power distribution.")
 	SolverStrategy strategy() default SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 

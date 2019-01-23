@@ -1,0 +1,14 @@
+#
+# io.openems.edge.controller.evcs LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		io.openems.edge.controller.evcs.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.evcs.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}
