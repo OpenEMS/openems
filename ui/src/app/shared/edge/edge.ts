@@ -73,7 +73,7 @@ export class Edge {
     this.sendRequest(websocket, request).then(response => {
       this.config.next(new EdgeConfig(response as GetEdgeConfigResponse));
     }).catch(reason => {
-      console.log("refreshConfig got error", reason)
+      console.warn("refreshConfig got error", reason)
       // TODO error
       this.config.next(new EdgeConfig());
     });

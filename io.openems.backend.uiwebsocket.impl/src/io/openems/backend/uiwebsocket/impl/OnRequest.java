@@ -95,7 +95,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 
 		// the Role of this User for this Edge.
-		Role role = user.getEdgeRole(edgeId).orElse(Role.GUEST);
+		Role role = user.assertEdgeRoleIsAtLeast("EdgeRpcRequest", edgeId, Role.GUEST);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
@@ -117,6 +117,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case UpdateComponentConfigRequest.METHOD:
 			resultFuture = this.handleUpdateComponentConfigRequest(edgeId, role,
 					UpdateComponentConfigRequest.from(request));
+			break;
+
+		case ComponentJsonApiRequest.METHOD:
+			resultFuture = this.handleComponentJsonApiRequest(edgeId, role, ComponentJsonApiRequest.from(request));
 			break;
 
 		default:
@@ -211,15 +215,29 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(String edgeId, Role role,
 			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
-		if (role.isLessThan(Role.INSTALLER)) {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception("UpdateComponentConfig", role);
-		}
+		role.assertRoleIsAtLeast("UpdateComponentConfig", Role.INSTALLER);
 
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
 
 		return this.parent.edgeWebsocket.send(edgeId, request);
+	}
+
+	/**
+	 * Handles a UpdateComponentConfigRequest.
+	 * 
+	 * @param edgeId                  the Edge-ID
+	 * @param role                    the Role - Installer-level required
+	 * @param componentJsonApiRequest the ComponentJsonApiRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(String edgeId, Role role,
+			ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
+		role.assertRoleIsAtLeast("ComponentJsonApiRequest", Role.GUEST);
+
+		return this.parent.edgeWebsocket.send(edgeId, componentJsonApiRequest);
 	}
 
 }

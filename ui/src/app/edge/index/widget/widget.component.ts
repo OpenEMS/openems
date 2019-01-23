@@ -28,8 +28,6 @@ export class WidgetComponent {
    */
   private setWidgets() {
     this.service.getConfig().then(config => {
-      console.log(config);
-
       let widgets = [];
       for (let nature of Object.keys(WidgetNature)) {
         for (let componentId of config.getComponentsImplementingNature(nature)) {
@@ -41,7 +39,6 @@ export class WidgetComponent {
           widgets.push({ name: factory, componentId: componentId })
         }
       }
-      console.log(widgets);
       this.widgets = widgets;
     })
   }
