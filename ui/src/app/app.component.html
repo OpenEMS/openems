@@ -6,7 +6,7 @@
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title *ngIf="(websocket.currentEdge | async) as currentEdge; else elseTitle">{{ currentEdge.name }} | {{
+      <ion-title *ngIf="(service.getCurrentEdge() | async) as currentEdge; else elseTitle">{{ currentEdge.name }} | {{
         currentEdge.comment
         }}</ion-title>
       <ng-template #elseTitle>
@@ -55,7 +55,7 @@
               <ion-icon slot="start" name="wifi"></ion-icon>
               <ion-label text-wrap>
                 <h2>Verbindung wird aufgebaut...</h2>
-                <!-- TODO translate -->
+                <p color="light">{{ env.url }}</p>
               </ion-label>
             </ion-item>
           </ion-card>

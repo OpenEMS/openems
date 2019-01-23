@@ -2,7 +2,7 @@ import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, from } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
@@ -10,6 +10,7 @@ import { Edges } from '../jsonrpc/shared';
 import { LanguageTag, Language } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -35,7 +36,8 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService
+    public translate: TranslateService,
+    private http: HttpClient
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -197,5 +199,39 @@ export class Service implements ErrorHandler {
       newEdges[newEdge.id] = newEdge;
     }
     this.edges.next(newEdges);
+  }
+
+  public setWPCookies(cookie_name: string, cookie: string) {
+    Cookie.set("wpcookie", cookie);
+    Cookie.set(cookie, cookie_name);
+    // localStorage.setItem(cookie, cookie_name);
+    //sessionStorage.setItem(cookie, cookie_name);
+    console.info('COOKIES: ' + Cookie.get(cookie));
+  }
+
+  public getWPCookieParam(): string {
+    let cookie: string = Cookie.get("wpcookie");
+    if (cookie.length > 10) {
+      return cookie + "=" + Cookie.get(cookie) + ";";
+    } else {
+      return "";
+    }
+
+  }
+
+  public sendWPPasswordRetrieve(username: string): Promise<any> {
+
+    return this.http.get("https://www.energydepot.de/api/user/retrieve_password/?user_login=" + username).toPromise();
+    /*
+  .then((data) => {
+      if (data['status'] === "ok") {
+        return "ok";
+      }
+      if (data['status'] === "error") {
+        return data['error'];
+      }
+    });*/
+
+
   }
 }
