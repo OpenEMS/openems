@@ -29,7 +29,7 @@ The information on this page is useful to understand the internal communication 
 
 NOTE: On opening of the websocket connection to Edge/Backend, the UI is authenticated using an existing token.
 
-mermaid:authenticatedWithSessionId.mmd[]
+image::authenticateWithSessionId.png[]
 
 == Authenticate UI to Edge using password
 
