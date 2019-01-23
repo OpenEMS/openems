@@ -51,10 +51,10 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.metertype = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
-	
+
 	@Deactivate
 	protected void deativate() {
 		super.deactivate();
@@ -85,35 +85,32 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
-						//new DummyRegisterElement(0x0006, 0x000C),
+						// new DummyRegisterElement(0x0006, 0x000C),
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedWordElement(0x000E)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedWordElement(0x0010)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedWordElement(0x0012)),
-						//new DummyRegisterElement(0x0014, 0x0016),
+						// new DummyRegisterElement(0x0014, 0x0016),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(0x0018)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(0x001C)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(0X0020)),
-						//new DummyRegisterElement(0x0024, 0x0034),
+						// new DummyRegisterElement(0x0024, 0x0034),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedWordElement(0x0038)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(0x003C)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(0x0040))
-						));
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(0x0040))));
 	}
 
 	@Override
 	public String debugLog() {
-		return " V1:" + this.getVoltageL1().value().asString() + " | " + 
-				" V2:" + this.getVoltageL2().value().asString() + " | " + 
-				" V2:" + this.getVoltageL3().value().asString() + " | " + 
-				" C1:" + this.getCurrentL1().value().asString() + " | " + 
-				" C2:" + this.getCurrentL2().value().asString() + " | " + 
-				" C3:" + this.getCurrentL3().value().asString() + " | " +
-				" AP1:" + this.getActivePowerL1().value().asString() + " | " +
-				" AP2:" + this.getActivePowerL2().value().asString() + " | " +
-				" AP3:" + this.getActivePowerL3().value().asString() + " | " +
-				" RP1:" + this.getReactivePowerL1().value().asString() + " | " +
-				" RP2:" + this.getReactivePowerL2().value().asString() + " | " +
-				" RP3:" + this.getReactivePowerL3().value().asString() ;
+		return " V1:" + this.getVoltageL1().value().asString() + " | " + " V2:" + this.getVoltageL2().value().asString()
+				+ " | " + " V2:" + this.getVoltageL3().value().asString() + " | " + " C1:"
+				+ this.getCurrentL1().value().asString() + " | " + " C2:" + this.getCurrentL2().value().asString()
+				+ " | " + " C3:" + this.getCurrentL3().value().asString() + " | " + " AP1:"
+				+ this.getActivePowerL1().value().asString() + " | " + " AP2:"
+				+ this.getActivePowerL2().value().asString() + " | " + " AP3:"
+				+ this.getActivePowerL3().value().asString() + " | " + " RP1:"
+				+ this.getReactivePowerL1().value().asString() + " | " + " RP2:"
+				+ this.getReactivePowerL2().value().asString() + " | " + " RP3:"
+				+ this.getReactivePowerL3().value().asString();
 	}
 
 }
