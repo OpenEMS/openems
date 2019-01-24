@@ -13,9 +13,11 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.GetChannelsValuesRequest;
 import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
+import io.openems.common.types.ChannelAddress;
 
 public class B2bWebsocketTest {
 
@@ -39,6 +41,20 @@ public class B2bWebsocketTest {
 		TestClient client = preparteTestClient();
 
 		GetStatusOfEdgesRequest request = new GetStatusOfEdgesRequest();
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+		System.out.println(responseFuture.get().toString());
+		client.stop();
+	}
+
+	@Test
+	public void testGetChannelsValuesRequest()
+			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
+		TestClient client = preparteTestClient();
+
+		GetChannelsValuesRequest request = new GetChannelsValuesRequest();
+		request.addEdgeId("edge1");
+		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
+		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
 		System.out.println(responseFuture.get().toString());
 		client.stop();
