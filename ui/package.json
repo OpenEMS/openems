@@ -75,7 +75,7 @@
     "@angular/cli": "^7.2.2",
     "@angular/compiler": "~7.0.3",
     "@angular/compiler-cli": "~7.0.3",
-    "@angular/language-service": "~7.2.1",
+    "@angular/language-service": "~7.2.2",
     "@ionic/ng-toolkit": "^1.0.0",
     "@ionic/schematics-angular": "^1.0.0",
     "@types/jasmine": "~3.3.5",
