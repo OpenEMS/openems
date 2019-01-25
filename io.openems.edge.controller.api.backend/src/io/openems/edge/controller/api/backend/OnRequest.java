@@ -31,7 +31,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		// TODO add Check if user Role is sufficient
-
+		
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:

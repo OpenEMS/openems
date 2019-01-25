@@ -1,4 +1,5 @@
-package io.openems.edge.controller.debug.detailedlog;
+package io.openems.edge.controller.symmetric.balancingschedule;
+
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -9,8 +10,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(DebugDetailedLog c) {
-		return Stream.of( //
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(BalancingSchedule c) {
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:

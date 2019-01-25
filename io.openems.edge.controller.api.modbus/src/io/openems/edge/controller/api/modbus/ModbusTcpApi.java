@@ -288,7 +288,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
 	}
 

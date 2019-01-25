@@ -17,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -93,7 +94,7 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
 	}
 

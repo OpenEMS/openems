@@ -10,7 +10,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -60,7 +60,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
@@ -87,11 +87,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		/*
 		 * set result
 		 */
-		try {
-			ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
-			ess.getSetReactivePowerEquals().setNextWriteValue(0);
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
+		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 }

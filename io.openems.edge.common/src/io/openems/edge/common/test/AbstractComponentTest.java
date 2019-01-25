@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -188,7 +189,9 @@ public abstract class AbstractComponentTest {
 	/**
 	 * Executes the tested component logic. This method is executed after the inputs
 	 * are applied. After finishing the expected outputs are validated.
+	 * 
+	 * @throws OpenemsNamedException on error
 	 */
-	protected abstract void executeLogic();
+	protected abstract void executeLogic() throws OpenemsNamedException;
 
 }

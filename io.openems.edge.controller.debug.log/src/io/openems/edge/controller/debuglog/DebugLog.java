@@ -16,6 +16,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -54,7 +55,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		StringBuilder b = new StringBuilder();
 		/*
 		 * Asks each component for its debugLog()-ChannelIds. Prints an aggregated log

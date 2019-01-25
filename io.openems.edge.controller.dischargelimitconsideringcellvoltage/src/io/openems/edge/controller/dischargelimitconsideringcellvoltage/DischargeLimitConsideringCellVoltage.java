@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
@@ -25,7 +26,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -128,17 +128,13 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	private void debug(String message) {
 		log.debug(message);
 	}
-	
-	private void error(String message) {
-		log.error(message);
-	}
 
 	@Override
 	public String debugLog() {		
 		return "[" + this.id() + " state: " + getStatus() + "]"; 
 	}
 
-	private void doNormalHandling(Map<String, Float> values) {
+	private void doNormalHandling(Map<String, Float> values) throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.doNormalHandling()");
 		if (values.get(KEY_SYSTEM_VOLTAGE) < minimalSystemVoltage || values.get(KEY_MIN_CELL_VOLTAGE) < absolutMinCellVoltage || values.get(KEY_SOC) < chargeSoC) {
 			if (values.get(KEY_SYSTEM_VOLTAGE) < minimalSystemVoltage) {
@@ -165,14 +161,10 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		}
 	}
 
-	private void forbidDischarging() {
+	private void forbidDischarging() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.forbidDischarging()");
-		try {
-			this.getEss().addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
-					Relationship.LESS_OR_EQUALS, 0);
-		} catch (PowerException e) {
-			error("Exception occurred in DischargeLimitConsideringCellVoltage.forbidCharging()\n" + e.getMessage());
-		}		
+		this.getEss().addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
+				Relationship.LESS_OR_EQUALS, 0);
 	}
 
 	private void setPending() {
@@ -181,20 +173,16 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		timeSinceMinCellVoltageWasBelowLimit = LocalDateTime.now(); 
 	}
 
-	private void startCharging() {
+	private void startCharging() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.startCharging()");
 		ManagedSymmetricEss ess = this.getEss();
 		timeSinceMinCellVoltageWasBelowLimit = null;
 		int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-        int calculatedPower = maxCharge / 5;
-        debug("Calculated power: " + calculatedPower);
-		try {
-			ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
-					Relationship.LESS_OR_EQUALS, calculatedPower);
-			this.setStatus(State.CHARGING);
-		} catch (PowerException e) {
-			error("Error occurred while setting charge constraint\n" + e.getMessage());
-		}
+		int calculatedPower = maxCharge / 5;
+		debug("Calculated power: " + calculatedPower);
+		ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
+				Relationship.LESS_OR_EQUALS, calculatedPower);
+		this.setStatus(State.CHARGING);
 	}
 
 	private void doChargeHandling(Map<String, Float> values) {
@@ -234,7 +222,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		return true;
 	}
 
-	private Map<String, Float> getValuesFromChannels() {
+	private Map<String, Float> getValuesFromChannels() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.getValuesFromChannels()");
 		Battery battery = this.getBattery();
 		Optional<Integer> vOpt = battery.getVoltage().getNextValue().asOptional();
@@ -305,11 +293,11 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	}
 	
 
-	private ManagedSymmetricEss getEss() {
+	private ManagedSymmetricEss getEss() throws OpenemsNamedException {
 		return this.componentManager.getComponent(this.essId);
 	}
 
-	private Battery getBattery() {
+	private Battery getBattery() throws OpenemsNamedException {
 		return this.componentManager.getComponent(this.batteryId);
 	}
 
