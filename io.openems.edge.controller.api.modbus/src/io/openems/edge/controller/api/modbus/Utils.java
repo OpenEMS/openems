@@ -1,4 +1,5 @@
 package io.openems.edge.controller.api.modbus;
+
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -21,6 +22,13 @@ public class Utils {
 				Arrays.stream(Controller.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case RUN_FAILED:
+						return new StateChannel(c, channelId);
+					}
+					return null;
+				}), //
+				Arrays.stream(ModbusTcpApi.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case UNABLE_TO_START:
 						return new StateChannel(c, channelId);
 					}
 					return null;

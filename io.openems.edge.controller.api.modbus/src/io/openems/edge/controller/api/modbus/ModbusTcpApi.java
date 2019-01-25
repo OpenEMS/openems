@@ -27,6 +27,8 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -79,6 +81,23 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		UNABLE_TO_START(new Doc() //
+				.level(Level.FAULT) //
+				.text("Unable to start Modbus/TCP-Api Server"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	protected volatile Map<String, ModbusSlave> _components = new HashMap<>();
 	private String[] componentIds = new String[0];
@@ -143,12 +162,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 							ModbusTcpApi.this.maxConcurrentConnections);
 					slave.addProcessImage(UNIT_ID, ModbusTcpApi.this.processImage);
 					slave.open();
+
 					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port ["
 							+ ModbusTcpApi.this.port + "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
+					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(false);
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
 					ModbusTcpApi.this.logError(ModbusTcpApi.this.log, "Unable to start Modbus/TCP Api on port ["
 							+ ModbusTcpApi.this.port + "]: " + e.getMessage());
+					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 				}
 
 			} else {
@@ -157,6 +179,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 				if (error != null) {
 					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
 							"Unable to start Modbus/TCP Api on port [" + ModbusTcpApi.this.port + "]: " + error);
+					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 					this.slave = null;
 					// stop server
 					ModbusSlaveFactory.close();
