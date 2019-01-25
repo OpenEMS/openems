@@ -1,4 +1,4 @@
-package io.openems.common.jsonrpc.response;
+package io.openems.backend.b2bwebsocket.jsonrpc.response;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,12 +9,12 @@ import com.google.common.collect.Table;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.GetChannelsValuesRequest;
 import io.openems.common.types.ChannelAddress;
 
 /**
- * Represents a JSON-RPC Response for {@link GetChannelsValuesRequest}.
+ * Represents a JSON-RPC Response for {@link GetEdgesChannelsValuesRequest}.
  * 
  * <pre>
  * {
@@ -28,15 +28,15 @@ import io.openems.common.types.ChannelAddress;
  * }
  * </pre>
  */
-public class GetChannelsValuesResponse extends JsonrpcResponseSuccess {
+public class GetEdgesChannelsValuesResponse extends JsonrpcResponseSuccess {
 
 	private final Table<String, ChannelAddress, JsonElement> values = HashBasedTable.create();
 
-	public GetChannelsValuesResponse() {
+	public GetEdgesChannelsValuesResponse() {
 		this(UUID.randomUUID());
 	}
 
-	public GetChannelsValuesResponse(UUID id) {
+	public GetEdgesChannelsValuesResponse(UUID id) {
 		super(id);
 	}
 

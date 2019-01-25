@@ -1,4 +1,4 @@
-package io.openems.common.jsonrpc.request;
+package io.openems.backend.b2bwebsocket.jsonrpc.request;
 
 import java.util.TreeSet;
 import java.util.UUID;
@@ -20,7 +20,7 @@ import io.openems.common.utils.JsonUtils;
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "method": "getChannelsValues",
+ *   "method": "getEdgesChannelsValues",
  *   "params": {
  *     "ids": string[] // Edge-IDs
  *     "channels": string[] // Channel-IDs
@@ -28,11 +28,11 @@ import io.openems.common.utils.JsonUtils;
  * }
  * </pre>
  */
-public class GetChannelsValuesRequest extends JsonrpcRequest {
+public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 
-	public static GetChannelsValuesRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+	public static GetEdgesChannelsValuesRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
-		GetChannelsValuesRequest result = new GetChannelsValuesRequest(r.getId());
+		GetEdgesChannelsValuesRequest result = new GetEdgesChannelsValuesRequest(r.getId());
 		JsonArray edgeIds = JsonUtils.getAsJsonArray(p, "ids");
 		for (JsonElement edgeId : edgeIds) {
 			result.addEdgeId(JsonUtils.getAsString(edgeId));
@@ -45,20 +45,20 @@ public class GetChannelsValuesRequest extends JsonrpcRequest {
 		return result;
 	}
 
-	public static GetChannelsValuesRequest from(JsonObject j) throws OpenemsNamedException {
+	public static GetEdgesChannelsValuesRequest from(JsonObject j) throws OpenemsNamedException {
 		return from(GenericJsonrpcRequest.from(j));
 	}
 
-	public final static String METHOD = "getChannelsValues";
+	public static final String METHOD = "getEdgesChannelsValues";
 
 	private final TreeSet<String> edgeIds = new TreeSet<>();
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
-	public GetChannelsValuesRequest() {
+	public GetEdgesChannelsValuesRequest() {
 		this(UUID.randomUUID());
 	}
 
-	public GetChannelsValuesRequest(UUID id) {
+	public GetEdgesChannelsValuesRequest(UUID id) {
 		super(id, METHOD);
 	}
 

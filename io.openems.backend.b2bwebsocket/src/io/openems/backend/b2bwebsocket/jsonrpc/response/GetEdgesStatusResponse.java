@@ -1,4 +1,4 @@
-package io.openems.common.jsonrpc.response;
+package io.openems.backend.b2bwebsocket.jsonrpc.response;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -6,11 +6,12 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
+import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Response for 'getStatusOfEdges'.
+ * Represents a JSON-RPC Response for {@link GetEdgesStatusRequest}.
  * 
  * <pre>
  * {
@@ -27,7 +28,7 @@ import io.openems.common.utils.JsonUtils;
  * }
  * </pre>
  */
-public class GetStatusOfEdgesResponse extends JsonrpcResponseSuccess {
+public class GetEdgesStatusResponse extends JsonrpcResponseSuccess {
 
 	public static class EdgeInfo {
 		protected final boolean online;
@@ -39,11 +40,11 @@ public class GetStatusOfEdgesResponse extends JsonrpcResponseSuccess {
 
 	private final Map<String, EdgeInfo> edgeInfos;
 
-	public GetStatusOfEdgesResponse(Map<String, EdgeInfo> edgeInfos) {
+	public GetEdgesStatusResponse(Map<String, EdgeInfo> edgeInfos) {
 		this(UUID.randomUUID(), edgeInfos);
 	}
 
-	public GetStatusOfEdgesResponse(UUID id, Map<String, EdgeInfo> edgeInfos) {
+	public GetEdgesStatusResponse(UUID id, Map<String, EdgeInfo> edgeInfos) {
 		super(id);
 		this.edgeInfos = edgeInfos;
 	}

@@ -90,7 +90,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 */
 	public void sendNotification(String edgeId, JsonrpcNotification notification) throws OpenemsException {
 		throw new NotImplementedException("EdgeWebsocketImpl.sendNotification() is not implemented");
-		// TODO
 	}
 
 	@Override

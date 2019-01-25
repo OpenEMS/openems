@@ -11,10 +11,11 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
+import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
+import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesStatusRequest;
+import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.GetChannelsValuesRequest;
-import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
 import io.openems.common.types.ChannelAddress;
@@ -25,7 +26,7 @@ public class B2bWebsocketTest {
 	private static final String USERNAME = "demo@fenecon.de";
 	private static final String PASSWORD = "femsdemo";
 
-	private static TestClient preparteTestClient() throws URISyntaxException, InterruptedException {
+	private static TestClient prepareTestClient() throws URISyntaxException, InterruptedException {
 		Map<String, String> httpHeaders = new HashMap<>();
 		String auth = new String(Base64.getEncoder().encode((USERNAME + ":" + PASSWORD).getBytes()),
 				StandardCharsets.UTF_8);
@@ -36,40 +37,74 @@ public class B2bWebsocketTest {
 	}
 
 	@Test
-	public void testGetStatusOfEdgesRequest()
+	public void testGetEdgesStatusRequest()
 			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
-		TestClient client = preparteTestClient();
+		TestClient client = prepareTestClient();
 
-		GetStatusOfEdgesRequest request = new GetStatusOfEdgesRequest();
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
-		System.out.println(responseFuture.get().toString());
+		GetEdgesStatusRequest request = new GetEdgesStatusRequest();
+		try {
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+			System.out.println(responseFuture.get().toString());
+		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+			System.out.println(e.getMessage());
+		}
 		client.stop();
 	}
 
 	@Test
-	public void testGetChannelsValuesRequest()
-			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
-		TestClient client = preparteTestClient();
+	public void testGetEdgesChannelsValuesRequest() throws URISyntaxException, InterruptedException {
+		TestClient client = prepareTestClient();
 
-		GetChannelsValuesRequest request = new GetChannelsValuesRequest();
-		request.addEdgeId("edge1");
+		GetEdgesChannelsValuesRequest request = new GetEdgesChannelsValuesRequest();
+		request.addEdgeId("edge0");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
-		System.out.println(responseFuture.get().toString());
+		try {
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+			System.out.println(responseFuture.get().toString());
+		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+			System.out.println(e.getMessage());
+		}
+		client.stop();
+	}
+
+	@Test
+	public void testSubscribeEdgesChannelsRequest()
+			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
+		TestClient client = prepareTestClient();
+		client.setOnNotification((ws, notification) -> {
+			System.out.println(notification.toString());
+		});
+
+		SubscribeEdgesChannelsRequest request = new SubscribeEdgesChannelsRequest(0);
+		request.addEdgeId("edge0");
+		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
+		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
+		try {
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+			System.out.println(responseFuture.get().toString());
+		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+			System.out.println(e.getMessage());
+		}
+
+		Thread.sleep(10000);
 		client.stop();
 	}
 
 	@Test
 	public void testSetGridConnSchedule()
-			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
-		TestClient client = preparteTestClient();
+			throws URISyntaxException, InterruptedException {
+		TestClient client = prepareTestClient();
 
 		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("edge0");
 		long now = System.currentTimeMillis() / 1000;
 		request.addScheduleEntry(new GridConnSchedule(now, 60, -3000));
 		request.addScheduleEntry(new GridConnSchedule(now + 60, 60, -5000));
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
-		System.out.println(responseFuture.get().toString());
+		try {
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
+			System.out.println(responseFuture.get().toString());
+		} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 }

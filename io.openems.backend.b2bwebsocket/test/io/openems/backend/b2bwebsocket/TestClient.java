@@ -19,12 +19,12 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	private Logger log = LoggerFactory.getLogger(TestClient.class);
 
-	private final OnOpen onOpen;
-	private final OnRequest onRequest;
-	private final OnNotification onNotification;
-	private final OnError onError;
-	private final OnClose onClose;
-	private final OnInternalError onInternalError;
+	private OnOpen onOpen;
+	private OnRequest onRequest;
+	private OnNotification onNotification;
+	private OnError onError;
+	private OnClose onClose;
+	private OnInternalError onInternalError;
 
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
@@ -55,14 +55,26 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		return onOpen;
 	}
 
+	public void setOnOpen(OnOpen onOpen) {
+		this.onOpen = onOpen;
+	}
+	
 	@Override
 	public OnRequest getOnRequest() {
 		return onRequest;
+	}
+	
+	public void setOnRequest(OnRequest onRequest) {
+		this.onRequest = onRequest;
 	}
 
 	@Override
 	public OnError getOnError() {
 		return onError;
+	}
+	
+	public void setOnError(OnError onError) {
+		this.onError = onError;
 	}
 
 	@Override
@@ -70,9 +82,17 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		return onClose;
 	}
 
+	public void setOnClose(OnClose onClose) {
+		this.onClose = onClose;
+	}
+	
 	@Override
 	public OnInternalError getOnInternalError() {
 		return onInternalError;
+	}
+	
+	public void setOnInternalError(OnInternalError onInternalError) {
+		this.onInternalError = onInternalError;
 	}
 
 	@Override
@@ -80,6 +100,10 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		return onNotification;
 	}
 
+	public void setOnNotification(OnNotification onNotification) {
+		this.onNotification = onNotification;
+	}
+	
 	@Override
 	protected WsData createWsData() {
 		return new WsData();

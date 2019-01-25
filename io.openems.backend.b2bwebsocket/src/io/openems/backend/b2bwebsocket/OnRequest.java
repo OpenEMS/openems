@@ -15,6 +15,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
+import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
+import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesStatusRequest;
+import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
+import io.openems.backend.b2bwebsocket.jsonrpc.response.GetEdgesChannelsValuesResponse;
+import io.openems.backend.b2bwebsocket.jsonrpc.response.GetEdgesStatusResponse;
+import io.openems.backend.b2bwebsocket.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -24,12 +30,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
-import io.openems.common.jsonrpc.request.GetChannelsValuesRequest;
-import io.openems.common.jsonrpc.request.GetStatusOfEdgesRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
-import io.openems.common.jsonrpc.response.GetChannelsValuesResponse;
-import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse;
-import io.openems.common.jsonrpc.response.GetStatusOfEdgesResponse.EdgeInfo;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
@@ -50,11 +51,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		switch (request.getMethod()) {
 
-		case GetStatusOfEdgesRequest.METHOD:
-			return this.handleGetStatusOfEdgesRequest(user, request.getId(), GetStatusOfEdgesRequest.from(request));
+		case GetEdgesStatusRequest.METHOD:
+			return this.handleGetStatusOfEdgesRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
 
-		case GetChannelsValuesRequest.METHOD:
-			return this.handleGetChannelsValuesRequest(user, request.getId(), GetChannelsValuesRequest.from(request));
+		case GetEdgesChannelsValuesRequest.METHOD:
+			return this.handleGetChannelsValuesRequest(user, request.getId(),
+					GetEdgesChannelsValuesRequest.from(request));
+
+		case SubscribeEdgesChannelsRequest.METHOD:
+			return this.handleSubscribeEdgesChannelsRequest(wsData, user, request.getId(),
+					SubscribeEdgesChannelsRequest.from(request));
 
 		case SetGridConnScheduleRequest.METHOD:
 			return this.handleSetGridConnScheduleRequest(user, request.getId(),
@@ -76,10 +82,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetStatusOfEdgesRequest(User user, UUID messageId,
-			GetStatusOfEdgesRequest request) throws OpenemsNamedException {
+			GetEdgesStatusRequest request) throws OpenemsNamedException {
 		Map<String, EdgeInfo> result = new HashMap<>();
 		for (Entry<String, Role> entry : user.getEdgeRoles().entrySet()) {
 			String edgeId = entry.getKey();
+
+			// assure read permissions of this User for this Edge.
+			user.assertEdgeRoleIsAtLeast("GetEdgesStatusRequest", edgeId, Role.GUEST);
+
 			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
 				Edge edge = edgeOpt.get();
@@ -87,7 +97,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				result.put(edge.getId(), info);
 			}
 		}
-		return CompletableFuture.completedFuture(new GetStatusOfEdgesResponse(messageId, result));
+		return CompletableFuture.completedFuture(new GetEdgesStatusResponse(messageId, result));
 	}
 
 	/**
@@ -100,15 +110,43 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetChannelsValuesRequest(User user, UUID messageId,
-			GetChannelsValuesRequest request) throws OpenemsNamedException {
-		GetChannelsValuesResponse response = new GetChannelsValuesResponse(messageId);
+			GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
+		GetEdgesChannelsValuesResponse response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
+			// assure read permissions of this User for this Edge.
+			user.assertEdgeRoleIsAtLeast("GetEdgesChannelsValuesRequest", edgeId, Role.GUEST);
+
 			for (ChannelAddress channel : request.getChannels()) {
 				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
 				response.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
 			}
 		}
 		return CompletableFuture.completedFuture(response);
+	}
+
+	/**
+	 * Handles a SubscribeEdgesChannelsRequest.
+	 * 
+	 * @param wsData    the WebSocket attachment
+	 * @param user      the User
+	 * @param messageId the JSON-RPC Message-ID
+	 * @param request   the SubscribeEdgesChannelsRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeEdgesChannelsRequest(WsData wsData, User user,
+			UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
+		for (String edgeId : request.getEdgeIds()) {
+			// assure read permissions of this User for this Edge.
+			user.assertEdgeRoleIsAtLeast("SubscribeEdgesChannelsRequest", edgeId, Role.GUEST);
+		}
+
+		// activate SubscribedChannelsWorker
+		SubscribedEdgesChannelsWorker worker = wsData.getSubscribedChannelsWorker();
+		worker.handleSubscribeEdgesChannelsRequest(request);
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**

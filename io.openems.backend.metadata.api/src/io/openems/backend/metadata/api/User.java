@@ -102,7 +102,7 @@ public class User {
 			// Ok
 			return thisRole;
 		} else {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, thisRole);
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, role.toString());
 		}
 	}
 

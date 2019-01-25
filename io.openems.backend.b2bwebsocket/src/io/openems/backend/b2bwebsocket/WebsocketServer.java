@@ -34,7 +34,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new WsData(this.parent);
 	}
 
 	@Override

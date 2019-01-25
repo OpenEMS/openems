@@ -8,7 +8,17 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
+	private final SubscribedEdgesChannelsWorker worker;
 	private User user = null;
+
+	public WsData(B2bWebsocket parent) {
+		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
+	}
+
+	@Override
+	public void dispose() {
+		this.worker.dispose();
+	}
 
 	public void setUser(User user) {
 		this.user = user;
@@ -33,4 +43,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return userOpt.get();
 	}
 
+	/**
+	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
+	 * 
+	 * @return the SubscribedChannelsWorker
+	 */
+	public SubscribedEdgesChannelsWorker getSubscribedChannelsWorker() {
+		return this.worker;
+	}
 }

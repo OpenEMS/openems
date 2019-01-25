@@ -124,7 +124,7 @@ public class WsData {
 			} else if (response instanceof JsonrpcResponseError) {
 				// Named OpenEMS-Error Response -> cancel future
 				JsonrpcResponseError error = ((JsonrpcResponseError) response);
-				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(), error.getParams());
+				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray());
 				future.completeExceptionally(exception);
 
 			} else {

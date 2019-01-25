@@ -8,6 +8,20 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a JSON-RPC Success Response.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "result": {}
+ * }
+ * </pre>
+ * 
+ * @see <a href="https://www.jsonrpc.org/specification#response_object">JSON-RPC
+ *      specification</a>
+ */
 public abstract class JsonrpcResponseSuccess extends JsonrpcResponse {
 
 	/**

@@ -7,6 +7,21 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a generic JSON-RPC Request.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": string,
+ *   "params": {}
+ * }
+ * </pre>
+ * 
+ * @see <a href="https://www.jsonrpc.org/specification#request_object">JSON-RPC
+ *      specification</a>
+ */
 public class GenericJsonrpcRequest extends JsonrpcRequest {
 
 	public static GenericJsonrpcRequest from(String json) throws OpenemsNamedException {
