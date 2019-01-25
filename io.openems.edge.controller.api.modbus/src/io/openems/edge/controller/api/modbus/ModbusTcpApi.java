@@ -2,7 +2,6 @@ package io.openems.edge.controller.api.modbus;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -22,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.channel.Channel;
@@ -191,10 +190,6 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 			// add component to process image
 			nextAddress = this.addComponentToProcessImage(nextAddress, component);
-		}
-
-		for (Entry<Integer, ModbusRecord> entry : this.records.entrySet()) {
-			log.info(entry.getKey() + ": " + entry.getValue());
 		}
 	}
 
