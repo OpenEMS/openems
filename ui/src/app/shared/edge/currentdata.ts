@@ -136,10 +136,18 @@ export class CurrentData {
             /*
              * Total
              */
-            result.system.totalPower = Utils.orElse(Utils.addSafely(result.grid.buyActivePower, Utils.addSafely(result.production.activePower, result.storage.dischargeActivePower)), 0);
-            if (result.system.totalPower < 0) {
-                result.system.totalPower = 0;
-            }
+            result.system.totalPower = Math.max(
+                // Productions
+                result.grid.buyActivePower
+                + (result.production.activePower > 0 ? result.production.activePower : 0)
+                + result.storage.dischargeActivePowerAC,
+                + (result.consumption.activePower < 0 ? result.consumption.activePower * -1 : 0),
+                // Consumptions
+                result.grid.sellActivePower
+                + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
+                + result.storage.chargeActivePowerAC,
+                + (result.consumption.activePower > 0 ? result.consumption.activePower : 0)
+            );
         }
         return result;
     }
