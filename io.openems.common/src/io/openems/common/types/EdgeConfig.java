@@ -213,7 +213,22 @@ public class EdgeConfig {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
 			String clazz = JsonUtils.getAsString(config, "class");
-			result.addComponent(id, new EdgeConfig.Component(clazz, new HashMap<>() /* no properties */));
+			Map<String, JsonElement> properties = new HashMap<>();
+			for (Entry<String, JsonElement> property : config.entrySet()) {
+				switch (property.getKey()) {
+				case "id":
+				case "alias":
+				case "class":
+					// ignore
+					break;
+				default:
+					if (property.getValue().isJsonPrimitive()) {
+						// ignore everything but JSON-Primitives
+						properties.put(property.getKey(), property.getValue());
+					}
+				}
+			}
+			result.addComponent(id, new EdgeConfig.Component(clazz, properties));
 		}
 
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");
