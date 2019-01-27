@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
-import { SharedModule } from './../../../shared/shared.module';
-import { EvcsComponent } from './evcs/evcs.component';
-import { ModbusApiComponent } from './modbusapi/modbusapi.component';
-import { WidgetComponent } from './widget.component';
+import { SharedModule } from '../../../../shared/shared.module';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
+import { EvcsComponent } from './evcs/evcs.component';
+import { WidgetComponent } from './widget.component';
 
 @NgModule({
   imports: [
@@ -13,7 +12,6 @@ import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.c
     WidgetComponent,
     ChannelthresholdComponent,
     EvcsComponent,
-    ModbusApiComponent
   ],
   exports: [
     WidgetComponent

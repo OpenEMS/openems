@@ -14,7 +14,7 @@ export abstract class JsonrpcMessage {
         } else if ("error" in message) {
             return new JsonrpcResponseError(message.id, message.error);
         } else {
-            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + message);
+            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + JSON.stringify(message));
         }
     }
 
