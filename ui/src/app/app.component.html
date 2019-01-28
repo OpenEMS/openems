@@ -7,11 +7,12 @@
         </ion-button>
       </ion-buttons>
       <ion-buttons slot="end">
-        <!-- <nav *ngIf="(websocket.currentEdge | async) as currentEdge">
-          <ion-button routerLink="/device/{{ currentEdge.id }}/config/index">
-            <ion-icon name="settings" size="large"></ion-icon>
+        <nav *ngIf="(service.currentEdge | async) as edge">
+          <ion-button *ngIf="edge.role == 'owner' || edge.role == 'installer' || edge.role == 'admin'" routerLink="/device/{{ edge.id }}/settings">
+            <ion-icon name="settings" size="large">
+            </ion-icon>
           </ion-button>
-        </nav> -->
+        </nav>
         <ion-button (click)="presentPopover($event)">
           <ion-icon size="large" name="more"></ion-icon>
         </ion-button>

@@ -14,6 +14,7 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
@@ -46,11 +47,15 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		// Handle notification
 		switch (notification.getMethod()) {
 		case EdgeConfigNotification.METHOD:
-			this.handleEdgeConfiguration(EdgeConfigNotification.from(notification), wsData);
+			this.handleEdgeConfigNotification(EdgeConfigNotification.from(notification), wsData);
 			return;
 
 		case TimestampedDataNotification.METHOD:
-			this.handleTimestampedData(TimestampedDataNotification.from(notification), wsData);
+			this.handleTimestampedDataNotification(TimestampedDataNotification.from(notification), wsData);
+			return;
+
+		case SystemLogNotification.METHOD:
+			this.handleSystemLogNotification(SystemLogNotification.from(notification), wsData);
 			return;
 		}
 
@@ -58,26 +63,27 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	/**
-	 * Handle JSON-RPC Notification 'edgeConfiguration'.
+	 * Handles EdgeConfigNotification.
 	 * 
 	 * @param message the EdgeConfigNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
-	private void handleEdgeConfiguration(EdgeConfigNotification message, WsData wsData) throws OpenemsNamedException {
+	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData)
+			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getConfig());
 	}
 
 	/**
-	 * Handle JSON-RPC Notification 'timestampedData'.
+	 * Handles TimestampedDataNotification.
 	 * 
 	 * @param message the TimestampedDataNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
-	private void handleTimestampedData(TimestampedDataNotification message, WsData wsData)
+	private void handleTimestampedDataNotification(TimestampedDataNotification message, WsData wsData)
 			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
 
@@ -116,4 +122,16 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		}
 	}
 
+	/**
+	 * Handles SystemLogNotification.
+	 * 
+	 * @param message the SystemLogNotification
+	 * @param wsData  the WebSocket attachment
+	 * @throws OpenemsNamedException on error
+	 */
+	private void handleSystemLogNotification(SystemLogNotification message, WsData wsData)
+			throws OpenemsNamedException {
+		String edgeId = wsData.assertEdgeId(message);
+		this.parent.handleSystemLogNotification(edgeId, message);
+	}
 }

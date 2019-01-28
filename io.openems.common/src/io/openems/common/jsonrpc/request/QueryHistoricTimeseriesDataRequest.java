@@ -39,7 +39,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
 	public final static String METHOD = "queryHistoricTimeseriesData";
 
-	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("YYYY-MM-DD");
+	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
 	public static QueryHistoricTimeseriesDataRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();

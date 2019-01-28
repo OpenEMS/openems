@@ -34,13 +34,18 @@ image::authenticateWithSessionId.png[]
 == Authenticate UI to Edge using password
 
 image::authenticateWithPassword.png[]
-
-
 == Subscribe to Channels
 
 NOTE: Allows a Component to subscribe on certain Channel values. The latest Channel values are then periodically sent.
 
-mermaid:subscribeChannels+currentData.mmd[]
+image:subscribeChannels+currentData.png[]
+
+== Subscribe to System-Log
+
+NOTE: Sends the log output of Edge to UI via Backend.
+
+image:subscribeSystemLog.png[]
+
 
 == Store channel data in Time-Series database
 

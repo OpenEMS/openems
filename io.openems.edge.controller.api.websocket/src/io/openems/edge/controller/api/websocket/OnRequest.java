@@ -2,6 +2,7 @@ package io.openems.edge.controller.api.websocket;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -25,6 +26,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
@@ -94,6 +96,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleSubscribeChannelsRequest(wsData, SubscribeChannelsRequest.from(request));
 			break;
 
+		case SubscribeSystemLogRequest.METHOD:
+			resultFuture = this.handleSubscribeSystemLogRequest(wsData, SubscribeSystemLogRequest.from(request));
+			break;
+			
 		case QueryHistoricTimeseriesDataRequest.METHOD:
 			resultFuture = this.handleQueryHistoricDataRequest(QueryHistoricTimeseriesDataRequest.from(request));
 			break;
@@ -257,51 +263,22 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
 	}
 
-	// case "logout":
-	// /*
-	// * Logout and close session
-	// */
-	// String sessionToken = "none";
-	// String username = "UNKNOWN";
-	// try {
-	// UiEdgeWebsocketHandler handler =
-	// this.parent.getHandlerOrCloseWebsocket(websocket);
-	// Optional<User> thisUserOpt = handler.getUserOpt();
-	// if (thisUserOpt.isPresent()) {
-	// username = thisUserOpt.get().getName();
-	// handler.unsetRole();
-	// }
-	// sessionToken = handler.getSessionToken();
-	// this.parent.sessionTokens.remove(sessionToken);
-	// this.parent.parent.logInfo(this.log,
-	// "User [" + username + "] logged out. Invalidated token [" + sessionToken +
-	// "]");
-	//
-	// // find and close all websockets for this user
-	// if (thisUserOpt.isPresent()) {
-	// User thisUser = thisUserOpt.get();
-	// for (UiEdgeWebsocketHandler h : this.parent.handlers.values()) {
-	// Optional<User> otherUserOpt = h.getUserOpt();
-	// if (otherUserOpt.isPresent()) {
-	// if (otherUserOpt.get().equals(thisUser)) {
-	// com.google.gson.JsonObject jReply = DefaultMessages.uiLogoutReply();
-	// h.send(jReply);
-	// h.dispose();
-	// }
-	// }
-	// }
-	// }
-	// com.google.gson.JsonObject jReply = DefaultMessages.uiLogoutReply();
-	// WebSocketUtils.send(websocket, jReply);
-	// } catch (OpenemsException e) {
-	// WebSocketUtils.sendNotificationOrLogError(websocket,
-	// new com.google.g son.JsonObject() /* empty message id */,
-	// LogBehaviour.WRITE_TO_LOG,
-	// Notification.ERROR, "Unable to close session [" + sessionToken + "]: " +
-	// e.getMessage());
-	// }
-	// }
-	// }
-	// }
+	/**
+	 * Handles a SubscribeSystemLogRequest.
+	 *
+	 * @param wsData  the WebSocket attachment
+	 * @param request the SubscribeSystemLogRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData,
+			SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		UUID token = wsData.getSessionToken();
+		if (token == null) {
+			throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
+		}
+		this.parent.handleSubscribeSystemLogRequest(token, request);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
 
 }

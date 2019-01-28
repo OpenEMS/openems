@@ -23,10 +23,6 @@ import io.openems.common.types.ChannelAddress;
  *   }
  * }
  * </pre>
- * 
- * @param timestamp
- * @param jData
- * @return
  */
 public class CurrentDataNotification extends JsonrpcNotification {
 

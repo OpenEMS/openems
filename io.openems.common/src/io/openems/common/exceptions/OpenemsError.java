@@ -33,6 +33,8 @@ public enum OpenemsError {
 	 * Backend errors. 3000-3999
 	 */
 	BACKEND_EDGE_NOT_CONNECTED(3000, "Edge [%s] is not connected"), //
+	BACKEND_UI_TOKEN_MISSING(3001, "Token for UI connection is missing"), //
+	BACKEND_NO_UI_WITH_TOKEN(3002, "No open connection with Token [%s]"), //
 	/*
 	 * JSON-RPC Request/Response/Notification. 4000-4999
 	 */

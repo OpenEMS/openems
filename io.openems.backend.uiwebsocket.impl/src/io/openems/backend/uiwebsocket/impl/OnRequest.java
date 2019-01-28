@@ -2,6 +2,7 @@ package io.openems.backend.uiwebsocket.impl;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -24,6 +25,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
@@ -105,6 +107,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 					SubscribeChannelsRequest.from(request));
 			break;
 
+		case SubscribeSystemLogRequest.METHOD:
+			resultFuture = this.handleSubscribeSystemLogRequest(wsData, edgeId, role,
+					SubscribeSystemLogRequest.from(request));
+			break;
+
 		case QueryHistoricTimeseriesDataRequest.METHOD:
 			resultFuture = this.handleQueryHistoricDataRequest(edgeId, role,
 					QueryHistoricTimeseriesDataRequest.from(request));
@@ -163,6 +170,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a SubscribeSystemLogRequest.
+	 * 
+	 * @param wsData  the WebSocket attachment
+	 * @param edgeId  the Edge-ID
+	 * @param role    the Role - no specific level required
+	 * @param request the SubscribeSystemLogRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, String edgeId,
+			Role role, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		role.assertRoleIsAtLeast("SubscribeSystemLog", Role.OWNER);
+		UUID token = wsData.assertToken();
+				
+		// Forward to Edge
+		return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, token, request);
 	}
 
 	/**

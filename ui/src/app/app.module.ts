@@ -26,6 +26,7 @@ import localDE from '@angular/common/locales/de';
 import { PopoverPage } from './shared/popover/popover.component';
 import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
+import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
@@ -41,6 +42,7 @@ import { environment as env } from '../environments/environment';
     AboutModule,
     SettingsModule,
     EdgeModule,
+    EdgeSettingsModule,
     IndexModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
