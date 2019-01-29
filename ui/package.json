@@ -65,7 +65,9 @@
     "semver-compare-multi": "^1.0.3",
     "web-animations-js": "^2.3.1",
     "xlsx": "^0.14.1",
-    "zone.js": "^0.8.28"
+    "zone.js": "^0.8.28",
+    "cordova-android": "^7.0.0",
+    "cordova-browser": "5.0.4"
   },
   "devDependencies": {
     "@angular-devkit/architect": "~0.12.2",
@@ -105,7 +107,8 @@
       "cordova-plugin-ionic-keyboard": {}
     },
     "platforms": [
-      "android"
+      "android",
+      "browser"
     ]
   }
 }

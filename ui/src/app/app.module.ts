@@ -30,6 +30,8 @@ import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
 
+import { HttpClientModule } from '@angular/common/http';
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [PopoverPage],
@@ -47,6 +49,7 @@ import { environment as env } from '../environments/environment';
     }),
     PopoverPageModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
+    HttpClientModule
   ],
   providers: [
     StatusBar,
