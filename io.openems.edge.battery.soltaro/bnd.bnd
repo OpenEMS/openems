@@ -3,10 +3,11 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
-	io.openems.edge.battery.soltaro,\
 	io.openems.edge.battery.api,\
+	io.openems.edge.battery.soltaro,\
 	io.openems.edge.battery.soltaro.master,\
-	io.openems.edge.battery.soltaro.versionb
+	io.openems.edge.battery.soltaro.versionb,\
+	io.openems.edge.battery.soltaro.multirack
 	
 -includeresource: {readme.md}
 
