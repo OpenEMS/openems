@@ -1,6 +1,8 @@
 package io.openems.common.types;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -145,6 +147,59 @@ public class EdgeConfig {
 
 	public TreeMap<String, Factory> getFactories() {
 		return factories;
+	}
+
+	/**
+	 * Get Component-IDs of Component instances by the given Factory.
+	 * 
+	 * @param nature the given Nature.
+	 */
+	public List<String> getComponentIdsByFactory(String factoryPid) {
+		List<String> result = new ArrayList<>();
+		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
+			if (factoryPid.equals(componentEntry.getValue().factoryPid)) {
+				result.add(componentEntry.getKey());
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Get Component instances by the given Factory.
+	 * 
+	 * @param factoryPid the given Nature.
+	 */
+	public List<Component> getComponentsByFactory(String factoryPid) {
+		List<Component> result = new ArrayList<>();
+		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
+			if (factoryPid.equals(componentEntry.getValue().factoryPid)) {
+				result.add(componentEntry.getValue());
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Get Component-IDs of Components that implement the given Nature.
+	 * 
+	 * @param nature the given Nature.
+	 */
+	public List<String> getComponentsImplementingNature(String nature) {
+		List<String> result = new ArrayList<>();
+		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
+			String factoryPid = componentEntry.getValue().factoryPid;
+			Factory factory = this.factories.get(factoryPid);
+			if (factory == null) {
+				continue;
+			}
+			for (String thisNature : factory.natures) {
+				if (nature.equals(thisNature)) {
+					result.add(componentEntry.getKey());
+					break;
+				}
+			}
+		}
+		return result;
 	}
 
 	/**

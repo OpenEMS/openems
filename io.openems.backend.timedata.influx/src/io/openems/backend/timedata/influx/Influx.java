@@ -2,6 +2,7 @@ package io.openems.backend.timedata.influx;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import io.openems.backend.timedata.core.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
 import io.openems.shared.influxdb.InfluxConnector;
 import io.openems.shared.influxdb.InfluxConstants;
@@ -386,31 +388,37 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 */
 	@Deprecated
 	private ChannelFormula[] getCompatibilityFormula(Edge edge, ChannelAddress address) {
+		EdgeConfig config = edge.getConfig();
+
 		if (address.getComponentId().equals("_sum")) {
 			switch (address.getChannelId()) {
-			case "EssSoc":
-				return new ChannelFormula[] { //
-						new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "Soc")) };
 
-			case "EssActivePower":
-				switch (edge.getProducttype()) {
-				case "Pro 9-12":
-				case "MiniES 3-3":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL1")), //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL2")), //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePowerL3")) //
-					};
-				case "COMMERCIAL 40-45":
-				case "INDUSTRIAL":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("ess0", "ActivePower")) //
-					};
-				default:
-					this.logWarn(this.log,
-							"No formula for " + address + " [" + edge.getId() + "|" + edge.getProducttype() + "]");
+			case "EssSoc": {
+				List<String> ids = config.getComponentsImplementingNature("EssNature");
+				if (ids.size() > 0) {
+					// take first result
+					return new ChannelFormula[] {
+							new ChannelFormula(Function.PLUS, new ChannelAddress(ids.get(0), "Soc")) };
+				} else {
 					return new ChannelFormula[0];
 				}
+			}
+
+			case "EssActivePower": {
+				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
+				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
+				ChannelFormula[] result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
+				int i = 0;
+				for (String id : asymmetricIds) {
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL3"));
+				}
+				for (String id : symmetricIds) {
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePower"));
+				}
+				return result;
+			}
 
 			case "EssMaxApparentPower":
 				switch (edge.getProducttype()) {
@@ -466,30 +474,34 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionDcActualPower")), //
 						ChannelFormula.class);
 
-			case "ProductionAcActivePower":
-				switch (edge.getProducttype()) {
-				case "Pro 9-12":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePowerL1")), //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePowerL2")), //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePowerL3")) //
-					};
-				default:
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "ActivePower")) //
-					};
+			case "ProductionAcActivePower": {
+				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
+				List<String> ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
+				ignoreIds.add("meter0");
+				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
+				asymmetricIds.removeAll(ignoreIds);
+				symmetricIds.removeAll(ignoreIds);
+				ChannelFormula[] result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
+				int i = 0;
+				for (String id : asymmetricIds) {
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL3"));
 				}
+				for (String id : symmetricIds) {
+					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePower"));
+				}
+				return result;
+			}
 
-			case "ProductionDcActualPower":
-				switch (edge.getProducttype()) {
-				case "COMMERCIAL 40-45":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, new ChannelAddress("charger0", "ActualPower")) //
-					};
-				default:
-					return new ChannelFormula[] { //
-					};
+			case "ProductionDcActualPower": {
+				List<String> ids = config.getComponentsImplementingNature("ChargerNature");
+				ChannelFormula[] result = new ChannelFormula[ids.size()];
+				for (int i = 0; i < ids.size(); i++) {
+					result[i] = new ChannelFormula(Function.PLUS, new ChannelAddress(ids.get(i), "ActualPower"));
 				}
+				return result;
+			}
 
 			case "ProductionMaxActivePower":
 				return new ChannelFormula[] { //

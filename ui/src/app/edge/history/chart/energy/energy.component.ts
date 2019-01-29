@@ -267,14 +267,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           result.push.apply(result, this.getCharger(config.getComponentsImplementingNature("ChargerNature"), ignoreIds));
 
           // Meters
-          let asymmetricMeterChannels = this.getAsymmetric(config.getComponentsImplementingNature("AsymmetricMeterNature"), ignoreIds);
-          if (asymmetricMeterChannels.length > 0) {
-            // this is an AsymmetricMeter Nature
-            result.push.apply(result, asymmetricMeterChannels);
-          } else {
-            // this is a SymmetricMeter Nature
-            result.push.apply(result, this.getSymmetric(config.getComponentsImplementingNature("SymmetricMeterNature"), ignoreIds));
-          }
+          let asymmetricMeterIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
+          result.push.apply(result, this.getAsymmetric(asymmetricMeterIds, ignoreIds));
+          let symmetricMeterIds = config.getComponentsImplementingNature("SymmetricMeterNature").filter(id => !asymmetricMeterIds.includes(id));
+          result.push.apply(result, this.getSymmetric(symmetricMeterIds, ignoreIds));
           resolve(result);
         })
       }
