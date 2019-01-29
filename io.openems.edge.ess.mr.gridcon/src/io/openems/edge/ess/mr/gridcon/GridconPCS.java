@@ -80,6 +80,9 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
+	private static final int GRIDCON_SWITCH_OFF_TIME_SECONDS = 15;
+	private static final int GRIDCON_BOOT_TIME_SECONDS = 30;
+
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	protected static final float MAX_POWER_W = 125 * 1000;
@@ -330,7 +333,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// a hardware restart has been executed, 
 		if (timestampMrGridconWasSwitchedOff != null) {
 			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
-			if (LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(15))) {
+			if (
+					LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS)) &&
+					LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS))
+
+				) {
 				try {
 					log.info("try to write to channel hardware reset, set it to 'false'");
 					// after 15 seconds switch Mr. Gridcon on again!
@@ -340,6 +347,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					log.error("Problem occurred while deactivating hardware switch!");
 					e.printStackTrace();
 				}
+				
+			} else if (LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS))) {
 				timestampMrGridconWasSwitchedOff = null;
 			}
 			return;
@@ -773,23 +782,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF, reactivePowerFactor);
 	}
 
+	int weightA = 0;
+	int weightB = 0;
+	int weightC = 0;
+
 	private void doStringWeighting(int activePower, int reactivePower) {
-		// weight according to battery ranges		
-		// weight considering SoC of the batteries...
-		
-		
-		int weightA = 0;
-		int weightB = 0;
-		int weightC = 0;
 
 		// weight strings according to max allowed current
 		// use values for discharging
+		// weight zero power as discharging
 		if (activePower > 0) {
+
 			weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
 			weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
 			weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
-			
-			//if minSoc is reached, do not allow further discharging
+
+			// if minSoc is reached, do not allow further discharging
 			if (batteryStringA.getSoc().value().asOptional().orElse(0) <= minSoCA) {
 				weightA = 0;
 			}
@@ -799,11 +807,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringC.getSoc().value().asOptional().orElse(0) <= minSoCC) {
 				weightC = 0;
 			}
-			
-		} else { // use values for charging
+
+		} else if (activePower < 0) { // use values for charging
 			weightA = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0);
 			weightB = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0);
 			weightC = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0);
+		} else { // active power is zero
+
+			Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
+			Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
+			Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+
+			if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
+				int min = Math.min(vAopt.get(), Math.min(vBopt.get(), vCopt.get()));
+
+				weightA = vAopt.get() - min;
+				weightB = vBopt.get() - min;
+				weightC = vCopt.get() - min;
+			}
 		}
 
 		// TODO discuss if this is correct!
@@ -821,9 +842,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		int maxDischargePower3 = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0)
 				* batteryStringC.getDischargeMinVoltage().value().asOptional().orElse(0);
 
+		log.info("doStringweighting(); active Power: " + activePower + "; weightA: " + weightA + "; weightB: " + weightB
+				+ "; weightC: " + weightC);
+
 		writeIPUParameters(weightA, weightB, weightC, maxDischargePower1, maxDischargePower2, maxDischargePower3,
 				maxChargePower1, maxChargePower2, maxChargePower3);
 	}
+
 
 	/** Writes the given value into the channel */
 	void writeValueToChannel(GridConChannelId channelId, Object value) {

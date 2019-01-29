@@ -18,6 +18,11 @@ public enum Unit {
 	 */
 	PERCENT("%"),
 	/**
+	 *  Thousandth [‰], 0-1000
+	 */
+	THOUSANDTH("‰"),
+	/**
+	/**
 	 * On or Off
 	 */
 	ON_OFF(""),
@@ -91,6 +96,19 @@ public enum Unit {
 	WATT_HOURS_BY_WATT_PEAK("Wh/Wp"),
 
 	/*
+	 * Charge
+	 */
+
+	/**
+	 * Unit of charge [Ah]
+	 */
+	AMPERE_HOUR("Ah"),
+	/**
+	 * Unit of charge [mAh]
+	 */
+	MILLIAMPERE_HOUR("mAh", AMPERE_HOUR, -3),
+	
+	/*
 	 * Frequency
 	 */
 
@@ -140,7 +158,15 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [kOhm]
 	 */
-	KILOOHM("kOhm", OHM, 3);
+	KILOOHM("kOhm", OHM, 3),	
+	/**
+	 * Unit of Resistance [mOhm]
+	 */
+	MILLIOHM("mOhm", OHM, -3),
+	/**
+	 * Unit of Resistance [µOhm]
+	 */
+	MIKROOHM("µOhm", OHM, -6);
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -180,6 +206,7 @@ public enum Unit {
 		case MILLIHERTZ:
 		case MILLIVOLT:
 		case PERCENT:
+		case THOUSANDTH:
 		case VOLT:
 		case VOLT_AMPERE:
 		case VOLT_AMPERE_REACTIVE:
@@ -189,13 +216,19 @@ public enum Unit {
 		case WATT_HOURS:
 		case OHM:
 		case KILOOHM:
+		case MILLIOHM:
+		case MIKROOHM:
 		case SECONDS:
+		case AMPERE_HOUR:
+		case MILLIAMPERE_HOUR:
+		case KILOWATT_HOURS:
+		case MILLISECONDS:
+		case WATT_HOURS_BY_WATT_PEAK:
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
 			return booleanValue ? "ON" : "OFF";
-		default:
-			break;
+		
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
