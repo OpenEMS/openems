@@ -1,0 +1,225 @@
+= Backend-to-Backend communication
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+OpenEMS Backend provides a "Backend-to-Backend-Api", that provides a way to communicate with one or more OpenEMS Edge devices via backend connection. It is designed as a JSON-RPC communication protocol via Websocket connection.
+
+== Authentication
+
+BasicAuth on opening of the Websocket connection.
+
+== Error Handling
+
+Errors are implemented according to the specs of JSON-RPC 2.0 (https://www.jsonrpc.org/specification#response_object). Possible error codes are documented here: 
+https://github.com/OpenEMS/openems/blob/develop/io.openems.common/src/io/openems/common/exceptions/OpenemsError.java#L13
+
+Example:
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": "UUID",
+  "error": {
+    "code": 3000,
+    "message": "Edge [edge0] is not connected",
+    "data: ["edge0"]
+  }
+}
+----
+
+== Requests
+
+=== GetEdgesStatus
+
+Lists the current status of all accessible Edges.
+
+==== Request
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "method":"getEdgesStatus",
+  "params":{}
+}
+----
+
+==== Response
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "result":{
+    "edge0":{
+      "online":true
+    },
+    "edge1":{
+      "online":false
+    }
+  }
+}
+----
+
+==== Demo
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.b2bwebsocket/test/io/openems/backend/b2bwebsocket/B2bWebsocketTest.java:  `testGetEdgesStatusRequest()`
+
+=== GetEdgesChannelsValues
+
+Queries the latest value of certain channels for a number of Edge-Devices. Channels that are not available or do not have a current value are returned as `null`.
+
+==== Request
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "method":"getEdgesChannelsValues",
+  "params":{
+    "ids":[
+      "edge0",
+      "edge1"
+    ],
+    "channels":[
+      "_sum/EssSoc",
+      "_sum/ProductionActivePower"
+    ]
+  }
+}
+----
+
+==== Response
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "result":{
+    "edge0":{
+      "_sum/EssSoc":50,
+      "_sum/ProductionActivePower":0
+    },
+    "edge1":{
+      "_sum/EssSoc":99,
+      "_sum/ProductionActivePower":null
+    }
+  }
+}
+----
+
+==== Demo
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.b2bwebsocket/test/io/openems/backend/b2bwebsocket/B2bWebsocketTest.java:  `testGetEdgesChannelsValuesRequest()`
+
+=== SubscribeToChannels
+
+Registers a subscription for regular updates of channel values. Request is acknowledged by an empty success Response and followed by regular JSON-RPC Notifications. Du stop the subscription, an empty 'subscribeEdgesChannels' Request needs to be sent.
+
+==== Request
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "method":"subscribeEdgesChannels",
+  "params":{
+    "ids":[
+      "edge0",
+      "edge1"
+    ],
+    "channels":[
+      "_sum/EssSoc",
+      "_sum/ProductionActivePower"
+    ]
+  }
+}
+----
+
+==== Response
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "result":{}
+}
+----
+
+==== Notifications
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "method":"edgesCurrentData",
+  "params":{
+    "edge0":{
+      "_sum/EssSoc":50,
+      "_sum/ProductionActivePower":1502
+    },
+    "edge1":{
+      "_sum/EssSoc":20,
+      "_sum/ProductionActivePower":null
+    }
+  }
+}
+----
+
+==== Unsubscribe-Request
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "method":"subscribeEdgesChannels",
+  "params":{
+    "ids":[],
+    "channels":[]
+  }
+}
+----
+
+==== Demo
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.b2bwebsocket/test/io/openems/backend/b2bwebsocket/B2bWebsocketTest.java:  `testSubscribeEdgesChannelsRequest()`
+
+=== SetGridConnSchedule
+
+Each battery storage system in an Edge-Device can be controlled to balance on a specific value at the grid connection point. This Request allows sending such a Schedule to an Edge-Device.
+
+==== Request
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "method":"setGridConnSchedule",
+  "params":{
+    "id":"edgeId",
+    "schedule":[
+      {
+        "startTimestamp":1542464697,
+        "duration":900,
+        "activePowerSetPoint":0
+      }
+    ]
+  }
+}
+----
+
+==== Response
+[source,json]
+----
+{
+  "jsonrpc":"2.0",
+  "id":"UUID",
+  "result":{}
+}
+----
+
+==== Demo
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.b2bwebsocket/test/io/openems/backend/b2bwebsocket/B2bWebsocketTest.java:  `testSubscribeEdgesChannelsRequest()`

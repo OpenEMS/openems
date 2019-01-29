@@ -78,6 +78,10 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	@Override
 	public ComponentContext getComponentContext() {
+		if (this.componentContext == null) {
+			this.logWarn(this.log,
+					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
+		}
 		return this.componentContext;
 	}
 
@@ -136,6 +140,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public Collection<Channel<?>> channels() {
 		return this.channels.values();
+	}
+
+	/**
+	 * Log a debug message including the Component ID.
+	 * 
+	 * @param log
+	 * @param message
+	 */
+	protected void logDebug(Logger log, String message) {
+		// TODO use log.debug(String, Object...) to improve speed
+		log.debug("[" + this.id() + "] " + message);
 	}
 
 	/**

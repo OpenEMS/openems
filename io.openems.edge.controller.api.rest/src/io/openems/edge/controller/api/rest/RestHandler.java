@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -58,13 +59,13 @@ public class RestHandler extends AbstractHandler {
 				this.handleRest(remainingTargets, baseRequest, request, response);
 				break;
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			throw new IOException(e.getMessage());
 		}
 	}
 
 	private void handleRest(List<String> targets, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws OpenemsException, IOException {
+			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.isEmpty()) {
 			throw new OpenemsException("Missing arguments to handle REST-request");
 		}
@@ -80,7 +81,7 @@ public class RestHandler extends AbstractHandler {
 	}
 
 	private void handleChannel(List<String> targets, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws IOException, OpenemsException {
+			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.size() != 2) {
 			throw new OpenemsException("Missing arguments to handle Channel");
 		}

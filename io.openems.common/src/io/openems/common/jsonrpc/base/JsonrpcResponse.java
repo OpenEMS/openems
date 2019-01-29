@@ -8,6 +8,20 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a JSON-RPC Response.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   ...
+ * }
+ * </pre>
+ * 
+ * @see <a href="https://www.jsonrpc.org/specification#response_object">JSON-RPC
+ *      specification</a>
+ */
 public abstract class JsonrpcResponse extends JsonrpcMessage {
 
 	public static JsonrpcResponse from(String json) throws OpenemsNamedException {

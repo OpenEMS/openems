@@ -1,5 +1,4 @@
 import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
-import { Component } from "@angular/compiler/src/core";
 
 export class EdgeConfig {
 
@@ -70,7 +69,7 @@ export class EdgeConfig {
     /**
      * Get Component-IDs of Component instances by the given Factory.
      * 
-     * @param nature the given Nature.
+     * @param factoryPid the Factory PID.
      */
     public getComponentIdsByFactory(factoryPid: string): string[] {
         let factory = this.factories[factoryPid];
@@ -84,7 +83,7 @@ export class EdgeConfig {
     /**
      * Get Component instances by the given Factory.
      * 
-     * @param nature the given Nature.
+     * @param factoryPid the Factory PID.
      */
     public getComponentsByFactory(factoryPid: string): EdgeConfig.Component[] {
         let componentIds = this.getComponentIdsByFactory(factoryPid);
@@ -106,6 +105,48 @@ export class EdgeConfig {
             return components;
         } else {
             return [];
+        }
+    }
+
+    /**
+     * Get the implemented Natures by Factory-ID.
+     * 
+     * @param factoryId the Factory-ID
+     */
+    public getNaturesByFactoryId(factoryId: string): string[] {
+        let factory = this.factories[factoryId];
+        if (factory) {
+            return factory.natures;
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Get the implemented Natures by Component-ID.
+     * 
+     * @param componentId the Component-ID
+     */
+    public getNaturesByComponentId(componentId: string): string[] {
+        let component = this.components[componentId];
+        if (!component) {
+            return [];
+        }
+        let factoryPid = component.factoryPid;
+        return this.getNaturesByFactoryId(factoryPid);
+    }
+
+    /**
+     * Get the Component properties.
+     * 
+     * @param componentId the Component-ID
+     */
+    public getComponentProperties(componentId: string): { [key: string]: any } {
+        let component = this.components[componentId];
+        if (component) {
+            return component.properties;
+        } else {
+            return {};
         }
     }
 }

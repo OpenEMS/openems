@@ -91,8 +91,13 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
+	public User authenticate(String username, String password) throws OpenemsNamedException {
+		return this.authenticate();
+	}
+
+	@Override
 	public User authenticate(String sessionId) throws OpenemsException {
-		return this.user;
+		return this.authenticate();
 	}
 
 	@Override

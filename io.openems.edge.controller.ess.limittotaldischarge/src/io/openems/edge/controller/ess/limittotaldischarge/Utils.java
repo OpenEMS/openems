@@ -6,8 +6,10 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.controller.api.Controller;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(LimitTotalDischargeController c) {
@@ -20,7 +22,15 @@ public class Utils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(LimitTotalDischargeController.ChannelId.values()).map(channelId -> {
+				}), //
+				Arrays.stream(Controller.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case RUN_FAILED:
+						return new StateChannel(c, channelId);
+					}
+					return null;
+				}), //
+				Arrays.stream(LimitTotalDischargeController.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE_MACHINE:
 						return new IntegerReadChannel(c, channelId);

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.InvalidValueException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
@@ -96,7 +97,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 
@@ -117,11 +118,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 		int maxDischargePower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
 		int maxChargePower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 
-		try {
-			this.applyPower(ess, maxChargePower, maxDischargePower);
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		this.applyPower(ess, maxChargePower, maxDischargePower);
 	}
 
 	private void initializeEnums(ManagedSymmetricEss ess) throws InvalidValueException {

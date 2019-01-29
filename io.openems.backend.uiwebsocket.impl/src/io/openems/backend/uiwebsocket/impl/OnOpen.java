@@ -52,7 +52,11 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		} catch (OpenemsNamedException e) {
 			// login using session_id failed. Still keeping the WebSocket opened to give the
 			// user the chance to authenticate manually.
-			wsData.send(new AuthenticateWithSessionIdFailedNotification());
+			try {
+				wsData.send(new AuthenticateWithSessionIdFailedNotification());
+			} catch (OpenemsException e1) {
+				this.parent.logWarn(this.log, e.getMessage());
+			}
 			return;
 		}
 
@@ -71,8 +75,14 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
 				Edge e = edgeOpt.get();
-				metadatas.add(new EdgeMetadata(e.getId(), e.getComment(), e.getProducttype(), e.getVersion(), role,
-						e.isOnline()));
+				metadatas.add(new EdgeMetadata(//
+						e.getId(), // Edge-ID
+						e.getComment(), // Comment
+						e.getProducttype(), // Product-Type
+						e.getVersion(), // Version
+						role, // Role
+						e.isOnline() // Online-State
+				));
 			}
 		}
 

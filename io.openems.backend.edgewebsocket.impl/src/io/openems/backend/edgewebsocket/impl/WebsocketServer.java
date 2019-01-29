@@ -1,8 +1,11 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.Map.Entry;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -11,14 +14,15 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcNotification;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.SystemLog;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnInternalError;
@@ -119,15 +123,16 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			return d;
 		}
 
-		// notification
-		// TODO handle 'deprecatedNotification' in EdgeWs
-		if (message.has("notification")) {
-			JsonObject j = JsonUtils.getAsJsonObject(message, "notification");
-			GenericJsonrpcNotification n = new GenericJsonrpcNotification("deprecatedNotification", j);
-			return n;
+		// log
+		if (message.has("log")) {
+			JsonObject log = JsonUtils.getAsJsonObject(message, "log");
+			return new SystemLogNotification(new SystemLog(
+					ZonedDateTime.ofInstant(Instant.ofEpochMilli(JsonUtils.getAsLong(log, "time")),
+							ZoneId.systemDefault()), //
+					SystemLog.Level.valueOf(JsonUtils.getAsString(log, "level").toUpperCase()), //
+					JsonUtils.getAsString(log, "source"), //
+					JsonUtils.getAsString(log, "message")));
 		}
-
-		// TODO log
 
 		log.info("EdgeWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("EdgeWs. handleNonJsonrpcMessage", lastException);

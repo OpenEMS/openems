@@ -9,6 +9,21 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "componentJsonApi",
+ *   "params": {
+ *     "componentId": string,
+ *     "payload": {@link JsonrpcRequest}
+ *   }
+ * }
+ * </pre>
+ */
 public class ComponentJsonApiRequest extends JsonrpcRequest {
 
 	public static ComponentJsonApiRequest from(JsonrpcRequest r) throws OpenemsNamedException {

@@ -1,5 +1,4 @@
 import { JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
 
 /**
  * Wraps a JSON-RPC Request for a specific Edge-ID.
@@ -24,7 +23,7 @@ export class EdgeRpcRequest extends JsonrpcRequest {
         public readonly edgeId: string,
         public readonly payload: JsonrpcRequest
     ) {
-        super(UUID.UUID(), EdgeRpcRequest.METHOD, { edgeId: edgeId, payload: payload });
+        super(EdgeRpcRequest.METHOD, { edgeId: edgeId, payload: payload });
     }
 
 }

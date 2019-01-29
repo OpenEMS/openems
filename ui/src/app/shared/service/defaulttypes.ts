@@ -17,37 +17,25 @@ export module DefaultTypes {
    */
   export interface Summary {
     system: {
-      inPower: number, // all power that enters the system (production, discharge, buy-from-grid)
-      outPower: number // all power that leaves the system (consumption, charge, sell-to-grid)
+      // the balance sheet total power of all power that enters the the system (production, discharge, buy-from-grid), respectively leaves the system (consumption, charge, sell-to-grid)
+      totalPower: number,
     }, storage: {
       soc: number,
-      isAsymmetric: boolean,
-      hasDC: boolean,
       chargeActivePower: number,
       chargeActivePowerAC: number,
-      chargeActivePowerACL1: number,
-      chargeActivePowerACL2: number,
-      chargeActivePowerACL3: number,
       chargeActivePowerDC: number,
       maxChargeActivePower?: number,
       dischargeActivePower: number,
       dischargeActivePowerAC: number,
-      dischargeActivePowerACL1: number,
-      dischargeActivePowerACL2: number,
-      dischargeActivePowerACL3: number,
       dischargeActivePowerDC: number,
       maxDischargeActivePower?: number,
       powerRatio: number,
       maxApparentPower: number
     }, production: {
       powerRatio: number,
-      isAsymmetric: boolean,
       hasDC: boolean,
       activePower: number, // sum of activePowerAC and activePowerDC
       activePowerAC: number,
-      activePowerACL1: number,
-      activePowerACL2: number,
-      activePowerACL3: number,
       activePowerDC: number,
       maxActivePower: number
     }, grid: {

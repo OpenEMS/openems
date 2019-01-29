@@ -13,6 +13,8 @@ import { EdgeRpcResponse } from '../jsonrpc/response/edgeRpcResponse';
 import { DefaultTypes } from './defaulttypes';
 import { Service } from './service';
 import { WsData } from './wsdata';
+import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 
 @Injectable()
 export class Websocket {
@@ -275,6 +277,10 @@ export class Websocket {
       case CurrentDataNotification.METHOD:
         this.handleCurrentDataNotification(edgeId, message as CurrentDataNotification);
         break;
+
+      case SystemLogNotification.METHOD:
+        this.handleSystemLogNotification(edgeId, message as SystemLogNotification);
+        break;
     }
   }
 
@@ -289,6 +295,22 @@ export class Websocket {
     if (edgeId in edges) {
       let edge = edges[edgeId];
       edge.handleCurrentDataNotification(message);
+    }
+  }
+
+  /**
+   * Handles a SystemLogNotification.
+   * 
+   * @param message 
+   */
+  private handleSystemLogNotification(edgeId: string, message: SystemLogNotification): void {
+    let edges = this.service.edges.getValue();
+
+    if (edgeId in edges) {
+      let edge = edges[edgeId];
+      edge.handleSystemLogNotification(message);
+    } else {
+      this.sendRequest(new SubscribeSystemLogRequest(false));
     }
   }
 

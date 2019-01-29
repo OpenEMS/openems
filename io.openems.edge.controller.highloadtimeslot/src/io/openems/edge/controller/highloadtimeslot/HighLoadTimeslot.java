@@ -17,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -86,7 +87,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		int power = getPower(ess);
@@ -255,7 +256,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 */
 	private void applyPower(ManagedSymmetricEss ess, int activePower) {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
 		if (calculatedPower != activePower) {
 			this.logInfo(log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
 		}

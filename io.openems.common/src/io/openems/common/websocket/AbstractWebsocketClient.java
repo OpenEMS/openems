@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -89,6 +90,11 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 					} else if (message instanceof JsonrpcResponse) {
 						CompletableFuture.runAsync(
 								new OnResponseHandler(AbstractWebsocketClient.this, ws, (JsonrpcResponse) message));
+
+					} else if (message instanceof JsonrpcNotification) {
+						CompletableFuture.runAsync(new OnNotificationHandler(AbstractWebsocketClient.this, ws,
+								(JsonrpcNotification) message));
+
 					}
 				} catch (OpenemsNamedException e) {
 					AbstractWebsocketClient.this.handleInternalErrorAsync(e);

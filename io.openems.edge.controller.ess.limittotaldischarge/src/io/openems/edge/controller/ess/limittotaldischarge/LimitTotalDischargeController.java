@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -112,7 +112,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		// Set to normal state and return if SoC is not available
@@ -188,15 +188,11 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 		// adjust value so that it fits into Min/MaxActivePower
 		if (calculatedPower != null) {
-			calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 		}
 
 		// Apply Force-Charge if it was set
-		try {
-			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
 
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);

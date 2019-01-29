@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.WriteChannel;
 
 /**
@@ -86,8 +87,11 @@ public class ApiWorker {
 	/**
 	 * Sets the channels. This method is called by the run() method of the
 	 * Controller
+	 * 
+	 * @throws OpenemsNamedException on error
 	 */
-	public void run() {
+	public void run() throws OpenemsNamedException {
+		OpenemsNamedException anExceptionHappened = null;
 		synchronized (this.values) {
 			for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
 				WriteChannel<?> channel = entry.getKey();
@@ -100,8 +104,12 @@ public class ApiWorker {
 					log.error("Unable to set Channel [" + channel.address() + "] to Value ["
 							+ writeObject.valueToString() + "]: " + e.getMessage());
 					writeObject.notifyError(e);
+					anExceptionHappened = e;
 				}
 			}
+		}
+		if (anExceptionHappened != null) {
+			throw anExceptionHappened;
 		}
 	}
 }
