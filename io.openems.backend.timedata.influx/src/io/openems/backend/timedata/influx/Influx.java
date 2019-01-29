@@ -149,20 +149,36 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param data         the data
 	 */
 	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
-		InfluxDB influxDb = this.influxConnector.getConnection();
+		Set<Entry<Long, Map<ChannelAddress, JsonElement>>> dataEntries = data.rowMap().entrySet();
+		if (dataEntries.isEmpty()) {
+			// no data to write
+			return;
+		}
 
+		InfluxDB influxDb = this.influxConnector.getConnection();
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 				.build();
 
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
-			Long timestamp = entry.getKey();
+		for (Entry<Long, Map<ChannelAddress, JsonElement>> dataEntry : dataEntries) {
+			Set<Entry<ChannelAddress, JsonElement>> channelEntries = dataEntry.getValue().entrySet();
+			if (channelEntries.isEmpty()) {
+				// no points to add
+				continue;
+			}
+
+			Long timestamp = dataEntry.getKey();
 			// this builds an InfluxDB record ("point") for a given timestamp
 			Builder builder = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
-			for (Entry<ChannelAddress, JsonElement> channelEntry : entry.getValue().entrySet()) {
+			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
 				Influx.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
 			batchPoints.point(builder.build());
+		}
+
+		if (batchPoints.getPoints().isEmpty()) {
+			// no points added
+			return;
 		}
 
 		// write to DB
