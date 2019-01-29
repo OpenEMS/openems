@@ -475,12 +475,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 						ChannelFormula.class);
 
 			case "ProductionAcActivePower": {
-				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
 				List<String> ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
 				ignoreIds.add("meter0");
-				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
+				
+				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
 				asymmetricIds.removeAll(ignoreIds);
+				
+				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
 				symmetricIds.removeAll(ignoreIds);
+				symmetricIds.removeAll(asymmetricIds);
+				
 				ChannelFormula[] result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
 				int i = 0;
 				for (String id : asymmetricIds) {
