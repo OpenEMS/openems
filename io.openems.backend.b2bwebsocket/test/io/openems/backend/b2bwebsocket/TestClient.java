@@ -44,8 +44,8 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		this.onClose = (ws, code, reason, remote) -> {
 			log.info("onClose: " + reason);
 		};
-		this.onInternalError = (ex) -> {
-			log.warn("onInternalError. " + ex.getClass() + ": " + ex.getMessage());
+		this.onInternalError = (ex, wsDataString) -> {
+			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
 			ex.printStackTrace();
 		};
 	}
@@ -58,12 +58,12 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	public void setOnOpen(OnOpen onOpen) {
 		this.onOpen = onOpen;
 	}
-	
+
 	@Override
 	public OnRequest getOnRequest() {
 		return onRequest;
 	}
-	
+
 	public void setOnRequest(OnRequest onRequest) {
 		this.onRequest = onRequest;
 	}
@@ -72,7 +72,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	public OnError getOnError() {
 		return onError;
 	}
-	
+
 	public void setOnError(OnError onError) {
 		this.onError = onError;
 	}
@@ -85,12 +85,12 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	public void setOnClose(OnClose onClose) {
 		this.onClose = onClose;
 	}
-	
+
 	@Override
 	public OnInternalError getOnInternalError() {
 		return onInternalError;
 	}
-	
+
 	public void setOnInternalError(OnInternalError onInternalError) {
 		this.onInternalError = onInternalError;
 	}
@@ -103,10 +103,19 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	public void setOnNotification(OnNotification onNotification) {
 		this.onNotification = onNotification;
 	}
-	
+
+	private static class TestWsData extends WsData {
+
+		@Override
+		public String toString() {
+			return "TestWsData[]";
+		}
+
+	}
+
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new TestWsData();
 	}
 
 	@Override

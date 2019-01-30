@@ -21,7 +21,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
  * Objects of this class are used to store additional data with websocket
  * connections of WebSocketClient and WebSocketServer
  */
-public class WsData {
+public abstract class WsData {
 
 	/**
 	 * Holds the Websocket. Possibly null!
@@ -124,7 +124,8 @@ public class WsData {
 			} else if (response instanceof JsonrpcResponseError) {
 				// Named OpenEMS-Error Response -> cancel future
 				JsonrpcResponseError error = ((JsonrpcResponseError) response);
-				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray());
+				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(),
+						error.getParamsAsObjectArray());
 				future.completeExceptionally(exception);
 
 			} else {
@@ -139,4 +140,6 @@ public class WsData {
 			throw OpenemsError.JSONRPC_RESPONSE_WITHOUT_REQUEST.exception(response.toJsonObject());
 		}
 	}
+
+	public abstract String toString();
 }

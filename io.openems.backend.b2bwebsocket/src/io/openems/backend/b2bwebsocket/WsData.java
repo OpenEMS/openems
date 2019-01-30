@@ -51,4 +51,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	public SubscribedEdgesChannelsWorker getSubscribedChannelsWorker() {
 		return this.worker;
 	}
+
+	@Override
+	public String toString() {
+		if (this.user == null) {
+			return "B2bWebsocket.WsData [user=UNKNOWN]";
+		} else {
+			return "B2bWebsocket.WsData [user=" + user + "]";
+		}
+	}
 }
