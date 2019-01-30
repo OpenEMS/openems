@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -36,7 +37,7 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 	public StateCollectorChannel(OpenemsComponent parent, ChannelId channelId) {
 		super(OpenemsType.INTEGER, parent, channelId);
 	}
-	
+
 	@Override
 	public Value<Integer> value() {
 		Value<Integer> result = super.value();
@@ -95,10 +96,21 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 		this.onChangeFunction.accept(channel, null);
 	}
 
+	/**
+	 * Lists all States as Text
+	 * 
+	 * @return the text
+	 */
 	public String listStates() {
 		return this.listStates(Level.INFO);
 	}
 
+	/**
+	 * Lists all States that are at least 'fromLevel' as text.
+	 * 
+	 * @param fromLevel the minimum Level
+	 * @return the text
+	 */
 	public String listStates(Level fromLevel) {
 		StringBuilder result = new StringBuilder();
 		for (Level level : Level.values()) {
@@ -112,9 +124,9 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 					result.append("| ");
 				}
 				result.append(level.name() + ": ");
-				for (ChannelId channelId : channelIds) {
-					result.append(this.parent.channel(channelId).channelDoc().getText() + ",");
-				}
+				result.append(channelIds.stream() //
+						.map(channelId -> this.parent.channel(channelId).channelDoc().getText()) //
+						.collect(Collectors.joining(",")));
 			}
 		}
 		return result.toString();

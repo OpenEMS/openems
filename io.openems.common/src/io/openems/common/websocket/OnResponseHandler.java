@@ -22,7 +22,7 @@ public class OnResponseHandler implements Runnable {
 			WsData wsData = ws.getAttachment();
 			wsData.handleJsonrpcResponse(response);
 		} catch (Exception e) {
-			this.parent.handleInternalErrorSync(e);
+			this.parent.handleInternalErrorSync(e, WebsocketUtils.getWsDataString(this.ws));
 		}
 	}
 

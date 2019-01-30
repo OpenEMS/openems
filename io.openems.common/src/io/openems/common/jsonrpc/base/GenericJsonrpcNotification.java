@@ -5,6 +5,20 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a generic JSON-RPC Notification.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "method": string,
+ *   "params": {}
+ * }
+ * </pre>
+ * 
+ * @see <a href="https://www.jsonrpc.org/specification#notification">JSON-RPC
+ *      specification</a>
+ */
 public class GenericJsonrpcNotification extends JsonrpcNotification {
 
 	public static GenericJsonrpcNotification from(String json) throws OpenemsNamedException {

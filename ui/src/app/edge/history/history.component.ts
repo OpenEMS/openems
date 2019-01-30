@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
 import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
-import { Edge, Service, Websocket } from '../../shared/shared';
+import { Edge, Service } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -12,12 +12,11 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
   templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit {
-  
+
   private readonly TODAY = new Date();
   private readonly YESTERDAY = subDays(new Date(), 1);
   private readonly TOMORROW = addDays(new Date(), 1);
-  
-  public widgets: string[] = [];
+
   public activePeriodText: string = "";
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
@@ -50,20 +49,6 @@ export class HistoryComponent implements OnInit {
 
   ngOnInit() {
     this.service.setCurrentEdge(this.route)
-    this.setWidgets();
-  }
-
-  /**
-   * Defines the widgets that should be shown.
-   */
-  private setWidgets() {
-    this.service.getConfig().then(config => {
-      let widgets: string[] = [];
-      if (config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").length > 0) {
-        widgets.push('EVCS');
-      }
-      this.widgets = widgets;
-    })
   }
 
   updateOnWindowResize() {
@@ -72,7 +57,7 @@ export class HistoryComponent implements OnInit {
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(250, ref)
+      /* maximium size */ Math.min(200, ref)
     ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,

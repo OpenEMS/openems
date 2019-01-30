@@ -23,23 +23,26 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 		// get edgeId from websocket
 		WsData wsData = ws.getAttachment();
 		Optional<String> edgeIdOpt = wsData.getEdgeId();
-		if (!edgeIdOpt.isPresent()) {
-			return;
-		}
+		String edgeId;
+		if (edgeIdOpt.isPresent()) {
+			edgeId = edgeIdOpt.get();
+			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+			// if there is no other websocket connection for this edgeId -> announce Edge as
+			// offline
+			if (edgeOpt.isPresent()) {
+				boolean isOnline = this.parent.isOnline(edgeId);
+				edgeOpt.get().setOnline(isOnline);
+			}
 
-		// if there is no other websocket connection for this edgeId -> announce Edge as
-		// offline
-		String edgeId = edgeIdOpt.get();
-		Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
-		if (edgeOpt.isPresent()) {
-			boolean isOnline = this.parent.isOnline(edgeId);
-			edgeOpt.get().setOnline(isOnline);
+		} else {
+			edgeId = "UNKNOWN";
 		}
 
 		// TODO send notification, to UI
-		
+
 		// log
-		this.parent.logInfo(this.log, "Edge [" + edgeId + "] disconnected.");
+		this.parent.logInfo(this.log,
+				"Edge [" + edgeId + "] disconnected. Code [" + code + "] Reason [" + reason + "]");
 	}
 
 }

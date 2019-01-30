@@ -12,6 +12,25 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 
+/**
+ * Wraps a JSON-RPC Response to "getModbusProtocol" Request
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "result": {
+ *     "table": [{
+ *       "ref": number // start address of the Modbus Record
+ *       "name": string,
+ *       "value": string, // value description
+ *       "unit": string,
+ *       "type" string
+ *     }]
+ *   }
+ * }
+ * </pre>
+ */
 public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 
 	private final TreeMap<Integer, ModbusRecord> tableRecords;

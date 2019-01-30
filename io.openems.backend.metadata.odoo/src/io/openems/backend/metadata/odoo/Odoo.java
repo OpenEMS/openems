@@ -1,15 +1,8 @@
 package io.openems.backend.metadata.odoo;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -24,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
@@ -33,9 +24,14 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
+import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
+import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
+import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
+import io.openems.backend.metadata.odoo.jsonrpc.EmptyRequest;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.session.Role;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
@@ -47,6 +43,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	public final static String ODOO_MODEL = "edge.device";
 
 	private final static int READ_BATCH_SIZE = 300;
+	private final static int MAX_TRIES = 10;
 
 	private final Logger log = LoggerFactory.getLogger(Odoo.class);
 	private final OdooWriteWorker writeWorker;
@@ -115,17 +112,26 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			}
 
 			// read data from Odoo
-			Map<String, Object>[] edgeMaps;
-			try {
-				edgeMaps = OdooUtils.readMany(Odoo.this.odooCredentials, ODOO_MODEL, //
-						batchEdgeIds, //
-						new Field[] { Field.EdgeDevice.ID, Field.EdgeDevice.APIKEY, Field.EdgeDevice.NAME,
-								Field.EdgeDevice.COMMENT, Field.EdgeDevice.OPENEMS_VERSION,
-								Field.EdgeDevice.PRODUCT_TYPE, Field.EdgeDevice.OPENEMS_CONFIG, Field.EdgeDevice.SOC,
-								Field.EdgeDevice.IPV4, Field.EdgeDevice.STATE });
-			} catch (OpenemsException e) {
-				this.logError(this.log, "Unable to read Edges from Odoo: " + e.getMessage());
-				e.printStackTrace();
+			Map<String, Object>[] edgeMaps = null;
+			boolean retry = true;
+			int tries = MAX_TRIES;
+			while (tries-- > 0 && retry) {
+				try {
+					edgeMaps = OdooUtils.readMany(Odoo.this.odooCredentials, ODOO_MODEL, //
+							batchEdgeIds, //
+							new Field[] { Field.EdgeDevice.ID, Field.EdgeDevice.APIKEY, Field.EdgeDevice.NAME,
+									Field.EdgeDevice.COMMENT, Field.EdgeDevice.OPENEMS_VERSION,
+									Field.EdgeDevice.PRODUCT_TYPE, Field.EdgeDevice.OPENEMS_CONFIG,
+									Field.EdgeDevice.SOC, Field.EdgeDevice.IPV4, Field.EdgeDevice.STATE });
+					retry = false;
+				} catch (OpenemsException e) {
+					this.logError(this.log, "Unable to read Edges from Odoo: " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+			if (tries == 0 || edgeMaps == null) {
+				this.logError(this.log,
+						"Unable to read read batch of [" + READ_BATCH_SIZE + "] from [" + firstIndex + "]");
 				continue;
 			}
 
@@ -216,7 +222,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			// Set Version in Odoo
 			this.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
-			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_VERSION, version));
+			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		});
 		edge.onSetSoc(soc -> {
 			// Set SoC in Odoo
@@ -228,6 +234,17 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 	}
 
+	@Override
+	public User authenticate(String username, String password) throws OpenemsNamedException {
+		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
+				this.odooCredentials.getDatabase(), username, password);
+		JsonrpcResponseSuccess origResponse = OdooUtils
+				.sendJsonrpcRequest(this.odooCredentials.getUrl() + "/web/session/authenticate", request);
+		AuthenticateWithUsernameAndPasswordResponse response = AuthenticateWithUsernameAndPasswordResponse
+				.from(origResponse);
+		return this.authenticate(response.getSessionId());
+	}
+
 	/**
 	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.
 	 *
@@ -237,79 +254,22 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	 */
 	@Override
 	public User authenticate(String sessionId) throws OpenemsNamedException {
-		JsonObject jsonrpcResponse;
-		HttpURLConnection connection = null;
+		EmptyRequest request = new EmptyRequest();
+		String charset = "US-ASCII";
+		String query;
 		try {
-			// send request to Odoo
-			String charset = "US-ASCII";
-			String query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
-			connection = (HttpURLConnection) new URL(this.odooCredentials.getUrl() + "/openems_backend/info?" + query)
-					.openConnection();
-			connection.setConnectTimeout(5000);// 5 secs
-			connection.setReadTimeout(5000);// 5 secs
-			connection.setRequestProperty("Accept-Charset", charset);
-			connection.setRequestMethod("POST");
-			connection.setDoOutput(true);
-			connection.setRequestProperty("Content-Type", "application/json");
-
-			try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
-				out.write("{}");
-				out.flush();
-			}
-
-			// read JSON-RPC response
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-				while ((line = br.readLine()) != null) {
-					sb.append(line);
-				}
-			}
-			jsonrpcResponse = JsonUtils.getAsJsonObject(JsonUtils.parse(sb.toString()));
-		} catch (IOException e) {
-			throw new OpenemsException("IOException while reading from Odoo: " + e.getMessage());
-		} finally {
-			if (connection != null) {
-				connection.disconnect();
-			}
+			query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
+		} catch (UnsupportedEncodingException e) {
+			throw OpenemsError.GENERIC.exception(e.getMessage());
 		}
+		JsonrpcResponseSuccess origResponse = OdooUtils
+				.sendJsonrpcRequest(this.odooCredentials.getUrl() + "/openems_backend/info?" + query, request);
 
-		// JSON-RPC Error
-		if (jsonrpcResponse.has("error")) {
-
-			JsonObject error = JsonUtils.getAsJsonObject(jsonrpcResponse, "error");
-			String errorMessage = JsonUtils.getAsString(error, "message");
-			throw new OpenemsException("Odoo replied with error: " + errorMessage);
-		}
-
-		if (!jsonrpcResponse.has("result")) {
-			throw new OpenemsException("Odoo replied invalid JSON-RPC: " + jsonrpcResponse);
-		} else {
-
-			// JSON-RPC Success
-			JsonObject result = JsonUtils.getAsJsonObject(jsonrpcResponse, "result");
-			JsonObject jUser = JsonUtils.getAsJsonObject(result, "user");
-			MyUser user = new MyUser(//
-					JsonUtils.getAsInt(jUser, "id"), //
-					JsonUtils.getAsString(jUser, "name"));
-			JsonArray jDevices = JsonUtils.getAsJsonArray(result, "devices");
-			List<String> notAvailableEdges = new ArrayList<>();
-			for (JsonElement jDevice : jDevices) {
-				int odooId = JsonUtils.getAsInt(jDevice, "id");
-				MyEdge edge = this.edges.getEdgeFromOdooId(odooId);
-				if (edge == null) {
-					notAvailableEdges.add(String.valueOf(odooId));
-				} else {
-					user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
-				}
-			}
-			if (!notAvailableEdges.isEmpty()) {
-				this.logWarn(this.log, "For User [" + user.getId() + "] following Edges are not available: "
-						+ String.join(",", notAvailableEdges));
-			}
-			this.users.put(user.getId(), user);
-			return user;
-		}
+		AuthenticateWithSessionIdResponse response = AuthenticateWithSessionIdResponse.from(origResponse, sessionId,
+				this.edges);
+		MyUser user = response.getUser();
+		this.users.put(user.getId(), user);
+		return user;
 	}
 
 	/**
@@ -351,4 +311,5 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	public Collection<Edge> getAllEdges() {
 		return this.edges.getAllEdges();
 	}
+
 }

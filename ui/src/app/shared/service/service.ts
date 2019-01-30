@@ -10,6 +10,7 @@ import { Edges } from '../jsonrpc/shared';
 import { LanguageTag, Language } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
+import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -197,5 +198,39 @@ export class Service implements ErrorHandler {
       newEdges[newEdge.id] = newEdge;
     }
     this.edges.next(newEdges);
+  }
+
+
+  /**
+   * Defines the widgets that should be shown.
+   */
+  public getWidgets(): Promise<Widget[]> {
+    return new Promise<Widget[]>((resolve, reject) => {
+      this.getConfig().then(config => {
+        let widgets = [];
+        for (let nature of Object.keys(WidgetNature)) {
+          for (let componentId of config.getComponentsImplementingNature(nature)) {
+            widgets.push({ name: nature, componentId: componentId })
+          }
+        }
+        for (let factory of Object.keys(WidgetFactory)) {
+          for (let componentId of config.getComponentIdsByFactory(factory)) {
+            widgets.push({ name: factory, componentId: componentId })
+          }
+        }
+        resolve(widgets.sort((w1, w2) => {
+          // explicitely sort ChannelThresholdControllers by their outputChannelAddress
+          const outputChannelAddress1 = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
+          const outputChannelAddress2 = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
+          if (outputChannelAddress1 && outputChannelAddress2) {
+            return outputChannelAddress1.localeCompare(outputChannelAddress2);
+          } else if (outputChannelAddress1) {
+            return 1;
+          }
+
+          return w1.componentId.localeCompare(w1.componentId);
+        }));
+      })
+    });
   }
 }

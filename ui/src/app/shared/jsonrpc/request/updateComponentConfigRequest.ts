@@ -1,5 +1,4 @@
 import { JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
 
 /**
  * Represents a JSON-RPC Request to update the configuration of an OpenEMS Edge Component.
@@ -30,7 +29,7 @@ export class UpdateComponentConfigRequest extends JsonrpcRequest {
             value: any
         }]
     ) {
-        super(UUID.UUID(), UpdateComponentConfigRequest.METHOD, {
+        super(UpdateComponentConfigRequest.METHOD, {
             componentId: componentId,
             update: update
         });

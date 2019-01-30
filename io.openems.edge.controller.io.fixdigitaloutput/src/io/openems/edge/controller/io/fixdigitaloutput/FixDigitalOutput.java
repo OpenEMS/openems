@@ -63,7 +63,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Override
-	public void run() {
+	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		if (this.isOn) {
 			this.switchOn();
 		} else {
@@ -73,19 +73,25 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output ON.
+	 * 
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
-	private void switchOn() {
+	private void switchOn() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
 	}
 
 	/**
 	 * Switch the output OFF.
+	 * 
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
-	private void switchOff() {
+	private void switchOff() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);
 	}
 
-	private void setOutput(boolean value) {
+	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> channel = this.componentManager.getChannel(this.outputChannelAddress);
 			if (channel.value().asOptional().equals(Optional.of(value))) {

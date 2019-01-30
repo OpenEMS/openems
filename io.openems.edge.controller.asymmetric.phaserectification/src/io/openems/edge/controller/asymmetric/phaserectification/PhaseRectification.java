@@ -7,9 +7,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -19,7 +18,6 @@ import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -28,7 +26,7 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 @Component(name = "Controller.Asymmetric.PhaseRectification", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class PhaseRectification extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
+	// private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -51,7 +49,7 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		AsymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
@@ -69,19 +67,15 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 		int activePowerL2 = essL2 + meterL2Delta;
 		int activePowerL3 = essL3 + meterL3Delta;
 
-		try {
-			Power power = ess.getPower();
-			power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-					new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
-					new LinearCoefficient(power.getCoefficient(ess, Phase.L2, Pwr.ACTIVE), -1) //
-			}, Relationship.EQUALS, activePowerL1 - activePowerL2));
-			power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-					new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
-					new LinearCoefficient(power.getCoefficient(ess, Phase.L3, Pwr.ACTIVE), -1) //
-			}, Relationship.EQUALS, activePowerL1 - activePowerL3));
-		} catch (PowerException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		Power power = ess.getPower();
+		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
+				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
+				new LinearCoefficient(power.getCoefficient(ess, Phase.L2, Pwr.ACTIVE), -1) //
+		}, Relationship.EQUALS, activePowerL1 - activePowerL2));
+		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
+				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
+				new LinearCoefficient(power.getCoefficient(ess, Phase.L3, Pwr.ACTIVE), -1) //
+		}, Relationship.EQUALS, activePowerL1 - activePowerL3));
 	}
 
 }

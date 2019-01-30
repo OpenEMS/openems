@@ -38,9 +38,14 @@ public class PowerConstraint implements Consumer<Channel<?>> {
 	public void accept(Channel<?> channel) {
 		((IntegerWriteChannel) channel).onSetNextWrite(value -> {
 			if (value != null) {
+				ManagedSymmetricEss ess = (ManagedSymmetricEss) channel.getComponent();
+
+				// adjust value so that it fits into Min/MaxActivePower
+				value = ess.getPower().fitValueIntoMinMaxPower(ess, this.phase, this.pwr, value);
+
 				try {
-					((ManagedSymmetricEss) channel.getComponent()).addPowerConstraintAndValidate(
-							"Channel [" + this.channelId + "]", this.phase, this.pwr, this.relationship, value);
+					ess.addPowerConstraintAndValidate("Channel [" + this.channelId + "]", this.phase, this.pwr,
+							this.relationship, value);
 				} catch (PowerException e) {
 					log.error(
 							"Unable to set power constraint from Channel [" + this.channelId + "]: " + e.getMessage());

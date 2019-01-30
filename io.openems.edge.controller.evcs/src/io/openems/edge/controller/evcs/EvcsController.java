@@ -11,10 +11,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -33,7 +31,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	private static final int RUN_EVERY_MINUTES = 1;
 
-	private final Logger log = LoggerFactory.getLogger(EvcsController.class);
+	// private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;
 
 	private int minPower = 0;
@@ -93,7 +91,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		// Execute only every ... minutes
 		if (this.lastRun.plusMinutes(RUN_EVERY_MINUTES).isAfter(LocalDateTime.now(this.clock))) {
 			return;
@@ -121,11 +119,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 
 		// set charge power
-		try {
-			evcs.setChargePower().setNextWriteValue(nextChargePower);
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		evcs.setChargePower().setNextWriteValue(nextChargePower);
 	}
 
 }

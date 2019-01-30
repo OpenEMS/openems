@@ -4,14 +4,14 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { InfiniteScroll, IonicModule } from '@ionic/angular';
+import { IonicModule, IonInfiniteScroll } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 import 'hammerjs';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
-import { SocChartComponent } from '../edge/history/chart/socchart/socchart.component';
+import { SocComponent } from '../edge/history/chart/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
 /*
  * Components
@@ -55,7 +55,7 @@ import { Websocket } from './service/websocket';
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent,
+    SocComponent,
   ],
   exports: [
     // pipes
@@ -78,7 +78,7 @@ import { Websocket } from './service/websocket';
     MyDateRangePickerModule,
     ToasterModule,
     // components
-    SocChartComponent,
+    SocComponent,
     NgxLoadingModule,
   ],
   providers: [
@@ -90,5 +90,5 @@ import { Websocket } from './service/websocket';
   ]
 })
 export class SharedModule {
-  @ViewChild(InfiniteScroll) infiniteScroll: InfiniteScroll;
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 }

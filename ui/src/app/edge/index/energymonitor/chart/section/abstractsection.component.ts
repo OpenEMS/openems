@@ -110,7 +110,7 @@ export abstract class AbstractSection {
     public url: string = window.location.href;
     public valuePath: string = "";
     public outlinePath: string = "";
-    public energyFlow: EnergyFlow;
+    public energyFlow: EnergyFlow = null;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
@@ -155,11 +155,10 @@ export abstract class AbstractSection {
     /**
      * Gets the SVG for EnergyFlow
      * 
-     * @param value  the Power
-     * @param ratio  the ratio of the value [0,1] or [-1,1] * scale factor
+     * @param ratio  the ratio of the value [-1,1] * scale factor
      * @param radius the available radius
      */
-    protected abstract getSvgEnergyFlow(value: number, ratio: number, radius: number): SvgEnergyFlow;
+    protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
 
     /**
      * Updates the Values for this Section.
@@ -212,14 +211,16 @@ export abstract class AbstractSection {
         /* 
          * Create the energy flow direction arrow
          */
-        if(sumRatio <= 0) {
+        if (!sumRatio) {
             sumRatio = 0;
-        } else if(sumRatio < 0.1) {
-            sumRatio = 0.1 // scale ratio to [0.1,1] for getSvgEnergyFlow
+        } else if (sumRatio > 0 && sumRatio < 0.1) {
+            sumRatio = 0.1 // scale ratio to [0.1,1]
+        } else if (sumRatio < 0 && sumRatio > -0.1) {
+            sumRatio = -0.1 // scale ratio to [-0.1,-1]
         }
         sumRatio *= 10;
-        
-        let svgEnergyFlow = this.getSvgEnergyFlow(valueAbsolute, sumRatio, this.energyFlow.radius);
+
+        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius);
         this.energyFlow.update(svgEnergyFlow);
     }
 

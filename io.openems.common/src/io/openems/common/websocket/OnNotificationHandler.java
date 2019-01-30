@@ -21,7 +21,7 @@ public class OnNotificationHandler implements Runnable {
 		try {
 			this.parent.getOnNotification().run(this.ws, this.notification);
 		} catch (Exception e) {
-			this.parent.handleInternalErrorSync(e);
+			this.parent.handleInternalErrorSync(e, WebsocketUtils.getWsDataString(this.ws));
 		}
 	}
 

@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
@@ -59,6 +61,20 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	/**
+	 * Gets the token or throws an error if no token was set.
+	 * 
+	 * @return the token
+	 * @throws OpenemsNamedException if no token has been set
+	 */
+	public UUID assertToken() throws OpenemsNamedException {
+		Optional<UUID> token = this.token;
+		if (token.isPresent()) {
+			return token.get();
+		}
+		throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
+	}
+
+	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
 	 * 
 	 * @return the SubscribedChannelsWorker
@@ -67,4 +83,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return subscribedChannelsWorker;
 	}
 
+	@Override
+	public String toString() {
+		String tokenString;
+		if (this.token.isPresent()) {
+			tokenString = this.token.get().toString();
+		} else {
+			tokenString = "UNKNOWN";
+		}
+		return "UiWebsocket.WsData [userId=" + userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
+	}
 }

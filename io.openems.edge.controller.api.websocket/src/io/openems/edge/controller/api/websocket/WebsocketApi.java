@@ -1,9 +1,12 @@
 package io.openems.edge.controller.api.websocket;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.component.ComponentContext;
@@ -18,6 +21,9 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -42,6 +48,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	public static final int DEFAULT_PORT = 8075;
 
 	private final ApiWorker apiWorker = new ApiWorker();
+	private final SystemLogHandler systemLogHandler;
 
 	protected WebsocketServer server = null;
 
@@ -60,7 +67,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	protected volatile Timedata timedata = null;
 
 	public WebsocketApi() {
+		// TODO: add Debug-Channels for writes to Channels via Websocket-Api
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.systemLogHandler = new SystemLogHandler(this);
 	}
 
 	@Activate
@@ -100,7 +109,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
 	}
 
@@ -116,7 +125,39 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 
 	@Override
 	public void doAppend(PaxLoggingEvent event) {
-		// TODO
-		// this.websocketApiServer.sendLog(event);
+		this.systemLogHandler.handlePaxLoggingEvent(event);
+	}
+
+	/**
+	 * Gets the WebSocket connection attachment for a UI token.
+	 * 
+	 * @param token the UI token
+	 * @return the WsData
+	 * @throws OpenemsNamedException if there is no connection with this token
+	 */
+	protected WsData getWsDataForTokenOrError(UUID token) throws OpenemsNamedException {
+		Collection<WebSocket> connections = this.server.getConnections();
+		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
+			WebSocket websocket = iter.next();
+			WsData wsData = websocket.getAttachment();
+			UUID thisToken = wsData.getSessionToken();
+			if (thisToken != null && thisToken.equals(token)) {
+				return wsData;
+			}
+		}
+		throw OpenemsError.BACKEND_NO_UI_WITH_TOKEN.exception(token);
+	}
+
+	/**
+	 * Handles a SubscribeSystemLogRequest by forwarding it to the
+	 * 'SystemLogHandler'.
+	 * 
+	 * @param token   the UI token
+	 * @param request the SubscribeSystemLogRequest
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void handleSubscribeSystemLogRequest(UUID token, SubscribeSystemLogRequest request)
+			throws OpenemsNamedException {
+		this.systemLogHandler.handleSubscribeSystemLogRequest(token, request);
 	}
 }

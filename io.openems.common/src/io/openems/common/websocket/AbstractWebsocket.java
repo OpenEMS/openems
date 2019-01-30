@@ -85,8 +85,8 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 * 
 	 * @param e
 	 */
-	protected void handleInternalErrorSync(Exception e) {
-		this.getOnInternalError().run(e);
+	protected void handleInternalErrorSync(Exception e, String wsDataString) {
+		this.getOnInternalError().run(e, wsDataString);
 	}
 
 	/**

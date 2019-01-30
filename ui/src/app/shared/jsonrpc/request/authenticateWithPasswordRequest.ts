@@ -1,5 +1,4 @@
 import { JsonrpcRequest } from "../base";
-import { UUID } from "angular2-uuid";
 
 /**
  * Wraps a JSON-RPC Request for a specific Edge-ID.
@@ -24,7 +23,7 @@ export class AuthenticateWithPasswordRequest extends JsonrpcRequest {
             password: string
         }
     ) {
-        super(UUID.UUID(), AuthenticateWithPasswordRequest.METHOD, params);
+        super(AuthenticateWithPasswordRequest.METHOD, params);
     }
 
 }

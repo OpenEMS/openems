@@ -2,6 +2,8 @@ package io.openems.common;
 
 import org.osgi.framework.Constants;
 
+import io.openems.common.types.SemanticVersion;
+
 public class OpenemsConstants {
 
 	/**
@@ -32,16 +34,13 @@ public class OpenemsConstants {
 	public final static String VERSION_STRING = "SNAPSHOT";
 
 	/**
-	 * The complete version as a composed string.
+	 * The complete version as a SemanticVersion.
 	 * 
-	 * e.g. "2018.10.0-SNAPSHOT"
+	 * <p>
+	 * Use toString()-method to get something like "2018.10.0-SNAPSHOT"
 	 */
-	public final static String VERSION = //
-			VERSION_MAJOR + "." //
-					+ VERSION_MINOR + "." //
-					+ VERSION_PATCH + //
-					(VERSION_STRING.isEmpty() ? "" : "-" + VERSION_STRING);
-
+	public final static SemanticVersion VERSION = new SemanticVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
+			VERSION_STRING);
 	/**
 	 * The manufacturer of the device that is running OpenEMS
 	 * 

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
@@ -29,6 +30,10 @@ class BackendWorker extends AbstractWorker {
 	// Unsent queue (FIFO)
 	private EvictingQueue<JsonrpcMessage> unsent = EvictingQueue.create(MAX_CACHED_MESSAGES);
 
+	// By default the worker reads and sends only changed values. If this variable
+	// is set to 'false', it sends all values once.
+	private final AtomicBoolean sendChangedValuesOnly = new AtomicBoolean(false);
+
 	BackendWorker(BackendApi parent) {
 		this.parent = parent;
 	}
@@ -43,11 +48,20 @@ class BackendWorker extends AbstractWorker {
 		super.deactivate();
 	}
 
+	/**
+	 * Triggers sending all Channel values once. After executing once, this is reset
+	 * automatically to default 'send changed values only' mode.
+	 */
+	public void sendValuesOfAllChannelsOnce() {
+		this.sendChangedValuesOnly.set(false);
+		this.triggerForceRun();
+	}
+
 	@Override
 	protected void forever() {
-		// TODO send all data once after reconnect. The Backend might have been
-		// restartet.
-		Map<ChannelAddress, JsonElement> values = this.getChangedValues();
+		Map<ChannelAddress, JsonElement> values = this.getValues(//
+				this.sendChangedValuesOnly.getAndSet(true) // resets the mode to 'send changed values only'
+		);
 		boolean canSendFromCache;
 
 		/*
@@ -98,12 +112,14 @@ class BackendWorker extends AbstractWorker {
 	}
 
 	/**
-	 * Cycles through all Channels and gets the value. If the value changed since
-	 * last check, it is added to the queue.
+	 * Cycles through all Channels and gets the value. If 'changedValuesOnly' is
+	 * set, then only values that changed since last check are added to the queue.
 	 * 
+	 * @param changedValuesOnly take changed values only or take all channels
+	 *                          values?
 	 * @return a map of channels who's value changed since last check
 	 */
-	private Map<ChannelAddress, JsonElement> getChangedValues() {
+	private Map<ChannelAddress, JsonElement> getValues(boolean changedValuesOnly) {
 		final ConcurrentHashMap<ChannelAddress, JsonElement> values = new ConcurrentHashMap<>();
 		this.parent.componentManager.getComponents().parallelStream() //
 				.filter(c -> c.isEnabled()) //
@@ -114,11 +130,19 @@ class BackendWorker extends AbstractWorker {
 				.forEach(channel -> {
 					ChannelAddress address = channel.address();
 					JsonElement jValue = channel.value().asJson();
-					JsonElement jLastValue = this.last.get(address);
-					if (jLastValue == null || !jLastValue.equals(jValue)) {
-						// this value differs from the last sent value
+
+					if (changedValuesOnly) {
+						JsonElement jLastValue = this.last.get(address);
+						if (jLastValue == null || !jLastValue.equals(jValue)) {
+							// this value differs from the last sent value
+							this.last.put(address, jValue);
+							values.put(address, jValue);
+						}
+
+					} else {
 						this.last.put(address, jValue);
 						values.put(address, jValue);
+
 					}
 				});
 		return values;

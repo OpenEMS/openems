@@ -99,7 +99,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	private boolean applyLowHysteresis = true;
 
 	@Override
-	public void run() {
+	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		/*
 		 * Check if all parameters are available
 		 */
@@ -236,16 +236,22 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Switch the output ON
+	 * Switch the output ON.
+	 * 
+	 * @throws OpenemsNamedException 
+	 * @throws IllegalArgumentException 
 	 */
-	private void on() {
+	private void on() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
 	}
 
 	/**
-	 * Switch the output OFF
+	 * Switch the output OFF.
+	 * 
+	 * @throws OpenemsNamedException 
+	 * @throws IllegalArgumentException 
 	 */
-	private void off() {
+	private void off() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);
 	}
 
@@ -254,8 +260,10 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	 *
 	 * @param value true to switch ON, false to switch ON; is inverted if
 	 *              'invertOutput' config is set
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
-	private void setOutput(boolean value) {
+	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();

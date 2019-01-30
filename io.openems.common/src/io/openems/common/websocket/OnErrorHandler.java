@@ -19,7 +19,7 @@ public class OnErrorHandler implements Runnable {
 		try {
 			this.parent.getOnError().run(this.ws, this.ex);
 		} catch (Exception e) {
-			this.parent.handleInternalErrorSync(e);
+			this.parent.handleInternalErrorSync(e, WebsocketUtils.getWsDataString(this.ws));
 		}
 	}
 

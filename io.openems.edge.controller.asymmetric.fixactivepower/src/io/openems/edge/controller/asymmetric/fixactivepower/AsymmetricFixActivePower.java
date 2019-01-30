@@ -10,6 +10,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -47,7 +48,7 @@ public class AsymmetricFixActivePower extends AbstractOpenemsComponent implement
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		this.addConstraint(ess, Phase.L1, this.config.powerL1());
@@ -57,7 +58,7 @@ public class AsymmetricFixActivePower extends AbstractOpenemsComponent implement
 
 	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, int power) {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, phase, Pwr.ACTIVE, power);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, phase, Pwr.ACTIVE, power);
 
 		/*
 		 * set result

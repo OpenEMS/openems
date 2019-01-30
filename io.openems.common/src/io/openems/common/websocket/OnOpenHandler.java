@@ -25,9 +25,10 @@ public class OnOpenHandler implements Runnable {
 		try {
 			this.parent.getOnOpen().run(this.ws, this.handshake);
 		} catch (WebsocketNotConnectedException e) {
-			this.parent.logWarn(this.log, "Websocket was closed before it has been fully opened.");
+			this.parent.logWarn(this.log,
+					"Websocket was closed before it has been fully opened: " + WebsocketUtils.getWsDataString(this.ws));
 		} catch (Exception e) {
-			this.parent.handleInternalErrorSync(e);
+			this.parent.handleInternalErrorSync(e, WebsocketUtils.getWsDataString(this.ws));
 		}
 	}
 

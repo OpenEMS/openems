@@ -2,7 +2,6 @@ package io.openems.edge.controller.api.modbus;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -22,12 +21,14 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -81,6 +82,23 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		UNABLE_TO_START(new Doc() //
+				.level(Level.FAULT) //
+				.text("Unable to start Modbus/TCP-Api Server"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	protected volatile Map<String, ModbusSlave> _components = new HashMap<>();
 	private String[] componentIds = new String[0];
 	private int port = ModbusTcpApi.DEFAULT_PORT;
@@ -89,6 +107,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	public ModbusTcpApi() {
 		this.processImage = new MyProcessImage(this);
 
+		// TODO: add Debug-Channels for writes to Channels via Modbus/TCP
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
@@ -143,12 +162,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 							ModbusTcpApi.this.maxConcurrentConnections);
 					slave.addProcessImage(UNIT_ID, ModbusTcpApi.this.processImage);
 					slave.open();
+
 					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port ["
 							+ ModbusTcpApi.this.port + "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
+					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(false);
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
 					ModbusTcpApi.this.logError(ModbusTcpApi.this.log, "Unable to start Modbus/TCP Api on port ["
 							+ ModbusTcpApi.this.port + "]: " + e.getMessage());
+					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 				}
 
 			} else {
@@ -157,6 +179,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 				if (error != null) {
 					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
 							"Unable to start Modbus/TCP Api on port [" + ModbusTcpApi.this.port + "]: " + error);
+					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 					this.slave = null;
 					// stop server
 					ModbusSlaveFactory.close();
@@ -190,10 +213,6 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 			// add component to process image
 			nextAddress = this.addComponentToProcessImage(nextAddress, component);
-		}
-
-		for (Entry<Integer, ModbusRecord> entry : this.records.entrySet()) {
-			log.info(entry.getKey() + ": " + entry.getValue());
 		}
 	}
 
@@ -287,8 +306,13 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
+	}
+
+	@Override
+	protected void logDebug(Logger log, String message) {
+		super.logDebug(log, message);
 	}
 
 	@Override

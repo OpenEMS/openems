@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
 public class Edge {
@@ -26,7 +27,7 @@ public class Edge {
 	private String id;
 	private String comment;
 	private State state;
-	private String version;
+	private SemanticVersion version;
 	private String producttype;
 	private EdgeConfig config;
 	private ZonedDateTime lastMessage = null;
@@ -41,7 +42,7 @@ public class Edge {
 		this.apikey = apikey;
 		this.comment = comment;
 		this.state = state;
-		this.version = version;
+		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
 		this.config = config;
 		this.soc = soc;
@@ -64,7 +65,7 @@ public class Edge {
 		return config;
 	}
 
-	public String getVersion() {
+	public SemanticVersion getVersion() {
 		return version;
 	}
 
@@ -76,7 +77,7 @@ public class Edge {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("id", this.id) //
 				.addProperty("comment", this.comment) //
-				.addProperty("version", this.version) //
+				.addProperty("version", this.version.toString()) //
 				.addProperty("producttype", this.producttype) //
 				.addProperty("online", this.isOnline) //
 				.build();
@@ -184,13 +185,13 @@ public class Edge {
 	/*
 	 * Version
 	 */
-	private final List<Consumer<String>> onSetVersion = new CopyOnWriteArrayList<>();
+	private final List<Consumer<SemanticVersion>> onSetVersion = new CopyOnWriteArrayList<>();
 
-	public void onSetVersion(Consumer<String> listener) {
+	public void onSetVersion(Consumer<SemanticVersion> listener) {
 		this.onSetVersion.add(listener);
 	}
 
-	public synchronized void setVersion(String version) {
+	public synchronized void setVersion(SemanticVersion version) {
 		if (this.version == null || !version.equals(this.version)) { // on change
 			log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
 			this.version = version;

@@ -94,6 +94,9 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				CompletableFuture.runAsync(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
 			}
 		};
+		// Allow the port to be reused. See
+		// https://stackoverflow.com/questions/3229860/what-is-the-meaning-of-so-reuseaddr-setsockopt-option-linux
+		this.ws.setReuseAddr(true);
 	}
 
 	public Collection<WebSocket> getConnections() {

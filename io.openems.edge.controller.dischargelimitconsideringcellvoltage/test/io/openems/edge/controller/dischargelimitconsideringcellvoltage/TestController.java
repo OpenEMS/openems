@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -87,7 +88,7 @@ public class TestController {
 	}
 
 	@Test
-	public void testChangeStatus() {
+	public void testChangeStatus() throws OpenemsNamedException {
 		sut.run();
 		dummyBattery.getVoltage().setNextValue(700);
 		sut.run();
@@ -140,7 +141,7 @@ public class TestController {
 	}
 
 	@Test
-	public void testAreValuesPresent() {
+	public void testAreValuesPresent() throws OpenemsNamedException {
 		sut.run();
 		dummyBattery.getVoltage().setNextValue(700);
 		sut.run();

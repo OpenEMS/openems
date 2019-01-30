@@ -2,6 +2,8 @@ package io.openems.backend.edgewebsocket.impl;
 
 import java.util.Optional;
 
+import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.Metadata;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.utils.StringUtils;
@@ -46,6 +48,22 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return edgeId;
 	}
 
+	/**
+	 * Gets the Edge.
+	 * 
+	 * @param metadata the Metadata service
+	 * @return the Edge or Optional.Empty if the Edge-ID was not set or it is not
+	 *         available from Metadata service
+	 */
+	public synchronized Optional<Edge> getEdge(Metadata metadata) {
+		Optional<String> edgeId = this.getEdgeId();
+		if (edgeId.isPresent()) {
+			Optional<Edge> edge = metadata.getEdge(edgeId.get());
+			return edge;
+		}
+		return Optional.empty();
+	}
+
 	public String assertEdgeId(JsonrpcMessage message) throws OpenemsException {
 		if (this.edgeId.isPresent()) {
 			return this.edgeId.get();
@@ -53,5 +71,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 			throw new OpenemsException(
 					"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "EdgeWebsocket.WsData [apikey=" + apikey.orElse("UNKNOWN") + ", edgeId=" + edgeId.orElse("UNKNOWN")
+				+ "]";
 	}
 }

@@ -1,5 +1,10 @@
 package io.openems.backend.metadata.odoo;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
@@ -10,7 +15,12 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 public class OdooUtils {
 
@@ -24,6 +34,60 @@ public class OdooUtils {
 
 	public final static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter
 			.ofPattern(DEFAULT_SERVER_DATETIME_FORMAT);
+
+	/**
+	 * Sends a JSON-RPC Request to an Odoo server
+	 * 
+	 * @param url     the URL
+	 * @param request the JSON-RPC Request
+	 * @return the JSON-RPC Response (note: Odoo always sends success responses,
+	 *         even on error...)
+	 * @throws OpenemsNamedException on error
+	 */
+	public static JsonrpcResponseSuccess sendJsonrpcRequest(String url, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		HttpURLConnection connection = null;
+		try {
+			// Open connection to Odoo
+			connection = (HttpURLConnection) new URL(url).openConnection();
+			connection.setConnectTimeout(5000);// 5 secs
+			connection.setReadTimeout(5000);// 5 secs
+			connection.setRequestProperty("Accept-Charset", "US-ASCII");
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Content-Type", "application/json");
+
+			// send JSON-RPC request
+			try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
+				out.write(request.toString());
+				out.flush();
+			}
+
+			// read JSON-RPC response
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+				}
+			}
+
+			JsonrpcResponse response = JsonrpcResponse.from(sb.toString());
+			if (response instanceof JsonrpcResponseSuccess) {
+				return (JsonrpcResponseSuccess) response;
+			} else {
+				throw OpenemsError.GENERIC.exception(response);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw OpenemsError.GENERIC.exception(e.getMessage());
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
+	}
 
 	private static Object executeKw(String url, Object[] params) throws XmlRpcException, MalformedURLException {
 		final XmlRpcClient client = new XmlRpcClient();

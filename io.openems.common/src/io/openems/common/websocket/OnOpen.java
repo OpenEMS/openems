@@ -6,20 +6,20 @@ import org.java_websocket.WebSocket;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
 @FunctionalInterface
 public interface OnOpen {
 
 	/**
-	 * Handles OnOpen event of Websocket.
+	 * Handles OnOpen event of WebSocket.
 	 * 
-	 * @param ws
-	 * @param handshake
-	 * @throws OpenemsException
+	 * @param ws        the WebSocket
+	 * @param handshake the HTTP handshake/headers
+	 * @throws OpenemsNamedException on error
 	 */
-	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException;
+	public void run(WebSocket ws, JsonObject handshake) throws OpenemsNamedException;
 
 	/**
 	 * Get field from the 'cookie' field in the handshake.

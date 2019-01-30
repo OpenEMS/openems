@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
+import io.openems.backend.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -31,6 +32,9 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
+
+	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
+	protected volatile Timedata timeData;
 
 	public B2bWebsocket() {
 		super("Backend2Backend.Websocket");

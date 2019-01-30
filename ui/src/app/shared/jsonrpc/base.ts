@@ -14,7 +14,7 @@ export abstract class JsonrpcMessage {
         } else if ("error" in message) {
             return new JsonrpcResponseError(message.id, message.error);
         } else {
-            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + message);
+            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + JSON.stringify(message));
         }
     }
 
@@ -35,9 +35,9 @@ export abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
 
 export class JsonrpcRequest extends AbstractJsonrpcRequest {
     public constructor(
-        public readonly id: string,
         public readonly method: string,
-        public readonly params: {}
+        public readonly params: {},
+        public readonly id: string = UUID.UUID()
     ) {
         super(method, params);
     }

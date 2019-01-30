@@ -55,6 +55,10 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 
 	private List<GridConnSchedule> schedule = new ArrayList<>();
 
+	public BalancingSchedule() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
@@ -68,9 +72,11 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		}
 		// parse Schedule
 		try {
-			JsonElement scheduleElement = JsonUtils.parse(config.schedule());
-			JsonArray scheduleArray = JsonUtils.getAsJsonArray(scheduleElement);
-			this.applySchedule(scheduleArray);
+			if (!config.schedule().trim().isEmpty()) {
+				JsonElement scheduleElement = JsonUtils.parse(config.schedule());
+				JsonArray scheduleArray = JsonUtils.getAsJsonArray(scheduleElement);
+				this.applySchedule(scheduleArray);
+			}
 		} catch (OpenemsNamedException e) {
 			this.logError(log, "Unable to parse Schedule: " + e.getMessage());
 		}
@@ -126,7 +132,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		int calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result
