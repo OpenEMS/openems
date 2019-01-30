@@ -94,6 +94,10 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				CompletableFuture.runAsync(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
 			}
 		};
+		// Disable lost connection detection
+		// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection
+		this.ws.setConnectionLostTimeout(0);
+		
 		// Allow the port to be reused. See
 		// https://stackoverflow.com/questions/3229860/what-is-the-meaning-of-so-reuseaddr-setsockopt-option-linux
 		this.ws.setReuseAddr(true);

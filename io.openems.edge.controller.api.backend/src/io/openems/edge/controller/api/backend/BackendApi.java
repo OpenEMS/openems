@@ -112,8 +112,6 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, COMPONENT_NAME, uri, httpHeaders, proxy);
-		// TODO: do we need to disable connection lost detection?
-		// this.websocket.setConnectionLostTimeout(0);
 		this.websocket.start();
 
 		// Activate worker
