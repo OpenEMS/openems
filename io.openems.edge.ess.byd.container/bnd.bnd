@@ -1,0 +1,33 @@
+#
+# io.openems.edge.ess.byd.container PROVIDER BUNDLE
+#
+Bundle-Name: OpenEMS Edge ESS FENECON BYD Container
+Bundle-Vendor: FENECON GmbH
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: The provider bundle for io.openems.edge.ess.byd.container. This bundle uses \
+	the Modbus protocol definition, for the battery storage systems provided \
+	by the BYD company.
+
+Export-Package:  \
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.symmetric.api,\
+	io.openems.edge.ess.symmetric.readonly.api
+	
+
+Private-Package:  \
+	io.openems.edge.ess.byd.container
+	
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.ess.api;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

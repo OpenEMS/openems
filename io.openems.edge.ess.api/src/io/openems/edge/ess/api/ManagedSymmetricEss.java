@@ -201,8 +201,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * the calculated power to the ESS. If you need to constrain the allowed power,
 	 * add Constraints using the {@link #getStaticConstraints()} method.
 	 * 
-	 * @param activePower
-	 * @param reactivePower
+	 * @param activePower   ActivePower in [W]
+	 * @param reactivePower ReactivePower in [var]
 	 */
 	public void applyPower(int activePower, int reactivePower);
 

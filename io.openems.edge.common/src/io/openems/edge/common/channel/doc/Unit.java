@@ -43,6 +43,10 @@ public enum Unit {
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
 	/**
+	 * Unit of Reactive Power [kvar]
+	 */
+	KILOVOLT_AMPERE_REACTIVE("kvar", VOLT_AMPERE_REACTIVE, -3),
+	/**
 	 * Unit of Apparent Power [VA]
 	 */
 	VOLT_AMPERE("VA"),
