@@ -66,7 +66,7 @@ public class EdCom extends AbstractOpenemsComponent implements EdComData, Openem
 	private String serialNumber;
 	
 	public EdCom() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		EdComUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
