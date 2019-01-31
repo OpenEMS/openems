@@ -93,14 +93,16 @@ public class User {
 	 * @param resource a resource identifier; used for the exception
 	 * @param edgeId   the Edge-ID
 	 * @param role     the compared Role
+	 * @return the current Role
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
-	public void assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
+	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
 		Role thisRole = this.edgeRoles.get(edgeId);
 		if (thisRole != null && thisRole.isAtLeast(role)) {
 			// Ok
+			return thisRole;
 		} else {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, thisRole);
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, role.toString());
 		}
 	}
 

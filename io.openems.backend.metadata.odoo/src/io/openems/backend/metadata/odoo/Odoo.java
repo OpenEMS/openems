@@ -40,8 +40,7 @@ import io.openems.common.utils.StringUtils;
 @Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 
-	public final static String ODOO_MODEL = "fems.device";
-//	FIXME public final static String ODOO_MODEL = "edge.device";
+	public final static String ODOO_MODEL = "edge.device";
 
 	private final static int READ_BATCH_SIZE = 300;
 	private final static int MAX_TRIES = 10;
@@ -100,8 +99,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		}
 
 		// read Edge records from Odoo in batches
-		for (int firstIndex = 0; firstIndex < READ_BATCH_SIZE * 2; firstIndex += READ_BATCH_SIZE) { // FIXME
-//		for (int firstIndex = 0; firstIndex < edgeIds.length; firstIndex += READ_BATCH_SIZE) {
+		for (int firstIndex = 0; firstIndex < edgeIds.length; firstIndex += READ_BATCH_SIZE) {
 			this.logInfo(this.log, "Reading batch of [" + READ_BATCH_SIZE + "] starting from [" + firstIndex + "]");
 
 			// collect Odoo-IDs for batch

@@ -1,5 +1,4 @@
 import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
-import { Component } from "@angular/compiler/src/core";
 
 export class EdgeConfig {
 
@@ -70,7 +69,7 @@ export class EdgeConfig {
     /**
      * Get Component-IDs of Component instances by the given Factory.
      * 
-     * @param nature the given Nature.
+     * @param factoryPid the Factory PID.
      */
     public getComponentIdsByFactory(factoryPid: string): string[] {
         let factory = this.factories[factoryPid];
@@ -84,7 +83,7 @@ export class EdgeConfig {
     /**
      * Get Component instances by the given Factory.
      * 
-     * @param nature the given Nature.
+     * @param factoryPid the Factory PID.
      */
     public getComponentsByFactory(factoryPid: string): EdgeConfig.Component[] {
         let componentIds = this.getComponentIdsByFactory(factoryPid);

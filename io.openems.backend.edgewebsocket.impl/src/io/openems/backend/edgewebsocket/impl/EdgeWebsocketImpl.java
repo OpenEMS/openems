@@ -1,6 +1,7 @@
 package io.openems.backend.edgewebsocket.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.java_websocket.WebSocket;
@@ -9,6 +10,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -16,13 +18,15 @@ import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
-import io.openems.common.exceptions.NotImplementedException;
+import io.openems.backend.uiwebsocket.api.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -32,14 +36,20 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	private WebsocketServer server = null;
 
+	private final SystemLogHandler systemLogHandler;
+
 	@Reference
 	protected volatile Metadata metadata;
 
 	@Reference
 	protected volatile Timedata timedata;
 
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile UiWebsocket uiWebsocket;
+
 	public EdgeWebsocketImpl() {
 		super("Edge.Websocket");
+		this.systemLogHandler = new SystemLogHandler(this);
 	}
 
 	@Activate
@@ -79,18 +89,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 */
 	protected boolean isOnline(String edgeId) {
 		return this.server.isOnline(edgeId);
-	}
-
-	/**
-	 * Sends a JsonrpcNotification to an OpenEMS Edge.
-	 * 
-	 * @param edgeId       the Edge-ID
-	 * @param notification the JsonrpcNotification
-	 * @throws OpenemsException on error
-	 */
-	public void sendNotification(String edgeId, JsonrpcNotification notification) throws OpenemsException {
-		throw new NotImplementedException("EdgeWebsocketImpl.sendNotification() is not implemented");
-		// TODO
 	}
 
 	@Override
@@ -140,5 +138,22 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, UUID token,
+			SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, token, request);
+	}
+
+	/**
+	 * Handles a {@link SystemLogNotification}, i.e. the replies to
+	 * {@link SubscribeSystemLogRequest}.
+	 * 
+	 * @param edgeId       the Edge-ID
+	 * @param notification the SystemLogNotification
+	 */
+	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
+		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
 	}
 }

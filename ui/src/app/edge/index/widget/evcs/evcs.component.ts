@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UpdateComponentConfigRequest } from '../../../../shared/jsonrpc/request/updateComponentConfigRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 type ChargeMode = 'FORCE_CHARGE' | 'DEFAULT';
@@ -28,7 +27,7 @@ export class EvcsComponent {
     // Subscribe to CurrentData
     this.service.setCurrentEdge(this.route).then(edge => {
       this.edge = edge;
-      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR, [
+      edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
         // Ess
         new ChannelAddress(this.componentId, 'ChargePower')
       ]);
@@ -50,7 +49,7 @@ export class EvcsComponent {
 
   ngOnDestroy() {
     if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR);
+      this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId);
     }
   }
 

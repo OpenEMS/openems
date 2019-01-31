@@ -1,8 +1,23 @@
-<ng-container *ngFor="let widget of widgets">
-  <ion-col [ngSwitch]="widget.name" size="12" size-md="8" size-lg="4">
-    <evcs *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" [componentId]="widget.componentId"></evcs>
-    <modbusapi *ngSwitchCase="'Controller.Api.ModbusTcp'" [componentId]="widget.componentId"></modbusapi>
-    <!-- <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
-              [config]="config"></channelthreshold-2018-7> -->
-  </ion-col>
-</ng-container>
+<ion-grid no-padding>
+  <ion-row>
+    <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
+
+      <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
+        <evcs [componentId]="widget.componentId"></evcs>
+      </ion-col>
+
+      <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12">
+        <modbusapi [componentId]="widget.componentId"></modbusapi>
+      </ion-col>
+
+      <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="6">
+        <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+      </ion-col>
+
+      <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="6">
+        <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+      </ion-col>
+
+    </ng-container>
+  </ion-row>
+</ion-grid>

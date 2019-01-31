@@ -110,7 +110,7 @@ export abstract class AbstractSection {
     public url: string = window.location.href;
     public valuePath: string = "";
     public outlinePath: string = "";
-    public energyFlow: EnergyFlow;
+    public energyFlow: EnergyFlow = null;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
@@ -211,7 +211,9 @@ export abstract class AbstractSection {
         /* 
          * Create the energy flow direction arrow
          */
-        if (sumRatio > 0 && sumRatio < 0.1) {
+        if (!sumRatio) {
+            sumRatio = 0;
+        } else if (sumRatio > 0 && sumRatio < 0.1) {
             sumRatio = 0.1 // scale ratio to [0.1,1]
         } else if (sumRatio < 0 && sumRatio > -0.1) {
             sumRatio = -0.1 // scale ratio to [-0.1,-1]

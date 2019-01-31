@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service } from '../../../shared/shared';
-import { WidgetNature, Widget, WidgetFactory } from './widget';
+import { Service, Widget } from '../../../shared/shared';
 
 @Component({
   selector: WidgetComponent.SELECTOR,
@@ -20,29 +19,7 @@ export class WidgetComponent {
 
   ngOnInit() {
     this.service.setCurrentEdge(this.route);
-    this.setWidgets();
+    this.service.getWidgets().then(widgets => this.widgets = widgets);
   }
 
-  /**
-   * Defines the widgets that should be shown.
-   */
-  private setWidgets() {
-    this.service.getConfig().then(config => {
-      console.log(config);
-
-      let widgets = [];
-      for (let nature of Object.keys(WidgetNature)) {
-        for (let componentId of config.getComponentsImplementingNature(nature)) {
-          widgets.push({ name: nature, componentId: componentId })
-        }
-      }
-      for (let factory of Object.keys(WidgetFactory)) {
-        for (let componentId of config.getComponentIdsByFactory(factory)) {
-          widgets.push({ name: factory, componentId: componentId })
-        }
-      }
-      console.log(widgets);
-      this.widgets = widgets;
-    })
-  }
 }

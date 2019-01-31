@@ -25,6 +25,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -51,6 +53,9 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 	protected WebsocketClient websocket = null;
 	protected int cycleTime = DEFAULT_CYCLE_TIME; // default, is going to be overwritten by config
 	protected boolean debug = false;
+
+	// Used for SubscribeSystemLogRequests
+	private boolean isSystemLogSubscribed = false;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile Timedata timedata = null;
@@ -107,8 +112,6 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, COMPONENT_NAME, uri, httpHeaders, proxy);
-		// TODO: do we need to disable connection lost detection?
-		// this.websocket.setConnectionLostTimeout(0);
 		this.websocket.start();
 
 		// Activate worker
@@ -123,7 +126,7 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
 	}
 
@@ -141,12 +144,29 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 		super.logInfo(log, message);
 	}
 
+	/**
+	 * Activates/deactivates subscription to System-Log.
+	 * 
+	 * <p>
+	 * If activated, all System-Log events are sent via
+	 * {@link SystemLogNotification}s.
+	 * 
+	 * @param isSystemLogSubscribed true to activate
+	 */
+	protected void setSystemLogSubscribed(boolean isSystemLogSubscribed) {
+		this.isSystemLogSubscribed = isSystemLogSubscribed;
+	}
+
 	@Override
 	public void doAppend(PaxLoggingEvent event) {
-		if (this.websocket == null || !this.isEnabled()) {
+		if (!this.isSystemLogSubscribed) {
 			return;
 		}
-		// TODO send log
-		// this.websocket.sendLog(event);
+		WebsocketClient ws = this.websocket;
+		if (ws == null) {
+			return;
+		}
+		SystemLogNotification notification = SystemLogNotification.fromPaxLoggingEvent(event);
+		ws.sendMessage(notification);
 	}
 }

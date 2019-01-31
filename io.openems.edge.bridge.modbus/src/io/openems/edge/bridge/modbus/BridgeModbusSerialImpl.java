@@ -35,7 +35,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
 
-//	private final Logger log = LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
 
 	/**
 	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3')

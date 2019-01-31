@@ -28,7 +28,8 @@ Export-Package: \
 	io.openems.wrapper.websocket;version=latest,\
 	org.apache.felix.configadmin;version=1.8,\
 	json,\
-	com.google.gson
+	com.google.gson,\
+	org.ops4j.pax.logging.pax-logging-api
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

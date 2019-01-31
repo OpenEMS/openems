@@ -2,6 +2,9 @@ package io.openems.common.session;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+
 public enum Role {
 	/*
 	 * The System Administrator
@@ -60,10 +63,28 @@ public enum Role {
 	 * than the given Role.
 	 * 
 	 * @param role the compared Role
-	 * @return true if the current Role privileges are  equal or higher
+	 * @return true if the current Role privileges are equal or higher
 	 */
 	public boolean isAtLeast(Role role) {
 		return this.level <= role.level;
+	}
+
+	/**
+	 * Throws an exception if the current Role is equal or more privileged than the
+	 * given Role.
+	 * 
+	 * @param resource a resource identifier; used for the exception
+	 * @param role     the compared Role
+	 * @return the current Role
+	 * @throws OpenemsNamedException if the current Role privileges are less
+	 */
+	public Role assertRoleIsAtLeast(String resource, Role role) throws OpenemsNamedException {
+		if (this.isAtLeast(role)) {
+			// Ok
+			return this;
+		} else {
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, this);
+		}
 	}
 
 	/**

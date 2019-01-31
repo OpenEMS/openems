@@ -19,6 +19,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
@@ -62,7 +63,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		for (String componentId : this.config.component_ids()) {
 			OpenemsComponent component = this.componentManager.getComponent(componentId);
 			boolean printedHeader = false;

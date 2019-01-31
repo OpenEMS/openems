@@ -16,6 +16,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -54,7 +55,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		StringBuilder b = new StringBuilder();
 		/*
 		 * Asks each component for its debugLog()-ChannelIds. Prints an aggregated log
@@ -65,9 +66,18 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) // sorted by Component-ID
 				.forEachOrdered(component -> {
 					String debugLog = component.debugLog();
-					if (debugLog != null) {
-						b.append(component.id());
-						b.append("[" + debugLog + "] ");
+					String state = component.getState().listStates();
+
+					if (debugLog != null || !state.isEmpty()) {
+						b.append(component.id() + "[");
+						if (debugLog != null && !state.isEmpty()) {
+							b.append(debugLog + "|State:" + state);
+						} else if (debugLog != null) {
+							b.append(debugLog);
+						} else if (!state.isEmpty()) {
+							b.append(state);
+						}
+						b.append("] ");
 					}
 				});
 		this.logInfo(this.log, b.toString());

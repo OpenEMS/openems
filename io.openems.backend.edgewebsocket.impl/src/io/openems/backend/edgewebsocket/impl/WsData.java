@@ -72,4 +72,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 					"EdgeId is not set. Unable to handle " + StringUtils.toShortString(message.toString(), 100));
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "EdgeWebsocket.WsData [apikey=" + apikey.orElse("UNKNOWN") + ", edgeId=" + edgeId.orElse("UNKNOWN")
+				+ "]";
+	}
 }

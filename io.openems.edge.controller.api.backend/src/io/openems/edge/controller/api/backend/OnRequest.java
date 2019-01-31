@@ -15,6 +15,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 
@@ -39,6 +40,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case ComponentJsonApiRequest.METHOD:
 			return this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
+
+		case SubscribeSystemLogRequest.METHOD:
+			return this.handleSubscribeSystemLogRequest(SubscribeSystemLogRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -92,4 +96,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
 	}
 
+	/**
+	 * Handles a SubscribeSystemLogRequest.
+	 *
+	 * @param request the SubscribeSystemLogRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(SubscribeSystemLogRequest request)
+			throws OpenemsNamedException {
+		this.parent.setSystemLogSubscribed(request.getSubscribe());
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
 }

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.faljse.SDNotify.SDNotify;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
@@ -129,11 +130,25 @@ public class Cycle extends AbstractWorker {
 					scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEachOrdered(controller -> {
 						try {
 							controller.run();
+
+							// announce running was ok
+							controller.getRunFailed().setNextValue(false);
+
+						} catch (OpenemsNamedException e) {
+							this.log.warn("Error in Controller [" + controller.id() + "]: " + e.getMessage());
+
+							// announce running failed
+							controller.getRunFailed().setNextValue(true);
+
 						} catch (Exception e) {
-							log.warn("Error in Controller. " + e.getClass().getSimpleName() + ": " + e.getMessage());
-							if (e instanceof ClassCastException || e instanceof NullPointerException || e instanceof IllegalArgumentException) {
+							log.warn("Error in Controller [" + controller.id() + "]. " + e.getClass().getSimpleName()
+									+ ": " + e.getMessage());
+							if (e instanceof ClassCastException || e instanceof NullPointerException
+									|| e instanceof IllegalArgumentException) {
 								e.printStackTrace();
 							}
+							// announce running failed
+							controller.getRunFailed().setNextValue(true);
 						}
 					});
 				});

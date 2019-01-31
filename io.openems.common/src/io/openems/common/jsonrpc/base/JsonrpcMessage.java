@@ -7,6 +7,19 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
+/**
+ * Represents a JSON-RPC Message.
+ * 
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   ...
+ * }
+ * </pre>
+ * 
+ * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
+ *      specification</a>
+ */
 public abstract class JsonrpcMessage {
 
 	public final static String JSONRPC_VERSION = "2.0";

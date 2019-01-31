@@ -27,7 +27,10 @@ export class ConsumptionSectionComponent extends AbstractSection {
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
-        super.updateSectionData(sum.consumption.activePower, sum.consumption.powerRatio, Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower));
+        super.updateSectionData(
+            sum.consumption.activePower,
+            sum.consumption.powerRatio,
+            Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower));
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {

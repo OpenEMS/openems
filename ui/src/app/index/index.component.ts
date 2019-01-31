@@ -86,7 +86,7 @@ export class IndexComponent {
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
     }).then(reason => {
-      console.error("Error...");
+      console.error("Error on Login", reason);
     })
   }
 

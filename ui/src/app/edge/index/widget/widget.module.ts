@@ -3,6 +3,7 @@ import { SharedModule } from './../../../shared/shared.module';
 import { EvcsComponent } from './evcs/evcs.component';
 import { ModbusApiComponent } from './modbusapi/modbusapi.component';
 import { WidgetComponent } from './widget.component';
+import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 
 @NgModule({
   imports: [
@@ -10,6 +11,7 @@ import { WidgetComponent } from './widget.component';
   ],
   declarations: [
     WidgetComponent,
+    ChannelthresholdComponent,
     EvcsComponent,
     ModbusApiComponent
   ],

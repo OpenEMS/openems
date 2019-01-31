@@ -38,23 +38,23 @@
         </ion-item>
 
         <ion-card-content>
-          <div [style.height]="socChartHeight">
-            <socchart [fromDate]="fromDate" [toDate]="toDate"></socchart>
-          </div>
-          <div [style.height]="energyChartHeight">
-            <energychart [fromDate]="fromDate" [toDate]="toDate"></energychart>
-          </div>
-          <ng-container *ngFor="let widget of widgets">
-            <ng-container [ngSwitch]="widget">
-              <div *ngSwitchCase="'EVCS'" [style.height]="socChartHeight">
-                <evcschart [fromDate]="fromDate" [toDate]="toDate"></evcschart>
-              </div>
-              <!-- <channelthreshold-2018-7 *ngIf="widget == 'CHANNELTHRESHOLD'" [edge]="edge" [currentData]="currentData"
-                [config]="config"></channelthreshold-2018-7> -->
-            </ng-container>
-          </ng-container>
-        </ion-card-content>
+          <ion-grid no-padding>
 
+            <ion-row [style.height]="socChartHeight">
+              <ion-col size="12">
+                <soc [fromDate]="fromDate" [toDate]="toDate"></soc>
+              </ion-col>
+            </ion-row>
+            <ion-row [style.height]="energyChartHeight">
+              <ion-col size="12">
+                <energy [fromDate]="fromDate" [toDate]="toDate"></energy>
+              </ion-col>
+            </ion-row>
+
+            <widget [fromDate]="fromDate" [toDate]="toDate"></widget>
+          </ion-grid>
+
+        </ion-card-content>
       </ion-card>
     </ion-col>
 

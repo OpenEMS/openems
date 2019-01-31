@@ -2,25 +2,19 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
 import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
+import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
 import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
 import { Websocket } from '../service/websocket';
 import { ChannelAddress } from '../type/channeladdress';
 import { Role } from '../type/role';
+import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
-
-export class Log {
-  timestamp: number;
-  time: string = "";
-  level: string;
-  color: string = "black";
-  source: string;
-  message: string;
-}
 
 export class Edge {
 
@@ -38,6 +32,9 @@ export class Edge {
 
   // holds current data
   public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
+
+  // holds system log
+  public systemLog: Subject<SystemLog> = new Subject<SystemLog>();
 
   // holds config
   public config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig());
@@ -59,7 +56,7 @@ export class Edge {
   /**
    * Called by Service, when this Edge is set as currentEdge.
    */
-  public markAsCurrentEdge(websocket: Websocket) {
+  public markAsCurrentEdge(websocket: Websocket): void {
     if (this.config.value == null) {
       this.refreshConfig(websocket);
     }
@@ -68,12 +65,12 @@ export class Edge {
   /**
    * Refresh the config.
    */
-  public refreshConfig(websocket: Websocket) {
+  public refreshConfig(websocket: Websocket): void {
     let request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
       this.config.next(new EdgeConfig(response as GetEdgeConfigResponse));
     }).catch(reason => {
-      console.log("refreshConfig got error", reason)
+      console.warn("refreshConfig got error", reason)
       // TODO error
       this.config.next(new EdgeConfig());
     });
@@ -86,35 +83,53 @@ export class Edge {
    * @param id        a unique ID for this subscription (e.g. the component selector)
    * @param channels  the subscribed Channel-Adresses
    */
-  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]) {
+  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): Promise<JsonrpcResponseSuccess> {
     this.subscribedChannels[id] = channels;
-    this.sendSubscribeChannels(websocket);
+    return this.sendSubscribeChannels(websocket);
   }
 
   /**
    * Removes Channels from subscription
    * 
-   * @param ws the Websocket
-   * @param id the unique ID for this subscription
+   * @param websocket the Websocket
+   * @param id        the unique ID for this subscription
    */
-  public unsubscribeChannels(ws: Websocket, id: string) {
+  public unsubscribeChannels(websocket: Websocket, id: string): Promise<JsonrpcResponseSuccess> {
     delete this.subscribedChannels[id];
-    this.sendSubscribeChannels(ws);
+    return this.sendSubscribeChannels(websocket);
+  }
+
+  /**
+   * Subscribe to System-Log
+   * 
+   * @param websocket the Websocket
+   */
+  public subscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
+    return this.sendRequest(websocket, new SubscribeSystemLogRequest(true));
+  }
+
+  /**
+   * Unsubscribe from System-Log
+   * 
+   * @param websocket the Websocket
+   */
+  public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
+    return this.sendRequest(websocket, new SubscribeSystemLogRequest(false));
   }
 
   /**
    * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
    * 
-   * @param ws the Websocket
+   * @param websocket the Websocket
    */
-  private sendSubscribeChannels(ws: Websocket) {
+  private sendSubscribeChannels(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
     // merge channels from currentDataSubscribes
     let channels: ChannelAddress[] = [];
     for (let componentId in this.subscribedChannels) {
       channels.push.apply(channels, this.subscribedChannels[componentId]);
     }
     let request = new SubscribeChannelsRequest(channels);
-    this.sendRequest(ws, request); // ignore Response
+    return this.sendRequest(websocket, request);
   }
 
   /**
@@ -122,6 +137,13 @@ export class Edge {
    */
   public handleCurrentDataNotification(message: CurrentDataNotification): void {
     this.currentData.next(new CurrentData(message.params));
+  }
+
+  /**
+   * Handles a SystemLogNotification
+   */
+  public handleSystemLogNotification(message: SystemLogNotification): void {
+    this.systemLog.next(message.params.line);
   }
 
   /**
@@ -159,7 +181,7 @@ export class Edge {
    * 
    * @param isOnline 
    */
-  public setOnline(isOnline: boolean) {
+  public setOnline(isOnline: boolean): void {
     this.isOnline = isOnline;
   }
 

@@ -19,12 +19,12 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	private Logger log = LoggerFactory.getLogger(TestClient.class);
 
-	private final OnOpen onOpen;
-	private final OnRequest onRequest;
-	private final OnNotification onNotification;
-	private final OnError onError;
-	private final OnClose onClose;
-	private final OnInternalError onInternalError;
+	private OnOpen onOpen;
+	private OnRequest onRequest;
+	private OnNotification onNotification;
+	private OnError onError;
+	private OnClose onClose;
+	private OnInternalError onInternalError;
 
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
@@ -44,8 +44,8 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		this.onClose = (ws, code, reason, remote) -> {
 			log.info("onClose: " + reason);
 		};
-		this.onInternalError = (ex) -> {
-			log.warn("onInternalError. " + ex.getClass() + ": " + ex.getMessage());
+		this.onInternalError = (ex, wsDataString) -> {
+			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
 			ex.printStackTrace();
 		};
 	}
@@ -55,9 +55,17 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		return onOpen;
 	}
 
+	public void setOnOpen(OnOpen onOpen) {
+		this.onOpen = onOpen;
+	}
+
 	@Override
 	public OnRequest getOnRequest() {
 		return onRequest;
+	}
+
+	public void setOnRequest(OnRequest onRequest) {
+		this.onRequest = onRequest;
 	}
 
 	@Override
@@ -65,9 +73,17 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		return onError;
 	}
 
+	public void setOnError(OnError onError) {
+		this.onError = onError;
+	}
+
 	@Override
 	public OnClose getOnClose() {
 		return onClose;
+	}
+
+	public void setOnClose(OnClose onClose) {
+		this.onClose = onClose;
 	}
 
 	@Override
@@ -75,14 +91,31 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		return onInternalError;
 	}
 
+	public void setOnInternalError(OnInternalError onInternalError) {
+		this.onInternalError = onInternalError;
+	}
+
 	@Override
 	protected OnNotification getOnNotification() {
 		return onNotification;
 	}
 
+	public void setOnNotification(OnNotification onNotification) {
+		this.onNotification = onNotification;
+	}
+
+	private static class TestWsData extends WsData {
+
+		@Override
+		public String toString() {
+			return "TestWsData[]";
+		}
+
+	}
+
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new TestWsData();
 	}
 
 	@Override

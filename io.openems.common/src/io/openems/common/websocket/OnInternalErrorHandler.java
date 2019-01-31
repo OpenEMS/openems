@@ -12,7 +12,7 @@ public class OnInternalErrorHandler implements Runnable {
 
 	@Override
 	public final void run() {
-		this.onInternalError.run(this.ex);
+		this.onInternalError.run(this.ex, "");
 	}
 
 }

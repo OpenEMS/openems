@@ -22,6 +22,7 @@ public enum OpenemsError {
 	COMMON_USER_NOT_AUTHENTICATED(1001, "User is not authenticated. [%s]"), //
 	COMMON_ROLE_ACCESS_DENIED(1002, "Access to this resource [%s] is denied for User with Role [%s]"), //
 	COMMON_AUTHENTICATION_FAILED(1003, "Authentication failed"), //
+	COMMON_USER_UNDEFINED(1004, "User [%s] is not defined"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */
@@ -32,6 +33,8 @@ public enum OpenemsError {
 	 * Backend errors. 3000-3999
 	 */
 	BACKEND_EDGE_NOT_CONNECTED(3000, "Edge [%s] is not connected"), //
+	BACKEND_UI_TOKEN_MISSING(3001, "Token for UI connection is missing"), //
+	BACKEND_NO_UI_WITH_TOKEN(3002, "No open connection with Token [%s]"), //
 	/*
 	 * JSON-RPC Request/Response/Notification. 4000-4999
 	 */

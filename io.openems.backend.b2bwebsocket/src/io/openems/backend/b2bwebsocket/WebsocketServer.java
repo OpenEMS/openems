@@ -26,15 +26,15 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = new OnClose(parent);
-		this.onInternalError = (ex) -> {
-			log.info("OnInternalError: " + ex.getMessage());
+		this.onInternalError = (ex, wsDataString) -> {
+			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
 			ex.printStackTrace();
 		};
 	}
 
 	@Override
 	protected WsData createWsData() {
-		return new WsData();
+		return new WsData(this.parent);
 	}
 
 	@Override

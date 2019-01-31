@@ -18,6 +18,7 @@ doc\build\node_modules\.bin\mmdc -i doc\modules\ROOT\pages\component-communicati
 
 # With global mmdc
 
+cd .\doc\modules\ROOT\pages\component-communication\
 mmdc -i authenticateWithPassword.mmd -o ../../assets/images/authenticateWithPassword.png
 
 # Mermaid Live Editor
