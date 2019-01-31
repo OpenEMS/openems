@@ -27,14 +27,10 @@ Export-Package: \
 	com.google.guava;version=27,\
 	io.openems.wrapper.websocket;version=latest,\
 	org.apache.felix.configadmin;version=1.8,\
-<<<<<<< HEAD
-	com.google.gson,\
-	json
-=======
 	json,\
 	com.google.gson,\
 	org.ops4j.pax.logging.pax-logging-api
->>>>>>> fennecon/develop
+
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

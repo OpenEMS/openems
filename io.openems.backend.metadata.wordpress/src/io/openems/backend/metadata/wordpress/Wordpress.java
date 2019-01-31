@@ -2,10 +2,9 @@ package io.openems.backend.metadata.wordpress;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,11 +29,11 @@ import com.google.gson.JsonSyntaxException;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
 import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.wordpress.MyEdge;
+import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -251,8 +250,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 
 	@Override
 	public Collection<Edge> getAllEdges() {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.unmodifiableCollection(this.edges.values());
 	}
 	
 	private void addListeners(MyEdge edge) {
@@ -265,6 +263,12 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		edge.onSetIpv4(ipv4 -> {
 			log.debug("Edge [" + edge.getId() + "]. Set IPv4: " + ipv4);
 		});
+	}
+
+	@Override
+	public User authenticate(String username, String password) throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
