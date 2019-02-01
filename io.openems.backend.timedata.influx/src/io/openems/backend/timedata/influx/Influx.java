@@ -45,7 +45,6 @@ import io.openems.shared.influxdb.InfluxConstants;
 @Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 
-	private static final String TMP_MINI_MEASUREMENT = "minies";
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
@@ -137,9 +136,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 		// Write data to default location
 		this.writeData(influxEdgeId, data);
-
-		// Hook to continue writing data to old Mini monitoring
-		this.writeDataToOldMiniMonitoring(edgeId, influxEdgeId, data);
 	}
 
 	/**
@@ -244,85 +240,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		} else {
 			builder.addField(field, element.toString());
 		}
-	}
-
-	/**
-	 * Writes data to old database for old Mini monitoring.
-	 * 
-	 * </p>
-	 * XXX remove after full migration
-	 *
-	 * @param edgeId   the Edge-ID
-	 * @param influxId the Influx-Edge-ID
-	 * @param data     the received data
-	 * @throws OpenemsException on error
-	 */
-	private void writeDataToOldMiniMonitoring(String edgeId, int influxId,
-			TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
-		Edge edge = this.metadata.getEdgeOrError(edgeId);
-		if (!edge.getProducttype().equals("MiniES 3-3")) {
-			return;
-		}
-
-		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
-				.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
-				.build();
-
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
-			Long timestamp = entry.getKey();
-			Builder builder = Point.measurement(TMP_MINI_MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
-
-			Map<String, Object> fields = new HashMap<>();
-
-			for (Entry<ChannelAddress, JsonElement> valueEntry : entry.getValue().entrySet()) {
-				String channel = valueEntry.getKey().toString();
-				JsonElement element = valueEntry.getValue();
-				if (!element.isJsonPrimitive()) {
-					continue;
-				}
-				JsonPrimitive jValue = element.getAsJsonPrimitive();
-				if (!jValue.isNumber()) {
-					continue;
-				}
-				long value = jValue.getAsNumber().longValue();
-
-				// convert channel ids to old identifiers
-				if (channel.equals("ess0/Soc")) {
-					fields.put("Stack_SOC", value);
-					edge.setSoc((int) value);
-				} else if (channel.equals("meter0/ActivePower")) {
-					fields.put("PCS_Grid_Power_Total", value * -1);
-				} else if (channel.equals("meter1/ActivePower")) {
-					fields.put("PCS_PV_Power_Total", value);
-				} else if (channel.equals("meter2/ActivePower")) {
-					fields.put("PCS_Load_Power_Total", value);
-				}
-
-				// from here value needs to be divided by 10 for backwards compatibility
-				value = value / 10;
-				if (channel.equals("meter2/Energy")) {
-					fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
-					fields.put("PCS_Summary_Consumption_Accumulative", value);
-				} else if (channel.equals("meter0/BuyFromGridEnergy")) {
-					fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
-					fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
-				} else if (channel.equals("meter0/SellToGridEnergy")) {
-					fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
-					fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
-				} else if (channel.equals("meter1/EnergyL1")) {
-					fields.put("PCS_Summary_PV_Accumulative_cor", value);
-					fields.put("PCS_Summary_PV_Accumulative", value);
-				}
-			}
-
-			if (fields.size() > 0) {
-				builder.fields(fields);
-				batchPoints.point(builder.build());
-			}
-		}
-
-		// write to DB
-		this.influxConnector.write(batchPoints);
 	}
 
 	@Override
