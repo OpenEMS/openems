@@ -12,7 +12,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
-	String modbus_id();
+	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Username", description = "Username")
 	String username() default "admin";
