@@ -45,12 +45,14 @@ public class OsgiValidateWorker extends AbstractWorker {
 		try {
 			ConfigurationAdmin cm = this.parent.cm;
 			Configuration[] configs = cm.listConfigurations("(enabled=true)");
-			for (Configuration config : configs) {
-				Dictionary<String, Object> properties = config.getProperties();
-				String componentId = (String) properties.get("id");
-				if (!this.isComponentActivated(componentId, config.getPid())) {
-					this.parent.logWarn(this.log, "Component [" + componentId + "] is configured but not active!");
-					allConfigActivated = false;
+			if (configs != null) {
+				for (Configuration config : configs) {
+					Dictionary<String, Object> properties = config.getProperties();
+					String componentId = (String) properties.get("id");
+					if (!this.isComponentActivated(componentId, config.getPid())) {
+						this.parent.logWarn(this.log, "Component [" + componentId + "] is configured but not active!");
+						allConfigActivated = false;
+					}
 				}
 			}
 		} catch (Exception e) {
