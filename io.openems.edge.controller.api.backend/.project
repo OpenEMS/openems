@@ -24,6 +24,5 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>bndtools.core.bndnature</nature>
-		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
 	</natures>
 </projectDescription>
