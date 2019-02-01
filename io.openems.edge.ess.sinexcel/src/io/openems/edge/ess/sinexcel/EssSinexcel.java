@@ -912,7 +912,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			
 			if (activePower == 0 && reactivePower == 0 && a == 0) {
 				counterOff++;
-				if(counterOff == 48) {
+				if(counterOff == 47) {
 					inverterOff();
 					counterOff = 0;
 				}
@@ -920,7 +920,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			}
 			else if((activePower != 0 || reactivePower != 0) && a == 1) {
 				counterOn++;
-				if(counterOn == 48) {
+				if(counterOn == 47) {
 					inverterOn();
 					counterOn = 0;
 				}
