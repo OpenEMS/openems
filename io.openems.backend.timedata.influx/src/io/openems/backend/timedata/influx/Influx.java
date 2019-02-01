@@ -11,8 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBIOException;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -149,15 +147,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * 
 	 * @param influxEdgeId the unique, numeric identifier of the Edge
 	 * @param data         the data
+	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
+			throws OpenemsException {
 		Set<Entry<Long, Map<ChannelAddress, JsonElement>>> dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
-		InfluxDB influxDb = this.influxConnector.getConnection();
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 				.build();
@@ -184,11 +183,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		}
 
 		// write to DB
-		try {
-			influxDb.write(batchPoints);
-		} catch (InfluxDBIOException e) {
-			this.logError(this.log, "Unable to write data: " + e.getMessage());
-		}
+		this.influxConnector.write(batchPoints);
 	}
 
 	public static Integer parseNumberFromName(String name) throws OpenemsException {
@@ -269,8 +264,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			return;
 		}
 
-		InfluxDB influxDb = this.influxConnector.getConnection();
-
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
 				.build();
@@ -329,7 +322,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		}
 
 		// write to DB
-		influxDb.write(batchPoints);
+		this.influxConnector.write(batchPoints);
 	}
 
 	@Override
@@ -477,14 +470,14 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			case "ProductionAcActivePower": {
 				List<String> ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
 				ignoreIds.add("meter0");
-				
+
 				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
 				asymmetricIds.removeAll(ignoreIds);
-				
+
 				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
 				symmetricIds.removeAll(ignoreIds);
 				symmetricIds.removeAll(asymmetricIds);
-				
+
 				ChannelFormula[] result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
 				int i = 0;
 				for (String id : asymmetricIds) {
