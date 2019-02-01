@@ -86,8 +86,8 @@ public class SingleRack {
 	private static final String RACK = "RACK";
 	private static final String TEMPERATURE = "TEMPERATURE";
 	
-	public static final int VOLTAGE_SENSORS_PER_MODULE = 24;
-	public static final int TEMPERATURE_SENSORS_PER_MODULE = 24;
+	public static final int VOLTAGE_SENSORS_PER_MODULE = 12;
+	public static final int TEMPERATURE_SENSORS_PER_MODULE = 12;
 	
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 	private static final int VOLTAGE_ADDRESS_OFFSET = 0x800;
