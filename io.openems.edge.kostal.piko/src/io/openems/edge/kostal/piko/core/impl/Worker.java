@@ -17,7 +17,7 @@ public class Worker extends AbstractCycleWorker {
 
 	@Override
 	protected void forever() {
-		List<ReadTask> nextReadTasks = this.readTasksManager.getNextReadTasks();
+		List<ReadTask> nextReadTasks = this.readTasksManager.getNextTasks();
 		this.protocol.execute(nextReadTasks);
 	}
 }

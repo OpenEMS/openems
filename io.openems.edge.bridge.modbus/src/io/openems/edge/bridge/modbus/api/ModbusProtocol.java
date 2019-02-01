@@ -10,7 +10,7 @@ import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.common.taskmanager.TaskManager;
+import io.openems.edge.common.taskmanager.TasksManager;
 
 public class ModbusProtocol {
 
@@ -24,12 +24,12 @@ public class ModbusProtocol {
 	/**
 	 * TaskManager for ReadTasks
 	 */
-	private final TaskManager<ReadTask> readTaskManager = new TaskManager<>();
+	private final TasksManager<ReadTask> readTaskManager = new TasksManager<>();
 
 	/**
 	 * TaskManager for WriteTasks
 	 */
-	private final TaskManager<WriteTask> writeTaskManager = new TaskManager<>();
+	private final TasksManager<WriteTask> writeTaskManager = new TasksManager<>();
 
 	public ModbusProtocol(AbstractOpenemsModbusComponent parent, Task... tasks) {
 		this.parent = parent;
@@ -58,6 +58,12 @@ public class ModbusProtocol {
 	}
 
 	public synchronized void removeTask(Task task) {
+		if (task instanceof ReadTask) {
+			this.readTaskManager.removeTask((ReadTask) task);
+		}
+		if (task instanceof WriteTask) {
+			this.writeTaskManager.removeTask((WriteTask) task);
+		}
 	}
 
 	/**
@@ -66,16 +72,16 @@ public class ModbusProtocol {
 	 * @return
 	 */
 	public List<WriteTask> getNextWriteTasks() {
-		return this.writeTaskManager.getNextReadTasks();
+		return this.writeTaskManager.getNextTasks();
 	}
-	
+
 	/**
 	 * Returns the next list of ReadTasks that should be executed within one cycle
 	 * 
 	 * @return
 	 */
 	public List<ReadTask> getNextReadTasks() {
-		return this.readTaskManager.getNextReadTasks();
+		return this.readTaskManager.getNextTasks();
 	}
 
 	/**

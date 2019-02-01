@@ -7,7 +7,16 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class TasksManager<T extends Task> {
+/**
+ * Manages a number of {@link ManagedTask}s with different priorities.
+ * 
+ * <p>
+ * A useful application for TasksManager is to provide a list of Tasks that need
+ * to be handled on an OpenEMS Cycle run.
+ * 
+ * @param <T>
+ */
+public class TasksManager<T extends ManagedTask> {
 
 	private final List<T> allTasks = new CopyOnWriteArrayList<>();
 
@@ -23,13 +32,23 @@ public class TasksManager<T extends Task> {
 		this.addTasks(tasks);
 	}
 
+	/**
+	 * Adds multiple Tasks.
+	 * 
+	 * @param tasks an array of Tasks
+	 */
 	@SafeVarargs
 	public final synchronized void addTasks(T... tasks) {
 		for (T task : tasks) {
 			this.addTask(task);
 		}
 	}
-		
+
+	/**
+	 * Adds a Task, taking its Priority in consideration.
+	 * 
+	 * @param task the Task
+	 */
 	public synchronized void addTask(T task) {
 		this.allTasks.add(task);
 		switch (task.getPriority()) {
@@ -47,6 +66,11 @@ public class TasksManager<T extends Task> {
 		}
 	}
 
+	/**
+	 * Removes a Task.
+	 * 
+	 * @param task the Task
+	 */
 	public synchronized void removeTask(T task) {
 		this.allTasks.remove(task);
 		switch (task.getPriority()) {
@@ -64,7 +88,12 @@ public class TasksManager<T extends Task> {
 		}
 	}
 
-	public synchronized List<T> getNextReadTasks() {
+	/**
+	 * Gets the next Tasks. This should normally be called once per Cycle.
+	 * 
+	 * @return a list of Tasks.
+	 */
+	public synchronized List<T> getNextTasks() {
 		List<T> result = new ArrayList<>();
 		/*
 		 * Handle HIGH
@@ -93,6 +122,11 @@ public class TasksManager<T extends Task> {
 		return Collections.unmodifiableList(result);
 	}
 
+	/**
+	 * Gets all Tasks.
+	 * 
+	 * @return a list of all Tasks.
+	 */
 	public synchronized List<T> getAllTasks() {
 		return Collections.unmodifiableList(this.allTasks);
 	}
