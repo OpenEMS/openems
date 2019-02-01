@@ -379,7 +379,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		// trigger immediate validation on configuration event
-		this.osgiValidateWorker.triggerForceRun();
+		this.osgiValidateWorker.triggerNextRun();
 	}
 
 	/**

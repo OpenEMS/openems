@@ -20,6 +20,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
@@ -28,7 +29,6 @@ import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.worker.AbstractCycleWorker;
 
 /**
  * Abstract service for connecting to, querying and writing to a Modbus device
@@ -207,7 +207,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			this.forceWrite.set(true);
-			this.worker.triggerNextCycle();
+			this.worker.triggerNextRun();
 			break;
 		}
 	}

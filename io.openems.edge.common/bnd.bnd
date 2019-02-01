@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.bridge.modbus.api,\
 	io.openems.edge.common.component,\
-	io.openems.edge.common.worker,\
 	io.openems.edge.common.channel.doc,\
 	io.openems.edge.common.event,\
 	io.openems.edge.common.channel.calculate,\

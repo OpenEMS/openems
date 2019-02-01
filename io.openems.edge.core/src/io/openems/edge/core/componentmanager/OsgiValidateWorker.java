@@ -7,8 +7,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.worker.AbstractWorker;
 
 /**
  * This Worker constantly validates if all configured OpenEMS-Components are
@@ -85,10 +85,10 @@ public class OsgiValidateWorker extends AbstractWorker {
 	}
 
 	@Override
-	public void triggerForceRun() {
+	public void triggerNextRun() {
 		// Reset Cycle-Counter on explicit run
 		this.cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;
-		super.triggerForceRun();
+		super.triggerNextRun();
 	}
 
 }
