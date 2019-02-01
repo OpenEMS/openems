@@ -52,12 +52,13 @@ public abstract class AbstractWorker {
 	 */
 	public void deactivate() {
 		this.isStopped.set(true);
+		this.worker.interrupt();
 	}
 
 	/**
 	 * This method is called in a loop forever until the Thread gets interrupted.
 	 */
-	protected abstract void forever();
+	protected abstract void forever() throws Throwable;
 
 	/**
 	 * Gets the cycleTime of this worker in [ms].
@@ -87,10 +88,10 @@ public abstract class AbstractWorker {
 			long cycleStart = System.currentTimeMillis();
 			while (!isStopped.get()) {
 				try {
-					/*
-					 * Wait for next cycle
-					 */
 					try {
+						/*
+						 * Wait for next cycle
+						 */
 						int cycleTime = getCycleTime();
 						if (cycleTime == DO_NOT_WAIT) {
 							// no wait
@@ -102,32 +103,33 @@ public abstract class AbstractWorker {
 						} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
 							AbstractWorker.this.cycleMutex.await();
 						}
+
+						// store start time
+						cycleStart = System.currentTimeMillis();
+
+						// reset Force-Run in any case
+						AbstractWorker.this.isTriggerRun.set(false);
+
+						/*
+						 * Call forever() forever.
+						 */
+						forever();
+
+						// Everything went ok -> reset onWorkerExceptionSleep
+						onWorkerExceptionSleep = 1;
+
 					} catch (InterruptedException e) {
 						if (AbstractWorker.this.isTriggerRun.get()) {
 							// check if a "forceRun" was triggered. In that case Thread.sleep is
-							// interrupted and run() is
-							// starting again immediately
+							// interrupted and run() is starting again immediately
 							AbstractWorker.this.isTriggerRun.set(false);
+						} else if (AbstractWorker.this.isStopped.get()) {
+							// Ok. Let's stop.
 						} else {
 							// otherwise forward the exception
-							AbstractWorker.this.isStopped.set(true);
 							throw e;
 						}
 					}
-
-					// store start time
-					cycleStart = System.currentTimeMillis();
-
-					// reset Force-Run in any case
-					AbstractWorker.this.isTriggerRun.set(false);
-
-					/*
-					 * Call forever() forever.
-					 */
-					forever();
-
-					// Everything went ok -> reset onWorkerExceptionSleep
-					onWorkerExceptionSleep = 1;
 				} catch (Throwable e) {
 					/*
 					 * Handle Worker-Exceptions

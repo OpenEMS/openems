@@ -46,7 +46,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-//	private final Logger log = LoggerFactory.getLogger(AbstractEssStreetscooter.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(AbstractEssStreetscooter.class);
 
 	private final PowerHandler powerHandler;
 
@@ -57,8 +58,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String id, boolean enabled, boolean readonly,
-			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
+	protected void activate(ComponentContext context, String id, boolean enabled, boolean readonly, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		this.readonly = readonly;
 
 		if (readonly) {

@@ -5,13 +5,12 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +38,11 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public final static Proxy NO_PROXY = null;
 	public final static Draft DEFAULT_DRAFT = new Draft_6455();
 
-	private final static int DEFAULT_WAIT_AFTER_CLOSE = 5; // 1 second
-	private final static int MAX_WAIT_AFTER_CLOSE = 60 * 3; // 3 minutes
+	protected final WebSocketClient ws;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketClient.class);
-	private final WebSocketClient ws;
 	private final URI serverUri;
-	private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+	private final ClientReconnectorWorker reconnectorWorker;
 
 	protected AbstractWebsocketClient(String name, URI serverUri) {
 		this(name, serverUri, DEFAULT_DRAFT, NO_HTTP_HEADERS, NO_PROXY);
@@ -65,8 +62,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		this.serverUri = serverUri;
 		this.ws = new WebSocketClient(serverUri, draft, httpHeaders) {
 
-			private int waitAfterClose = DEFAULT_WAIT_AFTER_CLOSE;
-
 			@Override
 			public void onOpen(ServerHandshake handshake) {
 				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
@@ -76,9 +71,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			@Override
 			public void onMessage(String stringMessage) {
-				// reset wait after close
-				this.waitAfterClose = DEFAULT_WAIT_AFTER_CLOSE;
-
 				try {
 					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
 					if (message instanceof JsonrpcRequest) {
@@ -110,20 +102,9 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 			public void onClose(int code, String reason, boolean remote) {
 				CompletableFuture.runAsync(new OnCloseHandler(AbstractWebsocketClient.this, ws, code, reason, remote));
 
-				this.waitAfterClose += DEFAULT_WAIT_AFTER_CLOSE * 2;
-				if (this.waitAfterClose > MAX_WAIT_AFTER_CLOSE) {
-					this.waitAfterClose = MAX_WAIT_AFTER_CLOSE;
-				}
-				AbstractWebsocketClient.this.log.info("Websocket [" + serverUri.toString() + "] closed. Code [" + code
-						+ "] Reason [" + reason + "] Waiting for reconnect [" + this.waitAfterClose + "]");
-				AbstractWebsocketClient.this.reconnectExecutor.schedule(() -> {
-					try {
-						this.reconnectBlocking();
-					} catch (InterruptedException e) {
-						log.warn(e.getMessage());
-					}
-				}, this.waitAfterClose, TimeUnit.SECONDS);
-
+				AbstractWebsocketClient.this.log.info(
+						"Websocket [" + serverUri.toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");
+				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
 			}
 		};
 		// Disable lost connection detection
@@ -134,6 +115,10 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		T wsData = AbstractWebsocketClient.this.createWsData();
 		wsData.setWebsocket(ws);
 		this.ws.setAttachment(wsData);
+
+		// Initialize reconnector
+		this.reconnectorWorker = new ClientReconnectorWorker(this);
+		this.reconnectorWorker.activate(this.getName());
 
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
@@ -164,20 +149,18 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public void stop() {
 		log.info("Closing connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		// shutdown reconnector
-		this.reconnectExecutor.shutdownNow();
-		try {
-			this.reconnectExecutor.awaitTermination(5, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			this.log.error("Unable to shutdown: " + e.getMessage());
-		}
+		this.reconnectorWorker.deactivate();
 		// close websocket
-		this.ws.close(0, "Closing connecting [" + this.getName() + "]");
+		this.ws.close(CloseFrame.NORMAL, "Closing connection [" + this.getName() + "]");
 	}
 
 	public void sendMessageOrError(JsonrpcMessage message) throws OpenemsException {
 		try {
 			ws.send(message.toString());
 		} catch (Exception e) {
+			if (e instanceof WebsocketNotConnectedException) {
+				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
+			}
 			throw new OpenemsException("Unable to send JSON-RPC message. " + e.getClass().getSimpleName() + ": "
 					+ StringUtils.toShortString(message.toString(), 100));
 		}

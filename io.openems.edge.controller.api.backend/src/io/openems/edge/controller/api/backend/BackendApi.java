@@ -111,7 +111,7 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 		httpHeaders.put("apikey", config.apikey());
 
 		// Create Websocket instance
-		this.websocket = new WebsocketClient(this, COMPONENT_NAME, uri, httpHeaders, proxy);
+		this.websocket = new WebsocketClient(this, COMPONENT_NAME + ":" + this.id(), uri, httpHeaders, proxy);
 		this.websocket.start();
 
 		// Activate worker
@@ -122,7 +122,9 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 	protected void deactivate() {
 		super.deactivate();
 		this.backendWorker.deactivate();
-		this.websocket.stop();
+		if (this.websocket != null) {
+			this.websocket.stop();
+		}
 	}
 
 	@Override
