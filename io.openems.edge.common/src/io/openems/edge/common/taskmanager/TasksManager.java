@@ -27,6 +27,8 @@ public class TasksManager<T extends ManagedTask> {
 	private final Queue<T> nextLowTasks = new LinkedList<>();
 	private final Queue<T> nextOnceTasks = new LinkedList<>();
 
+	private int nextTaskIndex = 0;
+
 	@SafeVarargs
 	public TasksManager(T... tasks) {
 		this.addTasks(tasks);
@@ -129,5 +131,21 @@ public class TasksManager<T extends ManagedTask> {
 	 */
 	public synchronized List<T> getAllTasks() {
 		return Collections.unmodifiableList(this.allTasks);
+	}
+
+	/**
+	 * Gets tasks sequentially.
+	 * 
+	 * @return the next task; null if there are no tasks
+	 */
+	public synchronized T getOneTask() {
+		if (this.allTasks.isEmpty()) {
+			return null;
+		}
+		if (this.nextTaskIndex > this.allTasks.size() - 1) {
+			// start over
+			this.nextTaskIndex = 0;
+		}
+		return this.allTasks.get(this.nextTaskIndex++);
 	}
 }

@@ -15,12 +15,12 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
 /**
- * Represents a Modbus String. Each Register (= 2 bytes) represents two
- * characters.
+ * An StringWordElement represents a String value. Each Register (= 2 bytes)
+ * represents two characters.
  */
 public class StringWordElement extends AbstractModbusRegisterElement<StringWordElement, String> {
 
-	private final static ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
+	private static final ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
 

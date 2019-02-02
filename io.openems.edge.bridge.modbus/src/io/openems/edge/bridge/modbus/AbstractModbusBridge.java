@@ -1,65 +1,67 @@
 package io.openems.edge.bridge.modbus;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.task.ReadTask;
-import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
- * Abstract service for connecting to, querying and writing to a Modbus device
- * 
+ * Abstract service for connecting to, querying and writing to a Modbus device.
  */
 public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements EventHandler {
 
 	/**
-	 * Default Modbus timeout in [ms]
+	 * Default Modbus timeout in [ms].
 	 * 
+	 * <p>
 	 * Modbus library default is 3000 ms
 	 */
-	protected final static int DEFAULT_TIMEOUT = 1000;
+	protected static final int DEFAULT_TIMEOUT = 1000;
+
 	/**
-	 * Default Modbus retries
+	 * Default Modbus retries.
 	 * 
+	 * <p>
 	 * Modbus library default is 5
 	 */
-	protected final static int DEFAULT_RETRIES = 1;
+	protected static final int DEFAULT_RETRIES = 1;
 
-	private final Logger log = LoggerFactory.getLogger(AbstractModbusBridge.class);
-	private final ModbusWorker worker = new ModbusWorker();
+	// private final Logger log =
+	// LoggerFactory.getLogger(AbstractModbusBridge.class);
+	private final ModbusWorker worker = new ModbusWorker(this);
 
-	/**
-	 * Set ForceWrite to interrupt the ReadTasks and execute the WriteTasks
-	 * immediately.
-	 */
-	private final AtomicBoolean forceWrite = new AtomicBoolean(false);
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		SLAVE_COMMUNICATION_FAILED(new Doc().level(Level.FAULT));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	public AbstractModbusBridge() {
-		Stream.of( //
+		Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -68,20 +70,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
-
-	/**
-	 * Remember defective devices (Unit IDs)?
-	 */
-	@SuppressWarnings("unused")
-	private final Set<Integer> defectiveUnitIds = new ConcurrentSkipListSet<Integer>();
-
-	/**
-	 * Holds the added protocols per source Component-ID
-	 * 
-	 * @param config
-	 */
-	private final Multimap<String, ModbusProtocol> protocols = Multimaps
-			.synchronizedListMultimap(ArrayListMultimap.create());
 
 	protected void activate(ComponentContext context, String id, boolean enabled) {
 		super.activate(context, id, enabled);
@@ -97,131 +85,62 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	}
 
 	/**
-	 * Adds the protocol
+	 * Adds the protocol.
 	 * 
-	 * @param sourceId
-	 * @param protocol
+	 * @param sourceId Component-ID of the source
+	 * @param protocol the ModbusProtocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.protocols.put(sourceId, protocol);
+		this.worker.addProtocol(sourceId, protocol);
 	}
 
 	/**
-	 * Removes the protocol
+	 * Removes the protocol.
+	 * 
+	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		this.protocols.removeAll(sourceId);
-	}
-
-	private class ModbusWorker extends AbstractCycleWorker {
-
-		@Override
-		public void activate(String name) {
-			super.activate(name);
-		}
-
-		@Override
-		public void deactivate() {
-			super.deactivate();
-		}
-
-		@Override
-		protected void forever() {
-			// get the read tasks for this run
-			List<ReadTask> nextReadTasks = this.getNextReadTasks();
-
-			/*
-			 * execute next read tasks
-			 */
-			nextReadTasks.forEach(readTask -> {
-				/*
-				 * was FORCE WRITE set? -> exeute WriteTasks now
-				 */
-				if (forceWrite.getAndSet(false)) {
-					List<WriteTask> writeTasks = this.getNextWriteTasks();
-					writeTasks.forEach(writeTask -> {
-						try {
-							writeTask.executeWrite(AbstractModbusBridge.this);
-						} catch (OpenemsException e) {
-							logError(log, writeTask.toString() + " write failed: " + e.getMessage());
-						}
-					});
-				}
-				/*
-				 * Execute next read abstractTask
-				 */
-				try {
-					readTask.executeQuery(AbstractModbusBridge.this);
-				} catch (OpenemsException e) {
-					// TODO remember defective unitid
-					logError(log, readTask.toString() + " read failed: " + e.getMessage());
-					// invalidate elements of this task
-					for (ModbusElement<?> element : readTask.getElements()) {
-						log.debug("invalidate element: " + element.toString());
-						element.invalidate();
-					}
-				}
-			});
-		}
-
-		/**
-		 * Returns the 'nextReadTasks' list.
-		 * 
-		 * This checks if a device is listed as defective and - if it is - adds only one
-		 * abstractTask with this unitId to the queue
-		 */
-		private List<ReadTask> getNextReadTasks() {
-			List<ReadTask> result = new ArrayList<>();
-			protocols.values().forEach(protocol -> {
-				// get the next read tasks from the protocol
-				List<ReadTask> nextReadTasks = protocol.getNextReadTasks();
-				// check if the unitId is defective
-				// int unitId = protocol.getUnitId();
-				// FIXME: if we do the following in here, we will eventually miss the
-				// ONCE-priority tasks
-				// if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
-				// // it is defective. Add only one read abstractTask.
-				// // This avoids filling the queue with requests that cannot be fulfilled
-				// anyway
-				// // because the unitId is not reachable
-				// result.add(nextReadTasks.get(0));
-				// } else {
-				// add all tasks to the next tasks
-				result.addAll(nextReadTasks);
-				// }
-			});
-			return result;
-		}
-
-		private List<WriteTask> getNextWriteTasks() {
-			List<WriteTask> result = new ArrayList<>();
-			protocols.values().forEach(protocol -> {
-				result.addAll(protocol.getNextWriteTasks());
-			});
-			return result;
-		}
+		this.worker.removeProtocol(sourceId);
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.forceWrite.set(true);
 			this.worker.triggerNextRun();
 			break;
 		}
 	}
 
 	/**
-	 * Creates a new Modbus Transaction on an open Modbus connection
+	 * Creates a new Modbus Transaction on an open Modbus connection.
 	 * 
-	 * @return
-	 * @throws OpenemsException
+	 * @return the Modbus Transaction
+	 * @throws OpenemsException on error
 	 */
 	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
 
 	/**
-	 * Closes the Modbus connection
+	 * Closes the Modbus connection.
 	 */
 	public abstract void closeModbusConnection();
+
+	/**
+	 * Gets the instance for Channel "SlaveCommunicationFailed".
+	 * 
+	 * @return the Channel instance
+	 */
+	protected Channel<Boolean> getSlaveCommunicationFailedChannel() {
+		return this.channel(AbstractModbusBridge.ChannelId.SLAVE_COMMUNICATION_FAILED);
+	}
+
+	@Override
+	protected void logWarn(Logger log, String message) {
+		super.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
 }

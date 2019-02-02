@@ -7,21 +7,23 @@ import io.openems.edge.common.taskmanager.ManagedTask;
 public interface Task extends ManagedTask {
 
 	/**
-	 * Gets the ModbusElements
+	 * Gets the ModbusElements.
 	 * 
-	 * @return
+	 * @return an array of ModbusElements
 	 */
 	ModbusElement<?>[] getElements();
 
 	/**
-	 * Gets the start modbus register address
+	 * Gets the start Modbus register address.
 	 * 
-	 * @return
+	 * @return the address
 	 */
 	int getStartAddress();
 
 	/**
-	 * Sets the parent
+	 * Sets the parent.
+	 * 
+	 * @param parent the parent {@link AbstractOpenemsModbusComponent}.
 	 */
 	void setParent(AbstractOpenemsModbusComponent parent);
 

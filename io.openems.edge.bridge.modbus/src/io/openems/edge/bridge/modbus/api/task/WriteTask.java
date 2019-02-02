@@ -8,17 +8,17 @@ import io.openems.edge.common.taskmanager.Priority;
 public interface WriteTask extends Task, ManagedTask {
 
 	/**
-	 * Executes writing for this AbstractTask to the Modbus device
+	 * Executes writing for this WriteTask to the Modbus device.
 	 * 
-	 * @param bridge
-	 * @throws OpenemsException
+	 * @param bridge the AbstractModbusBridge
+	 * @throws OpenemsException on error
 	 */
 	public abstract void executeWrite(AbstractModbusBridge bridge) throws OpenemsException;
-	
+
 	/**
 	 * Priority for WriteTasks is by default always HIGH.
 	 * 
-	 * @return
+	 * @return the Priority
 	 */
 	public default Priority getPriority() {
 		return Priority.HIGH;

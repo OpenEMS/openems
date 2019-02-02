@@ -5,7 +5,8 @@ import io.openems.common.types.OpenemsType;
 import java.nio.ByteBuffer;
 
 /**
- * Represents Float value according to IEE754.
+ * A FloatDoublewordElement represents a Float value according to IEEE-754 in an
+ * {@link AbstractDoubleWordElement}.
  */
 public class FloatDoublewordElement extends AbstractDoubleWordElement<FloatDoublewordElement, Float> {
 
