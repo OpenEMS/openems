@@ -32,7 +32,7 @@ public class AbstractWorkerTest {
 
 		Thread.sleep(450);
 
-		assertEquals(5, counter.get());
+		assertEquals(4, counter.get());
 
 		worker.deactivate();
 	}
@@ -63,7 +63,7 @@ public class AbstractWorkerTest {
 
 		Thread.sleep(20);
 
-		assertEquals(3, counter.get());
+		assertEquals(2, counter.get());
 
 		worker.deactivate();
 	}

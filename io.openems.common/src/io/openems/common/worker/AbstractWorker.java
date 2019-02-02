@@ -1,5 +1,6 @@
 package io.openems.common.worker;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -31,7 +32,6 @@ public abstract class AbstractWorker {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
-	private final AtomicBoolean isTriggerRun = new AtomicBoolean(false);
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
 	private final Mutex cycleMutex = new Mutex(false);
 
@@ -74,12 +74,10 @@ public abstract class AbstractWorker {
 	protected abstract int getCycleTime();
 
 	/**
-	 * Causes the Worker to interrupt sleeping and start again the forever() method
-	 * immediately
+	 * Allows the next execution of the forever() method.
 	 */
 	public void triggerNextRun() {
-		this.isTriggerRun.set(true);
-		this.worker.interrupt();
+		this.cycleMutex.release();
 	}
 
 	private final Thread worker = new Thread() {
@@ -88,55 +86,45 @@ public abstract class AbstractWorker {
 			long cycleStart = System.currentTimeMillis();
 			while (!isStopped.get()) {
 				try {
-					try {
-						/*
-						 * Wait for next cycle
-						 */
-						int cycleTime = getCycleTime();
-						if (cycleTime == DO_NOT_WAIT) {
-							// no wait
-						} else if (cycleTime > 0) {
-							long sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
-							if (sleep > 0) {
-								Thread.sleep(sleep);
-							}
-						} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
-							AbstractWorker.this.cycleMutex.await();
-						}
-
-						// store start time
-						cycleStart = System.currentTimeMillis();
-
-						// reset Force-Run in any case
-						AbstractWorker.this.isTriggerRun.set(false);
-
-						/*
-						 * Call forever() forever.
-						 */
-						forever();
-
-						// Everything went ok -> reset onWorkerExceptionSleep
-						onWorkerExceptionSleep = 1;
-
-					} catch (InterruptedException e) {
-						if (AbstractWorker.this.isTriggerRun.get()) {
-							// check if a "forceRun" was triggered. In that case Thread.sleep is
-							// interrupted and run() is starting again immediately
-							AbstractWorker.this.isTriggerRun.set(false);
-						} else if (AbstractWorker.this.isStopped.get()) {
-							// Ok. Let's stop.
-						} else {
-							// otherwise forward the exception
-							throw e;
-						}
-					}
-				} catch (Throwable e) {
 					/*
-					 * Handle Worker-Exceptions
+					 * Wait for next cycle
 					 */
-					log.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
-							+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
-					e.printStackTrace();
+					int cycleTime = getCycleTime();
+					if (cycleTime == DO_NOT_WAIT) {
+						// no wait
+					} else if (cycleTime > 0) {
+						// wait remaining cycleTime
+						long sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
+						if (sleep > 0) {
+							AbstractWorker.this.cycleMutex.awaitOrTimeout(sleep, TimeUnit.MILLISECONDS);
+						}
+					} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
+						// wait till next run is triggered
+						AbstractWorker.this.cycleMutex.await();
+					}
+
+					// store start time
+					cycleStart = System.currentTimeMillis();
+
+					/*
+					 * Call forever() forever.
+					 */
+					forever();
+
+					// Everything went ok -> reset onWorkerExceptionSleep
+					onWorkerExceptionSleep = 1;
+
+				} catch (Throwable e) {
+					if (e instanceof InterruptedException && AbstractWorker.this.isStopped.get()) {
+						// nothing
+					} else {
+						/*
+						 * Handle Worker-Exceptions
+						 */
+						log.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
+								+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
+						e.printStackTrace();
+					}
 					onWorkerExceptionSleep = onWorkerExceptionSleep(onWorkerExceptionSleep);
 				}
 			}
