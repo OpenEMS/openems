@@ -170,7 +170,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
 				Influx.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
-			batchPoints.point(builder.build());
+			if (builder.hasFields()) {
+				batchPoints.point(builder.build());
+			}
 		}
 
 		if (batchPoints.getPoints().isEmpty()) {
