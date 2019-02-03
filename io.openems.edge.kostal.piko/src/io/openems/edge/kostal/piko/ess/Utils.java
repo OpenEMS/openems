@@ -7,6 +7,7 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
@@ -28,7 +29,7 @@ public class Utils {
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.UNDEFINED.ordinal());
+						return new IntegerReadChannel(c, channelId, GridMode.UNDEFINED);
 					}
 					return null;
 				})

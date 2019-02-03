@@ -18,7 +18,7 @@ public class Utils {
 	/**
 	 * Gets Meta information about active components.
 	 * 
-	 * @param components
+	 * @param components the Components
 	 * @return a JsonObject in the form
 	 * 
 	 *         <pre>
@@ -52,15 +52,15 @@ public class Utils {
 							});
 					jComponent.add("implements", jImplements);
 
-					j.add(component.componentContext().getProperties().get("component.name").toString(), jComponent);
+					j.add(component.getComponentContext().getProperties().get("component.name").toString(), jComponent);
 				});
 		return j;
 	}
 
 	/**
-	 * Get the configuration of active components.
+	 * Converts the configuration of components to Json.
 	 * 
-	 * @param configs
+	 * @param configs the Configurations
 	 * @return a JsonObject in the form
 	 * 
 	 *         <pre>
@@ -102,10 +102,10 @@ public class Utils {
 	}
 
 	/**
-	 * Converts an object to a JsonPrimitive
+	 * Converts an object to a JsonPrimitive.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the object
+	 * @return the JsonPrimitive
 	 */
 	private static JsonPrimitive toJson(Object value) {
 		if (value instanceof Number) {

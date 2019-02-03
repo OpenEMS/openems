@@ -22,7 +22,7 @@ public class Mutex {
 		}
 	}
 
-	public void awaitOrTimeout(int timeout, TimeUnit unit) throws InterruptedException {
+	public void awaitOrTimeout(long timeout, TimeUnit unit) throws InterruptedException {
 		int permits = semaphore.drainPermits();
 		if (permits == 0) {
 			semaphore.tryAcquire(timeout, unit);

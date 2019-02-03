@@ -6,34 +6,32 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-
 public class Coefficients {
 
 	private final List<Coefficient> coefficients = new CopyOnWriteArrayList<>();
 
 	private int noOfCoefficients = 0;
 
-	public synchronized void initialize(Set<ManagedSymmetricEss> esss) {
+	public synchronized void initialize(Set<String> essIds) {
 		this.coefficients.clear();
 		int index = 0;
-		for (ManagedSymmetricEss ess : esss) {
+		for (String essId : essIds) {
 			for (Phase phase : Phase.values()) {
 				for (Pwr pwr : Pwr.values()) {
-					this.coefficients.add(new Coefficient(index++, ess, phase, pwr));
+					this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
 				}
 			}
 		}
 		this.noOfCoefficients = index;
 	}
 
-	public Coefficient of(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public Coefficient of(String essId, Phase phase, Pwr pwr) {
 		for (Coefficient c : this.coefficients) {
-			if (Objects.equals(c.ess, ess) && c.phase == phase && c.pwr == pwr) {
+			if (Objects.equals(c.essId, essId) && c.phase == phase && c.pwr == pwr) {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException("Coefficient for [" + ess.id() + "," + phase + "," + pwr
+		throw new IllegalArgumentException("Coefficient for [" + essId + "," + phase + "," + pwr
 				+ "] was not found. Forgot to call initialize()?");
 	}
 

@@ -3,7 +3,7 @@ export const TRANSLATION = {
         Grid: "Red",
         GridBuy: "Relación",
         GridSell: "Fuente de alimentación",
-        GridMode: "No hay conexión de red",
+        OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
         Power: "Rendimiento",
@@ -31,7 +31,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Visión general",
-        AboutUI: "Sobre FEMS-UI",
+        AboutUI: "Sobre OpenEMS-UI",
         Settings: 'Configuración general',
         Logout: 'Desuscribirse'
     },
@@ -40,7 +40,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Conexión a {{value}} hecho.", // value = name of websocket
         ConnectionFailed: "Conexión a {{value}} seperados.", // value = name of websocket
         ToEnergymonitor: "Al monitor de energía...",
-        IsOffline: "FEMS está fuera de línea!"
+        IsOffline: "OpenEMS está fuera de línea!"
     },
     Edge: {
         Index: {
@@ -122,7 +122,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nuevo programador...",
                 Class: "Clase:",
                 NotImplemented: "Formulario no implementado: ",
-                Contact: "Eso no debería suceder. Póngase es contacto con <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+                Contact: "Eso no debería suceder. Póngase es contacto con <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Siempre"
             },
             Log: {
@@ -144,14 +144,13 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Interfaz de usario para FEMS y OpenEMS",
+        UI: "Interfaz de usario para OpenEMS",
         Developed: "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
         Fenecon: "Acerca de FENECON",
-        Fems: "Acerca de FEMS",
         OpenEMS: "Acerca de OpenEMS",
         CurrentDevelopments: "Desarrollos actuales",
         Build: "Esta compilación",
-        Contact: "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro FEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
+        Contact: "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro OpenEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Seleccionar idioma:"
     },
     Notifications: {

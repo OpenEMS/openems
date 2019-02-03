@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -22,7 +23,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 
 	public DummyComponent(String id) {
 		this.id = id;
-		Stream.of( //
+		Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -39,7 +40,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, SymmetricEss.GridMode.UNDEFINED);
+						return new IntegerReadChannel(this, channelId, GridMode.UNDEFINED);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -63,6 +64,9 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
 					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
@@ -81,6 +85,18 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case SET_REACTIVE_POWER_L1_EQUALS:
 					case SET_REACTIVE_POWER_L2_EQUALS:
 					case SET_REACTIVE_POWER_L3_EQUALS:
+					case SET_ACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
 					}
 					return null;
@@ -126,11 +142,6 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 	@Override
 	public String id() {
 		return this.id;
-	}
-
-	@Override
-	public String servicePid() {
-		return "no_service_pid";
 	}
 
 	@Override

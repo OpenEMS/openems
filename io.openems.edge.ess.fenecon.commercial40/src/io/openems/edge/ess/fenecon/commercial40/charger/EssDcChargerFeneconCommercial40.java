@@ -1,6 +1,7 @@
 package io.openems.edge.ess.fenecon.commercial40.charger;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,9 +27,10 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
@@ -51,6 +53,29 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	public EssDcChargerFeneconCommercial40() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+
+		/*
+		 * Merge PV_DCDC0_INPUT_POWER and PV_DCDC1_INPUT_POWER to ACTUAL_POWER
+		 */
+		final Channel<Integer> dc0Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
+		final Channel<Integer> dc1Power = this.channel(ChannelId.PV_DCDC0_INPUT_POWER);
+		final Consumer<Value<Integer>> actualPowerSum = ignore -> {
+			this.getActualPower().setNextValue(TypeUtils.sum(dc0Power.value().get(), dc1Power.value().get()));
+		};
+		dc0Power.onSetNextValue(actualPowerSum);
+		dc1Power.onSetNextValue(actualPowerSum);
+
+		/*
+		 * Merge PV_DCDC0_OUTPUT_DISCHARGE_ENERGY and PV_DCDC1_OUTPUT_DISCHARGE_ENERGY
+		 * to ACTUAL_ENERGY
+		 */
+		final Channel<Long> dc0Energy = this.channel(ChannelId.PV_DCDC0_OUTPUT_DISCHARGE_ENERGY);
+		final Channel<Long> dc1Energy = this.channel(ChannelId.PV_DCDC1_OUTPUT_DISCHARGE_ENERGY);
+		final Consumer<Value<Long>> actualEnergySum = ignore -> {
+			this.getActualEnergy().setNextValue(TypeUtils.sum(dc0Energy.value().get(), dc1Energy.value().get()));
+		};
+		dc0Energy.onSetNextValue(actualEnergySum);
+		dc1Energy.onSetNextValue(actualEnergySum);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -67,7 +92,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), this.ess.get().getUnitId(),
+		super.activate(context, config.id(), config.enabled(), this.ess.get().getUnitId(),
 				this.cm, "Modbus", this.ess.get().getModbusBridgeId());
 	}
 
@@ -148,10 +173,9 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0xA130, Priority.LOW, //
 						m(ChannelId.BMS_DCDC0_OUTPUT_VOLTAGE, new SignedWordElement(0xA130),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -173,13 +197,17 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 						m(ChannelId.BMS_DCDC0_REACTOR_TEMPERATURE, new SignedWordElement(0xA140)), //
 						m(ChannelId.BMS_DCDC0_IGBT_TEMPERATURE, new SignedWordElement(0xA141)), //
 						new DummyRegisterElement(0xA142, 0xA14F), //
-						m(ChannelId.BMS_DCDC0_INPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xA150).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC0_INPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA150).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.BMS_DCDC0_INPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xA152).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC0_INPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA152).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.BMS_DCDC0_OUTPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xA154).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC0_OUTPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA154).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.BMS_DCDC0_OUTPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xA156).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC0_OUTPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA156).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA430, Priority.LOW, //
 						m(ChannelId.BMS_DCDC1_OUTPUT_VOLTAGE, new SignedWordElement(0xA430),
@@ -202,13 +230,17 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 						m(ChannelId.BMS_DCDC1_REACTOR_TEMPERATURE, new SignedWordElement(0xA440)), //
 						m(ChannelId.BMS_DCDC1_IGBT_TEMPERATURE, new SignedWordElement(0xA441)), //
 						new DummyRegisterElement(0xA442, 0xA44F), //
-						m(ChannelId.BMS_DCDC1_INPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xA450).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC1_INPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA450).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.BMS_DCDC1_INPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xA452).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC1_INPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA452).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.BMS_DCDC1_OUTPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xA454).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC1_OUTPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA454).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.BMS_DCDC1_OUTPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xA456).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.BMS_DCDC1_OUTPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA456).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA730, Priority.LOW, //
 						m(ChannelId.PV_DCDC0_OUTPUT_VOLTAGE, new SignedWordElement(0xA730),
@@ -231,13 +263,17 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 						m(ChannelId.PV_DCDC0_REACTOR_TEMPERATURE, new SignedWordElement(0xA740)), //
 						m(ChannelId.PV_DCDC0_IGBT_TEMPERATURE, new SignedWordElement(0xA741)), //
 						new DummyRegisterElement(0xA742, 0xA74F), //
-						m(ChannelId.PV_DCDC0_INPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xA750).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC0_INPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA750).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.PV_DCDC0_INPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xA752).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC0_INPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA752).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.PV_DCDC0_OUTPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xA754).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC0_OUTPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA754).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.PV_DCDC0_OUTPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xA756).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC0_OUTPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xA756).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xAA30, Priority.LOW, //
 						m(ChannelId.PV_DCDC1_OUTPUT_VOLTAGE, new SignedWordElement(0xAA30),
@@ -260,35 +296,18 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 						m(ChannelId.PV_DCDC1_REACTOR_TEMPERATURE, new SignedWordElement(0xAA40)), //
 						m(ChannelId.PV_DCDC1_IGBT_TEMPERATURE, new SignedWordElement(0xAA41)), //
 						new DummyRegisterElement(0xAA42, 0xAA4F), //
-						m(ChannelId.PV_DCDC1_INPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xAA50).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC1_INPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xAA50).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.PV_DCDC1_INPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xAA52).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC1_INPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xAA52).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.PV_DCDC1_OUTPUT_CHARGE_ENERGY, new UnsignedDoublewordElement(0xAA54).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC1_OUTPUT_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xAA54).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ChannelId.PV_DCDC1_OUTPUT_DISCHARGE_ENERGY, new UnsignedDoublewordElement(0xAA56).wordOrder(WordOrder.LSWMSW), //
+						m(ChannelId.PV_DCDC1_OUTPUT_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0xAA56).wordOrder(WordOrder.LSWMSW), //
 								ElementToChannelConverter.SCALE_FACTOR_2))); //
-		/*
-		 * Merge PV_DCDC0_INPUT_POWER and PV_DCDC1_INPUT_POWER to ACTUAL_POWER
-		 */
-		new ChannelMergerSumInteger( //
-				/* target */ this.getActualPower(), //
-				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.<Channel<Integer>>channel(ChannelId.PV_DCDC0_INPUT_POWER), //
-						this.<Channel<Integer>>channel(ChannelId.PV_DCDC1_INPUT_POWER) //
-				});
-		/*
-		 * Merge PV_DCDC0_OUTPUT_DISCHARGE_ENERGY and PV_DCDC1_OUTPUT_DISCHARGE_ENERGY to
-		 * ACTUAL_ENERGY
-		 */
-		new ChannelMergerSumInteger( //
-				/* target */ this.getActualEnergy(), //
-				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.<Channel<Integer>>channel(ChannelId.PV_DCDC0_OUTPUT_DISCHARGE_ENERGY), //
-						this.<Channel<Integer>>channel(ChannelId.PV_DCDC1_OUTPUT_DISCHARGE_ENERGY) //
-				});
-
-		return protocol;
 	}
 
 	@Override

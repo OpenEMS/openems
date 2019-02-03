@@ -3,8 +3,9 @@ package io.openems.edge.bridge.modbus.api;
 import io.openems.common.types.OpenemsType;
 
 /**
- * Converts between Element and Channel by applying an offset
+ * Converts between Element and Channel by applying an offset.
  * 
+ * <p>
  * (channel = element + offset)
  */
 public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
@@ -15,7 +16,8 @@ public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
 				value -> {
 					return apply(value, offset);
 				}, //
-					// channel -> element
+
+				// channel -> element
 				value -> {
 					return apply(value, offset * -1);
 				});
@@ -27,7 +29,7 @@ public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
 		}
 		for (OpenemsType openemsType : OpenemsType.values()) {
 			// this 'for' + 'switch' is only utilized to get an alert by Eclipse IDE if a
-			// new OpenemsType was added. ("The enum constant XXX needs a corresponding case
+			// new OpenemsType was added. ("The enum constant [...] needs a corresponding case
 			// label in this enum switch on OpenemsType")
 			switch (openemsType) {
 			case BOOLEAN:

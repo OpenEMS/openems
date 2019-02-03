@@ -1,6 +1,7 @@
 package io.openems.common.types;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
 
@@ -13,10 +14,20 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		this.channelId = channelId;
 	}
 
+	/**
+	 * Gets the Component-ID.
+	 * 
+	 * @return the Component-ID
+	 */
 	public String getComponentId() {
 		return componentId;
 	}
 
+	/**
+	 * Gets the Channel-Id.
+	 * 
+	 * @return the Channel-Id
+	 */
 	public String getChannelId() {
 		return channelId;
 	}
@@ -26,14 +37,21 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		return componentId + "/" + channelId;
 	}
 
-	public static ChannelAddress fromString(String address) throws OpenemsException {
+	/**
+	 * Parses a string "Component-ID/Channel-ID" to a ChannelAddress.
+	 * 
+	 * @param address the address as a String
+	 * @return the ChannelAddress
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public static ChannelAddress fromString(String address) throws OpenemsNamedException {
 		try {
 			String[] addressArray = address.split("/");
 			String componentId = addressArray[0];
 			String channelId = addressArray[1];
 			return new ChannelAddress(componentId, channelId);
 		} catch (Exception e) {
-			throw new OpenemsException("This [" + address + "] is not a valid channel address.");
+			throw OpenemsError.COMMON_NO_VALID_CHANNEL_ADDRESS.exception(address);
 		}
 	}
 
@@ -49,12 +67,15 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		ChannelAddress other = (ChannelAddress) obj;
 		return this.toString().equals(other.toString());
 	}

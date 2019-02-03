@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -38,7 +39,11 @@ public class Value<T> {
 
 	public String toString() {
 		if (this.value == null) {
-			return UNDEFINED_VALUE_STRING;
+			if (this.parent.channelDoc().hasOptions()) {
+				return this.parent.channelDoc().getOptionString(null);
+			} else {
+				return UNDEFINED_VALUE_STRING;
+			}
 		} else {
 			return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType());
 		}
@@ -104,13 +109,18 @@ public class Value<T> {
 	 * @throws IllegalArgumentException no matching option existing
 	 * @return
 	 */
-	public String asOptionString() throws IllegalArgumentException {
+	public String asOptionString() {
 		T value = this.get();
-		if (value == null) {
-			return Value.UNDEFINED_VALUE_STRING;
+		try {
+			Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+			return this.parent.channelDoc().getOptionString(intValue);
+		} catch (IllegalArgumentException e) {
+			if (this.parent.channelDoc().hasOptions()) {
+				return this.parent.channelDoc().getOptionString(null);
+			} else {
+				return "";
+			}
 		}
-		int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-		return this.parent.channelDoc().getOption(intValue);
 	}
 
 	/**
@@ -118,24 +128,18 @@ public class Value<T> {
 	 *
 	 * @throws IllegalArgumentException no matching Enum option existing
 	 * @return
-	 * @throws InvalidValueException
 	 */
-	public Enum<?> asEnum() throws InvalidValueException {
+	@SuppressWarnings("unchecked")
+	public <O extends OptionsEnum> O asEnum() {
 		T value = this.get();
-		int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-		return this.parent.channelDoc().getOptionEnum(intValue);
-	}
-
-	/**
-	 * Gets the value as an Optional enum
-	 * 
-	 * @return
-	 */
-	public Optional<Enum<?>> asEnumOptional() {
+		if (value == null) {
+			return (O) this.parent.channelDoc().getOption(null);
+		}
 		try {
-			return Optional.ofNullable(asEnum());
-		} catch (Exception e) { // if there is null in asEnum a NullPointerException is thrown
-			return Optional.empty();
+			int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+			return (O) this.parent.channelDoc().getOption(intValue);
+		} catch (Exception e) {
+			return (O) this.parent.channelDoc().getOption(null);
 		}
 	}
 

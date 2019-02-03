@@ -1,5 +1,0 @@
-3+|*<<ChargerNature,ChargerNature>>*
-|ActualPower    |Watt   |
-|NominalPower  |var    |
-|InputVoltage  |VA     |
-|maxActualPower |Watt   |Holds the maximum ever recorded actual power

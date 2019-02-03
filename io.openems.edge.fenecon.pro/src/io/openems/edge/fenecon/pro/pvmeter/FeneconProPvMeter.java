@@ -22,10 +22,8 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -62,6 +60,8 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 	public FeneconProPvMeter() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+
+		AsymmetricMeter.initializePowerSumChannels(this);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -71,7 +71,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
@@ -85,10 +85,9 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		return modbusBridgeId;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(121, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -115,23 +114,6 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 								MINUS_10000_CONVERTER))//
 
 		);
-
-		new ChannelMergerSumInteger( //
-				/* target */ this.getActivePower(), //
-				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.getActivePowerL1(), //
-						this.getActivePowerL2(), //
-						this.getActivePowerL3() //
-				});
-		new ChannelMergerSumInteger( //
-				/* target */ this.getReactivePower(), //
-				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
-						this.getReactivePowerL1(), //
-						this.getReactivePowerL2(), //
-						this.getReactivePowerL3() //
-				});
-
-		return protocol;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {

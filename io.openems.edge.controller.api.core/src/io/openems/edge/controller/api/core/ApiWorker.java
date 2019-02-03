@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.WriteChannel;
 
 /**
@@ -22,8 +23,8 @@ import io.openems.edge.common.channel.WriteChannel;
  */
 public class ApiWorker {
 
-	private final static Logger log = LoggerFactory.getLogger(ApiWorker.class);
-	public final static int DEFAULT_TIMEOUT_SECONDS = 10;
+	private static final Logger log = LoggerFactory.getLogger(ApiWorker.class);
+	public static final int DEFAULT_TIMEOUT_SECONDS = 10;
 
 	/**
 	 * Holds the mapping between WriteChannel and the value that it should be set
@@ -72,10 +73,11 @@ public class ApiWorker {
 	}
 
 	/**
-	 * Sets the timeout in seconds. Default is 60. If set to '0', timeout is
-	 * deactivated.
+	 * Sets the timeout in seconds. Default is 60, which means that for 60 seconds
+	 * in each cycle a value is rewritten to the WriteChannel. If set to '0',
+	 * timeout is deactivated.
 	 *
-	 * @param timeoutSeconds
+	 * @param timeoutSeconds the timeout for this ApiWorker
 	 */
 	public void setTimeoutSeconds(int timeoutSeconds) {
 		this.timeoutSeconds = timeoutSeconds;
@@ -85,8 +87,11 @@ public class ApiWorker {
 	/**
 	 * Sets the channels. This method is called by the run() method of the
 	 * Controller
+	 * 
+	 * @throws OpenemsNamedException on error
 	 */
-	public void run() {
+	public void run() throws OpenemsNamedException {
+		OpenemsNamedException anExceptionHappened = null;
 		synchronized (this.values) {
 			for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
 				WriteChannel<?> channel = entry.getKey();
@@ -99,8 +104,12 @@ public class ApiWorker {
 					log.error("Unable to set Channel [" + channel.address() + "] to Value ["
 							+ writeObject.valueToString() + "]: " + e.getMessage());
 					writeObject.notifyError(e);
+					anExceptionHappened = e;
 				}
 			}
+		}
+		if (anExceptionHappened != null) {
+			throw anExceptionHappened;
 		}
 	}
 }

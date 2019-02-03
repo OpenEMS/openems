@@ -1,28 +1,26 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -41,43 +39,20 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	private final Clock clock;
 
+	@Reference
+	protected ComponentManager componentManager;
+
 	/**
 	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 */
-	private final int hysteresis = 5 * 60;
+	private final TemporalAmount hysteresis = Duration.ofMinutes(5);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
+	private String essId;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
+	private Optional<Integer> forceChargePower = Optional.empty();
 	private State state = State.NORMAL;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected ManagedSymmetricEss ess;
-
-	public enum State implements OptionsEnum {
-		NORMAL(0, "Normal"), MIN_SOC(1, "Min-SoC"), FORCE_CHARGE_SOC(2, "Force-Charge-SoC");
-
-		private final int value;
-		private final String option;
-
-		private State(int value, String option) {
-			this.value = value;
-			this.option = option;
-		}
-
-		@Override
-		public int getValue() {
-			return value;
-		}
-
-		@Override
-		public String getOption() {
-			return option;
-		}
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		STATE_MACHINE(new Doc() //
@@ -103,7 +78,6 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	public LimitTotalDischargeController() {
 		this(Clock.systemDefaultZone());
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	protected LimitTotalDischargeController(Clock clock) {
@@ -113,14 +87,15 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.enabled());
 
+		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
+		if (config.forceChargePower() > 0) {
+			// apply configured force charge power if it is was set and it is greater than 0
+			this.forceChargePower = Optional.of(config.forceChargePower());
+		}
 
 		// Force-Charge-SoC must be smaller than Min-SoC
 		if (this.forceChargeSoc >= this.minSoc) {
@@ -137,9 +112,11 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
+		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
+
 		// Set to normal state and return if SoC is not available
-		Optional<Integer> socOpt = this.ess.getSoc().value().asOptional();
+		Optional<Integer> socOpt = ess.getSoc().value().asOptional();
 		if (!socOpt.isPresent()) {
 			this.state = State.NORMAL;
 			return;
@@ -154,6 +131,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 			stateChanged = false;
 
 			switch (this.state) {
+			case UNDEFINED:
 			case NORMAL:
 				/*
 				 * Normal State
@@ -192,10 +170,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				 * Force-Charge-SoC State
 				 */
 				// Force charge: set Constraint for ActivePower
-				int maxCharge = this.ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-				// TODO allow setting of Force-Charge-Power (in percentage of maxCharge power)
-				// per configuration
-				calculatedPower = maxCharge / 5;
+				if (this.forceChargePower.isPresent()) {
+					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
+				} else {
+					int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					calculatedPower = maxCharge / 5;
+				}
 
 				if (soc > this.forceChargeSoc) {
 					stateChanged = this.changeState(State.MIN_SOC);
@@ -206,12 +186,13 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 		} while (stateChanged); // execute again if the state changed
 
-		// Apply Force-Charge if it was set
-		try {
-			this.ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
+		// adjust value so that it fits into Min/MaxActivePower
+		if (calculatedPower != null) {
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 		}
+
+		// Apply Force-Charge if it was set
+		ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
 
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
@@ -225,7 +206,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	 */
 	private boolean changeState(State nextState) {
 		if (this.state != nextState) {
-			if (this.lastStateChange.plusSeconds(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
+			if (this.lastStateChange.plus(this.hysteresis).isBefore(LocalDateTime.now(this.clock))) {
 				this.state = nextState;
 				this.lastStateChange = LocalDateTime.now(this.clock);
 				this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(false);

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -146,8 +147,17 @@ public abstract class AbstractComponentTest {
 	private final List<TestCase> testCases = new ArrayList<>();
 
 	public AbstractComponentTest(OpenemsComponent... components) {
+		// store Components
 		for (OpenemsComponent component : components) {
 			this.components.put(component.id(), component);
+		}
+	}
+
+	public AbstractComponentTest(OpenemsComponent[] components, DummyComponentManager componentManager) {
+		this(components);
+		// forward Components to ComponentManager
+		for (OpenemsComponent c : components) {
+			componentManager.addComponent(c);
 		}
 	}
 
@@ -179,7 +189,9 @@ public abstract class AbstractComponentTest {
 	/**
 	 * Executes the tested component logic. This method is executed after the inputs
 	 * are applied. After finishing the expected outputs are validated.
+	 * 
+	 * @throws OpenemsNamedException on error
 	 */
-	protected abstract void executeLogic();
+	protected abstract void executeLogic() throws OpenemsNamedException;
 
 }

@@ -1,45 +1,46 @@
-import { Component, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
-
-import { Utils } from '../../../shared/service/utils';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { CurrentDataAndSummary_2018_8 } from '../../../shared/edge/currentdata.2018.8';
+import { Component, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Service } from '../../../shared/service/service';
+import { Edge } from '../../../shared/edge/edge';
+import { Websocket } from '../../../shared/service/websocket';
+import { ChannelAddress } from '../../../shared/type/channeladdress';
 
 @Component({
-  selector: 'energytable-2018-8',
+  selector: EnergytableComponent.SELECTOR,
   templateUrl: './energytable.component.html'
 })
-export class EnergytableComponent_2018_8 {
+export class EnergytableComponent implements OnDestroy {
 
-  @Input()
-  public currentData: CurrentDataAndSummary_2018_8;
+  private static readonly SELECTOR = "energytable";
 
-  @Input()
-  public config: DefaultTypes.Config_2018_8;
+  public edge: Edge = null;
 
-  @Output()
-  public subscribes = new EventEmitter<DefaultTypes.ChannelAddresses>();
-
-  constructor(public utils: Utils) { }
+  constructor(
+    private service: Service,
+    private websocket: Websocket,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
-    this.generateRequiredSubscribes();
-  }
-
-  /**
-   * Generates the requiredSubscribes.
-   */
-  private generateRequiredSubscribes() {
-    this.subscribes.next({
-      '_sum': [
+    this.service.setCurrentEdge(this.route).then(edge => {
+      this.edge = edge;
+      edge.subscribeChannels(this.websocket, EnergytableComponent.SELECTOR, [
         // Ess
-        'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
+        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'),
         // Grid
-        'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
+        new ChannelAddress('_sum', 'GridActivePower'),
         // Production
-        'ProductionActivePower', 'ProductionDcActualPower', 'ProductionAcActivePower', 'ProductionMaxActivePower',
+        new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'), new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
         // Consumption
-        'ConsumptionActivePower', 'ConsumptionMaxActivePower'
-      ]
+        new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
+      ]);
     });
   }
+
+  ngOnDestroy() {
+    if (this.edge != null) {
+      this.edge.unsubscribeChannels(this.websocket, EnergytableComponent.SELECTOR);
+    }
+  }
+
 }

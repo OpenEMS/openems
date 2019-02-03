@@ -5,7 +5,8 @@ Bundle-Version: 1.0.0.${tstamp}
 Private-Package: \
 	io.openems.edge.core.meta,\
 	io.openems.edge.core.sum,\
-	io.openems.edge.core.cycle
+	io.openems.edge.core.cycle,\
+	io.openems.edge.core.componentmanager
 	
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
@@ -15,4 +16,5 @@ Private-Package: \
 	io.openems.edge.meter.api;version=latest,\
 	io.openems.wrapper.sdnotify;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
-	io.openems.edge.controller.api;version=latest
+	io.openems.edge.controller.api;version=latest,\
+	com.google.gson

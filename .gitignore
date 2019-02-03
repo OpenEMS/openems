@@ -101,6 +101,8 @@ local.properties
 
 # Log file
 *.log
+# do not ignore directories ending in 'log'
+!*.log/
 
 # BlueJ files
 *.ctxt
@@ -195,6 +197,8 @@ typings/
 ### Gradle ###
 .gradle
 **/build/
+# do not ignore '/doc/build' directory
+!*doc/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -210,3 +214,6 @@ gradle-app.setting
 
 
 # End of https://www.gitignore.io/api/java,maven,gradle,angular,eclipse,node
+
+# docs
+/doc/build/package-lock.json

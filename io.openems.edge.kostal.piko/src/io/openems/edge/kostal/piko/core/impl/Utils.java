@@ -7,6 +7,7 @@ import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -23,6 +24,9 @@ public class Utils {
 					return null;
 				}), Arrays.stream(KostalPikoCore.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
+					case UNABLE_TO_READ_DATA:
+						return new StateChannel(c, channelId);
+
 					case INVERTER_NAME:
 					case ARTICLE_NUMBER:
 					case INVERTER_SERIAL_NUMBER:
@@ -101,7 +105,7 @@ public class Utils {
 					case GRID_FREQUENCY:
 					case COSINUS_PHI:
 					case HOME_CONSUMPTION_PV:
-					case HOME_CONSUMPTION_BATTERY:
+					case HOME_CONSUMPTION_BAT:
 					case HOME_CONSUMPTION_GRID:
 					case HOME_CURRENT_FROM_EXT_SENSOR_L1:
 					case HOME_POWER_L1:

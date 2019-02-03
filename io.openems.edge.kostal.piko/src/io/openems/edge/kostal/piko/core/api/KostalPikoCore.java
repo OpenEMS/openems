@@ -2,6 +2,7 @@ package io.openems.edge.kostal.piko.core.api;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.kostal.piko.charger.KostalPikoCharger;
 import io.openems.edge.kostal.piko.ess.KostalPikoEss;
@@ -22,6 +23,8 @@ public interface KostalPikoCore {
 	public void unsetGridMeter(KostalPikoGridMeter charger);
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		UNABLE_TO_READ_DATA(new Doc().level(Level.FAULT)), //
+
 		/*
 		 * Core
 		 */
@@ -74,7 +77,7 @@ public interface KostalPikoCore {
 		/*
 		 * ESS
 		 */
-		BATTERY_CURRENT_DIRECTION(new Doc().option(0, "charge").option(1, "discharge").type(OpenemsType.FLOAT)), //
+		BATTERY_CURRENT_DIRECTION(new Doc().options(BatteryCurrentDirection.values()).type(OpenemsType.FLOAT)), //
 		BATTERY_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		BATTERY_VOLTAGE(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		BATTERY_TEMPERATURE(new Doc().type(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)), //
@@ -113,7 +116,7 @@ public interface KostalPikoCore {
 		GRID_FREQUENCY(new Doc().type(OpenemsType.FLOAT).unit(Unit.HERTZ)), //
 		COSINUS_PHI(new Doc().type(OpenemsType.FLOAT)), //
 		HOME_CONSUMPTION_PV(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
-		HOME_CONSUMPTION_BATTERY(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
+		HOME_CONSUMPTION_BAT(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CONSUMPTION_GRID(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		HOME_CURRENT_FROM_EXT_SENSOR_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		HOME_POWER_L1(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //

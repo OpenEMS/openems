@@ -19,26 +19,22 @@ public class DummyPower implements Power {
 
 	@Override
 	public Constraint addConstraint(Constraint constraint) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
 			Relationship relationship, double value) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void removeConstraint(Constraint constraint) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -54,7 +50,6 @@ public class DummyPower implements Power {
 
 	@Override
 	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

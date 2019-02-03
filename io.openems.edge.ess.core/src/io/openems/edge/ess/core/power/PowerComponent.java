@@ -1,6 +1,11 @@
 package io.openems.edge.ess.core.power;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.osgi.service.component.ComponentContext;
@@ -23,22 +28,24 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.EssType;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.ess.power.api.SolverStrategy;
 
 @Designate(ocd = Config.class, factory = false)
-@Component( //
-		name = "ESS.Power", //
+@Component(//
+		name = "Ess.Power", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
@@ -51,7 +58,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * The duration needed for solving the Power
+		 * The duration needed for solving the Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: PowerComponent
@@ -62,7 +69,18 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 */
 		SOLVE_DURATION(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
 		/**
-		 * Whether the Power problem could be solved
+		 * The eventually used solving strategy.
+		 * 
+		 * <ul>
+		 * <li>Interface: PowerComponent
+		 * <li>Type: Integer
+		 * <li>Unit: milliseconds
+		 * <li>Range: positive
+		 * </ul>
+		 */
+		SOLVE_STRATEGY(new Doc().type(OpenemsType.INTEGER).options(SolverStrategy.values())),
+		/**
+		 * Whether the Power problem could be solved.
 		 * 
 		 * <ul>
 		 * <li>Interface: PowerComponent
@@ -84,8 +102,14 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	private final Logger log = LoggerFactory.getLogger(PowerComponent.class);
 
-	protected final static boolean DEFAULT_SYMMETRIC_MODE = false;
-	protected final static boolean DEFAULT_DEBUG_MODE = false;
+	protected static final boolean DEFAULT_SYMMETRIC_MODE = false;
+	protected static final boolean DEFAULT_DEBUG_MODE = false;
+	protected static final SolverStrategy DEFAULT_SOLVER_STRATEGY = SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
+
+	/**
+	 * Holds all managed Ess objects by their ID.
+	 */
+	private final Map<String, ManagedSymmetricEss> esss = new HashMap<>();
 
 	private final Data data;
 	private final Solver solver;
@@ -94,21 +118,23 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	public PowerComponent() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.data = new Data();
+		this.data = new Data(this);
 		this.solver = new Solver(data);
 
-		this.solver.onSolved((wasSolved, duration) -> {
-			this.getSolvedChannel().setNextValue(wasSolved);
+		this.solver.onSolved((isSolved, duration, strategy) -> {
+			this.getSolvedChannel().setNextValue(isSolved);
 			this.getSolveDurationChannel().setNextValue(duration);
+			this.getSolveStrategyChannel().setNextValue(strategy);
 		});
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, "_power", "_power", true);
+	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+		super.activate(context, "_power", true);
 		this.data.setSymmetricMode(config.symmetricMode());
 		this.debugMode = config.debugMode();
 		this.solver.setDebugMode(config.debugMode());
+		this.solver.setStrategy(config.strategy());
 	}
 
 	@Deactivate
@@ -116,17 +142,25 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		super.deactivate();
 	}
 
-	@Reference( //
+	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
-		this.data.addEss(ess);
+		this.esss.put(ess.id(), ess);
+		this.data.addEss(ess.id());
 	}
 
 	protected synchronized void removeEss(ManagedSymmetricEss ess) {
-		this.data.removeEss(ess);
+		Iterator<Entry<String, ManagedSymmetricEss>> i = this.esss.entrySet().iterator();
+		while (i.hasNext()) {
+			Entry<String, ManagedSymmetricEss> entry = i.next();
+			if (Objects.equals(entry.getValue(), ess)) {
+				this.data.removeEss(entry.getKey());
+				i.remove();
+			}
+		}
 	}
 
 	@Override
@@ -159,13 +193,13 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	 */
 	@Override
 	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		return this.data.getCoefficient(ess, phase, pwr);
+		return this.data.getCoefficient(ess.id(), phase, pwr);
 	}
 
 	@Override
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
 			Relationship relationship, double value) {
-		return this.data.createSimpleConstraint(description, ess, phase, pwr, relationship, value);
+		return this.data.createSimpleConstraint(description, ess.id(), phase, pwr, relationship, value);
 	}
 
 	@Override
@@ -184,7 +218,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	private int getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
-		double power = this.solver.getActivePowerExtrema(ess, phase, pwr, goal);
+		double power = this.solver.getActivePowerExtrema(ess.id(), phase, pwr, goal);
 		if (power > Integer.MIN_VALUE && power < Integer.MAX_VALUE) {
 			if (goal == GoalType.MAXIMIZE) {
 				return (int) Math.floor(power);
@@ -218,20 +252,46 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		return this.channel(ChannelId.SOLVE_DURATION);
 	}
 
+	protected IntegerReadChannel getSolveStrategyChannel() {
+		return this.channel(ChannelId.SOLVE_STRATEGY);
+	}
+
 	public boolean isDebugMode() {
 		return debugMode;
 	}
 
 	/**
-	 * Prints all Constraints to the system log
+	 * Prints all Constraints to the system log.
 	 * 
-	 * @param title
-	 * @param constraints
+	 * @param log         a logger instance
+	 * @param title       the log title
+	 * @param constraints a list of Constraints
 	 */
 	public static void debugLogConstraints(Logger log, String title, List<Constraint> constraints) {
 		log.info(title);
 		for (Constraint c : constraints) {
 			log.info("- " + c);
 		}
+	}
+
+	/**
+	 * Gets the Ess component with the given ID.
+	 * 
+	 * @param essId the component ID of Ess
+	 * @return an Ess instance
+	 */
+	protected ManagedSymmetricEss getEss(String essId) {
+		return this.esss.get(essId);
+	}
+
+	/**
+	 * Gets the EssType for the given Ess-ID.
+	 * 
+	 * @param essId the component ID of Ess
+	 * @return the EssType
+	 */
+	protected EssType getEssType(String essId) {
+		ManagedSymmetricEss ess = this.getEss(essId);
+		return EssType.getEssType(ess);
 	}
 }

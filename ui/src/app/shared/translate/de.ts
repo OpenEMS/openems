@@ -3,6 +3,7 @@ export const TRANSLATION = {
         Grid: "Netz",
         GridBuy: "Netzbezug",
         GridSell: "Netzeinspeisung",
+        OffGrid: "Keine Netzverbindung!",
         Production: "Erzeugung",
         Consumption: "Verbrauch",
         Power: "Leistung",

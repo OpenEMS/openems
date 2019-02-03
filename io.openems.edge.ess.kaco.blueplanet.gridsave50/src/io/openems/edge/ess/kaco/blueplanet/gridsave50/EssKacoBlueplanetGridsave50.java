@@ -104,10 +104,10 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id()); //
 		// update filter for 'battery'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "battery", config.battery_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "battery", config.battery_id())) {
 			return;
 		}
 
@@ -207,11 +207,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		setWatchdog();
 
 		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
-		Optional<Enum<?>> currentStateOpt = currentStateChannel.value().asEnumOptional();
-		if (!currentStateOpt.isPresent()) {
-			return;
-		}
-		CurrentState currentState = (CurrentState) currentStateOpt.get();
+		CurrentState currentState = currentStateChannel.value().asEnum();
 		switch (currentState) {
 		case OFF:
 			doOffHandling();
@@ -232,6 +228,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		case STARTING:
 		case THROTTLED:
 		case CURRENTLY_UNKNOWN:
+		case UNDEFINED:
 			// Do nothing because these states are only temporarily reached
 			break;
 		}
@@ -275,7 +272,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
 		int batSoC = battery.getSoc().value().orElse(0);
 		int batSoH = battery.getSoh().value().orElse(0);
-		int batTemp = battery.getBatteryTemp().value().orElse(0);
+		int batTemp = battery.getMaxCellTemperature().value().orElse(0);
 
 		// Update Power Constraints
 		// TODO: The actual AC allowed charge and discharge should come from the KACO
@@ -432,7 +429,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.channel(ChannelId.BAT_SOH).setNextValue(value.get());
 		});
 
-		this.battery.getBatteryTemp().onChange(value -> {
+		this.battery.getMaxCellTemperature().onChange(value -> {
 			this.channel(ChannelId.BAT_TEMP).setNextValue(value.get());
 		});
 	}
