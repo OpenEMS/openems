@@ -12,12 +12,16 @@ reckon {
  * Updates the OpenemsConstants file with the generated Version number
  */
 task updateOpenemsConstants {
+    def openemsConstantsFilePath = 'io.openems.common/src/io/openems/common/OpenemsConstants.java'
+    exec {
+        commandLine 'git', 'checkout', 'HEAD', '--', openemsConstantsFilePath
+    }
     def version = project.version.version.getVersion()
     def versionString = version.getPreReleaseVersion()
     if (!version.getBuildMetadata().isEmpty()) {
         versionString += "+" + version.getBuildMetadata()
     }
-    def openemsConstantsFile = new File('io.openems.common/src/io/openems/common/OpenemsConstants.java')
+    def openemsConstantsFile = new File(openemsConstantsFilePath)
     def constants = openemsConstantsFile.getText('UTF-8')
     constants = constants.replaceAll('(short VERSION_MAJOR = ).*;', '$1' + version.getMajorVersion() + ';')
     constants = constants.replaceAll('(short VERSION_MINOR = ).*;', '$1' + version.getMinorVersion() + ';')
@@ -31,8 +35,8 @@ task updateOpenemsConstants {
  */
 task buildComponents(dependsOn: updateOpenemsConstants) {
     subprojects.each { proj ->
-        if (proj.tasks.findAll { it.name == 'jar' }) {
-            dependsOn(proj.jar)
+        if (proj.tasks.findAll { it.name == 'compileJava' }) {
+            dependsOn(proj.compileJava)
         }
     }
 }
@@ -40,9 +44,11 @@ task buildComponents(dependsOn: updateOpenemsConstants) {
 /*
  * Build OpenEMS Edge fat-jar
  */
-task buildEdge(dependsOn: buildComponents) {
+file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar").delete()
+task buildEdge() {
     dependsOn ":io.openems.edge.application:export.EdgeApp"
     doLast {
+        file("${buildDir}/openems-edge.jar").delete()
         copy {
             from file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar")
             into file("${buildDir}")
@@ -54,9 +60,11 @@ task buildEdge(dependsOn: buildComponents) {
 /*
  * Build OpenEMS Backend fat-jar
  */
-task buildBackend(dependsOn: buildComponents) {
+file("${project(":io.openems.backend.application").distsDir}/executable/BackendApp.jar").delete()
+task buildBackend() {
     dependsOn ":io.openems.backend.application:export.BackendApp"
     doLast {
+        file("${buildDir}/openems-backend.jar").delete()
         copy {
             from file("${project(":io.openems.backend.application").distsDir}/executable/BackendApp.jar")
             into file("${buildDir}")
