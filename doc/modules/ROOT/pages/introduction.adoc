@@ -44,18 +44,13 @@ image::system-architecture.png[OpenEMS system architecture]
 Development follows the https://de.wikipedia.org/wiki/Agile_Softwareentwicklung[Agile Manifesto icon:external-link[]] and is driven by the https://de.wikipedia.org/wiki/Scrum[Scrum icon:external-link[]] methodology. 
 The source code is available online at http://openems.io and on https://github.com/OpenEMS/openems[GitHub icon:github[]]. 
 New versions are released after every Scrum Sprint and https://github.com/OpenEMS/openems/releases[tagged icon:github[]] accordingly. 
-Version numbers are built using the pattern `year.number of sprint`, e.g. version `2018.4` is the result of the fourth sprint in 2018. 
+Version numbers are built using the pattern `year.number of sprint`, e.g. version `2018.4.0` is the result of the fourth sprint in 2018. 
 Git development follows the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow[Gitflow Workflow], so the https://github.com/OpenEMS/openems/tree/master/[master branch icon:github[]] always holds the stable release, while active development is happening on the https://github.com/OpenEMS/openems/tree/develop[develop branch icon:github[]] or in separate feature branches.
 
 For Edge and Backend Java development we recommend the https://www.eclipse.org/ide/[Eclipse IDE icon:external-link[]].
 For the UI (TypeScript + Angular.io) we recommend https://code.visualstudio.com/[Visual Studio Code icon:external-link[]]. 
 The documentation is generated using http://asciidoc.org[AsciiDoc icon:external-link[]]. 
 For handling git we recommend https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]].
-
-// TODO remove this after migration to OSGi is finished
-== Migration to OSGi
-
-Starting with version https://github.com/OpenEMS/openems/releases/tag/2018.7[2018.7 icon:github[]] OpenEMS Edge is getting migrated to https://en.wikipedia.org/wiki/OSGi[OSGi icon:external-link[]], a platform to provide a completely modular and dynamic service oriented system. Certain parts of Edge are not yet migrated and for the time being only available in the deprecated https://github.com/OpenEMS/openems/tree/old_master[old_master branch icon:github[]].
 
 == Open Source philosophy
 
