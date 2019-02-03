@@ -67,60 +67,39 @@ public class Utils {
 //----------------------------------------------------------------------------------------------------------------------
 					
 					
-					case Analog_GridCurrent_Freq:
-					case Analog_ActivePower_Rms_Value_L1:
-					case Analog_ActivePower_Rms_Value_L2:
-					case Analog_ActivePower_Rms_Value_L3:
-					case Analog_ReactivePower_Rms_Value_L1:
-					case Analog_ReactivePower_Rms_Value_L2:
-					case Analog_ReactivePower_Rms_Value_L3:
-					case Analog_ApparentPower_L1:
-					case Analog_ApparentPower_L2:
-					case Analog_ApparentPower_L3:
-					case Analog_PF_RMS_Value_L1:
-					case Analog_PF_RMS_Value_L2:
-					case Analog_PF_RMS_Value_L3:
-					case Analog_ActivePower_3Phase:
-					case Analog_ReactivePower_3Phase:
-					case Analog_ApparentPower_3Phase:
-					case Analog_PowerFactor_3Phase:
-					case Analog_CHARGE_Energy:
-					case Analog_DISCHARGE_Energy:
-					case Analog_REACTIVE_Energy:
-					case Analog_Reactive_Energy_2:
-					case Target_OffGrid_Voltage:
-					case Target_OffGrid_Frequency:
-					case Analog_DC_CHARGE_Energy:
-					case Analog_DC_DISCHARGE_Energy:
+					case ANALOG_CHARGE_ENERGY:
+					case ANALOG_DISCHARGE_ENERGY:
+					case TARGET_OFFGRID_VOLTAGE:
+					case TARGET_OFFGRID_FREQUENCY:
+					case ANALOG_DC_CHARGE_ENERGY:
+					case ANALOG_DC_DISCHARGE_ENERGY:
 					case ANTI_ISLANDING:	
 					case MOD_ON_CMD:
 					case MOD_OFF_CMD:
 					case GRID_ON_CMD:
 					case GRID_OFF_CMD:
 					case SUNSPEC_DID_0103:
-					case DC_Voltage:
-					case AC_Power:
-					case AC_Apparent_Power:
-					case AC_Reactive_Power:	
-					case Frequency:	
-					case Temperature:
-					case InvOutVolt_L1:
-					case InvOutVolt_L2:
-					case InvOutVolt_L3:
-					case InvOutCurrent_L1:
-					case InvOutCurrent_L2:
-					case InvOutCurrent_L3:
-					case DC_Current:
-					case DC_Power:
-					case Sinexcel_State:
-					case EVENT_1:
-					case Test_Register:
-					case Max_Discharge_Current:
-					case Max_Charge_Current:
-					case Lower_Voltage_Limit:
-					case Upper_Voltage_Limit:
-					case Target_Active_Power:
-					case Target_Reactive_Power:
+					case DC_VOLTAGE:
+					case AC_POWER:
+					case AC_APPARENT_POWER:
+					case AC_REACTIVE_POWER:	
+					case FREQUENCY:	
+					case TEMPERATURE:
+					case INVOUTVOLT_L1:
+					case INVOUTVOLT_L2:
+					case INVOUTVOLT_L3:
+					case INVOUTCURRENT_L1:
+					case INVOUTCURRENT_L2:
+					case INVOUTCURRENT_L3:
+					case DC_CURRENT:
+					case DC_POWER:
+					case SINEXCEL_STATE:
+					case MAX_DISCHARGE_CURRENT:
+					case MAX_CHARGE_CURRENT:
+					case LOWER_VOLTAGE_LIMIT:
+					case UPPER_VOLTAGE_LIMIT:
+					case TARGET_ACTIVE_POWER:
+					case TARGET_REACTIVE_POWER:
 					case DEBUG_EN_LIMIT:
 					case BAT_MIN_CELL_VOLTAGE:
 					case BAT_VOLTAGE:
@@ -152,30 +131,30 @@ public class Utils {
 					case DIS_MIN_V:
 					case EN_LIMIT:
 					case SET_INTERN_DC_RELAY:
-					case SET_Analog_CHARGE_Energy:
-					case SET_Analog_DISCHARGE_Energy:
-					case SET_Analog_DC_CHARGE_Energy:
-					case SET_Analog_DC_DISCHARGE_Energy:
+					case SET_ANALOG_CHARGE_Energy:
+					case SET_ANALOG_DISCHARGE_Energy:
+					case SET_ANALOG_DC_CHARGE_Energy:
+					case SET_ANALOG_DC_DISCHARGE_Energy:
 						return new IntegerWriteChannel(ess, channelId);
 						
-					case Serial:
-					case Model:
-					case Manufacturer:
-					case Model_2:
-					case Version:
-					case Serial_Number:
+					case SERIAL:
+					case MODEL:
+					case MANUFACTURER:
+					case MODEL_2:
+					case VERSION:
+					case SERIAL_NUMBER:
 						
 						return new StringReadChannel(ess, channelId);
 //-----------------------------------STATES--------------------------------------------------
-					case Sinexcel_STATE_1:
-					case Sinexcel_STATE_2:
-					case Sinexcel_STATE_3:
-					case Sinexcel_STATE_4:
-					case Sinexcel_STATE_5:
-					case Sinexcel_STATE_6:
-					case Sinexcel_STATE_7:
-					case Sinexcel_STATE_8:
-					case Sinexcel_STATE_9:	
+					case SINEXCEL_STATE_1:
+					case SINEXCEL_STATE_2:
+					case SINEXCEL_STATE_3:
+					case SINEXCEL_STATE_4:
+					case SINEXCEL_STATE_5:
+					case SINEXCEL_STATE_6:
+					case SINEXCEL_STATE_7:
+					case SINEXCEL_STATE_8:
+					case SINEXCEL_STATE_9:	
 						return new StateChannel(ess, channelId);
 //-----------------------------------EVENT BITFIELD32-----------------------------------------						
 					case STATE_0:
