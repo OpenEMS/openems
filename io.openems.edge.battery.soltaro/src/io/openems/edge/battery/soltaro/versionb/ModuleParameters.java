@@ -11,8 +11,8 @@ public enum ModuleParameters {
 	LEVEL_2_TOTAL_LOW_VOLTAGE_MILLIVOLT(32400), // address x2048
 	LEVEL_2_TOTAL_LOW_VOLTAGE_RECOVER_MILLIVOLT(33000), // address x2049
 	
-//	MIN_VOLTAGE_VOLT(34),
-//	MAX_VOLTAGE_VOLT(42)
+//	MIN_VOLTAGE_VOLT(34,8),
+//	MAX_VOLTAGE_VOLT(42,7)
 	;
 	
 	private ModuleParameters(int value) {

@@ -72,6 +72,12 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	public static final Integer CAPACITY_KWH = 50; // TODO depends on number of modules
 	private static final Integer SYSTEM_RESET = 0x1;
 
+	private static final int VOLTAGE_SENSORS_PER_MODULE = 12;
+	private static final int TEMPERATURE_SENSORS_PER_MODULE = 12;
+	private static final int ADDRESS_OFFSET = 0x2000;
+	private static final int VOLTAGE_ADDRESS_OFFSET = 0x800;
+	private static final int TEMPERATURE_ADDRESS_OFFSET = 0xC00;
+
 	private final Logger log = LoggerFactory.getLogger(SoltaroRackVersionB.class);
 
 	private String modbusBridgeId;
@@ -79,11 +85,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	// if configuring is needed this is used to go through the necessary steps
 	private ConfiguringProcess nextConfiguringProcess = ConfiguringProcess.NONE;
 	
-	final int VOLTAGE_SENSORS_PER_MODULE = 12;
-	final int TEMPERATURE_SENSORS_PER_MODULE = 12;
-	final int addressOffset = 0x2000;
-	final int VOLTAGE_ADDRESS_OFFSET = 0x800;
-	final int TEMPERATURE_ADDRESS_OFFSET = 0xC00;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -127,14 +128,13 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		Map<String, Channel<?>> map = new HashMap<>();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
-				String key = getSingleCellPrefix(j) + "_" + "VOLTAGE";
+				String key = getSingleCellPrefix(j) + "_VOLTAGE";
 				map.put(key, new IntegerReadChannel(this, new ChannelIdImpl(key, new Doc().unit(Unit.MILLIVOLT))));
 			}
 		}
-		// Cell temperatures formatted like : "RACK_1_BATTERY_000_TEMPERATURE"
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
-				String key = getSingleCellPrefix(j) + "_" + "TEMPERATURE";
+				String key = getSingleCellPrefix(j) + "_TEMPERATURE";
 				map.put(key, new IntegerReadChannel(this, new ChannelIdImpl(key, new Doc().unit(Unit.DEZIDEGREE_CELSIUS))));
 			}
 		}
@@ -1379,12 +1379,12 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_VOLTAGE";
-				UnsignedWordElement uwe = new UnsignedWordElement(addressOffset + VOLTAGE_ADDRESS_OFFSET + j);
+				UnsignedWordElement uwe = new UnsignedWordElement(ADDRESS_OFFSET + VOLTAGE_ADDRESS_OFFSET + j);
 				AbstractModbusElement<?> ame = m(channelMap.get(key).channelId(), uwe);
 				elements.add(ame);
 			}
 			protocol.addTask(
-					new FC3ReadRegistersTask(addressOffset + VOLTAGE_ADDRESS_OFFSET + i * VOLTAGE_SENSORS_PER_MODULE,
+					new FC3ReadRegistersTask(ADDRESS_OFFSET + VOLTAGE_ADDRESS_OFFSET + i * VOLTAGE_SENSORS_PER_MODULE,
 							Priority.LOW, elements.toArray(new AbstractModbusElement<?>[0])));
 		}
 
@@ -1393,12 +1393,12 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
 			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_TEMPERATURE";
-				SignedWordElement swe = new SignedWordElement(addressOffset + TEMPERATURE_ADDRESS_OFFSET + j);
+				SignedWordElement swe = new SignedWordElement(ADDRESS_OFFSET + TEMPERATURE_ADDRESS_OFFSET + j);
 				AbstractModbusElement<?> ame = m(channelMap.get(key).channelId(), swe);
 				elements.add(ame);
 			}
 			protocol.addTask(new FC3ReadRegistersTask(
-					addressOffset + TEMPERATURE_ADDRESS_OFFSET + i * TEMPERATURE_SENSORS_PER_MODULE, Priority.LOW,
+					ADDRESS_OFFSET + TEMPERATURE_ADDRESS_OFFSET + i * TEMPERATURE_SENSORS_PER_MODULE, Priority.LOW,
 					elements.toArray(new AbstractModbusElement<?>[0])));
 		}
 
