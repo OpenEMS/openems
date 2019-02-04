@@ -23,6 +23,7 @@ public enum OpenemsError {
 	COMMON_ROLE_ACCESS_DENIED(1002, "Access to this resource [%s] is denied for User with Role [%s]"), //
 	COMMON_AUTHENTICATION_FAILED(1003, "Authentication failed"), //
 	COMMON_USER_UNDEFINED(1004, "User [%s] is not defined"), //
+	COMMON_ROLE_UNDEFINED(1005, "Role for User [%s] is not defined"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */

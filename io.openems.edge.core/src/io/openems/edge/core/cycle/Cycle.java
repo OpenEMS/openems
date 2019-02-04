@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Component(immediate = true)

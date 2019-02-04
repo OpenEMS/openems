@@ -18,7 +18,8 @@ Export-Package: \
 	io.openems.common.jsonrpc.notification,\
 	io.openems.common.jsonrpc.request,\
 	io.openems.common.jsonrpc.response,\
-	io.openems.common.jsonrpc.shared
+	io.openems.common.jsonrpc.shared,\
+	io.openems.common.worker
 
 -includeresource: {readme.md}
 

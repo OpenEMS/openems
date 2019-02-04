@@ -12,6 +12,9 @@ import java.util.concurrent.TimeUnit;
 import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
+import org.influxdb.InfluxDBIOException;
+import org.influxdb.dto.BatchPoints;
+import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.QueryResult.Result;
@@ -56,7 +59,7 @@ public class InfluxConnector {
 	 * 
 	 * @return
 	 */
-	public InfluxDB getConnection() {
+	private InfluxDB getConnection() {
 		if (this._influxDB == null) {
 			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
 					this.password);
@@ -198,5 +201,33 @@ public class InfluxConnector {
 			channelAddresses.add("MEAN(\"" + channel.toString() + "\") AS \"" + channel.toString() + "\"");
 		}
 		return String.join(", ", channelAddresses);
+	}
+
+	/**
+	 * Actually write the BatchPoints to InfluxDB.
+	 * 
+	 * @param batchPoints the InfluxDB BatchPoints
+	 * @throws OpenemsException on error
+	 */
+	public void write(BatchPoints batchPoints) throws OpenemsException {
+		try {
+			this.getConnection().write(batchPoints);
+		} catch (InfluxDBIOException e) {
+			throw new OpenemsException("Unable to write points: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Actually write the Points to InfluxDB.
+	 * 
+	 * @param batchPoints the InfluxDB BatchPoints
+	 * @throws OpenemsException on error
+	 */
+	public void write(Point point) throws OpenemsException {
+		try {
+			this.getConnection().write(point);
+		} catch (InfluxDBIOException e) {
+			throw new OpenemsException("Unable to write point: " + e.getMessage());
+		}
 	}
 }

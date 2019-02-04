@@ -4,6 +4,10 @@ import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
 
+/**
+ * An SignedWordElement represents a Short value in an
+ * {@link AbstractWordElement}.
+ */
 public class SignedWordElement extends AbstractWordElement<SignedWordElement, Short> {
 
 	public SignedWordElement(int address) {

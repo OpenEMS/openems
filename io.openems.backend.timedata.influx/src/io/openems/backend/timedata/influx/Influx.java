@@ -11,8 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBIOException;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -47,7 +45,6 @@ import io.openems.shared.influxdb.InfluxConstants;
 @Component(name = "Timedata.InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 
-	private static final String TMP_MINI_MEASUREMENT = "minies";
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
@@ -139,9 +136,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 		// Write data to default location
 		this.writeData(influxEdgeId, data);
-
-		// Hook to continue writing data to old Mini monitoring
-		this.writeDataToOldMiniMonitoring(edgeId, influxEdgeId, data);
 	}
 
 	/**
@@ -149,15 +143,16 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * 
 	 * @param influxEdgeId the unique, numeric identifier of the Edge
 	 * @param data         the data
+	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
+			throws OpenemsException {
 		Set<Entry<Long, Map<ChannelAddress, JsonElement>>> dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
-		InfluxDB influxDb = this.influxConnector.getConnection();
 		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
 				.tag(InfluxConstants.TAG, String.valueOf(influxEdgeId)) //
 				.build();
@@ -175,7 +170,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
 				Influx.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
-			batchPoints.point(builder.build());
+			if (builder.hasFields()) {
+				batchPoints.point(builder.build());
+			}
 		}
 
 		if (batchPoints.getPoints().isEmpty()) {
@@ -184,11 +181,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		}
 
 		// write to DB
-		try {
-			influxDb.write(batchPoints);
-		} catch (InfluxDBIOException e) {
-			this.logError(this.log, "Unable to write data: " + e.getMessage());
-		}
+		this.influxConnector.write(batchPoints);
 	}
 
 	public static Integer parseNumberFromName(String name) throws OpenemsException {
@@ -251,87 +244,6 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		} else {
 			builder.addField(field, element.toString());
 		}
-	}
-
-	/**
-	 * Writes data to old database for old Mini monitoring.
-	 * 
-	 * </p>
-	 * XXX remove after full migration
-	 *
-	 * @param edgeId   the Edge-ID
-	 * @param influxId the Influx-Edge-ID
-	 * @param data     the received data
-	 * @throws OpenemsException on error
-	 */
-	private void writeDataToOldMiniMonitoring(String edgeId, int influxId,
-			TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
-		Edge edge = this.metadata.getEdgeOrError(edgeId);
-		if (!edge.getProducttype().equals("MiniES 3-3")) {
-			return;
-		}
-
-		InfluxDB influxDb = this.influxConnector.getConnection();
-
-		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
-				.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
-				.build();
-
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
-			Long timestamp = entry.getKey();
-			Builder builder = Point.measurement(TMP_MINI_MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
-
-			Map<String, Object> fields = new HashMap<>();
-
-			for (Entry<ChannelAddress, JsonElement> valueEntry : entry.getValue().entrySet()) {
-				String channel = valueEntry.getKey().toString();
-				JsonElement element = valueEntry.getValue();
-				if (!element.isJsonPrimitive()) {
-					continue;
-				}
-				JsonPrimitive jValue = element.getAsJsonPrimitive();
-				if (!jValue.isNumber()) {
-					continue;
-				}
-				long value = jValue.getAsNumber().longValue();
-
-				// convert channel ids to old identifiers
-				if (channel.equals("ess0/Soc")) {
-					fields.put("Stack_SOC", value);
-					edge.setSoc((int) value);
-				} else if (channel.equals("meter0/ActivePower")) {
-					fields.put("PCS_Grid_Power_Total", value * -1);
-				} else if (channel.equals("meter1/ActivePower")) {
-					fields.put("PCS_PV_Power_Total", value);
-				} else if (channel.equals("meter2/ActivePower")) {
-					fields.put("PCS_Load_Power_Total", value);
-				}
-
-				// from here value needs to be divided by 10 for backwards compatibility
-				value = value / 10;
-				if (channel.equals("meter2/Energy")) {
-					fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
-					fields.put("PCS_Summary_Consumption_Accumulative", value);
-				} else if (channel.equals("meter0/BuyFromGridEnergy")) {
-					fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
-					fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
-				} else if (channel.equals("meter0/SellToGridEnergy")) {
-					fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
-					fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
-				} else if (channel.equals("meter1/EnergyL1")) {
-					fields.put("PCS_Summary_PV_Accumulative_cor", value);
-					fields.put("PCS_Summary_PV_Accumulative", value);
-				}
-			}
-
-			if (fields.size() > 0) {
-				builder.fields(fields);
-				batchPoints.point(builder.build());
-			}
-		}
-
-		// write to DB
-		influxDb.write(batchPoints);
 	}
 
 	@Override
@@ -479,14 +391,14 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			case "ProductionAcActivePower": {
 				List<String> ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
 				ignoreIds.add("meter0");
-				
+
 				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
 				asymmetricIds.removeAll(ignoreIds);
-				
+
 				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
 				symmetricIds.removeAll(ignoreIds);
 				symmetricIds.removeAll(asymmetricIds);
-				
+
 				ChannelFormula[] result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
 				int i = 0;
 				for (String id : asymmetricIds) {

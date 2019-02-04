@@ -13,6 +13,12 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
+/**
+ * A WordElement has a size of one Modbus Registers or 16 bit.
+ *
+ * @param <E> the subclass of myself
+ * @param <T> the target OpenemsType
+ */
 public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
@@ -37,10 +43,10 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	}
 
 	/**
-	 * Converts a 2-byte ByteBuffer to the the current OpenemsType
+	 * Converts a 2-byte ByteBuffer to the the current OpenemsType.
 	 * 
-	 * @param buff
-	 * @return
+	 * @param buff the ByteBuffer
+	 * @return an instance of the current OpenemsType
 	 */
 	protected abstract T fromByteBuffer(ByteBuffer buff);
 
@@ -61,10 +67,11 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	}
 
 	/**
-	 * Converts the current OpenemsType to a 2-byte ByteBuffer
+	 * Converts the current OpenemsType to a 2-byte ByteBuffer.
 	 * 
-	 * @param buff
-	 * @return
+	 * @param buff  the target ByteBuffer
+	 * @param value the value
+	 * @return the ByteBuffer
 	 */
 	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
 

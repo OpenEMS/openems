@@ -13,8 +13,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.worker.AbstractWorker;
 
 class BackendWorker extends AbstractWorker {
 
@@ -54,7 +54,7 @@ class BackendWorker extends AbstractWorker {
 	 */
 	public void sendValuesOfAllChannelsOnce() {
 		this.sendChangedValuesOnly.set(false);
-		this.triggerForceRun();
+		this.triggerNextRun();
 	}
 
 	@Override
