@@ -197,6 +197,8 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			if (matcher.find()) {
 				String nameNumberString = matcher.group(1);
 				return Integer.parseInt(nameNumberString);
+			}else {
+				return Integer.parseInt(name);
 			}
 		} catch (NullPointerException e) {
 			/* ignore */
