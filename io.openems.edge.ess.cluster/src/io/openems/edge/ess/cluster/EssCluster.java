@@ -50,7 +50,7 @@ import io.openems.edge.ess.power.api.Power;
 public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-//	private final Logger log = LoggerFactory.getLogger(EssCluster.class);
+	// private final Logger log = LoggerFactory.getLogger(EssCluster.class);
 
 	@Reference
 	private Power power = null;

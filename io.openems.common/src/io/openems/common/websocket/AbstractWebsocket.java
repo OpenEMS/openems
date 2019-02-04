@@ -85,15 +85,23 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 * 
 	 * @param e
 	 */
-	protected void handleInternalErrorSync(Exception e) {
-		this.getOnInternalError().run(e);
+	protected void handleInternalErrorSync(Exception e, String wsDataString) {
+		this.getOnInternalError().run(e, wsDataString);
 	}
+
+	/**
+	 * Log a info message.
+	 * 
+	 * @param log     a Logger instance
+	 * @param message the message
+	 */
+	protected abstract void logInfo(Logger log, String message);
 
 	/**
 	 * Log a warn message.
 	 * 
-	 * @param log
-	 * @param message
+	 * @param log     a Logger instance
+	 * @param message the message
 	 */
 	protected abstract void logWarn(Logger log, String message);
 

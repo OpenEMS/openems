@@ -4,6 +4,10 @@ import io.openems.common.types.OpenemsType;
 
 import java.nio.ByteBuffer;
 
+/**
+ * A SignedDoublewordElement represents a Long value in an
+ * {@link AbstractDoubleWordElement}.
+ */
 public class SignedDoublewordElement extends AbstractDoubleWordElement<SignedDoublewordElement, Long> {
 
 	public SignedDoublewordElement(int address) {

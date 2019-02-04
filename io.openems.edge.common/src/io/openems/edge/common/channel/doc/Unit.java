@@ -43,14 +43,24 @@ public enum Unit {
 	 * Unit of Active Power [kW]
 	 */
 	KILOWATT("kW", WATT, 3),
+
 	/**
 	 * Unit of Reactive Power [var]
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
 	/**
+	 * Unit of Reactive Power [kvar]
+	 */
+	KILO_VOLT_AMPERE_REACTIVE("kvar", VOLT_AMPERE_REACTIVE, 3),
+
+	/**
 	 * Unit of Apparent Power [VA]
 	 */
 	VOLT_AMPERE("VA"),
+	/**
+	 * Unit of kilo Apparent Power [kVA]
+	 */
+	KILO_VOLT_AMPERE("kVA", VOLT_AMPERE, 3),
 
 	/*
 	 * Voltage
@@ -60,6 +70,7 @@ public enum Unit {
 	 * Unit of Voltage [V]
 	 */
 	VOLT("V"),
+
 	/**
 	 * Unit of Voltage [mV]
 	 */
@@ -90,6 +101,16 @@ public enum Unit {
 	 * Unit of Energy [kWh]
 	 */
 	KILOWATT_HOURS("kWh", WATT_HOURS, 3),
+
+	/**
+	 * Unit of Reactive Energy [varh]
+	 */
+	VOLT_AMPERE_REACTIVE_HOURS("varh"),
+	/**
+	 * Unit of Reactive Energy [kVArh]
+	 */
+	KILOVOLT_AMPERE_REACTIVE_HOURS("kvarh", VOLT_AMPERE_REACTIVE_HOURS, 3),
+
 	/**
 	 * Unit of Energy [Wh/Wp]
 	 */

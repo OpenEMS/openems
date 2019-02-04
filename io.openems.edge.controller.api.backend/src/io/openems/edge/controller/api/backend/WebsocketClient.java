@@ -35,7 +35,8 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() + //
 			(proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
 		};
-		this.onInternalError = (ex) -> {
+		this.onInternalError = (ex, wsDataString) -> {
+			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
 			ex.printStackTrace();
 		};
 	}
@@ -74,7 +75,12 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	protected WsData createWsData() {
 		return new WsData();
 	}
-	
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		this.parent.logInfo(log, message);
+	}
+
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);

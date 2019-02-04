@@ -83,4 +83,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return subscribedChannelsWorker;
 	}
 
+	@Override
+	public String toString() {
+		String tokenString;
+		if (this.token.isPresent()) {
+			tokenString = this.token.get().toString();
+		} else {
+			tokenString = "UNKNOWN";
+		}
+		return "UiWebsocket.WsData [userId=" + userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
+	}
 }
