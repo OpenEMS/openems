@@ -195,6 +195,8 @@ Menu: btn:[Show] → btn:[Integrated terminal]
 . Install https://cli.angular.io/[Angular CLI icon:external-link[]]:
 +
 `npm install -g @angular/cli`
++
+NOTE: If you receive an error message that the command `npm` could not be found, make sure that node.js is installed and restart Visual Studio Code.
 
 . Resolve and download dependencies:
 +
