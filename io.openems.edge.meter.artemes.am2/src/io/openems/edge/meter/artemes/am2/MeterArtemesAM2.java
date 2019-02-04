@@ -15,7 +15,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.SignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.doc.Doc;
@@ -39,6 +41,8 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 
 	public MeterArtemesAM2() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		
+		AsymmetricMeter.initializePowerSumChannels(this);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -84,18 +88,18 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
-						// new DummyRegisterElement(0x0006, 0x000C),
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedWordElement(0x000E)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedWordElement(0x0010)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedWordElement(0x0012)),
-						// new DummyRegisterElement(0x0014, 0x0016),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(0x0018)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(0x001C)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(0X0020)),
-						// new DummyRegisterElement(0x0024, 0x0034),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedWordElement(0x0038)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(0x003C)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(0x0040))));
+						new DummyRegisterElement(0x0006, 0x000D),
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x000E)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x0010)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x0012)),
+						new DummyRegisterElement(0x0014, 0x0017),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0018)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedQuadruplewordElement(0x001C)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedQuadruplewordElement(0X0020)),
+						new DummyRegisterElement(0x0024, 0x0037),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0038)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedQuadruplewordElement(0x003C)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040))));
 	}
 
 	@Override
