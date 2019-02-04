@@ -338,9 +338,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 				log.info(" ===>>> STATE is currently undefined! <<<===");
 				break;
 			}
-//			if (this.isConfiguringNeeded() == ConfiguringNecessary.NECESSARY) {
-//				this.setStateMachineState(State.CONFIGURING);
-//			} else 
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
@@ -348,22 +345,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			} else if (this.isSystemIsRunning()) {
 				this.setStateMachineState(State.RUNNING);
 			} 
-//			else if (this.isSystemStateUndefined()) {
-//				this.setStateMachineState(State.PENDING);
-//			}
 			break;
-//		case PENDING:
-//			if (isSystemStateUndefined()) {
-//				break;
-//			} else {
-//				this.stopSystem();
-//				this.setStateMachineState(State.OFF);
-//				break;
-//			}
-		
-//		case CONFIGURING:
-//			configureSlaves();
-//			break;
 		}
 		
 		this.getReadyForWorking().setNextValue(readyForWorking);
@@ -426,13 +408,11 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 
 			if (configuringFinished == null) {
 				nextConfiguringProcess = ConfiguringProcess.RESTART_AFTER_SETTING;
-//				this.setStateMachineState(State.OFF);				
 			} else {
 				if (configuringFinished.plusSeconds(DELAY_AFTER_CONFIGURING_FINISHED).isAfter(LocalDateTime.now())) {
 					log.info(">>> Delay time after configuring!");
 				} else {
 					log.info("Delay time after configuring is over, reset system");
-					//Reset System after configuration
 					IntegerWriteChannel resetChannel = this.channel(VersionBChannelId.SYSTEM_RESET);
 					try {
 						resetChannel.setNextWriteValue(SYSTEM_RESET);
@@ -444,7 +424,8 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case RESTART_AFTER_SETTING:
-			this.startSystem();
+//			this.startSystem();
+			// A manual restart is needed
 		case NONE:
 			break;
 		}
@@ -567,7 +548,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	private enum ConfiguringProcess {
 		NONE,
 		CONFIGURING_STARTED,
-//		SET_SLAVE_NUMBER,
 		SET_ID_AUTO_CONFIGURING,
 
 		CHECK_ID_AUTO_CONFIGURING,
@@ -1371,8 +1351,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 
 		// Add tasks for cell voltages and temperatures according to the number of
 		// slaves
-
-
 
 		// Cell voltages
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
