@@ -6,37 +6,37 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface BridgeModbusSerial extends BridgeModbus {
 
 	/**
-	 * Gets the Port-Name (e.g. '/dev/ttyUSB0' or 'COM3')
+	 * Gets the Port-Name (e.g. '/dev/ttyUSB0' or 'COM3').
 	 * 
-	 * @return
+	 * @return the Port-Name
 	 */
 	public String getPortName();
 
 	/**
-	 * Gets the Baudrate (e.g. 9600)
+	 * Gets the Baudrate (e.g. 9600).
 	 * 
-	 * @return
+	 * @return the Baudrate
 	 */
 	public int getBaudrate();
 
 	/**
-	 * Gets the Databits (e.g. 8)
+	 * Gets the Databits (e.g. 8).
 	 * 
-	 * @return
+	 * @return the Databits
 	 */
 	public int getDatabits();
 
 	/**
-	 * Gets the Stopbits
+	 * Gets the Stopbits.
 	 * 
-	 * @return
+	 * @return the Stopbits
 	 */
 	public Stopbit getStopbits();
 
 	/**
-	 * Gets the parity
+	 * Gets the Parity.
 	 * 
-	 * @return
+	 * @return the Parity.
 	 */
 	public Parity getParity();
 

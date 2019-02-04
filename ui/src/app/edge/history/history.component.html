@@ -37,23 +37,24 @@
           </ion-label>
         </ion-item>
 
-        <ion-card-content *ngIf="edge">
-          <div [style.height]="socChartHeight">
-            <ng-container *ngIf="edge.isVersionAtLeast('2018.8'); else version_2018_7">
-              <socchart-2018-8 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-8>
-            </ng-container>
-            <ng-template #version_2018_7>
-              <socchart-2018-7 [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart-2018-7>
-            </ng-template>
-          </div>
-          <div [style.height]="energyChartHeight">
-            <energychart [edge]="edge" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></energychart>
-          </div>
-          <div *ngIf="(evcsChannels | json) != '{}'" [style.height]="socChartHeight">
-            <evcschart [edge]="edge" [channels]="evcsChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></evcschart>
-          </div>
-        </ion-card-content>
+        <ion-card-content>
+          <ion-grid no-padding>
 
+            <ion-row [style.height]="socChartHeight">
+              <ion-col size="12">
+                <soc [fromDate]="fromDate" [toDate]="toDate"></soc>
+              </ion-col>
+            </ion-row>
+            <ion-row [style.height]="energyChartHeight">
+              <ion-col size="12">
+                <energy [fromDate]="fromDate" [toDate]="toDate"></energy>
+              </ion-col>
+            </ion-row>
+
+            <widget [fromDate]="fromDate" [toDate]="toDate"></widget>
+          </ion-grid>
+
+        </ion-card-content>
       </ion-card>
     </ion-col>
 

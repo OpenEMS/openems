@@ -53,7 +53,7 @@ public class FeneconMiniPvMeter extends AbstractOpenemsModbusComponent implement
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
+		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}

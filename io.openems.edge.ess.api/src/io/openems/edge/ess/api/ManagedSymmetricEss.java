@@ -93,6 +93,51 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.onInit(new PowerConstraint("SetActivePowerLessOrEquals", Phase.ALL, Pwr.ACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
+		 * Sets a fixed minimum Active Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_ACTIVE_POWER_GREATER_OR_EQUALS(new Doc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new PowerConstraint("SetActivePowerGreaterOrEquals", Phase.ALL, Pwr.ACTIVE,
+						Relationship.GREATER_OR_EQUALS))), //
+		/**
+		 * Sets a fixed maximum Reactive Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_REACTIVE_POWER_LESS_OR_EQUALS(new Doc() //
+				.unit(Unit.VOLT_AMPERE) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new PowerConstraint("SetReactivePowerLessOrEquals", Phase.ALL, Pwr.REACTIVE,
+						Relationship.LESS_OR_EQUALS))), //
+		/**
+		 * Sets a fixed minimum Reactive Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_REACTIVE_POWER_GREATER_OR_EQUALS(new Doc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.onInit(new PowerConstraint("SetReactivePowerGreaterOrEquals", Phase.ALL, Pwr.REACTIVE,
+						Relationship.GREATER_OR_EQUALS))), //
+		/**
 		 * Holds settings of Active Power for debugging
 		 * 
 		 * <ul>
@@ -137,6 +182,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
 				.channel(6, ChannelId.SET_REACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -191,6 +240,33 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	default WriteChannel<Integer> getSetActivePowerLessOrEquals() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS);
+	}
+
+	/**
+	 * Gets the Set Active Power Greater Or Equals in [W].
+	 * 
+	 * @return
+	 */
+	default WriteChannel<Integer> getSetActivePowerGreaterOrEquals() {
+		return this.channel(ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS);
+	}
+	
+	/**
+	 * Gets the Set Reactive Power Less Or Equals in [var].
+	 * 
+	 * @return
+	 */
+	default WriteChannel<Integer> getSetReactivePowerLessOrEquals() {
+		return this.channel(ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS);
+	}
+	
+	/**
+	 * Gets the Set Reactive Power Greater Or Equals in [var].
+	 * 
+	 * @return
+	 */
+	default WriteChannel<Integer> getSetReactivePowerGreaterOrEquals() {
+		return this.channel(ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS);
 	}
 
 	/**

@@ -10,7 +10,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 //import io.openems.common.types.OpenemsType;
@@ -19,7 +18,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -27,15 +25,8 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.api.AsymmetricEss;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.byd.container.Config;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Fenecon.BydContainer", //
@@ -43,7 +34,8 @@ import org.slf4j.LoggerFactory;
 
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent implements SymmetricEss, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(EssFeneconBydContainer.class);
 
 	private final static int UNIT_ID = 1310;
 	private String modbusBridgeId;
@@ -62,8 +54,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent imple
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+
 		this.modbusBridgeId = config.modbus_id();
 	}
 

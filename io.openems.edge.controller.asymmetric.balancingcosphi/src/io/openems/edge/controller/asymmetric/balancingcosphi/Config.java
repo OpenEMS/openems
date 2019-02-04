@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Balancing Cos-Phi Asymmetric", //
 		description = "Keeps the Grid meter on a defined Cos-Phi.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlBalancingCosPhi0";
 
 	boolean enabled() default true;

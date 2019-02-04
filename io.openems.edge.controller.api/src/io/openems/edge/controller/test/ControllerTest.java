@@ -1,5 +1,6 @@
 package io.openems.edge.controller.test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -24,7 +25,7 @@ public class ControllerTest extends AbstractComponentTest {
 	}
 
 	@Override
-	protected void executeLogic() {
+	protected void executeLogic() throws OpenemsNamedException {
 		this.controller.run();
 	}
 

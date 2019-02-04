@@ -18,8 +18,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Core User", //
 		description = "This component handles User authentication.")
 @interface Config {
-	String service_pid();
-
 	@AttributeDefinition(name = "Admin: password", description = "hashed password for User 'admin'", type = AttributeType.PASSWORD)
 	String adminPassword() default "txASlUVQkEI9Bxa/IZOJe8l3+R4lMzFTShz27vK44go=";
 

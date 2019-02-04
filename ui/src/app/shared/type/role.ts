@@ -17,20 +17,20 @@ export namespace Role {
         switch (name) {
             case "admin":
                 return "admin";
-                // return Role.ADMIN;
+            // return Role.ADMIN;
             case "owner":
                 return "owner";
-                // return Role.OWNER;
+            // return Role.OWNER;
             case "installer":
                 return "installer";
-                // return Role.INSTALLER;
+            // return Role.INSTALLER;
             case "guest":
                 return "guest";
-                // return Role.GUEST;
+            // return Role.GUEST;
             default:
                 console.warn("Role '" + name + "' not found.")
                 return "guest";
-                // return Role.GUEST;
+            // return Role.GUEST;
         }
     }
 }

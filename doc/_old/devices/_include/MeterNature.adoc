@@ -1,2 +1,0 @@
-3+|*<<MeterNature,MeterNature>>*
-|Type |`production`, `grid` |

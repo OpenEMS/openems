@@ -13,6 +13,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.WriteChannel;
@@ -48,12 +49,12 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		// parse config
 		this.isOn = config.isOn();
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate
@@ -62,7 +63,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Override
-	public void run() {
+	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		if (this.isOn) {
 			this.switchOn();
 		} else {
@@ -72,19 +73,25 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output ON.
+	 * 
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
-	private void switchOn() {
+	private void switchOn() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
 	}
 
 	/**
 	 * Switch the output OFF.
+	 * 
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
-	private void switchOff() {
+	private void switchOff() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);
 	}
 
-	private void setOutput(boolean value) {
+	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> channel = this.componentManager.getChannel(this.outputChannelAddress);
 			if (channel.value().asOptional().equals(Optional.of(value))) {

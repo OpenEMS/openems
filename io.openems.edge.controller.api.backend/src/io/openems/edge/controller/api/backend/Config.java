@@ -5,12 +5,10 @@ import java.net.Proxy;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Api Backend", //
 		description = "This controller connects to OpenEMS Backend")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlBackend0";
 
 	boolean enabled() default true;
@@ -19,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String apikey();
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
-	String uri() default "wss://fenecon.de:443/openems-backend2";
+	String uri() default "ws://localhost:8081";
 
 	@AttributeDefinition(name = "Cycle Time", description = "The time between sending data to Backend.")
 	int cycleTime() default BackendApi.DEFAULT_CYCLE_TIME;

@@ -8,9 +8,9 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface BridgeModbusTcp extends BridgeModbus {
 
 	/**
-	 * Gets the IP address
+	 * Gets the IP address.
 	 * 
-	 * @return
+	 * @return the IP address
 	 */
 	public InetAddress getIpAddress();
 

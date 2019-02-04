@@ -26,7 +26,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
-	
+
 	public FC16WriteRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
 		super(startAddress, elements);
 	}
@@ -107,9 +107,9 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	}
 
 	/**
-	 * Combine WriteRegisters without holes inbetween
+	 * Combine WriteRegisters without holes in between.
 	 * 
-	 * @return
+	 * @return a list of CombinedWriteRegisters
 	 */
 	private List<CombinedWriteRegisters> mergeWriteRegisters() {
 		List<CombinedWriteRegisters> writes = new ArrayList<>();

@@ -42,6 +42,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -105,8 +106,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 
@@ -377,13 +377,16 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.INVERTER_STATE, new UnsignedWordElement(0x0105)),
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106), //
 								new ElementToChannelConverter((value) -> {
-									switch (TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value)) {
-									case 1:
-										return SymmetricEss.GridMode.OFF_GRID.ordinal();
-									case 2:
-										return SymmetricEss.GridMode.ON_GRID.ordinal();
+									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+									if (intValue != null) {
+										switch (intValue) {
+										case 1:
+											return GridMode.OFF_GRID;
+										case 2:
+											return GridMode.ON_GRID;
+										}
 									}
-									throw new IllegalArgumentException("Undefined GridMode [" + value + "]");
+									return GridMode.UNDEFINED;
 								})),
 						new DummyRegisterElement(0x0107), //
 						m(EssFeneconCommercial40.ChannelId.PROTOCOL_VERSION, new UnsignedWordElement(0x0108)),

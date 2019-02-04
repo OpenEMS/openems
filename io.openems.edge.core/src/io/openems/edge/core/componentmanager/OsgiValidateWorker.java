@@ -7,8 +7,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.worker.AbstractWorker;
 
 /**
  * This Worker constantly validates if all configured OpenEMS-Components are
@@ -45,12 +45,14 @@ public class OsgiValidateWorker extends AbstractWorker {
 		try {
 			ConfigurationAdmin cm = this.parent.cm;
 			Configuration[] configs = cm.listConfigurations("(enabled=true)");
-			for (Configuration config : configs) {
-				Dictionary<String, Object> properties = config.getProperties();
-				String componentId = (String) properties.get("id");
-				if (!this.isComponentActivated(componentId, config.getPid())) {
-					this.parent.logWarn(this.log, "Component [" + componentId + "] is configured but not active!");
-					allConfigActivated = false;
+			if (configs != null) {
+				for (Configuration config : configs) {
+					Dictionary<String, Object> properties = config.getProperties();
+					String componentId = (String) properties.get("id");
+					if (!this.isComponentActivated(componentId, config.getPid())) {
+						this.parent.logWarn(this.log, "Component [" + componentId + "] is configured but not active!");
+						allConfigActivated = false;
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -80,6 +82,13 @@ public class OsgiValidateWorker extends AbstractWorker {
 		} else {
 			return OsgiValidateWorker.REGULAR_CYCLE_TIME;
 		}
+	}
+
+	@Override
+	public void triggerNextRun() {
+		// Reset Cycle-Counter on explicit run
+		this.cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;
+		super.triggerNextRun();
 	}
 
 }

@@ -1,8 +1,0 @@
-3+|*<<SymmetricMeterNature,SymmetricMeterNature>>*
-|ActivePower    |Watt   |
-|ReactivePower  |var    |
-|ApparentPower  |VA     |
-|Frequency      |mHz    |
-|Voltage        |mV     |
-|maxActivePower |Watt   |Holds the maximum ever recorded active power
-|minActivePower |Watt   |Holds the minimum ever recorded active power

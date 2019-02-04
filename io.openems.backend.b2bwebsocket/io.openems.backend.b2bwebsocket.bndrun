@@ -1,0 +1,14 @@
+#
+# io.openems.backend.b2bwebsocket LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		io.openems.backend.b2bwebsocket.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=io.openems.backend.b2bwebsocket.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}

@@ -16,7 +16,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -26,8 +25,6 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Artemes.AM2", //
@@ -54,7 +51,7 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.metertype = config.type();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 	}
 

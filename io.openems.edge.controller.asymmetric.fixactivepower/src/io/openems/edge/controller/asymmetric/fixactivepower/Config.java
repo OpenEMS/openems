@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Fix Active Power Asymmetric", //
 		description = "Defines a fixed charge/discharge power to an asymmetric energy storage system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlFixActivePower0";
 
 	boolean enabled() default true;

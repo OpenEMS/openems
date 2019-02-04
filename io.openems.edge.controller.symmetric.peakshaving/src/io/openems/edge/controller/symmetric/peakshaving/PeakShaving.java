@@ -10,16 +10,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -45,7 +44,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 
@@ -55,7 +54,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
@@ -66,7 +65,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode != GridMode.ON_GRID) {
 			return;
 		}
 
@@ -95,16 +94,12 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		Power power = ess.getPower();
-		calculatedPower = power.fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = power.fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result
 		 */
-		try {
-			ess.addPowerConstraintAndValidate("PeakShavingController", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-					calculatedPower); //
-		} catch (PowerException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		ess.addPowerConstraintAndValidate("PeakShavingController", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
+				calculatedPower); //
 	}
 }

@@ -1,14 +1,17 @@
 package io.openems.common.exceptions;
 
-public class OpenemsException extends Exception {
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+
+public class OpenemsException extends OpenemsNamedException {
 
 	private static final long serialVersionUID = 1L;
 
 	public OpenemsException(String message) {
-		super(message);
+		super(OpenemsError.GENERIC, message);
 	}
-	
+
 	public OpenemsException(String message, Throwable cause) {
-		super(message, cause);
+		super(OpenemsError.GENERIC, message + ": " + cause.getMessage());
 	}
+
 }

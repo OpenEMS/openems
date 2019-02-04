@@ -7,9 +7,10 @@
         </ion-button>
       </ion-buttons>
       <ion-buttons slot="end">
-        <nav *ngIf="(websocket.currentEdge | async) as currentEdge">
-          <ion-button routerLink="/device/{{ currentEdge.name }}/config/index">
-            <ion-icon name="settings" size="large"></ion-icon>
+        <nav *ngIf="(service.currentEdge | async) as edge">
+          <ion-button *ngIf="edge.role == 'owner' || edge.role == 'installer' || edge.role == 'admin'" routerLink="/device/{{ edge.id }}/settings">
+            <ion-icon name="settings" size="large">
+            </ion-icon>
           </ion-button>
         </nav>
         <ion-button (click)="presentPopover($event)">
@@ -22,6 +23,23 @@
   <ion-content>
 
     <!-- Show Websocket Status -->
+    <!-- <ion-grid>
+      <ion-row justify-content-center>
+        <ion-col size="12" size-md="6">
+          <ion-card>
+            <ion-item>
+              <ion-icon slot="start" name="alert"></ion-icon>
+              <ion-label text-wrap>
+                <h1>Wir führen derzeit Aktualisierungen durch.</h1>
+                <p>Deshalb stehen Funktionen zeitweise nicht zur Verfügung. Bitte entschuldigen Sie die
+                  Unnanehmlichkeiten. Die Maßnahmen sollten heute im Laufe des Tages abgeschlossen sein.</p>
+              </ion-label>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid> -->
+
     <ion-grid>
       <ion-row justify-content-center>
 
@@ -31,7 +49,7 @@
               <ion-icon slot="start" name="wifi"></ion-icon>
               <ion-label text-wrap>
                 <h2>Verbindung wird aufgebaut...</h2>
-                <p color="light">{{ env.url }}</p>
+                <!-- TODO translate -->
               </ion-label>
             </ion-item>
           </ion-card>
@@ -48,6 +66,7 @@
             </ion-item>
           </ion-card>
         </ion-col>
+
       </ion-row>
     </ion-grid>
 

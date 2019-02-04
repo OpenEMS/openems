@@ -16,10 +16,11 @@ import io.openems.edge.common.taskmanager.ManagedTask;
 public interface ReadTask extends Task, ManagedTask {
 
 	/**
-	 * Sends a query for this AbstractTask to the Modbus device
+	 * Sends a query for this AbstractTask to the Modbus device.
 	 * 
-	 * @param bridge
-	 * @throws OpenemsException
+	 * @param bridge the Modbus-Bridge
+	 * @param        <T> the Modbus-Element
+	 * @throws OpenemsException on error
 	 */
 	public abstract <T> void executeQuery(AbstractModbusBridge bridge) throws OpenemsException;
 }

@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator IO Digital", //
 		description = "Simulates digital input/output channels with name 'InputOutputX', starting with index 0.")
 @interface Config {
-	
-	String service_pid();
 
 	String id()
 

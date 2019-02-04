@@ -102,6 +102,7 @@
       <message key="name.invalidPattern" value="Type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="MemberName">
+      <property name="format" value="^[a-z_][a-zA-Z0-9]*$"/>
       <message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="ParameterName">
@@ -189,7 +190,7 @@
       <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
     </module>
     <module name="MethodName">
-      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
+      <property name="format" value="^[a-z_][a-zA-Z0-9_]*$"/>
       <message key="name.invalidPattern" value="Method name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="SingleLineJavadoc">
@@ -203,6 +204,7 @@
       <property name="allowMissingJavadoc" value="true"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
+    <module name="SuppressionCommentFilter"/>
   </module>
   <module name="FileTabCharacter">
     <property name="severity" value="ignore"/>

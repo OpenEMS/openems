@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator GridMeter Reacting", //
 		description = "This simulates an 'reacting' Grid meter.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter0";
 
 	boolean enabled() default true;

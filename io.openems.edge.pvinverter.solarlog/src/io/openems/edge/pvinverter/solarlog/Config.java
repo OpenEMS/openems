@@ -7,14 +7,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Implements the Solar-Log PV Inverter abstraction.")
 @interface Config {
 	
-	String service_pid();
-
 	String id() default "pvInverter0";
 
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
-	String modbus_id();
+	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId();

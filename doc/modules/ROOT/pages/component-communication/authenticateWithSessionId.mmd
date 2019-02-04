@@ -1,0 +1,25 @@
+sequenceDiagram
+
+participant Websocket as UI:Websocket<br/><br/>/app/shared/service<br/>websocket.ts
+participant UiWebsocket as Backend:UiWebsocket<br/><br/>uiwebsocket.impl<br/>OnOpen.java
+participant Metadata as Backend:Metadata<br/><br/>metadata.api<br/>Metadata.java
+
+activate Websocket
+Websocket ->> Websocket: connect()  
+note over Websocket, UiWebsocket: HTTP headers with Cookie<br/>including "session_id" field
+
+Websocket ->> UiWebsocket: open
+activate UiWebsocket
+
+UiWebsocket ->> Metadata: authenticate(sessionId)
+activate Metadata
+Metadata ->> UiWebsocket: 
+deactivate Metadata
+
+note over UiWebsocket: Create <br/>AuthenticateWith<br/>SessionIdNotification
+
+UiWebsocket ->> Websocket: sendNotification()
+
+deactivate UiWebsocket
+Websocket ->> Websocket: handleAuthenticateWithSessionId()
+deactivate Websocket

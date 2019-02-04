@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator DataSource: CSV Reader", //
 		description = "This service provides CSV-Input data.")
 @interface Config {
-	String service_pid();
-
 	String id() default "datasource0";
 
 	boolean enabled() default true;

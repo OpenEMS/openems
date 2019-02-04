@@ -12,7 +12,8 @@ Require-Capability: \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.backend.metadata.api;version=latest,\
 	com.google.gson,\
-	io.openems.common;version=latest
+	io.openems.common;version=latest,\
+	com.google.guava
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
