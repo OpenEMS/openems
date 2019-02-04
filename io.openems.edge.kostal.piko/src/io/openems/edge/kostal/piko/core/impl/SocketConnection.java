@@ -8,6 +8,8 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class SocketConnection {
 
 	private final Logger log = LoggerFactory.getLogger(SocketConnection.class);
@@ -30,14 +32,18 @@ public class SocketConnection {
 		return unitID;
 	}
 
-	public void open() throws IOException {
+	public void open() throws OpenemsException {
 		if (this.socket != null && this.socket.isConnected()) {
 			return;
 		}
-		Socket socket = new Socket(this.host, this.port);
-		this.out = socket.getOutputStream();
-		this.in = socket.getInputStream();
-		this.socket = socket;
+		try {
+			Socket socket = new Socket(this.host, this.port);
+			this.out = socket.getOutputStream();
+			this.in = socket.getInputStream();
+			this.socket = socket;
+		} catch (IOException e) {
+			throw new OpenemsException("Unable to open socket: " + e.getMessage());
+		}
 	}
 
 	public void close() {

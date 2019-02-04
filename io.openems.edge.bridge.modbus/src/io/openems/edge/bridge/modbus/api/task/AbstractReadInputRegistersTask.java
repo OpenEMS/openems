@@ -15,23 +15,24 @@ public abstract class AbstractReadInputRegistersTask extends AbstractReadTask<In
 	public AbstractReadInputRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
 		super(startAddress, priority, elements);
 	}
-	
+
 	@Override
 	protected boolean isCorrectElementInstance(ModbusElement<?> modbusElement) {
 		return modbusElement instanceof ModbusRegisterElement;
 	}
 
 	@Override
-	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, InputRegister[] response) throws OpenemsException {
-		((ModbusRegisterElement<?>) modbusElement).setInputRegisters( (InputRegister[]) 
-				Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
+	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, InputRegister[] response)
+			throws OpenemsException {
+		((ModbusRegisterElement<?>) modbusElement).setInputRegisters(
+				(InputRegister[]) Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
 	}
 
 	@Override
 	protected String getRequiredElementName() {
 		return "ModbusRegisterElement";
 	}
-	
+
 	@Override
 	protected int increasePosition(int position, ModbusElement<?> modbusElement) {
 		return position + modbusElement.getLength();

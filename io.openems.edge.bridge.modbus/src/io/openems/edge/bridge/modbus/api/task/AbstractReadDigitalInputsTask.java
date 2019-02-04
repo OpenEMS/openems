@@ -12,7 +12,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boolean> {
 
 	public AbstractReadDigitalInputsTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(startAddress, priority, elements);		
+		super(startAddress, priority, elements);
 	}
 
 	@Override
@@ -26,12 +26,13 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	}
 
 	@Override
-	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, Boolean[] response) throws OpenemsException {
-		((ModbusCoilElement) modbusElement).setInputCoil( (Boolean) response[position]); 
+	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, Boolean[] response)
+			throws OpenemsException {
+		((ModbusCoilElement) modbusElement).setInputCoil((Boolean) response[position]);
 	}
 
 	@Override
-	protected int increasePosition(int position, ModbusElement<?> modbusElement) {		
+	protected int increasePosition(int position, ModbusElement<?> modbusElement) {
 		return position + 1;
 	}
 
@@ -39,12 +40,13 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	protected Boolean[] handleResponse(ModbusResponse response) throws OpenemsException {
 		try {
 			return (Utils.toBooleanArray(getBitVector(response)));
-		} catch (ClassCastException e) {			
-			throw new OpenemsException("Unexpected Modbus response. Expected [" + getExpectedInputClassname() + "], got ["
-					+ response.getClass().getSimpleName() + "]");
+		} catch (ClassCastException e) {
+			throw new OpenemsException("Unexpected Modbus response. Expected [" + getExpectedInputClassname()
+					+ "], got [" + response.getClass().getSimpleName() + "]");
 		}
 	}
-	
+
 	protected abstract String getExpectedInputClassname();
+
 	protected abstract BitVector getBitVector(ModbusResponse response) throws OpenemsException;
 }

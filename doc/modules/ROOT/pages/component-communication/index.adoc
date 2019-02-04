@@ -51,17 +51,17 @@ image:subscribeSystemLog.png[]
 
 NOTE: Edge Backend Api-Controller periodically sends data of Channels to Backend, where it is stored in a Time-Series database (like InfluxDB) via a Timedata service.
 
-mermaid:timestampedData.mmd[]
+// mermaid:timestampedData.mmd[]
 
 
-mermaid:edgeConfiguration[]
+// mermaid:edgeConfiguration[]
 
-mermaid:authenticate[]
+// mermaid:authenticate[]
 
-mermaid:getStatusOfEdges[]
+// mermaid:getStatusOfEdges[]
 
 == Communicate with a specific Edge Component
 
 NOTE: This provides a way to send a JSON-RPC Request directly to a specific Edge Component identified by its Component-ID - e.g. to a specific Controller. To enable this, the Edge Component needs to implement the 'JsonApi' interface.
 
-mermaid:componentJsonApi[]
+// mermaid:componentJsonApi[]

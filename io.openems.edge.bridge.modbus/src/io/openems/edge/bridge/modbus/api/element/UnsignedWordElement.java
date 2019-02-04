@@ -4,6 +4,10 @@ import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
 
+/**
+ * An UnsignedWordElement represents an Integer value in an
+ * {@link AbstractWordElement}.
+ */
 public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement, Integer> {
 
 	public UnsignedWordElement(int address) {

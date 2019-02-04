@@ -195,6 +195,8 @@ Menu: btn:[Show] → btn:[Integrated terminal]
 . Install https://cli.angular.io/[Angular CLI icon:external-link[]]:
 +
 `npm install -g @angular/cli`
++
+NOTE: If you receive an error message that the command `npm` could not be found, make sure that node.js is installed and restart Visual Studio Code.
 
 . Resolve and download dependencies:
 +
@@ -229,50 +231,121 @@ image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
 +
 NOTE: OpenEMS UI will complain that "no timedata source is available". Because of this the historic chart is not yet functional.
 
-== Connect the Edge App to the Backend and transfer data to the Backend
-. Start the Backend and connect the Edge App to it
-.. Select the Backend Application in Eclipse
-image:eclipse-io.openems.backend.application.png[io.openems.backend.application in eclipse project]
-.. Start the Backend App
-image:eclipse-backendapp-bndrund.png[Start the Backend Application in Eclipse]
-.. Open the Felix Web interface of the Backend: http://localhost:8079/system/console/configMgr
-Username: admin, Password: admin
-... Select the `Metadata.Dummy` Bundle and save it
-image:config-backend-metadummy.png[Save the Metadata.Dummy]
-... Select the `EdgeWebsocket` Bundle and specify the Port: e.g. 8084
-image:config-backend-edgeWebsocket.png[Start the EdgeWebsocket to listen on port 8084]
-.. Start the client connection from the `Edge App` in the Felix Web interface. The uri has to be changed to the backend address and port: ws://localhost:8084
-image:config-edge-api-backend.png[Connect to Edge App to the Backend Application Server]
-. Install InfluxDB and Chronograf: https://www.influxdata.com
-It is recommended from the Influx Developers to use a Unix system such as Liunx, thus support for Windows is experimental: https://www.influxdata.com/blog/running-the-tick-stack-on-windows/
-.. Set up a Linux system if not already running.
-.. On Ubuntu 18.04LTS run the following commands as sudo to add the influxdata repository and install influxdb and Chronograf:
-+
-`# curl -sL https://repos.influxdata.com/influxdb.key | apt-key add -`
-+
-`# source /etc/lsb-release`
-+
-`# echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | tee /etc/apt/sources.list.d/influxdb.list`
-+
-`# apt update && apt install influxdb chronograf`
-+
-`# systemctl enable influxdb`
-+
-`# systemctl start influxdb`
-+
-`# systemctl enable chronograf`
-+
-`# systemctl start chronograf`
-+
-. Start data local data collection in the Edge App
-.. Open the installed Chronograf in the Web Browser: http://IP:8888 and set up a new Influx Database with the `InfluxDB Admin` Section in Chronograf for the Edge Application: `OpenEMS`. A newly installed Chronograf ask for username and password: use User: admin Password: admin
-.. Set up the connection to the InfluxDB in the Felix Web Interface in the Edge App.
-Enter the IP of the InfluxDB System. The standard port for Influx is 8086. Enter admin as Username and Password and specify the Database for the Edge `OpenEMS`.
-image:config-edge-influxdb.png[Configure the Edge Influx Connection]
-Now in Chronograf the `Data Explorer` can be used to inspect the collected data of the Edge App
-. Enable the Backend to save data as well
-.. Set up a new database in Chronograf: `OpenEMSBackend`
-.. Set up the connection the Backend Felix Web Interface:
-image:config-backend-influxdb.png[Configure the Backend Influx Connection]
+== Integrate OpenEMS Backend
 
-As there is now a connection between the backend and edge component as well as database connections on both ends the data is now transferred into the backend influx database.
+Instead of having Edge and UI talk to each other directly, the communication can also be proxied via Backend.
+
+=== Run and configure OpenEMS Backend
+
+. In Eclipse IDE open the project btn:[io.openems.backend.application] and double click on btn:[BackendApp.run].
++
+.io.openems.backend.application project in Eclipse IDE
+image::eclipse-io.openems.backend.application.png[io.openems.backend.application project in Eclipse IDE]
+
+. Click on btn:[Run OSGi] to run OpenEMS Backend. You should see log outputs on the console inside Eclipse IDE.
++
+.OpenEMS Backend initial log output
+image::eclipse-backend-initial-log-output.png[OpenEMS Backend initial log output]
+
+. Configure the Backend
+.. Open the http://localhost:8079/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
++
+NOTE: Apache Felix Web Console for OpenEMS Backend is started on port 8079 by default. This is configured using the `org.osgi.service.http.port` setting in BackendApp.bndrun.
++
+Login with username *admin* and password *admin*.
++
+.Apache Felix Web Console Configuration for OpenEMS Backend
+image::apache-felix-console-backend-configuration.png[Apache Felix Web Console Configuration for OpenEMS Backend]
+
+.. Configure Edge.Websocket
++
+NOTE: The *Edge.Websocket* service is responsible for the communication between OpenEMS Backend and OpenEMS Edge.
++
+In the example we are configuring the Port 8081. This port needs to match with what we configure later in OpenEMS Edge.
++
+.Configuration of Backend Edge.Websocket
+image::config-backend-edge.websocket.png[Configuration of Backend Edge.Websocket]
+
+.. Configure Ui.Websocket
++
+NOTE: The *Ui.Websocket* service is responsible for the communication between OpenEMS Backend and OpenEMS UI.
++
+In the example we are configuring the Port 8082. This port needs to match with what we configure later in the OpenEMS UI environment file.
++
+.Configuration of Backend Ui.Websocket
+image::config-backend-ui.websocket.png[Configuration of Backend Ui.Websocket]
+
+.. Configure Timedata
++
+NOTE: The *Timedata* service provider is responsible for holding the current and historic data of each connected Edge device.
++
+In the example we are configuring the *Timedata.Dummy* service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like *Timedata.InfluxDB*.
++
+.Configuration of Backend Timedata.Dummy
+image::config-backend-timedata.dummy.png[Configuration of Backend Timedata.Dummy]
+
+.. Configure Metadata
++
+NOTE: The *Metadata* service provider is responsible for authentication of Edge devices and Users connecting via UI.
++
+In the example we are configuring the *Metadata.Dummy* service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like *Metadata.File* or *Metadata.Odoo*.
++
+.Configuration of Backend Metadata.Dummy
+image::config-backend-metadata.dummy.png[Configuration of Backend Metadata.Dummy]
+
+=== Configure OpenEMS Edge
+
+Next we will configure OpenEMS Edge to connect to the OpenEMS Backend `Edge.Websocket` service. 
+
+. Switch back to the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration for OpenEMS Edge icon:external-link[]].
+
+. Configure the "Controller Api Backend" Component. The default values can be accepted without changes right now.
++
+.Configuration of Controller Api Backend
+image::config-controller-api-backend.png[Configuration of Controller Api Backend]
++
+Some configuration parameters are still noteworthy here:
++
+.. "Apikey" is used to authenticate this Edge at the Backend Metadata service.
+.. "Uri" is set to `ws://localhost:8081`. This defines an unencrypted websocket ("ws://") connection to the local computer on port "8081" like we configured before for the Edge.Websocket.
+.. "Cycle Time" defines how often data is sent to Backend
++
+Once you press btn:[save] you should see logs in OpenEMS Backend
++
+`[ctrlBackend0] Connected to OpenEMS Backend`
++
+and OpenEMS Edge
++
+`[Edge.Websocket] Edge [edge0] connected`
+
+=== Connect OpenEMS UI with Backend
+
+. In Visual Studio Code open the file `ui/src/environments/environment.ts` and configure it as follows:
++
+[source,javascript]
+----
+import { Environment } from "../app/shared/type/environment";
+
+export const environment: Environment = {
+  production: false,
+  debugMode: true,
+  url: "ws://localhost:8082",
+  backend: "OpenEMS Backend",
+};
+----
++
+It is again noteworthy here, that:
++
+.. "url" is set to `ws://localhost:8082`. This defines an unencrypted websocket ("ws://") connection to the local computer on port "8082" like we configured before for the Ui.Websocket.
+.. "backend" is set to "OpenEMS Backend". This option is used in certain places inside OpenEMS UI that need to be treated differently for connections to OpenEMS Edge and OpenEMS Backend.
+
+. In Visual Studios integrated terminal type...
++
+`ng serve`
+
+. Open a browser at http://localhost:4200
+
+. You should see again OpenEMS UI, but this time you are not asked for a login (because Metadata.Dummy does not require any) and are directly forwarded to the Energy Monitor at `http://localhost:4200/device/edge0/index`. You are now seeing the data from OpenEMS Edge via OpenEMS Backend.
++
+.UI via Backend
+image::ui-via-backend.png[UI via Backend]

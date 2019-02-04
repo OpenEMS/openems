@@ -98,12 +98,13 @@ public class User {
 	 */
 	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
 		Role thisRole = this.edgeRoles.get(edgeId);
-		if (thisRole != null && thisRole.isAtLeast(role)) {
-			// Ok
-			return thisRole;
-		} else {
+		if (thisRole == null) {
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(this.getId());
+		}
+		if (!thisRole.isAtLeast(role)) {
 			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, role.toString());
 		}
+		return thisRole;
 	}
 
 	@Override

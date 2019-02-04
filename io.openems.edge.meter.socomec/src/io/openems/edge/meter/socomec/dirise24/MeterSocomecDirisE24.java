@@ -53,8 +53,8 @@ public class MeterSocomecDirisE24 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -92,7 +92,8 @@ public class MeterSocomecDirisE24 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
-						new DummyRegisterElement(0xc55E), //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //

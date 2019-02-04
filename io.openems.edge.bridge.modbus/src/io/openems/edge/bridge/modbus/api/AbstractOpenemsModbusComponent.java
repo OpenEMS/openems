@@ -46,7 +46,6 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * 
 	 * @param context         ComponentContext of this component. Receive it from
 	 *                        parameter for @Activate
-	 * @param properties      The property map of this component.
 	 * @param id              ID of this component. Typically 'config.id()'
 	 * @param enabled         Whether the component should be enabled. Typically
 	 *                        'config.enabled()'
@@ -59,8 +58,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbusId        The ID of the Modbus brige. Typically
 	 *                        'config.modbus_id()'
 	 */
-	protected void activate(ComponentContext context, String id, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+	protected void activate(ComponentContext context, String id, boolean enabled, int unitId, ConfigurationAdmin cm,
+			String modbusReference, String modbusId) {
 		super.activate(context, id, enabled);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
@@ -92,7 +91,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Set the Modbus bridge. Should be called by @Reference
 	 * 
-	 * @param modbus
+	 * @param modbus the BridgeModbus Reference
 	 */
 	protected void setModbus(BridgeModbus modbus) {
 		this.modbus.set(modbus);
@@ -101,7 +100,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Unset the Modbus bridge. Should be called by @Reference
 	 * 
-	 * @param modbus
+	 * @param modbus the BridgeModbus Reference
 	 */
 	protected void unsetModbus(BridgeModbus modbus) {
 		this.modbus.compareAndSet(modbus, null);
@@ -120,9 +119,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Defines the Modbus protocol
+	 * Defines the Modbus protocol.
 	 * 
-	 * @return
+	 * @return the ModbusProtocol
 	 */
 	protected abstract ModbusProtocol defineModbusProtocol();
 
@@ -203,8 +202,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Creates a ChannelMapper that can be used with builder pattern inside the
 	 * protocol definition.
 	 * 
-	 * @param element
-	 * @return
+	 * @param element the ModbusElement
+	 * @return a {@link ChannelMapper}
 	 */
 	protected final ChannelMapper cm(AbstractModbusElement<?> element) {
 		return new ChannelMapper(element);
@@ -213,8 +212,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Maps the given element 1-to-1 to the Channel identified by channelId.
 	 * 
-	 * @param channelId
-	 * @param element
+	 * @param channelId the Channel-ID
+	 * @param element   the ModbusElement
 	 * @return the element parameter
 	 */
 	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
@@ -226,11 +225,11 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Maps the given element to the Channel identified by channelId, applying the
-	 * given @link{ElementToChannelConverter}
+	 * given @link{ElementToChannelConverter}.
 	 * 
-	 * @param channelId
-	 * @param element
-	 * @param converter
+	 * @param channelId the Channel-ID
+	 * @param element   the ModbusElement
+	 * @param converter the ElementToChannelConverter
 	 * @return the element parameter
 	 */
 	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
@@ -246,7 +245,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Private subclass to handle Channels that are mapping to one bit of a Modbus
-	 * Unsigned Word element
+	 * Unsigned Word element.
 	 */
 	public class BitChannelMapper {
 		private class ChannelWrapper {
@@ -265,10 +264,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		public BitChannelMapper(UnsignedWordElement element) {
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
-				if(value == null) {
+				if (value == null) {
 					return;
 				}
-				
+
 				this.channels.forEach((bitIndex, channelWrapper) -> {
 					if (bitIndex == null) {
 						log.warn("BitIndex is null for Channel [" + channelWrapper.channel.address() + "]");
@@ -322,10 +321,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Creates a BitChannelMapper that can be used with builder pattern inside the
-	 * protocol definition.
+	 * protocol definition..
 	 * 
-	 * @param element
-	 * @return
+	 * @param element the ModbusElement
+	 * @return the BitChannelMapper
 	 */
 	protected final BitChannelMapper bm(UnsignedWordElement element) {
 		return new BitChannelMapper(element);
@@ -333,7 +332,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Handles channels that are mapping to one bit of a modbus unsigned double word
-	 * element
+	 * element.
 	 */
 	public class DoubleWordBitChannelMapper {
 		private final UnsignedDoublewordElement element;
@@ -365,18 +364,18 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern
-	 * inside the protocol definition.
+	 * inside the protocol definition..
 	 * 
-	 * @param element
-	 * @return
+	 * @param element the ModbusElement
+	 * @return the CoubleWordBitChannelMapper
 	 */
 	protected final DoubleWordBitChannelMapper bm(UnsignedDoublewordElement element) {
 		return new DoubleWordBitChannelMapper(element);
 	}
 
 	/**
-	 * Handles channels that are mapping two bytes of a modbus unsigned double word
-	 * element
+	 * Handles channels that are mapping two bytes of a Modbus unsigned double word
+	 * element.
 	 */
 	public class DoubleWordByteChannelMapper {
 		private final UnsignedDoublewordElement element;
@@ -397,10 +396,11 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 
 		/**
+		 * Maps two Bytes of a DoubleWord.
 		 * 
-		 * @param channelId
+		 * @param channelId  the Channel-ID
 		 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
-		 * @return
+		 * @return the DoubleWordByteChannelMapper
 		 */
 		public DoubleWordByteChannelMapper mapByte(io.openems.edge.common.channel.doc.ChannelId channelId,
 				int upperBytes) {
@@ -423,18 +423,19 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern
 	 * inside the protocol definition.
 	 * 
-	 * @param element
-	 * @return
+	 * @param element the MdobusElement
+	 * @return the DoubleWordByteChannelMapper
 	 */
 	protected final DoubleWordByteChannelMapper byteMap(UnsignedDoublewordElement element) {
 		return new DoubleWordByteChannelMapper(element);
 	}
 
 	/**
+	 * Converts upper/lower bytes to Short.
 	 * 
-	 * @param value
+	 * @param value      the int value
 	 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
-	 * @return
+	 * @return the Short
 	 */
 	public static Short convert(int value, int upperBytes) {
 		ByteBuffer b = ByteBuffer.allocate(4);

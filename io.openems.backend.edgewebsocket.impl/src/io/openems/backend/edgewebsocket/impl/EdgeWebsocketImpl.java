@@ -99,7 +99,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 			WsData wsData = ws.getAttachment();
 			return wsData.send(request);
 		} else {
-			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(request.getId(), edgeId);
+			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(request.getId().toString(), edgeId);
 		}
 	}
 

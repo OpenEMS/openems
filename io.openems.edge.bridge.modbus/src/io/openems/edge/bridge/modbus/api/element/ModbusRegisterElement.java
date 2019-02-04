@@ -8,26 +8,29 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.type.TypeUtils;
 
+/**
+ * A ModbusRegisterElement represents one or more Modbus Registers.
+ */
 public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 
 	/**
-	 * Sets the value of this Element from InputRegisters
+	 * Sets the value of this Element from InputRegisters.
 	 * 
-	 * @param registers
-	 * @throws OpenemsException
+	 * @param registers the InputRegisters
+	 * @throws OpenemsException on error
 	 */
 	public void setInputRegisters(InputRegister... registers) throws OpenemsException;
 
 	/**
-	 * Sets a value that should be written to the Modbus device
+	 * Sets a value that should be written to the Modbus device.
 	 * 
-	 * @param valueOpt
-	 * @throws OpenemsException
+	 * @param valueOpt the Optional value
+	 * @throws OpenemsException on error
 	 */
 	public default void setNextWriteValue(Optional<Object> valueOpt) throws OpenemsException {
 		if (valueOpt.isPresent()) {
-			this._setNextWriteValue( //
-					Optional.of( //
+			this._setNextWriteValue(//
+					Optional.of(//
 							TypeUtils.<T>getAsType(this.getType(), valueOpt.get())));
 		} else {
 			this._setNextWriteValue(Optional.empty());
@@ -37,12 +40,13 @@ public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 	/**
 	 * Gets the next write value and resets it.
 	 * 
-	 * This method is called once in every cycle. It makes sure, that the
-	 * nextWriteValue gets initialized in every Cycle. If registers need to be
-	 * written again in every cycle, next setNextWriteValue()-method needs to called
-	 * on every Cycle.
+	 * <p>
+	 * This method should be called once in every cycle on the
+	 * TOPIC_CYCLE_EXECUTE_WRITE event. It makes sure, that the nextWriteValue gets
+	 * initialized in every Cycle. If registers need to be written again in every
+	 * cycle, next setNextWriteValue()-method needs to called on every Cycle.
 	 * 
-	 * @return
+	 * @return the next value as an Optional array of Registers
 	 */
 	public default Optional<Register[]> getNextWriteValueAndReset() {
 		Optional<Register[]> valueOpt = this.getNextWriteValue();

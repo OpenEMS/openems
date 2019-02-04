@@ -119,6 +119,11 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		log.info(message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		log.warn(message);
 	}

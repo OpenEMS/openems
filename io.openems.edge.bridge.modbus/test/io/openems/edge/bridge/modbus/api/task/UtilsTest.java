@@ -1,6 +1,6 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
