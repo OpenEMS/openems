@@ -9,9 +9,9 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 public class ModbusSlaveSimulator {
 
-	private final static int UNIT_ID = 1;
-	private final static int PORT = 502;
-	private final static int CONCURRENT_CONNECTIONS = 5;
+	private static final int UNIT_ID = 1;
+	private static final int PORT = 502;
+	private static final int CONCURRENT_CONNECTIONS = 5;
 
 	public static void main(String[] args) throws ModbusException {
 		// Start Modbus/TCP slave

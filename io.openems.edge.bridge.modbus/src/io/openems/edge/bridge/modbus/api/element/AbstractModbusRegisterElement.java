@@ -10,6 +10,12 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteOrder;
 import java.util.Optional;
 
+/**
+ * A ModbusRegisterElement represents one or more Modbus Registers.
+ *
+ * @param <E> the subclass of myself
+ * @param <T> the target OpenemsType
+ */
 public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbusElement<T>
 		implements ModbusRegisterElement<T> {
 
@@ -24,7 +30,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	/**
 	 * Gets an instance of the correct subclass of myself.
 	 * 
-	 * @return
+	 * @return myself
 	 */
 	protected abstract E self();
 
@@ -49,8 +55,8 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	 * Sets the Byte-Order. Default is "BIG_ENDIAN". See
 	 * http://www.simplymodbus.ca/FAQ.htm#Order.
 	 * 
-	 * @param byteOrder
-	 * @return
+	 * @param byteOrder the ByteOrder
+	 * @return myself
 	 */
 	public final E byteOrder(ByteOrder byteOrder) {
 		this.byteOrder = byteOrder;

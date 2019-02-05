@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.worker.AbstractImmediateWorker;
+import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.evcs.keba.kecontact.KebaKeContact;
 
 @Component( //

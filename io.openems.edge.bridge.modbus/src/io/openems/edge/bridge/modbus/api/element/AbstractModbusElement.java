@@ -10,6 +10,11 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
+/**
+ * A ModbusElement represents one row of a Modbus definition table.
+ *
+ * @param <T> the target OpenemsType
+ */
 public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusElement.class);
@@ -40,8 +45,12 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	/**
 	 * The onUpdateCallback is called on reception of a new value.
 	 * 
+	 * <p>
 	 * Be aware, that this is the original, untouched value.
-	 * ChannelToElementConverters are not applied here!
+	 * ChannelToElementConverters are not applied here yet!
+	 * 
+	 * @param onUpdateCallback the Callback
+	 * @return myself
 	 */
 	public AbstractModbusElement<T> onUpdateCallback(Consumer<T> onUpdateCallback) {
 		this.onUpdateCallbacks.add(onUpdateCallback);
@@ -75,10 +84,10 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 			callback.accept(value);
 		}
 	}
-	
+
 	@Override
-	public void invalidate() {		
-		this.setValue(null); 
+	public void invalidate() {
+		this.setValue(null);
 	}
 
 	/*

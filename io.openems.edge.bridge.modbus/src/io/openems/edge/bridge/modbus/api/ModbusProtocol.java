@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
@@ -17,17 +16,17 @@ public class ModbusProtocol {
 	private final Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
 
 	/**
-	 * The Parent component
+	 * The Parent component.
 	 */
 	private final AbstractOpenemsModbusComponent parent;
 
 	/**
-	 * TaskManager for ReadTasks
+	 * TaskManager for ReadTasks.
 	 */
 	private final TasksManager<ReadTask> readTaskManager = new TasksManager<>();
 
 	/**
-	 * TaskManager for WriteTasks
+	 * TaskManager for WriteTasks.
 	 */
 	private final TasksManager<WriteTask> writeTaskManager = new TasksManager<>();
 
@@ -67,27 +66,45 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Returns the next list of WriteTasks that should be executed within one cycle
+	 * Returns the next list of WriteTasks that should be executed within one cycle.
 	 * 
-	 * @return
+	 * @return a list of WriteTasks
 	 */
 	public List<WriteTask> getNextWriteTasks() {
 		return this.writeTaskManager.getNextTasks();
 	}
 
 	/**
-	 * Returns the next list of ReadTasks that should be executed within one cycle
+	 * Returns one WriteTask sequentially.
 	 * 
-	 * @return
+	 * @return a WriteTasks
+	 */
+	public WriteTask getOneWriteTask() {
+		return this.writeTaskManager.getOneTask();
+	}
+
+	/**
+	 * Returns the next list of ReadTasks that should be executed within one cycle.
+	 * 
+	 * @return a list of ReadTasks
 	 */
 	public List<ReadTask> getNextReadTasks() {
 		return this.readTaskManager.getNextTasks();
 	}
 
 	/**
-	 * Checks a {@link AbstractTask} for plausibility
+	 * Returns one ReadTask sequentially.
+	 * 
+	 * @return a ReadTasks
+	 */
+	public ReadTask getOneReadTask() {
+		return this.readTaskManager.getOneTask();
+	}
+
+	/**
+	 * Checks a {@link Task} for plausibility.
 	 *
-	 * @param task
+	 * @param task the Task that should be checked
 	 */
 	private synchronized void checkTask(Task task) {
 		int address = task.getStartAddress();

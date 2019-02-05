@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String apikey();
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
-	String uri() default "wss://fenecon.de:443/openems-backend2";
+	String uri() default "ws://localhost:8081";
 
 	@AttributeDefinition(name = "Cycle Time", description = "The time between sending data to Backend.")
 	int cycleTime() default BackendApi.DEFAULT_CYCLE_TIME;

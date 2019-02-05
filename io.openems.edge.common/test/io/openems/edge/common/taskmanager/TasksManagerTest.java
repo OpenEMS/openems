@@ -69,4 +69,19 @@ public class TasksManagerTest {
 
 	}
 
+	@Test
+	public void testGetOneTask() {
+		ManagedTask o1 = new Task(Priority.ONCE);
+		ManagedTask l1 = new Task(Priority.LOW);
+		ManagedTask h1 = new Task(Priority.HIGH);
+
+		TasksManager<ManagedTask> m = new TasksManager<ManagedTask>(o1, l1, h1);
+
+		assertEquals(o1, m.getOneTask());
+		assertEquals(l1, m.getOneTask());
+		assertEquals(h1, m.getOneTask());
+
+		assertEquals(o1, m.getOneTask());
+	}
+
 }

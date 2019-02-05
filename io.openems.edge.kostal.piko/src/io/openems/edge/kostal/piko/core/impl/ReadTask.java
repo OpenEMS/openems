@@ -42,4 +42,11 @@ public class ReadTask implements ManagedTask {
 	public Priority getPriority() {
 		return this.priority;
 	}
+
+	@Override
+	public String toString() {
+		return "ReadTask [channelId=" + channelId + ", priority=" + priority + ", fieldType=" + fieldType + ", address="
+				+ address + "]";
+	}
+
 }
