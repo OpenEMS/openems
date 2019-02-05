@@ -38,7 +38,7 @@ public class ElementToChannelConverter {
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_3 = new ElementToChannelScaleFactorConverter(-2);
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_3 = new ElementToChannelScaleFactorConverter(-3);
 
 	/**
 	 * Applies a scale factor of 1. Converts value [1] to [10].
