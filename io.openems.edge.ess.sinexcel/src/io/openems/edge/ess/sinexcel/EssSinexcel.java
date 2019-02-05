@@ -67,16 +67,15 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	private Battery battery;
 	public LocalDateTime timeForSystemInitialization = null;
 
-	private static final int MAX_ACTIVE_POWER = 300; // 30 kW
 	private static final int DISABLED_ANTI_ISLANDING = 0;
 	private static final int ENABLED_ANTI_ISLANDING = 1;
 	private static final int START = 1;
 	private static final int STOP = 1;
 	private static final int SLOW_CHARGE_VOLTAGE = 4370; // Slow and Float Charge Voltage must be the same for the Lithium Ionbattery.
 	private static final int FLOAT_CHARGE_VOLTAGE = 4370;
-	public int a = 0;
-	public int counterOn = 0;
-	public int counterOff = 0;
+	private static final int MINIMAL_POWER = 100;
+	private int counterOn = 0;
+	private int counterOff = 0;
 		
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -846,7 +845,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Override // Leistungsstufen des Wechselrichters
 	public int getPowerPrecision() {
-		return (int) (MAX_ACTIVE_POWER * 0.02);
+		return (int) (MINIMAL_POWER);
 	}
 
 	public IntegerWriteChannel getDischargeMinVoltageChannel() {
