@@ -125,7 +125,13 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 				}
 				result.append(level.name() + ": ");
 				result.append(channelIds.stream() //
-						.map(channelId -> this.parent.channel(channelId).channelDoc().getText()) //
+						.map(channelId -> {
+							String docText = this.parent.channel(channelId).channelDoc().getText();
+							if (!docText.isEmpty()) {
+								return docText;
+							}
+							return channelId.id();
+						}) //
 						.collect(Collectors.joining(",")));
 			}
 		}

@@ -204,7 +204,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	 * Triggers an immediate execution of query reports
 	 */
 	protected void triggerQuery() {
-		this.readWorker.triggerForceRun();
+		this.readWorker.triggerNextRun();
 	}
 
 	@Override

@@ -13,6 +13,12 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
+/**
+ * A QuadrupleWordElement has a size of four Modbus Registers or 64 bit.
+ *
+ * @param <E> the subclass of myself
+ * @param <T> the target OpenemsType
+ */
 public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
@@ -49,10 +55,10 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	}
 
 	/**
-	 * Converts a 8-byte ByteBuffer to the the current OpenemsType
+	 * Converts a 8-byte ByteBuffer to the current OpenemsType.
 	 * 
-	 * @param buff
-	 * @return
+	 * @param buff the ByteBuffer
+	 * @return an instance of the current OpenemsType
 	 */
 	protected abstract T fromByteBuffer(ByteBuffer buff);
 
@@ -86,10 +92,11 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	}
 
 	/**
-	 * Converts the current OpenemsType to a 8-byte ByteBuffer
+	 * Converts the current OpenemsType to a 8-byte ByteBuffer.
 	 * 
-	 * @param buff
-	 * @return
+	 * @param buff  the target ByteBuffer
+	 * @param value the value
+	 * @return the ByteBuffer
 	 */
 	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
 
@@ -97,8 +104,8 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	 * Sets the Word-Order. Default is "MWSLSW" - "Most Significant Word; Least
 	 * Significant Word". See http://www.simplymodbus.ca/FAQ.htm#Order.
 	 * 
-	 * @param wordOrder
-	 * @return
+	 * @param wordOrder the WordOrder
+	 * @return myself
 	 */
 	public final E wordOrder(WordOrder wordOrder) {
 		this.wordOrder = wordOrder;

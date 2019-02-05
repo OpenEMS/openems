@@ -3,7 +3,7 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import io.openems.edge.common.worker.AbstractWorker;
+import io.openems.common.worker.AbstractWorker;
 
 public class ReadWorker extends AbstractWorker {
 
@@ -71,13 +71,13 @@ public class ReadWorker extends AbstractWorker {
 	}
 
 	@Override
-	public void triggerForceRun() {
+	public void triggerNextRun() {
 		// reset times for next report query
 		this.nextReport1 = LocalDateTime.MIN;
 		this.nextReport2 = LocalDateTime.MIN;
 		this.nextReport3 = LocalDateTime.MIN;
 
-		super.triggerForceRun();
+		super.triggerNextRun();
 	}
 
 }

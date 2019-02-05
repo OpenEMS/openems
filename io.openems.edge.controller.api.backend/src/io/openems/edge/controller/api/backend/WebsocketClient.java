@@ -77,6 +77,11 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		this.parent.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
 	}
