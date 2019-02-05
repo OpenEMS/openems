@@ -20,11 +20,11 @@ public class SignedQuadruplewordElement extends AbstractQuadrupleWordElement<Sig
 	}
 
 	protected Long fromByteBuffer(ByteBuffer buff) {
-		return Long.valueOf(buff.getInt());
+		return Long.valueOf(buff.getLong());
 	}
 
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
-		return buff.putInt(value.intValue());
+		return buff.putLong(value.longValue());
 	}
-	
+
 }
