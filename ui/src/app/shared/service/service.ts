@@ -232,9 +232,9 @@ export class Service implements ErrorHandler {
         return data['error'];
       }
     });*/
+  }
 
 
-=======
 
   /**
    * Defines the widgets that should be shown.
@@ -267,6 +267,6 @@ export class Service implements ErrorHandler {
         }));
       })
     });
->>>>>>> openems/develop
+
   }
 }

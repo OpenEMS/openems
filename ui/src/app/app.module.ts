@@ -40,6 +40,7 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
+    HttpClientModule,
     SharedModule,
     AboutModule,
     SettingsModule,
@@ -51,7 +52,7 @@ import { HttpClientModule } from '@angular/common/http';
     }),
     PopoverPageModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
-    HttpClientModule
+
   ],
   providers: [
     StatusBar,
