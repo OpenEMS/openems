@@ -20,7 +20,7 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
@@ -83,7 +83,7 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this,
-				new FC3ReadRegistersTask(0x0000, Priority.HIGH,
+				new FC4ReadInputRegistersTask(0x0000, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
@@ -108,7 +108,7 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0040),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)));
 	}
 
