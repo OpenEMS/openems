@@ -180,14 +180,14 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		});
 
 		// Battery ranges
-		// ==> CHARGE_MAX_VOLTAGE 0x2042
-		// (m(VersionBChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_PROTECTION)
-		// ==> DISCHARGE_MIN_VOLTAGE 0x2048
-		// (VersionBChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_PROTECTION)
+		// ==> CHARGE_MAX_VOLTAGE 0x2082
+		// (m(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM)
+		// ==> DISCHARGE_MIN_VOLTAGE 0x2088
+		// (VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM)
 		// ==> CHARGE_MAX_CURRENT 0x2160 (VersionBChannelId.SYSTEM_MAX_CHARGE_CURRENT)
 		// ==> DISCHARGE_MAX_CURRENT 0x2161
 		// (VersionBChannelId.SYSTEM_MAX_DISCHARGE_CURRENT)
-		this.channel(VersionBChannelId.STOP_PARAMETER_SYSTEM_OVER_VOLTAGE_PROTECTION).onChange(value -> {
+		this.channel(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
 			if (!vOpt.isPresent()) {
@@ -198,7 +198,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(max_charge_voltage);
 		});
 
-		this.channel(VersionBChannelId.STOP_PARAMETER_SYSTEM_UNDER_VOLTAGE_PROTECTION).onChange(value -> {
+		this.channel(VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
 			if (!vOpt.isPresent()) {
