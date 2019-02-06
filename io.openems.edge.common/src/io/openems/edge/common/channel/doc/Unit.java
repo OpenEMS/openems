@@ -235,6 +235,10 @@ public enum Unit {
 		case KILOWATT:
 		case MILLIWATT:
 		case WATT_HOURS:
+		case KILOVOLT_AMPERE_REACTIVE_HOURS:
+		case KILO_VOLT_AMPERE:
+		case KILO_VOLT_AMPERE_REACTIVE:
+		case VOLT_AMPERE_REACTIVE_HOURS:
 		case OHM:
 		case KILOOHM:
 		case MILLIOHM:
@@ -244,12 +248,11 @@ public enum Unit {
 		case MILLIAMPERE_HOUR:
 		case KILOWATT_HOURS:
 		case MILLISECONDS:
-		case WATT_HOURS_BY_WATT_PEAK:
+		case WATT_HOURS_BY_WATT_PEAK:		
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
 			return booleanValue ? "ON" : "OFF";
-		
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}

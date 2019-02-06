@@ -219,14 +219,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			doErrorHandling();
 			break;
 		case GRID_CONNECTED:
+		case THROTTLED: // if inverter is throttled, maybe full power is not reachable, but the device is working
 			doGridConnectedHandling();
 			break;
 		case NO_ERROR_PENDING:
 			doErrorHandling();
 		case PRECHARGE:
 		case SHUTTING_DOWN:
-		case STARTING:
-		case THROTTLED:
+		case STARTING:		
 		case CURRENTLY_UNKNOWN:
 		case UNDEFINED:
 			// Do nothing because these states are only temporarily reached
@@ -280,7 +280,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		final double EFFICIENCY_FACTOR = 0.9;
 		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
 		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
-
+		
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
 		}
