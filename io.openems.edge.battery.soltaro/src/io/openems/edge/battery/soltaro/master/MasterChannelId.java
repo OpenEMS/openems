@@ -16,10 +16,13 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	SYSTEM_RUNNING_STATE(new Doc().options(Enums.RunningState.values())), //
 	VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 	MASTER_ALARM_PCS_OUT_OF_CONTROL(new Doc().level(Level.FAULT).text("PCS out of control alarm")),
-	MASTER_ALARM_PCS_COMMUNICATION_FAULT(new Doc().level(Level.FAULT).text("PCS communication fault alarm")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(new Doc().level(Level.FAULT).text("Communication to sub master 3 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(new Doc().level(Level.FAULT).text("Communication to sub master 2 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(new Doc().level(Level.FAULT).text("Communication to sub master 1 fault")),
+	MASTER_ALARM_PCS_COMMUNICATION_FAULT(new Doc().level(Level.WARNING).text("PCS communication fault alarm")), 
+	
+	// These are warnings because this alarm is also raised even the rack is not configured
+	// e.g. a system consists of two racks then the alarm "Communication to submaster 3" is present
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(new Doc().level(Level.WARNING).text("Communication to sub master 3 fault")),
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(new Doc().level(Level.WARNING).text("Communication to sub master 2 fault")),
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(new Doc().level(Level.WARNING).text("Communication to sub master 1 fault")),
 	
 	RACK_1_STATE(new Doc().unit(Unit.NONE)), //
 	RACK_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //

@@ -444,8 +444,8 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 						m(MasterChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(MasterChannelId.CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						new DummyRegisterElement(0x1046), //
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)), //
+						new DummyRegisterElement(0x1046, 0x1047), //						
+//						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)), // SoC is not calculated correctly
 						m(MasterChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(MasterChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
@@ -482,7 +482,9 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 							m(MasterChannelId.RACK_1_CHARGE_INDICATION,
 									new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x102)), //
-							m(MasterChannelId.RACK_1_SOC, new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x103)), //
+							m(MasterChannelId.RACK_1_SOC, new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x103).onUpdateCallback(val -> {
+								recalculateSoc();
+							})), //
 							m(MasterChannelId.RACK_1_SOH, new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x104)), //
 							m(MasterChannelId.RACK_1_MAX_CELL_VOLTAGE_ID,
 									new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x105)), //
@@ -1224,7 +1226,9 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 							m(MasterChannelId.RACK_2_CHARGE_INDICATION,
 									new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x102)), //
-							m(MasterChannelId.RACK_2_SOC, new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x103)), //
+							m(MasterChannelId.RACK_2_SOC, new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x103).onUpdateCallback(val -> {
+								recalculateSoc();
+							})), //
 							m(MasterChannelId.RACK_2_SOH, new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x104)), //
 							m(MasterChannelId.RACK_2_MAX_CELL_VOLTAGE_ID,
 									new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x105)), //
@@ -1966,7 +1970,9 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 							m(MasterChannelId.RACK_3_CHARGE_INDICATION,
 									new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x102)), //
-							m(MasterChannelId.RACK_3_SOC, new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x103)), //
+							m(MasterChannelId.RACK_3_SOC, new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x103).onUpdateCallback(val -> {
+								recalculateSoc();
+							})), //
 							m(MasterChannelId.RACK_3_SOH, new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x104)), //
 							m(MasterChannelId.RACK_3_MAX_CELL_VOLTAGE_ID,
 									new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x105)), //
@@ -2695,5 +2701,43 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 
 		return new ModbusProtocol(this, tasks.toArray(new Task[0]));//
 
+	}
+
+	private void recalculateSoc() {
+		int i = 0;
+		int soc = 0;
+		
+		if (config.rack1IsUsed()) {			
+			IntegerReadChannel r = this.channel(MasterChannelId.RACK_1_SOC);
+			Optional<Integer> s = r.value().asOptional();
+			if (s.isPresent()) {
+				i++;
+				soc = soc + s.get();
+			}
+		}
+		
+		if (config.rack2IsUsed()) {			
+			IntegerReadChannel r = this.channel(MasterChannelId.RACK_2_SOC);
+			Optional<Integer> s = r.value().asOptional();
+			if (s.isPresent()) {
+				i++;
+				soc = soc + s.get();
+			}
+		}
+		
+		if (config.rack3IsUsed()) {			
+			IntegerReadChannel r = this.channel(MasterChannelId.RACK_3_SOC);
+			Optional<Integer> s = r.value().asOptional();
+			if (s.isPresent()) {
+				i++;
+				soc = soc + s.get();
+			}
+		}
+		
+		if (i > 0) {
+			soc = soc / i;
+		}
+		
+		this.channel(Battery.ChannelId.SOC).setNextValue(soc);		
 	}
 }

@@ -89,10 +89,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-//	private LocalDateTime lastCommandSent = LocalDateTime.now(); // timer variable to avoid that commands are sent to
-	// fast
-//	private LocalDateTime timeForSystemInitialization = null;
-//	private boolean isStopping = false; // indicates that system is stopping; during that time no commands should be sent //not necessary beacause if state in state machine
 	private Config config;
 	
 	private Map<String, Channel<?>> channelMap;
@@ -152,6 +148,10 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 
 	@Deactivate
 	protected void deactivate() {
+		// Remove dynamically created channels when component is deactivated		
+		for (Channel<?> c : this.channelMap.values()) {
+			this.removeChannel(c);
+		}
 		super.deactivate();
 	}
 
