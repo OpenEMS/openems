@@ -70,6 +70,10 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 		this.edgeIds.add(edgeId);
 	}
 
+	public void removeEdgeId(String edgeId) {
+		this.edgeIds.remove(edgeId);
+	}
+
 	public TreeSet<String> getEdgeIds() {
 		return edgeIds;
 	}

@@ -88,7 +88,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			String edgeId = entry.getKey();
 
 			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast("GetEdgesStatusRequest", edgeId, Role.GUEST);
+			if (!user.edgeRoleIsAtLeast(edgeId, Role.GUEST)) {
+				continue;
+			}
 
 			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
@@ -114,7 +116,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		GetEdgesChannelsValuesResponse response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast("GetEdgesChannelsValuesRequest", edgeId, Role.GUEST);
+			if (!user.edgeRoleIsAtLeast(edgeId, Role.GUEST)) {
+				continue;
+			}
 
 			for (ChannelAddress channel : request.getChannels()) {
 				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
@@ -138,7 +142,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast("SubscribeEdgesChannelsRequest", edgeId, Role.GUEST);
+			if (!user.edgeRoleIsAtLeast(edgeId, Role.GUEST)) {
+				request.removeEdgeId(edgeId);
+			}
 		}
 
 		// activate SubscribedChannelsWorker
