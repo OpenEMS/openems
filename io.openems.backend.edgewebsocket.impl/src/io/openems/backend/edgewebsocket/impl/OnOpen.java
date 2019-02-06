@@ -40,7 +40,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			// get edgeId for apikey
 			Optional<String> edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
 			if (!edgeIdOpt.isPresent()) {
-				throw new OpenemsException("Unable to authenticate this Apikey.");
+				throw new OpenemsException("Unable to authenticate this Apikey. Key: [" + apikey + "] IP: " + ws.getRemoteSocketAddress().toString());
 			}
 			String edgeId = edgeIdOpt.get();
 			wsData.setEdgeId(edgeId);
