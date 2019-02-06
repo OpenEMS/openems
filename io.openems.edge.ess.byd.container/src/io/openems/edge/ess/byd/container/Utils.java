@@ -1,52 +1,87 @@
 package io.openems.edge.ess.byd.container;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssFeneconBydContainer c) {
-		return Stream.of(Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+		List<AbstractReadChannel<?>> result = new ArrayList<>();
+		for (io.openems.edge.common.component.OpenemsComponent.ChannelId channelId : OpenemsComponent.ChannelId
+				.values()) {
 			switch (channelId) {
 			case STATE:
-				return new StateCollectorChannel(c, channelId);
+				result.add(new StateCollectorChannel(c, channelId));
+				break;
 			}
-			return null;
-		}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+		}
+		for (io.openems.edge.ess.api.SymmetricEss.ChannelId channelId : SymmetricEss.ChannelId.values()) {
 			switch (channelId) {
 			case SOC:
 			case ACTIVE_POWER:
-			case REACTIVE_POWER:				
-			case ACTIVE_CHARGE_ENERGY:
-			case ACTIVE_DISCHARGE_ENERGY:
-			case GRID_MODE:
+			case REACTIVE_POWER:
+				result.add(new IntegerReadChannel(c, channelId));
+				break;
 			case MAX_APPARENT_POWER:
-				return new IntegerReadChannel(c, channelId);
+				result.add(new IntegerReadChannel(c, channelId, 100000)); // TODO
+				break;
+			case GRID_MODE:
+				result.add(new IntegerReadChannel(c, channelId, GridMode.ON_GRID));
+				break;
+			case ACTIVE_DISCHARGE_ENERGY:
+			case ACTIVE_CHARGE_ENERGY:
+				result.add(new LongReadChannel(c, channelId));
+				break;
 			}
-			return null;
-		}), Arrays.stream(EssFeneconBydContainer.ChannelId.values()).map(channelId -> {
+		}
+		for (io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId channelId : ManagedSymmetricEss.ChannelId.values()) {
 			switch (channelId) {
-			//RTU
-			case RTU_SYSTEM_WORKSTATE:
-			case RTU_SYSTEM_WORKMODE:
-			case DISCHARGE_LIMIT_ACTIVE_POWER:
-			case CHARGE_LIMIT_ACTIVE_POWER:
-			case INDUCTIVE_REACTIVE_POWER:
-			case CAPACITIVE_REACTIVE_POWER:
+			case DEBUG_SET_ACTIVE_POWER:
+			case DEBUG_SET_REACTIVE_POWER:
+			case ALLOWED_CHARGE_POWER:
+			case ALLOWED_DISCHARGE_POWER:
+				result.add(new IntegerReadChannel(c, channelId));
+				break;
+			case SET_ACTIVE_POWER_EQUALS:
+			case SET_REACTIVE_POWER_EQUALS:
+			case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+			case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
+			case SET_REACTIVE_POWER_LESS_OR_EQUALS:
+			case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
+				result.add(new IntegerWriteChannel(c, channelId));
+				break;
+			}
+		}
+		for (EssFeneconBydContainer.ChannelId channelId : EssFeneconBydContainer.ChannelId.values()) {
+			switch (channelId) {
+			case READ_ONLY_MODE:
+				result.add(new StateChannel(c, channelId));
+				break;
+			// RTU
+			case SYSTEM_WORKSTATE:
+			case LIMIT_INDUCTIVE_REACTIVE_POWER:
+			case LIMIT_CAPACITIVE_REACTIVE_POWER:
 			case CONTAINER_RUN_NUMBER:
-				return new IntegerReadChannel(c, channelId);
-			case SET_SYSTEM_WORKSTATE:	
-			case SET_ACTIVE_POWER_CONTROL:	
-			case SET_REACTIVE_POWER_CONTROL:
-				return new IntegerWriteChannel(c, channelId);
-			//PCS
+				result.add(new IntegerReadChannel(c, channelId));
+				break;
+			case SYSTEM_WORKMODE:
+			case SET_SYSTEM_WORKSTATE:
+			case SET_ACTIVE_POWER:
+			case SET_REACTIVE_POWER:
+				result.add(new IntegerWriteChannel(c, channelId));
+				break;
+			// PCS
 			case PCS_SYSTEM_WORKSTATE:
 			case PCS_SYSTEM_WORKMODE:
 			case PHASE3_ACTIVE_POWER:
@@ -81,9 +116,10 @@ public class Utils {
 			case PCS_FAULTS_2:
 			case PCS_FAULTS_3:
 			case PCS_FAULTS_4:
-			case PCS_FAULTS_5:	
-				return new IntegerReadChannel(c, channelId);
-			//BECU	
+			case PCS_FAULTS_5:
+				result.add(new IntegerReadChannel(c, channelId));
+				break;
+			// BECU
 			case BATTERY_STRING_WORK_STATE:
 			case BATTERY_STRING_TOTAL_VOLTAGE:
 			case BATTERY_STRING_CURRENT:
@@ -103,16 +139,13 @@ public class Utils {
 			case BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE:
 			case BATTERY_STRING_CHARGE_CURRENT_LIMIT:
 			case BATTERY_STRING_DISCHARGE_CURRENT_LIMIT:
-			case BATTERY_STRING_HISTORICAL_LOWEST_CHARGE_CAPACITY:
-			case BATTERY_STRING_HISTORICAL_HIGHEST_CHARGE_CAPACITY:
-			case BATTERY_STRING_HISTORICAL_LOWEST_DISCHARGE_CAPACITY:
-			case BATTERY_STRING_HISTORICAL_HIGHEST_DISCHARGE_CAPACITY:
 			case BATTERY_STRING_WARNING_0_0:
 			case BATTERY_STRING_WARNING_0_1:
 			case BATTERY_STRING_WARNING_1_0:
-			case BATTERY_STRING_WARNING_1_1:	
-				return new IntegerReadChannel(c, channelId);
-			//ADAS	
+			case BATTERY_STRING_WARNING_1_1:
+				result.add(new IntegerReadChannel(c, channelId));
+				break;
+			// ADAS
 			case CONTAINER_IMMERSION_STATE_1:
 			case CONTAINER_IMMERSION_STATE_0:
 			case CONTAINER_FIRE_STATUS_1:
@@ -127,7 +160,8 @@ public class Utils {
 			case CONTAINER_DOOR_STATUS_1_0:
 			case CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_1:
 			case CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_0:
-				return new StateChannel(c, channelId);
+				result.add(new StateChannel(c, channelId));
+				break;
 			case ADAS_WARNING_0_0:
 			case ADAS_WARNING_0_1:
 			case ADAS_WARNING_0_2:
@@ -135,9 +169,10 @@ public class Utils {
 			case ADAS_WARNING_1_1:
 			case ADAS_WARNING_1_2:
 			case ADAS_WARNING_1_3:
-				return new IntegerReadChannel(c, channelId);
+				result.add(new IntegerReadChannel(c, channelId));
+				break;
 			}
-			return null;
-		})).flatMap(channel -> channel);
+		}
+		return result.stream();
 	}
 }

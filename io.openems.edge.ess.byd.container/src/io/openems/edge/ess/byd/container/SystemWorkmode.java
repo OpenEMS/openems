@@ -4,7 +4,7 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum SystemWorkmode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), 
-	PQ_MODE(4, "PQ-mode");
+	PQ_MODE(2, "PQ-mode");
 	
 	private final int value;
 	private final String name;
