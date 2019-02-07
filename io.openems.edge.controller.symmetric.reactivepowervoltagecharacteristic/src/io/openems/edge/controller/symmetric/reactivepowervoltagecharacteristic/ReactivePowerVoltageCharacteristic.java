@@ -38,7 +38,6 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent {
 
 	private float nominalVoltage;
-	private SymmetricMeter meter;
 	private Map<Float, Float> qCharacteristic = new HashMap<>();
 	LongReadChannel maxNominalPower;
 
@@ -53,9 +52,17 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
 			return;
 		}
+		// update filter for 'meter'
+		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "meter", config.meter_id())) {
+			return;
+		}
+
 		this.nominalVoltage = config.nominalVoltage();
 		initialize(config);
 	}
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private SymmetricMeter meter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private ManagedSymmetricEss ess;
@@ -78,7 +85,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 			JsonElement jElement = JsonUtils.parse(config.percentQ());
 			JsonArray jArray = JsonUtils.getAsJsonArray(jElement);
 			JsonElement jEl;
-			float percent =0, voltage = 0;
+			float percent = 0, voltage = 0;
 			for (int i = 0; i < jArray.size(); i++) {
 				jEl = jArray.get(i);
 				percent = jEl.getAsJsonObject().get("percent").getAsFloat();
@@ -100,7 +107,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 			try {
 				Value<Integer> apparentPower = ess.getMaxApparentPower().value();
 				if (apparentPower.get() != 0) {
-					this.power = (int) (apparentPower.get() * valueOfLine);
+					this.power = (int) (apparentPower.orElse(0) * valueOfLine);
 					int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.REACTIVE,
 							this.power);
 					this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL,

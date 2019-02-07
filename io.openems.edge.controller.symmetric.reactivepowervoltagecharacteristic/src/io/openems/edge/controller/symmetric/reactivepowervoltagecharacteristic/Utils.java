@@ -53,6 +53,7 @@ public class Utils {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
+		// 250 random number, just to fill value
 		qCharacteristic.put(voltageRatio, (float) 250);
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> voltageMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
