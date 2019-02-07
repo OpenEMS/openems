@@ -11,81 +11,82 @@ import java.util.stream.Collectors;
 
 public class Utils {
 
-	public static double getValueOfLine(Map<Double, Double> points, double voltageRatio) {
-		double x = voltageRatio;
-		List<Double> percentList = new ArrayList<Double>(points.values());
-		List<Double> powerList = new ArrayList<Double>(points.keySet());
-		Collections.sort(powerList, Collections.reverseOrder());
+	public static float getValueOfLine(Map<Float, Float> points, float voltageRatio) {
+		float x = voltageRatio;
+		List<Float> percentList = new ArrayList<Float>(points.values());
+		List<Float> voltageList = new ArrayList<Float>(points.keySet());
+		Collections.sort(voltageList, Collections.reverseOrder());
 		Collections.sort(percentList, Collections.reverseOrder());
 		// find to place of voltage ratio
 		Point smaller = getSmallerPoint(points, voltageRatio);
 		Point greater = getGreaterPoint(points, voltageRatio);
-		double m = (greater.y - smaller.y) / (greater.x - smaller.x);
-		double t = smaller.y - m * smaller.x;
+		float m = (float) ((greater.y - smaller.y) / (greater.x - smaller.x));
+		float t = (float) (smaller.y - m * smaller.x);
+		System.out.println(m + "---- " + t);
 		return m * x + t;
 	}
 
-	public static Point getSmallerPoint(Map<Double, Double> qCharacteristic, double voltageRatio) {
+	public static Point getSmallerPoint(Map<Float, Float> qCharacteristic, float voltageRatio) {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
-		qCharacteristic.put(voltageRatio, (double) 250);
-		Comparator<Entry<Double, Double>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Double, Double> powerMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
+		qCharacteristic.put(voltageRatio, (float) 250);
+		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
+		Map<Float, Float> voltageMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		Map<Double, Double> percentMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
+		Map<Float, Float> percentMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Double> powerList = new ArrayList<Double>(powerMap.keySet());
-		List<Double> percentList = new ArrayList<Double>(percentMap.values());
-		if (powerList.get(i) != voltageRatio) {
+		List<Float> voltageList = new ArrayList<Float>(voltageMap.keySet());
+		List<Float> percentList = new ArrayList<Float>(percentMap.values());
+		if (voltageList.get(i) != voltageRatio) {
 			i++;
 		}
 		if (i == 0) {
-			p = new Point(powerList.get(0), percentList.get(0));
+			p = new Point(voltageList.get(0), percentList.get(0));
 			return p;
 		}
-		p = new Point(powerList.get(i - 1), percentList.get(i - 1));
+		p = new Point(voltageList.get(i - 1), percentList.get(i - 1));
 		return p;
 	}
 
-	public static Point getGreaterPoint(Map<Double, Double> qCharacteristic, double voltageRatio) {
+	public static Point getGreaterPoint(Map<Float, Float> qCharacteristic, float voltageRatio) {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
-		qCharacteristic.put(voltageRatio, (double) 250);
-		Comparator<Entry<Double, Double>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Double, Double> powerMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
+		qCharacteristic.put(voltageRatio, (float) 250);
+		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
+		Map<Float, Float> voltageMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		Map<Double, Double> percentMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
+		Map<Float, Float> percentMap = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Double> powerList = new ArrayList<Double>(powerMap.keySet());
-		List<Double> percentList = new ArrayList<Double>(percentMap.values());
-		if (powerList.get(i) != voltageRatio) {
+		List<Float> voltageList = new ArrayList<Float>(voltageMap.keySet());
+		List<Float> percentList = new ArrayList<Float>(percentMap.values());
+		if (voltageList.get(i) != voltageRatio) {
 			i++;
 		}
-		if (i > powerList.size()) {
-			p = new Point(powerList.get(powerList.size() - 1), percentList.size() - 1);
+		if (i > voltageList.size()) {
+			p = new Point(voltageList.get(voltageList.size() - 1), percentList.size() - 1);
 			return p;
 		}
-		p = new Point(powerList.get(i + 1), percentList.get(i + 1));
+		p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
 		return p;
 	}
 
 	static class Point {
 
-		private final double x;
-		private final double y;
+		private final float x;
+		private final float y;
 
-		public Point(double x, double y) {
+		public Point(float x, float y) {
 			this.x = x;
 			this.y = y;
 		}
 
-		public double getX() {
+		public float getX() {
 			return x;
 		}
 
-		public double getY() {
+		public float getY() {
 			return y;
 		}
 	}

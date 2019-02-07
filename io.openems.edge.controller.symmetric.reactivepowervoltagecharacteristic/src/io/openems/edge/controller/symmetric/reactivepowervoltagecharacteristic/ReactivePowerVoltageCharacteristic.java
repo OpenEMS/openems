@@ -39,7 +39,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	private float nominalVoltage;
 	private SymmetricMeter meter;
-	private Map<Double, Double> qCharacteristic = new HashMap<>();
+	private Map<Float, Float> qCharacteristic = new HashMap<>();
 	LongReadChannel maxNominalPower;
 
 	@Reference
@@ -70,21 +70,21 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	 */
 	private void initialize(Config config) throws OpenemsException {
 		// Parsing JSon then putting the point variables into qByUCharacteristicEquation
-		// [{ "power" : 0.9,"percent" : 60 }, { "power":0.93,"percent": 0}, {"power":
-		// 1.07 ,"percent": 0 },{"power": 1.1 ,"percent": -60 }]
+		// [{ "voltage" : 0.9,"percent" : 60 }, { "voltage":0.93,"percent": 0},
+		// {"voltage":
+		// 1.07 ,"percent": 0 },{"voltage": 1.1 ,"percent": -60 }]
 		// ...
 		try {
 			JsonElement jElement = JsonUtils.parse(config.percentQ());
 			JsonArray jArray = JsonUtils.getAsJsonArray(jElement);
 			JsonElement jEl;
-			double percent = 0, power = 0;
+			float percent =0, voltage = 0;
 			for (int i = 0; i < jArray.size(); i++) {
 				jEl = jArray.get(i);
-				percent = jEl.getAsJsonObject().get("percent").getAsDouble();
-				power = jEl.getAsJsonObject().get("power").getAsDouble();
-				qCharacteristic.put(power, percent);
+				percent = jEl.getAsJsonObject().get("percent").getAsFloat();
+				voltage = jEl.getAsJsonObject().get("voltage").getAsFloat();
+				qCharacteristic.put(voltage, percent);
 			}
-			System.out.println(qCharacteristic);
 		} catch (NullPointerException | OpenemsException e) {
 			throw new OpenemsException("Unable to set values [" + qCharacteristic + "] " + e.getMessage());
 		}
@@ -92,16 +92,25 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Override
 	public void run() {
-		double voltageRatio = (double) meter.getVoltage().value().get() / (double) this.nominalVoltage;
-		double ratio = Utils.getValueOfLine(qCharacteristic, voltageRatio);
-		Value<Integer> reactivePower = ess.getReactivePower().value();
-		this.power = (int) (reactivePower.get().doubleValue() * ratio);
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.REACTIVE, this.power);
-		try {
-			this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
-					Relationship.EQUALS, calculatedPower);
-		} catch (PowerException e) {
-			e.printStackTrace();
+		float voltageRatio = meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		float valueOfLine = Utils.getValueOfLine(qCharacteristic, voltageRatio);
+		if (valueOfLine == 0) {
+			return;
+		} else {
+			try {
+				Value<Integer> apparentPower = ess.getMaxApparentPower().value();
+				if (apparentPower.get() != 0) {
+					this.power = (int) (apparentPower.get() * valueOfLine);
+					int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.REACTIVE,
+							this.power);
+					this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL,
+							Pwr.REACTIVE, Relationship.EQUALS, calculatedPower);
+				} else {
+					return;
+				}
+			} catch (PowerException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
