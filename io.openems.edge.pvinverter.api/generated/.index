@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.api" increment="1542889265729">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.api" increment="1547815363282">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.pvinverter.api"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201811221221" type="Version"/>
+      <attribute name="version" value="1.0.0.201901181242" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201811221221" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201901181242" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.pvinverter.api"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201811221221" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201901181242" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.pvinverter.api"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -21,13 +21,13 @@
       <attribute name="osgi.wiring.package" value="io.openems.edge.pvinverter.api"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="size" value="5040" type="Long"/>
+      <attribute name="size" value="5044" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.pvinverter.api.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="7D1F5DBE6239346759613264297B37CDB3511753D11EF6533F6ED72FD6EB9A52"/>
+      <attribute name="osgi.content" value="16AF27E48F24EDC1576D7D9B1228771D565A964C9738124B3C30F92C4C1B16E5"/>
     </capability>
     <capability namespace="bndtools.workspace">
-      <attribute name="bndtools.workspace" value="file:/C:/Users/hueseyin.sahutoglu/git/eclipse-workspace/develop-workspace"/>
+      <attribute name="bndtools.workspace" value="file:/C:/Users/hueseyin.sahutoglu/git/eclipse-workspace/sma-workspace"/>
       <attribute name="project.path" value="/io.openems.edge.pvinverter.api"/>
     </capability>
     <requirement namespace="osgi.wiring.package">
