@@ -118,6 +118,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		initializeCallbacks();
 		
 		setWatchdog(config.watchdog());
+		setSoCLowAlarm(config.SoCLowAlarm());		
 	}
 
 	private Map<String, Channel<?>> createDynamicChannels() {
@@ -142,7 +143,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			IntegerWriteChannel c = this.channel(VersionBChannelId.EMS_COMMUNICATION_TIMEOUT);
 			c.setNextWriteValue(time_seconds);
 		} catch (OpenemsException e) {
-			e.printStackTrace();
+			log.error("Error while setting ems timeout!\n" + e.getMessage());
 		}
 	}
 
@@ -539,11 +540,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		}
 	}
 	
-	private enum ConfiguringNecessary {
-		UNDEFINED,
-		NECESSARY,
-		NOT_NECESSARY
-	}
 	
 	private enum ConfiguringProcess {
 		NONE,
@@ -557,77 +553,84 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		CONFIGURING_FINISHED, RESTART_AFTER_SETTING
 	}
 
-	private ConfiguringNecessary isConfiguringNeeded() { //TODO Check if correct! ==> conf is needed when module numbers differ and/or slave comm errors are present
-		@SuppressWarnings("unchecked")
-		Optional<Integer> numberOfSlavesOpt = (Optional<Integer>) this.channel(VersionBChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE).value().asOptional();
-		if (! numberOfSlavesOpt.isPresent()) {
-			return ConfiguringNecessary.UNDEFINED;
-		}
-		
-		int numberOfModules = numberOfSlavesOpt.get();
-		if (numberOfModules != this.config.numberOfSlaves()) {
-			return ConfiguringNecessary.NECESSARY;
-		}
-		
+//	private enum ConfiguringNecessary {
+//		UNDEFINED,
+//		NECESSARY,
+//		NOT_NECESSARY
+//	}
+//	
+//	private ConfiguringNecessary isConfiguringNeeded() { //TODO Check if correct! ==> conf is needed when module numbers differ and/or slave comm errors are present
 //		@SuppressWarnings("unchecked")
-//		Optional<Integer> systemVoltageVoltOpt = (Optional<Integer>) this.channel(VersionBChannelId.CLUSTER_1_VOLTAGE).value().asOptional();
-//		if (!systemVoltageVoltOpt.isPresent()) {
+//		Optional<Integer> numberOfSlavesOpt = (Optional<Integer>) this.channel(VersionBChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE).value().asOptional();
+//		if (! numberOfSlavesOpt.isPresent()) {
 //			return ConfiguringNecessary.UNDEFINED;
 //		}
-//		int systemVoltageVolt = systemVoltageVoltOpt.get();
-//		int lowerRange = this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_VOLT.getValue();
-//		int upperRange = this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_VOLT.getValue();
-//		boolean voltageCorrect = lowerRange <= systemVoltageVolt && systemVoltageVolt <= upperRange; 
-		
-		if (! isSlaveCommunicationErrorValuesPresent() ) {
-			return ConfiguringNecessary.UNDEFINED;
-		}
-		
-//		if (!voltageCorrect || isSlaveCommunicationError()) {
+//		
+//		int numberOfModules = numberOfSlavesOpt.get();
+//		if (numberOfModules != this.config.numberOfSlaves()) {
+//			return ConfiguringNecessary.NECESSARY;
+//		}
+//		
+////		@SuppressWarnings("unchecked")
+////		Optional<Integer> systemVoltageVoltOpt = (Optional<Integer>) this.channel(VersionBChannelId.CLUSTER_1_VOLTAGE).value().asOptional();
+////		if (!systemVoltageVoltOpt.isPresent()) {
+////			return ConfiguringNecessary.UNDEFINED;
+////		}
+////		int systemVoltageVolt = systemVoltageVoltOpt.get();
+////		int lowerRange = this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_VOLT.getValue();
+////		int upperRange = this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_VOLT.getValue();
+////		boolean voltageCorrect = lowerRange <= systemVoltageVolt && systemVoltageVolt <= upperRange; 
+//		
+//		if (! isSlaveCommunicationErrorValuesPresent() ) {
+//			return ConfiguringNecessary.UNDEFINED;
+//		}
+//		
+////		if (!voltageCorrect || isSlaveCommunicationError()) {
+////			return ConfiguringNecessary.NECESSARY;
+////		};
+//		if (isSlaveCommunicationError()) {
 //			return ConfiguringNecessary.NECESSARY;
 //		};
-		if (isSlaveCommunicationError()) {
-			return ConfiguringNecessary.NECESSARY;
-		};
-		return ConfiguringNecessary.NOT_NECESSARY;
-	}
-
-	private boolean isSlaveCommunicationErrorValuesPresent() {
-		VersionBChannelId[] channelIds = { 
-				VersionBChannelId.SLAVE_20_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_19_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_18_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_17_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_16_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_15_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_14_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_13_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_12_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_11_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_10_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_9_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_8_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_7_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_6_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_5_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_4_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_3_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_2_COMMUNICATION_ERROR,
-				VersionBChannelId.SLAVE_1_COMMUNICATION_ERROR
-		};
-		for (VersionBChannelId id : channelIds) {
-			StateChannel r = this.channel(id);
-			Optional<Boolean> bOpt = r.value().asOptional();
-			if (!bOpt.isPresent()) {
-				return false;
-			}
-		}
-			
-		return true;
-	}
+//		return ConfiguringNecessary.NOT_NECESSARY;
+//	}
+//
+//	private boolean isSlaveCommunicationErrorValuesPresent() {
+//		VersionBChannelId[] channelIds = { 
+//				VersionBChannelId.SLAVE_20_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_19_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_18_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_17_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_16_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_15_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_14_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_13_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_12_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_11_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_10_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_9_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_8_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_7_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_6_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_5_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_4_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_3_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_2_COMMUNICATION_ERROR,
+//				VersionBChannelId.SLAVE_1_COMMUNICATION_ERROR
+//		};
+//		for (VersionBChannelId id : channelIds) {
+//			StateChannel r = this.channel(id);
+//			Optional<Boolean> bOpt = r.value().asOptional();
+//			if (!bOpt.isPresent()) {
+//				return false;
+//			}
+//		}
+//			
+//		return true;
+//	}
 
 	private boolean isSystemStateUndefined() { // System is undefined if it is definitely not started and not stopped, and it is unknown if configuring is necessary
-		return (isConfiguringNeeded() == ConfiguringNecessary.UNDEFINED) ||  (!isSystemIsRunning() && !isSystemStopped());
+//		return (isConfiguringNeeded() == ConfiguringNecessary.UNDEFINED) ||  (!isSystemIsRunning() && !isSystemStopped());
+		return (!isSystemIsRunning() && !isSystemStopped());
 	}
 
 	private boolean isSystemIsRunning() {
@@ -687,18 +690,18 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		return isAlarmLevel2Error() || isSlaveCommunicationError();
 	}
 
-	// Collects errors/warnings
-	private Collection<ErrorCode> getErrorCodes() {
-		Collection<ErrorCode> codes = new ArrayList<>();
-
-		for (ErrorCode code : ErrorCode.values()) {
-			if (code.getErrorChannelId() != null && readValueFromBooleanChannel(code.getErrorChannelId())) {
-				codes.add(ErrorCode.getErrorCode(code.getErrorChannelId()));
-			}
-		}
-
-		return codes;
-	}
+//	// Collects errors/warnings
+//	private Collection<ErrorCode> getErrorCodes() {
+//		Collection<ErrorCode> codes = new ArrayList<>();
+//
+//		for (ErrorCode code : ErrorCode.values()) {
+//			if (code.getErrorChannelId() != null && readValueFromBooleanChannel(code.getErrorChannelId())) {
+//				codes.add(ErrorCode.getErrorCode(code.getErrorChannelId()));
+//			}
+//		}
+//
+//		return codes;
+//	}
 
 	private boolean readValueFromBooleanChannel(VersionBChannelId channelId) {
 		StateChannel r = this.channel(channelId);
@@ -714,7 +717,9 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
-				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value()
+				+ "|State:" + this.getStateMachineState()
+				;
 	}
 
 	private void startSystem() {
@@ -762,14 +767,28 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 
 	public void setStateMachineState(State state) {
 		
-		if (state == State.ERROR) {
-			for (ErrorCode c : getErrorCodes()) {
-				log.error("Error detected: " + c.getName());
-			}
-		}
+//		if (state == State.ERROR) {
+//			for (ErrorCode c : getErrorCodes()) {
+//				log.error("Error detected: " + c.getName());
+//			}
+//		}
 		
 		this.state = state;
 		this.channel(VersionBChannelId.STATE_MACHINE).setNextValue(this.state);
+	}
+	
+	private void setSoCLowAlarm(int soCLowAlarm) {
+		try {
+			((IntegerWriteChannel) this.channel(VersionBChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION)).setNextWriteValue(soCLowAlarm);
+			((IntegerWriteChannel) this.channel(VersionBChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER)).setNextWriteValue(soCLowAlarm);
+		} catch (OpenemsException e) {
+			log.error("Error while setting parameter for soc low protection!" + e.getMessage());
+		}
+	}
+	
+	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
+	private String getSingleCellPrefix(int num) {
+		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
 	}
 
 	@Override
@@ -1382,9 +1401,4 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 
 		return protocol;
 	}
-	
-	private String getSingleCellPrefix(int num) {
-		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
-	}
-	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 }

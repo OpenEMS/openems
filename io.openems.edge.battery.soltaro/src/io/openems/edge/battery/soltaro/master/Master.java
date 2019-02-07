@@ -54,8 +54,8 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
-	public static final int DISCHARGE_MAX_A = 20;
-	public static final int CHARGE_MAX_A = 20;
+	public static final int DISCHARGE_MAX_A = 0;
+	public static final int CHARGE_MAX_A = 0;
 	public static final Integer CAPACITY_KWH = 150;
 
 	private final Logger log = LoggerFactory.getLogger(Master.class);
@@ -196,6 +196,15 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 			break;
 		}
 		this.getReadyForWorking().setNextValue(readyForWorking);
+		
+//		try {
+//			((IntegerWriteChannel) this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT)).setNextWriteValue(0);
+////			((IntegerWriteChannel) this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT)).setNextWriteValue(0);
+//		} catch (OpenemsException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
 	}
 
 	private boolean isError() {
