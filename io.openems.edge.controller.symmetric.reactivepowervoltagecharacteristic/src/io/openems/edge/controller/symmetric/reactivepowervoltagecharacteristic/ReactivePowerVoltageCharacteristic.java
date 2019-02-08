@@ -106,7 +106,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		} else {
 			try {
 				Value<Integer> apparentPower = ess.getMaxApparentPower().value();
-				if (apparentPower.get() != 0) {
+				if (apparentPower.get() != null && apparentPower.get() != 0) {
 					this.power = (int) (apparentPower.orElse(0) * valueOfLine);
 					int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.REACTIVE,
 							this.power);

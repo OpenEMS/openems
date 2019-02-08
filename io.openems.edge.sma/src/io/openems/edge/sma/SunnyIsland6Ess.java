@@ -89,8 +89,6 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-
-
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol(this, //
@@ -1248,7 +1246,14 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 		BATTERY_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		BATTERY_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+//		DEBUG_SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+//				// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+//				.onInit(channel -> { //
+//					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+//						channel.getComponent().channel(ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(value);
+//					});
+//				})), //
 		SET_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
 		MIN_SOC_POWER_ON(new Doc()), //
 		GRID_GUARD_CODE(new Doc()), //
@@ -1269,7 +1274,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		OPERATING_MODE_FOR_REACTIVE_POWER(new Doc()), //
 		MAXIMUM_BATTERY_CHARGING_POWER_CAPACITY(new Doc()), //
 		MAXIMUM_BATTERY_DISCHARGING_POWER_CAPACITY(new Doc()), //
-				;
+		;
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {

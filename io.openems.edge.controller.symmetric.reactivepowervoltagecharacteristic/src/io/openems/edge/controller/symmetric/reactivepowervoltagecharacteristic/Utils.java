@@ -29,7 +29,7 @@ public class Utils {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
-		qCharacteristic.put(voltageRatio, (float) 250);
+		qCharacteristic.put(voltageRatio, (float) 0);
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> Map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
@@ -50,8 +50,8 @@ public class Utils {
 		Point p;
 		int i = 0;
 		// bubble sort outer loop
-		// 250 random number, just to fill value
-		qCharacteristic.put(voltageRatio, (float) 250);
+		// 0 random number, just to fill value
+		qCharacteristic.put(voltageRatio, (float) 0);
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> Map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
