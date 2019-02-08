@@ -33,26 +33,8 @@ import io.openems.edge.ess.api.Phase;
 	@AttributeDefinition(name = "Door Operation ", description = "Address of the Door Operationg(io0/DigitalInputM2C2)")
 	String inputDoorOperation();
 
-	@AttributeDefinition(name = "Ventil Over Voltage Detection", description = "Address of the Ventil Over Voltage Detection(io0/DigitalInputM2C1)")
-	String inputVentilOverVoltageDetection();
-
-//	@AttributeDefinition(name = "Power Switch Sunny Island 1", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C1)")
-//	String inputSunnyIsland1();
-//
-//	@AttributeDefinition(name = "Power Switch Sunny Island 2", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C2)")
-//	String inputSunnyIsland2();
-//
-//	@AttributeDefinition(name = "Power Switch Sunny Island 3", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C3)")
-//	String inputSunnyIsland3();
-//
-//	@AttributeDefinition(name = "Power Switch Sunny Island 4", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C4)")
-//	String inputSunnyIsland4();
-//
-//	@AttributeDefinition(name = "Power Switch Sunny Island 5", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C5)")
-//	String inputSunnyIsland5();
-//
-//	@AttributeDefinition(name = "Power Switch Sunny Island 6", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C6)")
-//	String inputSunnyIsland6();
+	@AttributeDefinition(name = "Over Voltage Detection", description = "Address of the Over Voltage Detection(io0/DigitalInputM2C1)")
+	String inputOverVoltageDetection();
 
 	@AttributeDefinition(name = "Air Condition", description = "Address of the Power Switch Sunny Island 1 (io0/DigitalInputM1C7)")
 	String InputAirCondtion();

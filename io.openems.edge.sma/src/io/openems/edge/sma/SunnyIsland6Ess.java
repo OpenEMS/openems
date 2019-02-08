@@ -54,6 +54,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	ChannelAddress inputFireDetection = null;
 	ChannelAddress outputMainSwitch = null;
 	ChannelAddress inputBatteryLevelWarning = null;
+	ChannelAddress inputOverVoltageDetection = null;
 
 	@Reference
 	private Power power;
@@ -71,6 +72,9 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalInput outputMainSwitchComponent;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	DigitalInput inputOverVoltageDetectionComponent;
 
 	public SunnyIsland6Ess() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -124,6 +128,13 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		this.outputMainSwitch = ChannelAddress.fromString(config.outputMainSwitch());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "outputMainSwitchComponent",
 				this.outputMainSwitch.getComponentId())) {
+			return;
+		}
+
+		// update filter for 'inputOverVoltageDetection'
+		this.inputOverVoltageDetection = ChannelAddress.fromString(config.inputOverVoltageDetection());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "inputOverVoltageDetectionComponent",
+				this.inputOverVoltageDetection.getComponentId())) {
 			return;
 		}
 	}
