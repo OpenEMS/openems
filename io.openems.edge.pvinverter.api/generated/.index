@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.api" increment="1549548678230">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.pvinverter.api" increment="1549872177048">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="license" value="https://opensource.org/licenses/EPL-2.0"/>
       <attribute name="osgi.identity" value="io.openems.edge.pvinverter.api"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201902071411" type="Version"/>
+      <attribute name="version" value="1.0.0.201902110802" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201902071411" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201902110802" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.pvinverter.api"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201902071411" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201902110802" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.pvinverter.api"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -24,7 +24,7 @@
       <attribute name="size" value="5043" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.pvinverter.api.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="A42C8D57F5C99703D3EC2E5010057109460F61615C42616B649C9224282403B9"/>
+      <attribute name="osgi.content" value="E36CF517800E710962181CCEA81B1D227718B8689ED3C24A8819DE6B09D05722"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/C:/Users/hueseyin.sahutoglu/git/eclipse-workspace/sma-workspace"/>

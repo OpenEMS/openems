@@ -44,7 +44,7 @@ public class Utils {
 					case DEBUG_SET_REACTIVE_POWER:
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
-						return new IntegerReadChannel(c, channelId);
+						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(SinglePhaseEss.ChannelId.values()).map(channelId -> {
@@ -175,6 +175,7 @@ public class Utils {
 					case FIRMWARE_VERSION_OF_PROTOCOL_CONVERTER:
 					case HARDWARE_VERSION_OF_PROTOCOL_CONVERTER:
 					case SERIAL_NUMBER_OF_THE_PROTOCOL_CONVERTER:
+					case DEBUG_SET_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 
 					case BATTERY_CHARGING_SOC:

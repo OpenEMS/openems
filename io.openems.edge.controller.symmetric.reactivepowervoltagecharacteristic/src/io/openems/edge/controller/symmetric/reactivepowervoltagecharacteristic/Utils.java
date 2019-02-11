@@ -22,6 +22,7 @@ public class Utils {
 		Point greater = getGreaterPoint(points, voltageRatio);
 		float m = (float) ((greater.y - smaller.y) / (greater.x - smaller.x));
 		float t = (float) (smaller.y - m * smaller.x);
+		System.out.println(m + "----" + t);
 		return m * x + t;
 	}
 
@@ -33,6 +34,7 @@ public class Utils {
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> Map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		System.out.println(Map);
 		List<Float> voltageList = new ArrayList<Float>(Map.keySet());
 		List<Float> percentList = new ArrayList<Float>(Map.values());
 		if (voltageList.get(i) != voltageRatio) {
