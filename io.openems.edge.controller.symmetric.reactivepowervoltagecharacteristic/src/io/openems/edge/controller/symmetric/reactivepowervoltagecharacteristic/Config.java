@@ -8,15 +8,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Defines a reactive power voltage characteristic for storage system.")
 @interface Config {
 
-	String service_pid();
+	String id() default "ctrlReactivePwrVoltgeChrcterstc0";
 
-	String id()
-
-	default "ctrlReactivePwrVoltgeChrcterstc0";
-
-	boolean enabled()
-
-	default true;
+	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
@@ -24,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Meter-ID", description = "ID of Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Q by U charactaristic ", description = "The graph values for power and percentage")
+	@AttributeDefinition(name = "Q by U characteristic ", description = "The graph values for power and percentage")
 	String percentQ();
 
 	@AttributeDefinition(name = "Nominal Voltage [V]", description = "The nominal voltage of the grid")
