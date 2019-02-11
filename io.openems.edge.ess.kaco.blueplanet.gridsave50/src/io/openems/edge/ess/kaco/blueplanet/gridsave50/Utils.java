@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -28,13 +29,14 @@ public class Utils {
 					case SOC:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
-					case ACTIVE_CHARGE_ENERGY: 
-					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(ess, channelId);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(ess, channelId, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(ess, channelId, SymmetricEss.GridMode.ON_GRID);
+						return new IntegerReadChannel(ess, channelId, GridMode.ON_GRID);
+					case ACTIVE_CHARGE_ENERGY: 
+					case ACTIVE_DISCHARGE_ENERGY:
+						return new LongReadChannel(ess, channelId);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
@@ -46,6 +48,10 @@ public class Utils {
 						return new IntegerReadChannel(ess, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(ess, channelId);
 					}
 					return null;

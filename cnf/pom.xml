@@ -40,12 +40,27 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>27.0-jre</version>
+			<version>27.0.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
-			<version>1.8.0</version>
+			<version>1.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.11.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>logging-interceptor</artifactId>
+			<version>3.11.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okio</groupId>
+			<artifactId>okio</artifactId>
+			<version>1.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.retrofit2</groupId>
@@ -76,16 +91,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.okhttp</artifactId>
-			<version>3.10.0_2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.okio</artifactId>
-			<version>1.13.0_1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.ws-commons-util</artifactId>
 			<version>1.0.2_2</version>
 		</dependency>
@@ -95,6 +100,11 @@
 			<version>3.1.3_1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.enroute.base.api</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.influxdb</groupId>
 			<artifactId>influxdb-java</artifactId>
 			<version>2.14</version>
@@ -102,7 +112,7 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20180813</version>
+			<version>20160212</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>

@@ -3,14 +3,17 @@ package io.openems.edge.ess.core.power;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.ess.power.api.SolverStrategy;
+
 /**
  * Configures the Power solver.
  */
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "ESS Power", //
 		description = "This component solves Power distribution among energy storage systems.")
 @interface Config {
-	String service_pid();
+	@AttributeDefinition(name = "Strategy", description = "The strategy for solving power distribution.")
+	SolverStrategy strategy() default SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 
 	@AttributeDefinition(name = "Symmetric Mode", description = "Keeps asymmetric ESS phases symmetric")
 	boolean symmetricMode() default PowerComponent.DEFAULT_SYMMETRIC_MODE;

@@ -5,156 +5,190 @@ import com.google.common.base.CaseFormat;
 import io.openems.common.types.OpenemsType;
 
 public enum Unit {
-	/*
-	 * Generic
-	 */
+	// ##########
+	// Generic
+	// ##########
 
 	/**
 	 * No Unit
 	 */
 	NONE(""),
+
 	/**
 	 * Percentage [%], 0-100
 	 */
 	PERCENT("%"),
+
 	/**
 	 * On or Off
 	 */
 	ON_OFF(""),
 
-	/*
-	 * Power
-	 */
+	// ##########
+	// Power
+	// ##########
 
 	/**
 	 * Unit of Active Power [W]
 	 */
 	WATT("W"),
+
 	/**
 	 * Unit of Active Power [mW]
 	 */
 	MILLIWATT("mW", WATT, -3),
+
 	/**
 	 * Unit of Active Power [kW]
 	 */
 	KILOWATT("kW", WATT, 3),
+
 	/**
 	 * Unit of Reactive Power [var]
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
+
+	/**
+	 * Unit of Reactive Power [kvar]
+	 */
+	KILOVOLT_AMPERE_REACTIVE("kvar", VOLT_AMPERE_REACTIVE, 3),
+
 	/**
 	 * Unit of Apparent Power [VA]
 	 */
 	VOLT_AMPERE("VA"),
 
-	/*
-	 * Voltage
+	/**
+	 * Unit of Apparent Power [kVA]
 	 */
+	KILOVOLT_AMPERE("kVA", VOLT_AMPERE, 3),
+
+	// ##########
+	// Voltage
+	// ##########
 
 	/**
 	 * Unit of Voltage [V]
 	 */
 	VOLT("V"),
+
 	/**
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
 
-	/*
-	 * Current
-	 */
+	// ##########
+	// Current
+	// ##########
 
 	/**
 	 * Unit of Current [A]
 	 */
 	AMPERE("A"),
+
 	/**
 	 * Unit of Current [mA]
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
 
-	/*
-	 * Electric Charge
-	 */
+	// ##########
+	// Electric Charge
+	// ##########
 
 	/**
 	 * Unit of Electric Charge
 	 */
 	AMPERE_HOURS("Ah"),
 
-	/*
-	 * Energy
-	 */
+	// ##########
+	// Energy
+	// ##########
 
 	/**
 	 * Unit of Energy [Wh]
 	 */
 	WATT_HOURS("Wh"),
+
 	/**
 	 * Unit of Energy [kWh]
 	 */
 	KILOWATT_HOURS("kWh", WATT_HOURS, 3),
 
 	/**
-	 * Unit of Apparent Energy [VAh]
+	 * Unit of Reactive Energy [varh]
 	 */
-	VOLT_AMPERE_HOURS("VAh"),
+	VOLT_AMPERE_REACTIVE_HOURS("varh"),
+
+	/**
+	 * Unit of Reactive Energy [kVArh]
+	 */
+	KILOVOLT_AMPERE_REACTIVE_HOURS("kvarh", VOLT_AMPERE_REACTIVE_HOURS, 3),
+
+	/**
+	 * Unit of Energy [Wh/Wp]
+	 */
+	WATT_HOURS_BY_WATT_PEAK("Wh/Wp"),
 
 	/**
 	 * Unit of Apparent Energy [VAh]
 	 */
-	VOLT_AMPERE_REACTIVE_HOURS("varh"),
+	VOLT_AMPERE_HOURS("VAh"),
 
-	/*
-	 * Frequency
-	 */
+	// ##########
+	// Frequency
+	// ##########
 
 	/**
 	 * Unit of Frequency [Hz]
 	 */
 	HERTZ("Hz"),
+
 	/**
 	 * Unit of Frequency [mHz]
 	 */
 	MILLIHERTZ("mHz", HERTZ, -3),
 
-	/*
-	 * Temperature
-	 */
+	// ##########
+	// Temperature
+	// ##########
 
 	/**
-	 * Unit of Temperature [�C]
+	 * Unit of Temperature [C]
 	 */
-	DEGREE_CELSIUS("�C"),
-	/**
-	 * Unit of Temperature [d�C]
-	 */
-	DEZIDEGREE_CELSIUS("d�C", DEGREE_CELSIUS, -1),
+	DEGREE_CELSIUS("C"),
 
-	/*
-	 * Time
-	 */
 	/**
-	 * Unit of Time in Seconds [s]
+	 * Unit of Temperature [dC]
+	 */
+	DEZIDEGREE_CELSIUS("dC", DEGREE_CELSIUS, -1),
+
+	// ##########
+	// Time
+	// ##########
+
+	/**
+	 * Unit of Time [s]
 	 */
 	SECONDS("sec"),
+
 	/**
-	 * Unit of Time in Milli Seconds [ms]
+	 * Unit of Time [ms]
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
+
 	/**
-	 * Unit of Time Minute
+	 * Unit of Time
 	 */
 	MINUTE("min"),
 
 	/**
-	 * Unit of Time Hour
+	 * Unit of Time
 	 */
 	HOUR("h"),
 
-	/*
-	 * Resistance
-	 */
+	// ##########
+	// Resistance
+	// ##########
 
 	/**
 	 * Unit of Resistance [Ohm]

@@ -1,4 +1,0 @@
-* Everything is timed by the ControllerExecutor in `io.openems.edge.application`. It triggers events via EventAdmin that are called synchronuously
-* The 'Power' class in io.openems.edge.ess.power.symmetric is the base for all the active/reactive power calculations. The 'EssSymmetricPowerManager' controls the Power class according to the ControllerExecutor cycle.
-* Clearly defined OpenemsTypes
-* Make use of enum and switch where possible. Eclipse gives a warning if the enum is not completely used

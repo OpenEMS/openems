@@ -1,7 +1,5 @@
 package io.openems.edge.ess.refu;
 
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -125,7 +123,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
 	}
 
@@ -461,22 +459,11 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		ERROR_HANDLER_STATE(new Doc()), //
-		SYSTEM_STATE(new Doc() //
-				.options(SystemState.values())),
+		SYSTEM_STATE(new Doc().options(SystemState.values())), //
 		INVERTER_ERROR_CODE(new Doc()), //
 		DCDC_ERROR_CODE(new Doc()), //
-
-		SET_WORK_STATE(new Doc() //
-				.options(StopStart.values())),
-
-		DCDC_STATUS(new Doc() //
-				.option(1, "Ready to Power on")//
-				.option(2, "Ready for Operating")//
-				.option(4, "Enabled")//
-				.option(8, "DCDC Fault")//
-				.option(128, "DCDC Warning")//
-				.option(256, "Voltage/Current mode").option(512, "Power mode")), //
-
+		SET_WORK_STATE(new Doc().options(StopStart.values())), //
+		DCDC_STATUS(new Doc().options(DcdcStatus.values())), //
 		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
@@ -512,23 +499,10 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 		COS_PHI_L2(new Doc()), //
 		COS_PHI_L3(new Doc()), //
 
-		BATTERY_STATE(new Doc() //
-				.option(0, "Initial")//
-				.option(1, "STOP")//
-				.option(2, "Starting")//
-				.option(3, "START")//
-				.option(4, "Stopping")//
-				.option(5, "Fault")), //
-
-		BATTERY_MODE(new Doc() //
-				.option(0, "Normal Mode")), //
-
-		SET_SYSTEM_ERROR_RESET(new Doc()//
-				.options(StopStart.values())),
-
-		SET_OPERATION_MODE(new Doc()//
-				.option(0, "P/Q Set point")//
-				.option(1, "IAC/cosphi set point")), //
+		BATTERY_STATE(new Doc().options(BatteryState.values())), //
+		BATTERY_MODE(new Doc().options(BatteryMode.values())), //
+		SET_SYSTEM_ERROR_RESET(new Doc().options(StopStart.values())), //
+		SET_OPERATION_MODE(new Doc().options(SetOperationMode.values())), //
 
 		STATE_0(new Doc().level(Level.FAULT).text("BMS In Error")), //
 		STATE_1(new Doc().level(Level.FAULT).text("BMS Overvoltage")), //
@@ -785,13 +759,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	}
 
 	public Constraint[] getStaticConstraints() {
-		Optional<Enum<?>> systemStateOpt = this.channel(ChannelId.SYSTEM_STATE).value().asEnumOptional();
-		SystemState systemState;
-		if (systemStateOpt.isPresent()) {
-			systemState = (SystemState) systemStateOpt.get();
-		} else {
-			systemState = SystemState.UNDEFINED;
-		}
+		SystemState systemState = this.channel(ChannelId.SYSTEM_STATE).value().asEnum();
 		switch (systemState) {
 		case ERROR:
 		case INIT:

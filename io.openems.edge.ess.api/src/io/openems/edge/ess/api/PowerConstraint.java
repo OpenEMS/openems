@@ -20,7 +20,7 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public class PowerConstraint implements Consumer<Channel<?>> {
 
-	private final static Logger log = LoggerFactory.getLogger(PowerConstraint.class);
+	private static final Logger log = LoggerFactory.getLogger(PowerConstraint.class);
 
 	private final String channelId;
 	private final Phase phase;
@@ -37,12 +37,20 @@ public class PowerConstraint implements Consumer<Channel<?>> {
 	@Override
 	public void accept(Channel<?> channel) {
 		((IntegerWriteChannel) channel).onSetNextWrite(value -> {
-			try {
-				((ManagedSymmetricEss) channel.getComponent()).addPowerConstraintAndValidate(
-						"Channel [" + this.channelId + "]", this.phase, this.pwr, this.relationship, value);
-			} catch (PowerException e) {
-				log.error("Unable to set power constraint from Channel [" + this.channelId + "]: " + e.getMessage());
-			} //
+			if (value != null) {
+				ManagedSymmetricEss ess = (ManagedSymmetricEss) channel.getComponent();
+
+				// adjust value so that it fits into Min/MaxActivePower
+				value = ess.getPower().fitValueIntoMinMaxPower(ess, this.phase, this.pwr, value);
+
+				try {
+					ess.addPowerConstraintAndValidate("Channel [" + this.channelId + "]", this.phase, this.pwr,
+							this.relationship, value);
+				} catch (PowerException e) {
+					log.error(
+							"Unable to set power constraint from Channel [" + this.channelId + "]: " + e.getMessage());
+				}
+			}
 		});
 	}
 

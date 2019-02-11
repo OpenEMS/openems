@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -33,7 +34,7 @@ public class Utils {
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, SunnyIsland6Ess.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.ON_GRID);
+						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
@@ -42,8 +43,13 @@ public class Utils {
 					case ALLOWED_DISCHARGE_POWER:
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
+					case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;

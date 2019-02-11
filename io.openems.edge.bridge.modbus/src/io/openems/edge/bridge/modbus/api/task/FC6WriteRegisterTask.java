@@ -29,9 +29,9 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 	public void executeWrite(AbstractModbusBridge bridge) throws OpenemsException {
 		ModbusElement<?> element = this.getElements()[0];
 
-		if (element instanceof AbstractWordElement<?>) {
+		if (element instanceof AbstractWordElement<?, ?>) {
 
-			Optional<Register[]> valueOpt = ((AbstractWordElement<?>) element).getNextWriteValue();
+			Optional<Register[]> valueOpt = ((AbstractWordElement<?, ?>) element).getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 				Register[] registers = valueOpt.get();
 

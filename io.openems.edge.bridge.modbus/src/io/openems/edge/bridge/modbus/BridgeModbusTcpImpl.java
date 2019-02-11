@@ -25,7 +25,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/TCP
- * device
+ * device.
  */
 @Designate(ocd = ConfigTcp.class, factory = true)
 @Component(name = "Bridge.Modbus.Tcp", //
@@ -35,16 +35,21 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
 
-//	private final Logger log = LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
 
 	/**
-	 * The configured IP address
+	 * The configured IP address.
 	 */
 	private InetAddress ipAddress = null;
 
+	public BridgeModbusTcpImpl() {
+		UtilsTcp.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+	
 	@Activate
 	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.setIpAddress(InetAddress.getByName(config.ip()));
 	}
 

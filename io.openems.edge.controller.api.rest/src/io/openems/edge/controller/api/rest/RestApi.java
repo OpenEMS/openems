@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jetty.server.Server;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,29 +13,30 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
-
-import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Api.Rest", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class RestApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
+public class RestApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	final Logger log = LoggerFactory.getLogger(RestApi.class);
-	private final ApiWorker apiWorker = new ApiWorker();
+	private final Logger log = LoggerFactory.getLogger(RestApi.class);
+
+	protected final ApiWorker apiWorker = new ApiWorker();
 
 	private Server server = null;
 
@@ -47,14 +47,19 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Api
 	protected volatile Timedata timedataService = null;
 
 	@Reference
-	protected ConfigurationAdmin configAdmin;
+	protected ComponentManager componentManager;
 
 	@Reference
 	protected UserService userService;
 
+	public RestApi() {
+		// TODO: add Debug-Channels for writes to Channels via REST-Api
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		if (!this.isEnabled()) {
 			// abort if disabled
@@ -89,23 +94,8 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Api
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
-	}
-
-	@Override
-	public List<OpenemsComponent> getComponents() {
-		return this.components;
-	}
-
-	@Override
-	public ConfigurationAdmin getConfigurationAdmin() {
-		return this.configAdmin;
-	}
-
-	@Override
-	public Timedata getTimedataService() {
-		return this.timedataService;
 	}
 
 	@Override

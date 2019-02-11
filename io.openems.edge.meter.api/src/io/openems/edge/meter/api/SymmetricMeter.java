@@ -1,5 +1,6 @@
 package io.openems.edge.meter.api;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -22,8 +23,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
  *
  */
 public interface SymmetricMeter extends OpenemsComponent {
-
-	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -76,7 +75,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
+				.text(OpenemsConstants.POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						/*
@@ -123,30 +122,30 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT)), //
+				.text(OpenemsConstants.POWER_DOC_TEXT)), //
 		/**
 		 * Active Production Energy
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Active Consumption Energy
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
+		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+				.type(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Voltage
@@ -157,7 +156,9 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
+		VOLTAGE(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
 		/**
 		 * Current
 		 * 
@@ -167,7 +168,9 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)); //
+		CURRENT(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)); //
 
 		private final Doc doc;
 

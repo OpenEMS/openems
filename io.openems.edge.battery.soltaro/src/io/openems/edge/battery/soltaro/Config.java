@@ -7,18 +7,19 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "BMS FENECON Soltaro", //
 		description = "Implements the Soltaro battery rack system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "bms0";
 
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
-	String modbus_id();
-	
+	String modbus_id() default "modbus0";
+
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
-	
+
+	@AttributeDefinition(name = "Capacity [Wh]", description = "The capacity of the Battery Rack.")
+	int capacity() default 0;
+
 	@AttributeDefinition(name = "Battery state", description = "Switches the battery into the given state, if default is used, battery state is set automatically")
 	BatteryState batteryState() default BatteryState.DEFAULT;
 

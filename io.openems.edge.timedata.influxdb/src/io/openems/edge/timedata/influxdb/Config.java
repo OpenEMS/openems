@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Timedata InfluxDB", //
 		description = "This component persists all data to an InfluxDB timeseries database.")
 @interface Config {
-	String service_pid();
-
 	String id() default "influx0";
 
 	boolean enabled() default true;

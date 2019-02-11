@@ -25,7 +25,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/RTU
- * device
+ * device.
  */
 @Designate(ocd = ConfigSerial.class, factory = true)
 @Component(name = "Bridge.Modbus.Serial", //
@@ -35,36 +35,41 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
 
-//	private final Logger log = LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
+	// private final Logger log =
+	// LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
 
 	/**
-	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3')
+	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3').
 	 */
 	private String portName = "";
 
 	/**
-	 * The configured Baudrate (e.g. 9600)
+	 * The configured Baudrate (e.g. 9600).
 	 */
 	private int baudrate;
 
 	/**
-	 * The configured Databits (e.g. 8)
+	 * The configured Databits (e.g. 8).
 	 */
 	private int databits;
 
 	/**
-	 * The configured Stopbits
+	 * The configured Stopbits.
 	 */
 	private Stopbit stopbits;
 
 	/**
-	 * The configured parity
+	 * The configured parity.
 	 */
 	private Parity parity;
 
+	public BridgeModbusSerialImpl() {
+		UtilsSerial.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Activate
 	void activate(ComponentContext context, ConfigSerial config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();

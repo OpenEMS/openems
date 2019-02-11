@@ -18,6 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -48,7 +49,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess", config.ess_id())) {
 			return;
 		}
@@ -92,7 +93,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 				voltage = jEl.getAsJsonObject().get("voltage").getAsFloat();
 				qCharacteristic.put(voltage, percent);
 			}
-		} catch (NullPointerException | OpenemsException e) {
+		} catch (NullPointerException | OpenemsNamedException e) {
 			throw new OpenemsException("Unable to set values [" + qCharacteristic + "] " + e.getMessage());
 		}
 	}
@@ -108,7 +109,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 				Value<Integer> apparentPower = ess.getMaxApparentPower().value();
 				if (apparentPower.get() != null && apparentPower.get() != 0) {
 					this.power = (int) (apparentPower.orElse(0) * valueOfLine);
-					int calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.REACTIVE,
+					int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.REACTIVE,
 							this.power);
 					this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL,
 							Pwr.REACTIVE, Relationship.EQUALS, calculatedPower);

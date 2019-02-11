@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Backend Timedata Core
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: \
+	io.openems.backend.timedata.core
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	com.google.gson,\
+	org.ops4j.pax.logging.pax-logging-api	
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3

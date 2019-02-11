@@ -21,11 +21,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.controller.api.core.WritePojo;
 
 public class RestHandler extends AbstractHandler {
 
@@ -41,7 +43,7 @@ public class RestHandler extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		try {
-			List<String> targets = Arrays.asList( //
+			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
 							.split("/"));
 
@@ -57,13 +59,13 @@ public class RestHandler extends AbstractHandler {
 				this.handleRest(remainingTargets, baseRequest, request, response);
 				break;
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			throw new IOException(e.getMessage());
 		}
 	}
 
 	private void handleRest(List<String> targets, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws OpenemsException, IOException {
+			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.isEmpty()) {
 			throw new OpenemsException("Missing arguments to handle REST-request");
 		}
@@ -79,34 +81,28 @@ public class RestHandler extends AbstractHandler {
 	}
 
 	private void handleChannel(List<String> targets, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws IOException, OpenemsException {
+			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.size() != 2) {
 			throw new OpenemsException("Missing arguments to handle Channel");
 		}
 
-//		// check general permission
-//		if (isAuthenticatedAsRole(request, Role.GUEST)) {
-//			// pfff... it's only a "GUEST"! Deny anything but GET requests
-//			if (!request.getMethod().equals(Method.GET)) {
-//				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
-//			}
-//		}
+		// TODO check general permission
+		// if (isAuthenticatedAsRole(request, Role.GUEST)) {
+		// // pfff... it's only a "GUEST"! Deny anything but GET requests
+		// if (!request.getMethod().equals(Method.GET)) {
+		// throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
+		// }
+		// }
 
 		// get request attributes
-		String thingId = targets.get(0);
-		String channelId = targets.get(1);
+		ChannelAddress channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
 
 		// get channel
-		Channel<?> channel = null;
-		for (OpenemsComponent component : this.parent.getComponents()) {
-			if (component.id().equals(thingId)) {
-				// get channel
-				channel = component.channel(channelId);
-				break;
-			}
-		}
-		if (channel == null) {
-			// Channel not found
+		Channel<?> channel;
+		try {
+			channel = this.parent.componentManager.getChannel(channelAddress);
+		} catch (IllegalArgumentException e) {
+			this.parent.logWarn(this.log, e.getMessage());
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -123,13 +119,16 @@ public class RestHandler extends AbstractHandler {
 	}
 
 	/**
-	 * handle HTTP GET request
+	 * Handles HTTP GET request.
 	 *
-	 * @return
-	 * @throws IOException
+	 * @param channel     the affected channel
+	 * @param baseRequest the HTTP POST base-request
+	 * @param request     the HTTP POST request
+	 * @param response    the result to be returned
+	 * @throws OpenemsException on error
 	 */
 	private void handleGet(Channel<?> channel, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+			HttpServletResponse response) throws OpenemsException {
 		// TODO check read permission
 		// assertAllowed(request, channel.readRoles());
 
@@ -152,27 +151,33 @@ public class RestHandler extends AbstractHandler {
 		this.sendOkResponse(baseRequest, response, j);
 	}
 
-	private void sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data) throws IOException {
-		response.setContentType("application/json");
-		response.setStatus(HttpServletResponse.SC_OK);
-		baseRequest.setHandled(true);
-		response.getWriter().write(data.toString());
+	private void sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
+			throws OpenemsException {
+		try {
+			response.setContentType("application/json");
+			response.setStatus(HttpServletResponse.SC_OK);
+			baseRequest.setHandled(true);
+			response.getWriter().write(data.toString());
+		} catch (IOException e) {
+			throw new OpenemsException("Unable to send Ok-Response: " + e.getMessage());
+		}
 	}
 
 	/**
-	 * handle HTTP POST request
+	 * Handles HTTP POST request.
 	 *
-	 * @return
-	 * @throws IOException
-	 * @throws OpenemsException
+	 * @param channel     the affected channel
+	 * @param baseRequest the HTTP POST base-request
+	 * @param request     the HTTP POST request
+	 * @param response    the result to be returned
+	 * @throws OpenemsException on error
 	 */
-	private void handlePost(Channel<?> readChannel, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws IOException, OpenemsException {
+	private void handlePost(Channel<?> channel, Request baseRequest, HttpServletRequest request,
+			HttpServletResponse response) throws OpenemsException {
 		// check for writable channel
-		if (!(readChannel instanceof WriteChannel<?>)) {
-			throw new OpenemsException("[" + readChannel + "] is not a Write Channel");
+		if (!(channel instanceof WriteChannel<?>)) {
+			throw new OpenemsException("[" + channel + "] is not a Write Channel");
 		}
-		WriteChannel<?> channel = (WriteChannel<?>) readChannel;
 
 		// parse json
 		JsonParser parser = new JsonParser();
@@ -193,14 +198,15 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// set channel value
-		try {
-			channel.setNextWriteValueFromObject(jValue.toString());
-			log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
-		} catch (OpenemsException e) {
-			e.printStackTrace();
-			throw new OpenemsException("Unable to set value: " + e.getMessage());
+		Object value;
+		if (jValue.isJsonNull()) {
+			value = null;
+		} else {
+			value = jValue.toString();
 		}
-		
+		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePojo(value));
+		log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
+
 		this.sendOkResponse(baseRequest, response, new JsonObject());
 	}
 }

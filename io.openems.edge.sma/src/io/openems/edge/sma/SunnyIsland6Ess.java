@@ -79,7 +79,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 		this.getPhase().setNextValue(config.Phase());
 	}
@@ -867,11 +867,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		SOFTWARE_PACKAGE(new Doc()), //
 		WAITING_TIME_UNTIL_FEED_IN(new Doc().unit(Unit.SECONDS)), //
 		MESSAGE(new Doc()), //
-		SYSTEM_STATE(new Doc()//
-				.option(35, "Fehler")//
-				.option(303, "Aus")//
-				.option(307, "OK")//
-				.option(455, "Warnung")), //
+		SYSTEM_STATE(new Doc().options(SystemState.values())), //
 		RECOMMENDED_ACTION(new Doc()), //
 		FAULT_CORRECTION_MEASURE(new Doc()), //
 		NUMBER_OF_EVENT_FOR_USER(new Doc()), //
@@ -904,10 +900,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		COSPHI_SET_POINT_READ(new Doc()), //
 		CURRENT_BATTERY_CAPACITY(new Doc().unit(Unit.PERCENT)), //
 		ACTIVE_BATTERY_CHARGING_MODE(new Doc()//
-				.option(1767, "Boost Charge")//
-				.option(1768, "Full")//
-				.option(1769, " Equalization Charge")//
-				.option(1770, "Float charge")), //
+				.options(ActiveBatteryChargingMode.values())), //
 		CURRENT_BATTERY_CHARGING_SET_VOLTAGE(new Doc().unit(Unit.VOLT)), //
 		NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS(new Doc()), //
 		BATTERY_MAINT_SOC(new Doc()), //
@@ -918,34 +911,15 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		CURRENT_SELF_CONSUMPTION(new Doc().unit(Unit.WATT)), //
 		CURRENT_RISE_IN_SELF_CONSUMPTION(new Doc().unit(Unit.WATT)), //
 		MULTIFUNCTION_RELAY_STATUS(new Doc()//
-				.option(51, "Closed")//
-				.option(311, "Open")), //
+				.options(MultifunctionRelayStatus.values())), //
 		POWER_SUPPLY_STATUS(new Doc()//
-				.option(303, "Off")//
-				.option(1461, "Utility Grid Connected")//
-				.option(1462, "Backup Not Available")//
-				.option(1463, "Backup")), //
+				.options(PowerSupplyStatus.values())), //
 		REASON_FOR_GENERATOR_REQUEST(new Doc()//
-				.option(1773, "No Request")//
-				.option(1774, "Load")//
-				.option(1775, "Time Control")//
-				.option(1776, "Manual One Hour")//
-				.option(1777, "Manual Start")//
-				.option(1778, "External Source")), //
+				.options(ReasonForGeneratorRequest.values())), //
 		PV_MAINS_CONNECTION(new Doc()//
-				.option(1779, "Disconnected")//
-				.option(1780, "Utility Grid")//
-				.option(1781, "Stand-Alone Grid")), //
+				.options(PvMainsConnection.values())), //
 		STATUS_OF_UTILITY_GRID(new Doc()//
-				.option(303, "Off")//
-				.option(1394, "Waiting For Valid AC Utility Grid")//
-				.option(1461, "Utility Grid Connection")//
-				.option(1466, "Waiting")//
-				.option(1787, "Initialization")//
-				.option(2183, "Grid Operation Without Feed-Back")//
-				.option(2184, "Energy Saving In The Utility Grid")//
-				.option(2185, "End Energy Saving In The Utility Grid")//
-				.option(2186, "Start Energy Saving In The Utility Grid")), //
+				.options(StatusOfUtilityGrid.values())), //
 		GRID_FREQ_OF_EXTERNAL_POWER_CONNECTION(new Doc().unit(Unit.HERTZ)), //
 		VOLTAGE_EXTERNAL_POWER_CONNECTION_PHASE_A(new Doc().unit(Unit.VOLT)), //
 		VOLTAGE_EXTERNAL_POWER_CONNECTION_PHASE_B(new Doc().unit(Unit.VOLT)), //
@@ -954,17 +928,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		CURRENT_EXTERNAL_POWER_CONNECTION_PHASE_B(new Doc().unit(Unit.AMPERE)), //
 		CURRENT_EXTERNAL_POWER_CONNECTION_PHASE_C(new Doc().unit(Unit.AMPERE)), //
 		GENERATOR_STATUS(new Doc()//
-				.option(303, "Off")//
-				.option(1392, "Error")//
-				.option(1787, "Initialization")//
-				.option(1788, "Ready")//
-				.option(1789, "Warm-Up")//
-				.option(1790, "Synchronize").option(1791, "Activated")//
-				.option(1792, "Re-Synchronize")//
-				.option(1793, "Generator Seperation")//
-				.option(1794, "Shut-Off Delay")//
-				.option(1795, "Blocked")//
-				.option(1796, "Blocked After Error")), //
+				.options(GeneratorStatus.values())), //
 		DATA_TRANSFER_RATE_OF_NETWORK_TERMINAL_A(new Doc()//
 				.option(1720, "10 MBit")//
 				.option(1721, "100 MBit")//

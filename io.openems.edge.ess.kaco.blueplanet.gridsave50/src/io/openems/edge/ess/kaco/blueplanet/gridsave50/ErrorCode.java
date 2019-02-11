@@ -3,6 +3,7 @@ package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum ErrorCode implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"),
 	WAITING_FOR_FEED_IN(1, "Self-test: Grid parameters and generator voltage are being checked"),
 	BATTERY_VOLTAGE_TOO_LOW(2, "Battery Voltage too low! Transition from or to 'Standby'"),
 	YIELD_COUNTER_FOR_DAILY(4, "Yield counter for daily and annual yields are displayed"),
@@ -113,8 +114,7 @@ public enum ErrorCode implements OptionsEnum {
 	BATTERY_DISCONNECTED(198,
 			"Battery disconnected Connection to the battery disconnected. Check connection. The battery voltage may be outside the parameterised battery limits."),
 	BATTERY_CONSTRAINTS_MISSING(199, "Battery constraints are missing // Batteriegrenzen nicht vorhanden"),
-	WAITING_FOR_FAULT_ACKNOWLEDGEMENT(215,
-			"Waiting for fault acknowledgement by EMS"),
+	WAITING_FOR_FAULT_ACKNOWLEDGEMENT(215, "Waiting for fault acknowledgement by EMS"),
 	PRECHARGE_UNIT_FAULT(218, "Precharge unit fault Precharge unit: Group fault for precharge unit"),
 	READY_FOR_PRECHARGING(219, "Ready for precharging Precharge unit: Ready for precharging"),
 	PRECHARGE_PRECHARGE_UNIT(220, "Precharge Precharge unit: Precharge process being carried out"),
@@ -122,11 +122,11 @@ public enum ErrorCode implements OptionsEnum {
 			"Wait for cooldown time Precharge unit: Precharge resistance requires time to cool down");
 
 	private final int value;
-	private final String option;
+	private final String name;
 
-	private ErrorCode(int value, String option) {
+	private ErrorCode(int value, String name) {
 		this.value = value;
-		this.option = option;
+		this.name = name;
 	}
 
 	@Override
@@ -135,7 +135,12 @@ public enum ErrorCode implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
-		return option;
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
 	}
 }

@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.AbstractScheduler;
 import io.openems.edge.scheduler.api.Scheduler;
@@ -29,7 +30,7 @@ import io.openems.edge.scheduler.api.Scheduler;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Scheduler.AllAlphabetically", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class AllAlphabetically extends AbstractScheduler implements Scheduler {
+public class AllAlphabetically extends AbstractScheduler implements Scheduler, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(AllAlphabetically.class);
 
@@ -56,7 +57,7 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.enabled(), config.cycleTime());
 
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();
@@ -65,6 +66,10 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler {
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	public AllAlphabetically() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Override
