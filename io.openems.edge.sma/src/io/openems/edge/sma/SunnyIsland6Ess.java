@@ -63,11 +63,11 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	public void applyPower(int activePower, int reactivePower) {
 		IntegerWriteChannel setControlMode = this.channel(ChannelId.SET_CONTROL_MODE);
 		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
-//		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
+		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
 		try {
 			setControlMode.setNextWriteValue(802);
 			setActivePowerChannel.setNextWriteValue(activePower);
-//			setReactivePowerChannel.setNextWriteValue(reactivePower);
+			setReactivePowerChannel.setNextWriteValue(reactivePower);
 		} catch (OpenemsException e) {
 			e.printStackTrace();
 		}
