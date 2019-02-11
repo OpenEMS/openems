@@ -143,9 +143,12 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(30777)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(30779)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(30781)), //
-						m(SunnyIsland6Ess.ChannelId.GRID_VOLTAGE_L1, new SignedDoublewordElement(30783)), //
-						m(SunnyIsland6Ess.ChannelId.GRID_VOLTAGE_L2, new SignedDoublewordElement(30785)), //
-						m(SunnyIsland6Ess.ChannelId.GRID_VOLTAGE_L3, new SignedDoublewordElement(30787)), //
+						m(SunnyIsland6Ess.ChannelId.GRID_VOLTAGE_L1, new SignedDoublewordElement(30783),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						m(SunnyIsland6Ess.ChannelId.GRID_VOLTAGE_L2, new SignedDoublewordElement(30785),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						m(SunnyIsland6Ess.ChannelId.GRID_VOLTAGE_L3, new SignedDoublewordElement(30787),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(30789, 30802), //
 						m(SunnyIsland6Ess.ChannelId.FREQUENCY, new UnsignedDoublewordElement(30803)), //
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(30805),
