@@ -66,7 +66,7 @@
     "zone.js": "~0.8.29"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "~0.13.0",
+    "@angular-devkit/architect": "~0.13.1",
     "@angular-devkit/build-angular": "~0.13.0",
     "@angular-devkit/core": "~7.3.1",
     "@angular-devkit/schematics": "~7.3.1",
