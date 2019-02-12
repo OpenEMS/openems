@@ -5,8 +5,9 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package:  \
 	io.openems.edge.sma.api;-provide=true
 
-Private-Package:  \
-	io.openems.edge.sma
+Private-Package: \
+	io.openems.edge.sma,\
+	io.openems.edge.sma.enums
 
 -includeresource: {readme.md}
 
