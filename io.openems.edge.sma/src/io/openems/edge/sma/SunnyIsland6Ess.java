@@ -65,7 +65,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
 		try {
-			setControlMode.setNextWriteValue(802);
+			setControlMode.setNextWriteValue(SetControlMode.START);
 			setActivePowerChannel.setNextWriteValue(activePower);
 			setReactivePowerChannel.setNextWriteValue(reactivePower);
 		} catch (OpenemsException e) {
@@ -847,8 +847,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(40236, //
 						m(SunnyIsland6Ess.ChannelId.BMS_OPERATING_MODE, new UnsignedDoublewordElement(40236))), //
 				new FC16WriteRegistersTask(40149, //
-						m(SunnyIsland6Ess.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149))), //
-				new FC16WriteRegistersTask(40151,
+						m(SunnyIsland6Ess.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)), //
 						m(SunnyIsland6Ess.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
 						m(SunnyIsland6Ess.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))), //
 				new FC16WriteRegistersTask(43090, //
