@@ -42,6 +42,10 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	private Map<Float, Float> qCharacteristic = new HashMap<>();
 	LongReadChannel maxNominalPower;
 
+	public ReactivePowerVoltageCharacteristic() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -100,7 +104,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Override
 	public void run() {
-		float voltageRatio = meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		float voltageRatio = meter.getVoltage().value().orElse(0) / (this.nominalVoltage*1000);
 		float valueOfLine = Utils.getValueOfLine(qCharacteristic, voltageRatio);
 		if (valueOfLine == 0) {
 			return;

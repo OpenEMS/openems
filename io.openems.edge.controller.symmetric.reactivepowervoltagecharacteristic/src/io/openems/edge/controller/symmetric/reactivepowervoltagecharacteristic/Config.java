@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Meter-ID", description = "ID of Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Q by U characteristic ", description = "The graph values for power and percentage")
+	@AttributeDefinition(name = "Q by U characteristic ", description = "The graph values for power and percentage ex; [{ \"voltage\" : 0.9,\"percent\" : 60 }, { \"voltage\":0.93,\"percent\": 0},{\"voltage\":1.07 ,\"percent\": 0 },{\"voltage\": 1.1 ,\"percent\": -60 }]")
 	String percentQ();
 
 	@AttributeDefinition(name = "Nominal Voltage [V]", description = "The nominal voltage of the grid")

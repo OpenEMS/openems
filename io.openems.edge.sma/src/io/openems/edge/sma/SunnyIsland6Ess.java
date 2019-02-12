@@ -79,8 +79,8 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 		this.getPhase().setNextValue(config.Phase());
 	}
 
@@ -256,7 +256,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 						m(SunnyIsland6Ess.ChannelId.STATUS_BATTERY_APPLICATION_AREA,
 								new UnsignedDoublewordElement(31057)), //
 						m(SunnyIsland6Ess.ChannelId.ABSORPTION_PHASE_ACTIVE, new UnsignedDoublewordElement(31059)), //
-						m(SunnyIsland6Ess.ChannelId.CONTROL_OF_BATTERY_CHARGING_VIA_COMMUNICATION_AVAIULABLE,
+						m(SunnyIsland6Ess.ChannelId.CONTROL_OF_BATTERY_CHARGING_VIA_COMMUNICATION_AVAILABLE,
 								new UnsignedDoublewordElement(31061)), //
 						m(SunnyIsland6Ess.ChannelId.TOTAL_ENERGY_PHOTOVOLTAICS, new UnsignedDoublewordElement(31063)), //
 						m(SunnyIsland6Ess.ChannelId.TOTAL_ENERGY_PHOTOVOLTAICS_CURRENT_DAY,
@@ -930,18 +930,11 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		GENERATOR_STATUS(new Doc()//
 				.options(GeneratorStatus.values())), //
 		DATA_TRANSFER_RATE_OF_NETWORK_TERMINAL_A(new Doc()//
-				.option(1720, "10 MBit")//
-				.option(1721, "100 MBit")//
-				.option(1725, "Not Connected")), //
+				.options(DataTransferRateOfNetworkTerminalA.values())), //
 		DUPLEX_MODE_OF_NETWORK_TERMINAL_A(new Doc()//
-				.option(1725, "Not Connected")//
-				.option(1726, "Half Duplex")//
-				.option(1727, "Full Duplex")), //
+				.options(DuplexModeOfNetworkTerminalA.values())), //
 		SPEED_WIRE_CONNECTION_STATUS_OF_NETWORK_TERMINAL_A(new Doc()//
-				.option(35, "Alarm")//
-				.option(307, "OK")//
-				.option(455, "Warning")//
-				.option(1725, "Not Connected")), //
+				.options(SpeedWireConnectionStatusOfNetworkTerminalA.values())), //
 		GRID_CURRENT_L1(new Doc().unit(Unit.AMPERE)), //
 		GRID_CURRENT_L2(new Doc().unit(Unit.AMPERE)), //
 		GRID_CURRENT_L3(new Doc().unit(Unit.AMPERE)), //
@@ -963,17 +956,11 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		REMAINING_MIN_OPERATING_TIME_OF_GENERATOR(new Doc().unit(Unit.SECONDS)), //
 		OPERATING_STATUS_MASTER_L1(new Doc()), //
 		STATUS_BATTERY_APPLICATION_AREA(new Doc()//
-				.option(2614, "Self-Consumption Range")//
-				.option(2615, "Conversation Range of State of Charge")//
-				.option(2616, "Backup Power Supply Range")//
-				.option(2617, "Depp-Discharge Protection Range")//
-				.option(2618, "Deep-Discharge Range")), //
+				.options(StatusBatteryApplicationArea.values())), //
 		ABSORPTION_PHASE_ACTIVE(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
-		CONTROL_OF_BATTERY_CHARGING_VIA_COMMUNICATION_AVAIULABLE(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
+				.options(AbsorptionPhaseActive.values())), //
+		CONTROL_OF_BATTERY_CHARGING_VIA_COMMUNICATION_AVAILABLE(new Doc()//
+				.options(ControlOfBatteryChargingViaCommunicationAvailable.values())), //
 		TOTAL_ENERGY_PHOTOVOLTAICS(new Doc().unit(Unit.KILOWATT_HOURS)), //
 		TOTAL_ENERGY_PHOTOVOLTAICS_CURRENT_DAY(new Doc().unit(Unit.WATT_HOURS)), //
 		NUMBER_OF_EQALIZATION_CHARGES(new Doc().unit(Unit.KILOWATT_HOURS)), //
@@ -993,15 +980,11 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		REACTIVE_POWER_EXTERNAL_POWER_CONNECTION_L2(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		REACTIVE_POWER_EXTERNAL_POWER_CONNECTION_L3(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		STATUS_DIGITAL_INPUT(new Doc()//
-				.option(303, "Off")//
-				.option(308, "On")), //
+				.options(StatusDigitalInput.values())), //
 		RATED_BATTERY_CAPACITY(new Doc()), //
 		MAX_BATTERY_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		BATTERY_TYPE(new Doc()//
-				.option(1782, "Valve-Regulated Lead-Acid Battery (VRLA)")//
-				.option(1783, "Flooded Lead-Acid Battery (FLA)")//
-				.option(1784, "Nickel/Cadmium (NiCd)")//
-				.option(1785, "Lithium-Ion (Li-Ion)")), //
+				.options(BatteryType.values())), //
 		RATED_BATTERY_VOLTAGE(new Doc()), //
 		BATTERY_BOOST_CHARGE_TIME(new Doc().unit(Unit.MINUTE)), //
 		BATTERY_EQUALIZATION_CHARGE_TIME(new Doc().unit(Unit.HOUR)), //
@@ -1009,24 +992,18 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		MAX_BATTERY_CHARGING_CURRENT(new Doc().unit(Unit.AMPERE)), //
 		RATED_GENERATOR_CURRENT(new Doc().unit(Unit.AMPERE)), //
 		AUTOMATIC_GENERATOR_START(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
+				.options(AutomaticGeneratorStart.values())), //
 		MANUAL_GENERATOR_CONTROL(new Doc()//
-				.option(381, "Stop")//
-				.option(1467, "Start")), //
+				.options(ManualGeneratorStart.values())), //
 		GENERATOR_REQUEST_VIA_POWER_ON(new Doc()), //
 		GENERATOR_SHUT_DOWN_LOAD_LIMIT(new Doc().unit(Unit.WATT)), //
 		GENERATOR_START_UP_LOAD_LIMIT(new Doc().unit(Unit.WATT)), //
 		FIRMWARE_VERSION_OF_THE_MAIN_PROCESSOR(new Doc()), //
 		FIRMWARE_VERSION_OF_THE_LOGIC_COMPONENET(new Doc()), //
 		GRID_CREATING_GENERATOR(new Doc()//
-				.option(1799, "None")//
-				.option(1801, "Utility-Grid")//
-				.option(1802, "Utility Grid and Generator")//
-				.option(1803, "Invalid Configuration for the PV Production Meter")), //
+				.options(GridCreatingGenerator.values())), //
 		RISE_IN_SELF_CONSUMPTION_SWITCHED_ON(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
+				.options(RiseInSelfConsumptionSwitchedOn.values())), //
 		INITIATE_DEVICE_RESTART(new Doc()), //
 		CELL_CHARGE_NOMINAL_VOLTAGE_FOR_BOOST_CHARGE(new Doc().unit(Unit.VOLT)), //
 		CELL_CHARGE_NOMINAL_VOLTAGE_FOR_FULL_CHARGE(new Doc().unit(Unit.VOLT)), //
@@ -1048,53 +1025,35 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		VOLTAGE_MONITORING_GENERATOR_MAXIMUM_REVERSE_POWER_TRIPPING_TIME(new Doc().unit(Unit.SECONDS)), //
 		NOMINAL_FREQUENCY(new Doc().unit(Unit.HERTZ)), //
 		ACKNOWLEGDE_GENERATOR_ERRORS(new Doc()//
-				.option(26, "Acknowledge Error")), //
+				.options(AcknowledgeGeneratorErrors.values())), //
 		BATTERY_NOMINAL_CAPACITY(new Doc()), //
 		OPERATING_MODE_OF_ACTIVE_POWER_LIMITATION_AT_OVERFREQUENCY(new Doc()//
-				.option(303, "Off")//
-				.option(1132, "Linera Gradient for Instantaneous Power")), //
+				.options(OperatingModeOfActivePowerLimitationAtOverFrequency.values())), //
 		DIFFERENCE_BETWEEN_STARTING_FREQ_AND_GRID_FREQ(new Doc().unit(Unit.HERTZ)), //
 		DIFFERENCE_BETWEEN_RESET_FREQ_AND_GRID_FREQ(new Doc().unit(Unit.HERTZ)), //
 		COSPHI_AT_STARTING_POINT(new Doc().unit(Unit.HERTZ)), //
 		CONFIGURATION_OF_THE_COSPHI_STARTING_POINT(new Doc().unit(Unit.HERTZ)//
-				.option(1041, "Leading")//
-				.option(1042, "Lagging")), //
+				.options(ConfigurationOfTheCosphiStartingPoint.values())), //
 		COSPHI_AT_THE_END_POINT(new Doc().unit(Unit.HERTZ)), //
 		CONFIGURATION_OF_THE_COSPHI_END_POINT(new Doc().unit(Unit.HERTZ)//
-				.option(1041, "Leading")//
-				.option(1042, "Lagging")), //
+				.options(ConfigurationOfTheCosphiEndPoint.values())), //
 		ACTIVE_POWER_AT_STARTING_POINT(new Doc().unit(Unit.PERCENT)), //
 		ACTIVE_POWER_AT_END_POINT(new Doc().unit(Unit.PERCENT)), //
 		BMS_OPERATING_MODE(new Doc()//
-				.option(303, "Off")//
-				.option(308, "On")//
-				.option(2289, "Battery Charging")//
-				.option(2290, "Battery Discharging")//
-				.option(2424, "Default Setting")), //
+				.options(BMSOperatingMode.values())), //
 		ACTIVE_POWER_GRADIENT_CONFIGURATION(new Doc().unit(Unit.PERCENT)), //
 		GRID_REQUEST_VIA_POWER_SWITCH_ON(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
+				.options(GridRequestViPowerSwitchOn.values())), //
 		GRID_REQUEST_SWITCH_ON_POWER_LIMIT(new Doc().unit(Unit.WATT)), //
 		GRID_REQUEST_SWITCH_OFF_POWER_LIMIT(new Doc().unit(Unit.WATT)), //
 		MANUAL_CONTROL_OF_NETWORK_CONNECTION(new Doc()//
-				.option(303, "Off")//
-				.option(308, "On")//
-				.option(1438, "Automatic")), //
+				.options(ManualControlOfNetworkConnection.values())), //
 		GRID_REQUEST_VIA_CHARGE_TYPE(new Doc()//
-				.option(303, "Off")//
-				.option(1736, "Full and Equalization Charge")//
-				.option(1768, "Full Charge")//
-				.option(1769, "Equalization Charge")), //
+				.options(GridRequestViaChargeType.values())), //
 		TYPE_OF_AC_SUBDISTRIBUTION(new Doc()//
-				.option(302, "None")//
-				.option(2609, "Multicluster Box 6")//
-				.option(2610, "Multicluster Box 12")//
-				.option(2611, "Multicluster Box 36")), //
+				.options(TypeOfACSubdistribution.values())), //
 		MANUAL_EQUAIZATION_CHARGE(new Doc()//
-				.option(381, "Stop")//
-				.option(1466, "Waiting")//
-				.option(1467, "Start")), //
+				.options(ManualEqualizationCharge.values())), //
 		GENERATOR_REQUEST(new Doc()), //
 		LIMIT_SOC_GENERATOR_START_IN_TIME_RANGE(new Doc().unit(Unit.PERCENT)), //
 		LIMIT_SOC_GENERATOR_SHUTDOWN_IN_TIME_RANGE(new Doc().unit(Unit.PERCENT)), //
@@ -1103,14 +1062,11 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		LIMIT_SOC_GENERATOR_STOP_ADD_IN_TIME_RANGE(new Doc().unit(Unit.PERCENT)), //
 		LIMIT_SOC_GENERATOR_START_ADD_IN_TIME_RANGE(new Doc().unit(Unit.PERCENT)), //
 		TIME_CONTROLLED_GENERATOR_OPERATION(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
+				.options(TimeControlledGeneratorOperation.values())), //
 		START_TIME_FOR_TIME_CONTROLLED_GENERATOR_OPERATION(new Doc()), //
 		OPERATING_TIME_FOR_TIME_CONTROLLED_GENERATOR_OPERATION(new Doc()), //
 		REPETITION_CYCLE_OF_TIME_CONTROLLED_GENERATOR_OPERATION(new Doc()//
-				.option(1189, "Daily")//
-				.option(2622, "Once")//
-				.option(2623, "Weekly")), //
+				.options(RepetitionCycleOfTheTimeControlledGeneratorOperation.values())), //
 		GENERATOR_REQUEST_WITH_SET_CHARGE_TYPE(new Doc()), //
 		REACTION_TO_DIGITAL_INPUT_OF_GENERATOR_REQUEST(new Doc()), //
 		AVERAGE_TIME_FOR_GENERATOR_REQUEST_VIA_POWER(new Doc().unit(Unit.SECONDS)), //
@@ -1121,40 +1077,26 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		WARM_UP_TIME_OF_GENERATOR(new Doc().unit(Unit.SECONDS)), //
 		GENERATOR_NOMINAL_FREQUENCY(new Doc().unit(Unit.HERTZ)), //
 		TIME_CONTROLLED_INVERTER_OPERATION(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
+				.options(TimeControlledInverterOperation.values())), //
 		START_TIME_FOR_TIME_CONTROLLED_INVERTER(new Doc()), //
 		OPERATING_TIME_FOR_TIME_CONTROLLED_INVERTER(new Doc().unit(Unit.SECONDS)), //
 		REPETITION_CYCLE_OF_TIME_CONTROLLED_INVERTER(new Doc()//
-				.option(1189, "Daily")//
-				.option(2622, "Once")//
-				.option(2623, "Weekly")), //
+				.options(RepetitionCycleOfTheControlledInverter.values())), //
 		DEVICE_NAME(new Doc()), //
 		AUTOMATIC_UPDATES_ACTIVATED(new Doc()), //
 		TIME_OF_THE_AUTOMATIC_UPDATE(new Doc()), //
 		GRID_GUARD_VERSION(new Doc()), //
 		MEMORY_CARD_STATUS(new Doc()//
-				.option(1788, "Ready")//
-				.option(1787, "Initialization")//
-				.option(3102, "Memory Card Full")//
-				.option(3103, "No file System Detected")//
-				.option(3104, "Unsupported Data System")//
-				.option(3105, "Writing Parameters")//
-				.option(3106, "Writing Parameters Failed")//
-				.option(3107, "Writing log Data")//
-				.option(3108, "No Memory Card Available")), //
+				.options(MemoryCardStatus.values())), //
 		UPDATE_VERSION_OF_THE_MAIN_PROCESSOR(new Doc()), //
 		START_FEED_IN_PV(new Doc()), //
 		STOP_FEED_IN_PV(new Doc()), //
 		CUT_OFF_TIME_UNTIL_CONNECTION_TO_EXTERNAL_NETWORK(new Doc()), //
 		AUTOMATIC_FREQUENCY_SYNCHRONIZATION(new Doc()//
-				.option(303, "Off")//
-				.option(308, "On")), //
+				.options(AutomaticFrequencySynchronization.values())), //
 		MAXIUMUM_CURRENT_FROM_PUBLIC_GRID(new Doc()), //
 		POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED(new Doc()//
-				.option(1129, "Yes")//
-				.option(1130, "No")), //
-
+				.options(PowerFeedbackToPublicGridAllowed.values())), //
 		GRID_REQUEST_VIA_SOC_SWITCHED_ON(new Doc()), //
 		LIMIT_SOC_FOR_CONNECTION_TO_GRID(new Doc()), //
 		LIMIT_SOC_FOR_DISCONNECTION_FROM_GRID(new Doc()), //
@@ -1226,22 +1168,16 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 		GRID_GUARD_CODE(new Doc()), //
 		MIN_SOC_POWER_OFF(new Doc()), //
 		SET_CONTROL_MODE(new Doc()//
-				.option(802, "START")//
-				.option(803, "STOP")), //
+				.options(SetControlMode.values())), //
 		METER_SETTING(new Doc()//
-				.option(3053, "SMA Energy Meter")//
-				.option(3547, "Wechselrichter")), //
+				.options(MeterSetting.values())), //
 		OPERATING_MODE_FOR_ACTIVE_POWER_LIMITATION(new Doc()//
-				.option(303, "Off")//
-				.option(1077, "Active Power Limitation P in W")//
-				.option(1078, "Act. Power Lim. as % of Pmax")//
-				.option(1079, "Act. Power Lim. via PV System Control")//
-				.option(1390, "Act. Power Lim. P via Analog Input")//
-				.option(1391, "Act. Power Lim. P via Digital Input")), //
+				.options(OperatingModeForActivePowerLimitation.values())), //
 		OPERATING_MODE_FOR_REACTIVE_POWER(new Doc()), //
 		MAXIMUM_BATTERY_CHARGING_POWER_CAPACITY(new Doc()), //
 		MAXIMUM_BATTERY_DISCHARGING_POWER_CAPACITY(new Doc()), //
 		;
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {

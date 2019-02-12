@@ -1,6 +1,7 @@
 package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -8,8 +9,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.controller.api.Controller;
 
 public class Utils {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(ReactivePowerVoltageCharacteristic c) {
+		return Stream.of( //
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case STATE:
+						return new StateCollectorChannel(c, channelId);
+					}
+					return null;
+				}), //
+				Arrays.stream(Controller.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case RUN_FAILED:
+						return new StateChannel(c, channelId);
+					}
+					return null;
+				}) //
+		).flatMap(channel -> channel);
+	}
 
 	public static float getValueOfLine(Map<Float, Float> points, float voltageRatio) {
 		float x = voltageRatio;
@@ -22,7 +48,6 @@ public class Utils {
 		Point greater = getGreaterPoint(points, voltageRatio);
 		float m = (float) ((greater.y - smaller.y) / (greater.x - smaller.x));
 		float t = (float) (smaller.y - m * smaller.x);
-		System.out.println(m + "----" + t);
 		return m * x + t;
 	}
 
@@ -34,7 +59,6 @@ public class Utils {
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
 		Map<Float, Float> Map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		System.out.println(Map);
 		List<Float> voltageList = new ArrayList<Float>(Map.keySet());
 		List<Float> percentList = new ArrayList<Float>(Map.values());
 		if (voltageList.get(i) != voltageRatio) {
@@ -45,6 +69,8 @@ public class Utils {
 			return p;
 		}
 		p = new Point(voltageList.get(i - 1), percentList.get(i - 1));
+
+		qCharacteristic.remove(voltageRatio, (float) 0);
 		return p;
 	}
 
@@ -67,6 +93,8 @@ public class Utils {
 			return p;
 		}
 		p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
+		
+		qCharacteristic.remove(voltageRatio, (float) 0);
 		return p;
 	}
 

@@ -1,0 +1,33 @@
+package io.openems.edge.sma;
+
+import io.openems.edge.common.channel.doc.OptionsEnum;
+
+public enum DataTransferRateOfNetworkTerminalA implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	TEN_MBIT(1720,"10 MBit"),//
+	HUNDRED_MBIT(1721, "100 MBit"),//
+	NOT_CONNECTED(1725, "Not Connected");
+
+	private final int value;
+	private final String name;
+
+	private DataTransferRateOfNetworkTerminalA(int value, String name) {
+		this.value = value;
+		this.name = name;
+	}
+
+	@Override
+	public int getValue() {
+		return value;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
+	}
+}
