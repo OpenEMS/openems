@@ -149,7 +149,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 			target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		this.esss.put(ess.id(), ess);
-		this.data.addEss(ess.id());
+		this.data.addEss(ess);
 	}
 
 	protected synchronized void removeEss(ManagedSymmetricEss ess) {

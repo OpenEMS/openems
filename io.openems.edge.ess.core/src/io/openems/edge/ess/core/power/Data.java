@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Streams;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.Coefficient;
@@ -23,6 +24,7 @@ import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.EssType;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
+import io.openems.edge.ess.power.api.OneSinglePhaseInverter;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -53,12 +55,12 @@ public class Data {
 		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
 	}
 
-	public synchronized void addEss(String essId) {
+	public synchronized void addEss(ManagedSymmetricEss ess) {
 		// add to Ess map
-		this.essIds.add(essId);
+		this.essIds.add(ess.id());
 		// create inverters and add them to list
-		EssType essType = this.parent.getEssType(essId);
-		for (Inverter inverter : Inverter.of(essId, essType, this.symmetricMode)) {
+		EssType essType = this.parent.getEssType(ess.id());
+		for (Inverter inverter : Inverter.of(ess, essType, this.symmetricMode)) {
 			this.inverters.add(inverter);
 		}
 		// Initially sort Inverters
@@ -155,6 +157,7 @@ public class Data {
 				this.createClusterConstraints().stream(), //
 				this.createSumOfPhasesConstraints(disabledInverters).stream(), //
 				this.createSymmetricEssConstraints().stream(), //
+				this.createSinglePhaseEssConstraints().stream(), //
 				this.constraints.stream()).collect(Collectors.toList());
 	}
 
@@ -205,7 +208,12 @@ public class Data {
 			}
 			Optional<Integer> maxApparentPower = ess.getMaxApparentPower().value().asOptional();
 			if (maxApparentPower.isPresent()) {
-				if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode) {
+				if (ess instanceof ManagedSinglePhaseEss) {
+					result.addAll(//
+							this.apparentPowerConstraintFactory.getConstraints(essId,
+									((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase(),
+									maxApparentPower.get()));
+				} else if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode) {
 					double maxApparentPowerPerPhase = maxApparentPower.get() / 3d;
 					for (Phase phase : Phase.values()) {
 						if (phase == Phase.ALL) {
@@ -284,10 +292,10 @@ public class Data {
 	public List<Constraint> createSumOfPhasesConstraints(Collection<Inverter> disabledInverters) {
 		List<Constraint> result = new ArrayList<>();
 		for (String essId : this.essIds) {
-			// deactivate disabled Inverters if they are part of this Ess
 			boolean addL1 = true;
 			boolean addL2 = true;
 			boolean addL3 = true;
+			// deactivate disabled Inverters if they are part of this Ess
 			for (Inverter inverter : disabledInverters) {
 				if (Objects.equals(essId, inverter.getEssId())) {
 					switch (inverter.getPhase()) {
@@ -305,6 +313,27 @@ public class Data {
 					}
 				}
 			}
+			// deactivate phases of Single-Phase-ESS that are not connected
+			ManagedSymmetricEss ess = this.parent.getEss(essId);
+			if (ess instanceof ManagedSinglePhaseEss) {
+				switch (((ManagedSinglePhaseEss) ess).getPhase()) {
+				case L1:
+					addL2 = false;
+					addL3 = false;
+					break;
+				case L2:
+					addL1 = false;
+					addL3 = false;
+					break;
+				case L3:
+					addL1 = false;
+					addL2 = false;
+					break;
+				default:
+					break;
+				}
+			}
+
 			if (addL1 || addL2 || addL3) {
 				for (Pwr pwr : Pwr.values()) {
 					// creates two constraint of the form
@@ -394,6 +423,43 @@ public class Data {
 	}
 
 	/**
+	 * For Single-Phase-ESS: Creates an EQUALS ZERO constraint for the not-connected
+	 * phases.
+	 * 
+	 * @return List of Constraints
+	 */
+	public List<Constraint> createSinglePhaseEssConstraints() {
+		List<Constraint> result = new ArrayList<>();
+		for (Inverter inv : inverters) {
+			if (inv instanceof OneSinglePhaseInverter) {
+				Phase phase = inv.getPhase();
+				if (phase != Phase.L1) {
+					for (Pwr pwr : Pwr.values()) {
+						result.add(this.createSimpleConstraint(
+								inv.getEssId() + ": Disable " + pwr.getSymbol() + Phase.L1.getSymbol(), inv.getEssId(),
+								Phase.L1, pwr, Relationship.EQUALS, 0));
+					}
+				}
+				if (phase != Phase.L2) {
+					for (Pwr pwr : Pwr.values()) {
+						result.add(this.createSimpleConstraint(
+								inv.getEssId() + ": Disable " + pwr.getSymbol() + Phase.L2.getSymbol(), inv.getEssId(),
+								Phase.L2, pwr, Relationship.EQUALS, 0));
+					}
+				}
+				if (phase != Phase.L3) {
+					for (Pwr pwr : Pwr.values()) {
+						result.add(this.createSimpleConstraint(
+								inv.getEssId() + ": Disable " + pwr.getSymbol() + Phase.L3.getSymbol(), inv.getEssId(),
+								Phase.L3, pwr, Relationship.EQUALS, 0));
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Sets the weight of each Inverter according to the SoC of its ESS.
 	 * 
 	 * @param inverters a List of inverters
@@ -425,7 +491,8 @@ public class Data {
 	/**
 	 * Adjust the sorting of Inverters by weights.
 	 * 
-	 * <p>This is different to 'invertersSortByWeights()' in that it tries to avoid
+	 * <p>
+	 * This is different to 'invertersSortByWeights()' in that it tries to avoid
 	 * resorting the entire list all the time. Instead it only adjusts the list
 	 * slightly.
 	 * 

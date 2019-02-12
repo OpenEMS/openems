@@ -12,9 +12,8 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.api.AsymmetricEss;
-import io.openems.edge.ess.api.SinglePhaseEss;
+import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(FeneconMiniEss c) {
@@ -58,13 +57,14 @@ public class Utils {
 				break;
 			}
 		}
-		for (io.openems.edge.ess.api.SinglePhaseEss.ChannelId channelId : SinglePhaseEss.ChannelId.values()) {
-			switch (channelId) {
-			case PHASE:
-				result.add(new IntegerReadChannel(c, channelId));
-				break;
-			}
-		}
+		// for (io.openems.edge.ess.api.SinglePhaseEss.ChannelId channelId :
+		// SinglePhaseEss.ChannelId.values()) {
+		// switch (channelId) {
+		// case PHASE:
+		// result.add(new IntegerReadChannel(c, channelId));
+		// break;
+		// }
+		// }
 		for (FeneconMiniEss.ChannelId channelId : FeneconMiniEss.ChannelId.values()) {
 			switch (channelId) {
 			case SYSTEM_WORK_MODE_STATE:

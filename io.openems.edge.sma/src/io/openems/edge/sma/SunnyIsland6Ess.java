@@ -28,7 +28,10 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -78,8 +81,8 @@ import io.openems.edge.sma.enums.TypeOfACSubdistribution;
 		name = "Ess.SMA.SunnyIsland6.0H-11", immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
-		implements SinglePhaseEss, SymmetricEss, ManagedSymmetricEss, OpenemsComponent {
+public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements ManagedSinglePhaseEss, SinglePhaseEss,
+		ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	@Reference
 	private Power power;
@@ -88,6 +91,8 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	private SinglePhase phase;
 
 	public SunnyIsland6Ess() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -121,7 +126,8 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-		this.getPhase().setNextValue(config.Phase());
+		this.phase = config.phase();
+		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
 	}
 
 	@Deactivate
@@ -1242,6 +1248,18 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 1;
+	}
+
+	@Override
+	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) {
+		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
+				activePowerL3, reactivePowerL3);
+	}
+
+	@Override
+	public SinglePhase getPhase() {
+		return this.phase;
 	}
 
 }

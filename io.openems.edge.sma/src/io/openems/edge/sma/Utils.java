@@ -11,7 +11,6 @@ import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
@@ -53,12 +52,12 @@ public class Utils {
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(SinglePhaseEss.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case PHASE:
-						return new IntegerReadChannel(c, channelId);
-					}
-					return null;
+//				}), Arrays.stream(SinglePhaseEss.ChannelId.values()).map(channelId -> {
+//					switch (channelId) {
+//					case PHASE:
+//						return new IntegerReadChannel(c, channelId);
+//					}
+//					return null;
 				}), Arrays.stream(SunnyIsland6Ess.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 //					case TOTAL_YIELD:

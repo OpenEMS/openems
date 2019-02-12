@@ -1,12 +1,21 @@
 package io.openems.edge.ess.power.api;
 
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+
 public abstract class Inverter {
 
 	/*
 	 * Factory
 	 */
-	public static Inverter[] of(String essId, EssType essType, boolean symmetricMode) {
+	public static Inverter[] of(ManagedSymmetricEss ess, EssType essType, boolean symmetricMode) {
+		String essId = ess.id();
 		switch (essType) {
+		case SINGLE_PHASE:
+			return new Inverter[] { //
+					new OneSinglePhaseInverter(essId, ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase()), //
+			};
+
 		case ASYMMETRIC:
 			if (symmetricMode) {
 				return new Inverter[] { new ThreePhaseInverter(essId) };

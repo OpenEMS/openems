@@ -16,7 +16,8 @@ Private-Package: \
 	io.openems.edge.simulator.battery,\
 	io.openems.edge.simulator.pvinverter,\
 	io.openems.edge.simulator.evcs,\
-	io.openems.edge.simulator.modbus
+	io.openems.edge.simulator.modbus,\
+	io.openems.edge.simulator.ess.singlephase.reacting
 
 Export-Package: \
 	io.openems.edge.ess.api,\

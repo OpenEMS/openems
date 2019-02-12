@@ -20,4 +20,19 @@ public interface ManagedSinglePhaseEss extends ManagedSymmetricEss, SinglePhaseE
 			return this.doc;
 		}
 	}
+
+	public default void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) {
+		switch (this.getPhase()) {
+		case L1:
+			this.applyPower(activePowerL1, reactivePowerL1);
+			break;
+		case L2:
+			this.applyPower(activePowerL2, reactivePowerL2);
+			break;
+		case L3:
+			this.applyPower(activePowerL3, reactivePowerL3);
+			break;
+		}
+	}
 }

@@ -2,7 +2,8 @@ package io.openems.edge.sma;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import io.openems.edge.ess.api.Phase;
+
+import io.openems.edge.ess.api.SinglePhase;
 
 @ObjectClassDefinition( //
 		name = "SMA SunnyIsland 6.0H", //
@@ -13,7 +14,7 @@ import io.openems.edge.ess.api.Phase;
 
 	boolean enabled() default true;
 
-	Phase Phase() default Phase.L1;
+	SinglePhase phase() default SinglePhase.L1;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";
