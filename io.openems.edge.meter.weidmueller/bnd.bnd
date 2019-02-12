@@ -3,7 +3,6 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
-	io.openems.edge.meter.weidmuller.api;-provide=true
 	io.openems.edge.meter.api,\
 	io.openems.edge.meter.asymmetric.api,\
 	io.openems.edge.meter.symmetric.api
