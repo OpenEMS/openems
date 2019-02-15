@@ -10,6 +10,8 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -52,6 +54,47 @@ public class Utils {
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
+				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTIVE_POWER_L1:
+					case ACTIVE_POWER_L2:
+					case ACTIVE_POWER_L3:
+					case REACTIVE_POWER_L1:
+					case REACTIVE_POWER_L2:
+					case REACTIVE_POWER_L3:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(ManagedAsymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case DEBUG_SET_ACTIVE_POWER_L1:
+					case DEBUG_SET_ACTIVE_POWER_L2:
+					case DEBUG_SET_ACTIVE_POWER_L3:
+					case DEBUG_SET_REACTIVE_POWER_L1:
+					case DEBUG_SET_REACTIVE_POWER_L2:
+					case DEBUG_SET_REACTIVE_POWER_L3:
+						return new IntegerReadChannel(c, channelId);
+					case SET_ACTIVE_POWER_L1_EQUALS:
+					case SET_ACTIVE_POWER_L2_EQUALS:
+					case SET_ACTIVE_POWER_L3_EQUALS:
+					case SET_REACTIVE_POWER_L1_EQUALS:
+					case SET_REACTIVE_POWER_L2_EQUALS:
+					case SET_REACTIVE_POWER_L3_EQUALS:
+					case SET_ACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS:
+						return new IntegerWriteChannel(c, channelId);
+					}
+					return null;
 //				}), Arrays.stream(SinglePhaseEss.ChannelId.values()).map(channelId -> {
 //					switch (channelId) {
 //					case PHASE:
@@ -89,7 +132,6 @@ public class Utils {
 					case RELEASED_ENERGY:
 					case RISE_IN_SELF_CONSUMPTION:
 					case RISE_IN_SELF_CONSUMPTION_TODAY:
-					case SERIAL_NUMBER:
 					case SOFTWARE_PACKAGE:
 					case WAITING_TIME_UNTIL_FEED_IN:
 					case ACTIVE_POWER_L1:
@@ -105,10 +147,8 @@ public class Utils {
 					case ACTIVE_BATTERY_CHARGING_MODE:
 					case BATTERY_MAINT_SOC:
 					case CURRENT_BATTERY_CAPACITY:
-					case CURRENT_BATTERY_CHARGING_SET_VOLTAGE:
 					case NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS:
 					case CURRENT_RISE_IN_SELF_CONSUMPTION:
-					case CURRENT_SELF_CONSUMPTION:
 					case LOAD_POWER:
 					case POWER_GRID_FEED_IN:
 					case POWER_GRID_REFERENCE:
@@ -145,8 +185,6 @@ public class Utils {
 					case OPERATING_TIME_OF_BATTERY_STATISTICS_COUNTER:
 					case REMAINING_ABSORPTION_TIME:
 					case REMAINING_MIN_OPERATING_TIME_OF_GENERATOR:
-					case REMAINING_TIME_UNTIL_EQUALIZATION_CHARGE:
-					case REMAINING_TIME_UNTIL_FULL_CHARGE:
 					case TOTAL_OUTPUT_CURRENT_OF_SOLAR_CHARGER:
 					case ABSORPTION_PHASE_ACTIVE:
 					case BATTERY_TYPE:
@@ -187,6 +225,11 @@ public class Utils {
 					case BATTERY_DISCHARGING_SOC:
 					case SPEED_WIRE_CONNECTION_STATUS_OF_NETWORK_TERMINAL_A:
 					case RATED_BATTERY_CAPACITY:
+					case CURRENT_BATTERY_CHARGING_SET_VOLTAGE:
+					case SERIAL_NUMBER:
+					case REMAINING_TIME_UNTIL_EQUALIZATION_CHARGE:
+					case REMAINING_TIME_UNTIL_FULL_CHARGE:
+					case CURRENT_SELF_CONSUMPTION:
 						return new LongReadChannel(c, channelId);
 
 					case BMS_OPERATING_MODE:
