@@ -11,29 +11,31 @@ reckon {
 /*
  * Updates the OpenemsConstants file with the generated Version number
  */
-task updateOpenemsConstants {
-    def openemsConstantsFilePath = 'io.openems.common/src/io/openems/common/OpenemsConstants.java'
-    exec {
-        commandLine 'git', 'checkout', 'HEAD', '--', openemsConstantsFilePath
+task updateVersion {
+    doLast {
+        def openemsConstantsFilePath = 'io.openems.common/src/io/openems/common/OpenemsConstants.java'
+        exec {
+            commandLine 'git', 'checkout', 'HEAD', '--', openemsConstantsFilePath
+        }
+        def version = project.version.version.getVersion()
+        def versionString = version.getPreReleaseVersion()
+        if (!version.getBuildMetadata().isEmpty()) {
+            versionString += "+" + version.getBuildMetadata()
+        }
+        def openemsConstantsFile = new File(openemsConstantsFilePath)
+        def constants = openemsConstantsFile.getText('UTF-8')
+        constants = constants.replaceAll('(short VERSION_MAJOR = ).*;', '$1' + version.getMajorVersion() + ';')
+        constants = constants.replaceAll('(short VERSION_MINOR = ).*;', '$1' + version.getMinorVersion() + ';')
+        constants = constants.replaceAll('(short VERSION_PATCH = ).*;', '$1' + version.getPatchVersion() + ';')
+        constants = constants.replaceAll('(String VERSION_STRING = \").+(\";)', '$1' + versionString + '$2')
+        openemsConstantsFile.write(constants, 'UTF-8')
     }
-    def version = project.version.version.getVersion()
-    def versionString = version.getPreReleaseVersion()
-    if (!version.getBuildMetadata().isEmpty()) {
-        versionString += "+" + version.getBuildMetadata()
-    }
-    def openemsConstantsFile = new File(openemsConstantsFilePath)
-    def constants = openemsConstantsFile.getText('UTF-8')
-    constants = constants.replaceAll('(short VERSION_MAJOR = ).*;', '$1' + version.getMajorVersion() + ';')
-    constants = constants.replaceAll('(short VERSION_MINOR = ).*;', '$1' + version.getMinorVersion() + ';')
-    constants = constants.replaceAll('(short VERSION_PATCH = ).*;', '$1' + version.getPatchVersion() + ';')
-    constants = constants.replaceAll('(String VERSION_STRING = \").+(\";)', '$1' + versionString + '$2')
-    openemsConstantsFile.write(constants, 'UTF-8')
 }
 
 /*
  * Build OpenEMS Edge and Backend Components
  */
-task buildComponents(dependsOn: updateOpenemsConstants) {
+task buildComponents(dependsOn: updateVersion) {
     subprojects.each { proj ->
         if (proj.tasks.findAll { it.name == 'compileJava' }) {
             dependsOn(proj.compileJava)
@@ -44,7 +46,6 @@ task buildComponents(dependsOn: updateOpenemsConstants) {
 /*
  * Build OpenEMS Edge fat-jar
  */
-file("${project(":io.openems.edge.application").distsDir}/executable/EdgeApp.jar").delete()
 task buildEdge() {
     dependsOn ":io.openems.edge.application:export.EdgeApp"
     doLast {
@@ -60,7 +61,6 @@ task buildEdge() {
 /*
  * Build OpenEMS Backend fat-jar
  */
-file("${project(":io.openems.backend.application").distsDir}/executable/BackendApp.jar").delete()
 task buildBackend() {
     dependsOn ":io.openems.backend.application:export.BackendApp"
     doLast {
@@ -74,9 +74,23 @@ task buildBackend() {
 }
 
 /*
+ * Build OpenEMS UI for OpenEMS Backend
+ */
+task buildUiForBackend() {
+    dependsOn ":ui:buildForBackend"
+}
+
+/*
+ * Build OpenEMS UI for OpenEMS Edge
+ */
+task buildUiForEdge() {
+    dependsOn ":ui:buildForEdge"
+}
+
+/*
  * Javadoc
  */
-task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
+task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
         destinationDir = file("$buildDir/www/javadoc")
     title = "OpenEMS Javadoc"
     subprojects.each { proj ->
@@ -90,19 +104,13 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
 }
 
 /*
- * Antora docs
+ * Build Antora docs
  */
-node {
-    nodeModulesDir = file("${projectDir}/doc/build")
-}
-
-task antora(type: NodeTask) {
-    dependsOn npmInstall
-    script = file("doc/build/node_modules/@antora/cli/bin/antora")
-    args = ["doc/build/site.yml"]
+task buildAntoraDocs() {
+    dependsOn ":doc:buildAntoraDocs"
     doLast {
         copy {
-            from "doc/build/.nojekyll", "doc/build/CNAME"
+            from "doc/build/www"
             into "${buildDir}/www"
         }
     }

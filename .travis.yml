@@ -9,8 +9,8 @@ services:
 install: ./gradlew --version
 
 script:
-  - ./gradlew aggregatedJavadocs --continue
-  - ./gradlew antora --continue
+  - ./gradlew buildAggregatedJavadocs --continue
+  - ./gradlew buildAntoraDocs --continue
 
 deploy:
   provider: pages
