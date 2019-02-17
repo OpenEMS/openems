@@ -9,12 +9,23 @@ Private-Package: \
 	io.openems.edge.core.componentmanager
 	
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
 	io.openems.edge.meter.api;version=latest,\
-	io.openems.wrapper.sdnotify;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
-	io.openems.edge.controller.api;version=latest,\
-	com.google.gson
+	com.google.gson,\
+	slf4j.api,\
+	io.openems.wrapper.sdnotify;version=latest
+
+-testpath: \
+	${junit},\
+	${mockito},\
+	${mockito-deps}
+
+javac.source: 1.8
+javac.target: 1.8

@@ -1,10 +1,9 @@
 sudo: false
 
 language: java
+
 jdk:
   - openjdk8
-services:
-  - docker
 
 install: ./gradlew --version
 

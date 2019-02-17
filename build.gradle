@@ -3,6 +3,10 @@ plugins {
     id "org.ajoberstar.reckon" version "0.9.0"
 }
 
+wrapper {
+    jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
+}
+
 reckon {
     scopeFromProp()
     stageFromProp('dev', 'final')

@@ -10,18 +10,21 @@ EnRoute-Application: io.openems.edge.application
 	{readme.md}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.controller.api;version=latest,\
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
 	io.openems.common;version=latest,\
-	io.openems.edge.scheduler.api;version=latest,\
 	io.openems.edge.common;version=latest,\
-	com.google.guava;version=27,\
-	io.openems.wrapper.sdnotify;version=latest,\
-	com.squareup.retrofit2:converter-moshi;version=2.4,\
-	com.squareup.retrofit2:retrofit;version=2.4
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.edge.scheduler.api;version=latest,\
+	com.google.guava,\
+	slf4j.api,\
+	io.openems.wrapper.sdnotify;version=latest
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12
--runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
--runee: JavaSE-1.8
--runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
+	${junit},\
+	${mockito},\
+	${mockito-deps}
+
+javac.source: 1.8
+javac.target: 1.8
