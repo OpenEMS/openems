@@ -57,6 +57,7 @@ public class B2bWebsocketTest {
 
 		GetEdgesChannelsValuesRequest request = new GetEdgesChannelsValuesRequest();
 		request.addEdgeId("edge0");
+		request.addEdgeId("edge5");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try {
@@ -78,6 +79,7 @@ public class B2bWebsocketTest {
 
 		SubscribeEdgesChannelsRequest request = new SubscribeEdgesChannelsRequest(0);
 		request.addEdgeId("edge0");
+		request.addEdgeId("edge5");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try {

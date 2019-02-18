@@ -2,19 +2,21 @@ Bundle-Name: OpenEMS Edge Timedata Api
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package:  \
-	io.openems.edge.timedata.api
-Require-Capability: \
-	compile-only
+Export-Package: io.openems.edge.timedata.api
+Require-Capability: compile-only
 
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	osgi.annotation;version=7.0.0,\
+	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	com.google.gson,\
-	io.openems.common;version=latest
+	com.google.gson
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${junit},\
+	${mockito},\
+	${mockito-deps}
+
+javac.source: 1.8
+javac.target: 1.8

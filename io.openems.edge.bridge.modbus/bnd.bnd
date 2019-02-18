@@ -12,13 +12,20 @@ Export-Package: \
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.common;version=latest,\
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
 	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
 	com.google.gson,\
-	com.google.guava;version=27,\
-	com.ghgande.j2mod;version=2.5
+	com.google.guava,\
+	com.ghgande.j2mod,\
+	slf4j.api
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${junit},\
+	${mockito},\
+	${mockito-deps}
+
+javac.source: 1.8
+javac.target: 1.8

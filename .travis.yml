@@ -1,16 +1,15 @@
 sudo: false
 
 language: java
+
 jdk:
   - openjdk8
-services:
-  - docker
 
 install: ./gradlew --version
 
 script:
-  - ./gradlew aggregatedJavadocs --continue
-  - ./gradlew antora --continue
+  - ./gradlew buildAggregatedJavadocs --continue
+  - ./gradlew buildAntoraDocs --continue
 
 deploy:
   provider: pages
