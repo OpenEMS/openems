@@ -72,7 +72,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
   private updateChart() {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
-      let result = (response as QueryHistoricTimeseriesDataResponse).result;
+      let result = response.result;
 
       // convert labels
       let labels: Date[] = [];
