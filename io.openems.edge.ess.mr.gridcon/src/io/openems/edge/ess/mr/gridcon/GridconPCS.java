@@ -222,19 +222,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				}
 			};
 		});
-
-		/*
-		 * Initialize Power
-		 */
-//		int max = 5000;
-//		int min = -5000;
-//		
-//		this.getPower().addSimpleConstraint(this, ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, max);
-//		this.getPower().addSimpleConstraint(this, ConstraintType.STATIC, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, min);
-//		
-		// Max Apparent
-		// TODO adjust apparent power from modbus element
-//		this.maxApparentPowerConstraint = new CircleConstraint(this, MAX_APPARENT_POWER);
 	}
 
 	@Deactivate
