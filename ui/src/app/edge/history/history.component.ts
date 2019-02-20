@@ -148,5 +148,4 @@ export class HistoryComponent implements OnInit {
   private toIMyDate(date: Date): IMyDate {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
   }
-
 }

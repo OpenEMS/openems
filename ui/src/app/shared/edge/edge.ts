@@ -15,6 +15,7 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { QuerykWhResponse } from '../jsonrpc/response/querykWhResponse';
 
 export class Edge {
 
@@ -166,14 +167,22 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    let wrap = new EdgeRpcRequest(this.id, request);
-    return new Promise((resolve, reject) => {
-      ws.sendRequest(wrap).then(response => {
-        resolve(response['result']['payload']);
-      }).catch(reason => {
-        reject(reason);
+    if (request.method == 'querykWh') {
+      console.log("FEUER!");
+      return new Promise((resolve, reject) => {
+        resolve(new QuerykWhResponse('_kWhValues', { data: { 'ess0/SoC': 50 } }));
+        console.log("data:", QuerykWhResponse);
       });
-    });
+    } else {
+      let wrap = new EdgeRpcRequest(this.id, request);
+      return new Promise((resolve, reject) => {
+        ws.sendRequest(wrap).then(response => {
+          resolve(response['result']['payload']);
+        }).catch(reason => {
+          reject(reason);
+        });
+      });
+    }
   }
 
   /**

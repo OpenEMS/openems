@@ -20,13 +20,12 @@ import { JsonrpcResponseSuccess } from "../base";
  * }
  * </pre>
  */
-export class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess {
+export class QuerykWhResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
         public readonly result: {
-            timestamps: string[],
-            data: { [channelAddress: string]: any[] }
+            data: { [channelAddress: string]: string | number }
         }
     ) {
         super(id, result);

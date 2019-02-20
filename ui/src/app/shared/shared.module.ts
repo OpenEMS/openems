@@ -13,6 +13,7 @@ import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
 import { SocComponent } from '../edge/history/chart/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
+import { KwhComponent } from '../edge/history/kwh/kwh.component';
 /*
  * Components
  */
@@ -56,6 +57,7 @@ import { Websocket } from './service/websocket';
     HasclassPipe,
     // components
     SocComponent,
+    KwhComponent
   ],
   exports: [
     // pipes
@@ -79,6 +81,7 @@ import { Websocket } from './service/websocket';
     ToasterModule,
     // components
     SocComponent,
+    KwhComponent,
     NgxLoadingModule,
   ],
   providers: [
