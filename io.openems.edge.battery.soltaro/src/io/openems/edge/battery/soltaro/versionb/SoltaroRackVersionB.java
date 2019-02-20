@@ -58,25 +58,14 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler { // JsonApi impl TODO
+		implements Battery, OpenemsComponent, EventHandler { //, JsonApi TODO
 
-	// Default values for the battery ranges
-	public static final int DISCHARGE_MIN_V = 696; // 34,8 x Number of modules
-	public static final int CHARGE_MAX_V = 854; // 42,7 x Number of Modules
-	public static final int DISCHARGE_MAX_A = 0; // For safety set it initially to 0
-	public static final int CHARGE_MAX_A = 0;
-
+	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
+	private static final String KEY_VOLTAGE = "_VOLTAGE";
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
-
-	public static final Integer CAPACITY_KWH = 50; // TODO depends on number of modules
 	private static final Integer SYSTEM_RESET = 0x1;
-
-	private static final int VOLTAGE_SENSORS_PER_MODULE = 12;
-	private static final int TEMPERATURE_SENSORS_PER_MODULE = 12;
-	private static final int ADDRESS_OFFSET = 0x2000;
-	private static final int VOLTAGE_ADDRESS_OFFSET = 0x800;
-	private static final int TEMPERATURE_ADDRESS_OFFSET = 0xC00;
+	
 
 	private final Logger log = LoggerFactory.getLogger(SoltaroRackVersionB.class);
 
@@ -106,7 +95,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.config = config;
 		
-		//create dynamic channels and save them into a map to access them when modbus tasks are created
+		//adds dynamically created channels and save them into a map to access them when modbus tasks are created
 		channelMap = createDynamicChannels();
 		for (Channel<?> c : this.channelMap.values()) {
 			this.addChannel(c);
@@ -118,24 +107,42 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		initializeCallbacks();
 		
 		setWatchdog(config.watchdog());
-		setSoCLowAlarm(config.SoCLowAlarm());		
+		setSoCLowAlarm(config.SoCLowAlarm());
+		setCapacity();
 	}
 
+	private void setCapacity() {
+		int capacity = this.config.numberOfSlaves() * ModuleParameters.CAPACITY_KWH.getValue();
+		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);		
+	}
+
+	/*
+	 * creates a map containing channels for voltage and temperature depending on the number of modules
+	 */
 	private Map<String, Channel<?>> createDynamicChannels() {
 		Map<String, Channel<?>> map = new HashMap<>();
+		
+		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
-				String key = getSingleCellPrefix(j) + "_VOLTAGE";
+			for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
+				String key = getSingleCellPrefix(j) + KEY_VOLTAGE;
 				map.put(key, new IntegerReadChannel(this, new ChannelIdImpl(key, new Doc().unit(Unit.MILLIVOLT))));
 			}
 		}
+		
+		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
-			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
-				String key = getSingleCellPrefix(j) + "_TEMPERATURE";
+			for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
+				String key = getSingleCellPrefix(j) + KEY_TEMPERATURE;
 				map.put(key, new IntegerReadChannel(this, new ChannelIdImpl(key, new Doc().unit(Unit.DEZIDEGREE_CELSIUS))));
 			}
 		}
 		return map;
+	}
+	
+	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
+	private String getSingleCellPrefix(int num) { 
+		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
 	}
 
 	private void setWatchdog(int time_seconds) {
@@ -180,14 +187,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE).setNextValue(voltage_millivolt);
 		});
 
-		// Battery ranges
-		// ==> CHARGE_MAX_VOLTAGE 0x2082
-		// (m(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM)
-		// ==> DISCHARGE_MIN_VOLTAGE 0x2088
-		// (VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM)
-		// ==> CHARGE_MAX_CURRENT 0x2160 (VersionBChannelId.SYSTEM_MAX_CHARGE_CURRENT)
-		// ==> DISCHARGE_MAX_CURRENT 0x2161
-		// (VersionBChannelId.SYSTEM_MAX_DISCHARGE_CURRENT)
+		// write battery ranges to according channels in battery api
 		this.channel(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
@@ -199,6 +199,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(max_charge_voltage);
 		});
 
+		// DISCHARGE_MIN_VOLTAGE 0x2088
 		this.channel(VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
@@ -210,6 +211,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(min_discharge_voltage);
 		});
 
+		// CHARGE_MAX_CURRENT 0x2160
 		this.channel(VersionBChannelId.SYSTEM_MAX_CHARGE_CURRENT).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> cOpt = (Optional<Integer>) value.asOptional();
@@ -221,6 +223,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(max_current);
 		});
 
+		// DISCHARGE_MAX_CURRENT 0x2161
 		this.channel(VersionBChannelId.SYSTEM_MAX_DISCHARGE_CURRENT).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> cOpt = (Optional<Integer>) value.asOptional();
@@ -269,7 +272,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	// done
 	private LocalDateTime errorDelayIsOver = null;
 	private int unsuccessfulStarts = 0;
-	//
 	private LocalDateTime startAttemptTime = null;
 
 	private void handleStateMachine() {
@@ -367,8 +369,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			log.info(" ===> CONFIGURING STARTED: setNumberOfModules() <===");
 			setNumberOfModules();
 			break;
-//		case SET_SLAVE_NUMBER:
-//			break;
 		case SET_ID_AUTO_CONFIGURING:
 			log.info(" ===> SET_ID_AUTO_CONFIGURING: setIdAutoConfiguring() <===");
 			setIdAutoConfiguring();
@@ -425,13 +425,11 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case RESTART_AFTER_SETTING:
-//			this.startSystem();
 			// A manual restart is needed
 		case NONE:
 			break;
 		}
 	}
-	
 	
 	private void setVoltageRanges() {
 		
@@ -545,7 +543,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		NONE,
 		CONFIGURING_STARTED,
 		SET_ID_AUTO_CONFIGURING,
-
 		CHECK_ID_AUTO_CONFIGURING,
 		SET_TEMPERATURE_ID_AUTO_CONFIGURING,
 		CHECK_TEMPERATURE_ID_AUTO_CONFIGURING,
@@ -553,83 +550,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		CONFIGURING_FINISHED, RESTART_AFTER_SETTING
 	}
 
-//	private enum ConfiguringNecessary {
-//		UNDEFINED,
-//		NECESSARY,
-//		NOT_NECESSARY
-//	}
-//	
-//	private ConfiguringNecessary isConfiguringNeeded() { //TODO Check if correct! ==> conf is needed when module numbers differ and/or slave comm errors are present
-//		@SuppressWarnings("unchecked")
-//		Optional<Integer> numberOfSlavesOpt = (Optional<Integer>) this.channel(VersionBChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE).value().asOptional();
-//		if (! numberOfSlavesOpt.isPresent()) {
-//			return ConfiguringNecessary.UNDEFINED;
-//		}
-//		
-//		int numberOfModules = numberOfSlavesOpt.get();
-//		if (numberOfModules != this.config.numberOfSlaves()) {
-//			return ConfiguringNecessary.NECESSARY;
-//		}
-//		
-////		@SuppressWarnings("unchecked")
-////		Optional<Integer> systemVoltageVoltOpt = (Optional<Integer>) this.channel(VersionBChannelId.CLUSTER_1_VOLTAGE).value().asOptional();
-////		if (!systemVoltageVoltOpt.isPresent()) {
-////			return ConfiguringNecessary.UNDEFINED;
-////		}
-////		int systemVoltageVolt = systemVoltageVoltOpt.get();
-////		int lowerRange = this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_VOLT.getValue();
-////		int upperRange = this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_VOLT.getValue();
-////		boolean voltageCorrect = lowerRange <= systemVoltageVolt && systemVoltageVolt <= upperRange; 
-//		
-//		if (! isSlaveCommunicationErrorValuesPresent() ) {
-//			return ConfiguringNecessary.UNDEFINED;
-//		}
-//		
-////		if (!voltageCorrect || isSlaveCommunicationError()) {
-////			return ConfiguringNecessary.NECESSARY;
-////		};
-//		if (isSlaveCommunicationError()) {
-//			return ConfiguringNecessary.NECESSARY;
-//		};
-//		return ConfiguringNecessary.NOT_NECESSARY;
-//	}
-//
-//	private boolean isSlaveCommunicationErrorValuesPresent() {
-//		VersionBChannelId[] channelIds = { 
-//				VersionBChannelId.SLAVE_20_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_19_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_18_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_17_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_16_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_15_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_14_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_13_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_12_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_11_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_10_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_9_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_8_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_7_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_6_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_5_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_4_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_3_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_2_COMMUNICATION_ERROR,
-//				VersionBChannelId.SLAVE_1_COMMUNICATION_ERROR
-//		};
-//		for (VersionBChannelId id : channelIds) {
-//			StateChannel r = this.channel(id);
-//			Optional<Boolean> bOpt = r.value().asOptional();
-//			if (!bOpt.isPresent()) {
-//				return false;
-//			}
-//		}
-//			
-//		return true;
-//	}
-
-	private boolean isSystemStateUndefined() { // System is undefined if it is definitely not started and not stopped, and it is unknown if configuring is necessary
-//		return (isConfiguringNeeded() == ConfiguringNecessary.UNDEFINED) ||  (!isSystemIsRunning() && !isSystemStopped());
+	private boolean isSystemStateUndefined() { // System is undefined if it is definitely not started and not stopped
 		return (!isSystemIsRunning() && !isSystemStopped());
 	}
 
@@ -690,19 +611,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		return isAlarmLevel2Error() || isSlaveCommunicationError();
 	}
 
-//	// Collects errors/warnings
-//	private Collection<ErrorCode> getErrorCodes() {
-//		Collection<ErrorCode> codes = new ArrayList<>();
-//
-//		for (ErrorCode code : ErrorCode.values()) {
-//			if (code.getErrorChannelId() != null && readValueFromBooleanChannel(code.getErrorChannelId())) {
-//				codes.add(ErrorCode.getErrorCode(code.getErrorChannelId()));
-//			}
-//		}
-//
-//		return codes;
-//	}
-
 	private boolean readValueFromBooleanChannel(VersionBChannelId channelId) {
 		StateChannel r = this.channel(channelId);
 		Optional<Boolean> bOpt = r.value().asOptional();
@@ -728,11 +636,11 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
 		// To avoid hardware damages do not send start command if system has already
 		// started
-		if (contactorControlOpt.isPresent() && (
-				contactorControlOpt.get() == ContactorControl.ON_GRID.getValue() ||
-				contactorControlOpt.get() == ContactorControl.CONNECTION_INITIATING.getValue()
-		)) {
-			return;
+		if (contactorControlOpt.isPresent()) {
+			int cc = contactorControlOpt.get();
+			if (cc == ContactorControl.ON_GRID.getValue() || cc == ContactorControl.CONNECTION_INITIATING.getValue()) {
+				return;
+			}
 		}
 
 		try {
@@ -766,13 +674,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 
 	public void setStateMachineState(State state) {
-		
-//		if (state == State.ERROR) {
-//			for (ErrorCode c : getErrorCodes()) {
-//				log.error("Error detected: " + c.getName());
-//			}
-//		}
-		
 		this.state = state;
 		this.channel(VersionBChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
@@ -784,11 +685,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		} catch (OpenemsException e) {
 			log.error("Error while setting parameter for soc low protection!" + e.getMessage());
 		}
-	}
-	
-	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
-	private String getSingleCellPrefix(int num) {
-		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
 	}
 
 	@Override
@@ -1369,33 +1265,35 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		); //
 
 		// Add tasks for cell voltages and temperatures according to the number of
-		// slaves
-
+		// slaves, one task per module is created
 		// Cell voltages
+		int offset = ModuleParameters.ADDRESS_OFFSET.getValue();
+		int voltOffset = ModuleParameters.VOLTAGE_ADDRESS_OFFSET.getValue();
+		int voltSensors = ModuleParameters.VOLTAGE_SENSORS_PER_MODULE.getValue();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
-			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
-				String key = getSingleCellPrefix(j) + "_VOLTAGE";
-				UnsignedWordElement uwe = new UnsignedWordElement(ADDRESS_OFFSET + VOLTAGE_ADDRESS_OFFSET + j);
+			for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
+				String key = getSingleCellPrefix(j) + KEY_VOLTAGE;
+				UnsignedWordElement uwe = new UnsignedWordElement(offset + voltOffset + j);
 				AbstractModbusElement<?> ame = m(channelMap.get(key).channelId(), uwe);
 				elements.add(ame);
 			}
-			protocol.addTask(
-					new FC3ReadRegistersTask(ADDRESS_OFFSET + VOLTAGE_ADDRESS_OFFSET + i * VOLTAGE_SENSORS_PER_MODULE,
-							Priority.LOW, elements.toArray(new AbstractModbusElement<?>[0])));
+			protocol.addTask(new FC3ReadRegistersTask(offset + voltOffset + i * voltSensors, Priority.LOW,
+					elements.toArray(new AbstractModbusElement<?>[0])));
 		}
 
 		// Cell temperatures
+		int tempOffset = ModuleParameters.TEMPERATURE_ADDRESS_OFFSET.getValue();
+		int tempSensors = ModuleParameters.TEMPERATURE_SENSORS_PER_MODULE.getValue();
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
-			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
-				String key = getSingleCellPrefix(j) + "_TEMPERATURE";
-				SignedWordElement swe = new SignedWordElement(ADDRESS_OFFSET + TEMPERATURE_ADDRESS_OFFSET + j);
+			for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
+				String key = getSingleCellPrefix(j) + KEY_TEMPERATURE;
+				SignedWordElement swe = new SignedWordElement(offset + tempOffset + j);
 				AbstractModbusElement<?> ame = m(channelMap.get(key).channelId(), swe);
 				elements.add(ame);
 			}
-			protocol.addTask(new FC3ReadRegistersTask(
-					ADDRESS_OFFSET + TEMPERATURE_ADDRESS_OFFSET + i * TEMPERATURE_SENSORS_PER_MODULE, Priority.LOW,
+			protocol.addTask(new FC3ReadRegistersTask(offset + tempOffset + i * tempSensors, Priority.LOW,
 					elements.toArray(new AbstractModbusElement<?>[0])));
 		}
 

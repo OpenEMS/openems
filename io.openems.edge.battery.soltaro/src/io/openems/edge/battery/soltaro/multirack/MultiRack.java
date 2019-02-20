@@ -100,7 +100,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
 		
-		// Create racks
+		// Create racks dynamically
 		for (int i : config.racks()) {
 			racks.add(new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
 		}
@@ -362,7 +362,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		IntegerWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
 		try {
 			startStopChannel.setNextWriteValue(StartStop.START.getValue());
-
+// TODO write to all racks unused!!
 			for (SingleRack r : racks) {
 				IntegerWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(r.getRackNumber()).usageChannelId);
 				rackUsageChannel.setNextWriteValue(RackUsage.USED.getValue());
@@ -377,6 +377,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		IntegerWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
 		try {
 			startStopChannel.setNextWriteValue(StartStop.STOP.getValue());
+//			TODO write to all racks unused!!
 			for (SingleRack r : racks) {
 				IntegerWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(r.getRackNumber()).usageChannelId);
 				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
