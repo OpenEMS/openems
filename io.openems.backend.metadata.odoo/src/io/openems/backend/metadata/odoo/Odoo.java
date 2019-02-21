@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
@@ -206,9 +205,10 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			// Update Edge config in Odoo
 			this.logDebug(this.log,
 					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
-			JsonObject jConfig = config.toJson();
-			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
+			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
 			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG, conf));
+			String components = new GsonBuilder().setPrettyPrinting().create().toJson(config.componentsToJson());
+			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo

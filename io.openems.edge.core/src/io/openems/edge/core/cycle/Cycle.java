@@ -87,8 +87,10 @@ public class Cycle extends AbstractWorker {
 		}
 
 		// Kick Operating System Watchdog
-		SDNotify.sendWatchdog();
-
+		if(SDNotify.isAvailable()) {
+			SDNotify.sendWatchdog();
+		}
+		
 		try {
 			/*
 			 * Trigger BEFORE_PROCESS_IMAGE event

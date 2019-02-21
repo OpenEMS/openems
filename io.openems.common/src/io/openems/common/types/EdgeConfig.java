@@ -219,20 +219,50 @@ public class EdgeConfig {
 	 * @return configuration as a JSON Object
 	 */
 	public JsonObject toJson() {
+		return JsonUtils.buildJsonObject() //
+				.add("components", this.componentsToJson()) //
+				.add("factories", this.factoriesToJson()) //
+				.build();
+	}
+
+	/**
+	 * Returns the configuration Components as a JSON Object.
+	 * 
+	 * <pre>
+	 * {
+	 *   {@link EdgeConfig.Component#toJson()} 
+	 * }
+	 * </pre>
+	 * 
+	 * @return Components as a JSON Object
+	 */
+	public JsonObject componentsToJson() {
 		JsonObject components = new JsonObject();
 		for (Entry<String, Component> entry : this.getComponents().entrySet()) {
 			components.add(entry.getKey(), entry.getValue().toJson());
 		}
+		return components;
+	}
 
+	/**
+	 * Returns the configuration Factories as a JSON Object.
+	 * 
+	 * <pre>
+	 * {
+	 *   [pid: string]: {
+	 *     natures: string[]
+	 *   }
+	 * }
+	 * </pre>
+	 * 
+	 * @return Factories as a JSON Object
+	 */
+	public JsonObject factoriesToJson() {
 		JsonObject factories = new JsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
 			factories.add(entry.getKey(), entry.getValue().toJson());
 		}
-
-		return JsonUtils.buildJsonObject() //
-				.add("components", components) //
-				.add("factories", factories) //
-				.build();
+		return factories;
 	}
 
 	/**

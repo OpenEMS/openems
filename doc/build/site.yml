@@ -11,7 +11,7 @@ content:
 
 ui:
   bundle:
-    url: doc/build/uibundle_openems.zip
+    url: build/uibundle_openems.zip
 
 output:
   dir: build/www
