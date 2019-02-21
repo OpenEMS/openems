@@ -36,9 +36,7 @@ export class KwhComponent implements OnInit, OnChanges {
   updateValues() {
     this.querykWh(this.fromDate, this.toDate).then(response => {
       this.data = response.result.data;
-      this.values = Object.values(this.data);
-      console.log("data", this.data)
-      console.log("valuesnew", this.data["ess0/SoC"])
+      console.log("Response: ", this.data)
     });
   }
 

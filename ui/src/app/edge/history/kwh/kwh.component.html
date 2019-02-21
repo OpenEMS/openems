@@ -1,108 +1,77 @@
 <ion-card>
-
-    <ion-item color="light" lines="none">
-        <ion-icon slot="start" name="barcode" color="primary"></ion-icon>
+    <ion-item color="light" lines="full">
+        <ion-img slot="start" style="width: 38px" src="assets/img/kwh.png"></ion-img>
         <ion-label>
-            <ion-card-title>kWh - Werte</ion-card-title>
+            <ion-card-title translate>General.Cumulative</ion-card-title>
+        </ion-label>
+        <ion-icon name="download" item-right></ion-icon>
+    </ion-item>
+
+    <ion-item lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/production.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.Production</ion-card-title>
         </ion-label>
     </ion-item>
 
     <ion-item lines="none">
         <table class="full_width">
             <tr>
-                <td style="width: 12%">
-                    <ion-img style="width: 40px" src="assets/img/production.png"></ion-img>
-                </td>
                 <td>
-                    Production
+                    <ion-label padding-left translate>General.ChargePower</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["production"]}}&nbsp;kWh
                 </td>
             </tr>
         </table>
     </ion-item>
 
-    <ion-item>
-        <table class="full_width">
-            <tr>
-                <td style="width: 12%">
-                </td>
-                <td>
-                    PV1
-                </td>
-                <td *ngIf="data" style="width: 75%" class="align_right">
-                    <div *ngIf="data">{{ data["production"] }}</div>
-                </td>
-                <td style="width: 100%">&nbsp;kWh</td>
-            </tr>
-        </table>
+    <ion-item lines="none" lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/grid.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.Grid</ion-card-title>
+        </ion-label>
     </ion-item>
 
     <ion-item lines="none">
         <table class="full_width">
             <tr>
-                <td style="width: 12%">
-                    <ion-img style="width: 40px" src="assets/img/grid.png"></ion-img>
+                <td>
+                    <ion-label padding-left translate>General.GridBuy</ion-label>
                 </td>
-                <td translate>
-                    Netz
+                <td class="align_right" *ngIf="data">
+                    {{data["gridbezug"]}}&nbsp;kWh
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.GridSell</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["grideinspeisung"]}}&nbsp;kWh
                 </td>
             </tr>
         </table>
     </ion-item>
 
-    <ion-item>
-        <table class="full_width">
-            <tr>
-                <td style="width: 12%">
-                </td>
-                <td>
-                    Bezug
-                </td>
-                <td style="width: 75%" class="align_right">
-                    <div *ngIf="data">{{ data["gridbezug"] }}</div>
-                </td>
-                <td style="width: 100%">&nbsp;kWh</td>
-            </tr>
-            <tr>
-                <td style="width: 12%">
-                </td>
-                <td>
-                    Einspeisung
-                </td>
-                <td style="width: 75%" class="align_right">
-                    <div *ngIf="data">{{ data["grideinspeisung"] }}</div>
-                </td>
-                <td style="width: 100%">&nbsp;kWh</td>
-            </tr>
-        </table>
+    <ion-item lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/consumption.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.Consumption</ion-card-title>
+        </ion-label>
     </ion-item>
 
     <ion-item lines="none">
         <table class="full_width">
             <tr>
-                <td style="width: 12%">
-                    <ion-img style="width: 40px" src="assets/img/consumption.png"></ion-img>
-                </td>
-                <td translate>
-                    Verbrauch
-                </td>
-            </tr>
-        </table>
-    </ion-item>
-
-    <ion-item>
-        <table class="full_width">
-            <tr>
-                <td style="width: 12%">
-                </td>
                 <td>
-                    Lasten
+                    <ion-label padding-left translate>General.Load</ion-label>
                 </td>
-                <td style="width: 75%" class="align_right">
-                    <div *ngIf="data">{{ data["consumption"] }}</div>
+                <td class="align_right" *ngIf="data">
+                    {{data["consumption"]}}&nbsp;kWh
                 </td>
-                <td style="width: 100%">&nbsp;kWh</td>
             </tr>
         </table>
     </ion-item>
-
 </ion-card>
