@@ -6,7 +6,7 @@
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title *ngIf="(service.currentEdge | async) as currentEdge; else elseTitle">{{ currentEdge.id }} | {{
+      <ion-title *ngIf="(service.currentEdge | async) as currentEdge; else elseTitle">{{
         currentEdge.comment
         }}</ion-title>
       <ng-template #elseTitle>

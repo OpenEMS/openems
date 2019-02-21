@@ -255,7 +255,7 @@ export class Websocket {
   private handleAuthenticateWithSessionIdFailed(message: AuthenticateWithSessionIdFailedNotification): void {
     if (env.backend === "OpenEMS Backend") {
       if (env.production) {
-        window.location.href = "/web/login?redirect=/m/index";
+        window.location.href = "/primus-online-monitoring/";
       } else {
         console.info("would redirect...");
       }

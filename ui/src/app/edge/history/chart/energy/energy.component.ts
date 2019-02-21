@@ -81,6 +81,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private updateChart() {
     this.loading = true;
+
     this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
@@ -98,6 +99,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           let datasets = [];
 
           if (!edge.isVersionAtLeast('2018.8')) {
+
             this.convertDeprecatedData(config, result.data); // TODO deprecated
           }
 
@@ -218,17 +220,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           this.loading = false;
 
         }).catch(reason => {
-          console.error(reason); // TODO error message
+          console.log(reason); // TODO error message
           this.initializeChart();
           return;
         });
       }).catch(reason => {
-        console.error(reason); // TODO error message
+        console.log(reason); // TODO error message
         this.initializeChart();
         return;
       });
     }).catch(reason => {
-      console.error(reason); // TODO error message
+      console.log(reason); // TODO error message
       this.initializeChart();
       return;
     });
