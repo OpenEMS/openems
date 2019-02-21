@@ -57,7 +57,6 @@ import { Websocket } from './service/websocket';
     HasclassPipe,
     // components
     SocComponent,
-    // KwhComponent
   ],
   exports: [
     // pipes
@@ -81,7 +80,6 @@ import { Websocket } from './service/websocket';
     ToasterModule,
     // components
     SocComponent,
-    // KwhComponent,
     NgxLoadingModule,
   ],
   providers: [
