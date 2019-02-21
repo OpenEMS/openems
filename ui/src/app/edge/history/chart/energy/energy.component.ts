@@ -330,6 +330,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     let sumEssActivePower = [];
     let sumGridActivePower = [];
     let sumProductionActivePower = [];
+    let sumProductionAcActivePower = [];
+    let sumProductionDcActivePower = [];
 
     for (let channel of Object.keys(data)) {
       let channelAddress = ChannelAddress.fromString(channel)
@@ -342,7 +344,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           sumEssSoc = data[channel];
         } else {
           sumEssSoc = data[channel].map((value, index) => {
-            return (sumEssSoc[index] + value) / 2;
+            return Utils.divideSafely(Utils.addSafely(sumEssSoc[index], value), 2);
           });
         }
       }
@@ -374,6 +376,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               return Utils.addSafely(sumProductionActivePower[index], value);
             });
           }
+          if (sumProductionAcActivePower.length == 0) {
+            sumProductionAcActivePower = data[channel];
+          } else {
+            sumProductionAcActivePower = data[channel].map((value, index) => {
+              return Utils.addSafely(sumProductionAcActivePower[index], value);
+            });
+          }
         }
       }
 
@@ -382,7 +391,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           sumProductionActivePower = data[channel];
         } else {
           sumProductionActivePower = data[channel].map((value, index) => {
-            return sumProductionActivePower[index] + value;
+            return Utils.addSafely(sumProductionActivePower[index], value);
+          });
+        }
+        if (sumProductionDcActivePower.length == 0) {
+          sumProductionDcActivePower = data[channel];
+        } else {
+          sumProductionDcActivePower = data[channel].map((value, index) => {
+            return Utils.addSafely(sumProductionDcActivePower[index], value);
           });
         }
       }
@@ -392,7 +408,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       data['_sum/GridActivePower'] = sumGridActivePower;
       data['_sum/ProductionActivePower'] = sumProductionActivePower;
       data['_sum/ConsumptionActivePower'] = sumEssActivePower.map((ess, index) => {
-        return Utils.addSafely(ess, Utils.addSafely(sumProductionActivePower[index], sumGridActivePower[index]));
+        return Utils.addSafely(ess, Utils.addSafely(sumProductionAcActivePower[index], sumGridActivePower[index]));
       });
     }
   }

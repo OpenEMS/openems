@@ -54,8 +54,9 @@ public class EdgeApp {
 		}
 
 		// Announce Operating System that OpenEMS Edge started
-		SDNotify.sendNotify();
-
+		if(SDNotify.isAvailable()) {
+			SDNotify.sendNotify();
+		}
 		// Example: Create new Scheduler
 		// new Thread(() -> {
 		// try {

@@ -12,6 +12,7 @@ public interface Field {
 		OPENEMS_VERSION("openems_version"), //
 		PRODUCT_TYPE("producttype"), //
 		OPENEMS_CONFIG("openems_config"), //
+		OPENEMS_CONFIG_COMPONENTS("openems_config_components"), //
 		LAST_MESSAGE("lastmessage"), //
 		LAST_UPDATE("lastupdate"), //
 		SOC("soc"), //

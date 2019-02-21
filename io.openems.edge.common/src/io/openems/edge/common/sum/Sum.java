@@ -30,7 +30,7 @@ public interface Sum extends OpenemsComponent {
 		 * Ess: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricEss})
+		 * <li>Interface: Sum (origin: SymmetricEss)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
@@ -44,7 +44,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -60,7 +60,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Minimum Ever Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values or '0'
@@ -73,7 +73,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Maximum Ever Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -86,7 +86,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Meter Symmetric and ESS DC Charger)
+		 * <li>Interface: Sum (origin: SymmetricMeter and ESS DC Charger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -99,7 +99,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: AC Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Meter Symmetric)
+		 * <li>Interface: Sum (origin: SymmetricMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -112,7 +112,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: DC Actual Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: ESS DC Charger)
+		 * <li>Interface: Sum (origin: EssDcCharger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -125,7 +125,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Maximum Ever Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -138,7 +138,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Maximum Ever AC Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -151,7 +151,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Maximum Ever DC Actual Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link EssDcCharger}))
+		 * <li>Interface: Sum (origin: EssDcCharger}))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -179,7 +179,7 @@ public interface Sum extends OpenemsComponent {
 		 * Consumption: Maximum Ever Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -193,7 +193,7 @@ public interface Sum extends OpenemsComponent {
 		 * Gridmode
 		 * 
 		 * <ul>
-		 * <li>Interface: Gridmode (origin: @see {@link SymmetricEss}))
+		 * <li>Interface: Gridmode (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Values: '0' = UNDEFINED, '1' = ON GRID, '2' = OFF GRID
 		 * </ul>
@@ -205,7 +205,7 @@ public interface Sum extends OpenemsComponent {
 		 * Max Apparent Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Max Apparent Power (origin: @see {@link SymmetricEss}))
+		 * <li>Interface: Max Apparent Power (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Unit: VA
 		 * </ul>

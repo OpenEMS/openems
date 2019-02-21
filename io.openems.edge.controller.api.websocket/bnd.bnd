@@ -8,19 +8,18 @@ Private-Package:  \
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.controller.api;version=latest,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.wrapper.websocket;version=latest,\
-	com.google.gson,\
-	io.openems.edge.timedata.api;version=latest,\
-	json,\
-	org.ops4j.pax.logging.pax-logging-api,\
+	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.controller.api.core;version=latest,\
+	io.openems.edge.timedata.api;version=latest,\
+	io.openems.wrapper.websocket;version=latest,\
+	org.ops4j.pax.logging.pax-logging-api,\
+	com.google.gson,\
 	com.google.guava
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

@@ -25,6 +25,7 @@ public interface ComponentManager {
 	 * Gets a OpenEMS-Component by its Component-ID.
 	 * 
 	 * @param componentId the Component-ID (e.g. "_sum")
+	 * @param             <T> the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
@@ -43,11 +44,13 @@ public interface ComponentManager {
 	 * Gets a Channel by its Channel-Address.
 	 * 
 	 * @param channelAddress the Channel-Address
-	 * @throws IllegalArgumentException if the Channel is not available
+	 * @param                <T> the typed Channel
 	 * @return the Channel
-	 * @throws OpenemsNamedException 
+	 * @throws IllegalArgumentException if the Channel is not available
+	 * @throws OpenemsNamedException    on error
 	 */
-	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress) throws IllegalArgumentException, OpenemsNamedException {
+	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
+			throws IllegalArgumentException, OpenemsNamedException {
 		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
 		return component.channel(channelAddress.getChannelId());
 	}
