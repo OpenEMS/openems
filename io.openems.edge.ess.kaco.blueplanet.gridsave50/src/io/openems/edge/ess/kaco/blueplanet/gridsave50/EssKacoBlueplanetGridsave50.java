@@ -294,11 +294,6 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.getDischargeMaxAmpereChannel().setNextWriteValue(disMaxA);
 			this.getChargeMaxAmpereChannel().setNextWriteValue(chaMaxA);
 			this.getEnLimitChannel().setNextWriteValue(1);
-			
-			System.out.println("Discharge Min Voltage: " + disMinV);
-			System.out.println("Charge Max Voltage: " + chaMaxV);
-			System.out.println("Discharge Max Current: " + disMaxA);
-			System.out.println("Charge Max Current: " + chaMaxA);
 
 			// battery stats to display on inverter
 			this.getBatterySocChannel().setNextWriteValue(batSoC);
