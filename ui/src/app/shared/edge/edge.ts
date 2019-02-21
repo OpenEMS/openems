@@ -169,7 +169,7 @@ export class Edge {
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     if (request.method == 'querykWh') {
       return new Promise((resolve) => {
-        resolve(new QuerykWhResponse('_kWhValues', { data: { "ess0/SoC": 50 } }));
+        resolve(new QuerykWhResponse('_kWhValues', { data: { "production": 50, "gridbezug": 23, "grideinspeisung": 49, "consumption": 44 } }));
       });
     } else {
       let wrap = new EdgeRpcRequest(this.id, request);

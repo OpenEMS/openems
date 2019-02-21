@@ -15,7 +15,8 @@ export class KwhComponent implements OnInit, OnChanges {
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
 
-  public data: Cummulated;
+  public data: Cummulated = null;
+  public values: any;
 
   constructor(
     protected service: Service,
@@ -35,8 +36,9 @@ export class KwhComponent implements OnInit, OnChanges {
   updateValues() {
     this.querykWh(this.fromDate, this.toDate).then(response => {
       this.data = response.result.data;
-
-      console.log("datapardey", this.data)
+      this.values = Object.values(this.data);
+      console.log("data", this.data)
+      console.log("valuesnew", this.data["ess0/SoC"])
     });
   }
 
@@ -56,10 +58,8 @@ export class KwhComponent implements OnInit, OnChanges {
             let result = (response as QuerykWhResponse).result;
             if (Object.keys(result.data).length != 0) {
               resolve(response as QuerykWhResponse);
-              console.log("erfolg", response);
             } else {
               reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-              console.log("reject");
             }
           }).catch(reason => reject(reason));
         }).catch(reason => reject(reason));
