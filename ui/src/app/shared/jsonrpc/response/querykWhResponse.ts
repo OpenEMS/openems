@@ -1,5 +1,9 @@
 import { JsonrpcResponseSuccess } from "../base";
 
+export interface Cummulated {
+    [channelAddress: string]: string | number
+}
+
 /**
  * Wraps a JSON-RPC Response for a QueryHistoricTimeseriesDataRequest.
  * 
@@ -8,9 +12,6 @@ import { JsonrpcResponseSuccess } from "../base";
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "timestamps": [
- *       '2011-12-03T10:15:30Z',...
- *     ],
  *     "data": {
  *       "componentId/channelId": [
  *         value1, value2,...
@@ -25,7 +26,7 @@ export class QuerykWhResponse extends JsonrpcResponseSuccess {
     public constructor(
         public readonly id: string,
         public readonly result: {
-            data: { [channelAddress: string]: string | number }
+            data: Cummulated;
         }
     ) {
         super(id, result);

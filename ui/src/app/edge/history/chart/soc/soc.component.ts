@@ -67,8 +67,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     }
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
-    this.querykWh(this.fromDate, this.toDate)
-    console.log("Vorbereitung");
+    // this.querykWh(this.fromDate, this.toDate)
   }
 
   private updateChart() {
@@ -105,7 +104,6 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
         });
       }
       this.datasets = datasets;
-
       this.loading = false;
 
     }).catch(reason => {

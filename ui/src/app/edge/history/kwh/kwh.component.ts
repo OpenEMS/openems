@@ -1,23 +1,32 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
+import { Cummulated, QuerykWhResponse } from '../../../shared/jsonrpc/response/querykWhResponse';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { QuerykWhRequest } from 'src/app/shared/jsonrpc/request/querykWhRequest';
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'kwh',
   templateUrl: './kwh.component.html'
 })
-export class KwhComponent extends AbstractHistoryChart implements OnInit {
+export class KwhComponent implements OnInit, OnChanges {
 
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
 
+  public data: Cummulated;
 
+  constructor(
+    protected service: Service,
+    private route: ActivatedRoute,
+    public translate: TranslateService
+  ) { }
 
-  constructor(protected service: Service, ) {
-    super(service);
+  ngOnInit() {
+    this.service.setCurrentEdge(this.route);
+    this.updateValues();
   }
-
-  ngOnInit() { }
 
   ngOnChanges() {
     this.updateValues();
@@ -25,29 +34,37 @@ export class KwhComponent extends AbstractHistoryChart implements OnInit {
 
   updateValues() {
     this.querykWh(this.fromDate, this.toDate).then(response => {
-      let result = response.result
-      let values = [];
+      this.data = response.result.data;
 
+      console.log("datapardey", this.data)
     });
   }
 
   protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
-    return new Promise((resolve, reject) => {
-      if (edge.isVersionAtLeast('2018.8')) {
-        resolve([new ChannelAddress('_sum', 'EssSoc')]);
-
-      } else {
-        // TODO: remove after full migration
-        this.service.getConfig().then(config => {
-          // get 'Soc'-Channel of all 'EssNatures'
-          let channeladdresses = [];
-          for (let componentId of config.getComponentsImplementingNature("EssNature")) {
-            channeladdresses.push(new ChannelAddress(componentId, 'Soc'));
-          }
-          resolve(channeladdresses);
-        }).catch(reason => reject(reason));
-      }
+    return new Promise((resolve) => {
+      resolve([new ChannelAddress('_sum', 'EssSoc')]);
     });
+  }
+
+
+  protected querykWh(fromDate: Date, toDate: Date): Promise<QuerykWhResponse> {
+    return new Promise((resolve, reject) => {
+      this.service.getCurrentEdge().then(edge => {
+        this.getChannelAddresses(edge).then(channelAddresses => {
+          let request = new QuerykWhRequest(fromDate, toDate, channelAddresses);
+          edge.sendRequest(this.service.websocket, request).then(response => {
+            let result = (response as QuerykWhResponse).result;
+            if (Object.keys(result.data).length != 0) {
+              resolve(response as QuerykWhResponse);
+              console.log("erfolg", response);
+            } else {
+              reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+              console.log("reject");
+            }
+          }).catch(reason => reject(reason));
+        }).catch(reason => reject(reason));
+      })
+    })
   }
 
 }

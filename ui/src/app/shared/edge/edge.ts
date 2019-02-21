@@ -168,10 +168,8 @@ export class Edge {
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     if (request.method == 'querykWh') {
-      console.log("FEUER!");
-      return new Promise((resolve, reject) => {
-        resolve(new QuerykWhResponse('_kWhValues', { data: { 'ess0/SoC': 50 } }));
-        console.log("data:", QuerykWhResponse);
+      return new Promise((resolve) => {
+        resolve(new QuerykWhResponse('_kWhValues', { data: { "ess0/SoC": 50 } }));
       });
     } else {
       let wrap = new EdgeRpcRequest(this.id, request);

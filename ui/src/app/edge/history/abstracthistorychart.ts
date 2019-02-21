@@ -44,23 +44,21 @@ export abstract class AbstractHistoryChart {
         });
     }
 
-    protected querykWh(fromDate: Date, toDate: Date): Promise<QuerykWhResponse> {
-        return new Promise((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.getChannelAddresses(edge).then(channelAddresses => {
-                    let request = new QuerykWhRequest(fromDate, toDate, channelAddresses);
-                    edge.sendRequest(this.service.websocket, request).then(response => {
-                        let result = (response as QuerykWhResponse).result;
-                        if (Object.keys(result.data).length != 0) {
-                            resolve(response as QuerykWhResponse);
-                            console.log("querykWh success");
-                        } else {
-                            reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-                            console.log("querykWh failed")
-                        }
-                    }).catch(reason => reject(reason));
-                }).catch(reason => reject(reason));
-            })
-        })
-    }
+    // protected querykWh(fromDate: Date, toDate: Date): Promise<QuerykWhResponse> {
+    //     return new Promise((resolve, reject) => {
+    //         this.service.getCurrentEdge().then(edge => {
+    //             this.getChannelAddresses(edge).then(channelAddresses => {
+    //                 let request = new QuerykWhRequest(fromDate, toDate, channelAddresses);
+    //                 edge.sendRequest(this.service.websocket, request).then(response => {
+    //                     let result = (response as QuerykWhResponse).result;
+    //                     if (Object.keys(result.data).length != 0) {
+    //                         resolve(response as QuerykWhResponse);
+    //                     } else {
+    //                         reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+    //                     }
+    //                 }).catch(reason => reject(reason));
+    //             }).catch(reason => reject(reason));
+    //         })
+    //     })
+    // }
 }
