@@ -27,10 +27,6 @@ import io.openems.common.utils.JsonUtils;
  *   }
  * }
  * </pre>
- * 
- * @param timestamp
- * @param jData
- * @return
  */
 public class TimestampedDataNotification extends JsonrpcNotification {
 
@@ -47,7 +43,7 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 		return result;
 	}
 
-	public final static String METHOD = "timestampedData";
+	public static final String METHOD = "timestampedData";
 
 	private final TreeBasedTable<Long, ChannelAddress, JsonElement> data = TreeBasedTable.create();
 

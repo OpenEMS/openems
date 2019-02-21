@@ -321,6 +321,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			case "EssActivePower": {
 				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
 				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
+				symmetricIds.removeAll(asymmetricIds);
 				ChannelFormula[] result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
 				int i = 0;
 				for (String id : asymmetricIds) {

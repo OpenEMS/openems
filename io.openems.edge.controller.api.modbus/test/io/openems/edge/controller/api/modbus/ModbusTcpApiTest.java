@@ -1,11 +1,10 @@
 package io.openems.edge.controller.api.modbus;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
@@ -14,6 +13,12 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.OpenemsConstants;
 
+/**
+ * This Test demonstrates the usage of the OpenEMS Modbus/TCP API interface. To
+ * start the tests make sure to start OpenEMS Edge and activate the Modbus/TCP
+ * API Controller component via Apache Felix. Afterwards uncomment the "@Test"
+ * annotations below and execute the Tests.
+ */
 public class ModbusTcpApiTest {
 
 	private static ModbusTCPMaster getMaster() throws Exception {
@@ -23,7 +28,7 @@ public class ModbusTcpApiTest {
 		return master;
 	}
 
-	@Test
+	// @Test
 	public void testOpenemsHashCode() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readInputRegisters(0, 1);
@@ -31,7 +36,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Test
+	// @Test
 	public void testVersion() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readInputRegisters(2, 3);
@@ -48,7 +53,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Test
+	// @Test
 	public void testSumEssSocFC4() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readInputRegisters(302, 1);
@@ -57,7 +62,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Test
+	// @Test
 	public void testSumStateOfChargeFC3() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readMultipleRegisters(302, 1);
@@ -66,7 +71,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Test
+	// @Test
 	public void testWrite() throws Exception {
 		byte[] bytes = ByteBuffer.allocate(4).putFloat(2500).array();
 		ModbusTCPMaster master = getMaster();
@@ -77,7 +82,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Test
+	// @Test
 	public void testFloat32() throws Exception {
 		ModbusTCPMaster master = getMaster();
 		InputRegister[] registers = master.readInputRegisters(884, 2);
@@ -86,10 +91,10 @@ public class ModbusTcpApiTest {
 		buff.put(registers[1].toBytes());
 		buff.rewind();
 		float value = buff.order(ByteOrder.BIG_ENDIAN).getFloat(0);
-		
+
 		System.out.println(value);
-		
+
 		master.disconnect();
 	}
-	
+
 }
