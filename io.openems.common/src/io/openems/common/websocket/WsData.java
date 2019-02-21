@@ -42,18 +42,18 @@ public abstract class WsData {
 	}
 
 	/**
-	 * Sets the Websocket.
+	 * Sets the WebSocket.
 	 * 
-	 * @param ws
+	 * @param ws the WebSocket instance
 	 */
 	public synchronized void setWebsocket(WebSocket ws) {
 		this.websocket = ws;
 	}
 
 	/**
-	 * Gets the websocket. Possibly null!
+	 * Gets the WebSocket. Possibly null!
 	 * 
-	 * @return
+	 * @return the WebSocket instance
 	 */
 	public WebSocket getWebsocket() {
 		return websocket;
@@ -62,9 +62,9 @@ public abstract class WsData {
 	/**
 	 * Sends a JSON-RPC request to a Websocket and registers a callback.
 	 * 
-	 * @param ws
-	 * @param request
-	 * @param responseCallback
+	 * @param request the JSON-RPC Request
+	 * @return a promise for a successful JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) throws OpenemsNamedException {
 		CompletableFuture<JsonrpcResponseSuccess> future = new CompletableFuture<>();
@@ -79,11 +79,10 @@ public abstract class WsData {
 	}
 
 	/**
-	 * Sends a JSON-RPC Notification to a Websocket.
+	 * Sends a JSON-RPC Notification to a WebSocket.
 	 * 
-	 * @param ws
-	 * @param notification
-	 * @throws OpenemsException
+	 * @param notification the JSON-RPC Notification
+	 * @throws OpenemsException on error
 	 */
 	public void send(JsonrpcNotification notification) throws OpenemsException {
 		this.sendMessage(notification);
@@ -92,8 +91,8 @@ public abstract class WsData {
 	/**
 	 * Sends the JSON-RPC message.
 	 * 
-	 * @param message
-	 * @throws OpenemsException
+	 * @param message the JSON-RPC Message
+	 * @throws OpenemsException on error
 	 */
 	private void sendMessage(JsonrpcMessage message) throws OpenemsException {
 		if (this.websocket == null) {
@@ -110,8 +109,8 @@ public abstract class WsData {
 	 * Handles a JSON-RPC response by completing the previously registers request
 	 * Future.
 	 * 
-	 * @param response
-	 * @throws OpenemsNamedException
+	 * @param response the JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	public void handleJsonrpcResponse(JsonrpcResponse response) throws OpenemsNamedException {
 		CompletableFuture<JsonrpcResponseSuccess> future = this.requestFutures.remove(response.getId());
@@ -141,5 +140,10 @@ public abstract class WsData {
 		}
 	}
 
+	/**
+	 * Provides a specific toString method.
+	 * 
+	 * @return a specific string for this instance
+	 */
 	public abstract String toString();
 }

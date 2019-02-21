@@ -8,6 +8,7 @@ jdk:
 install: ./gradlew --version
 
 script:
+  - ./gradlew build -x test
   - ./gradlew buildAggregatedJavadocs --continue
   - ./gradlew buildAntoraDocs --continue
 
