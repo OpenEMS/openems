@@ -4,7 +4,7 @@ import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
- * Represents a JSON-RPC Request to query Historic Timeseries Data.
+ * Represents a JSON-RPC Request to query kWh Timeseries Data.
  * 
  * <pre>
  * {

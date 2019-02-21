@@ -5,19 +5,16 @@ export interface Cummulated {
 }
 
 /**
- * Wraps a JSON-RPC Response for a QueryHistoricTimeseriesDataRequest.
+ * Wraps a JSON-RPC Response for a kWhTimeseriesDataRequest.
+ * 
  * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "data": {
- *       "componentId/channelId": [
- *         value1, value2,...
- *       ]
+ *     "data": Cummulated
  *     }
- *   }
  * }
  * </pre>
  */
