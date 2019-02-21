@@ -157,7 +157,8 @@ public class DBUtils {
 	private MyUser createUser(String sessionId) throws OpenemsException {
 
 		if (sessionId == null) {
-			return null;
+			
+			return new MyUser("0", "Gast", new ArrayList<String>(Arrays.asList("3","4")),"guest" );
 			
 		}
 

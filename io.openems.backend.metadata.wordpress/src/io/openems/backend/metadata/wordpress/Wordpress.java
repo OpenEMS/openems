@@ -195,7 +195,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 				String comment = result.getString("edge_comment");
 				String apikey = result.getString("apikey");
 				String producttype = result.getString("producttype");
-				
+
 				EdgeConfig config = new EdgeConfig();
 
 				Role role = Role.getRole("ADMIN");
@@ -209,6 +209,18 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 						this.edges.put(id, edge);
 						log.info(
 								"Adding Edge from Wordpress: " + name + ", " + comment + ", " + apikey + ", id: " + id);
+					} else {
+						MyEdge oldedge = this.edges.get(id);
+
+						if (!oldedge.getApikey().equals(edge.getApikey())
+								|| !oldedge.getComment().equals(edge.getComment())
+								|| !oldedge.getProducttype().equals(edge.getProducttype())) {
+							this.edges.remove(id);
+							this.edges.put(id, edge);
+							log.info("Updating Edge from Wordpress: " + name + ", " + comment + ", " + apikey + ", id: "
+									+ id);
+						}
+
 					}
 
 				}
@@ -239,12 +251,12 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 		for (MyEdge edge : this.edges.values()) {
 			if (edge.getApikey().equals(apikey)) {
 				id = edge.getId();
-				//edge.setOnline(true);
+				// edge.setOnline(true);
 				break;
 			}
 		}
 		// edge.setOnline(this.edgeWebsocket.isOnline(edge.getId()));
-		
+
 		return Optional.ofNullable(id);
 	}
 
@@ -252,7 +264,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	public Collection<Edge> getAllEdges() {
 		return Collections.unmodifiableCollection(this.edges.values());
 	}
-	
+
 	private void addListeners(MyEdge edge) {
 		edge.onSetConfig(config -> {
 			log.debug("Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));

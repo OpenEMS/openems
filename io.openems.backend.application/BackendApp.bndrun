@@ -66,5 +66,5 @@ JPM-Command:				openems-backend
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	io.openems.backend.common;version=snapshot,\
 	io.openems.backend.metadata.wordpress;version=snapshot,\
-	io.openems.backend.uiwebsocket.energydepot;version=snapshot,\
-	org.mariadb.jdbc;version='[2.3.0,2.3.1)'
+	org.mariadb.jdbc;version='[2.3.0,2.3.1)',\
+	io.openems.backend.uiwebsocket.energydepot;version=snapshot
