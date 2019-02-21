@@ -494,7 +494,7 @@ public class Solver {
 	 */
 	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints) {
-		log.info("oBMTT. Direction: " + targetDirection);
+//		log.info("oBMTT. Direction: " + targetDirection);
 		// find maxLastActive + maxWeight
 		int maxLastActivePower = 0;
 		int sumWeights = 0;
@@ -861,7 +861,7 @@ public class Solver {
 		for (Inverter inv : inverters) {
 			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
 		}
-		log.info(b.toString());
+//		log.info(b.toString());
 
 		// store last value inside Inverter
 		finalSolution.forEach((inv, powerTuple) -> {

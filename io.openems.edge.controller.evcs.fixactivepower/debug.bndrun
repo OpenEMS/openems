@@ -1,0 +1,13 @@
+#
+# io.openems.edge.controller.evcs.fixactivepower DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.controller.evcs.fixactivepower.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
