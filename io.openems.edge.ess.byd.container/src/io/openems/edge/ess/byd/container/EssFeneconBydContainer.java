@@ -51,7 +51,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
 
-	private final static int UNIT_ID = 1310;
+	private final static int UNIT_ID = 100;
 	private String modbusBridgeId;
 	private boolean readonly = false;
 
@@ -67,14 +67,39 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
+		//log.info("Received via Reference Modbus: " + modbus.id());
 		super.setModbus(modbus);
 	}
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected BridgeModbus modbus1;
+	
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected BridgeModbus modbus2;
+	
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id0());
 
-		this.modbusBridgeId = config.modbus_id();
+		// Configure Modbus 1
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus1", config.modbus_id1())) {
+			return;
+		}
+		
+		// Configure Modbus 2
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus2", config.modbus_id2())) {
+			return;
+		}
+		
+		if (this.isEnabled() && this.modbus1 != null) {
+			this.modbus1.addProtocol(this.id(), this.defineModbus1Protocol());
+		}
+		
+		if(this.isEnabled() && this.modbus2 != null) {
+			this.modbus2.addProtocol(this.getModbusBridgeId(), this.defineModbus2Protocol());
+		}
+		
+		this.modbusBridgeId = config.modbus_id1();
 		this.readonly = config.readonly();
 
 		if (config.readonly()) {
@@ -160,7 +185,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 		// TODO set reactive power limit from limitInductiveReactivePower +
 		// limitCapacitiveReactivePower
-		return Power.NO_CONSTRAINTS;
+		return Power.NO_CONSTRAINTS;		
 	}
 
 	public String getModbusBridgeId() {
@@ -172,27 +197,22 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		// RTU registers
 		SYSTEM_WORKSTATE(new Doc().options(SystemWorkstate.values())),
 		SYSTEM_WORKMODE(new Doc().accessMode(AccessMode.READ_WRITE).options(SystemWorkmode.values())),
-		LIMIT_INDUCTIVE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)),
-		LIMIT_CAPACITIVE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)),
+		LIMIT_INDUCTIVE_REACTIVE_POWER(new Doc().unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
+		LIMIT_CAPACITIVE_REACTIVE_POWER(new Doc().unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
 		CONTAINER_RUN_NUMBER(new Doc().unit(Unit.NONE)),
 		SET_SYSTEM_WORKSTATE(new Doc().options(SetSystemWorkstate.values())),
 		SET_ACTIVE_POWER(new Doc().unit(Unit.KILOWATT)),
-		// TODO SET_ACTIVE_POWER -> kW!
 		SET_REACTIVE_POWER(new Doc().unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
-		// TODO SET_REACTIVE_POWER -> kvar!
 		// PCS registers
 		PCS_SYSTEM_WORKSTATE(new Doc().options(SystemWorkstate.values())),
 		PCS_SYSTEM_WORKMODE(new Doc().options(SystemWorkmode.values())),
 		PHASE3_ACTIVE_POWER(new Doc().unit(Unit.KILOWATT)),
-		PHASE3_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)),
-		PHASE3_INSPECTING_POWER(new Doc().unit(Unit.VOLT_AMPERE)),
-		// Conversion required to from VA to kVA
+		PHASE3_REACTIVE_POWER(new Doc().unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
+		PHASE3_INSPECTING_POWER(new Doc().unit(Unit.KILOVOLT_AMPERE)),
 		PCS_DISCHARGE_LIMIT_ACTIVE_POWER(new Doc().unit(Unit.KILOWATT)),
 		PCS_CHARGE_LIMIT_ACTIVE_POWER(new Doc().unit(Unit.KILOWATT)),
-		POSITIVE_REACTIVE_POWER_LIMIT(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)),
-		// TODO -> whats this?
-		// Conversion required to from var to kvar
-		NEGATIVE_REACTIVE_POWER_LIMIT(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)),
+		POSITIVE_REACTIVE_POWER_LIMIT(new Doc().unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
+		NEGATIVE_REACTIVE_POWER_LIMIT(new Doc().unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
 		CURRENT_L1(new Doc().unit(Unit.AMPERE)), CURRENT_L2(new Doc().unit(Unit.AMPERE)),
 		CURRENT_L3(new Doc().unit(Unit.AMPERE)), VOLTAGE_L1(new Doc().unit(Unit.VOLT)),
 		VOLTAGE_L2(new Doc().unit(Unit.VOLT)), VOLTAGE_L3(new Doc().unit(Unit.VOLT)),
@@ -229,6 +249,14 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		BATTERY_STRING_WARNING_0_0(new Doc().unit(Unit.NONE)), BATTERY_STRING_WARNING_0_1(new Doc().unit(Unit.NONE)),
 		BATTERY_STRING_WARNING_1_0(new Doc().unit(Unit.NONE)), BATTERY_STRING_WARNING_1_1(new Doc().unit(Unit.NONE)),
 		// ADAS register addresses
+		CONTAINER_IMMERSION_STATE(new Doc().unit(Unit.NONE)),
+		CONTAINER_FIRE_STATUS(new Doc().unit(Unit.NONE)),
+		CONTROL_CABINET_STATE(new Doc().unit(Unit.NONE)),
+		CONTAINER_GROUNDING_FAULT(new Doc().unit(Unit.NONE)),
+		CONTAINER_DOOR_STATUS_0(new Doc().unit(Unit.NONE)),
+		CONTAINER_DOOR_STATUS_1(new Doc().unit(Unit.NONE)),
+		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE(new Doc().unit(Unit.NONE)),
+		/*	
 		CONTAINER_IMMERSION_STATE_1(new Doc().level(Level.WARNING).text("Immersion happens")),
 		CONTAINER_IMMERSION_STATE_0(new Doc().level(Level.WARNING).text("Immersion vanishes")),
 		CONTAINER_FIRE_STATUS_1(new Doc().level(Level.WARNING).text("Fire alarm")),
@@ -244,6 +272,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_1(
 				new Doc().level(Level.WARNING).text("Air conditioning power supply")),
 		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_0(new Doc().level(Level.WARNING).text("Air conditioning shuts down")),
+		*/
 		ADAS_WARNING_0_0(new Doc().unit(Unit.NONE)), ADAS_WARNING_0_1(new Doc().unit(Unit.NONE)),
 		ADAS_WARNING_0_2(new Doc().unit(Unit.NONE)), ADAS_WARNING_1_0(new Doc().unit(Unit.NONE)),
 		ADAS_WARNING_1_1(new Doc().unit(Unit.NONE)), ADAS_WARNING_1_2(new Doc().unit(Unit.NONE)),
@@ -262,84 +291,46 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() { // Double of Not ???
-		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(0x38A0, Priority.LOW, //
-						// RTU registers
-						m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE, new UnsignedWordElement(0x38A0)),
-						m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x38A1)),
-						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new SignedWordElement(0x38A2),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new SignedWordElement(0x38A3),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(EssFeneconBydContainer.ChannelId.LIMIT_INDUCTIVE_REACTIVE_POWER,
-								new SignedWordElement(0x38A4)),
-						m(EssFeneconBydContainer.ChannelId.LIMIT_CAPACITIVE_REACTIVE_POWER,
-								new SignedWordElement(0x38A5)),
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x38A6),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x38A7),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x38A8)),
-						m(EssFeneconBydContainer.ChannelId.CONTAINER_RUN_NUMBER, new UnsignedWordElement(0x38A9))),
-				new FC16WriteRegistersTask(0x0500,
-						m(EssFeneconBydContainer.ChannelId.SET_SYSTEM_WORKSTATE, new UnsignedWordElement(0x0500)),
-						m(EssFeneconBydContainer.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(EssFeneconBydContainer.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
-
-				new FC16WriteRegistersTask(0x0601, //
-						m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x0601))),
-				// PCS registers
-				// TODO multiple PCS!
-				// PCS information list 0x1000-0x2FFF offset 0x200 up to 4 PCSs information
-				// 0x1000~0x11F is for 1#PCS
-				// 0x1200~0x13FF is for 2#PCS
-				// 0x1400~0x15FFis for 3#PCS
-				// 0x1600~0x17FFis for 4#PCS
-				new FC3ReadRegistersTask(0x1001, Priority.LOW,
-						m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKSTATE, new UnsignedWordElement(0x1001)),
-						m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKMODE, new UnsignedWordElement(0x1002)),
-						m(EssFeneconBydContainer.ChannelId.PHASE3_ACTIVE_POWER, new SignedWordElement(0x1003)),
-						m(EssFeneconBydContainer.ChannelId.PHASE3_REACTIVE_POWER, new SignedWordElement(0x1004)),
-						m(EssFeneconBydContainer.ChannelId.PHASE3_INSPECTING_POWER, new UnsignedWordElement(0x1005)),
-						m(EssFeneconBydContainer.ChannelId.PCS_DISCHARGE_LIMIT_ACTIVE_POWER,
-								new UnsignedWordElement(0x1006)),
-						m(EssFeneconBydContainer.ChannelId.PCS_CHARGE_LIMIT_ACTIVE_POWER,
-								new SignedWordElement(0x1007)),
-						m(EssFeneconBydContainer.ChannelId.POSITIVE_REACTIVE_POWER_LIMIT,
-								new UnsignedWordElement(0x1008)),
-						m(EssFeneconBydContainer.ChannelId.NEGATIVE_REACTIVE_POWER_LIMIT,
-								new SignedWordElement(0x1009)),
-						m(EssFeneconBydContainer.ChannelId.CURRENT_L1, new SignedWordElement(0x100A)),
-						m(EssFeneconBydContainer.ChannelId.CURRENT_L2, new SignedWordElement(0x100B)),
-						m(EssFeneconBydContainer.ChannelId.CURRENT_L3, new SignedWordElement(0x100C)),
-						m(EssFeneconBydContainer.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x100D)),
-						m(EssFeneconBydContainer.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x100E)),
-						m(EssFeneconBydContainer.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x100F)),
-						m(EssFeneconBydContainer.ChannelId.VOLTAGE_L12, new UnsignedWordElement(0x1010)),
-						m(EssFeneconBydContainer.ChannelId.VOLTAGE_L23, new UnsignedWordElement(0x1011)),
-						m(EssFeneconBydContainer.ChannelId.VOLTAGE_L31, new UnsignedWordElement(0x1012)),
-						m(EssFeneconBydContainer.ChannelId.SYSTEM_FREQUENCY, new UnsignedWordElement(0x1013)),
-						m(EssFeneconBydContainer.ChannelId.DC_VOLTAGE, new SignedWordElement(0x1014)),
-						m(EssFeneconBydContainer.ChannelId.DC_CURRENT, new SignedWordElement(0x1015)),
-						m(EssFeneconBydContainer.ChannelId.DC_POWER, new SignedWordElement(0x1016)),
-						m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L1, new SignedWordElement(0x1017)),
-						m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L2, new SignedWordElement(0x1018)),
-						m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L3, new SignedWordElement(0x1019)),
-						new DummyRegisterElement(0x101A, 0X103F),
-						m(EssFeneconBydContainer.ChannelId.PCS_WARNING_0, new UnsignedWordElement(0x1040)),
-						m(EssFeneconBydContainer.ChannelId.PCS_WARNING_1, new UnsignedWordElement(0x1041)),
-						m(EssFeneconBydContainer.ChannelId.PCS_WARNING_2, new UnsignedWordElement(0x1042)),
-						m(EssFeneconBydContainer.ChannelId.PCS_WARNING_3, new UnsignedWordElement(0x1043)),
-						new DummyRegisterElement(0x1044, 0X104F),
-						m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_0, new UnsignedWordElement(0x1050)),
-						m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_1, new UnsignedWordElement(0x1051)),
-						m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_2, new UnsignedWordElement(0x1052)),
-						m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_3, new UnsignedWordElement(0x1053)),
-						m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_4, new UnsignedWordElement(0x1054)),
-						m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_5, new UnsignedWordElement(0x1055))),
+	protected ModbusProtocol defineModbusProtocol() {
+		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x1001, Priority.LOW,
+				m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKSTATE, new UnsignedWordElement(0x1001)),
+				m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKMODE, new UnsignedWordElement(0x1002)),
+				m(EssFeneconBydContainer.ChannelId.PHASE3_ACTIVE_POWER, new SignedWordElement(0x1003)),
+				m(EssFeneconBydContainer.ChannelId.PHASE3_REACTIVE_POWER, new SignedWordElement(0x1004)),
+				m(EssFeneconBydContainer.ChannelId.PHASE3_INSPECTING_POWER, new UnsignedWordElement(0x1005)),
+				m(EssFeneconBydContainer.ChannelId.PCS_DISCHARGE_LIMIT_ACTIVE_POWER, new UnsignedWordElement(0x1006)),
+				m(EssFeneconBydContainer.ChannelId.PCS_CHARGE_LIMIT_ACTIVE_POWER, new SignedWordElement(0x1007)),
+				m(EssFeneconBydContainer.ChannelId.POSITIVE_REACTIVE_POWER_LIMIT, new UnsignedWordElement(0x1008)),
+				m(EssFeneconBydContainer.ChannelId.NEGATIVE_REACTIVE_POWER_LIMIT, new SignedWordElement(0x1009)),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L1, new SignedWordElement(0x100A),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L2, new SignedWordElement(0x100B)),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L3, new SignedWordElement(0x100C)),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x100D)),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x100E)),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x100F)),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L12, new UnsignedWordElement(0x1010)),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L23, new UnsignedWordElement(0x1011)),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L31, new UnsignedWordElement(0x1012)),
+				m(EssFeneconBydContainer.ChannelId.SYSTEM_FREQUENCY, new UnsignedWordElement(0x1013)),
+				m(EssFeneconBydContainer.ChannelId.DC_VOLTAGE, new SignedWordElement(0x1014)),
+				m(EssFeneconBydContainer.ChannelId.DC_CURRENT, new SignedWordElement(0x1015)),
+				m(EssFeneconBydContainer.ChannelId.DC_POWER, new SignedWordElement(0x1016)),
+				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L1, new SignedWordElement(0x1017)),
+				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L2, new SignedWordElement(0x1018)),
+				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L3, new SignedWordElement(0x1019)),
+				new DummyRegisterElement(0x101A, 0X103F),
+				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_0, new UnsignedWordElement(0x1040)),
+				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_1, new UnsignedWordElement(0x1041)),
+				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_2, new UnsignedWordElement(0x1042)),
+				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_3, new UnsignedWordElement(0x1043)),
+				new DummyRegisterElement(0x1044, 0X104F),
+				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_0, new UnsignedWordElement(0x1050)),
+				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_1, new UnsignedWordElement(0x1051)),
+				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_2, new UnsignedWordElement(0x1052)),
+				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_3, new UnsignedWordElement(0x1053)),
+				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_4, new UnsignedWordElement(0x1054)),
+				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_5, new UnsignedWordElement(0x1055))),
 				// BECU registers
 				new FC3ReadRegistersTask(0x6001, Priority.LOW,
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WORK_STATE, new UnsignedWordElement(0x6001)),
@@ -385,40 +376,54 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_0_1, new UnsignedWordElement(0x6041)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_1_0, new UnsignedWordElement(0x6042)),
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_1_1,
-								new UnsignedWordElement(0x6043))),
-				// ADAS address list
-				new FC3ReadRegistersTask(0x3410, Priority.LOW,
-						bm(new UnsignedWordElement(0x3410))
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_IMMERSION_STATE_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_IMMERSION_STATE_0, 0).build(),
-						bm(new UnsignedWordElement(0x3411))
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_FIRE_STATUS_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_FIRE_STATUS_0, 0).build(),
-						bm(new UnsignedWordElement(0x3412))
-								.m(EssFeneconBydContainer.ChannelId.CONTROL_CABINET_STATE_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTROL_CABINET_STATE_0, 0).build(),
-						bm(new UnsignedWordElement(0x3413))
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_GROUNDING_FAULT_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_GROUNDING_FAULT_0, 0).build(),
-						bm(new UnsignedWordElement(0x3414))
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_0_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_0_0, 0).build(),
-						bm(new UnsignedWordElement(0x3415))
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_1_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_1_0, 0).build(),
-						bm(new UnsignedWordElement(0x3416))
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_1, 1)
-								.m(EssFeneconBydContainer.ChannelId.CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_0, 0)
-								.build(),
-						new DummyRegisterElement(0X3417, 0X343F),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_0, new UnsignedWordElement(0x3440)),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_1, new UnsignedWordElement(0x3441)),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_2, new UnsignedWordElement(0x3442)),
-						new DummyRegisterElement(0X3443, 0X344F),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_0, new UnsignedWordElement(0x3450)),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_1, new UnsignedWordElement(0x3451)),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_2, new UnsignedWordElement(0x3452)),
-						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_3, new UnsignedWordElement(0x3453))));
+								new UnsignedWordElement(0x6043))));
+	}
+
+	private ModbusProtocol defineModbus1Protocol() {
+		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x3410, Priority.LOW,
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_IMMERSION_STATE, new UnsignedWordElement(0x3410)),
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_FIRE_STATUS, new UnsignedWordElement(0x3411)),
+				m(EssFeneconBydContainer.ChannelId.CONTROL_CABINET_STATE, new UnsignedWordElement(0x3412)),
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_GROUNDING_FAULT, new UnsignedWordElement(0x3413)),
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_0, new UnsignedWordElement(0x3414)),
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_1, new UnsignedWordElement(0x3415)),
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE, new UnsignedWordElement(0x3416)),
+				new DummyRegisterElement(0X3417, 0X343F),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_0, new UnsignedWordElement(0x3440)),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_1, new UnsignedWordElement(0x3441)),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_2, new UnsignedWordElement(0x3442)),
+				new DummyRegisterElement(0X3443, 0X344F),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_0, new UnsignedWordElement(0x3450)),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_1, new UnsignedWordElement(0x3451)),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_2, new UnsignedWordElement(0x3452)),
+				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_3, new UnsignedWordElement(0x3453))));
+	}
+
+	protected ModbusProtocol defineModbus2Protocol() {
+		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x38A0, Priority.LOW, //
+				// RTU registers
+				m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE, new UnsignedWordElement(0x38A0)),
+				m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x38A1)),
+				m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new SignedWordElement(0x38A2),
+						ElementToChannelConverter.SCALE_FACTOR_3),
+				m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new SignedWordElement(0x38A3),
+						ElementToChannelConverter.SCALE_FACTOR_3),
+				m(EssFeneconBydContainer.ChannelId.LIMIT_INDUCTIVE_REACTIVE_POWER, new SignedWordElement(0x38A4)),
+				m(EssFeneconBydContainer.ChannelId.LIMIT_CAPACITIVE_REACTIVE_POWER, new SignedWordElement(0x38A5)),
+				m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x38A6),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x38A7),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x38A8)),
+				m(EssFeneconBydContainer.ChannelId.CONTAINER_RUN_NUMBER, new UnsignedWordElement(0x38A9))),
+				new FC16WriteRegistersTask(0x0500,
+						m(EssFeneconBydContainer.ChannelId.SET_SYSTEM_WORKSTATE, new UnsignedWordElement(0x0500)),
+						m(EssFeneconBydContainer.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						m(EssFeneconBydContainer.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
+								ElementToChannelConverter.SCALE_FACTOR_3)),
+				new FC16WriteRegistersTask(0x0601, //
+						m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x0601))));
 	}
 
 //	@Override
