@@ -1,16 +1,5 @@
 package io.openems.edge.controller.api.rest;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.core.WritePOJO;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,6 +16,18 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.controller.api.core.WritePojo;
 
 public class RestHandler extends AbstractHandler {
 
@@ -58,13 +59,13 @@ public class RestHandler extends AbstractHandler {
 				this.handleRest(remainingTargets, baseRequest, request, response);
 				break;
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			throw new IOException(e.getMessage());
 		}
 	}
 
 	private void handleRest(List<String> targets, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws OpenemsException, IOException {
+			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.isEmpty()) {
 			throw new OpenemsException("Missing arguments to handle REST-request");
 		}
@@ -80,7 +81,7 @@ public class RestHandler extends AbstractHandler {
 	}
 
 	private void handleChannel(List<String> targets, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws IOException, OpenemsException {
+			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.size() != 2) {
 			throw new OpenemsException("Missing arguments to handle Channel");
 		}
@@ -94,20 +95,14 @@ public class RestHandler extends AbstractHandler {
 		// }
 
 		// get request attributes
-		String thingId = targets.get(0);
-		String channelId = targets.get(1);
+		ChannelAddress channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
 
 		// get channel
-		Channel<?> channel = null;
-		for (OpenemsComponent component : this.parent.getComponents()) {
-			if (component.id().equals(thingId)) {
-				// get channel
-				channel = component.channel(channelId);
-				break;
-			}
-		}
-		if (channel == null) {
-			// Channel not found
+		Channel<?> channel;
+		try {
+			channel = this.parent.componentManager.getChannel(channelAddress);
+		} catch (IllegalArgumentException e) {
+			this.parent.logWarn(this.log, e.getMessage());
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -209,7 +204,7 @@ public class RestHandler extends AbstractHandler {
 		} else {
 			value = jValue.toString();
 		}
-		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePOJO(value));
+		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePojo(value));
 		log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
 
 		this.sendOkResponse(baseRequest, response, new JsonObject());

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -21,26 +24,30 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class JsonUtils {
-	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsException {
+
+	private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
+
+	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
 		if (!jPrimitive.isBoolean()) {
-			throw new OpenemsException("This is not a Boolean: " + jPrimitive);
+			throw OpenemsError.JSON_NO_BOOLEAN.exception(jPrimitive);
 		}
 		return jPrimitive.getAsBoolean();
 	}
 
-	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws OpenemsException {
+	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isBoolean()) {
-			throw new OpenemsException("Element [" + memberName + "] is not a Boolean: " + jPrimitive);
+			throw OpenemsError.JSON_NO_BOOLEAN_MEMBER.exception(memberName, jPrimitive);
 		}
 		return jPrimitive.getAsBoolean();
 	}
 
-	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsException {
+	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsInt();
@@ -48,25 +55,41 @@ public class JsonUtils {
 			String string = jPrimitive.getAsString();
 			return Integer.parseInt(string);
 		}
-		throw new OpenemsException("Element [" + memberName + "] is not an Integer: " + jPrimitive);
+		throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(memberName, jPrimitive);
 	}
 
-	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsException {
+	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonArray()) {
-			throw new OpenemsException("This is not a JsonArray: " + jElement);
+			throw OpenemsError.JSON_NO_ARRAY.exception(jElement);
 		}
 		return jElement.getAsJsonArray();
 	}
 
-	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws OpenemsException {
+	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonArray()) {
-			throw new OpenemsException("Element [" + memberName + "] is not a JsonArray: " + jSubElement);
+			throw OpenemsError.JSON_NO_ARRAY_MEMBER.exception(memberName, jSubElement);
 		}
 		return jSubElement.getAsJsonArray();
 	}
 
-	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
+	/**
+	 * Converts JSON Array to a String Array.
+	 * 
+	 * @param json the JSON Array
+	 * @return a String Array
+	 * @throws OpenemsNamedException on error
+	 */
+	public static String[] getAsStringArray(JsonArray json) throws OpenemsNamedException {
+		String[] result = new String[json.size()];
+		int i = 0;
+		for (JsonElement element : json) {
+			result[i++] = JsonUtils.getAsString(element);
+		}
+		return result;
+	}
+
+	public static JsonElement getAsJsonElement(Object value) {
 		// null
 		if (value == null) {
 			return JsonNull.INSTANCE;
@@ -118,32 +141,51 @@ public class JsonUtils {
 			 * String-Array
 			 */
 			JsonArray js = new JsonArray();
-			for (String s : (String[]) value) {
+			String[] v = (String[]) value;
+			if (v.length == 1 && v[0].isEmpty()) {
+				// special case: String-Array with one entry which is an empty String. Return an
+				// empty JsonArray.
+				return js;
+			}
+			for (String s : v) {
 				js.add(new JsonPrimitive((String) s));
 			}
 			return js;
+		} else if (value instanceof Object[]) {
+			/*
+			 * Object-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (Object o : (Object[]) value) {
+				js.add(JsonUtils.getAsJsonElement(o));
+			}
+			return js;
+		} else {
+			/*
+			 * Use toString()-method
+			 */
+			log.warn("Converter for [" + value + "]" + " of type [" + value.getClass().getSimpleName()
+					+ "] to JSON is not implemented.");
+			return new JsonPrimitive(value.toString());
 		}
-		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
-				+ value.getClass().getSimpleName() + "]" //
-				+ " to JSON is not implemented.");
 	}
 
-	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsException {
+	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonObject()) {
-			throw new OpenemsException("This is not a JsonObject: " + jElement);
+			throw OpenemsError.JSON_NO_OBJECT.exception(jElement);
 		}
 		return jElement.getAsJsonObject();
 	}
 
-	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsException {
-		JsonElement jsubElement = getSubElement(jElement, memberName);
-		if (!jsubElement.isJsonObject()) {
-			throw new OpenemsException("Element [" + memberName + "] is not a JsonObject: " + jsubElement);
+	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsNamedException {
+		JsonElement subElement = getSubElement(jElement, memberName);
+		if (!subElement.isJsonObject()) {
+			throw OpenemsError.JSON_NO_OBJECT_MEMBER.exception(memberName, subElement);
 		}
-		return jsubElement.getAsJsonObject();
+		return subElement.getAsJsonObject();
 	}
 
-	public static long getAsLong(JsonElement jElement, String memberName) throws OpenemsException {
+	public static long getAsLong(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsLong();
@@ -151,13 +193,13 @@ public class JsonUtils {
 			String string = jPrimitive.getAsString();
 			return Long.parseLong(string);
 		}
-		throw new OpenemsException("[" + memberName + "] is not a Number: " + jPrimitive);
+		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive);
 	}
 
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsInt(jElement, memberName));
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
 	}
@@ -165,7 +207,7 @@ public class JsonUtils {
 	public static Optional<JsonArray> getAsOptionalJsonArray(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsJsonArray(jElement, memberName));
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
 	}
@@ -173,7 +215,7 @@ public class JsonUtils {
 	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement) {
 		try {
 			return Optional.of(getAsJsonObject(jElement));
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
 	}
@@ -181,7 +223,7 @@ public class JsonUtils {
 	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsJsonObject(jElement, memberName));
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
 	}
@@ -189,7 +231,7 @@ public class JsonUtils {
 	public static Optional<Long> getAsOptionalLong(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsLong(jElement, memberName));
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
 	}
@@ -197,12 +239,12 @@ public class JsonUtils {
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		try {
 			return Optional.of(getAsString(jElement, memberName));
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
 	}
 
-	public static Object getAsBestType(JsonElement j) throws OpenemsException {
+	public static Object getAsBestType(JsonElement j) throws OpenemsNamedException {
 		try {
 			if (j.isJsonArray()) {
 				JsonArray jA = (JsonArray) j;
@@ -265,8 +307,7 @@ public class JsonUtils {
 			}
 			return j.getAsString();
 		} catch (Exception e) {
-			throw new OpenemsException(
-					"Failed to parse JsonElement [" + j + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(j, e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
 
@@ -343,46 +384,46 @@ public class JsonUtils {
 		return getAsType(type, j);
 	}
 
-	public static JsonPrimitive getAsPrimitive(JsonElement jElement) throws OpenemsException {
+	public static JsonPrimitive getAsPrimitive(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonPrimitive()) {
-			throw new OpenemsException("This is not a JsonPrimitive: " + jElement);
+			throw OpenemsError.JSON_NO_PRIMITIVE.exception(jElement);
 		}
 		return jElement.getAsJsonPrimitive();
 	}
 
-	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws OpenemsException {
+	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		return getAsPrimitive(jSubElement);
 	}
 
-	public static String getAsString(JsonElement jElement) throws OpenemsException {
+	public static String getAsString(JsonElement jElement) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
 		if (!jPrimitive.isString()) {
-			throw new OpenemsException("This is not a String: " + jPrimitive);
+			throw OpenemsError.JSON_NO_STRING.exception(jPrimitive);
 		}
 		return jPrimitive.getAsString();
 	}
 
-	public static String getAsString(JsonElement jElement, String memberName) throws OpenemsException {
+	public static String getAsString(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isString()) {
-			throw new OpenemsException("Element [" + memberName + "] is not a String: " + jPrimitive);
+			throw OpenemsError.JSON_NO_STRING_MEMBER.exception(memberName, jPrimitive);
 		}
 		return jPrimitive.getAsString();
 	}
 
 	/**
-	 * Takes a json in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with
+	 * Takes a JSON in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with
 	 * hour, minute and second set to zero.
 	 * 
 	 * @param element    the JsonElement
 	 * @param memberName the name of the member of the JsonObject
 	 * @param timezone   the timezone
 	 * @return the ZonedDateTime
-	 * @throws OpenemsException on parse error
+	 * @throws OpenemsNamedException on parse error
 	 */
 	public static ZonedDateTime getAsZonedDateTime(JsonElement element, String memberName, ZoneId timezone)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		String[] date = JsonUtils.getAsString(element, memberName).split("-");
 		try {
 			int year = Integer.valueOf(date[0]);
@@ -390,7 +431,7 @@ public class JsonUtils {
 			int day = Integer.valueOf(date[2]);
 			return ZonedDateTime.of(year, month, day, 0, 0, 0, 0, timezone);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new OpenemsException("Element [" + memberName + "] is not a Date: " + element + ". Error: " + e);
+			throw OpenemsError.JSON_NO_DATE_MEMBER.exception(memberName, element, e.getMessage());
 		}
 	}
 
@@ -425,10 +466,10 @@ public class JsonUtils {
 		return result;
 	}
 
-	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws OpenemsException {
+	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
-			throw new OpenemsException("Element [" + memberName + "] is not a Subelement of: " + jElement);
+			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(jElement, memberName);
 		}
 		return jObject.get(memberName);
 	}
@@ -442,14 +483,14 @@ public class JsonUtils {
 	 * 
 	 * @param string to be parsed
 	 * @return the JsonElement
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
-	public static JsonElement parse(String string) throws OpenemsException {
+	public static JsonElement parse(String string) throws OpenemsNamedException {
 		try {
 			JsonParser parser = new JsonParser();
 			return parser.parse(string);
 		} catch (JsonParseException e) {
-			throw new OpenemsException("Unable to parse [" + string + "] + to JSON: " + e.getMessage(), e);
+			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
 		}
 	}
 
@@ -462,5 +503,82 @@ public class JsonUtils {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(j);
 		System.out.println(json);
+	}
+
+	/**
+	 * A temporary builder class for JsonObjects.
+	 */
+	public static class JsonObjectBuilder {
+
+		private final JsonObject j;
+
+		protected JsonObjectBuilder() {
+			this(new JsonObject());
+		}
+
+		protected JsonObjectBuilder(JsonObject j) {
+			this.j = j;
+		}
+
+		public JsonObjectBuilder addProperty(String property, String value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder addProperty(String property, int value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder addProperty(String property, long value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder addProperty(String property, boolean value) {
+			j.addProperty(property, value);
+			return this;
+		}
+
+		public JsonObjectBuilder add(String property, JsonElement value) {
+			j.add(property, value);
+			return this;
+		}
+
+		public JsonObject build() {
+			return this.j;
+		}
+
+	}
+
+	/**
+	 * Creates a JsonObject using a Builder.
+	 * 
+	 * @return the Builder
+	 */
+	public static JsonObjectBuilder buildJsonObject() {
+		return new JsonObjectBuilder();
+	}
+
+	/**
+	 * Creates a JsonObject using a Builder. Initialized from an existing
+	 * JsonObject.
+	 * 
+	 * @param j the initial JsonObject
+	 * @return the Builder
+	 */
+	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
+		return new JsonObjectBuilder(j);
+	}
+
+	/**
+	 * Parses a string to a JsonObject.
+	 * 
+	 * @param string the String
+	 * @return the JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public static JsonObject parseToJsonObject(String string) throws OpenemsNamedException {
+		return JsonUtils.getAsJsonObject(JsonUtils.parse(string));
 	}
 }

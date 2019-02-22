@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "KOSTAL PIKO Core", //
 		description = "Implements a KOSTAL PIKO.")
 @interface Config {
-	String service_pid();
-
 	String id() default "kostalPiko0";
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address")

@@ -10,6 +10,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -48,7 +49,7 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.meterId = config.meter_id();
@@ -62,7 +63,7 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		AsymmetricMeter meter = this.componentManager.getComponent(this.meterId);
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.essId);
 

@@ -10,14 +10,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss.GridMode;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -39,7 +38,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
 
@@ -61,7 +60,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
@@ -72,7 +71,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != SymmetricEss.GridMode.ON_GRID) {
+		if (gridMode != GridMode.ON_GRID) {
 			return;
 		}
 		/*
@@ -81,16 +80,14 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxActivePower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		// TODO this should not be anymore required, as it is done within
+		// ManagedSymmetricEss.SET_ACTIVE_POWER_EQUALS Channel
 
 		/*
 		 * set result
 		 */
-		try {
-			ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
-			ess.getSetReactivePowerEquals().setNextWriteValue(0);
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		ess.getSetActivePowerEquals().setNextWriteValue(calculatedPower);
+		ess.getSetReactivePowerEquals().setNextWriteValue(0);
 	}
 }

@@ -29,13 +29,14 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -49,7 +50,7 @@ import io.openems.edge.ess.api.MetaEss;
 public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-//	private final Logger log = LoggerFactory.getLogger(EssCluster.class);
+	// private final Logger log = LoggerFactory.getLogger(EssCluster.class);
 
 	@Reference
 	private Power power = null;
@@ -94,12 +95,12 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
+		super.activate(context, config.id(), config.enabled());
+
 		// update filter for 'esss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "esss", config.ess_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "esss", config.ess_ids())) {
 			return;
 		}
-
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
 	}
 
 	@Deactivate

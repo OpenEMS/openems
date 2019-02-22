@@ -7,6 +7,10 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.types.OpenemsType;
 
+/**
+ * A DummyRegisterElement is a placeholder for an empty
+ * {@link ModbusRegisterElement}.
+ */
 public class DummyRegisterElement extends AbstractModbusElement<Void> implements ModbusRegisterElement<Void> {
 
 	private final int length;

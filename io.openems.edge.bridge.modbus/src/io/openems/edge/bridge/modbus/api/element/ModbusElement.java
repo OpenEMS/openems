@@ -4,62 +4,63 @@ import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
 /**
- * A ModbusElement represents one or more registers or coils in a
- * {@link ReadTask}.
- * 
- * @author stefan.feilmeier
+ * A ModbusElement represents one or more registers or coils in an
+ * {@link AbstractTask}.
  */
 public interface ModbusElement<T> {
+
 	/**
-	 * Gets the start address of this modbus element
+	 * Gets the start address of this Modbus element.
 	 * 
-	 * @return
+	 * @return the start address
 	 */
 	public int getStartAddress();
 
 	/**
-	 * Number of registers or coils
+	 * Number of Registers or Coils.
 	 * 
-	 * @return
+	 * @return the number of Registers or Coils
 	 */
 	public abstract int getLength();
 
 	/**
-	 * Set the {@link AbstractTask}, where this Element belongs to. This is called during
-	 * {@link AbstractTask}.add()
+	 * Set the {@link AbstractTask}, where this Element belongs to.
+	 * 
+	 * <p>
+	 * This is called by the {@link AbstractTask} constructor.
 	 *
-	 * @param abstractTask
+	 * @param abstractTask the AbstractTask
 	 */
 	public void setModbusTask(AbstractTask abstractTask);
 
 	/**
-	 * Whether this Element should be ignored (= DummyElement)
+	 * Whether this Element should be ignored (= DummyElement).
 	 * 
-	 * @return
+	 * @return true for ignored elements
 	 */
 	public boolean isIgnored();
 
 	/**
 	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
 	 * 
-	 * @return
+	 * @return the OpenemsType
 	 */
 	public OpenemsType getType();
 
 	/**
-	 * Sets a value that should be written to the Modbus device
+	 * Sets a value that should be written to the Modbus device.
 	 * 
-	 * @param valueOpt
-	 * @throws OpenemsException
+	 * @param valueOpt the Optional value
+	 * @throws OpenemsException on error
 	 */
 	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException;
 
 	/**
-	 * resets the value in case if value could not be read from the modbus device
+	 * Invalidates the Channel in case it could not be read from the Modbus device,
+	 * i.e. sets the value to 'UNDEFINED'/null.
 	 */
 	public void invalidate();
 }

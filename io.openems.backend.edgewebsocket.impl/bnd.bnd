@@ -7,21 +7,19 @@ Private-Package: io.openems.backend.edgewebsocket.impl
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.backend.edgewebsocket.api;version=latest,\
-	io.openems.wrapper.websocket;version=latest,\
-	com.google.guava;version=27,\
-	io.openems.common;version=latest,\
-	io.openems.backend.metadata.api;version=latest,\
+-buildpath: ${buildpath},\
 	io.openems.backend.common;version=latest,\
+	io.openems.backend.edgewebsocket.api;version=latest,\
+	io.openems.backend.metadata.api;version=latest,\
 	io.openems.backend.timedata.api;version=latest,\
-	com.google.gson;version=2.8,\
 	io.openems.backend.uiwebsocket.api;version=latest,\
-	json
+	io.openems.common;version=latest,\
+	io.openems.wrapper.websocket;version=latest,\
+	com.google.gson,\
+	com.google.guava,\
+	slf4j.api
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
 
--runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
+javac.source: 1.8
+javac.target: 1.8

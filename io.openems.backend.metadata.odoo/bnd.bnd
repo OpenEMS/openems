@@ -3,23 +3,23 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.backend.metadata.api;-provide=true
-Private-Package:  \
-	io.openems.backend.metadata.odoo
+Private-Package: \
+	io.openems.backend.metadata.odoo,\
+	io.openems.backend.metadata.odoo.jsonrpc
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+-buildpath: ${buildpath},\
+	io.openems.backend.common;version=latest,\
+	io.openems.backend.edgewebsocket.api;version=latest,\
 	io.openems.backend.metadata.api;version=latest,\
 	io.openems.common;version=latest,\
-	org.apache.servicemix.bundles.xmlrpc-client,\
 	com.google.gson,\
-	com.google.guava;version=27,\
-	io.openems.backend.common;version=latest,\
-	io.openems.backend.edgewebsocket.api;version=latest
+	com.google.guava,\
+	slf4j.api,\
+	org.apache.servicemix.bundles.xmlrpc-client
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
 
--runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
+javac.source: 1.8
+javac.target: 1.8

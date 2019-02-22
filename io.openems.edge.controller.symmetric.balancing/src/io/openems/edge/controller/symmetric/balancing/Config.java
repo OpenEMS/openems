@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Optimizes the self-consumption by keeping the grid meter on zero.")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "ctrlBalancing0";
 
 	boolean enabled() default true;

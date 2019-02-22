@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;;
 		name = "Controller Fix Reactive Power Symmetric", //
 		description = "Defines a fixed reactive power to a symmetric energy storage system.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlFixReactivePower0";
 
 	boolean enabled() default true;

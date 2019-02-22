@@ -1,5 +1,4 @@
-* xref:index.adoc[Introduction]
-* xref:openems_as.adoc[OpenEMS Association]
+* xref:introduction.adoc[Introduction]
 * xref:gettingstarted.adoc[Getting Started]
 * xref:coreconcepts.adoc[Core concepts & terminology]
 * OpenEMS Edge
@@ -16,7 +15,11 @@
 * OpenEMS Backend
 ** xref:backend/architecture.adoc[Architecture]
 ** xref:backend/configuration.adoc[Configuration]
+** xref:backend/backend-to-backend.adoc[Backend-to-Backend]
+** xref:backend/build.adoc[Build OpenEMS Backend]
+** xref:backend/deploy.adoc[Deploy OpenEMS Backend]
+* xref:component-communication/index.adoc[Component Communication]
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]
-* http://openems.io/javadoc[Javadoc]
+* https://openems.github.io/openems.io/javadoc/[Javadoc]

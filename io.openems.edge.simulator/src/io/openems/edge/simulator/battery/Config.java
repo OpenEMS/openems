@@ -6,8 +6,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator Battery Management System", //
 		description = "Implements a simulated battery management system that sends values given in the configuration")
 @interface Config {
-	String service_pid();
-
 	String id() default "bms0";
 
 	boolean enabled() default true;

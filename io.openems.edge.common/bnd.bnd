@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.bridge.modbus.api,\
 	io.openems.edge.common.component,\
-	io.openems.edge.common.worker,\
 	io.openems.edge.common.channel.doc,\
 	io.openems.edge.common.event,\
 	io.openems.edge.common.channel.calculate,\
@@ -19,19 +18,20 @@ Export-Package: \
 	io.openems.edge.common.modbusslave,\
 	io.openems.edge.common.meta,\
 	io.openems.edge.common.jsonapi,\
-	io.openems.edge.common.test
+	io.openems.edge.common.test,\
+	io.openems.edge.common.sum
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	com.google.guava;version=27,\
-	com.google.gson,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
-	org.apache.felix.scr,\
 	io.openems.wrapper.websocket;version=latest,\
-	json
+	org.apache.felix.scr,\
+	com.google.gson,\
+	slf4j.api,\
+	com.google.guava
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

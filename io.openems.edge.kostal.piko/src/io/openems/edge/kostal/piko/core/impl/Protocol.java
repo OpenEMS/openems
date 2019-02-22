@@ -1,5 +1,6 @@
 package io.openems.edge.kostal.piko.core.impl;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -9,14 +10,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.kostal.piko.core.api.KostalPikoCore.ChannelId;
 
 public class Protocol {
 
 	private final Logger log = LoggerFactory.getLogger(KostalPikoCoreImpl.class);
+	private final KostalPikoCoreImpl parent;
 	private final SocketConnection socketConnection;
 
-	public Protocol(SocketConnection socketConnection) {
+	public Protocol(KostalPikoCoreImpl parent, SocketConnection socketConnection) {
+		this.parent = parent;
 		this.socketConnection = socketConnection;
 	}
 
@@ -42,13 +47,18 @@ public class Protocol {
 					channel.setNextValue(getFloatValue(task.getAddress()));
 					break;
 				}
-			} catch (Exception e) {
-				log.warn("KOSTAL Protocol error. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			} catch (OpenemsException e) {
+				log.warn("KOSTAL Protocol error. " + e.getClass().getSimpleName() + ": " + e.getMessage()
+						+ " while executing " + task.toString());
+
+				this.parent.channel(ChannelId.UNABLE_TO_READ_DATA).setNextValue(true);
+				return;
 			}
 		}
+		this.parent.channel(ChannelId.UNABLE_TO_READ_DATA).setNextValue(false);
 	}
 
-	protected boolean getBooleanValue(int address) throws Exception {
+	protected boolean getBooleanValue(int address) throws OpenemsException {
 		byte[] bytes = sendAndReceive(address);
 		if (bytes[0] == 1) {
 			return true;
@@ -56,17 +66,17 @@ public class Protocol {
 		return false;
 	}
 
-	protected int getIntegerFromUnsignedByte(int address) throws Exception {
+	protected int getIntegerFromUnsignedByte(int address) throws OpenemsException {
 		byte[] bytes = sendAndReceive(address);
 		return (int) ByteBuffer.wrap(bytes).get() & (0xFF);
 	}
 
-	protected float getFloatValue(int address) throws Exception {
+	protected float getFloatValue(int address) throws OpenemsException {
 		byte[] bytes = sendAndReceive(address);
 		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 	}
 
-	protected int getIntegerValue(int address) throws Exception {
+	protected int getIntegerValue(int address) throws OpenemsException {
 		byte[] bytes = sendAndReceive(address);
 		ByteBuffer b = ByteBuffer.allocate(4).putInt(0).order(ByteOrder.LITTLE_ENDIAN);
 		b.rewind();
@@ -75,7 +85,7 @@ public class Protocol {
 		return b.getInt();
 	}
 
-	protected String getStringValue(int address) throws Exception {
+	protected String getStringValue(int address) throws OpenemsException {
 		String stringValue = "";
 		byte[] byi = sendAndReceive(address);
 		for (byte b : byi) {
@@ -98,7 +108,7 @@ public class Protocol {
 		return result;
 	}
 
-	private byte[] sendAndReceive(int address) throws Exception {
+	private byte[] sendAndReceive(int address) throws OpenemsException {
 
 		byte[] results = null;
 		/*
@@ -116,22 +126,26 @@ public class Protocol {
 		byte[] request = new byte[] { 0x62, (byte) this.socketConnection.getUnitID(), 0x03,
 				(byte) this.socketConnection.getUnitID(), 0x00, (byte) 0xf0, Array.getByte(result, 0),
 				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3), checksum, 0x00 };
-		/*
-		 * Send
-		 */
-		this.socketConnection.getOut().write(request);
-		this.socketConnection.getOut().flush();
-		Thread.sleep(100);
-		/*
-		 * Receive
-		 */
 		List<Byte> datasList = new ArrayList<>();
-		while (this.socketConnection.getIn().available() > 0) {
-			byte data = (byte) this.socketConnection.getIn().read();
-			datasList.add(data);
+		try {
+			/*
+			 * Send
+			 */
+			this.socketConnection.getOut().write(request);
+			this.socketConnection.getOut().flush();
+			Thread.sleep(100);
+			/*
+			 * Receive
+			 */
+			while (this.socketConnection.getIn().available() > 0) {
+				byte data = (byte) this.socketConnection.getIn().read();
+				datasList.add(data);
+			}
+		} catch (IOException | InterruptedException e) {
+			throw new OpenemsException("Unable to read from socket: " + e.getMessage());
 		}
 		if (datasList.isEmpty()) {
-			throw new Exception("Could not receive any data");
+			throw new OpenemsException("Could not receive any data");
 		}
 		byte[] datas = new byte[datasList.size()];
 		for (int i = 0; i < datasList.size(); i++) {
@@ -142,7 +156,7 @@ public class Protocol {
 		 */
 		boolean isChecksumOk = verifyChecksumOfReply(datas);
 		if (!isChecksumOk) {
-			throw new Exception("Checksum cannot be verified");
+			throw new OpenemsException("Checksum cannot be verified");
 		}
 		/*
 		 * Extract value

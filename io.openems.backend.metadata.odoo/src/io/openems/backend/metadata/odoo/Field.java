@@ -3,7 +3,7 @@ package io.openems.backend.metadata.odoo;
 public interface Field {
 	public String n();
 
-	public enum FemsDevice implements Field {
+	public enum EdgeDevice implements Field {
 		ID("id"), //
 		APIKEY("apikey"), //
 		NAME("name"), //
@@ -12,6 +12,7 @@ public interface Field {
 		OPENEMS_VERSION("openems_version"), //
 		PRODUCT_TYPE("producttype"), //
 		OPENEMS_CONFIG("openems_config"), //
+		OPENEMS_CONFIG_COMPONENTS("openems_config_components"), //
 		LAST_MESSAGE("lastmessage"), //
 		LAST_UPDATE("lastupdate"), //
 		SOC("soc"), //
@@ -19,7 +20,7 @@ public interface Field {
 
 		private final String n;
 
-		private FemsDevice(String n) {
+		private EdgeDevice(String n) {
 			this.n = n;
 		}
 

@@ -4,6 +4,10 @@ import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
 
+/**
+ * An UnsignedQuadruplewordElement represents a Long value in an
+ * {@link AbstractQuadrupleWordElement}.
+ */
 public class UnsignedQuadruplewordElement extends AbstractQuadrupleWordElement<UnsignedQuadruplewordElement, Long> {
 
 	public UnsignedQuadruplewordElement(int address) {

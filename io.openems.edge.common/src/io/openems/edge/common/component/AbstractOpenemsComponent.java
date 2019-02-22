@@ -16,13 +16,13 @@ import io.openems.edge.common.channel.StateChannel;
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
  * 
- * {@link #activate(ComponentContext, String, String, boolean)} and
+ * {@link #activate(ComponentContext, String, boolean)} and
  * {@link #deactivate()} methods should be called by the corresponding methods
  * in the OSGi component.
  */
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
-	private final static AtomicInteger NEXT_GENERATED_COMPONENT_ID = new AtomicInteger(-1);
+	private static final AtomicInteger NEXT_GENERATED_COMPONENT_ID = new AtomicInteger(-1);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
 
@@ -33,25 +33,23 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
 
 	private String id = null;
-	private String servicePid = null;
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
 
 	/**
 	 * Handles @Activate of implementations. Prints log output.
 	 * 
-	 * @param context
-	 * @param service_pid
-	 * @param id
-	 * @param enabled
+	 * @param context the OSGi ComponentContext
+	 * @param id      the unique OpenEMS Component ID
+	 * @param enabled is the Component enabled?
 	 */
-	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
+	protected void activate(ComponentContext context, String id, boolean enabled) {
 		if (id == null || id.trim().equals("")) {
 			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
 		} else {
 			this.id = id;
 		}
-		this.servicePid = service_pid;
+
 		this.enabled = enabled;
 		this.componentContext = context;
 		if (isEnabled()) {
@@ -78,12 +76,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public String servicePid() {
-		return this.servicePid;
-	}
-
-	@Override
-	public ComponentContext componentContext() {
+	public ComponentContext getComponentContext() {
+		if (this.componentContext == null) {
+			this.logWarn(this.log,
+					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
+		}
 		return this.componentContext;
 	}
 
@@ -145,10 +142,21 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	/**
+	 * Log a debug message including the Component ID.
+	 * 
+	 * @param log     the Logger instance
+	 * @param message the message
+	 */
+	protected void logDebug(Logger log, String message) {
+		// TODO use log.debug(String, Object...) to improve speed
+		log.debug("[" + this.id() + "] " + message);
+	}
+
+	/**
 	 * Log an info message including the Component ID.
 	 * 
-	 * @param log
-	 * @param message
+	 * @param log     the Logger instance
+	 * @param message the message
 	 */
 	protected void logInfo(Logger log, String message) {
 		log.info("[" + this.id() + "] " + message);
@@ -157,8 +165,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	/**
 	 * Log a warn message including the Component ID.
 	 * 
-	 * @param log
-	 * @param message
+	 * @param log     the Logger instance
+	 * @param message the message
 	 */
 	protected void logWarn(Logger log, String message) {
 		log.warn("[" + this.id() + "] " + message);
@@ -167,8 +175,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	/**
 	 * Log an error message including the Component ID.
 	 * 
-	 * @param log
-	 * @param message
+	 * @param log     the Logger instance
+	 * @param message the message
 	 */
 	protected void logError(Logger log, String message) {
 		log.error("[" + this.id() + "] " + message);

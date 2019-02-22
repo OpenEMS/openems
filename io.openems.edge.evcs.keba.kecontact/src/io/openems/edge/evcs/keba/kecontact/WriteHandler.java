@@ -48,8 +48,10 @@ public class WriteHandler implements Runnable {
 	 * </ul>
 	 */
 	private void setDisplay() {
+		// FIXME this (and all other functions) should use
+		// "channel.getNextWriteValueAndReset()"
 		WriteChannel<String> channel = this.parent.channel(Evcs.ChannelId.SET_DISPLAY_TEXT);
-		Optional<String> valueOpt = channel.value().asOptional();
+		Optional<String> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			String display = valueOpt.get();
 			if (display.length() > 23) {
@@ -75,7 +77,7 @@ public class WriteHandler implements Runnable {
 	 */
 	private void setEnabled() {
 		WriteChannel<Boolean> channel = this.parent.channel(KebaKeContact.ChannelId.SET_ENABLED);
-		Optional<Boolean> valueOpt = channel.value().asOptional();
+		Optional<Boolean> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			Boolean enabled = valueOpt.get();
 			if (!enabled.equals(this.lastEnabled) || this.nextEnabledWrite.isBefore(LocalDateTime.now())) {
@@ -102,7 +104,7 @@ public class WriteHandler implements Runnable {
 	 */
 	private void setPower() {
 		WriteChannel<Integer> channel = this.parent.channel(Evcs.ChannelId.SET_CHARGE_POWER);
-		Optional<Integer> valueOpt = channel.value().asOptional();
+		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			Integer power = valueOpt.get();
 			// calculate current based on phases and voltage. FIXME: this will have to be

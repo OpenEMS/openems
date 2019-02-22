@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Api Modbus/TCP", //
 		description = "This controller provides a Modbus/TCP api.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlApiModbusTcp0";
 
 	boolean enabled() default true;

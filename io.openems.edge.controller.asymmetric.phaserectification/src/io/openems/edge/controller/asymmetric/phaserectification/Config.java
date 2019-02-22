@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Phase-Rectification", //
 		description = "Sets the ess to the required activepower to get all three phases on the meter to the same level.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ctrlPhaseRectification0";
 
 	boolean enabled() default true;

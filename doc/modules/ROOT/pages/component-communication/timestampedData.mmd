@@ -1,0 +1,11 @@
+sequenceDiagram
+
+participant Edge BackendApi
+participant Backend EdgeWs
+participant Backend Timedata
+
+Note over Edge BackendApi,Backend EdgeWs: Periodically sends data of Channels<br/>from Edge to Backend
+Edge BackendApi ->>+ Backend EdgeWs: Notification timestampedData
+
+Note over Backend EdgeWs,Backend Timedata: Send data to Timedata storage
+Backend EdgeWs ->>+ Backend Timedata: write()

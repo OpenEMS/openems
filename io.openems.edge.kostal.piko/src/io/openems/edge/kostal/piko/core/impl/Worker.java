@@ -2,8 +2,8 @@ package io.openems.edge.kostal.piko.core.impl;
 
 import java.util.List;
 
+import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.taskmanager.TasksManager;
-import io.openems.edge.common.worker.AbstractCycleWorker;
 
 public class Worker extends AbstractCycleWorker {
 
@@ -17,7 +17,7 @@ public class Worker extends AbstractCycleWorker {
 
 	@Override
 	protected void forever() {
-		List<ReadTask> nextReadTasks = this.readTasksManager.getNextReadTasks();
+		List<ReadTask> nextReadTasks = this.readTasksManager.getNextTasks();
 		this.protocol.execute(nextReadTasks);
 	}
 }

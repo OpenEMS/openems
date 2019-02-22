@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
   "version": 1,
-  "defaultProject": "app",
+  "newProjectRoot": "projects",
   "projects": {
     "app": {
       "root": "",
@@ -13,8 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "progress": false,
-            "outputPath": "dist",
+            "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -27,7 +26,7 @@
               },
               {
                 "glob": "**/*.svg",
-                "input": "node_modules/@ionic/angular/dist/ionic/svg",
+                "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               },
               "src/android-chrome-192x192.png",
@@ -52,7 +51,8 @@
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"
-            ]
+            ],
+            "es5BrowserSupport": true
           },
           "configurations": {
             "backend": {
@@ -62,18 +62,25 @@
                   "with": "src/environments/openems-backend.ts"
                 }
               ],
-              "baseHref": "/m/",
+              "baseHref": "/",
               "outputPath": "target/backend",
               "optimization": true,
-              "aot": true,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
+              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "serviceWorker": true,
-              "buildOptimizer": true
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ]
             },
             "backend-dev-local": {
               "fileReplacements": [
@@ -109,6 +116,13 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ],
               "serviceWorker": true,
               "fileReplacements": [
                 {
@@ -189,7 +203,7 @@
           }
         },
         "ionic-cordova-build": {
-          "builder": "@ionic/ng-toolkit:cordova-build",
+          "builder": "@ionic/angular-toolkit:cordova-build",
           "options": {
             "browserTarget": "app:build"
           },
@@ -200,7 +214,7 @@
           }
         },
         "ionic-cordova-serve": {
-          "builder": "@ionic/ng-toolkit:cordova-serve",
+          "builder": "@ionic/angular-toolkit:cordova-serve",
           "options": {
             "cordovaBuildTarget": "app:ionic-cordova-build",
             "devServerTarget": "app:serve"
@@ -217,12 +231,18 @@
     "app-e2e": {
       "root": "e2e/",
       "projectType": "application",
+      "prefix": "",
       "architect": {
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
             "devServerTarget": "app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "app:serve:production"
+            }
           }
         },
         "lint": {
@@ -237,14 +257,15 @@
       }
     }
   },
+  "defaultProject": "app",
   "cli": {
-    "defaultCollection": "@ionic/schematics-angular"
+    "defaultCollection": "@ionic/angular-toolkit"
   },
   "schematics": {
-    "@ionic/schematics-angular:component": {
+    "@ionic/angular-toolkit:component": {
       "styleext": "scss"
     },
-    "@ionic/schematics-angular:page": {
+    "@ionic/angular-toolkit:page": {
       "styleext": "scss"
     }
   }

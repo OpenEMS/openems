@@ -11,9 +11,9 @@ import io.openems.edge.common.converter.StaticConverters;
 public class ElementToChannelConverter {
 
 	/**
-	 * Converts directly 1-to-1 between Element and Channel
+	 * Converts directly 1-to-1 between Element and Channel.
 	 */
-	public final static ElementToChannelConverter DIRECT_1_TO_1 = new ElementToChannelConverter( //
+	public static final ElementToChannelConverter DIRECT_1_TO_1 = new ElementToChannelConverter(//
 			// element -> channel
 			value -> value, //
 			// channel -> element
@@ -24,72 +24,75 @@ public class ElementToChannelConverter {
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
 
 	/**
 	 * Applies a scale factor of -2. Converts value [1] to [0.01].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_2 = new ElementToChannelScaleFactorConverter(-2);
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_2 = new ElementToChannelScaleFactorConverter(-2);
 
 	/**
 	 * Applies a scale factor of -3. Converts value [1] to [0.001].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_3 = new ElementToChannelScaleFactorConverter(-2);
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_3 = new ElementToChannelScaleFactorConverter(-2);
 
 	/**
 	 * Applies a scale factor of 1. Converts value [1] to [10].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_1 = new ElementToChannelScaleFactorConverter(1);
+	public static final ElementToChannelConverter SCALE_FACTOR_1 = new ElementToChannelScaleFactorConverter(1);
 
 	/**
 	 * Applies a scale factor of 2. Converts value [1] to [100].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2 = new ElementToChannelScaleFactorConverter(2);
+	public static final ElementToChannelConverter SCALE_FACTOR_2 = new ElementToChannelScaleFactorConverter(2);
 
 	/**
 	 * Applies a scale factor of 3. Converts value [1] to [1000].
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_3 = new ElementToChannelScaleFactorConverter(3);
+	public static final ElementToChannelConverter SCALE_FACTOR_3 = new ElementToChannelScaleFactorConverter(3);
 
 	/**
-	 * Converts only positive values from Element to Channel
+	 * Converts only positive values from Element to Channel.
 	 */
-	public final static ElementToChannelConverter KEEP_POSITIVE = new ElementToChannelConverter( //
+	public static final ElementToChannelConverter KEEP_POSITIVE = new ElementToChannelConverter(//
 			// element -> channel
 			value -> StaticConverters.KEEP_POSITIVE, //
 			// channel -> element
 			value -> value);
 
 	/**
-	 * Inverts the value from Element to Channel
+	 * Inverts the value from Element to Channel.
 	 */
-	public final static ElementToChannelConverter INVERT = new ElementToChannelConverter( //
+	public static final ElementToChannelConverter INVERT = new ElementToChannelConverter(//
 			// element -> channel
 			StaticConverters.INVERT, //
 			// channel -> element
 			StaticConverters.INVERT);
 
 	/**
-	 * Depending on the given parameter:
+	 * Converts depending on the given parameter.
+	 * 
 	 * <ul>
 	 * <li>true: invert value
 	 * <li>false: keep value (1-to-1)
 	 * </ul>
 	 * 
-	 * @param invert
-	 * @return
+	 * @param invert true if Converter should invert
+	 * @return the {@link ElementToChannelConverter}
 	 */
+	// CHECKSTYLE:OFF
 	public static ElementToChannelConverter INVERT_IF_TRUE(boolean invert) {
+		// CHECKSTYLE:ON
 		if (invert) {
 			return INVERT;
 		} else {
@@ -99,58 +102,61 @@ public class ElementToChannelConverter {
 
 	/**
 	 * Converts only negative values from Element to Channel and inverts them (makes
-	 * the value positive)
+	 * the value positive).
 	 */
-	public final static ElementToChannelConverter KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(INVERT,
+	public static final ElementToChannelConverter KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(INVERT,
 			KEEP_POSITIVE);
 
 	/**
-	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and CONVERT_POSITIVE
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and
+	 * CONVERT_POSITIVE.
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
+	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_1, KEEP_POSITIVE);
 
 	/**
-	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and INVERT
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and INVERT.
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT = new ElementToChannelConverterChain(
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2, INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and
-	 * CONVERT_NEGATIVE_AND_INVERT
+	 * CONVERT_NEGATIVE_AND_INVERT.
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(
+	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(
 			SCALE_FACTOR_1, KEEP_NEGATIVE_AND_INVERT);
 
 	/**
-	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and CONVERT_POSITIVE
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and
+	 * CONVERT_POSITIVE.
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2, KEEP_POSITIVE);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and @see
-	 * {@link ElementToChannelConverter#KEEP_NEGATIVE_AND_INVERT}
+	 * {@link ElementToChannelConverter#KEEP_NEGATIVE_AND_INVERT}.
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2, KEEP_NEGATIVE_AND_INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2_AND_KEEP_NEGATIVE}
-	 * and @see {@link ElementToChannelConverter#INVERT}
+	 * and @see {@link ElementToChannelConverter#INVERT}.
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = new ElementToChannelConverterChain(
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT, INVERT);
 
 	private final Function<Object, Object> elementToChannel;
 	private final Function<Object, Object> channelToElement;
 
 	/**
-	 * This constructs and back-and-forth converter from Element to Channel and back
+	 * This constructs and back-and-forth converter from Element to Channel and
+	 * back.
 	 * 
-	 * @param elementToChannel
-	 * @param channelToElement
+	 * @param elementToChannel from Element to Channel
+	 * @param channelToElement from Channel to Element
 	 */
 	public ElementToChannelConverter(Function<Object, Object> elementToChannel,
 			Function<Object, Object> channelToElement) {
@@ -162,7 +168,7 @@ public class ElementToChannelConverter {
 	 * This constructs a forward-only converter from Element to Channel.
 	 * Back-conversion throws an Exception.
 	 * 
-	 * @param elementToChannel
+	 * @param elementToChannel Element to Channel
 	 */
 	public ElementToChannelConverter(Function<Object, Object> elementToChannel) {
 		this.elementToChannel = elementToChannel;
@@ -175,13 +181,20 @@ public class ElementToChannelConverter {
 	 * Convert an Element value to a Channel value. If the value can or should not
 	 * be converted, this method returns null.
 	 * 
-	 * @param value
+	 * @param value the Element value
 	 * @return the converted value or null
 	 */
 	public Object elementToChannel(Object value) {
 		return this.elementToChannel.apply(value);
 	}
 
+	/**
+	 * Convert a Channel value to an Element value. If the value can or should not
+	 * be converted, this method returns null.
+	 * 
+	 * @param value the Channel value
+	 * @return the converted value or null
+	 */
 	public Object channelToElement(Object value) {
 		return this.channelToElement.apply(value);
 	}

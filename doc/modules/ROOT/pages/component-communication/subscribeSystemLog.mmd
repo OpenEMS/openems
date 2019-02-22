@@ -1,0 +1,58 @@
+sequenceDiagram
+
+participant UiSystemLogComponent as UI:SystemLogComponent<br/><br/>/app/edge/settings/systemlog/<br/>systemlog.component.ts
+
+participant UiEdge as UI:Edge<br/><br/>/app/shared/service/<br/>edge.ts
+
+UiSystemLogComponent ->> UiEdge: subscribeSystemLog()
+
+note over UiEdge: create <br/>SubscribeSystemLog-<br/>Request
+UiEdge->> UiEdge: sendRequest(): promise
+note over UiEdge: wrap in<br/>EdgeRpcRequest
+
+participant BackendUiWebsocket as Backend:UiWebsocket<br/><br/>uiwebsocket<br/>OnRequest.java
+UiEdge->> BackendUiWebsocket: run()
+
+participant BackendEdgeWebsocketSystemLogHandler as Backend:SystemLogHandler<br/><br/>edgewebsocket<br/>SystemLogHandler.java
+
+participant BackendEdgeWebsocket as Backend:EdgeWebsocket<br/><br/>edgewebsocket<br/>OnNotification.java
+
+participant EdgeBackendApiOnRequest as Edge:BackendApi_OnRequest<br/><br/>controller.api.websocket<br/>OnRequest.java
+
+participant EdgeBackendApi as Edge:BackendApi<br/><br/>controller.api.websocket<br/>BackendApi.java
+
+participant EdgePaxLogging as Edge:PaxLogging
+
+activate BackendUiWebsocket
+BackendUiWebsocket->> BackendUiWebsocket: handleEdgeRpcRequest()
+BackendUiWebsocket->> BackendUiWebsocket: handleSubscribeSystemLogRequest()
+
+BackendUiWebsocket->> EdgeBackendApiOnRequest: run()
+activate EdgeBackendApiOnRequest
+EdgeBackendApiOnRequest ->> EdgeBackendApiOnRequest: handleSubscribeSystemLogRequest()
+
+EdgeBackendApiOnRequest ->> EdgeBackendApi: setSystemLogSubscribed()
+activate EdgeBackendApi
+
+note over EdgeBackendApiOnRequest: create <br/>GenericJsonrpc-<br/>ResponseSuccess
+EdgeBackendApiOnRequest ->> BackendUiWebsocket: resolve promise
+BackendUiWebsocket->> UiEdge: resolve promise
+UiEdge ->> UiSystemLogComponent: resolve promise
+
+loop[On Log-Event]
+EdgePaxLogging ->> EdgeBackendApi: doAppend(event)
+note over EdgeBackendApi: create <br/>SystemLog-<br/>Notification
+EdgeBackendApi->> BackendEdgeWebsocket: run()
+activate BackendEdgeWebsocket
+BackendEdgeWebsocket->> BackendEdgeWebsocket: handleSystemLogNotification()
+
+BackendEdgeWebsocket->> BackendEdgeWebsocketSystemLogHandler: handleSystemLogNotification()
+note over BackendEdgeWebsocketSystemLogHandler: wrap in<br/>EdgeRpcNotification
+
+BackendEdgeWebsocketSystemLogHandler->> UiEdge: send() 
+
+deactivate BackendEdgeWebsocket
+deactivate EdgeBackendApi
+deactivate EdgeBackendApiOnRequest
+deactivate BackendUiWebsocket
+end

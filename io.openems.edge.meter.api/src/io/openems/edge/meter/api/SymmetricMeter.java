@@ -1,5 +1,6 @@
 package io.openems.edge.meter.api;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -7,7 +8,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Represents a Symmetric Meter.
@@ -22,8 +22,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
  *
  */
 public interface SymmetricMeter extends OpenemsComponent {
-
-	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
@@ -76,7 +74,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
+				.text(OpenemsConstants.POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						/*
@@ -123,7 +121,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT)), //
+				.text(OpenemsConstants.POWER_DOC_TEXT)), //
 		/**
 		 * Active Production Energy
 		 * 
@@ -187,7 +185,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	/**
 	 * Gets the type of this Meter
 	 * 
-	 * @return
+	 * @return the MeterType
 	 */
 	MeterType getMeterType();
 
@@ -195,7 +193,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * Gets the Active Power in [W]. Negative values for Consumption; positive for
 	 * Production
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getActivePower() {
 		return this.channel(ChannelId.ACTIVE_POWER);
@@ -205,7 +203,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * Gets the Reactive Power in [var]. Negative values for Consumption; positive
 	 * for Production.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
@@ -215,7 +213,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * Gets the Production Active Energy in [Wh]. This relates to positive
 	 * ACTIVE_POWER.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getActiveProductionEnergy() {
 		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -224,7 +222,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	/**
 	 * Gets the Frequency in [mHz]. FREQUENCY
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getFrequency() {
 		return this.channel(ChannelId.FREQUENCY);
@@ -233,7 +231,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	/**
 	 * Gets the Voltage in [mV].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 
 	default Channel<Integer> getVoltage() {
@@ -244,7 +242,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * Gets the Consumption Active Energy in [Wh]. This relates to negative
 	 * ACTIVE_POWER.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getActiveConsumptionEnergy() {
 		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
@@ -253,7 +251,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	/**
 	 * Gets the Minimum Ever Active Power.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getMinActivePower() {
 		return this.channel(ChannelId.MIN_ACTIVE_POWER);
@@ -262,39 +260,9 @@ public interface SymmetricMeter extends OpenemsComponent {
 	/**
 	 * Gets the Maximum Ever Active Power.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
-	}
-
-	/**
-	 * Internal helper method to handle storing Min/MaxActivePower in config
-	 * properties 'minActivePower' and 'maxActivePower'
-	 * 
-	 * @param cm
-	 * @param servicePid
-	 * @param minActivePowerConfig
-	 * @param maxActivePowerConfig
-	 */
-	default void _initializeMinMaxActivePower(ConfigurationAdmin cm, String servicePid, int minActivePowerConfig,
-			int maxActivePowerConfig) {
-		/*
-		 * Update min/max active power channels
-		 */
-		this.getMinActivePower().setNextValue(minActivePowerConfig);
-		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
-		// TODO: use a "StorageChannel" service for this; the following was never
-		// properly working
-//		this.getMinActivePower().onChange(value -> {
-//			if ((Float)value.get() != (float) minActivePowerConfig) {
-//				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", ((Float) value.get()).intValue());
-//			}
-//		});
-//		this.getMaxActivePower().onChange(value -> {
-//			if ((Float) value.get() != (float) maxActivePowerConfig) {
-//				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", ((Float) value.get()).intValue());
-//			}
-//		});
 	}
 }

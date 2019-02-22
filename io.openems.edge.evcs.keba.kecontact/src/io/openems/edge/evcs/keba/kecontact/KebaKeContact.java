@@ -138,7 +138,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 
 		this.ip = Inet4Address.getByName(config.ip());
 
@@ -204,7 +204,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	 * Triggers an immediate execution of query reports
 	 */
 	protected void triggerQuery() {
-		this.readWorker.triggerForceRun();
+		this.readWorker.triggerNextRun();
 	}
 
 	@Override

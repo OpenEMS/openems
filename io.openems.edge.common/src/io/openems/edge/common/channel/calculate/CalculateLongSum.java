@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.common.channel.Channel;
 
 /**
@@ -12,17 +15,24 @@ import io.openems.edge.common.channel.Channel;
  */
 public class CalculateLongSum {
 
+	private final Logger log = LoggerFactory.getLogger(CalculateLongSum.class);
 	private final List<Long> values = new ArrayList<>();
 
 	/**
 	 * Adds a Channel-Value.
 	 * 
-	 * @param channel
+	 * @param channel the Channel
 	 */
 	public void addValue(Channel<Long> channel) {
 		Optional<Long> value = channel.getNextValue().asOptional();
 		if (value.isPresent()) {
-			this.values.add(value.get());
+			try {
+				this.values.add(value.get());
+			} catch (Exception e) {
+				this.log.error("Adding Channel [" + channel.address() + "] value [" + value + "] failed. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -30,6 +40,7 @@ public class CalculateLongSum {
 	 * Calculates the sum.
 	 * 
 	 * @return the sum or null
+	 * @throws NoSuchElementException on error
 	 */
 	public Long calculate() throws NoSuchElementException {
 		if (this.values.isEmpty()) {

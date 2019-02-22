@@ -12,6 +12,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -64,7 +65,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		/*
 		 * parse config
 		 */
@@ -75,7 +76,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled());
 	}
 
 	@Deactivate
@@ -98,7 +99,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	private boolean applyLowHysteresis = true;
 
 	@Override
-	public void run() {
+	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		/*
 		 * Check if all parameters are available
 		 */
@@ -235,16 +236,22 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Switch the output ON
+	 * Switch the output ON.
+	 * 
+	 * @throws OpenemsNamedException 
+	 * @throws IllegalArgumentException 
 	 */
-	private void on() {
+	private void on() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
 	}
 
 	/**
-	 * Switch the output OFF
+	 * Switch the output OFF.
+	 * 
+	 * @throws OpenemsNamedException 
+	 * @throws IllegalArgumentException 
 	 */
-	private void off() {
+	private void off() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);
 	}
 
@@ -253,8 +260,10 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	 *
 	 * @param value true to switch ON, false to switch ON; is inverted if
 	 *              'invertOutput' config is set
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
-	private void setOutput(boolean value) {
+	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();

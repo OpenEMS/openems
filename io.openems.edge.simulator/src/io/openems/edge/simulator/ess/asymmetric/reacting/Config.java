@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator EssAsymmetric Reacting", //
 		description = "This simulates a 'reacting' asymmetric Energy Storage System.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ess0";
 
 	boolean enabled() default true;

@@ -6,8 +6,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "KOSTAL PIKO PV-Charger", //
 		description = "The PV charger implementation of a KOSTAL PIKO.")
 @interface Config {
-	String service_pid();
-
 	String id() default "charger0";
 
 	String core_id() default "kostalPiko0";

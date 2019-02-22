@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
+/**
+ * A CoilElement has a size of one Modbus Coil or 1 bit.
+ */
 public class CoilElement extends AbstractModbusElement<Boolean> implements ModbusCoilElement {
 
 	private final Logger log = LoggerFactory.getLogger(CoilElement.class);

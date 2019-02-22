@@ -8,8 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Limits total discharge for an Ess.")
 @interface Config {
 
-	String service_pid();
-
 	String id() default "ctrlLimitTotalDischarge0";
 
 	boolean enabled() default true;

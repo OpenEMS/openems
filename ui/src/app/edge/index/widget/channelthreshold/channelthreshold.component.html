@@ -1,0 +1,12 @@
+<ion-card *ngIf="edge">
+  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+  <ion-item *ngIf="(edge.currentData | async).channel as channel">
+    <ion-icon *ngIf="channel[outputChannel.toString()] == null" name="help"></ion-icon>
+    <ion-icon *ngIf="channel[outputChannel.toString()] == 1" name="radio-button-on"></ion-icon>
+    <ion-icon *ngIf="channel[outputChannel.toString()] == 0" name="radio-button-off"></ion-icon>
+    <!-- TODO Fix formatting -->
+    <ion-label>
+      <ion-card-title>Ausgang {{ outputChannel.channelId }}</ion-card-title>
+    </ion-label>
+  </ion-item>
+</ion-card>

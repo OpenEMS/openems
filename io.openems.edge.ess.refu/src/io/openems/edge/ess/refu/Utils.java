@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -32,7 +33,7 @@ public class Utils {
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, SymmetricEss.GridMode.ON_GRID);
+						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, RefuEss.MAX_APPARENT_POWER);
 					}
@@ -47,6 +48,9 @@ public class Utils {
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
 					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
@@ -76,6 +80,18 @@ public class Utils {
 					case SET_REACTIVE_POWER_L1_EQUALS:
 					case SET_REACTIVE_POWER_L2_EQUALS:
 					case SET_REACTIVE_POWER_L3_EQUALS:
+					case SET_ACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_LESS_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_LESS_OR_EQUALS:
+					case SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS:
+					case SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
 					}
 					return null;
