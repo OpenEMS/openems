@@ -218,9 +218,9 @@ public class InfluxConnector {
 	}
 
 	/**
-	 * Actually write the Points to InfluxDB.
+	 * Actually write the Point to InfluxDB.
 	 * 
-	 * @param batchPoints the InfluxDB BatchPoints
+	 * @param point the InfluxDB Point
 	 * @throws OpenemsException on error
 	 */
 	public void write(Point point) throws OpenemsException {

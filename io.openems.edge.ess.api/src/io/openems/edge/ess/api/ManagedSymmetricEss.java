@@ -138,7 +138,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.onInit(new PowerConstraint("SetReactivePowerGreaterOrEquals", Phase.ALL, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
-		 * Holds settings of Active Power for debugging
+		 * Holds settings of Active Power for debugging.
 		 * 
 		 * <ul>
 		 * <li>Interface: Managed Symmetric Ess
@@ -151,7 +151,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 */
 		DEBUG_SET_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
-		 * Holds settings of Reactive Power for debugging
+		 * Holds settings of Reactive Power for debugging.
 		 * 
 		 * <ul>
 		 * <li>Interface: Managed Symmetric Ess
@@ -190,44 +190,44 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the 'Power' class, which allows to set limitations to Active and
-	 * Reactive Power.
+	 * Gets an instance of the 'Power' class, which allows to set limitations to
+	 * Active and Reactive Power.
 	 * 
-	 * @return
+	 * @return the Power instance
 	 */
 	public Power getPower();
 
 	/**
-	 * Gets the Allowed Charge Power in [W], range "&lt;= 0"
+	 * Gets the Allowed Charge Power in [W], range "&lt;= 0".
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getAllowedCharge() {
 		return this.channel(ChannelId.ALLOWED_CHARGE_POWER);
 	}
 
 	/**
-	 * Gets the Allowed Discharge Power in [W], range "&gt;= 0"
+	 * Gets the Allowed Discharge Power in [W], range "&gt;= 0".
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getAllowedDischarge() {
 		return this.channel(ChannelId.ALLOWED_DISCHARGE_POWER);
 	}
 
 	/**
-	 * Gets the Set Active Power Equals in [W]
+	 * Gets the Set Active Power Equals in [W].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default WriteChannel<Integer> getSetActivePowerEquals() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS);
 	}
 
 	/**
-	 * Gets the Set Reactive Power Equals in [var]
+	 * Gets the Set Reactive Power Equals in [var].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default WriteChannel<Integer> getSetReactivePowerEquals() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_EQUALS);
@@ -236,7 +236,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Gets the Set Active Power Less Or Equals in [W].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default WriteChannel<Integer> getSetActivePowerLessOrEquals() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS);
@@ -245,25 +245,25 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Gets the Set Active Power Greater Or Equals in [W].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default WriteChannel<Integer> getSetActivePowerGreaterOrEquals() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS);
 	}
-	
+
 	/**
 	 * Gets the Set Reactive Power Less Or Equals in [var].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default WriteChannel<Integer> getSetReactivePowerLessOrEquals() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS);
 	}
-	
+
 	/**
 	 * Gets the Set Reactive Power Greater Or Equals in [var].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default WriteChannel<Integer> getSetReactivePowerGreaterOrEquals() {
 		return this.channel(ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS);
@@ -272,13 +272,14 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Apply the calculated Power.
 	 * 
+	 * <p>
 	 * Careful: do not adjust activePower and reactivePower in this method, e.g.
 	 * setting it to zero on error. The purpose of this method is solely to apply
 	 * the calculated power to the ESS. If you need to constrain the allowed power,
 	 * add Constraints using the {@link #getStaticConstraints()} method.
 	 * 
-	 * @param activePower
-	 * @param reactivePower
+	 * @param activePower   the active power
+	 * @param reactivePower the reactive power
 	 */
 	public void applyPower(int activePower, int reactivePower);
 
@@ -291,7 +292,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * should return 52 (= 52000 * 0.001)
 	 * </ul>
 	 * 
-	 * @return
+	 * @return the power precision
 	 */
 	public int getPowerPrecision();
 
@@ -299,20 +300,21 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * Gets static Constraints for this Ess. Override this method to provide
 	 * specific Constraints for this Ess on every Cycle.
 	 * 
-	 * @return
+	 * @return the Constraints
 	 */
 	public default Constraint[] getStaticConstraints() {
 		return Power.NO_CONSTRAINTS;
 	}
 
 	/**
-	 * Creates a Power Constraint
+	 * Creates a Power Constraint.
 	 * 
-	 * @param description
-	 * @param phase
-	 * @param pwr
-	 * @param relationship
-	 * @param value
+	 * @param description  a description for the Constraint
+	 * @param phase        the affected power phase
+	 * @param pwr          Active or Reactive power
+	 * @param relationship equals, less-than or greater-than
+	 * @param value        the function value
+	 * @return the Constraint
 	 */
 	public default Constraint createPowerConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
 			double value) {
@@ -322,13 +324,15 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Adds a Power Constraint for the current Cycle.
 	 * 
+	 * <p>
 	 * To add a Constraint on every Cycle, use getStaticConstraints()
 	 * 
-	 * @param description
-	 * @param phase
-	 * @param pwr
-	 * @param relationship
-	 * @param value
+	 * @param description  a description for the Constraint
+	 * @param phase        the affected power phase
+	 * @param pwr          Active or Reactive power
+	 * @param relationship equals, less-than or greater-than
+	 * @param value        the function value
+	 * @return the Constraint
 	 */
 	public default Constraint addPowerConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
 			double value) {
@@ -338,14 +342,16 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	/**
 	 * Adds a Power Constraint for the current Cycle.
 	 * 
+	 * <p>
 	 * To add a Constraint on every Cycle, use getStaticConstraints()
 	 * 
-	 * @param description
-	 * @param phase
-	 * @param pwr
-	 * @param relationship
-	 * @param value
-	 * @throws PowerException
+	 * @param description  a description for the Constraint
+	 * @param phase        the affected power phase
+	 * @param pwr          Active or Reactive power
+	 * @param relationship equals, less-than or greater-than
+	 * @param value        the function value
+	 * @return the Constraint
+	 * @throws PowerException on validation error
 	 */
 	public default Constraint addPowerConstraintAndValidate(String description, Phase phase, Pwr pwr,
 			Relationship relationship, double value) throws PowerException {

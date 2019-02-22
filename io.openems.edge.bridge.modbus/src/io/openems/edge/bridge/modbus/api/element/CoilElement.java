@@ -10,9 +10,6 @@ import io.openems.common.types.OpenemsType;
 
 /**
  * A CoilElement has a size of one Modbus Coil or 1 bit.
- *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
  */
 public class CoilElement extends AbstractModbusElement<Boolean> implements ModbusCoilElement {
 
