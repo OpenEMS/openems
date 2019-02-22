@@ -14,6 +14,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Evcs extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		
 		/**
 		 * Charge Power.
 		 * 
@@ -25,6 +26,21 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_POWER(new Doc().accessMode(AccessMode.READ_ONLY).type(OpenemsType.INTEGER).unit(Unit.WATT)),
+
+		/**
+		 * Maximum Power valid by the Hardware.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		HARDWARE_POWER_LIMIT(new Doc().accessMode(AccessMode.READ_ONLY).type(OpenemsType.INTEGER).unit(Unit.WATT)
+		  						.text("Highest possible charging current of the charging connection. "
+		  						+ "Contains device maximum, DIP-switch setting, cable coding and temperature reduction.")),
+		
 		/**
 		 * Set Charge Power.
 		 * 
@@ -36,6 +52,7 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		SET_CHARGE_POWER(new Doc().accessMode(AccessMode.READ_WRITE).type(OpenemsType.INTEGER).unit(Unit.WATT)),
+		
 		/**
 		 * Set Display Text.
 		 * 

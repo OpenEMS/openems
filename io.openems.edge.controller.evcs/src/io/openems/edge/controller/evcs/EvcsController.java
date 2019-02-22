@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.doc.Doc;
@@ -31,10 +33,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	private static final int RUN_EVERY_MINUTES = 1;
 
-	// private final Logger log = LoggerFactory.getLogger(EvcsController.class);
+	//private final Logger log = LoggerFactory.getLogger(EvcsController.class); 
 	private final Clock clock;
 
-	private int minPower = 0;
+	private int forceCharge_minPower = 0;
+	private int defaultCharge_minPower = 0;
 	private ChargeMode chargeMode;
 	private String evcsId;
 	private LocalDateTime lastRun = LocalDateTime.MIN;
@@ -75,8 +78,18 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
 
-		this.minPower = Math.max(0, config.minPower()); // at least '0'
-		this.chargeMode = config.chargeMode();
+		this.forceCharge_minPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
+		this.defaultCharge_minPower = Math.max(0, config.defaultChargeMinPower());
+		
+		switch(config.chargeMode()) {
+		case DEFAULT:
+			this.chargeMode = config.chargeMode().setMinPower(defaultCharge_minPower);
+			break;
+		case FORCE_CHARGE:
+			this.chargeMode = config.chargeMode().setMinPower(forceCharge_minPower);
+			break;
+		
+		}
 		this.evcsId = config.evcs_id();
 
 		// update filter for 'evcs'
@@ -106,20 +119,35 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			int essDischarge = this.sum.getEssActivePower().value().orElse(0);
 			int evcsCharge = evcs.getChargePower().value().orElse(0);
 			nextChargePower = evcsCharge - buyFromGrid - essDischarge;
+			if(nextChargePower < 1380 /*min 6A*/ ) {
+				nextChargePower = 0;
+			}
 			break;
 
 		case FORCE_CHARGE:
-			nextChargePower = 22_000; // TODO intelligently find max Charge Power
+			nextChargePower = this.chargeMode.getMinPower();
 			break;
 		}
 
 		// test min-Power
-		if (nextChargePower < this.minPower) {
-			nextChargePower = this.minPower;
+		if (nextChargePower < this.chargeMode.getMinPower()) {
+			nextChargePower = this.chargeMode.getMinPower();
 		}
-
+		
 		// set charge power
 		evcs.setChargePower().setNextWriteValue(nextChargePower);
 	}
+	
+	@Override
+	protected void logDebug(Logger log, String message) {
+		super.logDebug(log, message);
+	}
+	
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+	
+	
 
 }

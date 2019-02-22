@@ -7,14 +7,14 @@ public interface ChannelId {
 	/**
 	 * Gets the name. This is available by default for an Enum.
 	 * 
-	 * @return
+	 * @return the name
 	 */
 	String name();
 
 	/**
 	 * Gets the name in CamelCase.
 	 * 
-	 * @return
+	 * @return the Channel-ID in CamelCase
 	 */
 	default String id() {
 		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name());
@@ -23,7 +23,7 @@ public interface ChannelId {
 	/**
 	 * Gets the Channel Doc for this ChannelId.
 	 * 
-	 * @return
+	 * @return the Channel-Doc	
 	 */
 	Doc doc();
 }

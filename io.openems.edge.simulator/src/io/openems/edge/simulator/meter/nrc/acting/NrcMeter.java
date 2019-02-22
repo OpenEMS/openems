@@ -63,10 +63,6 @@ public class NrcMeter extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
-
-		// Initialize Min/MaxActivePower channels
-		this._initializeMinMaxActivePower(this.cm, this.servicePid(), config.minActivePower(),
-				config.maxActivePower());
 	}
 
 	@Deactivate

@@ -115,22 +115,16 @@ export class Websocket {
 
         } else if (message instanceof JsonrpcResponse) {
           // handle JSON-RPC Response
-          if (env.debugMode) {
-            if (message instanceof EdgeRpcResponse) {
-              console.info("Receive Response", message.params.payload);
-            } else {
-              console.info("Receive Response", message);
-            }
-          }
           this.onResponse(message);
 
         } else if (message instanceof JsonrpcNotification) {
           // handle JSON-RPC Notification
           if (env.debugMode) {
             if (message.method == EdgeRpcNotification.METHOD && 'payload' in message.params) {
-              console.info("Receive Notification", message.params['payload']);
+              const payload = message.params['payload'];
+              console.info("Notification [" + payload["method"] + "]", payload);
             } else {
-              console.info("Receive Notification", message);
+              console.info("Notification [" + message.method + "]", message);
             }
           }
           this.onNotification(message);

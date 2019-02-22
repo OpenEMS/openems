@@ -23,8 +23,8 @@ public class EdgeCache {
 	/**
 	 * Adds the channel value to the cache
 	 *
-	 * @param address
-	 * @param value
+	 * @param channel the Channel-Address
+	 * @param value the Value as a JsonElement
 	 */
 	public synchronized void putToChannelCache(ChannelAddress channel, JsonElement value) {
 		this.channelValueCache.put(channel, value);

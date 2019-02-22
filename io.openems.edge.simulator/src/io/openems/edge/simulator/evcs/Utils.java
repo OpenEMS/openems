@@ -23,6 +23,7 @@ public class Utils {
 				}), Arrays.stream(Evcs.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case CHARGE_POWER:
+					case HARDWARE_POWER_LIMIT:
 						return new IntegerReadChannel(c, channelId);
 					case SET_CHARGE_POWER:
 						return new IntegerWriteChannel(c, channelId);

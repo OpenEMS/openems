@@ -1,5 +1,4 @@
 * xref:introduction.adoc[Introduction]
-* xref:openems_as.adoc[OpenEMS Association]
 * xref:gettingstarted.adoc[Getting Started]
 * xref:coreconcepts.adoc[Core concepts & terminology]
 * OpenEMS Edge
@@ -23,4 +22,4 @@
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]
-* http://openems.io/javadoc[Javadoc]
+* https://openems.github.io/openems.io/javadoc/[Javadoc]
