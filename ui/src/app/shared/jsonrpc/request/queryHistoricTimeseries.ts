@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { ChannelAddress } from "../../../shared/type/channeladdress";
+import { ChannelAddress } from "../../type/channeladdress";
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
@@ -20,17 +20,17 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  * }
  * </pre>
  */
-export class QuerykWhRequest extends JsonrpcRequest {
+export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 
-    static METHOD: string = "querykWh";
+    static METHOD: string = "queryHistoricTimeseriesEnergy";
 
     public constructor(
         public readonly fromDate: Date,
         public readonly toDate: Date,
         public readonly channels: ChannelAddress[]
     ) {
-        super(QuerykWhRequest.METHOD, {
+        super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),

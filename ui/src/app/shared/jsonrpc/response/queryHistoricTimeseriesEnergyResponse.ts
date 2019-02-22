@@ -18,7 +18,7 @@ export interface Cummulated {
  * }
  * </pre>
  */
-export class QuerykWhResponse extends JsonrpcResponseSuccess {
+export class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,

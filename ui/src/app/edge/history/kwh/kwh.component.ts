@@ -1,8 +1,8 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
-import { Cummulated, QuerykWhResponse } from '../../../shared/jsonrpc/response/querykWhResponse';
+import { Cummulated, QueryHistoricTimeseriesEnergyResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { QueryHistoricTimeseriesEnergyRequest } from '../../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest'
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { QuerykWhRequest } from 'src/app/shared/jsonrpc/request/querykWhRequest';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -26,7 +26,7 @@ export class KwhComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.service.setCurrentEdge(this.route);
-    this.updateValues();
+    // this.updateValues();
   }
 
   ngOnChanges() {
@@ -36,7 +36,7 @@ export class KwhComponent implements OnInit, OnChanges {
   updateValues() {
     this.querykWh(this.fromDate, this.toDate).then(response => {
       this.data = response.result.data;
-      console.log("Response: ", this.data)
+      console.log("DAS IST DAS RESULT: ", this.data)
     });
   }
 
@@ -47,15 +47,15 @@ export class KwhComponent implements OnInit, OnChanges {
   }
 
 
-  protected querykWh(fromDate: Date, toDate: Date): Promise<QuerykWhResponse> {
+  protected querykWh(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyResponse> {
     return new Promise((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.getChannelAddresses(edge).then(channelAddresses => {
-          let request = new QuerykWhRequest(fromDate, toDate, channelAddresses);
+          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
           edge.sendRequest(this.service.websocket, request).then(response => {
-            let result = (response as QuerykWhResponse).result;
+            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
             if (Object.keys(result.data).length != 0) {
-              resolve(response as QuerykWhResponse);
+              resolve(response as QueryHistoricTimeseriesEnergyResponse);
             } else {
               reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
             }
