@@ -167,7 +167,14 @@ export module EdgeConfig {
         public componentIds: string[] = [];
 
         constructor(
-            public readonly natures: string[] = []
+            public readonly name: string,
+            public readonly natures: string[] = [],
+            public readonly properties: {
+                id: string,
+                name: string,
+                description: string,
+                schema: {}
+            }[] = []
         ) { }
     }
 

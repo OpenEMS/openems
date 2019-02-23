@@ -7,11 +7,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.ObjectClassDefinition;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -82,10 +86,140 @@ public class EdgeConfig {
 
 	public static class Factory {
 
+		public static Factory create(ObjectClassDefinition ocd, String[] natures) {
+			String name = ocd.getName();
+			String description = ocd.getDescription();
+			AttributeDefinition[] ads = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
+			List<Property> properties = new ArrayList<>();
+			for (AttributeDefinition ad : ads) {
+				if (ad.getID().endsWith(".target")) {
+					// ignore
+				} else {
+					switch (ad.getID()) {
+					case "webconsole.configurationFactory.nameHint":
+						// ignore ID
+						break;
+					default:
+						properties.add(Property.from(ad));
+					}
+				}
+			}
+			return new Factory(name, description, properties.toArray(new Property[properties.size()]), natures);
+		}
+
+		public static class Property {
+
+			private final String id;
+			private final String name;
+			private final String description;
+			private final JsonObject schema;
+
+			public Property(String id, String name, String description, JsonObject schema) {
+				this.id = id;
+				this.name = name;
+				this.description = description;
+				this.schema = schema;
+			}
+
+			public static Property from(AttributeDefinition ad) {
+				String id = ad.getID();
+				String name = ad.getName();
+				String description = ad.getDescription();
+				if (description == null) {
+					description = "";
+				}
+				JsonObject schema = new JsonObject();
+				switch (ad.getType()) {
+				case AttributeDefinition.STRING:
+					schema = JsonUtils.buildJsonObject() //
+							.addProperty("type", "string") //
+							.build();
+					break;
+				case AttributeDefinition.LONG:
+				case AttributeDefinition.INTEGER:
+				case AttributeDefinition.SHORT:
+				case AttributeDefinition.DOUBLE:
+				case AttributeDefinition.FLOAT:
+				case AttributeDefinition.BYTE:
+				case AttributeDefinition.PASSWORD:
+				case AttributeDefinition.CHARACTER:
+					schema = JsonUtils.buildJsonObject() //
+							.addProperty("type", "number") //
+							.build();
+					break;
+				case AttributeDefinition.BOOLEAN:
+					schema = JsonUtils.buildJsonObject() //
+							.addProperty("type", "boolean") //
+							.build();
+					break;
+				}
+				return new Property(id, name, description, schema);
+			}
+
+			/**
+			 * Creates a Property from JSON.
+			 * 
+			 * @param json the JSON
+			 * @return the Property
+			 * @throws OpenemsNamedException on error
+			 */
+			public static Property fromJson(JsonElement json) throws OpenemsNamedException {
+				String id = JsonUtils.getAsString(json, "id");
+				String name = JsonUtils.getAsString(json, "name");
+				String description = JsonUtils.getAsString(json, "description");
+				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
+				return new Property(id, name, description, schema);
+			}
+
+			/**
+			 * Returns the Factory Property as a JSON Object.
+			 * 
+			 * <pre>
+			 * {
+			 *   id: string,
+			 *   name: string,
+			 *   description: string,
+			 *   schema: {
+			 *     type: string
+			 *   }
+			 * }
+			 * </pre>
+			 * 
+			 * @return property as a JSON Object
+			 */
+			public JsonObject toJson() {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("id", this.id) //
+						.addProperty("name", this.name) //
+						.addProperty("description", this.description) //
+						.add("schema", this.schema) //
+						.build();
+			}
+
+		}
+
+		private final String name;
+		private String description;
+		private Property[] properties;
 		private final String[] natures;
 
-		public Factory(String[] natures) {
+		public Factory(String name, String description, Property[] properties, String[] natures) {
+			this.name = name;
+			this.description = description;
+			this.properties = properties;
 			this.natures = natures;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public Property[] getProperties() {
+			return properties;
 		}
 
 		public String[] getNatures() {
@@ -108,8 +242,15 @@ public class EdgeConfig {
 			for (String nature : this.getNatures()) {
 				natures.add(nature);
 			}
+			JsonArray properties = new JsonArray();
+			for (Property property : this.getProperties()) {
+				properties.add(property.toJson());
+			}
 			return JsonUtils.buildJsonObject() //
+					.addProperty("name", this.name) //
+					.addProperty("description", this.description) //
 					.add("natures", natures) //
+					.add("properties", properties) //
 					.build();
 		}
 
@@ -121,10 +262,17 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Factory fromJson(JsonElement json) throws OpenemsNamedException {
+			String name = JsonUtils.getAsString(json, "name");
+			String description = JsonUtils.getAsString(json, "description");
 			String[] natures = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(json, "natures"));
-			return new Factory(natures);
+			JsonArray jProperties = JsonUtils.getAsJsonArray(json, "properties");
+			Property[] properties = new Property[jProperties.size()];
+			for (int i = 0; i < jProperties.size(); i++) {
+				JsonElement jProperty = jProperties.get(i);
+				properties[i] = Property.fromJson(jProperty);
+			}
+			return new Factory(name, description, properties, natures);
 		}
-
 	}
 
 	private final TreeMap<String, Component> components = new TreeMap<>();
@@ -324,7 +472,8 @@ public class EdgeConfig {
 			JsonObject meta = JsonUtils.getAsJsonObject(entry.getValue());
 			String pid = JsonUtils.getAsString(meta, "class");
 			String[] implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
-			result.addFactory(pid, new EdgeConfig.Factory(implement));
+			Property[] properties = new Property[0];
+			result.addFactory(pid, new EdgeConfig.Factory(pid, "", properties, implement));
 		}
 
 		return result;

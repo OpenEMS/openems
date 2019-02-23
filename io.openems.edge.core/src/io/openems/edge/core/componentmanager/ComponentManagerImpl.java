@@ -35,6 +35,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -295,10 +296,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					// ignore these Factory-PIDs
 					break;
 				default:
+					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
+					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
 					// Get Natures implemented by this Factory-PID
 					String[] natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
-					result.addFactory(factoryPid, new EdgeConfig.Factory(natures));
+					result.addFactory(factoryPid, EdgeConfig.Factory.create(objectClassDefinition, natures));
 				}
 			}
 		}

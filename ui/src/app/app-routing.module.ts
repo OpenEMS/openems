@@ -8,6 +8,7 @@ import { IndexComponent as EdgeIndexComponent } from './edge/index/index.compone
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemLogComponent as EdgeSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { ComponentInstallComponent as EdgeComponentInstallComponentComponent } from './edge/settings/componentInstall/componentInstall.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -22,6 +23,7 @@ const routes: Routes = [
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSystemLogComponent },
+  { path: 'device/:edgeId/settings/componentInstall', component: EdgeComponentInstallComponentComponent },
 ];
 
 export const appRoutingProviders: any[] = [
