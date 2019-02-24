@@ -10,7 +10,7 @@ export class ComponentInstallComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "componentInstall";
 
-  public factories: EdgeConfig.Factory[] = [];
+  public factory: EdgeConfig.Factory = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -22,8 +22,9 @@ export class ComponentInstallComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.service.setCurrentEdge(this.route);
+    let factoryId = this.route.snapshot.params["factoryId"];
     this.service.getConfig().then(config => {
-      this.factories = Object.values(config.factories);
+      this.factory = config.factories[factoryId];
     });
   }
 

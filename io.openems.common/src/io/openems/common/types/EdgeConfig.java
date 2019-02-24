@@ -25,16 +25,16 @@ public class EdgeConfig {
 
 	public static class Component {
 
-		private final String factoryPid;
+		private final String factoryId;
 		private final Map<String, JsonElement> properties;
 
-		public Component(String factoryPid, Map<String, JsonElement> properties) {
-			this.factoryPid = factoryPid;
+		public Component(String factoryId, Map<String, JsonElement> properties) {
+			this.factoryId = factoryId;
 			this.properties = properties;
 		}
 
-		public String getFactoryPid() {
-			return factoryPid;
+		public String getFactoryId() {
+			return factoryId;
 		}
 
 		public Map<String, JsonElement> getProperties() {
@@ -46,7 +46,7 @@ public class EdgeConfig {
 		 * 
 		 * <pre>
 		 * {
-		 *   factoryPid: string,
+		 *   factoryId: string,
 		 *	 properties: {
 		 *     [key: string]: value
 		 *   }
@@ -61,7 +61,7 @@ public class EdgeConfig {
 				properties.add(property.getKey(), property.getValue());
 			}
 			return JsonUtils.buildJsonObject() //
-					.addProperty("factoryPid", this.getFactoryPid()) //
+					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties) //
 					.build();
 		}
@@ -79,7 +79,7 @@ public class EdgeConfig {
 				properties.put(entry.getKey(), entry.getValue());
 			}
 			return new Component(//
-					JsonUtils.getAsString(json, "factoryPid"), //
+					JsonUtils.getAsString(json, "factoryId"), //
 					properties);
 		}
 	}
@@ -201,13 +201,13 @@ public class EdgeConfig {
 		private final String name;
 		private String description;
 		private Property[] properties;
-		private final String[] natures;
+		private final String[] natureIds;
 
-		public Factory(String name, String description, Property[] properties, String[] natures) {
+		public Factory(String name, String description, Property[] properties, String[] natureIds) {
 			this.name = name;
 			this.description = description;
 			this.properties = properties;
-			this.natures = natures;
+			this.natureIds = natureIds;
 		}
 
 		public String getName() {
@@ -222,8 +222,8 @@ public class EdgeConfig {
 			return properties;
 		}
 
-		public String[] getNatures() {
-			return natures;
+		public String[] getNatureIds() {
+			return natureIds;
 		}
 
 		/**
@@ -238,9 +238,9 @@ public class EdgeConfig {
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson() {
-			JsonArray natures = new JsonArray();
-			for (String nature : this.getNatures()) {
-				natures.add(nature);
+			JsonArray natureIds = new JsonArray();
+			for (String naturId : this.getNatureIds()) {
+				natureIds.add(naturId);
 			}
 			JsonArray properties = new JsonArray();
 			for (Property property : this.getProperties()) {
@@ -249,7 +249,7 @@ public class EdgeConfig {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("name", this.name) //
 					.addProperty("description", this.description) //
-					.add("natures", natures) //
+					.add("natureIds", natureIds) //
 					.add("properties", properties) //
 					.build();
 		}
@@ -285,8 +285,8 @@ public class EdgeConfig {
 		this.components.put(id, component);
 	}
 
-	public void addFactory(String pid, Factory factory) {
-		this.factories.put(pid, factory);
+	public void addFactory(String id, Factory factory) {
+		this.factories.put(id, factory);
 	}
 
 	public TreeMap<String, Component> getComponents() {
@@ -300,13 +300,13 @@ public class EdgeConfig {
 	/**
 	 * Get Component-IDs of Component instances by the given Factory.
 	 * 
-	 * @param factoryPid the given Factory.
+	 * @param factoryId the given Factory.
 	 * @return a List of Component-IDs.
 	 */
-	public List<String> getComponentIdsByFactory(String factoryPid) {
+	public List<String> getComponentIdsByFactory(String factoryId) {
 		List<String> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			if (factoryPid.equals(componentEntry.getValue().factoryPid)) {
+			if (factoryId.equals(componentEntry.getValue().factoryId)) {
 				result.add(componentEntry.getKey());
 			}
 		}
@@ -316,13 +316,13 @@ public class EdgeConfig {
 	/**
 	 * Get Component instances by the given Factory.
 	 * 
-	 * @param factoryPid the given Factory.
+	 * @param factoryId the given Factory PID.
 	 * @return a List of Components.
 	 */
-	public List<Component> getComponentsByFactory(String factoryPid) {
+	public List<Component> getComponentsByFactory(String factoryId) {
 		List<Component> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			if (factoryPid.equals(componentEntry.getValue().factoryPid)) {
+			if (factoryId.equals(componentEntry.getValue().factoryId)) {
 				result.add(componentEntry.getValue());
 			}
 		}
@@ -338,12 +338,12 @@ public class EdgeConfig {
 	public List<String> getComponentsImplementingNature(String nature) {
 		List<String> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			String factoryPid = componentEntry.getValue().factoryPid;
-			Factory factory = this.factories.get(factoryPid);
+			String factoryId = componentEntry.getValue().factoryId;
+			Factory factory = this.factories.get(factoryId);
 			if (factory == null) {
 				continue;
 			}
-			for (String thisNature : factory.natures) {
+			for (String thisNature : factory.natureIds) {
 				if (nature.equals(thisNature)) {
 					result.add(componentEntry.getKey());
 					break;
@@ -360,7 +360,7 @@ public class EdgeConfig {
 	 * {
 	 *   components: { {@link EdgeConfig.Component#toJson()} }, 
 	 *   factories: {
-	 *     [pid: string]: {
+	 *     [: string]: {
 	 *       natures: string[]
 	 *     }
 	 *   }
@@ -400,7 +400,7 @@ public class EdgeConfig {
 	 * 
 	 * <pre>
 	 * {
-	 *   [pid: string]: {
+	 *   [id: string]: {
 	 *     natures: string[]
 	 *   }
 	 * }
@@ -470,10 +470,10 @@ public class EdgeConfig {
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");
 		for (Entry<String, JsonElement> entry : metas.entrySet()) {
 			JsonObject meta = JsonUtils.getAsJsonObject(entry.getValue());
-			String pid = JsonUtils.getAsString(meta, "class");
+			String id = JsonUtils.getAsString(meta, "class");
 			String[] implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
 			Property[] properties = new Property[0];
-			result.addFactory(pid, new EdgeConfig.Factory(pid, "", properties, implement));
+			result.addFactory(id, new EdgeConfig.Factory(id, "", properties, implement));
 		}
 
 		return result;

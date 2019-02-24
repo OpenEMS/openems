@@ -335,9 +335,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       let channelAddress = ChannelAddress.fromString(channel)
       let componentId = channelAddress.componentId;
       let channelId = channelAddress.channelId;
-      let natures = config.getNaturesByComponentId(componentId);
+      let natureIds = config.getNatureIdsByComponentId(componentId);
 
-      if (natures.includes('EssNature') && channelId === 'Soc') {
+      if (natureIds.includes('EssNature') && channelId === 'Soc') {
         if (sumEssSoc.length == 0) {
           sumEssSoc = data[channel];
         } else {
@@ -347,7 +347,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
       }
 
-      if (natures.includes('EssNature') && channelId.startsWith('ActivePower')) {
+      if (natureIds.includes('EssNature') && channelId.startsWith('ActivePower')) {
         if (sumEssActivePower.length == 0) {
           sumEssActivePower = data[channel];
         } else {
@@ -357,7 +357,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
       }
 
-      if (natures.includes('MeterNature') && channelId.startsWith('ActivePower')) {
+      if (natureIds.includes('MeterNature') && channelId.startsWith('ActivePower')) {
         if (componentId === 'meter0') {
           if (sumGridActivePower.length == 0) {
             sumGridActivePower = data[channel];
@@ -384,7 +384,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
       }
 
-      if (natures.includes('ChargerNature') && channelId === 'ActualPower') {
+      if (natureIds.includes('ChargerNature') && channelId === 'ActualPower') {
         if (sumProductionActivePower.length == 0) {
           sumProductionActivePower = data[channel];
         } else {
