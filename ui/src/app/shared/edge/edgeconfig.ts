@@ -180,6 +180,8 @@ export module EdgeConfig {
                 id: string,
                 name: string,
                 description: string,
+                isOptional: boolean,
+                defaultValue: any,
                 schema: {}
             }[] = []
         ) { }

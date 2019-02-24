@@ -89,8 +89,21 @@ public class EdgeConfig {
 		public static Factory create(ObjectClassDefinition ocd, String[] natures) {
 			String name = ocd.getName();
 			String description = ocd.getDescription();
-			AttributeDefinition[] ads = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
 			List<Property> properties = new ArrayList<>();
+			properties.addAll(Factory.toProperties(ocd, true));
+			properties.addAll(Factory.toProperties(ocd, false));
+			return new Factory(name, description, properties.toArray(new Property[properties.size()]), natures);
+		}
+
+		private static List<Property> toProperties(ObjectClassDefinition ocd, boolean isRequired) {
+			int filter;
+			if (isRequired) {
+				filter = ObjectClassDefinition.REQUIRED;
+			} else {
+				filter = ObjectClassDefinition.OPTIONAL;
+			}
+			List<Property> properties = new ArrayList<>();
+			AttributeDefinition[] ads = ocd.getAttributeDefinitions(filter);
 			for (AttributeDefinition ad : ads) {
 				if (ad.getID().endsWith(".target")) {
 					// ignore
@@ -100,11 +113,11 @@ public class EdgeConfig {
 						// ignore ID
 						break;
 					default:
-						properties.add(Property.from(ad));
+						properties.add(Property.from(ad, isRequired));
 					}
 				}
 			}
-			return new Factory(name, description, properties.toArray(new Property[properties.size()]), natures);
+			return properties;
 		}
 
 		public static class Property {
@@ -112,48 +125,75 @@ public class EdgeConfig {
 			private final String id;
 			private final String name;
 			private final String description;
+			private final boolean isRequired;
+			private final JsonElement defaultValue;
 			private final JsonObject schema;
 
-			public Property(String id, String name, String description, JsonObject schema) {
+			public Property(String id, String name, String description, boolean isRequired, JsonElement defaultValue,
+					JsonObject schema) {
 				this.id = id;
 				this.name = name;
 				this.description = description;
+				this.isRequired = isRequired;
+				this.defaultValue = defaultValue;
 				this.schema = schema;
 			}
 
-			public static Property from(AttributeDefinition ad) {
+			public static Property from(AttributeDefinition ad, boolean isRequired) {
 				String id = ad.getID();
 				String name = ad.getName();
+
 				String description = ad.getDescription();
 				if (description == null) {
 					description = "";
 				}
-				JsonObject schema = new JsonObject();
-				switch (ad.getType()) {
-				case AttributeDefinition.STRING:
-					schema = JsonUtils.buildJsonObject() //
-							.addProperty("type", "string") //
-							.build();
-					break;
-				case AttributeDefinition.LONG:
-				case AttributeDefinition.INTEGER:
-				case AttributeDefinition.SHORT:
-				case AttributeDefinition.DOUBLE:
-				case AttributeDefinition.FLOAT:
-				case AttributeDefinition.BYTE:
-				case AttributeDefinition.PASSWORD:
-				case AttributeDefinition.CHARACTER:
-					schema = JsonUtils.buildJsonObject() //
-							.addProperty("type", "number") //
-							.build();
-					break;
-				case AttributeDefinition.BOOLEAN:
-					schema = JsonUtils.buildJsonObject() //
-							.addProperty("type", "boolean") //
-							.build();
-					break;
+
+				JsonElement defaultValue = JsonUtils.getAsJsonElement(ad.getDefaultValue());
+				if (defaultValue.isJsonArray() && ((JsonArray) defaultValue).size() == 1) {
+					defaultValue = ((JsonArray) defaultValue).get(0);
 				}
-				return new Property(id, name, description, schema);
+
+				JsonObject schema = new JsonObject();
+				if (ad.getOptionLabels() != null && ad.getOptionValues() != null) {
+					// use given options for schema
+					schema.addProperty("type", "select");
+					JsonArray titleMap = new JsonArray();
+					for (int i = 0; i < ad.getOptionLabels().length; i++) {
+						titleMap.add(JsonUtils.buildJsonObject() //
+								.addProperty("value", ad.getOptionValues()[i]) //
+								.addProperty("name", ad.getOptionLabels()[i]) //
+								.build());
+					}
+					schema.add("titleMap", titleMap);
+
+				} else {
+					// generate schema from AttributeDefinition Type
+					switch (ad.getType()) {
+					case AttributeDefinition.STRING:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "string") //
+								.build();
+						break;
+					case AttributeDefinition.LONG:
+					case AttributeDefinition.INTEGER:
+					case AttributeDefinition.SHORT:
+					case AttributeDefinition.DOUBLE:
+					case AttributeDefinition.FLOAT:
+					case AttributeDefinition.BYTE:
+					case AttributeDefinition.PASSWORD:
+					case AttributeDefinition.CHARACTER:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "number") //
+								.build();
+						break;
+					case AttributeDefinition.BOOLEAN:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "boolean") //
+								.build();
+						break;
+					}
+				}
+				return new Property(id, name, description, isRequired, defaultValue, schema);
 			}
 
 			/**
@@ -167,8 +207,10 @@ public class EdgeConfig {
 				String id = JsonUtils.getAsString(json, "id");
 				String name = JsonUtils.getAsString(json, "name");
 				String description = JsonUtils.getAsString(json, "description");
+				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
+				JsonElement defaultValue = JsonUtils.getSubElement(json, "defaultValue");
 				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
-				return new Property(id, name, description, schema);
+				return new Property(id, name, description, isRequired, defaultValue, schema);
 			}
 
 			/**
@@ -179,6 +221,8 @@ public class EdgeConfig {
 			 *   id: string,
 			 *   name: string,
 			 *   description: string,
+			 *   isOptional: boolean,
+			 *   defaultValue: any,
 			 *   schema: {
 			 *     type: string
 			 *   }
@@ -192,6 +236,8 @@ public class EdgeConfig {
 						.addProperty("id", this.id) //
 						.addProperty("name", this.name) //
 						.addProperty("description", this.description) //
+						.addProperty("isRequired", this.isRequired) //
+						.add("defaultValue", this.defaultValue) //
 						.add("schema", this.schema) //
 						.build();
 			}

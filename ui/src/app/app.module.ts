@@ -30,6 +30,7 @@ import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.m
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
+import { FormlyModule } from '@ngx-formly/core';
 
 @NgModule({
   declarations: [AppComponent],
@@ -37,6 +38,7 @@ import { environment as env } from '../environments/environment';
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
+    FormlyModule.forRoot(),
     AppRoutingModule,
     SharedModule,
     AboutModule,
