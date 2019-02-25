@@ -152,7 +152,8 @@ public class EdgeConfig {
 	/**
 	 * Get Component-IDs of Component instances by the given Factory.
 	 * 
-	 * @param nature the given Nature.
+	 * @param factoryPid the given Factory.
+	 * @return a List of Component-IDs.
 	 */
 	public List<String> getComponentIdsByFactory(String factoryPid) {
 		List<String> result = new ArrayList<>();
@@ -167,7 +168,8 @@ public class EdgeConfig {
 	/**
 	 * Get Component instances by the given Factory.
 	 * 
-	 * @param factoryPid the given Nature.
+	 * @param factoryPid the given Factory.
+	 * @return a List of Components.
 	 */
 	public List<Component> getComponentsByFactory(String factoryPid) {
 		List<Component> result = new ArrayList<>();
@@ -183,6 +185,7 @@ public class EdgeConfig {
 	 * Get Component-IDs of Components that implement the given Nature.
 	 * 
 	 * @param nature the given Nature.
+	 * @return a List of Component-IDs.
 	 */
 	public List<String> getComponentsImplementingNature(String nature) {
 		List<String> result = new ArrayList<>();

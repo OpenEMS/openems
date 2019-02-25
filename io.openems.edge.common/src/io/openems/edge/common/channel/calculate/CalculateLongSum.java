@@ -21,7 +21,7 @@ public class CalculateLongSum {
 	/**
 	 * Adds a Channel-Value.
 	 * 
-	 * @param channel
+	 * @param channel the Channel
 	 */
 	public void addValue(Channel<Long> channel) {
 		Optional<Long> value = channel.getNextValue().asOptional();
@@ -40,6 +40,7 @@ public class CalculateLongSum {
 	 * Calculates the sum.
 	 * 
 	 * @return the sum or null
+	 * @throws NoSuchElementException on error
 	 */
 	public Long calculate() throws NoSuchElementException {
 		if (this.values.isEmpty()) {

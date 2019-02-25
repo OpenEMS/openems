@@ -1,4 +1,4 @@
--runfw: org.eclipse.osgi;version=3.13
+-runfw: org.eclipse.osgi
 
 -runprovidedcapabilities: ${native_capability}
 

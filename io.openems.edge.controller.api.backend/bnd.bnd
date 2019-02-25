@@ -7,10 +7,7 @@ Private-Package: \
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.annotation;version=7.0.0,\
-	osgi.core;version=7.0.0,\
-	osgi.cmpn;version=7.0.0,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
@@ -21,10 +18,7 @@ Private-Package: \
 	com.google.gson,\
 	com.google.guava
 
--testpath: \
-	${junit},\
-	${mockito},\
-	${mockito-deps}
+-testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8

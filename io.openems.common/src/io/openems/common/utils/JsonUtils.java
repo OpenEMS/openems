@@ -26,11 +26,10 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 
 public class JsonUtils {
 
-	private final static Logger log = LoggerFactory.getLogger(JsonUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
 
 	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
@@ -169,7 +168,7 @@ public class JsonUtils {
 					+ "] to JSON is not implemented.");
 			return new JsonPrimitive(value.toString());
 		}
-	};
+	}
 
 	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonObject()) {
@@ -414,25 +413,25 @@ public class JsonUtils {
 	}
 
 	/**
-	 * Takes a json in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with
+	 * Takes a JSON in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with
 	 * hour, minute and second set to zero.
 	 * 
 	 * @param element    the JsonElement
 	 * @param memberName the name of the member of the JsonObject
 	 * @param timezone   the timezone
 	 * @return the ZonedDateTime
-	 * @throws OpenemsException on parse error
+	 * @throws OpenemsNamedException on parse error
 	 */
-	public static ZonedDateTime getAsZonedDateTime(JsonElement jElement, String memberName, ZoneId timezone)
+	public static ZonedDateTime getAsZonedDateTime(JsonElement element, String memberName, ZoneId timezone)
 			throws OpenemsNamedException {
-		String[] date = JsonUtils.getAsString(jElement, memberName).split("-");
+		String[] date = JsonUtils.getAsString(element, memberName).split("-");
 		try {
 			int year = Integer.valueOf(date[0]);
 			int month = Integer.valueOf(date[1]);
 			int day = Integer.valueOf(date[2]);
 			return ZonedDateTime.of(year, month, day, 0, 0, 0, 0, timezone);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw OpenemsError.JSON_NO_DATE_MEMBER.exception(memberName, jElement, e.getMessage());
+			throw OpenemsError.JSON_NO_DATE_MEMBER.exception(memberName, element, e.getMessage());
 		}
 	}
 
@@ -507,7 +506,7 @@ public class JsonUtils {
 	}
 
 	/**
-	 * A temporary builder class for JsonObjects
+	 * A temporary builder class for JsonObjects.
 	 */
 	public static class JsonObjectBuilder {
 
@@ -555,7 +554,7 @@ public class JsonUtils {
 	/**
 	 * Creates a JsonObject using a Builder.
 	 * 
-	 * @return
+	 * @return the Builder
 	 */
 	public static JsonObjectBuilder buildJsonObject() {
 		return new JsonObjectBuilder();
@@ -565,19 +564,19 @@ public class JsonUtils {
 	 * Creates a JsonObject using a Builder. Initialized from an existing
 	 * JsonObject.
 	 * 
-	 * @param j
-	 * @return
+	 * @param j the initial JsonObject
+	 * @return the Builder
 	 */
 	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
 		return new JsonObjectBuilder(j);
 	}
 
 	/**
-	 * Parses a string to a JsonObject
+	 * Parses a string to a JsonObject.
 	 * 
-	 * @param string
-	 * @return
-	 * @throws OpenemsNamedException
+	 * @param string the String
+	 * @return the JsonObject
+	 * @throws OpenemsNamedException on error
 	 */
 	public static JsonObject parseToJsonObject(String string) throws OpenemsNamedException {
 		return JsonUtils.getAsJsonObject(JsonUtils.parse(string));

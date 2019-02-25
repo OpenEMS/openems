@@ -7,18 +7,12 @@ Export-Package: \
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.annotation;version=7.0.0,\
-	osgi.core;version=7.0.0,\
-	osgi.cmpn;version=7.0.0,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	com.google.gson,\
 	org.ops4j.pax.logging.pax-logging-api	
 
--testpath: \
-	${junit},\
-	${mockito},\
-	${mockito-deps}
+-testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8
