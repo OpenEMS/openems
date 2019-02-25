@@ -8,7 +8,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "This is a controller to signal CHP turn ON or turn OFF when the battery is empty or battery is full respectively, based on the SoC percentage")
 
 @interface Config {
-	String id() default "ctrlChannelThreshold0";
+	String id() default "ctrlChpSoc0";
 
 	boolean enabled() default true;
 

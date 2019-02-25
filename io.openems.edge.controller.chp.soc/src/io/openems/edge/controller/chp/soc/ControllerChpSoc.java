@@ -100,9 +100,9 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 
 		switch (this.state) {
 		case UNDEFINED:
-			if (value < this.lowThreshold) {
+			if (value <= this.lowThreshold) {
 				this.state = State.ON;
-			} else if (value > this.highThreshold) {
+			} else if (value >= this.highThreshold) {
 				this.state = State.OFF;
 			} else {
 				this.state = State.UNDEFINED;
@@ -112,7 +112,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			/*
 			 * If the value is larger than highThreshold signal OFF
 			 */
-			if (value > this.highThreshold) {
+			if (value >= this.highThreshold) {
 				this.state = State.OFF;
 				break;
 			}
@@ -120,7 +120,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			 * If the value is larger than lowThreshold and smaller than highThreshold, do
 			 * not signal anything.
 			 */
-			if (this.lowThreshold < value && value < this.highThreshold) {
+			if (this.lowThreshold <= value && value <= this.highThreshold) {
 				this.state = State.UNDEFINED;
 				break; // do nothing
 			}
@@ -130,7 +130,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			/*
 			 * If the value is smaller than lowThreshold signal ON
 			 */
-			if (value < this.lowThreshold) {
+			if (value <= this.lowThreshold) {
 				this.state = State.ON;
 				break;
 			}
@@ -138,7 +138,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			 * If the value is larger than lowThreshold and smaller than highThreshold, do
 			 * not signal anything.
 			 */
-			if (this.lowThreshold < value && value < this.highThreshold) {
+			if (this.lowThreshold <= value && value <= this.highThreshold) {
 				this.state = State.UNDEFINED;
 				break; // do nothing
 			}
@@ -180,6 +180,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
 			if (currentValueOpt.isPresent()) {
+				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
 				outputChannel.setNextWriteValue(value);
 			}
 		} catch (OpenemsException e) {
