@@ -26,7 +26,7 @@ export class KwhComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.service.setCurrentEdge(this.route);
-    // this.updateValues();
+    this.updateValues();
   }
 
   ngOnChanges() {
