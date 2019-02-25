@@ -1,5 +1,6 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
+import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
@@ -169,8 +170,14 @@ export class Edge {
     let wrap = new EdgeRpcRequest(this.id, request);
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
+        if (env.debugMode) {
+          console.info("Response     [" + request.method + "]", response);
+        }
         resolve(response['result']['payload']);
       }).catch(reason => {
+        if (env.debugMode) {
+          console.warn("Request fail [" + request.method + "]", reason);
+        }
         reject(reason);
       });
     });
