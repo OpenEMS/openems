@@ -189,6 +189,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		});
 
 		// write battery ranges to according channels in battery api
+		// MAX_VOLTAGE x2082
 		this.channel(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM).onChange(value -> {
 			@SuppressWarnings("unchecked")
 			Optional<Integer> vOpt = (Optional<Integer>) value.asOptional();
@@ -788,24 +789,15 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 						m(VersionBChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x201E)) //
 				), //
 
-				new FC3ReadRegistersTask(0x20C0, Priority.LOW,
-						m(VersionBChannelId.WORK_PARAMETER_PCS_MODBUS_ADDRESS, new UnsignedWordElement(0x20C0)), //
-						m(VersionBChannelId.WORK_PARAMETER_PCS_COMMUNICATION_RATE, new UnsignedWordElement(0x20C1)), //
-						m(VersionBChannelId.WORK_PARAMETER_CURRENT_FIX_COEFFICIENT, new UnsignedWordElement(0x20C2)), //
-						m(VersionBChannelId.WORK_PARAMETER_CURRENT_FIX_OFFSET, new UnsignedWordElement(0x20C3)), //
-						m(VersionBChannelId.WORK_PARAMETER_SET_CHARGER_OUTPUT_CURRENT, new UnsignedWordElement(0x20C4)), //
-						m(VersionBChannelId.WORK_PARAMETER_SYSTEM_RTC_TIME_HIGH_BITS, new UnsignedWordElement(0x20C5)), //
-						m(VersionBChannelId.WORK_PARAMETER_SYSTEM_RTC_TIME_LOW_BITS, new UnsignedWordElement(0x20C6)), //
-						m(VersionBChannelId.WORK_PARAMETER_CELL_FLOAT_CHARGING, new UnsignedWordElement(0x20C7)), //
-						m(VersionBChannelId.WORK_PARAMETER_CELL_AVERAGE_CHARGING, new UnsignedWordElement(0x20C8)), //
-						m(VersionBChannelId.WORK_PARAMETER_CELL_STOP_DISCHARGING, new UnsignedWordElement(0x20C9)), //
-						new DummyRegisterElement(0x20CA, 0x20CB),
-						m(VersionBChannelId.WORK_PARAMETER_SYSTEM_CAPACITY, new UnsignedWordElement(0x20CC)), //
-						new DummyRegisterElement(0x20CD, 0x20DE),
-						m(VersionBChannelId.WORK_PARAMETER_SYSTEM_SOC, new UnsignedWordElement(0x20DF)), //
-						m(VersionBChannelId.WORK_PARAMETER_SYSTEM_SOH_DEFAULT_VALUE, new UnsignedWordElement(0x20E0)) //
+				//Voltage ranges
+				new FC3ReadRegistersTask(0x2082, Priority.LOW, //
+						m(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM,
+								new UnsignedWordElement(0x2082), ElementToChannelConverter.SCALE_FACTOR_2), //
+						new DummyRegisterElement(0x2083, 0x2087),						
+						m(VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
+								new UnsignedWordElement(0x2088), ElementToChannelConverter.SCALE_FACTOR_2) //
 				),
-
+					
 				// Summary state
 				new FC3ReadRegistersTask(0x2100, Priority.LOW,
 						m(VersionBChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100),
@@ -1207,8 +1199,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 					m(VersionBChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM,
 							new UnsignedWordElement(0x2080)), //
 					m(VersionBChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2081)), //
-					m(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_ALARM,
-							new UnsignedWordElement(0x2082), ElementToChannelConverter.SCALE_FACTOR_2), //
+					new DummyRegisterElement(0x2082),
 					m(VersionBChannelId.WARN_PARAMETER_SYSTEM_OVER_VOLTAGE_RECOVER, 
 							new UnsignedWordElement(0x2083), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(VersionBChannelId.WARN_PARAMETER_SYSTEM_CHARGE_OVER_CURRENT_ALARM,
@@ -1218,8 +1209,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 					m(VersionBChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_ALARM,
 							new UnsignedWordElement(0x2086)), //
 					m(VersionBChannelId.WARN_PARAMETER_CELL_UNDER_VOLTAGE_RECOVER, new UnsignedWordElement(0x2087)), //
-					m(VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_ALARM,
-							new UnsignedWordElement(0x2088), ElementToChannelConverter.SCALE_FACTOR_2), //
+					new DummyRegisterElement(0x2088),
 					m(VersionBChannelId.WARN_PARAMETER_SYSTEM_UNDER_VOLTAGE_RECOVER,
 							new UnsignedWordElement(0x2089), ElementToChannelConverter.SCALE_FACTOR_2), //
 					m(VersionBChannelId.WARN_PARAMETER_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM,
