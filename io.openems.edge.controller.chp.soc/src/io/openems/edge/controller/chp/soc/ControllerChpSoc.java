@@ -98,54 +98,70 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			return;
 		}
 
-		switch (this.state) {
-		case UNDEFINED:
-			if (value <= this.lowThreshold) {
-				this.state = State.ON;
-			} else if (value >= this.highThreshold) {
-				this.state = State.OFF;
-			} else {
-				this.state = State.UNDEFINED;
-			}
-			break;
-		case ON:
-			/*
-			 * If the value is larger than highThreshold signal OFF
-			 */
-			if (value >= this.highThreshold) {
-				this.state = State.OFF;
-				break;
-			}
-			/*
-			 * If the value is larger than lowThreshold and smaller than highThreshold, do
-			 * not signal anything.
-			 */
-			if (this.lowThreshold <= value && value <= this.highThreshold) {
-				this.state = State.UNDEFINED;
-				break; // do nothing
-			}
-			this.on();
-			break;
-		case OFF:
-			/*
-			 * If the value is smaller than lowThreshold signal ON
-			 */
-			if (value <= this.lowThreshold) {
-				this.state = State.ON;
-				break;
-			}
-			/*
-			 * If the value is larger than lowThreshold and smaller than highThreshold, do
-			 * not signal anything.
-			 */
-			if (this.lowThreshold <= value && value <= this.highThreshold) {
-				this.state = State.UNDEFINED;
-				break; // do nothing
-			}
-			this.off();
-			break;
-		}
+		boolean stateChanged;
 
+		do {
+			stateChanged = false;
+			switch (this.state) {
+			case UNDEFINED:
+				if (value <= this.lowThreshold) {
+					stateChanged = this.changeState(State.ON);
+				} else if (value >= this.highThreshold) {
+					stateChanged = this.changeState(State.OFF);
+				} else {
+					stateChanged = this.changeState(State.UNDEFINED);
+				}
+				break;
+			case ON:
+				/*
+				 * If the value is larger than highThreshold signal OFF
+				 */
+				if (value >= this.highThreshold) {
+					stateChanged = this.changeState(State.OFF);
+					break;
+				}
+				/*
+				 * If the value is larger than lowThreshold and smaller than highThreshold, do
+				 * not signal anything.
+				 */
+				if (this.lowThreshold <= value && value <= this.highThreshold) {
+					break; // do nothing
+				}
+				this.on();
+				break;
+			case OFF:
+				/*
+				 * If the value is smaller than lowThreshold signal ON
+				 */
+				if (value <= this.lowThreshold) {
+					stateChanged = this.changeState(State.ON);
+					break;
+				}
+				/*
+				 * If the value is larger than lowThreshold and smaller than highThreshold, do
+				 * not signal anything.
+				 */
+				if (this.lowThreshold <= value && value <= this.highThreshold) {
+					break; // do nothing
+				}
+				this.off();
+				break;
+			}
+		} while (stateChanged); // execute again if the state changed
+	}
+
+	/**
+	 * A flag to maintain change in the state
+	 * 
+	 * @param nextState the target state
+	 * @return Flag that the state is changed or not
+	 */
+	private boolean changeState(State nextState) {
+		if (this.state != nextState) {
+			this.state = nextState;
+			return true;
+		} else
+			return false;
 	}
 
 	/**
@@ -179,7 +195,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
-			if (currentValueOpt.isPresent()) {
+			if (!currentValueOpt.isPresent()) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
 				outputChannel.setNextWriteValue(value);
 			}
