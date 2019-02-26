@@ -1,8 +1,45 @@
-# io.openems.edge.controller.api.rest Provider
+# REST-Api Controller
 
-${Bundle-Description}
+## Endpoint '/rest/channel/{Component-ID}/{Channel-ID}'
 
-## Example
+### GET
 
-## References
+### POST
 
+```
+{
+  "value": 1000
+}
+```
+
+## Endpoint '/jsonrpc'
+
+Properties 'id' and 'jsonrpc' can be omitted, as they are not required for HTTP POST calls.
+
+### getEdgeConfig
+
+```
+{
+  "method": "getEdgeConfig",
+  "params": {}
+}
+```
+
+### componentJsonApi
+
+#### getModbusProtocol
+
+```
+{
+  "method":"componentJsonApi",
+  "params":{
+    "componentId":"ctrlApiModbusTcp0",
+    "payload":{
+      "method":"getModbusProtocol",
+      "params":{
+
+      }
+    }
+  }
+}
+```

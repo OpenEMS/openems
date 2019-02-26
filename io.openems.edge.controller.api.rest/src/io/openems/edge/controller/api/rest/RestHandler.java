@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -21,12 +24,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
+import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.controller.api.core.WritePojo;
 
 public class RestHandler extends AbstractHandler {
@@ -57,6 +71,10 @@ public class RestHandler extends AbstractHandler {
 			switch (thisTarget) {
 			case "rest":
 				this.handleRest(remainingTargets, baseRequest, request, response);
+				break;
+
+			case "jsonrpc":
+				this.handleJsonRpc(baseRequest, request, response);
 				break;
 			}
 		} catch (OpenemsNamedException e) {
@@ -180,14 +198,7 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// parse json
-		JsonParser parser = new JsonParser();
-		JsonObject jHttpPost;
-		try {
-			jHttpPost = parser.parse(new BufferedReader(new InputStreamReader(baseRequest.getInputStream())).lines()
-					.collect(Collectors.joining("\n"))).getAsJsonObject();
-		} catch (Exception e) {
-			throw new OpenemsException("Unable to parse: " + e.getMessage());
-		}
+		JsonObject jHttpPost = RestHandler.parseJson(baseRequest);
 
 		// parse value
 		JsonElement jValue;
@@ -209,4 +220,162 @@ public class RestHandler extends AbstractHandler {
 
 		this.sendOkResponse(baseRequest, response, new JsonObject());
 	}
+
+	/**
+	 * Parses a Request to JSON.
+	 * 
+	 * @param baseRequest the Request
+	 * @return
+	 * @throws OpenemsException on error
+	 */
+	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
+		JsonParser parser = new JsonParser();
+		try {
+			return parser.parse(new BufferedReader(new InputStreamReader(baseRequest.getInputStream())).lines()
+					.collect(Collectors.joining("\n"))).getAsJsonObject();
+		} catch (Exception e) {
+			throw new OpenemsException("Unable to parse: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Handles an http request to 'jsonrpc' endpoint.
+	 * 
+	 * @param edgeRpcRequest the EdgeRpcRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	private void handleJsonRpc(Request baseRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+			throws OpenemsNamedException {
+		// call handler methods
+		if (!httpRequest.getMethod().equals("POST")) {
+			throw new OpenemsException(
+					"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
+		}
+
+		// parse json and add "jsonrpc" and "id" properties if missing
+		JsonObject json = RestHandler.parseJson(baseRequest);
+		if (!json.has("jsonrpc")) {
+			json.addProperty("jsonrpc", "2.0");
+		}
+		if (!json.has("id")) {
+			json.addProperty("id", UUID.randomUUID().toString());
+		}
+		if (json.has("params")) {
+			JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+			if (params.has("payload")) {
+				JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+				if (!payload.has("jsonrpc")) {
+					payload.addProperty("jsonrpc", "2.0");
+				}
+				if (!payload.has("id")) {
+					payload.addProperty("id", UUID.randomUUID().toString());
+				}
+				params.add("payload", payload);
+			}
+			json.add("params", params);
+		}
+
+		// parse JSON-RPC Request
+		JsonrpcMessage message = JsonrpcMessage.from(json);
+		if (!(message instanceof JsonrpcRequest)) {
+			throw new OpenemsException("Only JSON-RPC Request is supported here.");
+		}
+		JsonrpcRequest request = (JsonrpcRequest) message;
+
+		// handle the request
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(request);
+
+		// wait for response
+		JsonrpcResponseSuccess response;
+		try {
+			response = responseFuture.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new OpenemsException("Unable to get Response: " + e.getMessage());
+		}
+
+		// send response
+		this.sendOkResponse(baseRequest, httpResponse, response.toJsonObject());
+	}
+
+	/**
+	 * Handles an JSON-RPC Request.
+	 * 
+	 * @param edgeRpcRequest the EdgeRpcRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleJsonRpcRequest(JsonrpcRequest request)
+			throws OpenemsException, OpenemsNamedException {
+		switch (request.getMethod()) {
+
+		case GetEdgeConfigRequest.METHOD:
+			return this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
+
+		case ComponentJsonApiRequest.METHOD:
+			return this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
+
+		default:
+			this.parent.logWarn(this.log, "Unhandled Request: " + request);
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		}
+	}
+
+	/**
+	 * Handles a GetEdgeConfigRequest.
+	 *
+	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(
+			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
+		// wrap original request inside ComponentJsonApiRequest
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(OpenemsConstants.COMPONENT_MANAGER_ID,
+				getEdgeConfigRequest);
+
+		return this.handleComponentJsonApiRequest(request);
+	}
+
+	/**
+	 * Handles a ComponentJsonApiRequest.
+	 * 
+	 * @param request the ComponentJsonApiRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(ComponentJsonApiRequest request)
+			throws OpenemsNamedException {
+		// get Component
+		String componentId = request.getComponentId();
+		OpenemsComponent component = this.parent.componentManager.getComponent(componentId);
+
+		if (component == null) {
+			throw new OpenemsException("Unable to find Component [" + componentId + "]");
+		}
+
+		if (!(component instanceof JsonApi)) {
+			throw new OpenemsException("Component [" + componentId + "] is no JsonApi");
+		}
+
+		// call JsonApi
+		JsonApi jsonApi = (JsonApi) component;
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(request.getPayload());
+
+		// handle null response
+		if (responseFuture == null) {
+			OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
+		}
+
+		// Wrap reply in EdgeRpcResponse
+		CompletableFuture<JsonrpcResponseSuccess> edgeRpcResponse = new CompletableFuture<>();
+		responseFuture.thenAccept(response -> {
+			edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		});
+
+		return edgeRpcResponse;
+	}
+
 }

@@ -5,13 +5,14 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(SumImpl c) {
-		return Stream.of( //
+		return Stream.of(//
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
@@ -36,6 +37,15 @@ public class Utils {
 					case GRID_MODE:
 					case ESS_MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, 0);
+					case ESS_ACTIVE_CHARGE_ENERGY:
+					case ESS_ACTIVE_DISCHARGE_ENERGY:
+					case GRID_BUY_ACTIVE_ENERGY:
+					case GRID_SELL_ACTIVE_ENERGY:
+					case PRODUCTION_ACTIVE_ENERGY:
+					case PRODUCTION_AC_ACTIVE_ENERGY:
+					case PRODUCTION_DC_ACTIVE_ENERGY:
+					case CONSUMPTION_ACTIVE_ENERGY:
+						return new LongReadChannel(c, channelId, 0L);
 					}
 					return null;
 				}) //
