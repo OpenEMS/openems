@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -28,9 +29,10 @@ public class Utils {
 					case REACTIVE_POWER:
 					case CURRENT:
 					case VOLTAGE:
+						return new IntegerReadChannel(c, channelId);
 					case ACTIVE_CONSUMPTION_ENERGY:
 					case ACTIVE_PRODUCTION_ENERGY:
-						return new IntegerReadChannel(c, channelId);
+						return new LongReadChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {

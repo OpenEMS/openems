@@ -54,8 +54,8 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -79,13 +79,7 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 		FREQUENCY(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ)), //
-		ACTIVE_PRODUCTION_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
 		REACTIVE_PRODUCTION_ENERGY(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
-		ACTIVE_CONSUMPTION_ENERGY(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS)), //
 		REACTIVE_CONSUMPTION_ENERGY(new Doc() //
@@ -232,11 +226,11 @@ public class MeterMicrocareSDM630 extends AbstractOpenemsModbusComponent
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								ElementToChannelConverter.DIRECT_1_TO_1),
 						// active energy import/export
-						m(ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30073 - OFFSET).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30075 - OFFSET).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								ElementToChannelConverter.DIRECT_1_TO_1),

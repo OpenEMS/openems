@@ -99,7 +99,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeSystemLogRequest.METHOD:
 			resultFuture = this.handleSubscribeSystemLogRequest(wsData, SubscribeSystemLogRequest.from(request));
 			break;
-			
+
 		case QueryHistoricTimeseriesDataRequest.METHOD:
 			resultFuture = this.handleQueryHistoricDataRequest(QueryHistoricTimeseriesDataRequest.from(request));
 			break;
@@ -256,11 +256,20 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		JsonrpcResponseSuccess response = jsonApi.handleJsonrpcRequest(request.getPayload());
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(request.getPayload());
 
-		// return response
-		return CompletableFuture
-				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		// handle null response
+		if (responseFuture == null) {
+			OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
+		}
+
+		// Wrap reply in new JsonrpcResponseSuccess
+		CompletableFuture<JsonrpcResponseSuccess> jsonrpcResponse = new CompletableFuture<>();
+		responseFuture.thenAccept(response -> {
+			jsonrpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		});
+
+		return jsonrpcResponse;
 	}
 
 	/**
