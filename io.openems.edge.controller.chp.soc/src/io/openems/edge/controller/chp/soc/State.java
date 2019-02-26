@@ -4,9 +4,10 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum State implements OptionsEnum {
 	/**
-	 * Unknown state on first start or Value is larger than the low threshold and smaller than the high threshold.
+	 * Unknown state on first start or Value is larger than the low threshold and
+	 * smaller than the high threshold.
 	 */
-	UNDEFINED(-1, "Undefined"), //
+	UNDEFINED(-1, "Undefined"),
 	/**
 	 * Value is smaller than the low threshold.
 	 */
@@ -14,8 +15,7 @@ public enum State implements OptionsEnum {
 	/**
 	 * Value is larger than the high threshold.
 	 */
-	OFF(1, "Digital output OFF");	
-	
+	OFF(1, "Digital output OFF");
 
 	private final int value;
 	private final String name;

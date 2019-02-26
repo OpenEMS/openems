@@ -27,7 +27,7 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.chp.soc", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "Controller.CHP.SoC", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 
 public class ControllerChpSoc extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
@@ -124,7 +124,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 				 * If the value is larger than lowThreshold and smaller than highThreshold, do
 				 * not signal anything.
 				 */
-				if (this.lowThreshold <= value && value <= this.highThreshold) {
+				if (this.lowThreshold < value && value < this.highThreshold) {
 					break; // do nothing
 				}
 				this.on();
@@ -141,7 +141,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 				 * If the value is larger than lowThreshold and smaller than highThreshold, do
 				 * not signal anything.
 				 */
-				if (this.lowThreshold <= value && value <= this.highThreshold) {
+				if (this.lowThreshold < value && value < this.highThreshold) {
 					break; // do nothing
 				}
 				this.off();
@@ -195,7 +195,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
-			if (!currentValueOpt.isPresent()) {
+			if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
 				outputChannel.setNextWriteValue(value);
 			}
