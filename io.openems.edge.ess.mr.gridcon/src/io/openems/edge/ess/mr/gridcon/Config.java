@@ -3,6 +3,8 @@ package io.openems.edge.ess.mr.gridcon;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
+
 @ObjectClassDefinition( //
 		name = "ESS MR Gridcon PCS", //
 		description = "Implements the FENECON MR Gridcon PCS system")
@@ -17,15 +19,18 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Modbus-Unit-ID", description = "Unit ID of Modbus brige.")
 	int unit_id() default 1;
 
-	@AttributeDefinition(name = "BatteryStringA", description = "ID of battery connected to string A.")
+	@AttributeDefinition(name = "BatteryStringA", description = "ID of battery connected to string A.", required = true)
 	String battery_string_A_id();
 
-	@AttributeDefinition(name = "BatteryStringB", description = "ID of battery connected to string B.")
+	@AttributeDefinition(name = "BatteryStringB", description = "ID of battery connected to string B.", required = false)
 	String battery_string_B_id();
 
-	@AttributeDefinition(name = "BatteryStringC", description = "ID of battery connected to string C.")
+	@AttributeDefinition(name = "BatteryStringC", description = "ID of battery connected to string C.", required = false)
 	String battery_string_C_id();
-
+	
+	@AttributeDefinition(name = "IPUs", description = "Which IPUs are used, InverterCount 4 is DC DC Converter", required = true)
+	InverterCount inverterCount() default InverterCount.ONE;
+	
 	@AttributeDefinition(name = "MinSoCA", description = "Minimal SoC of Battery String A, if reached no further discharging is allowed")
 	int minSoCA() default 25;
 

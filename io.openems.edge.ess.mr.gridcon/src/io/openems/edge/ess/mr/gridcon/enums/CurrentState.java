@@ -2,7 +2,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
-// TODO numbers are not correctly
+// TODO count are not correctly
 public enum CurrentState implements OptionsEnum { // see Software manual chapter 5.1
 	UNDEFINED(-1, "Undefined"), //
 	OFFLINE(1, "Offline"), //
