@@ -99,7 +99,7 @@ public class Solver {
 		try {
 			index = this.data.getCoefficient(essId, phase, pwr).getIndex();
 		} catch (IllegalArgumentException e) {
-			log.error(e.getMessage());
+			this.log.error(e.getMessage());
 			return 0d;
 		}
 		double[] cos = Solver.getEmptyCoefficients(data);
@@ -163,10 +163,10 @@ public class Solver {
 
 		// Print log with currently active EQUALS != 0 Constraints
 		if (this.debugMode) {
-			log.info("Currently active EQUALS contraints");
+			this.log.info("Currently active EQUALS contraints");
 			for (Constraint c : allConstraints) {
 				if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
-					log.info("- " + c.toString());
+					this.log.info("- " + c.toString());
 				}
 			}
 		}
@@ -494,7 +494,6 @@ public class Solver {
 	 */
 	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints) {
-		log.info("oBMTT. Direction: " + targetDirection);
 		// find maxLastActive + maxWeight
 		int maxLastActivePower = 0;
 		int sumWeights = 0;
@@ -532,18 +531,13 @@ public class Solver {
 					// Invert weights for CHARGE, i.e. give higher weight to low state-of-charge
 					// inverters
 					targetWeights.put(inv, (100 - (inv.getWeight() / sumWeights)));
-					// log.info("oBMTT. Target1 [" + inv.getEssId() + "] = " +
-					// targetWeights.get(inv));
 					break;
 				case DISCHARGE:
 					targetWeights.put(inv, inv.getWeight() / sumWeights);
-					// log.info("oBMTT. Target2 [" + inv.getEssId() + "] = " +
-					// targetWeights.get(inv));
 					break;
 				}
 			} else {
 				targetWeights.put(inv, 0);
-				// log.info("oBMTT. Target3 [" + inv.getEssId() + "] = " + 0);
 			}
 		}
 
@@ -551,21 +545,16 @@ public class Solver {
 		Map<Inverter, Double> learningRates = new HashMap<>();
 		for (Inverter inv : allInverters) {
 			learningRates.put(inv, (targetWeights.get(inv) - lastWeights.get(inv)) * LEARNING_RATE);
-			// log.info("oBMTT. Last Weight [" + lastWeights.get(inv) + "] Learning Rate ["
-			// + inv.getEssId() + "] = " + learningRates.get(inv));
 		}
 
 		// create map with next weights (= last weights + learningRates)
 		Map<Inverter, Double> nextWeights = new HashMap<>();
 		for (Inverter inv : allInverters) {
 			nextWeights.put(inv, lastWeights.get(inv) + learningRates.get(inv));
-			// log.info("oBMTT. Next Weights [" + inv.getEssId() + "] = " +
-			// nextWeights.get(inv));
 		}
 
 		// adjust towards target weight till Problem solves
 		for (double i = 0; i < 1 - LEARNING_RATE; i += LEARNING_RATE) {
-			// log.info("oBMTT. for-loop [" + i + "]");
 			List<Constraint> constraints = new ArrayList<>(allConstraints);
 			List<Inverter> inverters = new ArrayList<>(allInverters);
 
@@ -574,7 +563,6 @@ public class Solver {
 			for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 				if (entry.getValue() == 0) { // might fail... compare double to zero
 					Inverter inv = entry.getKey();
-					// log.info("oBMTT. Add EQUALS ZERO for [" + inv.getEssId() + "]");
 					Constraint c = this.data.createSimpleConstraint(inv.toString() + ": next weight = 0",
 							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0);
 					constraints.add(c);
@@ -584,7 +572,6 @@ public class Solver {
 
 			// no inverters left? -> nothing to optimize
 			if (inverters.isEmpty()) {
-				// log.info("oBMTT. inverters empty");
 				return null;
 			}
 
@@ -601,17 +588,14 @@ public class Solver {
 										this.data.getCoefficient(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE),
 										nextWeights.get(invA) * -1) },
 						Relationship.EQUALS, 0);
-				// log.info("oBMTT. add " + c);
 				constraints.add(c);
 			}
 
 			try {
 				PointValuePair solution = this.solveWithConstraints(constraints);
-				// log.info("oBMTT. Solved: " + solution.getFirst());
 				return solution;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// Adjust next weights
-				// log.info("oBMTT. failed. next try. " + e.getMessage());
 				for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 					entry.setValue(entry.getValue() + learningRates.get(entry.getKey()));
 				}

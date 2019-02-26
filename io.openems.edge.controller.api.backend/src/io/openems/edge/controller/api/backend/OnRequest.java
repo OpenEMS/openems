@@ -89,11 +89,20 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		JsonrpcResponseSuccess response = jsonApi.handleJsonrpcRequest(request.getPayload());
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(request.getPayload());
+
+		// handle null response
+		if (responseFuture == null) {
+			OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
+		}
 
 		// Wrap reply in EdgeRpcResponse
-		return CompletableFuture
-				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		CompletableFuture<JsonrpcResponseSuccess> edgeRpcResponse = new CompletableFuture<>();
+		responseFuture.thenAccept(response -> {
+			edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), response.getResult()));
+		});
+
+		return edgeRpcResponse;
 	}
 
 	/**

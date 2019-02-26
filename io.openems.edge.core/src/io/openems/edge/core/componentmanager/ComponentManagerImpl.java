@@ -7,6 +7,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -159,7 +160,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest request) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest request)
+			throws OpenemsNamedException {
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:
@@ -183,11 +185,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private JsonrpcResponseSuccess handleGetEdgeConfigRequest(GetEdgeConfigRequest request)
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(GetEdgeConfigRequest request)
 			throws OpenemsNamedException {
 		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
-		return response;
+		return CompletableFuture.completedFuture(response);
 	}
 
 	/**
@@ -209,7 +211,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 
 		// Create map with configuration attributes
-		Dictionary<String, Object> properties = config.getProperties();
+		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.getProperties()) {
 			properties.put(property.getName(), JsonUtils.getAsBestType(property.getValue()));
 		}
@@ -253,7 +255,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
 
-		return new GenericJsonrpcResponseSuccess(request.getId());
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**

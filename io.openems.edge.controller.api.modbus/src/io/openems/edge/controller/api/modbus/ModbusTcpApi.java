@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.modbus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -326,10 +327,11 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest message) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest message)
+			throws OpenemsNamedException {
 		switch (message.getMethod()) {
 		case GetModbusProtocolRequest.METHOD:
-			return new GetModbusProtocolResponse(message.getId(), this.records);
+			return CompletableFuture.completedFuture(new GetModbusProtocolResponse(message.getId(), this.records));
 		}
 		return null;
 	}

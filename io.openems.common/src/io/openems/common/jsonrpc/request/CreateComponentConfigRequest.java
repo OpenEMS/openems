@@ -33,9 +33,9 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 
 	public static CreateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
+		String factoryPid = JsonUtils.getAsString(p, "factoryPid");
 		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
-		return new CreateComponentConfigRequest(r.getId(), componentId, properties);
+		return new CreateComponentConfigRequest(r.getId(), factoryPid, properties);
 	}
 
 	public final static String METHOD = "createComponentConfig";

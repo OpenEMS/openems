@@ -3,6 +3,7 @@ package io.openems.edge.common.modbusslave;
 public enum ModbusType {
 	UINT16(1, "uint16"), //
 	FLOAT32(2, "float32"), //
+	FLOAT64(4, "float64"), //
 	STRING16(16, "string16");
 
 	private final int words;
