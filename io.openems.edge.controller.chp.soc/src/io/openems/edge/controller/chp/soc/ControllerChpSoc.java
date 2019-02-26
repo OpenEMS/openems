@@ -148,6 +148,9 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 				break;
 			}
 		} while (stateChanged); // execute again if the state changed
+		
+		// store current state in StateMachine channel
+		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
 	/**
