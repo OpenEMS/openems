@@ -132,7 +132,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	DigitalOutput outputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
-
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private DigitalInput inputComponent = null;
+	
 	int minSoCA;
 	int minSoCB;
 	int minSoCC;
@@ -145,9 +147,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private DigitalInput inputComponent = null;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
