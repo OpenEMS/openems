@@ -24,14 +24,14 @@ export class UpdateComponentConfigRequest extends JsonrpcRequest {
 
     public constructor(
         public readonly componentId: string,
-        public readonly update: [{
-            property: string,
+        public readonly properties: [{
+            name: string,
             value: any
         }]
     ) {
         super(UpdateComponentConfigRequest.METHOD, {
             componentId: componentId,
-            update: update
+            properties: properties
         });
     }
 
