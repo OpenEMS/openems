@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -30,7 +30,7 @@ public class Utils {
 				Arrays.stream(ControllerChpSoc.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE_MACHINE:
-						return new IntegerReadChannel(c, channelId);
+						return new EnumReadChannel(c, channelId, State.UNDEFINED);
 					}
 					return null;
 				}) //

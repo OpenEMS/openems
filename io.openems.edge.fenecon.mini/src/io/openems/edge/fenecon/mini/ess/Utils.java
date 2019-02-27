@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -38,7 +40,7 @@ public class Utils {
 				result.add(new IntegerReadChannel(c, channelId, 3000));
 				break;
 			case GRID_MODE:
-				result.add(new IntegerReadChannel(c, channelId, GridMode.UNDEFINED));
+				result.add(new EnumReadChannel(c, channelId, GridMode.UNDEFINED));
 				break;
 			case ACTIVE_DISCHARGE_ENERGY:
 			case ACTIVE_CHARGE_ENERGY:
@@ -68,12 +70,9 @@ public class Utils {
 		for (FeneconMiniEss.ChannelId channelId : FeneconMiniEss.ChannelId.values()) {
 			switch (channelId) {
 			case SYSTEM_WORK_MODE_STATE:
-			case SYSTEM_STATE:
 			case BATTERY_CURRENT:
-			case BATTERY_GROUP_STATE:
 			case BATTERY_POWER:
 			case BATTERY_VOLTAGE:
-			case CONTROL_MODE:
 			case BECU1_CHARGE_CURRENT:
 			case BECU1_CURRENT:
 			case BECU1_DISCHARGE_CURRENT:
@@ -112,16 +111,33 @@ public class Utils {
 				result.add(new IntegerReadChannel(c, channelId));
 				break;
 
+			case CONTROL_MODE:
+				result.add(new EnumReadChannel(c, channelId, ControlMode.UNDEFINED));
+				break;
+			case BATTERY_GROUP_STATE:
+				result.add(new EnumReadChannel(c, channelId, BatteryGroupState.UNDEFINED));
+				break;
+			case SYSTEM_STATE:
+				result.add(new EnumReadChannel(c, channelId, SystemState.UNDEFINED));
+				break;
+
 			case RTC_DAY:
 			case RTC_HOUR:
 			case RTC_MINUTE:
 			case RTC_MONTH:
 			case RTC_SECOND:
 			case RTC_YEAR:
-			case SETUP_MODE:
-			case PCS_MODE:
-			case SET_WORK_STATE:
 				result.add(new IntegerWriteChannel(c, channelId));
+				break;
+
+			case PCS_MODE:
+				result.add(new EnumWriteChannel(c, channelId, PcsMode.UNDEFINED));
+				break;
+			case SETUP_MODE:
+				result.add(new EnumWriteChannel(c, channelId, SetupMode.UNDEFINED));
+				break;
+			case SET_WORK_STATE:
+				result.add(new EnumWriteChannel(c, channelId, SetWorkState.UNDEFINED));
 				break;
 
 			case STATE_1:
