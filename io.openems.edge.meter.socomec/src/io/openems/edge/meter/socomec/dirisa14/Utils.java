@@ -52,10 +52,15 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				})/*
-					 * , Arrays.stream(MeterSocomecDirisA14.ChannelId.values()).map(channelId -> {
-					 * switch (channelId) { } return null; })
-					 */ //
+				}), Arrays.stream(MeterSocomecDirisA14.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case REACTIVE_PRODUCTION_ENERGY:
+					case REACTIVE_CONSUMPTION_ENERGY:
+						return new LongReadChannel(c, channelId);
+					}
+					return null;
+				})
+		//
 		).flatMap(channel -> channel);
 	}
 }
