@@ -215,7 +215,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getActiveProductionEnergy() {
+	default Channel<Long> getActiveProductionEnergy() {
 		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	}
 
@@ -244,7 +244,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getActiveConsumptionEnergy() {
+	default Channel<Long> getActiveConsumptionEnergy() {
 		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
