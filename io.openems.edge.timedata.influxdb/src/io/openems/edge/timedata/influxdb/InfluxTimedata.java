@@ -126,6 +126,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case SHORT:
 						point.addField(address, (Short) value);
 						break;
+					case ENUM:
 					case INTEGER:
 						point.addField(address, (Integer) value);
 						break;

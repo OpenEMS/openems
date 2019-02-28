@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
@@ -40,7 +41,7 @@ public abstract class DummyComponent<T> extends AbstractOpenemsComponent impleme
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(this, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(this, channelId, GridMode.UNDEFINED);
+						return new EnumReadChannel(this, channelId, GridMode.UNDEFINED);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {

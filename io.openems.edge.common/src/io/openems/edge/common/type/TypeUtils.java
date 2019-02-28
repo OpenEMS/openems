@@ -117,7 +117,8 @@ public class TypeUtils {
 				return (T) Short.valueOf(Short.parseShort(stringValue));
 			}
 			break;
-
+			
+		case ENUM:
 		case INTEGER:
 			if (value == null) {
 				return (T) ((Integer) value);
@@ -284,6 +285,7 @@ public class TypeUtils {
 			return new JsonPrimitive(((Boolean) value) ? 1 : 0);
 		case SHORT:
 			return new JsonPrimitive((Short) value);
+		case ENUM:
 		case INTEGER:
 			return new JsonPrimitive((Integer) value);
 		case LONG:
