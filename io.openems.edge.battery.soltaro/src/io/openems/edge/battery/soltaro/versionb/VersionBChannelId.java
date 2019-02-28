@@ -319,11 +319,12 @@ public enum VersionBChannelId implements io.openems.edge.common.channel.doc.Chan
 	SLAVE_19_COMMUNICATION_ERROR(new Doc().level(Level.WARNING).text("Slave 19 communication error")), //
 	SLAVE_20_COMMUNICATION_ERROR(new Doc().level(Level.WARNING).text("Slave 20 communication error")), //
 	
+	//TODO What is a real error that causes malfunction that a manual operation is needed?
 	FAILURE_INITIALIZATION(new Doc().level(Level.FAULT).text("Initialization failure")), //
 	FAILURE_EEPROM(new Doc().level(Level.FAULT).text("EEPROM fault")), //
 	FAILURE_INTRANET_COMMUNICATION(new Doc().level(Level.FAULT).text("Intranet communication fault")), //
 	FAILURE_TEMP_SAMPLING_LINE(new Doc().level(Level.FAULT).text("Temperature sampling line fault")), //
-	FAILURE_BALANCING_MODULE(new Doc().level(Level.FAULT).text("Balancing module fault")), //
+	FAILURE_BALANCING_MODULE(new Doc().level(Level.INFO).text("Balancing module fault")), //
 	FAILURE_PCB(new Doc().level(Level.FAULT).text("PCB error")), //
 	FAILURE_GR_T(new Doc().level(Level.FAULT).text("GR T error")), //
 	FAILURE_TEMP_SENSOR(new Doc().level(Level.FAULT).text("Temperature sensor fault")), //
