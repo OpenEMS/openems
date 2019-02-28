@@ -30,6 +30,8 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
@@ -163,7 +165,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 
 	private void checkSystemState() {
 
-		IntegerReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 
@@ -206,7 +208,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		EnumWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
 		// To avoid hardware damages do not send start command if system has already
@@ -223,7 +225,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void stopSystem() {
-		IntegerWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		EnumWriteChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
 
 		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
 		// To avoid hardware damages do not send stop command if system has already

@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -207,7 +208,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		setBatteryRanges();
 		setWatchdog();
 
-		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
+		EnumReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
 		CurrentState currentState = currentStateChannel.value().asEnum();
 		switch (currentState) {
 		case OFF:
@@ -407,7 +408,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 	private void setWatchdog() {
 		// according to 3.5.2.2 in the manual write watchdog register
-		EnumWriteChannel watchdogChannel = this.channel(ChannelId.WATCHDOG);
+		IntegerWriteChannel watchdogChannel = this.channel(ChannelId.WATCHDOG);
 		try {
 			watchdogChannel.setNextWriteValue(watchdogInterval);
 		} catch (OpenemsException e) {
