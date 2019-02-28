@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
@@ -35,7 +36,7 @@ public class Utils {
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, AbstractEssStreetscooter.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);
+						return new EnumReadChannel(c, channelId, GridMode.ON_GRID);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
@@ -57,7 +58,7 @@ public class Utils {
 				}), Arrays.stream(AbstractEssStreetscooter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case INVERTER_MODE:
-						return new IntegerReadChannel(c, channelId, InverterMode.UNDEFINED);
+						return new EnumReadChannel(c, channelId, InverterMode.UNDEFINED);
 					case BATTERY_BMS_I_ACT:
 					case BATTERY_BMS_ERR:
 					case BATTERY_BMS_PWR_CHRG_MAX:

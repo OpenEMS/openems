@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -30,7 +31,7 @@ public class Utils {
 					case REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);
+						return new EnumReadChannel(c, channelId, GridMode.ON_GRID);
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new LongReadChannel(c, channelId);

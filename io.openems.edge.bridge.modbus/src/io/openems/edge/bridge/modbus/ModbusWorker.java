@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,14 @@ class ModbusWorker extends AbstractCycleWorker {
 	 * immediately.
 	 */
 	private final AtomicBoolean forceWrite = new AtomicBoolean(false);
+
+	/**
+	 * Counts the failed communications in a row. It is used so that
+	 * SLAVE_COMMUNICATION_FAILED is not set on each single error.
+	 */
+	private final AtomicInteger communicationFailedCounter = new AtomicInteger(0);
+	private final static int FAILED_COMMUNICATIONS_FOR_ERROR = 5;
+
 	private final AbstractModbusBridge parent;
 
 	protected ModbusWorker(AbstractModbusBridge parent) {
@@ -124,8 +133,23 @@ class ModbusWorker extends AbstractCycleWorker {
 			}
 		}
 
-		// Set the "SlaveCommunicationFailed" State-Channel
-		this.parent.getSlaveCommunicationFailedChannel().setNextValue(isCommunicationFailed);
+		/*
+		 * did communication fail?
+		 */
+		if (isCommunicationFailed) {
+			if (this.communicationFailedCounter.incrementAndGet() > FAILED_COMMUNICATIONS_FOR_ERROR) {
+				// Set the "SLAVE_COMMUNICATION_FAILED" State-Channel
+				this.parent.getSlaveCommunicationFailedChannel().setNextValue(true);
+			} else {
+				// Unset the "SLAVE_COMMUNICATION_FAILED" State-Channel
+				this.parent.getSlaveCommunicationFailedChannel().setNextValue(false);
+			}
+		} else {
+			// Reset Counter
+			this.communicationFailedCounter.set(0);
+			// Unset the "SLAVE_COMMUNICATION_FAILED" State-Channel
+			this.parent.getSlaveCommunicationFailedChannel().setNextValue(false);
+		}
 	}
 
 	/**

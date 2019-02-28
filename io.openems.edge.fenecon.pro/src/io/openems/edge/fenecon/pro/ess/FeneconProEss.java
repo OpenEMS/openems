@@ -29,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
@@ -101,8 +102,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 
@@ -777,7 +777,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
 	}
 
-	private IntegerWriteChannel getPcsModeChannel() {
+	private EnumWriteChannel getPcsModeChannel() {
 		return this.channel(FeneconProEss.ChannelId.PCS_MODE);
 	}
 
@@ -785,7 +785,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		return this.getPcsModeChannel().value().asEnum();
 	}
 
-	private IntegerWriteChannel getSetupModeChannel() {
+	private EnumWriteChannel getSetupModeChannel() {
 		return this.channel(FeneconProEss.ChannelId.SETUP_MODE);
 	}
 

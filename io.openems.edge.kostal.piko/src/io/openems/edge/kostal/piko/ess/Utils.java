@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,7 +30,7 @@ public class Utils {
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, GridMode.UNDEFINED);
+						return new EnumReadChannel(c, channelId, GridMode.UNDEFINED);
 					}
 					return null;
 				})
