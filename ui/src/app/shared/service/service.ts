@@ -208,12 +208,12 @@ export class Service implements ErrorHandler {
     return new Promise<Widget[]>((resolve, reject) => {
       this.getConfig().then(config => {
         let widgets = [];
-        for (let nature of Object.keys(WidgetNature)) {
-          for (let componentId of config.getComponentsImplementingNature(nature)) {
+        for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
+          for (let componentId of config.getComponentIdsImplementingNature(nature)) {
             widgets.push({ name: nature, componentId: componentId })
           }
         }
-        for (let factory of Object.keys(WidgetFactory)) {
+        for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
           for (let componentId of config.getComponentIdsByFactory(factory)) {
             widgets.push({ name: factory, componentId: componentId })
           }

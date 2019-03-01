@@ -106,13 +106,31 @@ export class EdgeConfig {
      * 
      * @param nature the given Nature.
      */
-    public getComponentsImplementingNature(natureId: string): string[] {
+    public getComponentIdsImplementingNature(natureId: string): string[] {
+        let result: string[] = [];
         let nature = this.natures[natureId];
         if (nature) {
-            return nature.factoryIds;
-        } else {
-            return [];
+            for (let factoryId of nature.factoryIds) {
+                result.push.apply(result, this.getComponentIdsByFactory(factoryId));
+            }
         }
+        return result;
+    }
+
+    /**
+     * Get Components that implement the given Nature.
+     * 
+     * @param nature the given Nature.
+     */
+    public getComponentsImplementingNature(natureId: string): EdgeConfig.Component[] {
+        let result: EdgeConfig.Component[] = [];
+        let nature = this.natures[natureId];
+        if (nature) {
+            for (let factoryId of nature.factoryIds) {
+                result.push.apply(result, this.getComponentsByFactory(factoryId));
+            }
+        }
+        return result;
     }
 
     /**

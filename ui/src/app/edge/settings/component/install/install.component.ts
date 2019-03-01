@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Service, Utils, Websocket, EdgeConfig } from '../../../shared/shared';
+import { Service, Utils, Websocket, EdgeConfig } from '../../../../shared/shared';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 @Component({
   selector: ComponentInstallComponent.SELECTOR,
-  templateUrl: './componentInstall.component.html'
+  templateUrl: './install.component.html'
 })
 export class ComponentInstallComponent implements OnInit, OnDestroy {
 
