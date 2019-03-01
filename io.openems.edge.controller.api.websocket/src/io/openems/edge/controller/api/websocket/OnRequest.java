@@ -1,7 +1,10 @@
 package io.openems.edge.controller.api.websocket;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -10,8 +13,10 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
@@ -105,7 +110,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case QueryHistoricTimeseriesDataRequest.METHOD:
 			resultFuture = this.handleQueryHistoricDataRequest(QueryHistoricTimeseriesDataRequest.from(request));
 			break;
-			
+
 		case QueryHistoricTimeseriesEnergyRequest.METHOD:
 			resultFuture = this.handleQueryHistoricEnergyRequest(QueryHistoricTimeseriesEnergyRequest.from(request));
 			break;
@@ -196,9 +201,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
-		data = this.parent.timedata.queryHistoricData(//
-				null, /* igore Edge-ID */
+		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data = this.parent.timedata.queryHistoricData(//
+				null, /* ignore Edge-ID */
 				request.getFromDate(), //
 				request.getToDate(), //
 				request.getChannels());
@@ -206,7 +210,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
 	}
-	
+
 	/**
 	 * Handles a QueryHistoricEnergyRequest.
 	 * 
@@ -216,13 +220,30 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
-		data = this.parent.timedata.queryHistoricData(//
+		Map<ChannelAddress, JsonElement> data = this.parent.timedata.queryHistoricEnergy(//
 				null, /* ignore Edge-ID */
 				request.getFromDate(),
 				request.getToDate(),
 				request.getChannels());
-		
+
+//		Map<ChannelAddress, JsonElement>data = new HashMap<>();
+//		
+//		JsonElement gridBuyValue = new JsonPrimitive(58);
+//		ChannelAddress gridBuyKey = new ChannelAddress("_sum", "Grid_Buy_Active_Energy");
+//		data.put(gridBuyKey, gridBuyValue);
+//		
+//		JsonElement gridSellValue = new JsonPrimitive(64);
+//		ChannelAddress gridSellKey = new ChannelAddress("_sum", "Grid_Sell_Active_Energy");
+//		data.put(gridSellKey, gridSellValue);
+//		
+//		JsonElement prodActiveValue = new JsonPrimitive(128);
+//		ChannelAddress prodActiveKey = new ChannelAddress("_sum", "Production_Active_Energy");
+//		data.put(prodActiveKey,prodActiveValue);
+//		
+//		JsonElement consActiveValue = new JsonPrimitive(666);
+//		ChannelAddress consActiveKey = new ChannelAddress("_sum", "Consumption_Active_Energy");
+//		data.put(consActiveKey, consActiveValue);
+
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
 	}

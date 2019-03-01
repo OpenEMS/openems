@@ -17,6 +17,7 @@ export class KwhComponent implements OnInit, OnChanges {
 
   public data: Cummulated = null;
   public values: any;
+  public edge: Edge = null;
 
   constructor(
     protected service: Service,
@@ -26,7 +27,6 @@ export class KwhComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.service.setCurrentEdge(this.route);
-    this.updateValues();
   }
 
   ngOnChanges() {
@@ -34,20 +34,25 @@ export class KwhComponent implements OnInit, OnChanges {
   };
 
   updateValues() {
-    this.querykWh(this.fromDate, this.toDate).then(response => {
+    this.queryEnergy(this.fromDate, this.toDate).then(response => {
       this.data = response.result.data;
-      console.log("DAS IST DAS RESULT: ", this.data)
+      console.log("Response:", this.data)
     });
-  }
+  };
 
   protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      resolve([new ChannelAddress('_sum', 'EssSoc')]);
+      resolve([
+        new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+        new ChannelAddress('_sum', 'GridSell_ActiveEnergy'),
+        new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+        new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+      ]);
     });
-  }
+  };
 
 
-  protected querykWh(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyResponse> {
+  protected queryEnergy(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyResponse> {
     return new Promise((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.getChannelAddresses(edge).then(channelAddresses => {

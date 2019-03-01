@@ -4,7 +4,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -110,6 +112,35 @@ public class InfluxConnector {
 	 * @return
 	 * @throws OpenemsException on error
 	 */
+//	public Map<...>
+	
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> InfluxEdgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels)
+			throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement>result= new HashMap<>();
+//		
+		JsonElement gridBuyValue = new JsonPrimitive(58);
+		ChannelAddress gridBuyKey = new ChannelAddress("_sum", "Grid_Buy_Active_Energy");
+		result.put(gridBuyKey, gridBuyValue);
+//		
+//		JsonElement gridSellValue = new JsonPrimitive(64);
+//		ChannelAddress gridSellKey = new ChannelAddress("_sum", "Grid_Sell_Active_Energy");
+//		data.put(gridSellKey, gridSellValue);
+//		
+//		JsonElement prodActiveValue = new JsonPrimitive(128);
+//		ChannelAddress prodActiveKey = new ChannelAddress("_sum", "Production_Active_Energy");
+//		data.put(prodActiveKey,prodActiveValue);
+//		
+//		JsonElement consActiveValue = new JsonPrimitive(666);
+//		ChannelAddress consActiveKey = new ChannelAddress("_sum", "Consumption_Active_Energy");
+//		data.put(consActiveKey, consActiveValue);
+
+
+		return result;
+	}
+	
+	
+	
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {

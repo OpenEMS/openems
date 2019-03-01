@@ -21,7 +21,7 @@
                     <ion-label padding-left translate>General.ChargePower</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["production"]}}&nbsp;kWh
+                    {{data["_sum/Production_Active_Energy"]}}&nbsp;kWh
                 </td>
             </tr>
         </table>
@@ -41,7 +41,7 @@
                     <ion-label padding-left translate>General.GridBuy</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["gridbezug"]}}&nbsp;kWh
+                    {{data["_sum/Grid_Buy_Active_Energy"]}}&nbsp;kWh
                 </td>
             </tr>
             <tr>
@@ -49,7 +49,7 @@
                     <ion-label padding-left translate>General.GridSell</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["grideinspeisung"]}}&nbsp;kWh
+                    {{data["_sum/Grid_Sell_Active_Energy"]}}&nbsp;kWh
                 </td>
             </tr>
         </table>
@@ -69,7 +69,7 @@
                     <ion-label padding-left translate>General.Load</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["consumption"]}}&nbsp;kWh
+                    {{data["_sum/Consumption_Active_Energy"]}}&nbsp;kWh
                 </td>
             </tr>
         </table>
