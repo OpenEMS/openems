@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.ess.refu.RefuEss.ChannelId;
@@ -46,8 +47,8 @@ public class ErrorHandler implements Runnable {
 		errorHandlerState.setNextValue(this.currentSystemStateHandling.getValue());
 
 		SystemState systemState = this.parent.channel(ChannelId.SYSTEM_STATE).value().asEnum();
-		IntegerWriteChannel setWorkStateChannel = this.parent.channel(ChannelId.SET_WORK_STATE);
-		IntegerWriteChannel systemErrorResetChannel = this.parent.channel(ChannelId.SET_SYSTEM_ERROR_RESET);
+		EnumWriteChannel setWorkStateChannel = this.parent.channel(ChannelId.SET_WORK_STATE);
+		EnumWriteChannel systemErrorResetChannel = this.parent.channel(ChannelId.SET_SYSTEM_ERROR_RESET);
 
 //		this.parent.logInfo(log,
 //				"SystemState [" + systemState + "] StateHandling [" + this.currentSystemStateHandling

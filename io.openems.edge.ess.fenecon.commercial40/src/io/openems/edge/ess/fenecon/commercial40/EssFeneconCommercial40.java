@@ -33,6 +33,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -692,7 +693,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		LocalDateTime now = LocalDateTime.now();
 		if (lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
 			this.lastDefineWorkState = now;
-			IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
+			EnumWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
 			try {
 				setWorkStateChannel.setNextWriteValue(SetWorkState.START);
 			} catch (OpenemsException e) {

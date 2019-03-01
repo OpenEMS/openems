@@ -5,12 +5,14 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.kostal.piko.core.api.BatteryCurrentDirection;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 
 public class Utils {
@@ -91,7 +93,6 @@ public class Utils {
 					case BATTERY_CURRENT:
 					case BATTERY_VOLTAGE:
 					case BATTERY_TEMPERATURE:
-					case BATTERY_CURRENT_DIRECTION:
 					case AC_CURRENT_L1:
 					case AC_VOLTAGE_L1:
 					case AC_POWER_L1:
@@ -137,6 +138,8 @@ public class Utils {
 					case GRID_AC_P_TOTAL:
 					case ACTUAL_POWER:
 						return new FloatReadChannel(c, channelId);
+					case BATTERY_CURRENT_DIRECTION:
+						return new EnumReadChannel(c, channelId, BatteryCurrentDirection.UNDEFINED);
 					}
 					return null;
 				}) //

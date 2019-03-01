@@ -274,7 +274,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		STATE_140(new Doc().level(Level.WARNING).text("SevereCellStackLeakage")), //
 		STATE_141(new Doc().level(Level.WARNING).text("SmokeAlarm")), //
 		STATE_142(new Doc().level(Level.WARNING).text("TheCommunicationWireToAmmeterBreak")), //
-		STATE_143(new Doc().level(Level.WARNING).text("TheCommunicationWireToDredBreak")//
+		STATE_143(new Doc().level(Level.INFO).text("TheCommunicationWireToDredBreak")//
 		); //
 
 		private final Doc doc;
