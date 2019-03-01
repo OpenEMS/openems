@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.OnClose;
-import io.openems.common.websocket.OnInternalError;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
@@ -21,7 +20,6 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
-	private final OnInternalError onInternalError;
 
 	protected WebsocketClient(BackendApi parent, String name, URI serverUri, Map<String, String> httpHeaders,
 			Proxy proxy) {
@@ -34,10 +32,6 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onClose = (ws, code, reason, remote) -> {
 			log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() + //
 			(proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
-		};
-		this.onInternalError = (ex, wsDataString) -> {
-			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
 		};
 	}
 
@@ -64,11 +58,6 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	public OnClose getOnClose() {
 		return this.onClose;
-	}
-
-	@Override
-	public OnInternalError getOnInternalError() {
-		return this.onInternalError;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package io.openems.common.websocket;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -99,6 +100,17 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.ws.setReuseAddr(true);
 	}
 
+	protected OnInternalError getOnInternalError() {
+		return (ex, wsDataString) -> {
+			if (ex instanceof BindException) {
+				this.log.error("Unable to Bind to port [" + this.port + "]");
+			} else {
+				this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
+			}
+			ex.printStackTrace();
+		};
+	};
+
 	public Collection<WebSocket> getConnections() {
 		return this.ws.getConnections();
 	}
@@ -111,7 +123,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * Starts the websocket server
 	 */
 	public void start() {
-		log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
+		this.log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
 		this.ws.start();
 	}
 
@@ -125,7 +137,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				this.ws.stop();
 				return;
 			} catch (NullPointerException | InterruptedException | IOException e) {
-				log.warn("Unable to stop websocket server [" + this.getName() + "]. " + e.getClass().getSimpleName()
+				this.log.warn("Unable to stop websocket server [" + this.getName() + "]. " + e.getClass().getSimpleName()
 						+ ": " + e.getMessage());
 				try {
 					Thread.sleep(100);
@@ -134,7 +146,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				}
 			}
 		}
-		log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
+		this.log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
 	}
 
 	/**
@@ -147,5 +159,4 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			throws OpenemsNamedException {
 		throw new OpenemsException("Unhandled Non-JSON-RPC message", e);
 	}
-
 }

@@ -129,7 +129,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 * Starts the websocket client
 	 */
 	public void start() {
-		log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
+		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		this.ws.connect();
 	}
 
@@ -139,7 +139,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 * @throws InterruptedException
 	 */
 	public void startBlocking() throws InterruptedException {
-		log.info("Opening connection [" + this.getName() + "] websocket server [" + this.serverUri + "]");
+		this.log.info("Opening connection [" + this.getName() + "] websocket server [" + this.serverUri + "]");
 		this.ws.connectBlocking();
 	}
 
@@ -147,16 +147,23 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 * Stops the websocket client
 	 */
 	public void stop() {
-		log.info("Closing connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
+		this.log.info("Closing connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		// shutdown reconnector
 		this.reconnectorWorker.deactivate();
 		// close websocket
 		this.ws.close(CloseFrame.NORMAL, "Closing connection [" + this.getName() + "]");
 	}
 
+	protected OnInternalError getOnInternalError() {
+		return (ex, wsDataString) -> {
+			this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
+			ex.printStackTrace();
+		};
+	};
+
 	public void sendMessageOrError(JsonrpcMessage message) throws OpenemsException {
 		try {
-			ws.send(message.toString());
+			this.ws.send(message.toString());
 		} catch (Exception e) {
 			if (e instanceof WebsocketNotConnectedException) {
 				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();

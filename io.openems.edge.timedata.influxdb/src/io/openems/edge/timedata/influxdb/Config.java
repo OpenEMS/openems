@@ -26,5 +26,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Database", description = "Database name of InfluxDB server.")
 	String database() default "db";
 
+	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
+	boolean isReadOnly() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Timedata InfluxDB [{id}]";
 }
