@@ -112,41 +112,53 @@ public class InfluxConnector {
 	 * @return
 	 * @throws OpenemsException on error
 	 */
-//	public Map<...>
-	
-	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> InfluxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels)
-			throws OpenemsNamedException {
-		Map<ChannelAddress, JsonElement>result= new HashMap<>();
-//		
-		JsonElement gridBuyValue = new JsonPrimitive(58);
-		ChannelAddress gridBuyKey = new ChannelAddress("_sum", "Grid_Buy_Active_Energy");
-		result.put(gridBuyKey, gridBuyValue);
-//		
-//		JsonElement gridSellValue = new JsonPrimitive(64);
-//		ChannelAddress gridSellKey = new ChannelAddress("_sum", "Grid_Sell_Active_Energy");
-//		data.put(gridSellKey, gridSellValue);
-//		
-//		JsonElement prodActiveValue = new JsonPrimitive(128);
-//		ChannelAddress prodActiveKey = new ChannelAddress("_sum", "Production_Active_Energy");
-//		data.put(prodActiveKey,prodActiveValue);
-//		
-//		JsonElement consActiveValue = new JsonPrimitive(666);
-//		ChannelAddress consActiveKey = new ChannelAddress("_sum", "Consumption_Active_Energy");
-//		data.put(consActiveKey, consActiveValue);
 
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+
+//		Map<ChannelAddress, JsonElement>result= new HashMap<>();
+//		JsonElement gridBuyValue = new JsonPrimitive(58);
+//		ChannelAddress gridBuyKey = new ChannelAddress("_sum", "Grid_Buy_Active_Energy");
+//		result.put(gridBuyKey, gridBuyValue);
+
+		
+		StringBuilder query = new StringBuilder("SELECT last");
+//		for (Result result : queryResult.getResults())
+//		for (ChannelAddress channel :  channels) {
+//			
+//		}
+		
+		query.append(InfluxConnector.toChannelAddressStringEnergy(channels));
+		query.append("- first");
+		query.append(InfluxConnector.toChannelAddressStringEnergy(channels));
+		query.append(" FROM data WHERE");
+		if (influxEdgeId.isPresent()) {
+			query.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
+		}
+		query.append("time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.toEpochSecond()));
+		query.append("s");
+
+//		QueryResult queryResult = executeQuery(query.toString());
+//		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> result = InfluxConnector
+//				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
+//		
+		QueryResult queryResult = executeQuery(query.toString());
+		Map<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(queryResult,
+				fromDate.getZone());
 
 		return result;
 	}
-	
-	
-	
+
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(InfluxConnector.toChannelAddressString(channels));
+		query.append(InfluxConnector.toChannelAddressStringData(channels));
 		query.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
 			query.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
@@ -162,7 +174,7 @@ public class InfluxConnector {
 		query.append("s) fill(null)");
 
 		// Execute query
-		QueryResult queryResult = executeQuery(query.toString());
+		QueryResult queryResult = this.executeQuery(query.toString());
 
 		// Prepare result
 		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> result = InfluxConnector
@@ -220,16 +232,59 @@ public class InfluxConnector {
 		return table;
 	}
 
+	private static Map<ChannelAddress, JsonElement> convertHistoricEnergyResult(QueryResult queryResult,
+			ZoneId timezone) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> map = new HashMap<>();
+		for (Result result : queryResult.getResults()) {
+			List<Series> seriess = result.getSeries();
+			if (seriess != null) {
+				for (Series series : seriess) {
+					// create ChannelAddress index
+					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
+					for (String column : series.getColumns()) {
+						addressIndex.add(ChannelAddress.fromString(column));
+					}
+
+					// add all data
+					for (List<Object> values : series.getValues()) {
+						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+							ChannelAddress address = addressIndex.get(columnIndex);
+							Object valueObj = values.get(columnIndex);
+							JsonElement value;
+							if (valueObj == null) {
+								value = JsonNull.INSTANCE;
+							} else if (valueObj instanceof Number) {
+								value = new JsonPrimitive((Number) valueObj);
+							} else {
+								value = new JsonPrimitive(valueObj.toString());
+							}
+							map.put(address, value);
+						}
+					}
+				}
+			}
+		}
+		return map;
+	}
+
 	/**
 	 * 
 	 * @param channels
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static String toChannelAddressString(Set<ChannelAddress> channels) throws OpenemsException {
+	protected static String toChannelAddressStringData(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {
 			channelAddresses.add("MEAN(\"" + channel.toString() + "\") AS \"" + channel.toString() + "\"");
+		}
+		return String.join(", ", channelAddresses);
+	}
+	
+	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (ChannelAddress channel : channels) {
+			channelAddresses.add(channel.toString() + "\") AS \"" + channel.toString() + "\"");
 		}
 		return String.join(", ", channelAddresses);
 	}

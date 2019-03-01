@@ -47,7 +47,7 @@ public interface CommonTimedataService {
 	 * @param channels   the Channels
 	 * @param resolution the Resolution in seconds
 	 */
-	
+
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException;
@@ -55,13 +55,12 @@ public interface CommonTimedataService {
 	/**
 	 * Queries historic energy.
 	 * 
-	 * @param edgeId     the Edge-ID; or null query all
-	 * @param fromDate   the From-Date
-	 * @param toDate     the To-Date
-	 * @param channels   the Channels
+	 * @param edgeId   the Edge-ID; or null query all
+	 * @param fromDate the From-Date
+	 * @param toDate   the To-Date
+	 * @param channels the Channels
 	 */
-	
-	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
-			Set<ChannelAddress> channels)
-			throws OpenemsNamedException;
+
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
 }
