@@ -61,7 +61,7 @@
     "roboto-fontface": "0.10.0",
     "rxjs": "~6.4.0",
     "semver-compare-multi": "^1.0.3",
-    "webpack": "^4.29.5",
+    "webpack": "^4.29.6",
     "xlsx": "^0.14.1",
     "zone.js": "~0.8.29"
   },
