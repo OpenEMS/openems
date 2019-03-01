@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -20,7 +20,7 @@ public class UtilsSerial {
 				}), Arrays.stream(AbstractModbusBridge.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SLAVE_COMMUNICATION_FAILED:
-						return new BooleanReadChannel(s, channelId);
+						return new StateChannel(s, channelId);
 					}
 					return null;
 				}) //
