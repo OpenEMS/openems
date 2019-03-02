@@ -154,8 +154,8 @@ export class Edge {
    * @param componentId the OpenEMS Edge Component-ID 
    * @param properties  the properties to be updated.
    */
-  public updateComponentConfig(ws: Websocket, componentId: string, properties: [{ name: string, value: any }]): Promise<JsonrpcResponseSuccess> {
-    let request = new UpdateComponentConfigRequest(componentId, properties);
+  public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+    let request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
     return this.sendRequest(ws, request);
   }
 

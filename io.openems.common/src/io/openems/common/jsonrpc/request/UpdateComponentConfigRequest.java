@@ -44,8 +44,8 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 	private final String componentId;
 	private final List<Property> properties;
 
-	public UpdateComponentConfigRequest(String componentId, List<Property> update) {
-		this(UUID.randomUUID(), componentId, update);
+	public UpdateComponentConfigRequest(String componentId, List<Property> properties) {
+		this(UUID.randomUUID(), componentId, properties);
 	}
 
 	public UpdateComponentConfigRequest(UUID id, String componentId, List<Property> properties) {
@@ -56,13 +56,13 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray update = new JsonArray();
+		JsonArray properties = new JsonArray();
 		for (Property property : this.properties) {
-			update.add(property.toJson());
+			properties.add(property.toJson());
 		}
 		return JsonUtils.buildJsonObject() //
 				.addProperty("componentId", this.componentId) //
-				.add("update", update) //
+				.add("properties", properties) //
 				.build();
 	}
 

@@ -149,10 +149,25 @@ public class EdgeConfig {
 				}
 
 				JsonElement defaultValue = JsonUtils.getAsJsonElement(ad.getDefaultValue());
-				if (defaultValue.isJsonArray() && ((JsonArray) defaultValue).size() == 1) {
+				if ((ad.getCardinality() == 0 || ad.getCardinality() == 1) && defaultValue.isJsonArray()
+						&& ((JsonArray) defaultValue).size() == 1) {
 					defaultValue = ((JsonArray) defaultValue).get(0);
 				}
 
+				JsonObject schema;
+				int cardinality = Math.abs(ad.getCardinality());
+				if (cardinality > 1) {
+					schema = JsonUtils.buildJsonObject() //
+							.addProperty("type", "repeat") //
+							.add("fieldArray", getSchema(ad)) //
+							.build();
+				} else {
+					schema = getSchema(ad);
+				}
+				return new Property(id, name, description, isRequired, defaultValue, schema);
+			}
+
+			private static JsonObject getSchema(AttributeDefinition ad) {
 				JsonObject schema = new JsonObject();
 				if (ad.getOptionLabels() != null && ad.getOptionValues() != null) {
 					// use given options for schema
@@ -170,8 +185,12 @@ public class EdgeConfig {
 					// generate schema from AttributeDefinition Type
 					switch (ad.getType()) {
 					case AttributeDefinition.STRING:
+					case AttributeDefinition.CHARACTER:
 						schema = JsonUtils.buildJsonObject() //
-								.addProperty("type", "string") //
+								.addProperty("type", "input") //
+								.add("templateOptions", JsonUtils.buildJsonObject() //
+										.addProperty("type", "text") //
+										.build()) //
 								.build();
 						break;
 					case AttributeDefinition.LONG:
@@ -180,20 +199,29 @@ public class EdgeConfig {
 					case AttributeDefinition.DOUBLE:
 					case AttributeDefinition.FLOAT:
 					case AttributeDefinition.BYTE:
-					case AttributeDefinition.PASSWORD:
-					case AttributeDefinition.CHARACTER:
 						schema = JsonUtils.buildJsonObject() //
-								.addProperty("type", "number") //
+								.addProperty("type", "input") //
+								.add("templateOptions", JsonUtils.buildJsonObject() //
+										.addProperty("type", "number") //
+										.build()) //
+								.build();
+						break;
+					case AttributeDefinition.PASSWORD:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "input") //
+								.add("templateOptions", JsonUtils.buildJsonObject() //
+										.addProperty("type", "password") //
+										.build()) //
 								.build();
 						break;
 					case AttributeDefinition.BOOLEAN:
 						schema = JsonUtils.buildJsonObject() //
-								.addProperty("type", "boolean") //
+								.addProperty("type", "toggle") //
 								.build();
 						break;
 					}
 				}
-				return new Property(id, name, description, isRequired, defaultValue, schema);
+				return schema;
 			}
 
 			/**

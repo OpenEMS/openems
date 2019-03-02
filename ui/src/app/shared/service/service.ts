@@ -11,6 +11,7 @@ import { LanguageTag, Language } from '../translate/language';
 import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
 import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
+import { ToastController } from '@ionic/angular';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -36,7 +37,8 @@ export class Service implements ErrorHandler {
 
   constructor(
     private router: Router,
-    public translate: TranslateService
+    public translate: TranslateService,
+    private toaster: ToastController
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -232,5 +234,14 @@ export class Service implements ErrorHandler {
         }));
       })
     });
+  }
+
+  public async toast(message: string, level: 'success' | 'warning' | 'danger') {
+    const toast = await this.toaster.create({
+      message: message,
+      color: level,
+      duration: 2000
+    });
+    toast.present();
   }
 }

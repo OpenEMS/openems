@@ -16,6 +16,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 
@@ -37,6 +38,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case GetEdgeConfigRequest.METHOD:
 			return this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
+
+		case UpdateComponentConfigRequest.METHOD:
+			return this.handleUpdateComponentConfigRequest(UpdateComponentConfigRequest.from(request));
 
 		case ComponentJsonApiRequest.METHOD:
 			return this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
@@ -62,6 +66,22 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// wrap original request inside ComponentJsonApiRequest
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(OpenemsConstants.COMPONENT_MANAGER_ID,
 				getEdgeConfigRequest);
+
+		return this.handleComponentJsonApiRequest(request);
+	}
+
+	/**
+	 * Handles a UpdateComponentConfigRequest.
+	 * 
+	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(
+			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
+		// wrap original request inside ComponentJsonApiRequest
+		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(request);
 	}

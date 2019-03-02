@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Service, Utils, Websocket, EdgeConfig } from '../../../../shared/shared';
-import { IGNORE_NATURES } from '../shared';
+import { IGNORE_NATURES } from '../shared/shared';
 
 @Component({
   selector: IndexComponent.SELECTOR,

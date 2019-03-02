@@ -31,14 +31,22 @@ import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
+import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    RepeatTypeComponent
+  ],
   entryComponents: [PopoverPage],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
-    FormlyModule.forRoot(),
+    FormlyModule.forRoot({
+      types: [
+        { name: 'repeat', component: RepeatTypeComponent },
+      ],
+    }),
     AppRoutingModule,
     SharedModule,
     AboutModule,

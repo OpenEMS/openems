@@ -1,0 +1,14 @@
+<ion-grid>
+    <ion-row>
+        <ion-col>
+            <ion-item>{{ to.label }}</ion-item>
+        </ion-col>
+        <ion-col>
+            <ion-item *ngFor="let field of field.fieldGroup; let i = index; last as isLast">
+                <formly-field [field]="field"></formly-field>
+                <ion-icon name="trash" (click)="remove(i)" slot="end"></ion-icon>
+                <ion-icon *ngIf="isLast" name="add" (click)="add()" slot="end"></ion-icon>
+            </ion-item>
+        </ion-col>
+    </ion-row>
+</ion-grid>
