@@ -11,20 +11,17 @@ import javax.crypto.spec.PBEKeySpec;
 
 import io.openems.common.session.Role;
 
-public class User {
+public class EdgeUser extends io.openems.common.session.User {
 
-	private final String name;
-	private final Role role;
-	private byte[] password;
-	private byte[] salt;
+	private final byte[] password;
+	private final byte[] salt;
 
-	public User(String name, Role role, String passwordAsBase64, String saltAsBase64) {
-		this(name, role, Base64.getDecoder().decode(passwordAsBase64), Base64.getDecoder().decode(saltAsBase64));
+	public EdgeUser(String id, String name, Role role, String passwordAsBase64, String saltAsBase64) {
+		this(id, name, role, Base64.getDecoder().decode(passwordAsBase64), Base64.getDecoder().decode(saltAsBase64));
 	}
 
-	public User(String name, Role role, final byte[] password, final byte[] salt) {
-		this.name = name;
-		this.role = role;
+	public EdgeUser(String id, String name, Role role, final byte[] password, final byte[] salt) {
+		super(id, name, role);
 		this.password = password;
 		this.salt = salt;
 	}
@@ -34,16 +31,8 @@ public class User {
 			// no password existing -> allow access
 			return true;
 		}
-		byte[] hashedPassword = User.hashPassword(password, this.salt);
+		byte[] hashedPassword = EdgeUser.hashPassword(password, this.salt);
 		return Arrays.equals(hashedPassword, this.password);
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public Role getRole() {
-		return this.role;
 	}
 
 	public byte[] getPassword() {
@@ -88,9 +77,4 @@ public class User {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return "User [name=" + name + ", role=" + role + "]";
-	}
-	
 }

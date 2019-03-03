@@ -22,7 +22,7 @@ import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.User;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
@@ -52,7 +52,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	/**
 	 * Maps User-ID to User
 	 */
-	private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 	/**
 	 * Caches Edges
 	 */
@@ -235,7 +235,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
+	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
 				this.odooCredentials.getDatabase(), username, password);
 		JsonrpcResponseSuccess origResponse = OdooUtils
@@ -253,7 +253,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public User authenticate(String sessionId) throws OpenemsNamedException {
+	public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
 		EmptyRequest request = new EmptyRequest();
 		String charset = "US-ASCII";
 		String query;
@@ -303,7 +303,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public Optional<User> getUser(String userId) {
+	public Optional<BackendUser> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 

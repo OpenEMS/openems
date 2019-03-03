@@ -21,7 +21,7 @@ import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.User;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -39,7 +39,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
-	private final Map<String, User> users = new HashMap<>();
+	private final Map<String, BackendUser> users = new HashMap<>();
 	private final Map<String, Edge> edges = new HashMap<>();
 
 	public Dummy() {
@@ -57,10 +57,10 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public User authenticate() throws OpenemsException {
+	public BackendUser authenticate() throws OpenemsException {
 		int id = this.nextUserId.incrementAndGet();
 		String userId = "user" + id;
-		User user = new User(userId, "User #" + id);
+		BackendUser user = new BackendUser(userId, "User #" + id);
 		for (String edgeId : this.edges.keySet()) {
 			user.addEdgeRole(edgeId, Role.ADMIN);
 		}
@@ -69,12 +69,12 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
+	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 		return this.authenticate();
 	}
 
 	@Override
-	public User authenticate(String sessionId) throws OpenemsException {
+	public BackendUser authenticate(String sessionId) throws OpenemsException {
 		return this.authenticate();
 	}
 
@@ -120,7 +120,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public Optional<User> getUser(String userId) {
+	public Optional<BackendUser> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 

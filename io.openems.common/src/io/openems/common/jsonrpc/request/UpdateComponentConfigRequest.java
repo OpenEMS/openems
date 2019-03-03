@@ -23,7 +23,7 @@ import io.openems.common.utils.JsonUtils;
  *   "params": {
  *     "componentId": string,
  *     "properties": [{
- *       "property": string,
+ *       "name": string,
  *       "value": any 
  *     }]
  *   }

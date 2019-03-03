@@ -27,7 +27,7 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.User;
+import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
@@ -55,7 +55,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	/**
 	 * Stores valid session tokens for authentication via Cookie.
 	 */
-	protected final Map<UUID, User> sessionTokens = new ConcurrentHashMap<>();
+	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
 
 	@Reference
 	protected ComponentManager componentManager;

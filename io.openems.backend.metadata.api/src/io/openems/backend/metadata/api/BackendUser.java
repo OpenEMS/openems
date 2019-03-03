@@ -8,22 +8,23 @@ import java.util.TreeMap;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
+import io.openems.common.session.User;
 
 /**
  * Represents a Backend-User within Metadata Service.
  */
-public class User {
+public class BackendUser {
 
 	private final String id;
 	private final String name;
 	private final String sessionId;
 	private final NavigableMap<String, Role> edgeRoles = new TreeMap<>();
 
-	public User(String id, String name) {
+	public BackendUser(String id, String name) {
 		this(id, name, "NO_SESSION_ID");
 	}
 
-	public User(String id, String name, String sessionId) {
+	public BackendUser(String id, String name, String sessionId) {
 		this.id = id;
 		this.name = name;
 		this.sessionId = sessionId;
@@ -109,6 +110,21 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", edgeRole=" + edgeRoles + "]";
+		return "User [id=" + this.getId() + ", edgeRole=" + edgeRoles + "]";
+	}
+
+	/**
+	 * Gets this User as the OpenEMS Common User for the given Edge-ID.
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @return the Common-User object
+	 * @throws OpenemsNamedException if role is undefined
+	 */
+	public User getAsCommonUser(String edgeId) throws OpenemsNamedException {
+		Role thisRole = this.edgeRoles.get(edgeId);
+		if (thisRole == null) {
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(this.getId());
+		}
+		return new io.openems.common.session.User(this.id, this.name, thisRole);
 	}
 }

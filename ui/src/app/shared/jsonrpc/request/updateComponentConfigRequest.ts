@@ -10,8 +10,8 @@ import { JsonrpcRequest } from "../base";
  *   "method": "updateComponentConfig",
  *   "params": {
  *     "componentId": string,
- *     "update": [
- *       "property": string,
+ *     "properties": [
+ *       "name": string,
  *       "value": any
  *     ]
  *   }
