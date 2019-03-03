@@ -49,6 +49,7 @@ public class User {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("id", this.id) //
 				.addProperty("name", this.name) //
+				.addProperty("role", this.role.toString()) //
 				.build();
 	}
 

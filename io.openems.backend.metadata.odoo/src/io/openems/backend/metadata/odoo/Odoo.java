@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.GsonBuilder;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
@@ -209,6 +209,9 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG, conf));
 			String components = new GsonBuilder().setPrettyPrinting().create().toJson(config.componentsToJson());
 			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
+
+			// TODO: write EdgeConfig-Diff to Odoo Chatter
+			// EdgeConfig.diff(config, edge.getConfig()
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo

@@ -1,6 +1,7 @@
 package io.openems.edge.controller.api.backend;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -34,8 +35,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
-		// TODO add Check if user Role is sufficient
-
 		switch (request.getMethod()) {
 
 		case AuthenticatedRpcRequest.METHOD:
@@ -59,25 +58,45 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		User user = authenticatedRpcRequest.getUser();
 		JsonrpcRequest request = authenticatedRpcRequest.getPayload();
 
+		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:
-			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+			resultFuture = this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+			break;
 
 		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			resultFuture = this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			break;
 
 		case ComponentJsonApiRequest.METHOD:
-			return this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
+			resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
+			break;
 
 		case SubscribeSystemLogRequest.METHOD:
-			return this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
+			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
+			break;
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 
+		// Get Response
+		JsonrpcResponseSuccess result;
+		try {
+			result = resultFuture.get();
+		} catch (InterruptedException | ExecutionException e) {
+			if (e.getCause() instanceof OpenemsNamedException) {
+				throw (OpenemsNamedException) e.getCause();
+			} else {
+				throw OpenemsError.GENERIC.exception(e.getMessage());
+			}
+		}
+
+		// Wrap reply in EdgeRpcResponse
+		return CompletableFuture.completedFuture(
+				new GenericJsonrpcResponseSuccess(authenticatedRpcRequest.getId(), result.toJsonObject()));
 	}
 
 	/**

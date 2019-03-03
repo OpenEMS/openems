@@ -18,10 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -100,14 +100,14 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		}
 		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null);
 		edge.onSetConfig(config -> {
-			this.logDebug(this.log,
-					"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
+			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
+					+ StringUtils.toShortString(EdgeConfig.diff(config, edge.getConfig()), 100));
 		});
 		edge.onSetSoc(soc -> {
-			this.logDebug(this.log, "Edge [" + edgeId + "]. Set SoC: " + soc);
+			this.logInfo(this.log, "Edge [" + edgeId + "]. Set SoC: " + soc);
 		});
 		edge.onSetIpv4(ipv4 -> {
-			this.logDebug(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
+			this.logInfo(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);

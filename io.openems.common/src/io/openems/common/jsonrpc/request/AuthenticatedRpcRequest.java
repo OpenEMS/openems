@@ -21,7 +21,8 @@ import io.openems.common.utils.JsonUtils;
  *   "params": {
  *     "user": {
  *       "id": string,
- *       "name: string
+ *       "name: string,
+ *       "role": string
  *     }
  *     "payload": {@link JsonrpcRequest}
  *   }

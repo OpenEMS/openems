@@ -78,7 +78,7 @@ export class ComponentUpdateComponent implements OnInit {
       this.form.markAsPristine();
       this.service.toast("Successfully updated " + this.componentId + ".", 'success');
     }).catch(reason => {
-      this.service.toast("Error updating " + this.componentId + ":" + reason, 'success');
+      this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, 'danger');
     });
   }
 
