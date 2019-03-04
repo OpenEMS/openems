@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.Manifest;
 
@@ -155,7 +156,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest request) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest request) throws OpenemsNamedException {
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:
@@ -176,11 +177,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private JsonrpcResponseSuccess handleGetEdgeConfigRequest(GetEdgeConfigRequest request)
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(GetEdgeConfigRequest request)
 			throws OpenemsNamedException {
 		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
-		return response;
+		return CompletableFuture.completedFuture(response);
 	}
 
 	/**
@@ -190,7 +191,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private JsonrpcResponseSuccess handleUpdateComponentConfigRequest(UpdateComponentConfigRequest request)
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(UpdateComponentConfigRequest request)
 			throws OpenemsNamedException {
 		Configuration config = this.getConfigForId(request.getComponentId());
 
@@ -211,7 +212,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
 
-		return new GenericJsonrpcResponseSuccess(request.getId());
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**

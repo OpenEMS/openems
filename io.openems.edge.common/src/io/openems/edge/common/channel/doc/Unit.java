@@ -262,6 +262,7 @@ public enum Unit {
 		if (this.baseUnit != null) {
 			switch (type) {
 			case SHORT:
+			case ENUM:
 			case INTEGER:
 			case LONG:
 			case FLOAT:

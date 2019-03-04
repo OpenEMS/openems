@@ -6,18 +6,21 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
-import io.openems.edge.common.channel.ShortReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
+import io.openems.edge.ess.mr.gridcon.enums.StatusIPUStateMachine;
+import io.openems.edge.ess.mr.gridcon.enums.StatusIPUStatusMCU;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(GridconPCS ess) {
@@ -32,18 +35,20 @@ public class Utils {
 					return null;
 				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case SOC:					
-					case ACTIVE_CHARGE_ENERGY:						
+					case SOC:
+					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(ess, channelId);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(ess, channelId, GridconPCS.MAX_APPARENT_POWER);
 					case GRID_MODE:
-						return new IntegerReadChannel(ess, channelId, GridMode.UNDEFINED);
+						return new EnumReadChannel(ess, channelId, GridMode.UNDEFINED);
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 						return new IntegerReadChannel(ess, channelId);
-						//return new FloatReadChannel(ess, channelId); // causes java.lang.IllegalArgumentException: [null/ActivePower]: Types do not match. Got [FLOAT]. Expected [INTEGER].
+					// return new FloatReadChannel(ess, channelId); // causes
+					// java.lang.IllegalArgumentException: [null/ActivePower]: Types do not match.
+					// Got [FLOAT]. Expected [INTEGER].
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
@@ -60,41 +65,45 @@ public class Utils {
 					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
 					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(ess, channelId);
+					case APPLY_POWER_FAILED:
+						return new StateChannel(ess, channelId);
 					}
 					return null;
 				}), Arrays.stream(GridConChannelId.values()).map(channelId -> {
 					switch (channelId) {
-							
+
 					case CCU_ERROR_CODE:
-						
+
 					case IPU_1_STATUS_FAN_SPEED_MAX:
 					case IPU_1_STATUS_FAN_SPEED_MIN:
-															
+
 					case IPU_2_STATUS_FAN_SPEED_MAX:
 					case IPU_2_STATUS_FAN_SPEED_MIN:
-					
+
 					case IPU_3_STATUS_FAN_SPEED_MAX:
 					case IPU_3_STATUS_FAN_SPEED_MIN:
-					
+
 					case IPU_4_STATUS_FAN_SPEED_MAX:
 					case IPU_4_STATUS_FAN_SPEED_MIN:
-											
-					case MIRROR_COMMAND_ERROR_CODE_FEEDBACK:						
+
+					case MIRROR_COMMAND_ERROR_CODE_FEEDBACK:
 						return new IntegerReadChannel(ess, channelId);
-						
+
 					case MIRROR_COMMAND_CONTROL_WORD:
 						return new LongReadChannel(ess, channelId);
 
 					case IPU_1_STATUS_STATUS_STATE_MACHINE:
-					case IPU_1_STATUS_STATUS_MCU:
 					case IPU_2_STATUS_STATUS_STATE_MACHINE:
-					case IPU_2_STATUS_STATUS_MCU:
 					case IPU_3_STATUS_STATUS_STATE_MACHINE:
-					case IPU_3_STATUS_STATUS_MCU:	
 					case IPU_4_STATUS_STATUS_STATE_MACHINE:
+						return new EnumReadChannel(ess, channelId, StatusIPUStateMachine.UNDEFINED);
+
+					case IPU_1_STATUS_STATUS_MCU:
+					case IPU_2_STATUS_STATUS_MCU:
+					case IPU_3_STATUS_STATUS_MCU:
 					case IPU_4_STATUS_STATUS_MCU:
-						return new ShortReadChannel(ess, channelId);
-		
+						return new EnumReadChannel(ess, channelId, StatusIPUStatusMCU.UNDEFINED);
+
 					case CCU_STATE_DERATING_HARMONICS:
 					case CCU_STATE_DERATING_POWER:
 					case CCU_STATE_ERROR:
@@ -110,7 +119,7 @@ public class Utils {
 					case CCU_STATE_VOLTAGE_RAMPING_UP:
 
 						return new BooleanReadChannel(ess, channelId);
-	
+
 					case CCU_CURRENT_IL1:
 					case CCU_CURRENT_IL2:
 					case CCU_CURRENT_IL3:
@@ -120,7 +129,7 @@ public class Utils {
 					case CCU_VOLTAGE_U12:
 					case CCU_VOLTAGE_U23:
 					case CCU_VOLTAGE_U31:
-						
+
 					case IPU_1_DC_DC_MEASUREMENTS_ACCUMULATED_DC_UTILIZATION:
 					case IPU_1_DC_DC_MEASUREMENTS_ACCUMULATED_SUM_DC_CURRENT:
 					case IPU_1_DC_DC_MEASUREMENTS_CURRENT_STRING_A:
@@ -137,7 +146,7 @@ public class Utils {
 					case IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A:
 					case IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B:
 					case IPU_1_DC_DC_MEASUREMENTS_VOLTAGE_STRING_C:
-						
+
 					case IPU_2_DC_DC_MEASUREMENTS_ACCUMULATED_DC_UTILIZATION:
 					case IPU_2_DC_DC_MEASUREMENTS_ACCUMULATED_SUM_DC_CURRENT:
 					case IPU_2_DC_DC_MEASUREMENTS_CURRENT_STRING_A:
@@ -171,7 +180,7 @@ public class Utils {
 					case IPU_3_DC_DC_MEASUREMENTS_VOLTAGE_STRING_A:
 					case IPU_3_DC_DC_MEASUREMENTS_VOLTAGE_STRING_B:
 					case IPU_3_DC_DC_MEASUREMENTS_VOLTAGE_STRING_C:
-						
+
 					case IPU_4_DC_DC_MEASUREMENTS_ACCUMULATED_DC_UTILIZATION:
 					case IPU_4_DC_DC_MEASUREMENTS_ACCUMULATED_SUM_DC_CURRENT:
 					case IPU_4_DC_DC_MEASUREMENTS_CURRENT_STRING_A:
@@ -230,7 +239,7 @@ public class Utils {
 					case IPU_3_STATUS_TEMPERATURE_IGBT_MAX:
 					case IPU_3_STATUS_TEMPERATURE_INVERTER_CHOKE:
 					case IPU_3_STATUS_TEMPERATURE_MCU_BOARD:
-					
+
 					case IPU_4_STATUS_DC_LINK_ACTIVE_POWER:
 					case IPU_4_STATUS_DC_LINK_CURRENT:
 					case IPU_4_STATUS_DC_LINK_NEGATIVE_VOLTAGE:
@@ -244,7 +253,7 @@ public class Utils {
 					case IPU_4_STATUS_TEMPERATURE_IGBT_MAX:
 					case IPU_4_STATUS_TEMPERATURE_INVERTER_CHOKE:
 					case IPU_4_STATUS_TEMPERATURE_MCU_BOARD:
-						
+
 					case MIRROR_COMMAND_CONTROL_PARAMETER_F0:
 					case MIRROR_COMMAND_CONTROL_PARAMETER_P_REFERENCE:
 					case MIRROR_COMMAND_CONTROL_PARAMETER_Q_REF:
@@ -316,14 +325,14 @@ public class Utils {
 					case MIRROR_CONTROL_PARAMETER_U_Q_DROOP_MAIN:
 					case MIRROR_CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN:
 						return new FloatReadChannel(ess, channelId);
-					
+
 					case COMMAND_ERROR_CODE_FEEDBACK:
 					case COMMAND_TIME_SYNC_DATE:
 					case COMMAND_TIME_SYNC_TIME:
 					case COMMAND_CONTROL_WORD:
-					
+
 						return new IntegerWriteChannel(ess, channelId);
-					
+
 					case COMMAND_CONTROL_WORD_ACKNOWLEDGE:
 					case COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION:
 					case COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING:
@@ -348,12 +357,12 @@ public class Utils {
 					case COMMAND_CONTROL_PARAMETER_P_REF:
 					case COMMAND_CONTROL_PARAMETER_Q_REF:
 					case COMMAND_CONTROL_PARAMETER_U0:
-						
+
 					case CONTROL_PARAMETER_F_P_DROOP_T1_MAIN:
 					case CONTROL_PARAMETER_F_P_DRROP_MAIN:
 					case CONTROL_PARAMETER_P_CONTROL_LIM_ONE:
 					case CONTROL_PARAMETER_P_CONTROL_LIM_TWO:
-					
+
 					case CONTROL_PARAMETER_P_F_DEAD_BAND:
 					case CONTROL_PARAMETER_P_F_DROOP_MAIN:
 					case CONTROL_PARAMETER_P_U_DEAD_BAND:
@@ -366,7 +375,7 @@ public class Utils {
 					case CONTROL_PARAMETER_U_Q_DROOP_MAIN:
 					case CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN:
 					case CONTROL_PARAMETER_P_CONTROL_MODE:
-						
+
 					case CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT:
 					case CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT:
 					case CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE:
@@ -375,7 +384,7 @@ public class Utils {
 					case CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE:
 					case CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE:
 					case CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE:
-					
+
 					case CONTROL_IPU_2_PARAMETERS_DC_VOLTAGE_SETPOINT:
 					case CONTROL_IPU_2_PARAMETERS_DC_CURRENT_SETPOINT:
 					case CONTROL_IPU_2_PARAMETERS_U0_OFFSET_TO_CCU_VALUE:
@@ -384,7 +393,7 @@ public class Utils {
 					case CONTROL_IPU_2_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE:
 					case CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE:
 					case CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE:
-						
+
 					case CONTROL_IPU_3_PARAMETERS_DC_VOLTAGE_SETPOINT:
 					case CONTROL_IPU_3_PARAMETERS_DC_CURRENT_SETPOINT:
 					case CONTROL_IPU_3_PARAMETERS_U0_OFFSET_TO_CCU_VALUE:
@@ -393,17 +402,17 @@ public class Utils {
 					case CONTROL_IPU_3_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE:
 					case CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE:
 					case CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE:
-					
+
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT:
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A:
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B:
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C:
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A:
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C:	
+					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C:
 					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE:
 						return new FloatWriteChannel(ess, channelId);
-										
+
 					}
 					return null;
 				}) //

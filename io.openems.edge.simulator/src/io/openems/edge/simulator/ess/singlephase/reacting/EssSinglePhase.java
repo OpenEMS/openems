@@ -19,6 +19,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -45,19 +46,13 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
 		SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-	/**
-	 * Current state of charge.
-	 */
+	// Current state of charge.
 	private float soc = 0;
 
-	/**
-	 * Total configured capacity in Wh.
-	 */
+	// Total configured capacity in Wh.
 	private int capacity = 0;
 
-	/**
-	 * Configured max Apparent Power in VA.
-	 */
+	// Configured max Apparent Power in VA.
 	private int maxApparentPower = 0;
 
 	private SinglePhase phase;
@@ -89,7 +84,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.enabled());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
-		
+
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
@@ -210,7 +205,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
 				activePowerL3, reactivePowerL3);
 	}

@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -22,11 +24,12 @@ public class Utils {
 					return null;
 				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case GRID_MODE:
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
 					case SOC:
 						return new IntegerReadChannel(c, channelId);
+					case GRID_MODE:
+						return new EnumReadChannel(c, channelId, GridMode.UNDEFINED);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, 9000);
 					case ACTIVE_CHARGE_ENERGY:
@@ -47,10 +50,12 @@ public class Utils {
 					return null;
 				}), Arrays.stream(FeneconDessEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case SYSTEM_STATE:
 					case BSMU_WORK_STATE:
+						return new EnumReadChannel(c, channelId, BsmuWorkState.UNDEFINED);
 					case STACK_CHARGE_STATE:
-						return new IntegerReadChannel(c, channelId);
+						return new EnumReadChannel(c, channelId, StackChargeState.UNDEFINED);
+					case SYSTEM_STATE:
+						return new EnumReadChannel(c, channelId, SystemState.UNDEFINED);
 					}
 					return null;
 				}) //

@@ -11,23 +11,23 @@
 
 This chapter explains how OpenEMS Backend can be deployed on a Debian Linux server. Similar techniques will work for other operating systems as well.
 
-=== Prepare operating system environment
+== Prepare operating system environment
 
 NOTE: It is recommended to run every service on a server with limited permissions. This example runs OpenEMS Backend with user "root" which is a bad idea for a production server!  
 
-==== Create an application directory
+=== Create an application directory
 
 Create the directory */opt/openems-backend*. This is going to be the place, where we put the JAR file.
 
 Execute `mkdir /opt/openems-backend`.
 
-==== Create a config directory
+=== Create a config directory
 
 Create the directory */opt/openems-backend/config.d*. This is going to be the place, where all the bundle configurations are held.
 
 Execute `mkdir /opt/openems-backend/config.d`.
 
-==== Create a systemd service definition
+=== Create a systemd service definition
 
 The systemd 'Service Manager' manages system processes in a Debian Linux. We will create a systemd service definition file, so that systemd takes care of managing (starting/restarting/...) the OpenEMS Backend service.
 
@@ -70,7 +70,7 @@ WantedBy=multi-user.target
 +
 Execute `systemctl daemon-reload`
 
-==== Start OpenEMS Backend
+=== Start OpenEMS Backend
 
 To update the OpenEMS JAR file at the target device, it is required to copy the JAR file from your build directory to `/opt/openems-backend/openems-backend.jar` on the server. Afterwards it is required to restart the systemd service
 

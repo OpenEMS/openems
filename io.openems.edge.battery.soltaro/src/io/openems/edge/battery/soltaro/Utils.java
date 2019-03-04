@@ -6,6 +6,8 @@ import java.util.stream.Stream;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -51,10 +53,12 @@ public class Utils {
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case BMS_CONTACTOR_CONTROL:
 					case CELL_VOLTAGE_PROTECT:
 					case CELL_VOLTAGE_RECOVER:
 						return new IntegerWriteChannel(s, channelId);
+
+					case BMS_CONTACTOR_CONTROL:
+						return new EnumWriteChannel(s, channelId, ContactorControl.UNDEFINED);
 
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH:
 					case ALARM_LEVEL_1_CELL_CHA_TEMP_LOW:
@@ -387,8 +391,6 @@ public class Utils {
 					case CLUSTER_1_BATTERY_46_TEMPERATURE:
 					case CLUSTER_1_BATTERY_47_TEMPERATURE:
 
-					case CLUSTER_1_CHARGE_INDICATION:
-					case CLUSTER_RUN_STATE:
 					case SYSTEM_INSULATION:
 
 					case SYSTEM_ACCEPT_MAX_CHARGE_CURRENT:
@@ -401,6 +403,11 @@ public class Utils {
 					case CLUSTER_1_MIN_CELL_TEMPERATURE_ID:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
 						return new IntegerReadChannel(s, channelId);
+
+					case CLUSTER_1_CHARGE_INDICATION:
+						return new EnumReadChannel(s, channelId, ChargeIndication.UNDEFINED);
+					case CLUSTER_RUN_STATE:
+						return new EnumReadChannel(s, channelId, ClusterRunState.UNDEFINED);
 					}
 					return null;
 				}) //

@@ -5,16 +5,15 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.io.api,\
 	io.openems.edge.io.test
-Require-Capability: \
-	compile-only
+Require-Capability: compile-only
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.common;version=latest
+-buildpath: ${buildpath},\
+	io.openems.edge.common;version=latest,\
+	slf4j.api
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
 
+javac.source: 1.8
+javac.target: 1.8

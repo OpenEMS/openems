@@ -12,13 +12,12 @@ Private-Package: \
 	io.openems.edge.simulator.datasource.csv,\
 	io.openems.edge.simulator.ess.symmetric.reacting,\
 	io.openems.edge.simulator.ess.asymmetric.reacting,\
+	io.openems.edge.simulator.ess.singlephase.reacting,\
 	io.openems.edge.simulator.io,\
 	io.openems.edge.simulator.battery,\
 	io.openems.edge.simulator.pvinverter,\
 	io.openems.edge.simulator.evcs,\
-	io.openems.edge.simulator.modbus,\
-	io.openems.edge.simulator.ess.singlephase.reacting
-
+	io.openems.edge.simulator.modbus
 Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
@@ -33,19 +32,19 @@ Export-Package: \
 	
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	io.openems.edge.meter.api;version=latest,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
+	io.openems.edge.battery.api;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
-	com.google.guava;version=27,\
-	io.openems.edge.battery.api;version=latest,\
+	io.openems.edge.evcs.api;version=latest,\
 	io.openems.edge.io.api;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest,\
-	io.openems.edge.evcs.api;version=latest
+	io.openems.edge.meter.api;version=latest,\
+	com.google.guava,\
+	slf4j.api
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
--runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
