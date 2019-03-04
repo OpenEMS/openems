@@ -39,13 +39,13 @@ public enum SinexcelChannelId implements io.openems.edge.common.channel.doc.Chan
 			.unit(Unit.VOLT)),
 	SET_LOWER_VOLTAGE(new Doc() //
 			.unit(Unit.VOLT)),
-	SET_ANALOG_CHARGE_Energy(new Doc() //
+	SET_ANALOG_CHARGE_ENERGY(new Doc() //
 			.unit(Unit.KILOWATT_HOURS)),
-	SET_ANALOG_DISCHARGE_Energy(new Doc() //
+	SET_ANALOG_DISCHARGE_ENERGY(new Doc() //
 			.unit(Unit.KILOWATT_HOURS)),
-	SET_ANALOG_DC_CHARGE_Energy(new Doc() //
+	SET_ANALOG_DC_CHARGE_ENERGY(new Doc() //
 			.unit(Unit.KILOWATT_HOURS)),
-	SET_ANALOG_DC_DISCHARGE_Energy(new Doc() //
+	SET_ANALOG_DC_DISCHARGE_ENERGY(new Doc() //
 			.unit(Unit.KILOWATT_HOURS)),
 	BAT_MIN_CELL_VOLTAGE(new Doc() //
 			.unit(Unit.MILLIVOLT)),
