@@ -4,12 +4,14 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -29,8 +31,9 @@ public class Utils {
 					case REACTIVE_POWER:
 					case ACTIVE_CHARGE_ENERGY:
 					case ACTIVE_DISCHARGE_ENERGY:
-					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId);
+					case GRID_MODE:
+						return new EnumReadChannel(c, channelId, GridMode.UNDEFINED);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, EssSinexcel.MAX_APPARENT_POWER);
 					}
@@ -83,7 +86,6 @@ public class Utils {
 					case INVOUTCURRENT_L3:
 					case DC_CURRENT:
 					case DC_POWER:
-					case SINEXCEL_STATE:
 					case MAX_DISCHARGE_CURRENT:
 					case MAX_CHARGE_CURRENT:
 					case LOWER_VOLTAGE_LIMIT:
@@ -98,6 +100,8 @@ public class Utils {
 					case DEBUG_CHA_MAX_V:
 					case DEBUG_DIS_MIN_V:
 						return new IntegerReadChannel(c, channelId);
+					case SINEXCEL_STATE:
+						return new EnumReadChannel(c, channelId, CurrentState.UNDEFINED);
 					case SETDATA_MOD_ON_CMD:
 					case SETDATA_MOD_OFF_CMD:
 					case SETDATA_GRID_ON_CMD:
