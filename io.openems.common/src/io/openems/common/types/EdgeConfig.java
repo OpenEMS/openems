@@ -152,7 +152,8 @@ public class EdgeConfig {
 	/**
 	 * Get Component-IDs of Component instances by the given Factory.
 	 * 
-	 * @param nature the given Nature.
+	 * @param factoryPid the given Factory.
+	 * @return a List of Component-IDs.
 	 */
 	public List<String> getComponentIdsByFactory(String factoryPid) {
 		List<String> result = new ArrayList<>();
@@ -167,7 +168,8 @@ public class EdgeConfig {
 	/**
 	 * Get Component instances by the given Factory.
 	 * 
-	 * @param factoryPid the given Nature.
+	 * @param factoryPid the given Factory.
+	 * @return a List of Components.
 	 */
 	public List<Component> getComponentsByFactory(String factoryPid) {
 		List<Component> result = new ArrayList<>();
@@ -183,6 +185,7 @@ public class EdgeConfig {
 	 * Get Component-IDs of Components that implement the given Nature.
 	 * 
 	 * @param nature the given Nature.
+	 * @return a List of Component-IDs.
 	 */
 	public List<String> getComponentsImplementingNature(String nature) {
 		List<String> result = new ArrayList<>();
@@ -219,20 +222,50 @@ public class EdgeConfig {
 	 * @return configuration as a JSON Object
 	 */
 	public JsonObject toJson() {
+		return JsonUtils.buildJsonObject() //
+				.add("components", this.componentsToJson()) //
+				.add("factories", this.factoriesToJson()) //
+				.build();
+	}
+
+	/**
+	 * Returns the configuration Components as a JSON Object.
+	 * 
+	 * <pre>
+	 * {
+	 *   {@link EdgeConfig.Component#toJson()} 
+	 * }
+	 * </pre>
+	 * 
+	 * @return Components as a JSON Object
+	 */
+	public JsonObject componentsToJson() {
 		JsonObject components = new JsonObject();
 		for (Entry<String, Component> entry : this.getComponents().entrySet()) {
 			components.add(entry.getKey(), entry.getValue().toJson());
 		}
+		return components;
+	}
 
+	/**
+	 * Returns the configuration Factories as a JSON Object.
+	 * 
+	 * <pre>
+	 * {
+	 *   [pid: string]: {
+	 *     natures: string[]
+	 *   }
+	 * }
+	 * </pre>
+	 * 
+	 * @return Factories as a JSON Object
+	 */
+	public JsonObject factoriesToJson() {
 		JsonObject factories = new JsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
 			factories.add(entry.getKey(), entry.getValue().toJson());
 		}
-
-		return JsonUtils.buildJsonObject() //
-				.add("components", components) //
-				.add("factories", factories) //
-				.build();
+		return factories;
 	}
 
 	/**

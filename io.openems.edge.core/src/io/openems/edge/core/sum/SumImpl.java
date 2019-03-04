@@ -1,6 +1,7 @@
 package io.openems.edge.core.sum;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.component.ComponentContext;
@@ -18,6 +19,7 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
+import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -33,7 +35,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
 
-@Component( //
+@Component(//
 		name = "Core.Sum", //
 		immediate = true, //
 		property = { //
@@ -45,7 +47,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable() {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(), //
 				Sum.getModbusSlaveNatureTable());
 	}
@@ -92,17 +94,26 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final CalculateIntegerSum essActivePower = new CalculateIntegerSum();
 		final CalculateIntegerSum essMaxApparentPower = new CalculateIntegerSum();
 		final CalculateGridMode essGridMode = new CalculateGridMode();
+		final CalculateLongSum essActiveChargeEnergy = new CalculateLongSum();
+		final CalculateLongSum essActiveDischargeEnergy = new CalculateLongSum();
 
 		// Grid
 		final CalculateIntegerSum gridActivePower = new CalculateIntegerSum();
 		final CalculateIntegerSum gridMinActivePower = new CalculateIntegerSum();
 		final CalculateIntegerSum gridMaxActivePower = new CalculateIntegerSum();
+		final CalculateLongSum gridBuyActiveEnergy = new CalculateLongSum();
+		final CalculateLongSum gridSellActiveEnergy = new CalculateLongSum();
 
 		// Production
 		final CalculateIntegerSum productionAcActivePower = new CalculateIntegerSum();
 		final CalculateIntegerSum productionMaxAcActivePower = new CalculateIntegerSum();
 		final CalculateIntegerSum productionDcActualPower = new CalculateIntegerSum();
 		final CalculateIntegerSum productionMaxDcActualPower = new CalculateIntegerSum();
+		final CalculateLongSum productionAcActiveEnergy = new CalculateLongSum();
+		final CalculateLongSum productionDcActiveEnergy = new CalculateLongSum();
+		// handling the corner-case of wrongly measured negative production, due to
+		// cabling errors, etc.
+		final CalculateLongSum productionAcActiveEnergyNegative = new CalculateLongSum();
 
 		for (OpenemsComponent component : this.components) {
 			if (component instanceof SymmetricEss) {
@@ -119,6 +130,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActivePower.addValue(ess.getActivePower());
 				essMaxApparentPower.addValue(ess.getMaxApparentPower());
 				essGridMode.addValue(ess.getGridMode());
+				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergy());
+				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
 
 			} else if (component instanceof SymmetricMeter) {
 				/*
@@ -145,6 +158,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					gridActivePower.addValue(meter.getActivePower());
 					gridMinActivePower.addValue(meter.getMinActivePower());
 					gridMaxActivePower.addValue(meter.getMaxActivePower());
+					gridBuyActiveEnergy.addValue(meter.getActiveProductionEnergy());
+					gridSellActiveEnergy.addValue(meter.getActiveConsumptionEnergy());
 					break;
 
 				case PRODUCTION:
@@ -153,6 +168,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					 */
 					productionAcActivePower.addValue(meter.getActivePower());
 					productionMaxAcActivePower.addValue(meter.getMaxActivePower());
+					productionAcActiveEnergy.addValue(meter.getActiveProductionEnergy());
+					productionAcActiveEnergyNegative.addValue(meter.getActiveConsumptionEnergy());
 					break;
 
 				}
@@ -164,6 +181,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				EssDcCharger charger = (EssDcCharger) component;
 				productionDcActualPower.addValue(charger.getActualPower());
 				productionMaxDcActualPower.addValue(charger.getMaxActualPower());
+				productionDcActiveEnergy.addValue(charger.getActualEnergy());
 			}
 		}
 
@@ -177,7 +195,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		Integer essMaxApparentPowerSum = essMaxApparentPower.calculate();
 		this.getEssMaxApparentPower().setNextValue(essMaxApparentPowerSum);
 		this.getGridMode().setNextValue(essGridMode.calculate());
-		// TODO calculate Sum for AllowedCharge/Discharge
+
+		Long essActiveChargeEnergySum = essActiveChargeEnergy.calculate();
+		this.getEssActiveChargeEnergy().setNextValue(essActiveChargeEnergySum);
+		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
+		this.getEssActiveDischargeEnergy().setNextValue(essActiveDischargeEnergySum);
 
 		// Grid
 		Integer gridActivePowerSum = gridActivePower.calculate();
@@ -185,6 +207,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getGridMinActivePower().setNextValue(gridMinActivePower.calculate());
 		Integer gridMaxActivePowerSum = gridMaxActivePower.calculate();
 		this.getGridMaxActivePower().setNextValue(gridMaxActivePowerSum);
+
+		Long gridBuyActiveEnergySum = gridBuyActiveEnergy.calculate();
+		this.getGridBuyActiveEnergy().setNextValue(gridBuyActiveEnergySum);
+		Long gridSellActiveEnergySum = gridSellActiveEnergy.calculate();
+		this.getGridSellActiveEnergy().setNextValue(gridSellActiveEnergySum);
 
 		// Production
 		Integer productionAcActivePowerSum = productionAcActivePower.calculate();
@@ -201,11 +228,25 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getProductionMaxActivePower()
 				.setNextValue(TypeUtils.sum(productionMaxAcActivePowerSum, productionMaxDcActualPowerSum));
 
+		Long productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
+		this.getProductionAcActiveEnergy().setNextValue(productionAcActiveEnergySum);
+		Long productionDcActiveEnergySum = productionDcActiveEnergy.calculate();
+		this.getProductionDcActiveEnergy().setNextValue(productionDcActiveEnergySum);
+		Long productionActiveEnergySum = TypeUtils.sum(productionAcActiveEnergySum, productionDcActiveEnergySum);
+		this.getProductionActiveEnergy().setNextValue(productionActiveEnergySum);
+
 		// Consumption
-		this.getConsumptionActivePower().setNextValue(TypeUtils.sum( //
+		this.getConsumptionActivePower().setNextValue(TypeUtils.sum(//
 				essActivePowerSum, gridActivePowerSum, productionAcActivePowerSum));
-		this.getConsumptionMaxActivePower().setNextValue(TypeUtils.sum( //
+		this.getConsumptionMaxActivePower().setNextValue(TypeUtils.sum(//
 				essMaxApparentPowerSum, gridMaxActivePowerSum, productionMaxAcActivePowerSum));
+
+		Long enterTheSystem = TypeUtils.sum(essActiveDischargeEnergySum, gridBuyActiveEnergySum,
+				productionActiveEnergySum);
+		Long leaveTheSystem = TypeUtils.sum(essActiveChargeEnergySum, gridSellActiveEnergySum,
+				/* handling corner-case */ productionAcActiveEnergyNegative.calculate());
+		this.getConsumptionActiveEnergy().setNextValue(//
+				Optional.ofNullable(enterTheSystem).orElse(0L) - Optional.ofNullable(leaveTheSystem).orElse(0L));
 	}
 
 	/**

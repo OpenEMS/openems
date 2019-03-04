@@ -1,5 +1,7 @@
 package io.openems.edge.common.jsonapi;
 
+import java.util.concurrent.CompletableFuture;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -10,12 +12,14 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 public interface JsonApi {
 
 	/**
-	 * Receives a JSON-RPC Request.
+	 * Handles a JSON-RPC Request.
 	 * 
 	 * @param request the JSON-RPC Request
-	 * @return a JSON-RPC Success Response
+	 * @return a Future JSON-RPC Success Response; null response results in a
+	 *         OpenemsError.JSONRPC_UNHANDLED_METHOD
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest request) throws OpenemsNamedException;
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest request)
+			throws OpenemsNamedException;
 
 }

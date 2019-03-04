@@ -7,15 +7,11 @@ Require-Capability: compile-only
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.annotation;version=7.0.0,\
+-buildpath: ${buildpath},\
 	io.openems.edge.common;version=latest,\
 	io.openems.common;version=latest
 
--testpath: \
-	${junit},\
-	${mockito},\
-	${mockito-deps}
+-testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8

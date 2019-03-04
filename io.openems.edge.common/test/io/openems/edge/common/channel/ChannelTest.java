@@ -12,7 +12,8 @@ public class ChannelTest {
 
 	@Test
 	public void testWriteEnum() throws OpenemsException {
-		WriteChannel<?> channel = new IntegerWriteChannel(null, ChannelId.TEST_CHANNEL_WITH_OPTIONS);
+		WriteChannel<?> channel = new EnumWriteChannel(null, ChannelId.TEST_CHANNEL_WITH_OPTIONS,
+				TestOptions.UNDEFINED);
 
 		// Test write with String
 		channel.setNextWriteValueFromObject("Option 2");

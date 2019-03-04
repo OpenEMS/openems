@@ -34,6 +34,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -169,8 +171,8 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
 
-		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
-		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
+		EnumWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
+		EnumWriteChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
 
 		Optional<Integer> wSetPctSFOpt = wSetPct_SFChannel.value().asOptional();
 		if (wSetPctSFOpt.isPresent()) {
@@ -206,7 +208,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		setBatteryRanges();
 		setWatchdog();
 
-		IntegerReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
+		EnumReadChannel currentStateChannel = this.channel(ChannelId.CURRENT_STATE);
 		CurrentState currentState = currentStateChannel.value().asEnum();
 		switch (currentState) {
 		case OFF:
@@ -378,7 +380,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void startGridMode() {
-		IntegerWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
+		EnumWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
 		try {
 			requestedState.setNextWriteValue(RequestedState.GRID_CONNECTED.value);
 		} catch (OpenemsException e) {
@@ -387,7 +389,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void startSystem() {
-		IntegerWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
+		EnumWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
 		try {
 			requestedState.setNextWriteValue(RequestedState.STANDBY.value);
 		} catch (OpenemsException e) {
@@ -396,7 +398,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	private void stopSystem() {
-		IntegerWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
+		EnumWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
 		try {
 			requestedState.setNextWriteValue(RequestedState.OFF.value);
 		} catch (OpenemsException e) {

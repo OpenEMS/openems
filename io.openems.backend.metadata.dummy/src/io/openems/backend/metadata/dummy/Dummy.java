@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +31,8 @@ import io.openems.common.utils.StringUtils;
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
+
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Dummy.class);
 
@@ -82,9 +86,18 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		if (edgeOpt.isPresent()) {
 			return Optional.ofNullable(edgeOpt.get().getId());
 		}
-		// not found -> create
-		int id = this.nextEdgeId.incrementAndGet();
-		String edgeId = "edge" + id;
+		// not found. Is apikey a valid Edge-ID?
+		Optional<Integer> idOpt = Dummy.parseNumberFromName(apikey);
+		int id;
+		String edgeId;
+		if (idOpt.isPresent()) {
+			edgeId = apikey;
+			id = idOpt.get();
+		} else {
+			// create new ID
+			id = this.nextEdgeId.incrementAndGet();
+			edgeId = "edge" + id;
+		}
 		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null);
 		edge.onSetConfig(config -> {
 			this.logDebug(this.log,
@@ -114,5 +127,18 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public Collection<Edge> getAllEdges() {
 		return Collections.unmodifiableCollection(this.edges.values());
+	}
+
+	public static Optional<Integer> parseNumberFromName(String name) {
+		try {
+			Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				String nameNumberString = matcher.group(1);
+				return Optional.ofNullable(Integer.parseInt(nameNumberString));
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		return Optional.empty();
 	}
 }

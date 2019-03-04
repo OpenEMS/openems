@@ -8,15 +8,11 @@ Require-Capability: \
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.annotation;version=7.0.0,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	com.google.gson
 
--testpath: \
-	${junit},\
-	${mockito},\
-	${mockito-deps}
+-testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8

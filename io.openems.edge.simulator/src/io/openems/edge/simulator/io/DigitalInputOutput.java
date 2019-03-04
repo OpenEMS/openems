@@ -30,7 +30,7 @@ import io.openems.edge.io.api.DigitalOutput;
 public class DigitalInputOutput extends AbstractOpenemsComponent
 		implements DigitalInput, DigitalOutput, OpenemsComponent {
 
-	public static final String CHANNEL_NAME = "InputOutput%d";
+	public static final String CHANNEL_NAME = "INPUT_OUTPUT%d";
 
 	private final Logger log = LoggerFactory.getLogger(DigitalInputOutput.class);
 

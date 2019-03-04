@@ -9,10 +9,7 @@ EnRoute-Application: io.openems.edge.application
 -includeresource: \
 	{readme.md}
 
--buildpath: \
-	osgi.annotation;version=7.0.0,\
-	osgi.core;version=7.0.0,\
-	osgi.cmpn;version=7.0.0,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
@@ -21,10 +18,7 @@ EnRoute-Application: io.openems.edge.application
 	slf4j.api,\
 	io.openems.wrapper.sdnotify;version=latest
 
--testpath: \
-	${junit},\
-	${mockito},\
-	${mockito-deps}
+-testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8

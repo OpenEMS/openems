@@ -5,9 +5,11 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.power.api.SolverStrategy;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(PowerComponent c) {
@@ -23,8 +25,9 @@ public class Utils {
 					case SOLVED:
 						return new BooleanReadChannel(c, channelId);
 					case SOLVE_DURATION:
-					case SOLVE_STRATEGY:
 						return new IntegerReadChannel(c, channelId);
+					case SOLVE_STRATEGY:
+						return new EnumReadChannel(c, channelId, SolverStrategy.UNDEFINED);
 					}
 					return null;
 				}) //

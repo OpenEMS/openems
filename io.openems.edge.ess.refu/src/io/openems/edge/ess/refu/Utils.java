@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -33,7 +35,7 @@ public class Utils {
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);
+						return new EnumReadChannel(c, channelId, GridMode.ON_GRID);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, RefuEss.MAX_APPARENT_POWER);
 					}
@@ -99,7 +101,6 @@ public class Utils {
 				}), Arrays.stream(RefuEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 
-					case SET_WORK_STATE:
 					case SET_ACTIVE_POWER_L1:
 					case SET_ACTIVE_POWER_L2:
 					case SET_ACTIVE_POWER_L3:
@@ -107,10 +108,14 @@ public class Utils {
 					case SET_REACTIVE_POWER_L2:
 					case SET_REACTIVE_POWER_L3:
 					case SET_ACTIVE_POWER:
-					case SET_OPERATION_MODE:
 					case SET_REACTIVE_POWER:
 					case SET_SYSTEM_ERROR_RESET:
 						return new IntegerWriteChannel(c, channelId);
+
+					case SET_OPERATION_MODE:
+						return new EnumWriteChannel(c, channelId, SetOperationMode.UNDEFINED);
+					case SET_WORK_STATE:
+						return new EnumWriteChannel(c, channelId, StopStart.UNDEFINED);
 
 					case STATE_0:
 					case STATE_1:
@@ -265,21 +270,15 @@ public class Utils {
 					case INVERTER_STATE_9:
 						return new StateChannel(c, channelId);
 
-					case SYSTEM_STATE:
-						return new IntegerReadChannel(c, channelId, SystemState.UNDEFINED);
-
 					case BATTERY_CURRENT:
 					case BATTERY_CURRENT_PCS:
-					case BATTERY_MODE:
 					case BATTERY_POWER:
-					case BATTERY_STATE:
 					case BATTERY_VOLTAGE:
 					case BATTERY_VOLTAGE_PCS:
 					case CURRENT:
 					case CURRENT_L1:
 					case CURRENT_L2:
 					case CURRENT_L3:
-					case DCDC_STATUS:
 					case PCS_ALLOWED_CHARGE:
 					case PCS_ALLOWED_DISCHARGE:
 					case ALLOWED_CHARGE_CURRENT:
@@ -315,6 +314,15 @@ public class Utils {
 					case INVERTER_ERROR_CODE:
 					case ERROR_HANDLER_STATE:
 						return new IntegerReadChannel(c, channelId);
+
+					case BATTERY_MODE:
+						return new EnumReadChannel(c, channelId, BatteryMode.UNDEFINED);
+					case BATTERY_STATE:
+						return new EnumReadChannel(c, channelId, BatteryState.UNDEFINED);
+					case DCDC_STATUS:
+						return new EnumReadChannel(c, channelId, DcdcStatus.UNDEFINED);
+					case SYSTEM_STATE:
+						return new EnumReadChannel(c, channelId, SystemState.UNDEFINED);
 					}
 					return null;
 				})).flatMap(channel -> channel);

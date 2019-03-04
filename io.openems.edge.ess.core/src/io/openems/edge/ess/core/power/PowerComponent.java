@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -252,7 +253,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		return this.channel(ChannelId.SOLVE_DURATION);
 	}
 
-	protected IntegerReadChannel getSolveStrategyChannel() {
+	protected EnumReadChannel getSolveStrategyChannel() {
 		return this.channel(ChannelId.SOLVE_STRATEGY);
 	}
 

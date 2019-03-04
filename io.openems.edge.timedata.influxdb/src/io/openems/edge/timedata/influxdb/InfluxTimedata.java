@@ -81,7 +81,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database());
+				config.database(), config.isReadOnly());
 	}
 
 	@Deactivate
@@ -126,6 +126,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case SHORT:
 						point.addField(address, (Short) value);
 						break;
+					case ENUM:
 					case INTEGER:
 						point.addField(address, (Integer) value);
 						break;
