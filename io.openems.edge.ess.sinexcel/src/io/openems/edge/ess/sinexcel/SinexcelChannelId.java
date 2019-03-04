@@ -26,7 +26,7 @@ public enum SinexcelChannelId implements io.openems.edge.common.channel.doc.Chan
 	SET_CHARGE_DISCHARGE_ACTIVE(new Doc() //
 			.unit(Unit.KILOWATT)), //
 	SET_CHARGE_DISCHARGE_REACTIVE(new Doc() //
-			.unit(Unit.KILO_VOLT_AMPERE_REACTIVE)), //
+			.unit(Unit.KILOVOLT_AMPERE_REACTIVE)), //
 	SET_CHARGE_CURRENT(new Doc() //
 			.unit(Unit.AMPERE)),
 	SET_DISCHARGE_CURRENT(new Doc() //
@@ -146,9 +146,9 @@ public enum SinexcelChannelId implements io.openems.edge.common.channel.doc.Chan
 	TARGET_OFFGRID_FREQUENCY(new Doc() //
 			.unit(Unit.HERTZ)),
 	ANALOG_DC_CHARGE_ENERGY(new Doc() //
-			.unit(Unit.KILO_VOLT_AMPERE)),
+			.unit(Unit.KILOVOLT_AMPERE)),
 	ANALOG_DC_DISCHARGE_ENERGY(new Doc() //
-			.unit(Unit.KILO_VOLT_AMPERE)),
+			.unit(Unit.KILOVOLT_AMPERE)),
 	AC_APPARENT_POWER(new Doc() //
 			.unit(Unit.VOLT_AMPERE)), //
 	AC_REACTIVE_POWER(new Doc() //
