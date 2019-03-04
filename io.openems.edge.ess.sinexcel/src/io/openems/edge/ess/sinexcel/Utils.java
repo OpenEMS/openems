@@ -14,14 +14,14 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssSinexcel ess) {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssSinexcel c) {
 		// Define the channels. Using streams + switch enables Eclipse IDE to tell us if
 		// we are missing an Enum value.
 		return Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new StateCollectorChannel(ess, channelId);
+						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
@@ -32,48 +32,45 @@ public class Utils {
 					case ACTIVE_CHARGE_ENERGY: // TODO ACTIVE_CHARGE_ENERGY
 					case ACTIVE_DISCHARGE_ENERGY: // TODO ACTIVE_DISCHARGE_ENERGY
 					case GRID_MODE:
-						return new IntegerReadChannel(ess, channelId);
+						return new IntegerReadChannel(c, channelId);
 
 					case MAX_APPARENT_POWER:
-						return new IntegerReadChannel(ess, channelId, 30000);
-					
-						
+						return new IntegerReadChannel(c, channelId, EssSinexcel.MAX_APPARENT_POWER);
+
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
-						return new IntegerReadChannel(ess, channelId);
-					
+						return new IntegerReadChannel(c, channelId);
 					case ALLOWED_CHARGE_POWER:
-						return new IntegerReadChannel(ess, channelId, -30000);
-
-					case ALLOWED_DISCHARGE_POWER:	
-						return new IntegerReadChannel(ess, channelId, 30000);
-
+						return new IntegerReadChannel(c, channelId, -30000);
+					case ALLOWED_DISCHARGE_POWER:
+						return new IntegerReadChannel(c, channelId, 30000);
 					case SET_ACTIVE_POWER_EQUALS:
 					case SET_ACTIVE_POWER_LESS_OR_EQUALS:
 					case SET_REACTIVE_POWER_EQUALS:
 					case SET_ACTIVE_POWER_GREATER_OR_EQUALS:
 					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
-						return new IntegerWriteChannel(ess, channelId);
+						return new IntegerWriteChannel(c, channelId);
+					case APPLY_POWER_FAILED:
+						return new StateChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(EssSinexcel.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(SinexcelChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					
+
 //----------------------------------------------------------------------------------------------------------------------
-					
-					
+
 					case ANALOG_CHARGE_ENERGY:
 					case ANALOG_DISCHARGE_ENERGY:
 					case TARGET_OFFGRID_VOLTAGE:
 					case TARGET_OFFGRID_FREQUENCY:
 					case ANALOG_DC_CHARGE_ENERGY:
 					case ANALOG_DC_DISCHARGE_ENERGY:
-					case ANTI_ISLANDING:	
+					case ANTI_ISLANDING:
 					case MOD_ON_CMD:
 					case MOD_OFF_CMD:
 					case GRID_ON_CMD:
@@ -82,8 +79,8 @@ public class Utils {
 					case DC_VOLTAGE:
 					case AC_POWER:
 					case AC_APPARENT_POWER:
-					case AC_REACTIVE_POWER:	
-					case FREQUENCY:	
+					case AC_REACTIVE_POWER:
+					case FREQUENCY:
 					case TEMPERATURE:
 					case INVOUTVOLT_L1:
 					case INVOUTVOLT_L2:
@@ -107,8 +104,8 @@ public class Utils {
 					case DEBUG_CHA_MAX_A:
 					case DEBUG_CHA_MAX_V:
 					case DEBUG_DIS_MIN_V:
-		
-						return new IntegerReadChannel(ess, channelId);
+
+						return new IntegerReadChannel(c, channelId);
 					case SETDATA_MOD_ON_CMD:
 					case SETDATA_MOD_OFF_CMD:
 					case SETDATA_GRID_ON_CMD:
@@ -135,16 +132,16 @@ public class Utils {
 					case SET_ANALOG_DISCHARGE_Energy:
 					case SET_ANALOG_DC_CHARGE_Energy:
 					case SET_ANALOG_DC_DISCHARGE_Energy:
-						return new IntegerWriteChannel(ess, channelId);
-						
+						return new IntegerWriteChannel(c, channelId);
+
 					case SERIAL:
 					case MODEL:
 					case MANUFACTURER:
 					case MODEL_2:
 					case VERSION:
 					case SERIAL_NUMBER:
-						
-						return new StringReadChannel(ess, channelId);
+
+						return new StringReadChannel(c, channelId);
 //-----------------------------------STATES--------------------------------------------------
 					case SINEXCEL_STATE_1:
 					case SINEXCEL_STATE_2:
@@ -154,8 +151,8 @@ public class Utils {
 					case SINEXCEL_STATE_6:
 					case SINEXCEL_STATE_7:
 					case SINEXCEL_STATE_8:
-					case SINEXCEL_STATE_9:	
-						return new StateChannel(ess, channelId);
+					case SINEXCEL_STATE_9:
+						return new StateChannel(c, channelId);
 //-----------------------------------EVENT BITFIELD32-----------------------------------------						
 					case STATE_0:
 					case STATE_1:
@@ -233,7 +230,8 @@ public class Utils {
 					case STATE_72:
 					case STATE_73:
 					case STATE_74:
-						return new StateChannel(ess, channelId);
+					case STATE_UNABLE_TO_SET_BATTERY_RANGES:
+						return new StateChannel(c, channelId);
 					}
 					return null;
 				}) //
