@@ -21,6 +21,8 @@ import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.QueryResult.Result;
 import org.influxdb.dto.QueryResult.Series;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
@@ -30,24 +32,29 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 
 public class InfluxConnector {
 
 	public final static String MEASUREMENT = "data";
+
+	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
 	private final int port;
 	private final String username;
 	private final String password;
 	private final String database;
+	private final boolean isReadOnly;
 
-	public InfluxConnector(String ip, int port, String username, String password, String database) {
+	public InfluxConnector(String ip, int port, String username, String password, String database, boolean isReadOnly) {
 		super();
 		this.ip = ip;
 		this.port = port;
 		this.username = username;
 		this.password = password;
 		this.database = database;
+		this.isReadOnly = isReadOnly;
 	}
 
 	private InfluxDB _influxDB = null;
@@ -296,6 +303,11 @@ public class InfluxConnector {
 	 * @throws OpenemsException on error
 	 */
 	public void write(BatchPoints batchPoints) throws OpenemsException {
+		if (this.isReadOnly) {
+			this.log.info("Read-Only-Mode is activated. Not writing points: "
+					+ StringUtils.toShortString(batchPoints.lineProtocol(), 100));
+			return;
+		}
 		try {
 			this.getConnection().write(batchPoints);
 		} catch (InfluxDBIOException e) {

@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnError;
-import io.openems.common.websocket.OnInternalError;
 import io.openems.common.websocket.OnNotification;
 import io.openems.common.websocket.OnOpen;
 import io.openems.common.websocket.OnRequest;
@@ -24,7 +23,6 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	private OnNotification onNotification;
 	private OnError onError;
 	private OnClose onClose;
-	private OnInternalError onInternalError;
 
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
@@ -43,10 +41,6 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		};
 		this.onClose = (ws, code, reason, remote) -> {
 			log.info("onClose: " + reason);
-		};
-		this.onInternalError = (ex, wsDataString) -> {
-			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
 		};
 	}
 
@@ -84,15 +78,6 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	public void setOnClose(OnClose onClose) {
 		this.onClose = onClose;
-	}
-
-	@Override
-	public OnInternalError getOnInternalError() {
-		return onInternalError;
-	}
-
-	public void setOnInternalError(OnInternalError onInternalError) {
-		this.onInternalError = onInternalError;
 	}
 
 	@Override
