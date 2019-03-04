@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String apikey();
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
-	String uri() default "ws://localhost:8081";
+	String uri() default "wss://www1.fenecon.de:443/openems-backend2";
 
 	@AttributeDefinition(name = "No. of Cycles", description = "How many Cycles till data is sent to OpenEMS Backend.")
 	int noOfCycles() default BackendApi.DEFAULT_NO_OF_CYCLES;

@@ -30,7 +30,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Přehled",
-        AboutUI: "About OpenEMS UI",
+        AboutUI: "About FEMS",
         Settings: 'Obecné Nastavení',
         Logout: 'Odhlásit'
     },
@@ -39,7 +39,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
-        IsOffline: "OpenEMS je ve stavu offline!"
+        IsOffline: "FEMS je ve stavu offline!"
     },
     Edge: {
         Index: {
@@ -141,13 +141,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Uživatelské rozhraní pro OpenEMS",
+        UI: "Uživatelské rozhraní pro FEMS",
         Developed: "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
         Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Zvolte jazyk:"
+        Language: "Zvolte jazyk:",
+        FAQ: "Často kladené otázky (FAQ)"
     },
     Notifications: {
         Failed: "Připojení selhalo.",

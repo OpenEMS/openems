@@ -121,9 +121,14 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
       } else {
         // TODO: remove after full migration
         this.service.getConfig().then(config => {
+          let ignoreIds = config.getComponentIdsByFactory("io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature");
+
           // get 'Soc'-Channel of all 'EssNatures'
           let channeladdresses = [];
           for (let componentId of config.getComponentsImplementingNature("EssNature")) {
+            if (ignoreIds.includes(componentId)) {
+              continue;
+            }
             channeladdresses.push(new ChannelAddress(componentId, 'Soc'));
           }
           resolve(channeladdresses);

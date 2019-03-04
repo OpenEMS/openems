@@ -30,7 +30,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Overzicht",
-        AboutUI: "Over OpenEMS UI",
+        AboutUI: "Over FEMS",
         Settings: 'Algemene instellingen',
         Logout: 'Uitloggen'
     },
@@ -39,7 +39,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Succesvol verbonden met {{value }}.", // (value = Name vom Websocket)
         ConnectionFailed: "Verbinding met {{ value } } mislukt.", // (value = Name vom Websocket)
         ToEnergymonitor: "Naar Energiemonitor...",
-        IsOffline: "OpenEMS is offline!"
+        IsOffline: "FEMS is offline!"
     },
     Edge: {
         Index: {
@@ -141,13 +141,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Gebruikersinterface voor OpenEMS",
+        UI: "Gebruikersinterface voor FEMS",
         Developed: "Deze gebruikersinterface is ontwikkeld als open-source-software.",
         Sourcecode: "Broncode",
         CurrentDevelopments: "Huidige ontwikkelingen",
         Build: "Versie",
         Contact: "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Selecteer taal: "
+        Language: "Selecteer taal: ",
+        FAQ: "Veel Gestelde Vragen (FAQ)"
     },
     Notifications: {
         Failed: "Verbinding mislukt.",

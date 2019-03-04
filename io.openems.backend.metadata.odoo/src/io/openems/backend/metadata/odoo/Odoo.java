@@ -39,7 +39,7 @@ import io.openems.common.utils.StringUtils;
 @Component(name = "Metadata.Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 
-	public final static String ODOO_MODEL = "edge.device";
+	public final static String ODOO_MODEL = "fems.device";
 
 	private final static int READ_BATCH_SIZE = 300;
 	private final static int MAX_TRIES = 10;

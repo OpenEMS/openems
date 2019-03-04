@@ -31,7 +31,7 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Index",
-        AboutUI: "About OpenEMS UI",
+        AboutUI: "About FEMS",
         Settings: 'General Settings',
         Logout: 'Sign Out'
     },
@@ -40,7 +40,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "OpenEMS is offline!"
+        IsOffline: "FEMS is offline!"
     },
     Edge: {
         Index: {
@@ -144,13 +144,14 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "User interface for OpenEMS",
+        UI: "User interface for FEMS",
         Developed: "This user interface is developed as open-source software.",
         OpenEMS: "More about OpenEMS",
         CurrentDevelopments: "Current developments",
         Build: "This build",
         Contact: "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.",
-        Language: "Select language:"
+        Language: "Select language:",
+        FAQ: "Frequently asked questions (FAQ)"
     },
     Notifications: {
         Failed: "Connection failed.",

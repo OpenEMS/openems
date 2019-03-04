@@ -62,7 +62,7 @@
                   "with": "src/environments/openems-backend.ts"
                 }
               ],
-              "baseHref": "/",
+              "baseHref": "/m/",
               "outputPath": "target/backend",
               "optimization": true,
               "outputHashing": "all",
