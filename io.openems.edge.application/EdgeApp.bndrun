@@ -49,6 +49,7 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.randompower',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.core',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
 	bnd.identity;id='io.openems.edge.ess.core',\
@@ -163,4 +164,6 @@
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
-	io.openems.edge.ess.sma;version=snapshot
+	io.openems.edge.ess.sma;version=snapshot,\
+	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
+	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot
