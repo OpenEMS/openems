@@ -63,6 +63,9 @@ public class Utils {
 			case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 				result.add(new IntegerWriteChannel(c, channelId));
 				break;
+			case APPLY_POWER_FAILED:
+				result.add(new StateChannel(c, channelId));
+				break;
 			}
 		}
 		for (EssFeneconCommercial40.ChannelId channelId : EssFeneconCommercial40.ChannelId.values()) {

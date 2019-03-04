@@ -169,7 +169,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 	
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
 
 		EnumWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
 		EnumWriteChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
