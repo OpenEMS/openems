@@ -5,12 +5,14 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(MeterWeidmuller525 c) {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(MeterWeidmueller525 c) {
 		return Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
@@ -27,14 +29,31 @@ public class Utils {
 					case REACTIVE_POWER:
 					case CURRENT:
 					case VOLTAGE:
+						return new IntegerReadChannel(c, channelId);
 					case ACTIVE_CONSUMPTION_ENERGY:
 					case ACTIVE_PRODUCTION_ENERGY:
+						return new LongReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTIVE_POWER_L1:
+					case ACTIVE_POWER_L2:
+					case ACTIVE_POWER_L3:
+					case REACTIVE_POWER_L1:
+					case REACTIVE_POWER_L2:
+					case REACTIVE_POWER_L3:
+					case CURRENT_L1:
+					case CURRENT_L2:
+					case CURRENT_L3:
+					case VOLTAGE_L1:
+					case VOLTAGE_L2:
+					case VOLTAGE_L3:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(MeterWeidmuller525.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(WeidmuellerChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case CURRENT_L1:
 					case APPARENT_ENERGY_L1:
 					case APPARENT_ENERGY_L1_L3:
 					case APPARENT_ENERGY_L2:
@@ -46,16 +65,12 @@ public class Utils {
 					case COSPHI_L1:
 					case COSPHI_L2:
 					case COSPHI_L3:
-					case CURRENT_L2:
-					case CURRENT_L3:
-					case CURRENT_SUM:
 					case HARMONIC_THD_CURRENT_L1N:
 					case HARMONIC_THD_CURRENT_L2N:
 					case HARMONIC_THD_CURRENT_L3N:
 					case HARMONIC_THD_VOLT_L1N:
 					case HARMONIC_THD_VOLT_L2N:
 					case HARMONIC_THD_VOLT_L3N:
-					case MEASURED_FREQUENCY:
 					case REACTIVE_ENERGY_CAPACITIVE_L1:
 					case REACTIVE_ENERGY_CAPACITIVE_L1_L3:
 					case REACTIVE_ENERGY_CAPACITIVE_L2:
@@ -68,32 +83,19 @@ public class Utils {
 					case REACTIVE_ENERGY_L1_L3:
 					case REACTIVE_ENERGY_L2:
 					case REACTIVE_ENERGY_L3:
-					case REACTIVE_POWER_Q1_L1N:
-					case REACTIVE_POWER_Q2_L2N:
-					case REACTIVE_POWER_Q3_L3N:
-					case REACTIVE_POWER_SUM:
 					case REAL_ENERGY_L1:
 					case REAL_ENERGY_L1_CONSUMED:
 					case REAL_ENERGY_L1_DELIVERED:
 					case REAL_ENERGY_L1_L3:
-					case REAL_ENERGY_L1_L3_CONSUMED_RATE_1:
-					case REAL_ENERGY_L1_L3_DELIVERED:
 					case REAL_ENERGY_L2:
 					case REAL_ENERGY_L2_CONSUMED:
 					case REAL_ENERGY_L2_DELIVERED:
 					case REAL_ENERGY_L3:
 					case REAL_ENERGY_L3_CONSUMED:
 					case REAL_ENERGY_L3_DELIVERED:
-					case REAL_POWER_P1_L1N:
-					case REAL_POWER_P2_L2N:
-					case REAL_POWER_P3_L3N:
-					case REAL_POWER_SUM:
 					case VOLTAGE_L1_L2:
 					case VOLTAGE_L1_L3:
-					case VOLTAGE_L1_N:
 					case VOLTAGE_L2_L3:
-					case VOLTAGE_L2_N:
-					case VOLTAGE_L3_N:
 					case ROTATION_FIELD:
 						return new IntegerReadChannel(c, channelId);
 					}
