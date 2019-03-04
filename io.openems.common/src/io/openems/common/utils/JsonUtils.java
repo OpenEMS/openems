@@ -42,7 +42,8 @@ public class JsonUtils {
 	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isBoolean()) {
-			throw OpenemsError.JSON_NO_BOOLEAN_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_BOOLEAN_MEMBER.exception(memberName,
+					jPrimitive.toString().replaceAll("%", "%%"));
 		}
 		return jPrimitive.getAsBoolean();
 	}
@@ -56,6 +57,17 @@ public class JsonUtils {
 			return Integer.parseInt(string);
 		}
 		throw OpenemsError.JSON_NO_INTEGER_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static float getAsFloat(JsonElement jElement, String memberName) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsFloat();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Float.parseFloat(string);
+		}
+		throw OpenemsError.JSON_NO_FLOAT_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsNamedException {
@@ -307,8 +319,8 @@ public class JsonUtils {
 			}
 			return j.getAsString();
 		} catch (Exception e) {
-			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(j.toString().replaceAll("%", "%%"), e.getClass().getSimpleName(),
-					e.getMessage());
+			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(j.toString().replaceAll("%", "%%"),
+					e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
 

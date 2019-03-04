@@ -93,7 +93,7 @@ public class Utils {
 			return p;
 		}
 		p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
-		
+
 		qCharacteristic.remove(voltageRatio, (float) 0);
 		return p;
 	}
