@@ -202,14 +202,14 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
-		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+		throw new OpenemsException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
-		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+		throw new OpenemsException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 	@Override
