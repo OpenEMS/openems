@@ -57,6 +57,7 @@
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
 	bnd.identity;id='io.openems.edge.ess.sinexcel',\
+	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
@@ -74,7 +75,6 @@
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
-	bnd.identity;id='io.openems.edge.sma',\
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb'
 -runbundles: \
@@ -163,4 +163,4 @@
 	io.openems.edge.meter.socomec;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
-	io.openems.edge.sma;version=snapshot
+	io.openems.edge.ess.sma;version=snapshot

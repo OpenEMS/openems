@@ -122,7 +122,7 @@ public class Utils {
 			switch (channelId) {
 			}
 		}
-		for (SunnyIsland6Ess.ChannelId channelId : SunnyIsland6Ess.ChannelId.values()) {
+		for (SiChannelId channelId : SiChannelId.values()) {
 			switch (channelId) {
 			case SYSTEM_STATE:
 			case BATTERY_TEMPERATURE:
