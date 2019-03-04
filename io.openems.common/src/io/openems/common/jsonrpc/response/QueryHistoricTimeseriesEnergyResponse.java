@@ -37,21 +37,21 @@ public class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSucces
 	}
 
 	private final Map<ChannelAddress, JsonElement> data;
-	
+
 	public QueryHistoricTimeseriesEnergyResponse(Map<ChannelAddress, JsonElement> data) {
 		this(UUID.randomUUID(), data);
 	}
 
 	public QueryHistoricTimeseriesEnergyResponse(UUID id, Map<ChannelAddress, JsonElement> data) {
 		super(id);
-		this.data= data;
+		this.data = data;
 	}
 
 	@Override
 	public JsonObject getResult() {
 		JsonObject result = new JsonObject();
 		JsonObject p = new JsonObject();
-		
+
 		for (Entry<ChannelAddress, JsonElement> entry : data.entrySet()) {
 			p.add(entry.getKey().toString(), entry.getValue());
 		}

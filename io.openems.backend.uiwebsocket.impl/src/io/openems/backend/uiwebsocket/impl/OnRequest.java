@@ -119,7 +119,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleQueryHistoricDataRequest(edgeId, role,
 					QueryHistoricTimeseriesDataRequest.from(request));
 			break;
-			
+
 		case QueryHistoricTimeseriesEnergyRequest.METHOD:
 			resultFuture = this.handleQueryHistoricEnergyRequest(edgeId, role,
 					QueryHistoricTimeseriesEnergyRequest.from(request));
@@ -220,7 +220,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
 	}
-	
+
 	/**
 	 * Handles a QueryHistoricEnergyequest.
 	 * 
@@ -235,15 +235,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		Map<ChannelAddress, JsonElement> data;
 		data = this.parent.timeData.queryHistoricEnergy(//
 				edgeId, /* ignore Edge-ID */
-				request.getFromDate(),
-				request.getToDate(),
-				request.getChannels());
+				request.getFromDate(), request.getToDate(), request.getChannels());
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
 	}
-	
-	
 
 	/**
 	 * Handles a GetEdgeConfigRequest.

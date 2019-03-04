@@ -212,11 +212,10 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
 	}
-	
+
 	@Override
-	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels)
-			throws OpenemsNamedException {
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
 		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);

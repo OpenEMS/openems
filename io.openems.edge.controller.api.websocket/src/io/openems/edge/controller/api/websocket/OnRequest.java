@@ -222,9 +222,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
 		Map<ChannelAddress, JsonElement> data = this.parent.timedata.queryHistoricEnergy(//
 				null, /* ignore Edge-ID */
-				request.getFromDate(),
-				request.getToDate(),
-				request.getChannels());
+				request.getFromDate(), request.getToDate(), request.getChannels());
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
