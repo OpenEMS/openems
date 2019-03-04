@@ -217,8 +217,8 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels)
 			throws OpenemsNamedException {
-		// ignore edgeId as Points are also written without Edge-ID
-		Optional<Integer> influxEdgeId = Optional.empty();
+		// parse the numeric EdgeId
+		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
 		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 

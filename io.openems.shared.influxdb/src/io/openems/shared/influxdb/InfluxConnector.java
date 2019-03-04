@@ -109,36 +109,22 @@ public class InfluxConnector {
 	}
 
 	/**
-	 * Queries historic data.
+	 * Queries historic energy.
 	 * 
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
-	 * @param resolution   the resolution in seconds
 	 * @return
 	 * @throws OpenemsException on error
 	 */
 
 	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-
-//		Map<ChannelAddress, JsonElement>result= new HashMap<>();
-//		JsonElement gridBuyValue = new JsonPrimitive(58);
-//		ChannelAddress gridBuyKey = new ChannelAddress("_sum", "Grid_Buy_Active_Energy");
-//		result.put(gridBuyKey, gridBuyValue);
-
-		
-		StringBuilder query = new StringBuilder("SELECT last");
-//		for (Result result : queryResult.getResults())
-//		for (ChannelAddress channel :  channels) {
-//			
-//		}
-		
+		// Prepare query string
+		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(InfluxConnector.toChannelAddressStringEnergy(channels));
-		query.append("- first");
-		query.append(InfluxConnector.toChannelAddressStringEnergy(channels));
-		query.append(" FROM data WHERE");
+		query.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
 			query.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
 		}
@@ -149,17 +135,27 @@ public class InfluxConnector {
 		query.append(String.valueOf(toDate.toEpochSecond()));
 		query.append("s");
 
-//		QueryResult queryResult = executeQuery(query.toString());
-//		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> result = InfluxConnector
-//				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
-//		
+		// Execute query
 		QueryResult queryResult = executeQuery(query.toString());
+
+		// Prepare result
 		Map<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(queryResult,
 				fromDate.getZone());
 
 		return result;
 	}
 
+	/**
+	 * Queries historic data.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param fromDate     the From-Date
+	 * @param toDate       the To-Date
+	 * @param channels     the Channels to query
+	 * @param resolution   the resolution in seconds
+	 * @return
+	 * @throws OpenemsException on error
+	 */
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
@@ -239,6 +235,13 @@ public class InfluxConnector {
 		return table;
 	}
 
+	/**
+	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
+	 * 
+	 * @param queryResult the Query-Result
+	 * @return
+	 * @throws OpenemsException on error
+	 */
 	private static Map<ChannelAddress, JsonElement> convertHistoricEnergyResult(QueryResult queryResult,
 			ZoneId timezone) throws OpenemsNamedException {
 		Map<ChannelAddress, JsonElement> map = new HashMap<>();
@@ -249,14 +252,18 @@ public class InfluxConnector {
 					// create ChannelAddress index
 					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
 					for (String column : series.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
 						addressIndex.add(ChannelAddress.fromString(column));
 					}
 
 					// add all data
 					for (List<Object> values : series.getValues()) {
 						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+							// Note: ignoring index '0' here as it is the 'timestamp'
 							ChannelAddress address = addressIndex.get(columnIndex);
-							Object valueObj = values.get(columnIndex);
+							Object valueObj = values.get(columnIndex + 1);
 							JsonElement value;
 							if (valueObj == null) {
 								value = JsonNull.INSTANCE;
@@ -287,11 +294,12 @@ public class InfluxConnector {
 		}
 		return String.join(", ", channelAddresses);
 	}
-	
+
 	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {
-			channelAddresses.add(channel.toString() + "\") AS \"" + channel.toString() + "\"");
+			channelAddresses.add("last(\"" + channel.toString() + "\") - first(\"" + channel.toString() + "\") as \""
+					+ channel.toString() + "\"");
 		}
 		return String.join(", ", channelAddresses);
 	}

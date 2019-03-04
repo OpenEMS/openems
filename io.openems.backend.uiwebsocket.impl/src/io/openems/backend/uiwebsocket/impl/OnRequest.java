@@ -1,6 +1,7 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -24,12 +25,14 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
@@ -116,6 +119,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleQueryHistoricDataRequest(edgeId, role,
 					QueryHistoricTimeseriesDataRequest.from(request));
 			break;
+			
+		case QueryHistoricTimeseriesEnergyRequest.METHOD:
+			resultFuture = this.handleQueryHistoricEnergyRequest(edgeId, role,
+					QueryHistoricTimeseriesEnergyRequest.from(request));
+			break;
 
 		case GetEdgeConfigRequest.METHOD:
 			resultFuture = this.handleGetEdgeConfigRequest(edgeId, role, GetEdgeConfigRequest.from(request));
@@ -186,7 +194,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			Role role, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		role.assertRoleIsAtLeast("SubscribeSystemLog", Role.OWNER);
 		UUID token = wsData.assertToken();
-				
+
 		// Forward to Edge
 		return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, token, request);
 	}
@@ -212,6 +220,30 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
 	}
+	
+	/**
+	 * Handles a QueryHistoricEnergyequest.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param role    the Role - no specific level required
+	 * @param request the QueryHistoricEnergyRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, Role role,
+			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> data;
+		data = this.parent.timeData.queryHistoricEnergy(//
+				edgeId, /* ignore Edge-ID */
+				request.getFromDate(),
+				request.getToDate(),
+				request.getChannels());
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
+	}
+	
+	
 
 	/**
 	 * Handles a GetEdgeConfigRequest.

@@ -1,10 +1,8 @@
 <ion-card>
     <ion-item color="light" lines="full">
-        <ion-img slot="start" style="width: 38px" src="assets/img/kwh.png"></ion-img>
         <ion-label>
             <ion-card-title translate>General.Cumulative</ion-card-title>
         </ion-label>
-        <ion-icon name="download" item-right></ion-icon>
     </ion-item>
 
     <ion-item lines="inset">
@@ -21,7 +19,7 @@
                     <ion-label padding-left translate>General.ChargePower</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["_sum/Production_Active_Energy"]}}&nbsp;kWh
+                    {{data["_sum/ProductionActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
                 </td>
             </tr>
         </table>
@@ -41,7 +39,7 @@
                     <ion-label padding-left translate>General.GridBuy</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["_sum/Grid_Buy_Active_Energy"]}}&nbsp;kWh
+                    {{data["_sum/GridBuyActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
                 </td>
             </tr>
             <tr>
@@ -49,7 +47,7 @@
                     <ion-label padding-left translate>General.GridSell</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["_sum/Grid_Sell_Active_Energy"]}}&nbsp;kWh
+                    {{data["_sum/GridSellActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
                 </td>
             </tr>
         </table>
@@ -69,7 +67,7 @@
                     <ion-label padding-left translate>General.Load</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
-                    {{data["_sum/Consumption_Active_Energy"]}}&nbsp;kWh
+                    {{data["_sum/ConsumptionActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
                 </td>
             </tr>
         </table>

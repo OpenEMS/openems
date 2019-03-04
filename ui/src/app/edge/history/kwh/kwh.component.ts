@@ -29,6 +29,7 @@ export class KwhComponent implements OnInit, OnChanges {
     this.service.setCurrentEdge(this.route);
   }
 
+
   ngOnChanges() {
     this.updateValues();
   };
@@ -36,22 +37,34 @@ export class KwhComponent implements OnInit, OnChanges {
   updateValues() {
     this.queryEnergy(this.fromDate, this.toDate).then(response => {
       this.data = response.result.data;
-      console.log("Response:", this.data)
     });
   };
 
+
+  /**
+   * Gets the ChannelAdresses that should be queried.
+   * 
+   * @param edge the current Edge
+   */
   protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       resolve([
         new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-        new ChannelAddress('_sum', 'GridSell_ActiveEnergy'),
+        new ChannelAddress('_sum', 'GridSellActiveEnergy'),
         new ChannelAddress('_sum', 'ProductionActiveEnergy'),
         new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
       ]);
     });
   };
 
-
+  /**
+   * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
+   * 
+   * @param fromDate the From-Date
+   * @param toDate   the To-Date
+   * @param edge     the current Edge
+   * @param ws       the websocket
+   */
   protected queryEnergy(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyResponse> {
     return new Promise((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {

@@ -226,24 +226,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				request.getToDate(),
 				request.getChannels());
 
-//		Map<ChannelAddress, JsonElement>data = new HashMap<>();
-//		
-//		JsonElement gridBuyValue = new JsonPrimitive(58);
-//		ChannelAddress gridBuyKey = new ChannelAddress("_sum", "Grid_Buy_Active_Energy");
-//		data.put(gridBuyKey, gridBuyValue);
-//		
-//		JsonElement gridSellValue = new JsonPrimitive(64);
-//		ChannelAddress gridSellKey = new ChannelAddress("_sum", "Grid_Sell_Active_Energy");
-//		data.put(gridSellKey, gridSellValue);
-//		
-//		JsonElement prodActiveValue = new JsonPrimitive(128);
-//		ChannelAddress prodActiveKey = new ChannelAddress("_sum", "Production_Active_Energy");
-//		data.put(prodActiveKey,prodActiveValue);
-//		
-//		JsonElement consActiveValue = new JsonPrimitive(666);
-//		ChannelAddress consActiveKey = new ChannelAddress("_sum", "Consumption_Active_Energy");
-//		data.put(consActiveKey, consActiveValue);
-
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
 	}
