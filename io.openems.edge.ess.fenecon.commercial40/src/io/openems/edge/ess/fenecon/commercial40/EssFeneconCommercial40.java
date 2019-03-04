@@ -85,19 +85,11 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
 		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
+		setActivePowerChannel.setNextWriteValue(activePower);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
-		try {
-			setActivePowerChannel.setNextWriteValue(activePower);
-		} catch (OpenemsException e) {
-			log.error("Unable to set ActivePower: " + e.getMessage());
-		}
-		try {
-			setReactivePowerChannel.setNextWriteValue(reactivePower);
-		} catch (OpenemsException e) {
-			log.error("Unable to set ReactivePower: " + e.getMessage());
-		}
+		setReactivePowerChannel.setNextWriteValue(reactivePower);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

@@ -757,7 +757,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException  {
 		
 		doStringWeighting(activePower, reactivePower);
 		/*
@@ -826,6 +826,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/** Writes the given value into the channel */
+	// TODO should throws OpenemsException
 	void writeValueToChannel(GridConChannelId channelId, Object value) {
 		try {
 			((WriteChannel<?>) this.channel(channelId)).setNextWriteValueFromObject(value);

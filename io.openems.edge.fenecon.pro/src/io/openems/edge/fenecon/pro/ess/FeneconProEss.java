@@ -78,21 +78,13 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
-		try {
-			this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
-			this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
-			this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
-		} catch (OpenemsException e) {
-			log.error("Unable to set ActivePower: " + e.getMessage());
-		}
-		try {
-			this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
-			this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
-			this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
-		} catch (OpenemsException e) {
-			log.error("Unable to set ReactivePower: " + e.getMessage());
-		}
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
+		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
+		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
+		this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
+		this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
+		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

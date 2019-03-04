@@ -54,6 +54,8 @@ public class Utils {
 					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
 					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
+					case APPLY_POWER_FAILED:
+						return new StateChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
