@@ -26,6 +26,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -101,7 +102,7 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		Edge edge = new Edge(edgeId, apikey, "OpenEMS Edge #" + id, State.ACTIVE, "", "", new EdgeConfig(), null, null);
 		edge.onSetConfig(config -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
-					+ StringUtils.toShortString(EdgeConfig.diff(config, edge.getConfig()), 100));
+					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
 		});
 		edge.onSetSoc(soc -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Set SoC: " + soc);

@@ -10,10 +10,6 @@ import java.util.TreeMap;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.MapDifference.ValueDifference;
-import com.google.common.collect.Maps;
-import com.google.common.collect.SortedMapDifference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -554,94 +550,6 @@ public class EdgeConfig {
 			result.addFactory(id, new EdgeConfig.Factory(id, "", properties, implement));
 		}
 
-		return result;
-	}
-
-	/**
-	 * Find difference between two EdgeConfigs.
-	 * 
-	 * @param newConfig the new EdgeConfig
-	 * @param oldConfig the old EdgeConfig
-	 * @return a string representing the diff
-	 */
-	public static JsonObject diff(EdgeConfig newConfig, EdgeConfig oldConfig) {
-		JsonObject result = new JsonObject();
-		SortedMapDifference<String, EdgeConfig.Component> diffComponents = Maps.difference(newConfig.getComponents(),
-				oldConfig.getComponents());
-		/*
-		 * newly created Components
-		 */
-		if (!diffComponents.entriesOnlyOnLeft().isEmpty()) {
-			JsonObject createdComponents = new JsonObject();
-			for (Entry<String, EdgeConfig.Component> onlyOnNew : diffComponents.entriesOnlyOnLeft().entrySet()) {
-				createdComponents.add(onlyOnNew.getKey(), onlyOnNew.getValue().toJson());
-			}
-			result.add("created", createdComponents);
-		}
-
-		/*
-		 * diff deleted Components
-		 */
-		if (!diffComponents.entriesOnlyOnRight().isEmpty()) {
-			JsonObject deletedComponents = new JsonObject();
-			for (Entry<String, EdgeConfig.Component> onlyOnOld : diffComponents.entriesOnlyOnRight().entrySet()) {
-				deletedComponents.add(onlyOnOld.getKey(), onlyOnOld.getValue().toJson());
-			}
-			result.add("deleted", deletedComponents);
-		}
-
-		/*
-		 * diff updated Components
-		 */
-		if (!diffComponents.entriesDiffering().isEmpty()) {
-			JsonObject updatedComponents = new JsonObject();
-			for (Entry<String, ValueDifference<EdgeConfig.Component>> differingComponent : diffComponents
-					.entriesDiffering().entrySet()) {
-				EdgeConfig.Component newComponent = differingComponent.getValue().leftValue();
-				EdgeConfig.Component oldComponent = differingComponent.getValue().rightValue();
-
-				MapDifference<String, JsonElement> diffProperties = Maps.difference(newComponent.getProperties(),
-						oldComponent.getProperties());
-
-				if (diffProperties.areEqual()) {
-					// properties are equal -> break early
-					continue;
-				}
-
-				JsonObject updatedComponent = new JsonObject();
-				if (!diffProperties.entriesOnlyOnLeft().isEmpty()) {
-					// created
-					JsonObject createdProperties = new JsonObject();
-					for (Entry<String, JsonElement> onlyOnNew : diffProperties.entriesOnlyOnLeft().entrySet()) {
-						createdProperties.add(onlyOnNew.getKey(), onlyOnNew.getValue());
-					}
-					updatedComponent.add("created", createdProperties);
-				}
-				if (!diffProperties.entriesOnlyOnRight().isEmpty()) {
-					// deleted
-					JsonObject deletedProperties = new JsonObject();
-					for (Entry<String, JsonElement> onlyOnOld : diffProperties.entriesOnlyOnRight().entrySet()) {
-						deletedProperties.add(onlyOnOld.getKey(), onlyOnOld.getValue());
-					}
-					updatedComponent.add("deleted", deletedProperties);
-				}
-				// updated
-				if (!diffProperties.entriesDiffering().isEmpty()) {
-					JsonObject updatedProperties = new JsonObject();
-					for (Entry<String, ValueDifference<JsonElement>> differingProperty : diffProperties
-							.entriesDiffering().entrySet()) {
-						updatedProperties.add(differingProperty.getKey(), //
-								JsonUtils.buildJsonObject() //
-										.add("old", differingProperty.getValue().rightValue()) //
-										.add("new", differingProperty.getValue().leftValue()) //
-										.build());
-					}
-					updatedComponent.add("updated", updatedProperties);
-				}
-				updatedComponents.add(differingComponent.getKey(), updatedComponent);
-			}
-			result.add("updated", updatedComponents);
-		}
 		return result;
 	}
 

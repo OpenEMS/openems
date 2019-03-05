@@ -32,6 +32,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
@@ -203,6 +204,11 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 		edge.onSetConfig(config -> {
 			// Update Edge config in Odoo
+			EdgeConfigDiff diff = EdgeConfigDiff.diff(config, edge.getConfig());
+			if (!diff.isDifferent()) {
+				return;
+			}
+
 			this.logDebug(this.log,
 					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
 			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
@@ -210,8 +216,14 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			String components = new GsonBuilder().setPrettyPrinting().create().toJson(config.componentsToJson());
 			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
 
-			// TODO: write EdgeConfig-Diff to Odoo Chatter
-			// EdgeConfig.diff(config, edge.getConfig()
+			// write EdgeConfig-Diff to Odoo Chatter
+			try {
+				OdooUtils.addChatterMessage(this.odooCredentials, ODOO_MODEL, edge.getOdooId(), //
+						"<p>Configuration Update:</p>" + diff.getAsHtml());
+			} catch (OpenemsException e) {
+				this.logError(this.log, "Unable to update Edge [" + edge.getId() + "] Odoo-ID [" + edge.getOdooId()
+						+ "] write EdgeConfig Diff to Odoo Chatter: " + e.getMessage());
+			}
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo
@@ -286,7 +298,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			OdooUtils.write(this.odooCredentials, ODOO_MODEL, new Integer[] { edge.getOdooId() }, fieldValue);
 		} catch (OpenemsException e) {
 			this.logError(this.log, "Unable to update Edge [" + edge.getId() + "] Odoo-ID [" + edge.getOdooId()
-					+ "] Field [" + fieldValue.getField().n() + "] : " + e.getMessage());
+					+ "] Field [" + fieldValue.getField().n() + "]: " + e.getMessage());
 		}
 	}
 
