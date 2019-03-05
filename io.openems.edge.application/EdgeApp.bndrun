@@ -66,6 +66,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.wago',\
+	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
@@ -165,5 +166,5 @@
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
-	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
-	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot
+	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot
