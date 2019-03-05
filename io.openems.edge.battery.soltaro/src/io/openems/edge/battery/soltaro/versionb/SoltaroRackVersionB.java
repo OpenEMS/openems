@@ -142,6 +142,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 	
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
+	public static final Integer MAX_POWER_W = 50000;
 	private String getSingleCellPrefix(int num) { 
 		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
 	}

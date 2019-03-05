@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.ShortReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
@@ -394,15 +395,19 @@ public class Utils {
 					case CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE:
 					case CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE:
 					
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B:
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C:	
-					case CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B:
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C:	
+					case CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE:
 						return new FloatWriteChannel(ess, channelId);
+					case STATE_TEMP_TRIP_IGBT_3_IPU_1: //TODO new channelIds for errors
+						return new StateChannel(ess, channelId);
+					default:
+						break;
 										
 					}
 					return null;

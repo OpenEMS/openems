@@ -924,7 +924,7 @@ public enum ErrorCode implements OptionsEnum {
 	}
 
 	public String getChannelId() {
-		// TODO Auto-generated method stub
-		return null;
+		// TODOrefactor ... just temporarily
+		return "STATE_TEMP_TRIP_IGBT_3_IPU_1";
 	}
 }

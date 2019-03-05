@@ -17,15 +17,15 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus-Unit-ID", description = "Unit ID of Modbus brige.")
-	int unit_id() default 1;
+	int unit_id() default 0;
 
-	@AttributeDefinition(name = "BatteryStringA", description = "ID of battery connected to string A.", required = true)
+	@AttributeDefinition(name = "BatteryStringA", description = "ID of battery connected to string A.")
 	String battery_string_A_id();
 
-	@AttributeDefinition(name = "BatteryStringB", description = "ID of battery connected to string B.", required = false)
+	@AttributeDefinition(name = "BatteryStringB", description = "ID of battery connected to string B.")
 	String battery_string_B_id();
 
-	@AttributeDefinition(name = "BatteryStringC", description = "ID of battery connected to string C.", required = false)
+	@AttributeDefinition(name = "BatteryStringC", description = "ID of battery connected to string C.")
 	String battery_string_C_id();
 	
 	@AttributeDefinition(name = "IPUs", description = "Which IPUs are used, InverterCount 4 is DC DC Converter", required = true)

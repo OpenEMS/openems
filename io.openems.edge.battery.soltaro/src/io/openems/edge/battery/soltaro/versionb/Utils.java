@@ -34,7 +34,6 @@ public class Utils {
 					case CURRENT:
 					case MAX_CELL_TEMPERATURE:
 					case MAX_CELL_VOLTAGE:
-					case MAX_POWER:
 					case MIN_CELL_TEMPERATURE:
 						return new IntegerReadChannel(s, channelId);
 					case CHARGE_MAX_CURRENT:
@@ -43,6 +42,8 @@ public class Utils {
 						return new IntegerReadChannel(s, channelId);
 					case DISCHARGE_MAX_CURRENT:
 						return new IntegerReadChannel(s, channelId, 0);
+					case MAX_POWER:
+						return new IntegerReadChannel(s, channelId, SoltaroRackVersionB.MAX_POWER_W);
 					case DISCHARGE_MIN_VOLTAGE:
 						return new IntegerReadChannel(s, channelId);
 					case READY_FOR_WORKING:

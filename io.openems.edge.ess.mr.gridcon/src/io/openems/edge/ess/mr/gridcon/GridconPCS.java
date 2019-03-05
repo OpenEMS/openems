@@ -132,8 +132,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	DigitalOutput outputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private DigitalInput inputComponent = null;
+//	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+//	private DigitalInput inputComponent = null;
 	
 	int minSoCA;
 	int minSoCB;
@@ -150,6 +150,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		minSoCA = config.minSoCA();
+		minSoCB = config.minSoCB();
+		minSoCC = config.minSoCC();
+
+		inverterCount = config.inverterCount();
+
+		MAX_POWER_W = inverterCount.getCount() * MAX_POWER_PER_INVERTER;
+		
 		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus", config.modbus_id());
 
 		// TODO use ComponentManager to replace the following hard references
@@ -203,14 +211,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		minSoCA = config.minSoCA();
-		minSoCB = config.minSoCB();
-		minSoCC = config.minSoCC();
-
-		inverterCount = config.inverterCount();
-
-		MAX_POWER_W = inverterCount.getCount() * MAX_POWER_PER_INVERTER;
-
 		WriteChannel<Integer> commandControlWordChannel = this.channel(GridConChannelId.COMMAND_CONTROL_WORD);
 		commandControlWordChannel.onSetNextWrite(value -> {
 			if (value != null) {
@@ -250,32 +250,33 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private GridMode getOnOffGrid() {
-		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
-				.channel(this.inputNAProtection1.getChannelId());
-		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
-				.channel(this.inputNAProtection1.getChannelId());
-
-		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-
-		GridMode gridMode;
-		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
-			gridMode = GridMode.UNDEFINED;
-		} else {
-			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-				gridMode = GridMode.ON_GRID;
-			} else {
-				gridMode = GridMode.OFF_GRID;
-			}
-		}
-		this.getGridMode().setNextValue(gridMode);
-		return gridMode;
+		return GridMode.ON_GRID; //TODO jkust temporarily...
+//		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
+//				.channel(this.inputNAProtection1.getChannelId());
+//		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
+//				.channel(this.inputNAProtection1.getChannelId());
+//
+//		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+//		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+//
+//		GridMode gridMode;
+//		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
+//			gridMode = GridMode.UNDEFINED;
+//		} else {
+//			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
+//				gridMode = GridMode.ON_GRID;
+//			} else {
+//				gridMode = GridMode.OFF_GRID;
+//			}
+//		}
+//		this.getGridMode().setNextValue(gridMode);
+//		return gridMode;
 	}
 
 	private void handleStateMachine() {
 		this.prepareGeneralCommands();
 
-		GridMode gridMode = this.getOnOffGrid();
+		GridMode gridMode = GridMode.ON_GRID; // TODO reactivate it!! currently not active because off null pointer //this.getOnOffGrid();
 		switch (gridMode) {
 		case ON_GRID:
 			log.info("handleOnGridState");
@@ -305,7 +306,23 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
+		
+		// Enable DC DC 
+		switch (inverterCount) {
+		case ONE:
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+			break;
+		case TWO:
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+			break;
+		case THREE:
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+			break;
+		default:
+			break;
+		
+		}
 
 		writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, 0);
 		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF, 0);
@@ -331,17 +348,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private float getWeightingMode() {
 		float weightingMode = 0;
 
-		switch (inverterCount) {
-		case ONE:
-			weightingMode = 1f;
-			break;
-		case TWO:
-			weightingMode = 9f;
-			break;
-		case THREE:
-			weightingMode = 73f;
-			break;
+		// TODO FALSCH!!! depends on number of battery strings!!!
+		// battA = 1  (2^0)
+		// battB = 8  (2^3)
+		// battC = 64 (2^6)
+
+		if (batteryStringA != null) {
+			weightingMode = weightingMode + 1;
 		}
+		if (batteryStringB != null) {
+			weightingMode = weightingMode + 8;
+		}
+		if (batteryStringC != null) {
+			weightingMode = weightingMode + 64;
+		}
+		
 		return weightingMode;
 	}
 
@@ -352,7 +373,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private void handleOnGridState() {
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-		this.setOutputSyncDeviceBridge(false);
+		// this.setOutputSyncDeviceBridge(false); //TODO reactivate it because of null pointer
 
 		// a hardware restart has been executed,
 		if (timestampMrGridconWasSwitchedOff != null) {
@@ -428,23 +449,23 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doRunHandling() {
-		boolean disableIpu1 = true;
+		boolean disableIpu1 = false;
 		boolean disableIpu2 = true;
 		boolean disableIpu3 = true;
-		boolean disableIpu4 = false;
+		boolean disableIpu4 = true;
 
 		switch (inverterCount) {
 		case ONE:
-			disableIpu1 = false;
+			disableIpu2 = false;
 			break;
 		case TWO:
-			disableIpu1 = false;
-			disableIpu2 = false;
-			break;
-		case THREE:
-			disableIpu1 = false;
 			disableIpu2 = false;
 			disableIpu3 = false;
+			break;
+		case THREE:
+			disableIpu2 = false;
+			disableIpu3 = false;
+			disableIpu4 = false;
 			break;
 		default:
 			break;
@@ -539,7 +560,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
+		switch (inverterCount) {
+		case ONE:
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+			break;
+		case TWO:
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+			break;
+		case THREE:
+			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+			break;
+		}
 	}
 
 	// TODO Shutdown system
@@ -663,22 +695,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU3);
 		}
 
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, 0f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 0f); //
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C, 0f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE, 0f); //
 
 		// The value of 800 Volt is given by MR as a good reference value
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 800f);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, weightA);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, weightB);
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, weightC);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 800f);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A, weightA);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B, weightB);
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C, weightC);
 		// The value '73' implies that all 3 strings are in weighting mode
-		writeValueToChannel(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
+		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
 				stringControlMode); //
 	}
 
@@ -719,7 +751,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			int bit = ((code >> 16) & 255);
 			int b = ((code >> 8) & 255);
 			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
-			this.channel(errorCode.getChannelId()).setNextValue(true);
+//			this.channel(errorCode.getChannelId()).setNextValue(true);
 			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
 			return errorCode.needsHardReset;
 		}
@@ -816,36 +848,53 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		} else {
 //			return Power.NO_CONSTRAINTS;
 			// calculate max charge and discharge power
-			int currentMaxChargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
-					* batteryStringA.getChargeMaxCurrent().value().orElse(0);
-			int maxChargeA_W = Math.min(currentMaxChargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
-
-			int currentMaxChargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
+			int currentMaxChargeBatteryA_W = 0;
+			int maxChargeA_W = 0;
+			int currentMaxChargeBatteryB_W = 0;
+			int maxChargeB_W = 0;
+			int currentMaxChargeBatteryC_W = 0;
+			int maxChargeC_W = 0;
+			if (batteryStringA != null) {
+				currentMaxChargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0) * batteryStringA.getChargeMaxCurrent().value().orElse(0);
+				maxChargeA_W = Math.min(currentMaxChargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
+			}
+			if (batteryStringB != null) {
+				currentMaxChargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
 					* batteryStringB.getChargeMaxCurrent().value().orElse(0);
-			int maxChargeB_W = Math.min(currentMaxChargeBatteryB_W, batteryStringB.getMaxPower().value().orElse(0));
-
-			int currentMaxChargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
+				maxChargeB_W = Math.min(currentMaxChargeBatteryB_W, batteryStringB.getMaxPower().value().orElse(0));
+			}
+			if (batteryStringC != null) {
+				currentMaxChargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
 					* batteryStringC.getChargeMaxCurrent().value().orElse(0);
-			int maxChargeC_W = Math.min(currentMaxChargeBatteryC_W, batteryStringC.getMaxPower().value().orElse(0));
-
+				maxChargeC_W = Math.min(currentMaxChargeBatteryC_W, batteryStringC.getMaxPower().value().orElse(0));
+			}
 			int maxCharge_W = (maxChargeA_W + maxChargeB_W + maxChargeC_W);
 			maxCharge_W = (-1) * Math.min(maxCharge_W, (int) MAX_CHARGE_W);
 
-			int currentMaxDischargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
+			int currentMaxDischargeBatteryA_W = 0;
+			int maxDischargeA_W = 0;
+			int currentMaxDischargeBatteryB_W = 0;
+			int maxDischargeB_W = 0;
+			int currentMaxDischargeBatteryC_W = 0;
+			int maxDischargeC_W = 0;
+			
+			if (batteryStringA != null) {
+				currentMaxDischargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
 					* batteryStringA.getDischargeMaxCurrent().value().orElse(0);
-			int maxDischargeA_W = Math.min(currentMaxDischargeBatteryA_W,
-					batteryStringA.getMaxPower().value().orElse(0));
-
-			int currentMaxDischargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
+				maxDischargeA_W = Math.min(currentMaxDischargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
+			}
+			if (batteryStringB!= null) {
+				currentMaxDischargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
 					* batteryStringB.getDischargeMaxCurrent().value().orElse(0);
-			int maxDischargeB_W = Math.min(currentMaxDischargeBatteryB_W,
+				maxDischargeB_W = Math.min(currentMaxDischargeBatteryB_W,
 					batteryStringB.getMaxPower().value().orElse(0));
-
-			int currentMaxDischargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
+			}
+			if (batteryStringC != null) {
+				currentMaxDischargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
 					* batteryStringC.getDischargeMaxCurrent().value().orElse(0);
-			int maxDischargeC_W = Math.min(currentMaxDischargeBatteryC_W,
-					batteryStringC.getMaxPower().value().orElse(0));
-
+				maxDischargeC_W = Math.min(currentMaxDischargeBatteryC_W,
+				batteryStringC.getMaxPower().value().orElse(0));
+			}
 			int maxDischarge_W = (maxDischargeA_W + maxDischargeB_W + maxDischargeC_W);
 			maxDischarge_W = Math.min(maxDischarge_W, (int) MAX_DISCHARGE_W);
 
@@ -1092,6 +1141,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return batteries;
 	}
 
+	// TODO why are there two methods? 
 	// checks if bit at requested position is set and writes it to given channel id
 	private void mapBitToChannel(Long ctrlWord, PCSControlWordBitPosition bitPosition, GridConChannelId id) {
 		boolean val = ((ctrlWord >> bitPosition.getBitPosition()) & 1) == 1;
@@ -1565,23 +1615,38 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				m(GridConChannelId.CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE,
 						new FloatDoublewordElement(32702).wordOrder(WordOrder.LSWMSW)) //
 		);
-		Task controlIpu4Parameters = new FC16WriteRegistersTask(32720, // IPU 4 control parameters
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT,
-						new FloatDoublewordElement(32720).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A,
-						new FloatDoublewordElement(32722).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B,
-						new FloatDoublewordElement(32724).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C,
-						new FloatDoublewordElement(32726).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A,
-						new FloatDoublewordElement(32728).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B,
-						new FloatDoublewordElement(32730).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C,
-						new FloatDoublewordElement(32732).wordOrder(WordOrder.LSWMSW)), //
-				m(GridConChannelId.CONTROL_IPU_4_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
-						new FloatDoublewordElement(32734).wordOrder(WordOrder.LSWMSW)) //
+		// if one inverter is used, dc dc converter is ipu2 ...
+		int startAddress = 32720;
+		switch (inverterCount) {
+		case ONE:
+			startAddress = 32656;
+			break;
+		case TWO:
+			startAddress = 32688;
+			break;
+		case THREE:
+			startAddress = 32720;
+			break;
+		default:
+			break;
+		}
+		Task controlDCDCParameters = new FC16WriteRegistersTask(startAddress, // IPU 4 control parameters
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT,
+						new FloatDoublewordElement(startAddress).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_A,
+						new FloatDoublewordElement(startAddress + 2).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_B,
+						new FloatDoublewordElement(startAddress + 4).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_WEIGHT_STRING_C,
+						new FloatDoublewordElement(startAddress + 6).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_A,
+						new FloatDoublewordElement(startAddress + 8).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_B,
+						new FloatDoublewordElement(startAddress + 10).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C,
+						new FloatDoublewordElement(startAddress + 12).wordOrder(WordOrder.LSWMSW)), //
+				m(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE,
+						new FloatDoublewordElement(startAddress + 14).wordOrder(WordOrder.LSWMSW)) //
 		);
 		// Mirror values to check
 		Task mirrorCommand = new FC3ReadRegistersTask(32880, Priority.LOW, // Commands
@@ -1682,19 +1747,20 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		tasks.add(control);
 		tasks.add(mirrorCommand);
 		tasks.add(controlParameters);
-		tasks.add(mirrorControlParameter);
-
-		tasks.add(ipu4State);
-		tasks.add(ipu4Measurements);
-		tasks.add(controlIpu4Parameters);
-		tasks.add(mirrorControlIpu4);
-
+		tasks.add(mirrorControlParameter);		
+		tasks.add(controlDCDCParameters);
+		
 		switch (inverterCount) {
 		case ONE:
 			tasks.add(ipu1State);
 			tasks.add(ipu1Measurements);
 			tasks.add(controlIpu1Parameters);
 			tasks.add(mirrorControlIpu1);
+			
+			tasks.add(ipu2State);
+			tasks.add(ipu2Measurements);
+			tasks.add(controlIpu2Parameters);
+			tasks.add(mirrorControlIpu2);
 			break;
 		case TWO:
 			tasks.add(ipu1State);
@@ -1706,6 +1772,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			tasks.add(ipu2Measurements);
 			tasks.add(controlIpu2Parameters);
 			tasks.add(mirrorControlIpu2);
+			
+			tasks.add(ipu3State);
+			tasks.add(ipu3Measurements);
+			tasks.add(controlIpu3Parameters);
+			tasks.add(mirrorControlIpu3);
 			break;
 		case THREE:
 			tasks.add(ipu1State);
@@ -1721,6 +1792,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			tasks.add(ipu3Measurements);
 			tasks.add(controlIpu3Parameters);
 			tasks.add(mirrorControlIpu3);
+			
+			tasks.add(ipu4State);
+			tasks.add(ipu4Measurements);
+			tasks.add(mirrorControlIpu4);
 			break;
 		}
 
