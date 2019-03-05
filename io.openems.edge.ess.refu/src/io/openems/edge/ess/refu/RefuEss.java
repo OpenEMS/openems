@@ -15,7 +15,6 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -60,8 +59,6 @@ import io.openems.edge.ess.power.api.Relationship;
 public class RefuEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
 		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(RefuEss.class);
-
 	protected final static int MAX_APPARENT_POWER = 100_000;
 	private final static int UNIT_ID = 1;
 
@@ -80,7 +77,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		int allowedCharge = this.getAllowedCharge().value().orElse(0);
 		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
@@ -100,20 +97,12 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 			reactivePowerL2 = 0;
 			reactivePowerL3 = 0;
 		}
-		try {
-			this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
-			this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
-			this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
-		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to set ActivePower: " + e.getMessage());
-		}
-		try {
-			this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
-			this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
-			this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
-		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to set ReactivePower: " + e.getMessage());
-		}
+		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
+		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
+		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
+		this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
+		this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
+		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -123,8 +112,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
 	}
 
 	@Deactivate

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.channel.BooleanReadChannel;
 
-public class Fieldbus400DI2Ch extends FieldbusModule {
+public class Fieldbus400DI extends FieldbusModule {
 
 	private final static AtomicInteger count = new AtomicInteger(0);
 	private final static String ID_TEMPLATE = "DIGITAL_INPUT_M";
@@ -14,27 +14,25 @@ public class Fieldbus400DI2Ch extends FieldbusModule {
 	private final AbstractModbusElement<?>[] outputElements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus400DI2Ch(Wago parent, int inputOffset, int outputOffset) {
+	public Fieldbus400DI(Wago parent, int inputOffset, int outputOffset, int channelsCount) {
 		String id = ID_TEMPLATE + count.incrementAndGet();
 
-		BooleanReadChannel channel1 = new BooleanReadChannel(parent, new FieldbusChannel(id + "_C1"));
-		BooleanReadChannel channel2 = new BooleanReadChannel(parent, new FieldbusChannel(id + "_C2"));
-		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };
+		this.readChannels = new BooleanReadChannel[channelsCount];
+		this.inputElements = new AbstractModbusElement<?>[channelsCount];
+		for (int i = 0; i < channelsCount; i++) {
+			BooleanReadChannel channel = new BooleanReadChannel(parent, new FieldbusChannel(id + "_C" + (i + 1)));
+			this.readChannels[i] = channel;
+			parent.addChannel(channel);
 
-		parent.addChannel(channel1);
-		parent.addChannel(channel2);
-
-		this.inputElements = new AbstractModbusElement<?>[] { //
-				parent.createModbusElement(channel1.channelId(), inputOffset), //
-				parent.createModbusElement(channel2.channelId(), inputOffset + 1), //
-		};
-
+			AbstractModbusElement<?> element = parent.createModbusElement(channel.channelId(), inputOffset + i);
+			this.inputElements[i] = element;
+		}
 		this.outputElements = new AbstractModbusElement<?>[] {};
 	}
 
 	@Override
 	public String getName() {
-		return "WAGO I/O 750-400 2-channel digital input module";
+		return "WAGO I/O 750-400 " + this.readChannels.length + "-channel digital input module";
 	}
 
 	@Override
@@ -54,7 +52,7 @@ public class Fieldbus400DI2Ch extends FieldbusModule {
 
 	@Override
 	public int getInputCoils() {
-		return 2;
+		return this.readChannels.length;
 	}
 
 	@Override

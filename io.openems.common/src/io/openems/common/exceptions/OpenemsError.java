@@ -65,6 +65,7 @@ public enum OpenemsError {
 	JSON_NO_NUMBER_MEMBER(5014, "JSON [%s:%s] is not a Number"), //
 	JSON_PARSE_ELEMENT_FAILED(5015, "JSON failed to parse [%s]. %s: %s"), //
 	JSON_PARSE_FAILED(5016, "JSON failed to parse [%s]: %s"), //
+	JSON_NO_FLOAT_MEMBER(5017, "JSON [%s:%s] is not a Float"), //
 	;
 
 	/**

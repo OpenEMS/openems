@@ -27,6 +27,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 	}
 
 	@Override
+	// TODO should throws OpenemsException
 	public void accept(Integer activePower, Integer reactivePower) {
 
 		checkForResettingFault();

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -28,6 +29,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.DummyInverter;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.OnSolved;
@@ -843,6 +845,9 @@ public class Solver {
 			return i1.toString().compareTo(i2.toString());
 		});
 		for (Inverter inv : inverters) {
+			if (inv instanceof DummyInverter) {
+				continue;
+			}
 			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
 		}
 		log.info(b.toString());
@@ -910,10 +915,21 @@ public class Solver {
 				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3)
 						.setNextValue(invL3.getReactivePower());
 				// apply Power
-				((ManagedAsymmetricEss) ess).applyPower(//
-						invL1.getActivePower(), invL1.getReactivePower(), //
-						invL2.getActivePower(), invL2.getReactivePower(), //
-						invL3.getActivePower(), invL3.getReactivePower());
+				try {
+					((ManagedAsymmetricEss) ess).applyPower(//
+							invL1.getActivePower(), invL1.getReactivePower(), //
+							invL2.getActivePower(), invL2.getReactivePower(), //
+							invL3.getActivePower(), invL3.getReactivePower());
+					
+					// announce applying power was ok
+					ess.getApplyPowerFailed().setNextValue(false);
+
+				} catch (OpenemsNamedException e) {
+					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
+
+					// announce running failed
+					ess.getApplyPowerFailed().setNextValue(true);
+				}
 
 			} else if (inv != null) {
 				// set debug channels on Ess
@@ -921,7 +937,18 @@ public class Solver {
 				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER)
 						.setNextValue(inv.getReactivePower());
 				// apply Power
-				ess.applyPower(inv.getActivePower(), inv.getReactivePower());
+				try {
+					ess.applyPower(inv.getActivePower(), inv.getReactivePower());
+
+					// announce applying power was ok
+					ess.getApplyPowerFailed().setNextValue(false);
+
+				} catch (OpenemsNamedException e) {
+					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
+
+					// announce running failed
+					ess.getApplyPowerFailed().setNextValue(true);
+				}
 
 			} else {
 				log.error("No Solution for [" + ess.id() + "] available!");
