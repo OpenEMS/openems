@@ -54,10 +54,10 @@ test-cases: 			${classes;NAMED;*Test}
 
 -plugin.4.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		releaseUrl=https://repo.maven.apache.org/maven2/; \
-		pom=${.}/pom.xml; \
-		readOnly=true; \
-		name="Maven Central"
+		releaseUrls=https://repo1.maven.org/maven2/; \
+		pom=${build}/pom.xml; \
+		name="Maven Central"; \
+		location=${build}/cache/enroute-pom.xml
 
 -plugin.6.Local: \
         aQute.bnd.deployer.repository.LocalIndexedRepo; \

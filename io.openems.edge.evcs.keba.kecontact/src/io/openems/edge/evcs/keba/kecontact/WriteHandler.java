@@ -112,9 +112,9 @@ public class WriteHandler implements Runnable {
 			// adjusted if the EVCS is connected single phase
 			//Integer current = power / 3 /* 3 phases */ / 230 /* voltage */ * 1000; false
 			
-			//I = P / U / 1,73	=> I = Wirkleistung / Spannung(normal 230) * Wurzel^3 / Wurzel^3(1,73205080756888…) 
+			//I = P / U / 1,73	=> I = Wirkleistung / Spannung(normal 230) * Wurzel^3 / Wurzel^3(1,73205080756888...) 
 			//maybe use PowerFactor = cosphi 
-			Integer current = (int) ((power / (230 * 1.73)) / 1.73) * 1000;  
+			Integer current = (int) ((power / (230 * Math.sqrt(3))) / Math.sqrt(3)) * 1000;  
 			
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 				this.parent.logInfo(this.log,

@@ -260,7 +260,6 @@ The Bndtools assistant created a `ProviderImpl.java` file. First step is to set 
 .Renaming a Java class in Eclipse IDE
 image::eclipse-rename.png[Renaming a Java class in Eclipse IDE]
 
-
 Afterwards replace the content of `MeterSimulated.java` file with the following code:
 
 [source,java]
@@ -375,11 +374,12 @@ NOTE: In plain Java it is not required to add `implements OpenemsComponent` if w
 <12> The *deactivate()* method (marked by the *@Deactivate* annotation) is called on deactivation of the Component instance.
 <13> The simulated implementation is only going to provide Channels defined by _OpenemsComponent_ and _SymmetricMeter_ natures. It is still good practice to add a skeleton for custom Channels to the Component implementation. We therefor add the _Channel Declaration_ block inside the class.
 +
-NOTE:
-
+[NOTE]
+====
 - Channel declarations are *enum* types implementing the ChannelId interface.
 - This enum is empty, as we do not have custom Channels here.
 - ChannelId enums require a Doc object that provides meta information about the Channel - e.g. the above ACTIVE_POWER Channel is defined as `ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)`
+====
 <14> The SymmetricMeter Nature requires us to provide a *MeterType* via a `MeterType getMeterType()` method. The MeterType is provided by the Config.
 <15> _AbstractOpenemsModbusComponent_ requires to implement a *defineModbusProtocol()* method that returns an instance of *ModbusProtocol*. The _ModbusProtocol_ class maps Modbus addresses to OpenEMS Channels and provides some conversion utilities. Instantiation of a _ModbusProtocol_ object uses the https://en.wikipedia.org/wiki/Builder_pattern#Java[Builder pattern icon:external-link[]] 
 <16> Creates a *new ModbusProtocol* instance. A reference to the component itself is the first parameter, followed by an arbitrary number of 'Tasks' (implemented as a Java varags array).  
@@ -388,18 +388,33 @@ NOTE:
 NOTE: Most Modbus function codes are available by their respective _FC*_ implementation classes.
 <18> Here the internal *m()* method is used to make a simple 1-to-1 mapping between the Modbus element at address `1000` and the Channel _SymmetricMeter.ChannelId.ACTIVE_POWER_. The Modbus element is defined as a 16 bit word element with an signed integer value.
 +
-NOTE:
-+
+[NOTE]
+====
 - The _m()_ method also takes an instance of *ElementToChannelConverter* as an additional parameter. It can be used to add implicit unit conversions between Modbus element and OpenEMS Channel - like adding a scale factor that converts a read value of '95' to a channel value of '950'.
 - For Modbus registers that are empty or should be ignored, the *DummyRegisterElement* can be used. 
 - For more advanced channel-to-element mapping functionalities the internal *cm()* method can be used - e.g. to map one Modbus element to multiple Channels.
 +
 Using this principle a complete Modbus table consisting of multiple register blocks that need to be read or written with different Modbus function codes can be defined. For details have a look at the existing implementation classes inside the Modbus Bridge source code.
 <19> Finally it is always a good idea to define a *debugLog()* method. This method is called in each cycle by the *Controller.Debug.Log* and very helpful for continuous debugging.
+====
 
 === Start the device simulator
 
 To start the device simulator, open the btn:[io.openems.edge.bridge.modbus] project and navigate to the btn:[test] -> btn:[io.openems.edge.brige.modbus] folder. There you find the btn:[ModbusSlaveSimulator.java] file. Right-click that file and select btn:[Run As] -> btn:[Java Application].
+
+[NOTE]
+====
+This _ModbusSlaveSimulator_ runs a small Modbus-TCP _Slave_-Server, that provides some constant values:
+
+|===
+|Address |Constant value
+|1000    |500
+|1001    |100
+|2000    |123
+|===
+
+In the end of this guide, you will see a production of '500 W' - where '500' comes from register address 1000.
+====
 
 === Enable the Component
 
