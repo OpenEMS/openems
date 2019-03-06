@@ -850,7 +850,7 @@ public class Solver {
 			}
 			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
 		}
-		log.info(b.toString());
+//		log.info(b.toString());
 
 		// store last value inside Inverter
 		finalSolution.forEach((inv, powerTuple) -> {

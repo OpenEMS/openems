@@ -262,12 +262,13 @@ image::eclipse-channels-switch-case.png[Eclipse IDE Quick Fix for switch-case]
 === Implement the OpenEMS Component
 
 The Bndtools assistant created a `ProviderImpl.java` file. First step is to set a proper name for this file. To rename the file, select it by clicking on it and choose btn:[Refactor] -> btn:[Rename...] in the menu. Write `MeterSimulated` as 'New name' and press btn:[Finish].
-+
+
 .Renaming a Java class in Eclipse IDE
 image::eclipse-rename.png[Renaming a Java class in Eclipse IDE]
-+
+
+
 Afterwards replace the content of `MeterSimulated.java` file with the following code:
-+
+
 [source,java]
 ----
 package io.openems.edge.meter.simulated;
@@ -321,7 +322,7 @@ public class MeterSimulated extends AbstractOpenemsModbusComponent // <6>
 	void activate(ComponentContext context, Config config) { // <11>
 		this.meterType = config.type();
 
-		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
 	}
 
@@ -381,7 +382,7 @@ NOTE: In plain Java it is not required to add `implements OpenemsComponent` if w
 <13> The simulated implementation is only going to provide Channels defined by _OpenemsComponent_ and _SymmetricMeter_ natures. It is still good practice to add a skeleton for custom Channels to the Component implementation. We therefor add the _Channel Declaration_ block inside the class.
 +
 NOTE:
-+
+
 - Channel declarations are *enum* types implementing the ChannelId interface.
 - This enum is empty, as we do not have custom Channels here.
 - ChannelId enums require a Doc object that provides meta information about the Channel - e.g. the above ACTIVE_POWER Channel is defined as `ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)`
