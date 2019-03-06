@@ -32,14 +32,6 @@ public class Utils {
 					case MAX_POWER:
 					case MIN_CELL_TEMPERATURE:
 					case MIN_CELL_VOLTAGE:
-						
-//					case BATTERY_TEMP:
-//					case CAPACITY_KWH:
-//					case MAXIMAL_POWER:
-//					case MAX_CAPACITY:
-//					case MINIMAL_CELL_VOLTAGE:
-
-						
 					case VOLTAGE:
 						return new IntegerReadChannel(m, channelId);
 					case CHARGE_MAX_CURRENT:
@@ -1209,8 +1201,18 @@ public class Utils {
 					
 					case SYSTEM_RUNNING_STATE:						
 					case VOLTAGE:
-					case STATE_MACHINE:						
+					case STATE_MACHINE:
+						
+					case CHARGE_MAX_CURRENT:
+					case DISCHARGE_MAX_CURRENT:
+					case RACK_1_MAX_CHARGE_CURRENT:
+					case RACK_1_MAX_DISCHARGE_CURRENT:
+					case RACK_2_MAX_CHARGE_CURRENT:
+					case RACK_2_MAX_DISCHARGE_CURRENT:
+					case RACK_3_MAX_CHARGE_CURRENT:
+					case RACK_3_MAX_DISCHARGE_CURRENT:
 						return new IntegerReadChannel(m, channelId);
+					
 					}
 					return null;
 				}) //

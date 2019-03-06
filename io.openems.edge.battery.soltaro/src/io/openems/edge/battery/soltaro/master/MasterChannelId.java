@@ -15,14 +15,14 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 	SYSTEM_RUNNING_STATE(new Doc().options(Enums.RunningState.values())), //
 	VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-	MASTER_ALARM_PCS_OUT_OF_CONTROL(new Doc().level(Level.FAULT).text("PCS out of control alarm")),
-	MASTER_ALARM_PCS_COMMUNICATION_FAULT(new Doc().level(Level.WARNING).text("PCS communication fault alarm")), 
+	MASTER_ALARM_PCS_OUT_OF_CONTROL(new Doc().level(Level.INFO).text("PCS out of control alarm")),
+	MASTER_ALARM_PCS_COMMUNICATION_FAULT(new Doc().level(Level.INFO).text("PCS communication fault alarm")), 
 	
 	// These are warnings because this alarm is also raised even the rack is not configured
 	// e.g. a system consists of two racks then the alarm "Communication to submaster 3" is present
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(new Doc().level(Level.WARNING).text("Communication to sub master 3 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(new Doc().level(Level.WARNING).text("Communication to sub master 2 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(new Doc().level(Level.WARNING).text("Communication to sub master 1 fault")),
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(new Doc().level(Level.INFO).text("Communication to sub master 3 fault")),
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(new Doc().level(Level.INFO).text("Communication to sub master 2 fault")),
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(new Doc().level(Level.INFO).text("Communication to sub master 1 fault")),
 	
 	RACK_1_STATE(new Doc().unit(Unit.NONE)), //
 	RACK_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
@@ -39,24 +39,24 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_1_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
 	RACK_1_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 	RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Cell Discharge Temperature High Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Charge Temperature Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Charge Temperature Low Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Charge Temperature High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Charge Temperature High Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 1 Discharge Current High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Discharge Current High Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage Low Alarm Level 2")), //
-	RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Total Voltage Low Alarm Level 2")), //
+	RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.FAULT).text("Cluster 1 Cell Voltage Low Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_CHA_CURRENT_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 1 Charge Current High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Charge Current High Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 1 Total Voltage High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Total Voltage High Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 1 Cell Voltage High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 1 Cell Voltage High Alarm Level 2")), //
 	RACK_1_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(
 			new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 1")), //
 	RACK_1_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH(
@@ -89,7 +89,7 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_1_FAILURE_EEPROM(new Doc().level(Level.FAULT).text("EEPROM fault")), //
 	RACK_1_FAILURE_INTRANET_COMMUNICATION(new Doc().level(Level.FAULT).text("Intranet communication fault")), //
 	RACK_1_FAILURE_TEMP_SAMPLING_LINE(new Doc().level(Level.FAULT).text("Temperature sampling line fault")), //
-	RACK_1_FAILURE_BALANCING_MODULE(new Doc().level(Level.FAULT).text("Balancing module fault")), //
+	RACK_1_FAILURE_BALANCING_MODULE(new Doc().level(Level.WARNING).text("Balancing module fault")), //
 	RACK_1_FAILURE_TEMP_SENSOR(new Doc().level(Level.FAULT).text("Temperature sensor fault")), //
 	RACK_1_FAILURE_TEMP_SAMPLING(new Doc().level(Level.FAULT).text("Temperature sampling fault")), //
 	RACK_1_FAILURE_VOLTAGE_SAMPLING(new Doc().level(Level.FAULT).text("Voltage sampling fault")), //
@@ -438,24 +438,24 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_2_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
 	RACK_2_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 	RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 2 Cell Discharge Temperature Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Cell Discharge Temperature Low Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 2 Cell Discharge Temperature High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Cell Discharge Temperature High Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 2 Cell Charge Temperature Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Cell Charge Temperature Low Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster2 Cell Charge Temperature High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster2 Cell Charge Temperature High Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 2 Discharge Current High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Discharge Current High Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 2 Total Voltage Low Alarm Level 2")), //
-	RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 2 Cell Voltage Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Total Voltage Low Alarm Level 2")), //
+	RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.FAULT).text("Cluster 2 Cell Voltage Low Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_CHA_CURRENT_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 2 Charge Current High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Charge Current High Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 2 Total Voltage High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Total Voltage High Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 2 Cell Voltage High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 2 Cell Voltage High Alarm Level 2")), //
 	RACK_2_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(
 			new Doc().level(Level.WARNING).text("Cluster 2 Cell Discharge Temperature Low Alarm Level 1")), //
 	RACK_2_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH(
@@ -488,7 +488,7 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_2_FAILURE_EEPROM(new Doc().level(Level.FAULT).text("EEPROM fault")), //
 	RACK_2_FAILURE_INTRANET_COMMUNICATION(new Doc().level(Level.FAULT).text("Intranet communication fault")), //
 	RACK_2_FAILURE_TEMP_SAMPLING_LINE(new Doc().level(Level.FAULT).text("Temperature sampling line fault")), //
-	RACK_2_FAILURE_BALANCING_MODULE(new Doc().level(Level.FAULT).text("Balancing module fault")), //
+	RACK_2_FAILURE_BALANCING_MODULE(new Doc().level(Level.WARNING).text("Balancing module fault")), //
 	RACK_2_FAILURE_TEMP_SENSOR(new Doc().level(Level.FAULT).text("Temperature sensor fault")), //
 	RACK_2_FAILURE_TEMP_SAMPLING(new Doc().level(Level.FAULT).text("Temperature sampling fault")), //
 	RACK_2_FAILURE_VOLTAGE_SAMPLING(new Doc().level(Level.FAULT).text("Voltage sampling fault")), //
@@ -837,24 +837,24 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_3_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
 	RACK_3_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 	RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Discharge Temperature Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Discharge Temperature Low Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Discharge Temperature High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Discharge Temperature High Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Charge Temperature Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Charge Temperature Low Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Charge Temperature High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Charge Temperature High Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Discharge Current High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Discharge Current High Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW(
-			new Doc().level(Level.WARNING).text("Cluster 3 Total Voltage Low Alarm Level 2")), //
-	RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.WARNING).text("Cluster 3 Cell Voltage Low Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Total Voltage Low Alarm Level 2")), //
+	RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_LOW(new Doc().level(Level.FAULT).text("Cluster 3 Cell Voltage Low Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_CHA_CURRENT_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Charge Current High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Charge Current High Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Total Voltage High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Total Voltage High Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH(
-			new Doc().level(Level.WARNING).text("Cluster 3 Cell Voltage High Alarm Level 2")), //
+			new Doc().level(Level.FAULT).text("Cluster 3 Cell Voltage High Alarm Level 2")), //
 	RACK_3_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW(
 			new Doc().level(Level.WARNING).text("Cluster 3 Cell Discharge Temperature Low Alarm Level 1")), //
 	RACK_3_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH(
@@ -887,7 +887,7 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_3_FAILURE_EEPROM(new Doc().level(Level.FAULT).text("EEPROM fault")), //
 	RACK_3_FAILURE_INTRANET_COMMUNICATION(new Doc().level(Level.FAULT).text("Intranet communication fault")), //
 	RACK_3_FAILURE_TEMP_SAMPLING_LINE(new Doc().level(Level.FAULT).text("Temperature sampling line fault")), //
-	RACK_3_FAILURE_BALANCING_MODULE(new Doc().level(Level.FAULT).text("Balancing module fault")), //
+	RACK_3_FAILURE_BALANCING_MODULE(new Doc().level(Level.WARNING).text("Balancing module fault")), //
 	RACK_3_FAILURE_TEMP_SENSOR(new Doc().level(Level.FAULT).text("Temperature sensor fault")), //
 	RACK_3_FAILURE_TEMP_SAMPLING(new Doc().level(Level.FAULT).text("Temperature sampling fault")), //
 	RACK_3_FAILURE_VOLTAGE_SAMPLING(new Doc().level(Level.FAULT).text("Voltage sampling fault")), //
@@ -1219,7 +1219,16 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_3_BATTERY_104_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 	RACK_3_BATTERY_105_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 	RACK_3_BATTERY_106_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
-	RACK_3_BATTERY_107_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
+	RACK_3_BATTERY_107_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), 
+	
+	CHARGE_MAX_CURRENT(new Doc().unit(Unit.AMPERE)),
+	DISCHARGE_MAX_CURRENT(new Doc().unit(Unit.AMPERE)),	
+	RACK_1_MAX_CHARGE_CURRENT(new Doc().unit(Unit.AMPERE)),
+	RACK_1_MAX_DISCHARGE_CURRENT(new Doc().unit(Unit.AMPERE)),
+	RACK_2_MAX_CHARGE_CURRENT(new Doc().unit(Unit.AMPERE)),
+	RACK_2_MAX_DISCHARGE_CURRENT(new Doc().unit(Unit.AMPERE)),
+	RACK_3_MAX_CHARGE_CURRENT(new Doc().unit(Unit.AMPERE)),
+	RACK_3_MAX_DISCHARGE_CURRENT(new Doc().unit(Unit.AMPERE)),
 	
 	;
 	private final Doc doc;
