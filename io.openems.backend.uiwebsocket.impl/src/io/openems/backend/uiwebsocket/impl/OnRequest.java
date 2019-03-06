@@ -121,7 +121,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			break;
 
 		case QueryHistoricTimeseriesEnergyRequest.METHOD:
-			resultFuture = this.handleQueryHistoricEnergyRequest(edgeId, role,
+			resultFuture = this.handleQueryHistoricEnergyRequest(edgeId, user,
 					QueryHistoricTimeseriesEnergyRequest.from(request));
 			break;
 
@@ -225,12 +225,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a QueryHistoricEnergyequest.
 	 * 
 	 * @param edgeId  the Edge-ID
-	 * @param role    the Role - no specific level required
+	 * @param user    the User - no specific level required
 	 * @param request the QueryHistoricEnergyRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, Role role,
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
 		Map<ChannelAddress, JsonElement> data;
 		data = this.parent.timeData.queryHistoricEnergy(//

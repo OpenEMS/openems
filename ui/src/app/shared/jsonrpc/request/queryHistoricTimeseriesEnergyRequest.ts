@@ -4,13 +4,13 @@ import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
- * Represents a JSON-RPC Request to query kWh Timeseries Data.
+ * Represents a JSON-RPC Request to query Timeseries Energy data.
  * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
- *   "method": "queryHistoricTimeseriesData",
+ *   "method": "queryHistoricTimeseriesEnergy",
  *   "params": {
  *     "timezone": Number,
  *     "fromDate": YYYY-MM-DD,

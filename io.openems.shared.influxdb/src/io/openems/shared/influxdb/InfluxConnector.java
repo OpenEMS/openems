@@ -38,7 +38,7 @@ public class InfluxConnector {
 
 	public final static String MEASUREMENT = "data";
 
-	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
+	private final static Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
 	private final int port;
@@ -115,31 +115,31 @@ public class InfluxConnector {
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
-	 * @return
+	 * @return a map between ChannelAddress and value
 	 * @throws OpenemsException on error
 	 */
-
 	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// Prepare query string
-		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(InfluxConnector.toChannelAddressStringEnergy(channels));
-		query.append(" FROM data WHERE ");
+		StringBuilder b = new StringBuilder("SELECT ");
+		b.append(InfluxConnector.toChannelAddressStringEnergy(channels));
+		b.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
-			query.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
+			b.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
 		}
-		query.append("time > ");
-		query.append(String.valueOf(fromDate.toEpochSecond()));
-		query.append("s");
-		query.append(" AND time < ");
-		query.append(String.valueOf(toDate.toEpochSecond()));
-		query.append("s");
+		b.append("time > ");
+		b.append(String.valueOf(fromDate.toEpochSecond()));
+		b.append("s");
+		b.append(" AND time < ");
+		b.append(String.valueOf(toDate.toEpochSecond()));
+		b.append("s");
+		String query = b.toString();
 
 		// Execute query
-		QueryResult queryResult = executeQuery(query.toString());
+		QueryResult queryResult = executeQuery(query);
 
 		// Prepare result
-		Map<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(queryResult,
+		Map<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
 				fromDate.getZone());
 
 		return result;
@@ -242,7 +242,7 @@ public class InfluxConnector {
 	 * @return
 	 * @throws OpenemsException on error
 	 */
-	private static Map<ChannelAddress, JsonElement> convertHistoricEnergyResult(QueryResult queryResult,
+	private static Map<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query, QueryResult queryResult,
 			ZoneId timezone) throws OpenemsNamedException {
 		Map<ChannelAddress, JsonElement> map = new HashMap<>();
 		for (Result result : queryResult.getResults()) {
@@ -268,7 +268,14 @@ public class InfluxConnector {
 							if (valueObj == null) {
 								value = JsonNull.INSTANCE;
 							} else if (valueObj instanceof Number) {
-								value = new JsonPrimitive((Number) valueObj);
+								Number number = (Number) valueObj;
+								if (number.intValue() < 0) {
+									// do not consider negative values
+									log.warn("Got negative Energy value [" + number + "] for query: " + query);
+									value = JsonNull.INSTANCE;
+								} else {
+									value = new JsonPrimitive(number);
+								}
 							} else {
 								value = new JsonPrimitive(valueObj.toString());
 							}
@@ -278,6 +285,21 @@ public class InfluxConnector {
 				}
 			}
 		}
+
+		{
+			// Check if all values are null
+			boolean areAllValuesNull = true;
+			for (JsonElement value : map.values()) {
+				if (!value.isJsonNull()) {
+					areAllValuesNull = false;
+					break;
+				}
+			}
+			if (areAllValuesNull) {
+				throw new OpenemsException("Energy values are not available");
+			}
+		}
+
 		return map;
 	}
 
@@ -312,7 +334,7 @@ public class InfluxConnector {
 	 */
 	public void write(BatchPoints batchPoints) throws OpenemsException {
 		if (this.isReadOnly) {
-			this.log.info("Read-Only-Mode is activated. Not writing points: "
+			log.info("Read-Only-Mode is activated. Not writing points: "
 					+ StringUtils.toShortString(batchPoints.lineProtocol(), 100));
 			return;
 		}

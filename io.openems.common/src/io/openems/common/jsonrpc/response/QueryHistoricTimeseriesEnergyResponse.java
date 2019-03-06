@@ -19,7 +19,7 @@ import io.openems.common.types.ChannelAddress;
  *   "id": "UUID",
  *   "result": {
  *     "data": {
- *       [channelAddress]: string | number
+ *       [channelAddress]: number | null
  *     }
  *   }
  * }

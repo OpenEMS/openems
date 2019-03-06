@@ -1,11 +1,11 @@
 import { JsonrpcResponseSuccess } from "../base";
 
 export interface Cummulated {
-    [channelAddress: string]: string | number
+    [channelAddress: string]: number | null
 }
 
 /**
- * Wraps a JSON-RPC Response for a kWhTimeseriesDataRequest.
+ * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
  * 
  * 
  * <pre>
