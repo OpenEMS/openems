@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -22,6 +25,8 @@ import io.openems.common.utils.JsonUtils;
  * Holds the configuration of an Edge.
  */
 public class EdgeConfig {
+
+	private final static Logger log = LoggerFactory.getLogger(EdgeConfig.class);
 
 	public static class Component {
 
@@ -78,8 +83,14 @@ public class EdgeConfig {
 			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "properties").entrySet()) {
 				properties.put(entry.getKey(), entry.getValue());
 			}
+			Optional<String> factoryIdOpt = JsonUtils.getAsOptionalString(json, "factoryId");
+			if (!factoryIdOpt.isPresent()) {
+				factoryIdOpt = Optional.of("Update to latest OpenEMS Edge!");
+				log.warn(factoryIdOpt.get());
+			}
 			return new Component(//
-					JsonUtils.getAsString(json, "factoryId"), //
+					// TODO: Remove, once FEMS are updated to latest OpenEMS Edge
+					factoryIdOpt.get(), //
 					properties);
 		}
 	}
@@ -236,7 +247,8 @@ public class EdgeConfig {
 				String name = JsonUtils.getAsString(json, "name");
 				String description = JsonUtils.getAsString(json, "description");
 				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
-				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
+				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue")
+						.orElse(JsonNull.INSTANCE);
 				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
 				return new Property(id, name, description, isRequired, defaultValue, schema);
 			}
@@ -336,14 +348,25 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Factory fromJson(JsonElement json) throws OpenemsNamedException {
-			String name = JsonUtils.getAsString(json, "name");
-			String description = JsonUtils.getAsString(json, "description");
-			String[] natureIds = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(json, "natureIds"));
-			JsonArray jProperties = JsonUtils.getAsJsonArray(json, "properties");
-			Property[] properties = new Property[jProperties.size()];
-			for (int i = 0; i < jProperties.size(); i++) {
-				JsonElement jProperty = jProperties.get(i);
-				properties[i] = Property.fromJson(jProperty);
+			// TODO Update to latest OpenEMS Edge! Remove "Optional"
+			String name = JsonUtils.getAsOptionalString(json, "name").orElse("Undefined");
+			String description = JsonUtils.getAsOptionalString(json, "description").orElse("");
+			Optional<JsonArray> natureIdsOpt = JsonUtils.getAsOptionalJsonArray(json, "natureIds");
+			if (!natureIdsOpt.isPresent()) {
+				natureIdsOpt = JsonUtils.getAsOptionalJsonArray(json, "natures");
+			}
+			String[] natureIds = JsonUtils.getAsStringArray(natureIdsOpt.get());
+			Optional<JsonArray> jPropertiesOpt = JsonUtils.getAsOptionalJsonArray(json, "properties");
+			Property[] properties;
+			if (jPropertiesOpt.isPresent()) {
+				JsonArray jProperties = jPropertiesOpt.get();
+				properties = new Property[jProperties.size()];
+				for (int i = 0; i < jProperties.size(); i++) {
+					JsonElement jProperty = jProperties.get(i);
+					properties[i] = Property.fromJson(jProperty);
+				}
+			} else {
+				properties = new Property[0];
 			}
 			return new Factory(name, description, properties, natureIds);
 		}
