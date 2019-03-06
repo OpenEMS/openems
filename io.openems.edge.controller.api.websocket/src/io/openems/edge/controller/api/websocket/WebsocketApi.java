@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
@@ -69,7 +70,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	protected UserService userService;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedata = null;
+	private volatile Timedata timedata = null;
 
 	public WebsocketApi() {
 		// TODO: add Debug-Channels for writes to Channels via Websocket-Api
@@ -171,5 +172,18 @@ public class WebsocketApi extends AbstractOpenemsComponent
 		EdgeConfig config = this.componentManager.getEdgeConfig();
 		EdgeConfigNotification message = new EdgeConfigNotification(config);
 		this.server.broadcastMessage(message);
+	}
+
+	/**
+	 * Gets the Timedata service.
+	 * 
+	 * @return the service
+	 * @throws OpenemsException if the timeservice is not available
+	 */
+	public Timedata getTimedata() throws OpenemsException {
+		if (this.timedata != null) {
+			return this.timedata;
+		}
+		throw new OpenemsException("There is no Timedata-Service available!");
 	}
 }

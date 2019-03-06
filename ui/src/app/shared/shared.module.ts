@@ -15,6 +15,8 @@ import { SocComponent } from '../edge/history/chart/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyIonicModule } from '@ngx-formly/ionic';
+import { KwhComponent } from '../edge/history/kwh/kwh.component';
+
 /*
  * Components
  */

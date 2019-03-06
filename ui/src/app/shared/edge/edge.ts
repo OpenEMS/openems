@@ -16,6 +16,7 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse'
 
 export class Edge {
 
@@ -167,6 +168,11 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    // if (request.method == 'queryHistoricTimeseriesEnergy') {
+    //   return new Promise((resolve) => {
+    //     resolve(new QueryHistoricTimeseriesEnergyResponse('_kWhValues', { data: { "production": 50, "gridbezug": 23, "grideinspeisung": 431, "consumption": 44 } }));
+    //   });
+    // } else {
     let wrap = new EdgeRpcRequest(this.id, request);
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
@@ -181,6 +187,7 @@ export class Edge {
         reject(reason);
       });
     });
+    // }
   }
 
   /**
