@@ -50,7 +50,7 @@ task buildComponents(dependsOn: updateVersion) {
 /*
  * Build OpenEMS Edge fat-jar
  */
-task buildEdge() {
+task buildEdge(dependsOn: buildComponents) {
     dependsOn ":io.openems.edge.application:export.EdgeApp"
     doLast {
         file("${buildDir}/openems-edge.jar").delete()

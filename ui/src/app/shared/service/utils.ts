@@ -106,7 +106,7 @@ export class Utils {
   /**
    * Creates a deep copy of the object
    */
-  public static deepCopy(obj) {
+  public static deepCopy(obj: any, target?: any) {
     let copy: any;
 
     // Handle the 3 simple types, and null or undefined
@@ -114,14 +114,22 @@ export class Utils {
 
     // Handle Date
     if (obj instanceof Date) {
-      copy = new Date();
+      if (target) {
+        copy = target;
+      } else {
+        copy = new Date();
+      }
       copy.setTime(obj.getTime());
       return copy;
     }
 
     // Handle Array
     if (obj instanceof Array) {
-      copy = [];
+      if (target) {
+        copy = target;
+      } else {
+        copy = [];
+      }
       for (let i = 0, len = obj.length; i < len; i++) {
         copy[i] = this.deepCopy(obj[i]);
       }
@@ -130,9 +138,15 @@ export class Utils {
 
     // Handle Object
     if (obj instanceof Object) {
-      copy = {};
+      if (target) {
+        copy = target;
+      } else {
+        copy = {};
+      }
       for (let attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopy(obj[attr]);
+        if (obj.hasOwnProperty(attr)) {
+          copy[attr] = this.deepCopy(obj[attr], copy[attr]);
+        }
       }
       return copy;
     }

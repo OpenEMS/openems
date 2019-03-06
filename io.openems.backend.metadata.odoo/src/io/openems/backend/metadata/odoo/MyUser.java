@@ -1,8 +1,8 @@
 package io.openems.backend.metadata.odoo;
 
-import io.openems.backend.metadata.api.User;
+import io.openems.backend.metadata.api.BackendUser;
 
-public class MyUser extends User {
+public class MyUser extends BackendUser {
 
 	private final int odooId;
 

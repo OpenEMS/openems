@@ -123,7 +123,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
         this.service.getConfig().then(config => {
           // get 'Soc'-Channel of all 'EssNatures'
           let channeladdresses = [];
-          for (let componentId of config.getComponentsImplementingNature("EssNature")) {
+          for (let componentId of config.getComponentIdsImplementingNature("EssNature")) {
             channeladdresses.push(new ChannelAddress(componentId, 'Soc'));
           }
           resolve(channeladdresses);

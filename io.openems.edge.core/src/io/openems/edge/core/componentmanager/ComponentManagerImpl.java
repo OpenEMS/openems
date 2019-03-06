@@ -2,14 +2,16 @@ package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.Manifest;
@@ -36,6 +38,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -53,9 +56,13 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.session.Role;
+import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -156,14 +163,20 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(JsonrpcRequest request) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+
 		switch (request.getMethod()) {
 
 		case GetEdgeConfigRequest.METHOD:
-			return this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
+			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+
+		case CreateComponentConfigRequest.METHOD:
+			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
 
 		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(UpdateComponentConfigRequest.from(request));
+			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -173,46 +186,101 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	/**
 	 * Handles a GetEdgeConfigRequest.
 	 * 
+	 * @param user    the User
 	 * @param request the GetEdgeConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(GetEdgeConfigRequest request)
-			throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
+			GetEdgeConfigRequest request) throws OpenemsNamedException {
 		EdgeConfig config = this.getEdgeConfig();
 		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
 	}
 
 	/**
+	 * Handles a CreateComponentConfigRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the CreateComponentConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
+			CreateComponentConfigRequest request) throws OpenemsNamedException {
+		Configuration config;
+		try {
+			config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
+					+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+
+		// Create map with configuration attributes
+		Dictionary<String, Object> properties = new Hashtable<>();
+		for (Property property : request.getProperties()) {
+			properties.put(property.getName(), JsonUtils.getAsBestType(property.getValue()));
+		}
+
+		// Update Configuration
+		try {
+			this.applyConfiguration(user, config, properties);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
+		}
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
 	 * Handles a UpdateComponentConfigRequest.
 	 * 
+	 * @param user    the User
 	 * @param request the UpdateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(UpdateComponentConfigRequest request)
-			throws OpenemsNamedException {
-		Configuration config = this.getConfigForId(request.getComponentId());
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
+			UpdateComponentConfigRequest request) throws OpenemsNamedException {
+		Configuration config = this.getExistingConfigForId(request.getComponentId());
 
 		// Create map with changed configuration attributes
 		Dictionary<String, Object> properties = config.getProperties();
-		for (UpdateComponentConfigRequest.Update update : request.getUpdate()) {
+		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
-			if (!this.ignorePropertyKey(update.getProperty())) {
-				properties.put(update.getProperty(), JsonUtils.getAsBestType(update.getValue()));
+			if (!this.ignorePropertyKey(property.getName())) {
+				properties.put(property.getName(), JsonUtils.getAsBestType(property.getValue()));
 			}
 		}
 
 		// Update Configuration
 		try {
-			config.update(properties);
+			this.applyConfiguration(user, config, properties);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Updates the Configuration from the given Properties and adds some meta
+	 * information.
+	 * 
+	 * @param user       the User
+	 * @param config     the Configuration object
+	 * @param properties the properties
+	 * @throws IOException on error
+	 */
+	private void applyConfiguration(User user, Configuration config, Dictionary<String, Object> properties)
+			throws IOException {
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": " + user.getName());
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
+				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
+		config.update(properties);
 	}
 
 	/**
@@ -223,7 +291,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Configuration
 	 * @throws OpenemsNamedException on error
 	 */
-	private Configuration getConfigForId(String componentId) throws OpenemsNamedException {
+	private Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
 		Configuration[] configs;
 		try {
 			configs = this.cm.listConfigurations("(id=" + componentId + ")");
@@ -259,7 +327,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					continue;
 				}
 				// get configuration properties
-				Map<String, JsonElement> propertyMap = new HashMap<>();
+				TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
 				Enumeration<String> keys = properties.keys();
 				while (keys.hasMoreElements()) {
 					String key = keys.nextElement();
@@ -296,10 +364,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					// ignore these Factory-PIDs
 					break;
 				default:
+					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
+					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
 					// Get Natures implemented by this Factory-PID
 					String[] natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
-					result.addFactory(factoryPid, new EdgeConfig.Factory(natures));
+					result.addFactory(factoryPid, EdgeConfig.Factory.create(objectClassDefinition, natures));
 				}
 			}
 		}
