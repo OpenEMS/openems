@@ -1,0 +1,18 @@
+<ion-list>
+  <ng-container *ngFor="let entry of list">
+
+    <ion-list-header *ngIf="entry.nature as nature">
+      <ion-label>{{ nature.name }}</ion-label>
+    </ion-list-header>
+
+    <ng-container *ngIf="entry.factories as factories">
+      <ion-item *ngFor="let factory of factories" [routerLink]="[factory.id]">
+        <ion-label>
+          <h2>{{ factory.name }}</h2>
+          <p>{{ factory.description }}</p>
+        </ion-label>
+      </ion-item>
+    </ng-container>
+
+  </ng-container>
+</ion-list>

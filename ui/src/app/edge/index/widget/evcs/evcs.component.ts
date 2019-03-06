@@ -69,7 +69,7 @@ export class EvcsComponent {
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { property: 'chargeMode', value: newChargeMode }
+        { name: 'chargeMode', value: newChargeMode }
       ]).then(response => {
         console.log(response);
         this.controller.properties.chargeMode = newChargeMode;

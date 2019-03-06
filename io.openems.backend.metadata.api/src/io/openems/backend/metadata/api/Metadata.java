@@ -22,7 +22,7 @@ public interface Metadata {
 	 * @return the User
 	 * @throws OpenemsNamedException on error
 	 */
-	public default User authenticate() throws OpenemsNamedException {
+	public default BackendUser authenticate() throws OpenemsNamedException {
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
@@ -34,7 +34,7 @@ public interface Metadata {
 	 * @return the User
 	 * @throws OpenemsNamedException on error
 	 */
-	public User authenticate(String username, String password) throws OpenemsNamedException;
+	public BackendUser authenticate(String username, String password) throws OpenemsNamedException;
 
 	/**
 	 * Authenticates the User by a Session-ID.
@@ -43,7 +43,7 @@ public interface Metadata {
 	 * @return the User
 	 * @throws OpenemsNamedException on error
 	 */
-	public User authenticate(String sessionId) throws OpenemsNamedException;
+	public BackendUser authenticate(String sessionId) throws OpenemsNamedException;
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -84,7 +84,7 @@ public interface Metadata {
 	 * @param userId the User-ID
 	 * @return the User, or Empty
 	 */
-	public abstract Optional<User> getUser(String userId);
+	public abstract Optional<BackendUser> getUser(String userId);
 
 	/**
 	 * Gets all Edges.

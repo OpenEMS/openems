@@ -17,7 +17,7 @@ import com.google.gson.JsonNull;
 
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.metadata.api.User;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -130,7 +130,7 @@ public class SubscribedEdgesChannelsWorker {
 	 */
 	private EdgesCurrentDataNotification getCurrentDataNotification() throws OpenemsNamedException {
 		EdgesCurrentDataNotification result = new EdgesCurrentDataNotification();
-		User user = this.wsData.assertUser();
+		BackendUser user = this.wsData.assertUser();
 
 		for (String edgeId : this.edgeIds) {
 			// assure read permissions of this User for this Edge.
