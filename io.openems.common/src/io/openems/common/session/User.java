@@ -67,7 +67,7 @@ public class User {
 			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(this.getId());
 		}
 		if (!this.role.isAtLeast(role)) {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, role.toString());
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, this.role.toString());
 		}
 		return this.role;
 	}

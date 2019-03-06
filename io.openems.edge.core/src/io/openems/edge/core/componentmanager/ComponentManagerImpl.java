@@ -277,8 +277,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private void applyConfiguration(User user, Configuration config, Dictionary<String, Object> properties)
 			throws IOException {
-		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId());
-		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId() + ": " + user.getName());
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
+				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		config.update(properties);
 	}
 

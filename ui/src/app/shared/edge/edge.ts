@@ -220,4 +220,15 @@ export class Edge {
   public isVersionAtLeast(version: string): boolean {
     return cmp(this.version, version) >= 0;
   }
+
+  /**
+	 * Evaluates whether the current Role is equal or more privileged than the
+	 * given Role.
+	 * 
+	 * @param role     the compared Role
+	 * @return true if the current Role is equal or more privileged than the given Role
+	 */
+  public roleIsAtLeast(role: Role | string): boolean {
+    return Role.isAtLeast(this.role, role);
+  }
 }

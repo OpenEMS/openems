@@ -7,7 +7,7 @@ import { IGNORE_NATURES } from '../shared/shared';
   selector: IndexComponent.SELECTOR,
   templateUrl: './index.component.html'
 })
-export class IndexComponent implements OnInit, OnDestroy {
+export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentInstall";
 
@@ -45,6 +45,4 @@ export class IndexComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
-  }
 }

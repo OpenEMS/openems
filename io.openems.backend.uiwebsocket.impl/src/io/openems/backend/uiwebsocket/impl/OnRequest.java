@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -47,7 +48,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		io.openems.backend.metadata.api.BackendUser user = this.assertUser(wsData, request);
+		BackendUser user = this.assertUser(wsData, request);
 
 		switch (request.getMethod()) {
 		case EdgeRpcRequest.METHOD:
@@ -68,14 +69,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the User
 	 * @throws OpenemsNamedException if User is not authenticated
 	 */
-	private io.openems.backend.metadata.api.BackendUser assertUser(WsData wsData, JsonrpcRequest request)
-			throws OpenemsNamedException {
+	private BackendUser assertUser(WsData wsData, JsonrpcRequest request) throws OpenemsNamedException {
 		Optional<String> userIdOpt = wsData.getUserId();
 		if (!userIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
 					.exception("User-ID is empty. Ignoring request [" + request.getMethod() + "]");
 		}
-		Optional<io.openems.backend.metadata.api.BackendUser> userOpt = this.parent.metadata.getUser(userIdOpt.get());
+		Optional<BackendUser> userOpt = this.parent.metadata.getUser(userIdOpt.get());
 		if (!userOpt.isPresent()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("User with ID [" + userIdOpt.get()
 					+ "] is unknown. Ignoring request [" + request.getMethod() + "]");
@@ -92,13 +92,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData,
-			io.openems.backend.metadata.api.BackendUser backendUser, EdgeRpcRequest edgeRpcRequest)
-			throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData, BackendUser backendUser,
+			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 		User user = backendUser.getAsCommonUser(edgeId);
-		user.assertRoleIsAtLeast("EdgeRpcRequest", Role.GUEST);
+		user.assertRoleIsAtLeast(EdgeRpcRequest.METHOD, Role.GUEST);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {

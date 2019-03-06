@@ -10,8 +10,9 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import io.openems.common.session.Role;
+import io.openems.common.session.User;
 
-public class EdgeUser extends io.openems.common.session.User {
+public class EdgeUser extends User {
 
 	private final byte[] password;
 	private final byte[] salt;
