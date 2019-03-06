@@ -2,14 +2,14 @@ package io.openems.backend.b2bwebsocket;
 
 import java.util.Optional;
 
-import io.openems.backend.metadata.api.User;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
 	private final SubscribedEdgesChannelsWorker worker;
-	private User user = null;
+	private BackendUser user = null;
 
 	public WsData(B2bWebsocket parent) {
 		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
@@ -20,11 +20,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.worker.dispose();
 	}
 
-	public void setUser(User user) {
+	public void setUser(BackendUser user) {
 		this.user = user;
 	}
 
-	public Optional<User> getUser() {
+	public Optional<BackendUser> getUser() {
 		return Optional.ofNullable(user);
 	}
 
@@ -35,8 +35,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the User
 	 * @throws OpenemsNamedException if User is not authenticated
 	 */
-	public User assertUser() throws OpenemsNamedException {
-		Optional<User> userOpt = this.getUser();
+	public BackendUser assertUser() throws OpenemsNamedException {
+		Optional<BackendUser> userOpt = this.getUser();
 		if (!userOpt.isPresent()) {
 			OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("");
 		}

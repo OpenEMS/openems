@@ -6,10 +6,8 @@ public class SemanticVersion {
 
 	/**
 	 * Creates an instance with all version numbers set to zero.
-	 * 
-	 * @return the SemanticVersion instance
 	 */
-	public final static SemanticVersion ZERO = new SemanticVersion(0, 0, 0);
+	public static final SemanticVersion ZERO = new SemanticVersion(0, 0, 0);
 
 	/**
 	 * Creates an instance using a Version-String in the form
@@ -140,12 +138,15 @@ public class SemanticVersion {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null)
+		}
+		if (o == null) {
 			return false;
-		if (getClass() != o.getClass())
+		}
+		if (getClass() != o.getClass()) {
 			return false;
+		}
 		SemanticVersion other = (SemanticVersion) o;
 		return Objects.equals(this.toString(), other.toString());
 	}

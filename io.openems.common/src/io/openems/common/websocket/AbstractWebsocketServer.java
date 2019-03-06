@@ -1,6 +1,7 @@
 package io.openems.common.websocket;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -99,19 +100,47 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.ws.setReuseAddr(true);
 	}
 
+	protected OnInternalError getOnInternalError() {
+		return (ex, wsDataString) -> {
+			if (ex instanceof BindException) {
+				this.log.error("Unable to Bind to port [" + this.port + "]");
+			} else {
+				this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
+			}
+			ex.printStackTrace();
+		};
+	};
+
 	public Collection<WebSocket> getConnections() {
 		return this.ws.getConnections();
 	}
 
+	/**
+	 * Sends a message to WebSocket.
+	 * 
+	 * @param ws      the WebSocket
+	 * @param message the JSON-RPC Message
+	 */
 	public void sendMessage(WebSocket ws, JsonrpcMessage message) {
 		ws.send(message.toString());
+	}
+
+	/**
+	 * Broadcasts a message to all connected WebSockets.
+	 * 
+	 * @param message the JSON-RPC Message
+	 */
+	public void broadcastMessage(JsonrpcMessage message) {
+		for (WebSocket ws : this.getConnections()) {
+			this.sendMessage(ws, message);
+		}
 	}
 
 	/**
 	 * Starts the websocket server
 	 */
 	public void start() {
-		log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
+		this.log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
 		this.ws.start();
 	}
 
@@ -125,8 +154,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				this.ws.stop();
 				return;
 			} catch (NullPointerException | InterruptedException | IOException e) {
-				log.warn("Unable to stop websocket server [" + this.getName() + "]. " + e.getClass().getSimpleName()
-						+ ": " + e.getMessage());
+				this.log.warn("Unable to stop websocket server [" + this.getName() + "]. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e1) {
@@ -134,7 +163,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				}
 			}
 		}
-		log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
+		this.log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
 	}
 
 	/**

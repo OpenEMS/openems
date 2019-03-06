@@ -11,7 +11,7 @@ public abstract class FieldbusModule {
 		case "750-4xx":
 			switch (moduleType) {
 			case "DI":
-				return new Fieldbus400DI2Ch(parent, inputOffset, outputOffset);
+				return new Fieldbus400DI(parent, inputOffset, outputOffset, kanals.length);
 			}
 			break;
 
@@ -37,7 +37,7 @@ public abstract class FieldbusModule {
 	public abstract int getOutputCoils();
 
 	public abstract int getInputCoils();
-	
+
 	public abstract BooleanReadChannel[] getChannels();
 
 }

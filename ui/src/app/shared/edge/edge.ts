@@ -1,5 +1,6 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
+import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
@@ -15,6 +16,7 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse'
 
 export class Edge {
 
@@ -151,10 +153,10 @@ export class Edge {
    * 
    * @param ws          the Websocket
    * @param componentId the OpenEMS Edge Component-ID 
-   * @param update      the attributes to be updated.
+   * @param properties  the properties to be updated.
    */
-  public updateComponentConfig(ws: Websocket, componentId: string, update: [{ property: string, value: any }]): Promise<JsonrpcResponseSuccess> {
-    let request = new UpdateComponentConfigRequest(componentId, update);
+  public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+    let request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
     return this.sendRequest(ws, request);
   }
 
@@ -166,14 +168,26 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    // if (request.method == 'queryHistoricTimeseriesEnergy') {
+    //   return new Promise((resolve) => {
+    //     resolve(new QueryHistoricTimeseriesEnergyResponse('_kWhValues', { data: { "production": 50, "gridbezug": 23, "grideinspeisung": 431, "consumption": 44 } }));
+    //   });
+    // } else {
     let wrap = new EdgeRpcRequest(this.id, request);
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
+        if (env.debugMode) {
+          console.info("Response     [" + request.method + "]", response);
+        }
         resolve(response['result']['payload']);
       }).catch(reason => {
+        if (env.debugMode) {
+          console.warn("Request fail [" + request.method + "]", reason);
+        }
         reject(reason);
       });
     });
+    // }
   }
 
   /**
@@ -212,5 +226,16 @@ export class Edge {
    */
   public isVersionAtLeast(version: string): boolean {
     return cmp(this.version, version) >= 0;
+  }
+
+  /**
+	 * Evaluates whether the current Role is equal or more privileged than the
+	 * given Role.
+	 * 
+	 * @param role     the compared Role
+	 * @return true if the current Role is equal or more privileged than the given Role
+	 */
+  public roleIsAtLeast(role: Role | string): boolean {
+    return Role.isAtLeast(this.role, role);
   }
 }

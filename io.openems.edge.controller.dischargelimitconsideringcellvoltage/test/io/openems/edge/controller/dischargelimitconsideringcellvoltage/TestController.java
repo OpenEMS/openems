@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -279,7 +280,7 @@ public class TestController {
 		}
 
 		@Override
-		public void applyPower(int activePower, int reactivePower) {
+		public void applyPower(int activePower, int reactivePower) throws OpenemsException {
 
 		}
 

@@ -1,3 +1,72 @@
-#
-# This file is left open for you to define your macros
-#
+buildpath: osgi.enroute.base.api;version=2.1
+testpath:\
+	osgi.enroute.junit.wrapper;version=4.12,\
+    osgi.enroute.hamcrest.wrapper;version=1.3
+
+-plugin.9x.enroute.distro = \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		releaseUrls=https://repo1.maven.org/maven2/; \
+		revision=org.osgi:osgi.enroute.pom.distro:2.1.0; \
+		name=Distro; \
+		location=${build}/cache/enroute-distro.xml
+
+-runblacklist.enroute:	\
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.base.api)', \
+	osgi.identity;filter:='(osgi.identity=osgi.cmpn)', \
+	osgi.identity;filter:='(osgi.identity=osgi.core)', \
+	osgi.identity;filter:='(osgi.identity=biz.aQute.junit)', \
+	osgi.identity;filter:='(osgi.identity=biz.aQute.launcher)', \
+	osgi.identity;filter:='(osgi.identity=biz.aQute.remote.launcher)'
+
+-runproperties.eqnx: 				\
+	org.apache.felix.http.jettyEnabled=true, \
+	org.apache.felix.http.whiteboardEnabled=true,\
+	osgi.console=, \
+	osgi.console.enable.builtin=false
+
+-runpath.eqnx: 					osgi.enroute.equinox.log.adapter
+-runrequires.eqnx: \
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.log)'
+
+-runsystempackages.eqnx:		javax.script
+-runsystemcapabilities.dflt: 	${native_capability}
+
+debug-bundles: \
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
+	osgi.implementation;filter:='(osgi.implementation=osgi.metatype)',\
+	osgi.implementation;filter:='(osgi.implementation=osgi.log)',\
+	osgi.implementation;filter:='(osgi.implementation=osgi.event)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)', \
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.base.debug.provider)'
+	
+javac.source: 			1.8
+javac.target: 			1.8
+-runee:					JavaSE-1.8
+
+-dsannotations: 		*
+-metatypeannotations:	*
+-contract:				*
+
+test-cases: 			${classes;NAMED;*Test}
+-resolve.effective:		resolve, active
+-releaserepo:           Release
+
+-plugin.4.Central: \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		releaseUrl=https://repo.maven.apache.org/maven2/; \
+		pom=${.}/pom.xml; \
+		readOnly=true; \
+		name="Maven Central"
+
+-plugin.6.Local: \
+        aQute.bnd.deployer.repository.LocalIndexedRepo; \
+            name                =       Local ; \
+            pretty              =       true ; \
+            local               =       ${build}/local
+
+-plugin.9.Release: \
+        aQute.bnd.deployer.repository.LocalIndexedRepo; \
+            name                =       Release ; \
+            pretty              =       true ; \
+            local               =       ${build}/release

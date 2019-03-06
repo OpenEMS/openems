@@ -17,6 +17,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -131,7 +132,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		/*
 		 * calculate State of charge

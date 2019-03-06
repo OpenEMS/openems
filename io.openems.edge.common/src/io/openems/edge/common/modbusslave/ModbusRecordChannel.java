@@ -36,6 +36,9 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case FLOAT32:
 			byteLength = ModbusRecordFloat32.BYTE_LENGTH;
 			break;
+		case FLOAT64:
+			byteLength = ModbusRecordFloat64.BYTE_LENGTH;
+			break;
 		case STRING16:
 			byteLength = ModbusRecordString16.BYTE_LENGTH;
 			break;
@@ -63,6 +66,8 @@ public class ModbusRecordChannel extends ModbusRecord {
 		switch (this.getType()) {
 		case FLOAT32:
 			return ModbusRecordFloat32.toByteArray(value);
+		case FLOAT64:
+			return ModbusRecordFloat64.toByteArray(value);
 		case STRING16:
 			return ModbusRecordString16.toByteArray(value);
 		case UINT16:
@@ -102,6 +107,9 @@ public class ModbusRecordChannel extends ModbusRecord {
 		// Get Value-Object from ByteBuffer
 		Object value = null;
 		switch (this.getType()) {
+		case FLOAT64:
+			value = buff.getDouble();
+			break;
 		case FLOAT32:
 			value = buff.getFloat();
 			break;

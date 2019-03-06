@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -37,7 +39,7 @@ public class Utils {
 				result.add(new IntegerReadChannel(c, channelId, 3000));
 				break;
 			case GRID_MODE:
-				result.add(new IntegerReadChannel(c, channelId, GridMode.UNDEFINED));
+				result.add(new EnumReadChannel(c, channelId, GridMode.UNDEFINED));
 				break;
 			case ACTIVE_DISCHARGE_ENERGY:
 			case ACTIVE_CHARGE_ENERGY:
@@ -61,18 +63,14 @@ public class Utils {
 			case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 				result.add(new IntegerWriteChannel(c, channelId));
 				break;
+			case APPLY_POWER_FAILED:
+				result.add(new StateChannel(c, channelId));
+				break;
 			}
 		}
 		for (EssFeneconCommercial40.ChannelId channelId : EssFeneconCommercial40.ChannelId.values()) {
 			switch (channelId) {
-			case SYSTEM_STATE:
-			case CONTROL_MODE:
-			case BATTERY_MAINTENANCE_STATE:
-			case INVERTER_STATE:
 			case PROTOCOL_VERSION:
-			case SYSTEM_MANUFACTURER:
-			case SYSTEM_TYPE:
-			case BATTERY_STRING_SWITCH_STATE:
 			case BATTERY_VOLTAGE:
 			case BATTERY_CURRENT:
 			case BATTERY_POWER:
@@ -95,19 +93,46 @@ public class Utils {
 			case IPM_TEMPERATURE_L2:
 			case IPM_TEMPERATURE_L3:
 			case TRANSFORMER_TEMPERATURE_L2:
-			case BMS_DCDC_WORK_MODE:
-			case BMS_DCDC_WORK_STATE:
 			case AC_CHARGE_ENERGY:
 			case AC_DISCHARGE_ENERGY:
 			case ORIGINAL_ALLOWED_CHARGE_POWER:
 			case ORIGINAL_ALLOWED_DISCHARGE_POWER:
 				result.add(new IntegerReadChannel(c, channelId));
 				break;
-			case SET_WORK_STATE:
+			case BATTERY_MAINTENANCE_STATE:
+				result.add(new EnumReadChannel(c, channelId, BatteryMaintenanceState.UNDEFINED));
+				break;
+			case BATTERY_STRING_SWITCH_STATE:
+				result.add(new EnumReadChannel(c, channelId, BatteryStringSwitchState.UNDEFINED));
+				break;
+			case BMS_DCDC_WORK_MODE:
+				result.add(new EnumReadChannel(c, channelId, BmsDcdcWorkMode.UNDEFINED));
+				break;
+			case BMS_DCDC_WORK_STATE:
+				result.add(new EnumReadChannel(c, channelId, BmsDcdcWorkState.UNDEFINED));
+				break;
+			case CONTROL_MODE:
+				result.add(new EnumReadChannel(c, channelId, ControlMode.UNDEFINED));
+				break;
+			case INVERTER_STATE:
+				result.add(new EnumReadChannel(c, channelId, InverterState.UNDEFINED));
+				break;
+			case SYSTEM_MANUFACTURER:
+				result.add(new EnumReadChannel(c, channelId, SystemManufacturer.UNDEFINED));
+				break;
+			case SYSTEM_STATE:
+				result.add(new EnumReadChannel(c, channelId, SystemState.UNDEFINED));
+				break;
+			case SYSTEM_TYPE:
+				result.add(new EnumReadChannel(c, channelId, SystemType.UNDEFINED));
+				break;
 			case SET_ACTIVE_POWER:
 			case SET_REACTIVE_POWER:
 			case SET_PV_POWER_LIMIT:
 				result.add(new IntegerWriteChannel(c, channelId));
+				break;
+			case SET_WORK_STATE:
+				result.add(new EnumWriteChannel(c, channelId, SetWorkState.UNDEFINED));
 				break;
 			case STATE_0:
 			case STATE_1:

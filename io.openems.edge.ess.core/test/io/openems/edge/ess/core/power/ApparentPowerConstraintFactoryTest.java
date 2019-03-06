@@ -14,7 +14,7 @@ public class ApparentPowerConstraintFactoryTest {
 		PowerComponent c = new PowerComponent();
 		Data data = new Data(c);
 		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess.id());
+			data.addEss(ess);
 			c.addEss(ess);
 		}
 		data.initializeCycle();

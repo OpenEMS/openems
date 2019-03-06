@@ -1,11 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Cumulative: "Cumulatieve Waarden",
         Grid: "Net",
         GridBuy: "Netafname",
         GridSell: "Netteruglevering",
-        OffGrid: "geen netaansluiting!",
+        OffGrid: "Geen Netaansluiting!",
         Production: "Opwekking",
         Consumption: "Verbruik",
+        Load: "Laden",
         Power: "Vermogen",
         StorageSystem: "Batterij",
         History: "Historie",

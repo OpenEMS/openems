@@ -14,9 +14,24 @@ export class EdgeConfig {
         }
 
         // initialize Factorys
-        for (let factoryPid in this.factories) {
-            this.factories[factoryPid].pid = factoryPid;
-            this.factories[factoryPid].componentIds = [];
+        for (let factoryId in this.factories) {
+            let factory = this.factories[factoryId];
+            factory.id = factoryId;
+            factory.componentIds = [];
+
+            // Fill 'natures' map
+            for (let natureId of factory.natureIds) {
+                if (!(natureId in this.natures)) {
+                    let parts = natureId.split(".");
+                    let name = parts[parts.length - 1];
+                    this.natures[natureId] = {
+                        id: natureId,
+                        name: name,
+                        factoryIds: []
+                    };
+                }
+                this.natures[natureId].factoryIds.push(factoryId);
+            }
         }
 
         if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
@@ -24,25 +39,17 @@ export class EdgeConfig {
         } else {
             for (let componentId in this.components) {
                 let component = this.components[componentId];
-                if (component.factoryPid === "") {
+                if (component.factoryId === "") {
                     continue; // Singleton components have no factory-PID
                 }
-                let factory = this.factories[component.factoryPid];
+                let factory = this.factories[component.factoryId];
                 if (!factory) {
-                    console.warn("Factory definition for [" + component.factoryPid + "] is missing.");
+                    console.warn("Factory definition for [" + component.factoryId + "] is missing.");
                     continue;
                 }
 
                 // Complete 'factories' map
                 factory.componentIds.push(componentId);
-
-                // Fill 'natures' map
-                for (let nature of factory.natures) {
-                    if (!(nature in this.natures)) {
-                        this.natures[nature] = [];
-                    }
-                    this.natures[nature].push(componentId);
-                }
             }
         }
     }
@@ -55,12 +62,12 @@ export class EdgeConfig {
     /**
      * Factory-PID -> OSGi Factory.
      */
-    public readonly factories: { [pid: string]: EdgeConfig.Factory } = {};
+    public readonly factories: { [id: string]: EdgeConfig.Factory } = {};
 
     /**
-     * Nature -> Component-IDs.
+     * Nature-PID -> Component-IDs.
      */
-    public readonly natures: { [nature: string]: string[] } = {}
+    public readonly natures: { [id: string]: EdgeConfig.Nature } = {}
 
     public isValid(): boolean {
         return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
@@ -69,10 +76,10 @@ export class EdgeConfig {
     /**
      * Get Component-IDs of Component instances by the given Factory.
      * 
-     * @param factoryPid the Factory PID.
+     * @param factoryId the Factory PID.
      */
-    public getComponentIdsByFactory(factoryPid: string): string[] {
-        let factory = this.factories[factoryPid];
+    public getComponentIdsByFactory(factoryId: string): string[] {
+        let factory = this.factories[factoryId];
         if (factory) {
             return factory.componentIds;
         } else {
@@ -83,10 +90,10 @@ export class EdgeConfig {
     /**
      * Get Component instances by the given Factory.
      * 
-     * @param factoryPid the Factory PID.
+     * @param factoryId the Factory PID.
      */
-    public getComponentsByFactory(factoryPid: string): EdgeConfig.Component[] {
-        let componentIds = this.getComponentIdsByFactory(factoryPid);
+    public getComponentsByFactory(factoryId: string): EdgeConfig.Component[] {
+        let componentIds = this.getComponentIdsByFactory(factoryId);
         let result: EdgeConfig.Component[] = [];
         for (let componentId of componentIds) {
             result.push(this.components[componentId]);
@@ -99,24 +106,42 @@ export class EdgeConfig {
      * 
      * @param nature the given Nature.
      */
-    public getComponentsImplementingNature(nature: string): string[] {
-        let components = this.natures[nature];
-        if (components) {
-            return components;
-        } else {
-            return [];
+    public getComponentIdsImplementingNature(natureId: string): string[] {
+        let result: string[] = [];
+        let nature = this.natures[natureId];
+        if (nature) {
+            for (let factoryId of nature.factoryIds) {
+                result.push.apply(result, this.getComponentIdsByFactory(factoryId));
+            }
         }
+        return result;
     }
 
     /**
-     * Get the implemented Natures by Factory-ID.
+     * Get Components that implement the given Nature.
+     * 
+     * @param nature the given Nature.
+     */
+    public getComponentsImplementingNature(natureId: string): EdgeConfig.Component[] {
+        let result: EdgeConfig.Component[] = [];
+        let nature = this.natures[natureId];
+        if (nature) {
+            for (let factoryId of nature.factoryIds) {
+                result.push.apply(result, this.getComponentsByFactory(factoryId));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get the implemented NatureIds by Factory-ID.
      * 
      * @param factoryId the Factory-ID
      */
-    public getNaturesByFactoryId(factoryId: string): string[] {
+    public getNatureIdsByFactoryId(factoryId: string): string[] {
         let factory = this.factories[factoryId];
         if (factory) {
-            return factory.natures;
+            return factory.natureIds;
         } else {
             return [];
         }
@@ -127,13 +152,13 @@ export class EdgeConfig {
      * 
      * @param componentId the Component-ID
      */
-    public getNaturesByComponentId(componentId: string): string[] {
+    public getNatureIdsByComponentId(componentId: string): string[] {
         let component = this.components[componentId];
         if (!component) {
             return [];
         }
-        let factoryPid = component.factoryPid;
-        return this.getNaturesByFactoryId(factoryPid);
+        let factoryId = component.factoryId;
+        return this.getNatureIdsByFactoryId(factoryId);
     }
 
     /**
@@ -157,18 +182,33 @@ export module EdgeConfig {
         public id: string = "";
 
         constructor(
-            public readonly factoryPid: string = "",
+            public readonly factoryId: string = "",
             public readonly properties: { [key: string]: any } = {}
         ) { }
     }
 
     export class Factory {
-        public pid: string = "";
+        public id: string = "";
         public componentIds: string[] = [];
 
         constructor(
-            public readonly natures: string[] = []
+            public readonly name: string,
+            public readonly natureIds: string[] = [],
+            public readonly properties: {
+                id: string,
+                name: string,
+                description: string,
+                isRequired: boolean,
+                defaultValue: any,
+                schema: {}
+            }[] = []
         ) { }
+    }
+
+    export class Nature {
+        public id: string = "";
+        public name: string = "";
+        public factoryIds: string[] = [];
     }
 
 }

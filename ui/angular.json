@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
   "version": 1,
-  "defaultProject": "app",
   "newProjectRoot": "projects",
   "projects": {
     "app": {
@@ -52,7 +51,8 @@
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"
-            ]
+            ],
+            "es5BrowserSupport": true
           },
           "configurations": {
             "backend": {
@@ -231,12 +231,18 @@
     "app-e2e": {
       "root": "e2e/",
       "projectType": "application",
+      "prefix": "",
       "architect": {
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
             "devServerTarget": "app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "app:serve:production"
+            }
           }
         },
         "lint": {
@@ -251,6 +257,7 @@
       }
     }
   },
+  "defaultProject": "app",
   "cli": {
     "defaultCollection": "@ionic/angular-toolkit"
   },

@@ -28,18 +28,18 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * All configured users. Ordered as they are added.
 	 */
-	private final List<User> users = new ArrayList<>();
+	private final List<EdgeUser> users = new ArrayList<>();
 
 	@Activate
 	void activate(Config config) {
 		this.users.add(//
-				new User("admin", Role.ADMIN, config.adminPassword(), config.adminSalt()));
+				new EdgeUser("admin", "Admin", Role.ADMIN, config.adminPassword(), config.adminSalt()));
 		this.users.add(//
-				new User("installer", Role.INSTALLER, config.installerPassword(), config.installerSalt()));
+				new EdgeUser("installer", "Installer", Role.INSTALLER, config.installerPassword(), config.installerSalt()));
 		this.users.add(//
-				new User("owner", Role.OWNER, config.ownerPassword(), config.ownerSalt()));
+				new EdgeUser("owner", "Owner", Role.OWNER, config.ownerPassword(), config.ownerSalt()));
 		this.users.add(//
-				new User("guest", Role.GUEST, config.guestPassword(), config.guestSalt()));
+				new EdgeUser("guest", "Guest", Role.GUEST, config.guestPassword(), config.guestSalt()));
 	}
 
 	@Deactivate
@@ -47,9 +47,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public final Optional<User> authenticate(String username, String password) {
+	public final Optional<EdgeUser> authenticate(String username, String password) {
 		// Search for user with given username
-		for (User user : this.users) {
+		for (EdgeUser user : this.users) {
 			if (username.equals(user.getName())) {
 				if (user.validatePassword(password)) {
 					log.info("Authentication successful for user[" + username + "].");
@@ -65,9 +65,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public final Optional<User> authenticate(String password) {
+	public final Optional<EdgeUser> authenticate(String password) {
 		// Search for any user with the given password
-		for (User user : this.users) {
+		for (EdgeUser user : this.users) {
 			if (user.validatePassword(password)) {
 				log.info("Authentication successful with password only for user [" + user.getName() + "].");
 				return Optional.ofNullable(user);
