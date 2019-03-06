@@ -31,6 +31,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.fenecon.mini.FeneconMiniConstants;
@@ -51,21 +52,28 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	private SinglePhase phase;
+
 	public FeneconMiniEss() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID,
-				this.cm, "Modbus", config.modbus_id());
-		this.getPhase().setNextValue(config.Phase());
-		SinglePhaseEss.initializeCopyPhaseChannel(this, config.Phase());
+		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
+		this.phase = config.phase();
+		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public SinglePhase getPhase() {
+		return this.phase;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
