@@ -166,6 +166,6 @@
 	io.openems.edge.ess.sma;version=snapshot,\
 	io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
-	com.fazecast.jSerialComm;version='[2.3.0,2.3.1)',\
-	com.ghgande.j2mod;version='[2.5.3,2.5.4)',\
-	org.jsr-305;version='[3.0.2,3.0.3)'
+	org.jsr-305;version='[3.0.2,3.0.3)',\
+	com.fazecast.jSerialComm;version='[2.2.2,2.2.3)',\
+	com.ghgande.j2mod;version='[2.5.2,2.5.3)'
