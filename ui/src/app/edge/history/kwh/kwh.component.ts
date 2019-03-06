@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
-import { Cummulated, QueryHistoricTimeseriesEnergyResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { Cumulated, QueryHistoricTimeseriesEnergyResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { QueryHistoricTimeseriesEnergyRequest } from '../../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest'
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ActivatedRoute } from '@angular/router';
@@ -15,7 +15,7 @@ export class KwhComponent implements OnInit, OnChanges {
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
 
-  public data: Cummulated = null;
+  public data: Cumulated = null;
   public values: any;
   public edge: Edge = null;
 
