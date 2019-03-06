@@ -487,6 +487,14 @@ public class JsonUtils {
 		return jObject.get(memberName);
 	}
 
+	public static Optional<JsonElement> getOptionalSubElement(JsonElement jElement, String memberName) {
+		try {
+			return Optional.of(getSubElement(jElement, memberName));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+	
 	public static boolean hasElement(JsonElement j, String... paths) {
 		return getMatchingElements(j, paths).size() > 0;
 	}

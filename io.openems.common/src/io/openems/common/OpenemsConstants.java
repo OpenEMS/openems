@@ -100,4 +100,6 @@ public class OpenemsConstants {
 	public final static String PROPERTY_OSGI_COMPONENT_NAME = "component.name";
 	public final static String PROPERTY_PID = Constants.SERVICE_PID;
 	public final static String PROPERTY_FACTORY_PID = "service.factoryPid";
+	public final static String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
+	public final static String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 }

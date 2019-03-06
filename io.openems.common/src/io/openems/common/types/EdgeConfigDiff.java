@@ -1,8 +1,7 @@
 package io.openems.common.types;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import com.google.common.collect.MapDifference;
@@ -12,6 +11,7 @@ import com.google.common.collect.SortedMapDifference;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty;
 
@@ -96,6 +96,10 @@ public class EdgeConfigDiff {
 		return result;
 	}
 
+	/**
+	 * Represents the difference between an old and a new configuration of a
+	 * Component.
+	 */
 	protected static class ComponentDiff {
 		protected static class OldNewProperty {
 			private final JsonElement oldP;
@@ -121,7 +125,7 @@ public class EdgeConfigDiff {
 		}
 
 		private final Component component;
-		protected Map<String, OldNewProperty> properties = new HashMap<>();
+		protected TreeMap<String, OldNewProperty> properties = new TreeMap<>();
 
 		public ComponentDiff(Component component) {
 			this.component = component;
@@ -140,13 +144,31 @@ public class EdgeConfigDiff {
 
 	private final TreeMap<String, ComponentDiff> components = new TreeMap<>();
 
+	/**
+	 * Add the difference of a Property to the List.
+	 * 
+	 * @param componentId  the Component-ID of the Property
+	 * @param component    the Component instance of the Property
+	 * @param propertyName the name of the Property
+	 * @param oldValue     the old value
+	 * @param newValue     the new value
+	 */
 	private void add(String componentId, Component component, String propertyName, JsonElement oldValue,
 			JsonElement newValue) {
 		ComponentDiff.OldNewProperty oldNewProperty = new ComponentDiff.OldNewProperty(oldValue, newValue);
 		if (this.components.containsKey(componentId)) {
 			this.components.get(componentId).add(propertyName, oldNewProperty);
 		} else {
-			this.components.put(componentId, new ComponentDiff(component).add(propertyName, oldNewProperty));
+			JsonElement lastChangeBy = Optional.ofNullable(//
+					component.getProperties().get(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)).orElse(JsonNull.INSTANCE);
+			JsonElement lastChangeAt = Optional.ofNullable(//
+					component.getProperties().get(OpenemsConstants.PROPERTY_LAST_CHANGE_AT)).orElse(JsonNull.INSTANCE);
+			this.components.put(componentId, new ComponentDiff(component) //
+					// add some important properties on top first
+					.add(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, new OldNewProperty(JsonNull.INSTANCE, lastChangeBy)) //
+					.add(OpenemsConstants.PROPERTY_LAST_CHANGE_AT, new OldNewProperty(JsonNull.INSTANCE, lastChangeAt)) //
+					// add this property
+					.add(propertyName, oldNewProperty));
 		}
 	}
 

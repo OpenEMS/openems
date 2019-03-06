@@ -1,7 +1,6 @@
 package io.openems.common.types;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,6 +11,7 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -26,9 +26,9 @@ public class EdgeConfig {
 	public static class Component {
 
 		private final String factoryId;
-		private final Map<String, JsonElement> properties;
+		private final TreeMap<String, JsonElement> properties;
 
-		public Component(String factoryId, Map<String, JsonElement> properties) {
+		public Component(String factoryId, TreeMap<String, JsonElement> properties) {
 			this.factoryId = factoryId;
 			this.properties = properties;
 		}
@@ -74,7 +74,7 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Component fromJson(JsonElement json) throws OpenemsNamedException {
-			Map<String, JsonElement> properties = new HashMap<>();
+			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "properties").entrySet()) {
 				properties.put(entry.getKey(), entry.getValue());
 			}
@@ -236,7 +236,7 @@ public class EdgeConfig {
 				String name = JsonUtils.getAsString(json, "name");
 				String description = JsonUtils.getAsString(json, "description");
 				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
-				JsonElement defaultValue = JsonUtils.getSubElement(json, "defaultValue");
+				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
 				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
 				return new Property(id, name, description, isRequired, defaultValue, schema);
 			}
@@ -523,7 +523,7 @@ public class EdgeConfig {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
 			String clazz = JsonUtils.getAsString(config, "class");
-			Map<String, JsonElement> properties = new HashMap<>();
+			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			for (Entry<String, JsonElement> property : config.entrySet()) {
 				switch (property.getKey()) {
 				case "id":

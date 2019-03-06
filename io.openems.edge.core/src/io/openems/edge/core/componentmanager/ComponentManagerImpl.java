@@ -7,12 +7,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.Manifest;
@@ -84,9 +83,6 @@ import io.openems.edge.common.jsonapi.JsonApi;
 		})
 public class ComponentManagerImpl extends AbstractOpenemsComponent
 		implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
-
-	private final static String LAST_CHANGE_BY = "_lastChangeBy";
-	private final static String LAST_CHANGE_AT = "_lastChangeAt";
 
 	private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
 
@@ -281,8 +277,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private void applyConfiguration(User user, Configuration config, Dictionary<String, Object> properties)
 			throws IOException {
-		properties.put(LAST_CHANGE_BY, user.getId());
-		properties.put(LAST_CHANGE_AT, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, user.getId());
+		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		config.update(properties);
 	}
 
@@ -330,7 +326,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					continue;
 				}
 				// get configuration properties
-				Map<String, JsonElement> propertyMap = new HashMap<>();
+				TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
 				Enumeration<String> keys = properties.keys();
 				while (keys.hasMoreElements()) {
 					String key = keys.nextElement();
