@@ -18,6 +18,8 @@ Import-Package: \
 	android.os;resolution:=optional, \
 	android.util;resolution:=optional, \
 	org.conscrypt;resolution:=optional, \
+	kotlin;resolution:=optional, \
+	kotlin.jvm.internal;resolution:=optional, \
 	*
 	
 -dsannotations: *
