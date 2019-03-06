@@ -5,14 +5,14 @@ Bundle-License: https://opensource.org/licenses/MIT
 Bundle-Version: 2.14
 
 Include-Resource: \
-	@influxdb-java-2.14.jar, \
-	@retrofit-2.4.0.jar, \
-	@converter-moshi-2.4.0.jar, \
+	@influxdb-java-2.15.jar, \
+	@retrofit-2.5.0.jar, \
+	@converter-moshi-2.5.0.jar, \
 	@moshi-1.5.0.jar, \
 	@msgpack-core-0.8.16.jar, \
-	@okhttp-3.11.0.jar, \
-	@okio-1.14.0.jar, \
-	@logging-interceptor-3.11.0.jar
+	@okhttp-3.13.1.jar, \
+	@okio-1.17.2.jar, \
+	@logging-interceptor-3.13.1.jar
  
 Import-Package: \
 	android.os;resolution:=optional, \
