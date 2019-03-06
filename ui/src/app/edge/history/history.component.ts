@@ -24,8 +24,8 @@ export class HistoryComponent implements OnInit {
   public activePeriod: PeriodString = "today";
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
-
-  protected edge: Edge = null;
+  public edge: Edge = null;
+  
   protected dateRange: IMyDateRange;
   protected dateRangePickerOptions: IMyDrpOptions = {
     inline: true,
@@ -48,7 +48,9 @@ export class HistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route)
+    this.service.setCurrentEdge(this.route).then(edge => {
+      this.edge = edge;
+    });
   }
 
   updateOnWindowResize() {
@@ -148,5 +150,4 @@ export class HistoryComponent implements OnInit {
   private toIMyDate(date: Date): IMyDate {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
   }
-
 }

@@ -1,6 +1,7 @@
 package io.openems.edge.controller.api.websocket;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -25,18 +26,20 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.user.User;
+import io.openems.edge.common.user.EdgeUser;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -59,17 +62,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 
 		// is user authenticated?
-		if (!wsData.isUserAuthenticated()) {
-			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception(
-					"Session [" + wsData.getSessionToken() + "]. Ignoring request [" + request.getMethod() + "]");
-		}
-
-		// TODO add Check if user Role is sufficient
+		EdgeUser user = wsData.assertUserIsAuthenticated(request.getMethod());
+		user.assertRoleIsAtLeast(request.getMethod(), Role.GUEST);
 
 		switch (request.getMethod()) {
 
 		case EdgeRpcRequest.METHOD:
-			return this.handleEdgeRpcRequest(wsData, EdgeRpcRequest.from(request));
+			return this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -82,38 +81,43 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * 
 	 * @param wsData         the WebSocket attachment
 	 * @param edgeRpcRequest the EdgeRpcRequest
+	 * @param user           the User
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData, EdgeRpcRequest edgeRpcRequest)
-			throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData, EdgeUser user,
+			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 
 		case SubscribeChannelsRequest.METHOD:
-			resultFuture = this.handleSubscribeChannelsRequest(wsData, SubscribeChannelsRequest.from(request));
+			resultFuture = this.handleSubscribeChannelsRequest(wsData, user, SubscribeChannelsRequest.from(request));
 			break;
 
 		case SubscribeSystemLogRequest.METHOD:
-			resultFuture = this.handleSubscribeSystemLogRequest(wsData, SubscribeSystemLogRequest.from(request));
+			resultFuture = this.handleSubscribeSystemLogRequest(wsData, user, SubscribeSystemLogRequest.from(request));
 			break;
 
 		case QueryHistoricTimeseriesDataRequest.METHOD:
-			resultFuture = this.handleQueryHistoricDataRequest(QueryHistoricTimeseriesDataRequest.from(request));
+			resultFuture = this.handleQueryHistoricDataRequest(user, QueryHistoricTimeseriesDataRequest.from(request));
+			break;
+
+		case QueryHistoricTimeseriesEnergyRequest.METHOD:
+			resultFuture = this.handleQueryHistoricEnergyRequest(QueryHistoricTimeseriesEnergyRequest.from(request));
 			break;
 
 		case UpdateComponentConfigRequest.METHOD:
-			resultFuture = this.handleUpdateComponentConfigRequest(UpdateComponentConfigRequest.from(request));
+			resultFuture = this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
 			break;
 
 		case GetEdgeConfigRequest.METHOD:
-			resultFuture = this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(request));
+			resultFuture = this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
 			break;
 
 		case ComponentJsonApiRequest.METHOD:
-			resultFuture = this.handleComponentJsonApiRequest(ComponentJsonApiRequest.from(request));
+			resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
 			break;
 
 		// TODO: to be implemented: UI Logout
@@ -148,14 +152,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-		Optional<User> userOpt = this.parent.userService.authenticate(request.getPassword());
+		Optional<EdgeUser> userOpt = this.parent.userService.authenticate(request.getPassword());
 		if (!userOpt.isPresent()) {
 			wsData.unsetUser();
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
 
 		// authentication successful
-		User user = userOpt.get();
+		EdgeUser user = userOpt.get();
 		wsData.setUser(user);
 		this.parent.sessionTokens.put(wsData.getSessionToken(), user);
 		// TODO unset on logout!
@@ -167,15 +171,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a SubscribeChannelsRequest.
 	 * 
 	 * @param wsData  the WebSocket attachment
+	 * @param user    the User
 	 * @param request the SubscribeChannelsRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData,
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, EdgeUser user,
 			SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// activate SubscribedChannelsWorker
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
-		worker.handleSubscribeChannelsRequest(Role.GUEST /* TODO: get Role as parameter */, request);
+		worker.handleSubscribeChannelsRequest(user.getRole(), request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
@@ -184,15 +189,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a QueryHistoricDataRequest.
 	 * 
+	 * @param user    the User
 	 * @param request the QueryHistoricDataRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(EdgeUser user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
-		data = this.parent.timedata.queryHistoricData(//
-				null, /* igore Edge-ID */
+		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricData(//
+				null, /* ignore Edge-ID */
 				request.getFromDate(), //
 				request.getToDate(), //
 				request.getChannels());
@@ -202,46 +207,66 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
+	 * Handles a QueryHistoricEnergyRequest.
+	 * 
+	 * @param request the QueryHistoricEnergyRequest
+	 * @return the Future JSPN-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(
+			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricEnergy(//
+				null, /* ignore Edge-ID */
+				request.getFromDate(), request.getToDate(), request.getChannels());
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
+	}
+
+	/**
 	 * Handles a UpdateComponentConfigRequest.
 	 * 
+	 * @param user                         the User
 	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(EdgeUser user,
 			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
 
-		return this.handleComponentJsonApiRequest(request);
+		return this.handleComponentJsonApiRequest(user, request);
 	}
 
 	/**
 	 * Handles a GetEdgeConfigRequest.
 	 * 
+	 * @param user                 the User
 	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(EdgeUser user,
 			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(OpenemsConstants.COMPONENT_MANAGER_ID,
 				getEdgeConfigRequest);
 
-		return this.handleComponentJsonApiRequest(request);
+		return this.handleComponentJsonApiRequest(user, request);
 	}
 
 	/**
 	 * Handles a ComponentJsonApiRequest.
 	 * 
+	 * @param user    the User
 	 * @param request the ComponentJsonApiRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(ComponentJsonApiRequest request)
-			throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(EdgeUser user,
+			ComponentJsonApiRequest request) throws OpenemsNamedException {
 		// get Component
 		String componentId = request.getComponentId();
 		OpenemsComponent component = this.parent.componentManager.getComponent(componentId);
@@ -256,7 +281,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(request.getPayload());
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
+				request.getPayload());
 
 		// handle null response
 		if (responseFuture == null) {
@@ -276,11 +302,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a SubscribeSystemLogRequest.
 	 *
 	 * @param wsData  the WebSocket attachment
+	 * @param user    the User
 	 * @param request the SubscribeSystemLogRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData,
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, EdgeUser user,
 			SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		UUID token = wsData.getSessionToken();
 		if (token == null) {

@@ -1,11 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Cumulative: "Valores Acumulativos",
         Grid: "Red",
         GridBuy: "Relación",
         GridSell: "Fuente de alimentación",
         OffGrid: "No hay conexión de red",
         Production: "Producción",
         Consumption: "Consumo",
+        Load: "la cantidad",
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
         History: "Historia",

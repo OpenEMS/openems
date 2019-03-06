@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.GsonBuilder;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.User;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
 import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
@@ -32,6 +32,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
@@ -52,7 +53,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	/**
 	 * Maps User-ID to User
 	 */
-	private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 	/**
 	 * Caches Edges
 	 */
@@ -203,12 +204,27 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 		edge.onSetConfig(config -> {
 			// Update Edge config in Odoo
+			EdgeConfigDiff diff = EdgeConfigDiff.diff(config, edge.getConfig());
+			if (!diff.isDifferent()) {
+				return;
+			}
+
 			this.logDebug(this.log,
-					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(config.toJson(), 100));
+					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(diff.toString(), 100));
 			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
-			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG, conf));
 			String components = new GsonBuilder().setPrettyPrinting().create().toJson(config.componentsToJson());
-			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
+			this.write(edge, //
+					new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG, conf),
+					new FieldValue(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
+
+			// write EdgeConfig-Diff to Odoo Chatter
+			try {
+				OdooUtils.addChatterMessage(this.odooCredentials, ODOO_MODEL, edge.getOdooId(), //
+						"<p>Configuration Update:</p>" + diff.getAsHtml());
+			} catch (OpenemsException e) {
+				this.logError(this.log, "Unable to update Edge [" + edge.getId() + "] Odoo-ID [" + edge.getOdooId()
+						+ "] write EdgeConfig Diff to Odoo Chatter: " + e.getMessage());
+			}
 		});
 		edge.onSetLastMessage(() -> {
 			// Set LastMessage timestamp in Odoo
@@ -235,7 +251,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
+	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
 				this.odooCredentials.getDatabase(), username, password);
 		JsonrpcResponseSuccess origResponse = OdooUtils
@@ -253,7 +269,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public User authenticate(String sessionId) throws OpenemsNamedException {
+	public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
 		EmptyRequest request = new EmptyRequest();
 		String charset = "US-ASCII";
 		String query;
@@ -278,12 +294,12 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	 * @param edge       the Edge
 	 * @param fieldValue the FieldValue
 	 */
-	private void write(MyEdge edge, FieldValue fieldValue) {
+	private void write(MyEdge edge, FieldValue... fieldValues) {
 		try {
-			OdooUtils.write(this.odooCredentials, ODOO_MODEL, new Integer[] { edge.getOdooId() }, fieldValue);
+			OdooUtils.write(this.odooCredentials, ODOO_MODEL, new Integer[] { edge.getOdooId() }, fieldValues);
 		} catch (OpenemsException e) {
 			this.logError(this.log, "Unable to update Edge [" + edge.getId() + "] Odoo-ID [" + edge.getOdooId()
-					+ "] Field [" + fieldValue.getField().n() + "] : " + e.getMessage());
+					+ "] Fields [" + fieldValues.toString() + "]: " + e.getMessage());
 		}
 	}
 
@@ -303,7 +319,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public Optional<User> getUser(String userId) {
+	public Optional<BackendUser> getUser(String userId) {
 		return Optional.ofNullable(this.users.get(userId));
 	}
 

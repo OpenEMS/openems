@@ -12,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,7 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -49,7 +53,7 @@ import io.openems.edge.timedata.api.Timedata;
 		} //
 )
 public class BackendApi extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
+		implements Controller, OpenemsComponent, PaxAppender, EventHandler, ConfigurationListener {
 
 	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
@@ -188,5 +192,16 @@ public class BackendApi extends AbstractOpenemsComponent
 			this.worker.triggerNextRun();
 			break;
 		}
+	}
+
+	@Override
+	public void configurationEvent(ConfigurationEvent event) {
+		EdgeConfig config = this.componentManager.getEdgeConfig();
+		EdgeConfigNotification message = new EdgeConfigNotification(config);
+		WebsocketClient ws = this.websocket;
+		if (ws == null) {
+			return;
+		}
+		ws.sendMessage(message);
 	}
 }

@@ -18,7 +18,7 @@ public class OpenemsConstants {
 	 * 
 	 * This is usually the number of the sprint within the year
 	 */
-	public final static short VERSION_MINOR = 1;
+	public final static short VERSION_MINOR = 2;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -31,7 +31,7 @@ public class OpenemsConstants {
 	 * The additional version string
 	 */
 	// public final static String VERSION_STRING = "";
-	public final static String VERSION_STRING = "SNAPSHOT";
+	public final static String VERSION_STRING = "dev.0.53+20190225T195356Z";
 
 	/**
 	 * The complete version as a SemanticVersion.
@@ -100,4 +100,6 @@ public class OpenemsConstants {
 	public final static String PROPERTY_OSGI_COMPONENT_NAME = "component.name";
 	public final static String PROPERTY_PID = Constants.SERVICE_PID;
 	public final static String PROPERTY_FACTORY_PID = "service.factoryPid";
+	public final static String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
+	public final static String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 }
