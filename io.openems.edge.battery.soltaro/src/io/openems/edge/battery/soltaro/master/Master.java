@@ -84,42 +84,10 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
-		this.doChannelMapping();
-	}
-
-	private void doChannelMapping() {
-		this.channel(MasterChannelId.CHARGE_MAX_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.DISCHARGE_MAX_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.RACK_1_MAX_CHARGE_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.RACK_1_MAX_DISCHARGE_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.RACK_2_MAX_CHARGE_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.RACK_2_MAX_DISCHARGE_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.RACK_3_MAX_CHARGE_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
-		this.channel(MasterChannelId.RACK_3_MAX_DISCHARGE_CURRENT).onChange(value -> {
-			recalcMaxCurrent();
-		});
 	}
 	
-	
-	
-
 	@SuppressWarnings("unchecked")
 	private void recalcMaxCurrent() {
-		
 		int chargeMaxCurrent = 0; 
 		int dischargeMaxCurrent = 0;
 		
@@ -158,7 +126,7 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 			//more than one rack is configured, use information of cluster
 			Optional<Integer> chargeMaxCurrentOpt = (Optional<Integer>) this.channel(MasterChannelId.CHARGE_MAX_CURRENT).value().asOptional();
 			Optional<Integer> dischargeMaxCurrentOpt = (Optional<Integer>) this.channel(MasterChannelId.DISCHARGE_MAX_CURRENT).value().asOptional();
-			if (chargeMaxCurrentOpt.isPresent()) {
+			if (chargeMaxCurrentOpt.isPresent()) {			
 				chargeMaxCurrent = chargeMaxCurrentOpt.get();
 			}
 			if (dischargeMaxCurrentOpt.isPresent()) {
@@ -187,6 +155,7 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 	private void handleBatteryState() {
 		switch (this.batteryState) {
 		case DEFAULT:
+			recalcMaxCurrent();
 			handleStateMachine();
 			break;
 		case OFF:
