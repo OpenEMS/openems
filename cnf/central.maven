@@ -22,3 +22,4 @@ org.msgpack:msgpack-core:0.8.16
 org.ops4j.pax.logging:pax-logging-api:1.10.1
 org.ops4j.pax.logging:pax-logging-service:1.10.1
 org.slf4j:slf4j-api:1.8.0-beta2
+org.mariadb.jdbc:mariadb-java-client:1.1.7
