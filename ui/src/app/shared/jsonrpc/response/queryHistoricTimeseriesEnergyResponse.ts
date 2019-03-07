@@ -1,19 +1,18 @@
 import { JsonrpcResponseSuccess } from "../base";
 
-export interface Cummulated {
+export interface Cumulated {
     [channelAddress: string]: number | null
 }
 
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
  * 
- * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "data": Cummulated
+ *     "data": Cumulated
  *     }
  * }
  * </pre>
@@ -23,7 +22,7 @@ export class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSucces
     public constructor(
         public readonly id: string,
         public readonly result: {
-            data: Cummulated;
+            data: Cumulated;
         }
     ) {
         super(id, result);
