@@ -91,6 +91,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
 		this.defaultChargeMinPower = Math.max(0, config.defaultChargeMinPower());
+		this.chargeMode = config.chargeMode();
 		
 		switch(config.chargeMode()) {
 		case EXCESS_POWER:

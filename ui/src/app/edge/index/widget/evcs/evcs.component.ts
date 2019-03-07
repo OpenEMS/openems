@@ -2,9 +2,8 @@ import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { Timestamp } from 'rxjs/internal/operators/timestamp';
 
-type ChargeMode = 'FORCE_CHARGE' | 'DEFAULT';
+type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 
 @Component({
   selector: 'evcs',
@@ -43,7 +42,7 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'State'),
         new ChannelAddress(this.componentId, 'EnergySession')
       ]);
-      
+
     });
 
     // Gets the Controller for the given EVCS-Component.
@@ -79,8 +78,8 @@ export class EvcsComponent {
       case 'FORCE_CHARGE':
         newChargeMode = 'FORCE_CHARGE';
         break;
-      case 'DEFAULT':
-        newChargeMode = 'DEFAULT';
+      case 'EXCESS_POWER':
+        newChargeMode = 'EXCESS_POWER';
         break;
     }
 
@@ -177,16 +176,16 @@ export class EvcsComponent {
    * @param plug 
    */
   outputPowerOrState(power: Number, state: number, plug: number) {
-    
+
     if (power == null || power == 0) {
 
       this.chargeState = state;
       this.chargePlug = plug;
 
-      if(this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)        
+      if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)
         return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
 
-      switch(this.chargeState){
+      switch (this.chargeState) {
         case ChargeState.STARTING:
           return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
         case ChargeState.UNDEFINED:
@@ -201,7 +200,7 @@ export class EvcsComponent {
       }
     }
     return power + " W";
-    
+
   }
 
   /**
