@@ -40,6 +40,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 			case BOOLEAN:
 			case SHORT:
 			case INTEGER:
+			case ENUM:
 			case LONG:
 			case FLOAT:
 			case DOUBLE:

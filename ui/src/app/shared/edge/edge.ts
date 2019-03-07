@@ -16,6 +16,7 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse'
 
 export class Edge {
 
@@ -152,10 +153,10 @@ export class Edge {
    * 
    * @param ws          the Websocket
    * @param componentId the OpenEMS Edge Component-ID 
-   * @param update      the attributes to be updated.
+   * @param properties  the properties to be updated.
    */
-  public updateComponentConfig(ws: Websocket, componentId: string, update: [{ property: string, value: any }]): Promise<JsonrpcResponseSuccess> {
-    let request = new UpdateComponentConfigRequest(componentId, update);
+  public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+    let request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
     return this.sendRequest(ws, request);
   }
 
@@ -219,5 +220,16 @@ export class Edge {
    */
   public isVersionAtLeast(version: string): boolean {
     return cmp(this.version, version) >= 0;
+  }
+
+  /**
+	 * Evaluates whether the current Role is equal or more privileged than the
+	 * given Role.
+	 * 
+	 * @param role     the compared Role
+	 * @return true if the current Role is equal or more privileged than the given Role
+	 */
+  public roleIsAtLeast(role: Role | string): boolean {
+    return Role.isAtLeast(this.role, role);
   }
 }

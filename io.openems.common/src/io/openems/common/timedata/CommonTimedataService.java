@@ -2,11 +2,11 @@ package io.openems.common.timedata;
 
 import java.time.Period;
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -47,10 +47,20 @@ public interface CommonTimedataService {
 	 * @param channels   the Channels
 	 * @param resolution the Resolution in seconds
 	 */
+
 	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException;
 
-	
+	/**
+	 * Queries historic energy.
+	 * 
+	 * @param edgeId   the Edge-ID; or null query all
+	 * @param fromDate the From-Date
+	 * @param toDate   the To-Date
+	 * @param channels the Channels
+	 */
 
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
 }

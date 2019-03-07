@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class UserEdgesInfo {
 
-	private final User user;
+	private final BackendUser user;
 	private final Map<String, Edge> edges = new HashMap<>();
 
-	public UserEdgesInfo(User user) {
+	public UserEdgesInfo(BackendUser user) {
 		super();
 		this.user = user;
 	}
@@ -17,7 +17,7 @@ public class UserEdgesInfo {
 		this.edges.put(device.getId(), device);
 	}
 
-	public User getUser() {
+	public BackendUser getUser() {
 		return user;
 	}
 

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
@@ -27,6 +27,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 	}
 
 	@Override
+	// TODO should throws OpenemsException
 	public void accept(Integer activePower, Integer reactivePower) {
 
 		checkForResettingFault();
@@ -93,13 +94,13 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 	}
 
 	private boolean isInverterInNormalMode() {
-		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
+		EnumReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
 		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue())
 				.equals(InverterMode.NORMAL.getValue());
 	}
 
 	private boolean isInverterInFaultMode() {
-		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
+		EnumReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
 		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue())
 				.equals(InverterMode.FAULT.getValue());
 	}

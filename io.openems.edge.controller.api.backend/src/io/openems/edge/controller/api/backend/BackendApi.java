@@ -12,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,16 +23,22 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
@@ -39,19 +47,24 @@ import io.openems.edge.timedata.api.Timedata;
 @Component(name = "Controller.Api.Backend", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Backend")
-public class BackendApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
+		property = { //
+				"org.ops4j.pax.logging.appender.name=Controller.Api.Backend", //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		} //
+)
+public class BackendApi extends AbstractOpenemsComponent
+		implements Controller, OpenemsComponent, PaxAppender, EventHandler, ConfigurationListener {
 
-	protected static final int DEFAULT_CYCLE_TIME = 10000;
+	protected static final int DEFAULT_NO_OF_CYCLES = 10;
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
-	protected final BackendWorker backendWorker = new BackendWorker(this);
+	protected final BackendWorker worker = new BackendWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
 	private final ApiWorker apiWorker = new ApiWorker();
 
 	protected WebsocketClient websocket = null;
-	protected int cycleTime = DEFAULT_CYCLE_TIME; // default, is going to be overwritten by config
+	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
 	protected boolean debug = false;
 
 	// Used for SubscribeSystemLogRequests
@@ -79,7 +92,7 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
-		this.cycleTime = config.cycleTime();
+		this.noOfCycles = config.noOfCycles();
 		this.debug = config.debug();
 
 		if (!this.isEnabled()) {
@@ -115,13 +128,13 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 		this.websocket.start();
 
 		// Activate worker
-		this.backendWorker.activate(config.id());
+		this.worker.activate(config.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.backendWorker.deactivate();
+		this.worker.deactivate();
 		if (this.websocket != null) {
 			this.websocket.stop();
 		}
@@ -170,5 +183,25 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 		}
 		SystemLogNotification notification = SystemLogNotification.fromPaxLoggingEvent(event);
 		ws.sendMessage(notification);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.worker.triggerNextRun();
+			break;
+		}
+	}
+
+	@Override
+	public void configurationEvent(ConfigurationEvent event) {
+		EdgeConfig config = this.componentManager.getEdgeConfig();
+		EdgeConfigNotification message = new EdgeConfigNotification(config);
+		WebsocketClient ws = this.websocket;
+		if (ws == null) {
+			return;
+		}
+		ws.sendMessage(message);
 	}
 }

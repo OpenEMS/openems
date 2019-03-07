@@ -103,7 +103,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	 * 
 	 * @return the Channel
 	 */
-	default Channel<Integer> getActualEnergy() {
+	default Channel<Long> getActualEnergy() {
 		return this.channel(ChannelId.ACTUAL_ENERGY);
 	}
 
