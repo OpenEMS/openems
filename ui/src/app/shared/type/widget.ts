@@ -1,5 +1,5 @@
 export enum WidgetNature {
-    'io.openems.edge.evcs.api.Evcs',
+    // 'io.openems.edge.evcs.api.Evcs',
     'io.openems.impl.controller.channelthreshold.ChannelThresholdController' // TODO deprecated
 }
 
