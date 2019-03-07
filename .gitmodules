@@ -1,3 +1,6 @@
 [submodule "io.openems.edge.ess.kaco.blueplanet.hybrid10"]
 	path = io.openems.edge.ess.kaco.blueplanet.hybrid10
 url=https://bitbucket.org/sfeilmeier/io.openems.edge.kaco.blueplanet.hybrid10/
+[submodule "io.openems.edge.kaco.blueplanet.hybrid10"]
+	path = io.openems.edge.kaco.blueplanet.hybrid10
+	url = https://bitbucket.org/sfeilmeier/io.openems.edge.kaco.blueplanet.hybrid10/
