@@ -94,7 +94,7 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_1_FAILURE_TEMP_SAMPLING(new Doc().level(Level.FAULT).text("Temperature sampling fault")), //
 	RACK_1_FAILURE_VOLTAGE_SAMPLING(new Doc().level(Level.FAULT).text("Voltage sampling fault")), //
 	RACK_1_FAILURE_LTC6803(new Doc().level(Level.FAULT).text("LTC6803 fault")), //
-	RACK_1_FAILURE_CONNECTOR_WIRE(new Doc().level(Level.FAULT).text("connector wire fault")), //
+	RACK_1_FAILURE_CONNECTOR_WIRE(new Doc().level(Level.WARNING).text("connector wire fault")), //
 	RACK_1_FAILURE_SAMPLING_WIRE(new Doc().level(Level.FAULT).text("sampling wire fault")), //
 
 	RACK_1_BATTERY_000_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
@@ -493,7 +493,7 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_2_FAILURE_TEMP_SAMPLING(new Doc().level(Level.FAULT).text("Temperature sampling fault")), //
 	RACK_2_FAILURE_VOLTAGE_SAMPLING(new Doc().level(Level.FAULT).text("Voltage sampling fault")), //
 	RACK_2_FAILURE_LTC6803(new Doc().level(Level.FAULT).text("LTC6803 fault")), //
-	RACK_2_FAILURE_CONNECTOR_WIRE(new Doc().level(Level.FAULT).text("connector wire fault")), //
+	RACK_2_FAILURE_CONNECTOR_WIRE(new Doc().level(Level.WARNING).text("connector wire fault")), //
 	RACK_2_FAILURE_SAMPLING_WIRE(new Doc().level(Level.FAULT).text("sampling wire fault")), //
 
 	RACK_2_BATTERY_000_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
@@ -892,7 +892,7 @@ public enum MasterChannelId implements io.openems.edge.common.channel.doc.Channe
 	RACK_3_FAILURE_TEMP_SAMPLING(new Doc().level(Level.FAULT).text("Temperature sampling fault")), //
 	RACK_3_FAILURE_VOLTAGE_SAMPLING(new Doc().level(Level.FAULT).text("Voltage sampling fault")), //
 	RACK_3_FAILURE_LTC6803(new Doc().level(Level.FAULT).text("LTC6803 fault")), //
-	RACK_3_FAILURE_CONNECTOR_WIRE(new Doc().level(Level.FAULT).text("connector wire fault")), //
+	RACK_3_FAILURE_CONNECTOR_WIRE(new Doc().level(Level.WARNING).text("connector wire fault")), //
 	RACK_3_FAILURE_SAMPLING_WIRE(new Doc().level(Level.FAULT).text("sampling wire fault")), //
 
 	RACK_3_BATTERY_000_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //

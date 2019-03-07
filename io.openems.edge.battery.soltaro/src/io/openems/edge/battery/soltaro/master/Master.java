@@ -84,6 +84,7 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
+		this.state = State.UNDEFINED;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -101,7 +102,6 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 			if (dischargeMaxCurrentOpt.isPresent()) {
 				dischargeMaxCurrent = dischargeMaxCurrentOpt.get();
 			}
-			
 		} else if (!config.rack1IsUsed() && config.rack2IsUsed() && !config.rack3IsUsed()) {
 			//Only rack 2 is configured --> use max current of rack 2
 			Optional<Integer> chargeMaxCurrentOpt = (Optional<Integer>) this.channel(MasterChannelId.RACK_2_MAX_CHARGE_CURRENT).value().asOptional();
@@ -133,9 +133,11 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 				dischargeMaxCurrent = dischargeMaxCurrentOpt.get();
 			}
 		}		
-		
+
 		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(chargeMaxCurrent);
 		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(dischargeMaxCurrent);
+		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).nextProcessImage();
+		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).nextProcessImage();
 	}
 
 	@Override
@@ -331,48 +333,65 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 	}
 
 	private boolean isSystemStopped() {
-		boolean ret = true;
+		//System if definitely stopped when all racks are stopped, if only one or two racks are configured, the other ones
+		//must also be stopped, otherwise status is not clear
 
-		if (ret && config.rack1IsUsed()) {
-			IntegerReadChannel rack1StateChannel = this.channel(MasterChannelId.RACK_1_STATE);
-			Optional<Integer> val = rack1StateChannel.value().asOptional();
-			ret = ret && val.isPresent() && val.get() == StartStop.STOP.getValue();
-		}
+		IntegerReadChannel rack1StateChannel = this.channel(MasterChannelId.RACK_1_STATE);
+		IntegerReadChannel rack2StateChannel = this.channel(MasterChannelId.RACK_2_STATE);
+		IntegerReadChannel rack3StateChannel = this.channel(MasterChannelId.RACK_3_STATE);
 
-		if (ret && config.rack2IsUsed()) {
-			IntegerReadChannel rack2StateChannel = this.channel(MasterChannelId.RACK_2_STATE);
-			Optional<Integer> val = rack2StateChannel.value().asOptional();
-			ret = ret && val.isPresent() && val.get() == StartStop.STOP.getValue();
-		}
-
-		if (ret && config.rack3IsUsed()) {
-			IntegerReadChannel rack3StateChannel = this.channel(MasterChannelId.RACK_3_STATE);
-			Optional<Integer> val = rack3StateChannel.value().asOptional();
-			ret = ret && val.isPresent() && val.get() == StartStop.STOP.getValue();
-		}
+		Optional<Integer> v1 = rack1StateChannel.value().asOptional();
+		Optional<Integer> v2 = rack2StateChannel.value().asOptional();
+		Optional<Integer> v3 = rack3StateChannel.value().asOptional();
+		
+		int stop = StartStop.STOP.getValue();
+		boolean ret = v1.isPresent() && v2.isPresent() &&  v3.isPresent() &&
+				v1.get() == stop && v2.get() == stop && v3.get() == stop;
+		
 		return ret;
 	}
 
 	private boolean isSystemRunning() {
-		boolean ret = true;
+		//System is running when the configured racks are running, other racks must be stopped, otherwise 
+		//status is not definitively clear
+		
+		IntegerReadChannel rack1StateChannel = this.channel(MasterChannelId.RACK_1_STATE);
+		IntegerReadChannel rack2StateChannel = this.channel(MasterChannelId.RACK_2_STATE);
+		IntegerReadChannel rack3StateChannel = this.channel(MasterChannelId.RACK_3_STATE);
 
-		if (ret && config.rack1IsUsed()) {
-			IntegerReadChannel rack1StateChannel = this.channel(MasterChannelId.RACK_1_STATE);
-			Optional<Integer> val = rack1StateChannel.value().asOptional();
-			ret = ret && val.isPresent() && val.get() == StartStop.START.getValue();
-		}
+		Optional<Integer> val1Opt = rack1StateChannel.value().asOptional();
+		Optional<Integer> val2Opt = rack2StateChannel.value().asOptional();
+		Optional<Integer> val3Opt = rack3StateChannel.value().asOptional();
+		
+		 if ( !val1Opt.isPresent() || !val2Opt.isPresent() || ! val3Opt.isPresent()) {
+			 return false;
+		 }
 
-		if (ret && config.rack2IsUsed()) {
-			IntegerReadChannel rack2StateChannel = this.channel(MasterChannelId.RACK_2_STATE);
-			Optional<Integer> val = rack2StateChannel.value().asOptional();
-			ret = ret && val.isPresent() && val.get() == StartStop.START.getValue();
+		 int v1 = val1Opt.get();
+		 int v2 = val2Opt.get();
+		 int v3 = val3Opt.get();
+		 
+		 int start = StartStop.START.getValue();
+		 int stop = StartStop.STOP.getValue();
+		 
+		 boolean ret = false;
+		 
+		if (config.rack1IsUsed() && !config.rack2IsUsed() && !config.rack3IsUsed()) { // r1
+			ret = (v1 == start && v2 == stop && v3 == stop);
+		} else if (config.rack1IsUsed() && config.rack2IsUsed() && !config.rack3IsUsed()) { // r1 & r2
+			ret = (v1 == start && v2 == start && v3 == stop);
+		} else if (config.rack1IsUsed() && !config.rack2IsUsed() && config.rack3IsUsed()) { // r1 & r3
+			ret = (v1 == start && v2 == stop && v3 == start);
+		} else if (config.rack1IsUsed() && config.rack2IsUsed() && config.rack3IsUsed()) { // r1 & r2 & r3
+			ret = (v1 == start && v2 == start && v3 == start);
+		} else if (!config.rack1IsUsed() && config.rack2IsUsed() && !config.rack3IsUsed()) { // r2
+			ret = (v1 == stop && v2 == start && v3 == stop);
+		} else if (!config.rack1IsUsed() && config.rack2IsUsed() && config.rack3IsUsed()) { // r2 && r3
+			ret = (v1 == stop && v2 == start && v3 == start);
+		} else if (!config.rack1IsUsed() && !config.rack2IsUsed() && config.rack3IsUsed()) { // r3
+			ret = (v1 == stop && v2 == stop && v3 == start);
 		}
-
-		if (ret && config.rack3IsUsed()) {
-			IntegerReadChannel rack3StateChannel = this.channel(MasterChannelId.RACK_3_STATE);
-			Optional<Integer> val = rack3StateChannel.value().asOptional();
-			ret = ret && val.isPresent() && val.get() == StartStop.START.getValue();
-		}
+		
 		return ret;
 	}
 
@@ -519,7 +538,6 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 				) //
 		}));
 
-		if (config.rack1IsUsed()) {
 			// ---------------- registers of rack 1 -----------------------------
 			tasks.addAll(Arrays.asList(new Task[] { new FC16WriteRegistersTask(BASE_ADDRESS_RACK_1 + 0x1, //
 					m(MasterChannelId.RACK_1_STATE, new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x1)) //
@@ -1164,8 +1182,6 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 					) //
 			}));
 
-		}
-		if (config.rack2IsUsed()) {
 			// ---------------- registers of rack 2 -----------------------------
 			tasks.addAll(Arrays.asList(new Task[] { new FC16WriteRegistersTask(BASE_ADDRESS_RACK_2 + 0x1, //
 					m(MasterChannelId.RACK_2_STATE, new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x1)) //
@@ -1807,9 +1823,7 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 									new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0xC43)) //
 					) //
 			}));
-		}
 
-		if (config.rack3IsUsed()) {
 			// ---------------- registers of rack 3 -----------------------------
 			tasks.addAll(Arrays.asList(new Task[] {
 
@@ -2453,7 +2467,6 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 									new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0xC43)) //
 					) //
 			}));
-		}
 
 		return new ModbusProtocol(this, tasks.toArray(new Task[0]));//
 
