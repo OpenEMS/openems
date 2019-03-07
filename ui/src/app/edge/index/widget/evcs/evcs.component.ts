@@ -109,7 +109,7 @@ export class EvcsComponent {
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { property: 'forceChargeMinPower', value: newMinChargePower }
+        { name: 'forceChargeMinPower', value: newMinChargePower }
       ]).then(response => {
         console.log("HIER", response);
         this.controller.properties.forceChargeMinPower = newMinChargePower;
@@ -131,7 +131,7 @@ export class EvcsComponent {
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { property: 'defaultChargeMinPower', value: newMinChargePower }
+        { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(response => {
         console.log("HIER", response);
         this.controller.properties.defaultChargeMinPower = newMinChargePower;
@@ -158,7 +158,7 @@ export class EvcsComponent {
     }
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { property: 'defaultChargeMinPower', value: newMinChargePower }
+        { name: 'defaultChargeMinPower', value: newMinChargePower }
       ]).then(response => {
         console.log("HIER", response);
         this.controller.properties.defaultChargeMinPower = newMinChargePower;
