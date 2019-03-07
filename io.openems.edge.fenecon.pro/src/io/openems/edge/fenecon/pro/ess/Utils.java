@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -33,7 +35,7 @@ public class Utils {
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, GridMode.UNDEFINED);
+						return new EnumReadChannel(c, channelId, GridMode.UNDEFINED);
 					case MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, FeneconProEss.MAX_APPARENT_POWER);
 					}
@@ -52,6 +54,8 @@ public class Utils {
 					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
 					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
+					case APPLY_POWER_FAILED:
+						return new StateChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {
@@ -98,14 +102,9 @@ public class Utils {
 
 				}), Arrays.stream(FeneconProEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case SYSTEM_STATE:
 					case TOTAL_BATTERY_CHARGE_ENERGY:
 					case TOTAL_BATTERY_DISCHARGE_ENERGY:
-					case WORK_MODE:
-					case BATTERY_GROUP_STATE:
-					case CONTROL_MODE:
 					case BATTERY_CURRENT:
-					case PCS_OPERATION_STATE:
 					case CURRENT_L1:
 					case CURRENT_L2:
 					case CURRENT_L3:
@@ -152,15 +151,23 @@ public class Utils {
 					case BATTERY_TEMPERATURE_SECTION_13:
 						return new IntegerReadChannel(c, channelId);
 
-					case PCS_MODE:
+					case BATTERY_GROUP_STATE:
+						return new EnumReadChannel(c, channelId, BatteryGroupState.UNDEFINED);
+					case CONTROL_MODE:
+						return new EnumReadChannel(c, channelId, ControlMode.UNDEFINED);
+					case PCS_OPERATION_STATE:
+						return new EnumReadChannel(c, channelId, PcsOperationState.UNDEFINED);
+					case SYSTEM_STATE:
+						return new EnumReadChannel(c, channelId, SystemState.UNDEFINED);
+					case WORK_MODE:
+						return new EnumReadChannel(c, channelId, WorkMode.UNDEFINED);
+
 					case RTC_DAY:
 					case RTC_HOUR:
 					case RTC_MINUTE:
 					case RTC_MONTH:
 					case RTC_SECOND:
 					case RTC_YEAR:
-					case SETUP_MODE:
-					case SET_WORK_STATE:
 					case SET_ACTIVE_POWER_L1:
 					case SET_ACTIVE_POWER_L2:
 					case SET_ACTIVE_POWER_L3:
@@ -168,6 +175,13 @@ public class Utils {
 					case SET_REACTIVE_POWER_L2:
 					case SET_REACTIVE_POWER_L3:
 						return new IntegerWriteChannel(c, channelId);
+
+					case PCS_MODE:
+						return new EnumWriteChannel(c, channelId, PcsMode.UNDEFINED);
+					case SETUP_MODE:
+						return new EnumWriteChannel(c, channelId, SetupMode.UNDEFINED);
+					case SET_WORK_STATE:
+						return new EnumWriteChannel(c, channelId, SetWorkState.UNDEFINED);
 
 					case STATE_0:
 					case STATE_1:

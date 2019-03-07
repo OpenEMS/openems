@@ -1,11 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Cumulative: "Kumulativní Hodnoty",
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
+        Load: "nálož",
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
         History: "Historie",

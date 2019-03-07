@@ -5,7 +5,6 @@ testpath:\
 
 -plugin.9x.enroute.distro = \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-		snapshotUrls=https://oss.sonatype.org/content/groups/osgi; \
 		releaseUrls=https://repo1.maven.org/maven2/; \
 		revision=org.osgi:osgi.enroute.pom.distro:2.1.0; \
 		name=Distro; \
@@ -19,7 +18,6 @@ testpath:\
 	osgi.identity;filter:='(osgi.identity=biz.aQute.launcher)', \
 	osgi.identity;filter:='(osgi.identity=biz.aQute.remote.launcher)'
 
-
 -runproperties.eqnx: 				\
 	org.apache.felix.http.jettyEnabled=true, \
 	org.apache.felix.http.whiteboardEnabled=true,\
@@ -29,7 +27,6 @@ testpath:\
 -runpath.eqnx: 					osgi.enroute.equinox.log.adapter
 -runrequires.eqnx: \
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.log)'
-
 
 -runsystempackages.eqnx:		javax.script
 -runsystemcapabilities.dflt: 	${native_capability}
@@ -51,22 +48,14 @@ javac.target: 			1.8
 -metatypeannotations:	*
 -contract:				*
 
-
 test-cases: 			${classes;NAMED;*Test}
 -resolve.effective:		resolve, active
 -releaserepo:           Release
 
-#-plugin.4.Central:  \
-#	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
-#		snapshotUrls=https://oss.sonatype.org/content/groups/osgi; \
-#		releaseUrls=https://repo1.maven.org/maven2/; \
-#		pom=${build}/pom.xml; \
-#		name=Central; \
-#		location=${build}/cache/enroute-pom.xml
 -plugin.4.Central: \
-	aQute.bnd.repository.maven.provider.MavenBndRepository; \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		releaseUrl=https://repo.maven.apache.org/maven2/; \
-		index=${.}/central.maven; \
+		pom=${.}/pom.xml; \
 		readOnly=true; \
 		name="Maven Central"
 

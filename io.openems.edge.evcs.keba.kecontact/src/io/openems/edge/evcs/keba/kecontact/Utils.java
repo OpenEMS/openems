@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -52,8 +53,6 @@ public class Utils {
 					case ERROR_2:
 					case MAX_CURR:
 					case MAX_CURR_PERCENT:
-					case PLUG:
-					case STATUS:
 					case TIMEOUT_CT:
 					case TIMEOUT_FAILSAFE:
 					case VOLTAGE_L1:
@@ -61,6 +60,10 @@ public class Utils {
 					case VOLTAGE_L3:
 					case PHASES:
 						return new IntegerReadChannel(c, channelId);
+					case PLUG:
+						return new EnumReadChannel(c, channelId, Plug.UNDEFINED);
+					case STATUS:
+						return new EnumReadChannel(c, channelId, Status.UNDEFINED);
 					case ENABLE_USER:
 					case ENABLE_SYS:
 					case INPUT:

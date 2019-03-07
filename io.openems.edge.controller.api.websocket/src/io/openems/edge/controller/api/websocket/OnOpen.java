@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
-import io.openems.edge.common.user.User;
+import io.openems.edge.common.user.EdgeUser;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -36,7 +36,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				token = UUID.fromString(cookieToken.get());
 
 				// login using token from the cookie
-				User user = this.parent.sessionTokens.get(token);
+				EdgeUser user = this.parent.sessionTokens.get(token);
 				if (user != null) {
 					/*
 					 * token from cookie is valid -> authentication successful

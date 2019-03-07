@@ -1,22 +1,31 @@
 package io.openems.edge.controller.evcs;
 
-public enum ChargeMode {
-	
-	DEFAULT(0), FORCE_CHARGE(0);
-	
-	private int minPower;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 
-	private ChargeMode(int minPower) {
-		this.minPower = minPower;
+public enum ChargeMode implements OptionsEnum {
+	FORCE_CHARGE(0, "Force-Charge"), //
+	EXCESS_POWER(1, "Use excessive power"); //
+
+	private final int value;
+	private final String name;
+
+	private ChargeMode(int value, String name) {
+		this.value = value;
+		this.name = name;
 	}
-	
 
-	public int getMinPower() {
-		return minPower;
+	@Override
+	public int getValue() {
+		return value;
 	}
 
-	public ChargeMode setMinPower(int minPower) {
-		this.minPower = minPower;
-		return this;
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return FORCE_CHARGE;
 	}
 }

@@ -10,8 +10,8 @@ import { JsonrpcRequest } from "../base";
  *   "method": "updateComponentConfig",
  *   "params": {
  *     "componentId": string,
- *     "update": [
- *       "property": string,
+ *     "properties": [
+ *       "name": string,
  *       "value": any
  *     ]
  *   }
@@ -23,16 +23,15 @@ export class UpdateComponentConfigRequest extends JsonrpcRequest {
     static METHOD: string = "updateComponentConfig";
 
     public constructor(
-        public readonly componentId: string,
-        public readonly update: [{
-            property: string,
-            value: any
-        }]
+        public readonly params: {
+            componentId: string,
+            properties: {
+                name: string,
+                value: any
+            }[]
+        }
     ) {
-        super(UpdateComponentConfigRequest.METHOD, {
-            componentId: componentId,
-            update: update
-        });
+        super(UpdateComponentConfigRequest.METHOD, params);
     }
 
 }

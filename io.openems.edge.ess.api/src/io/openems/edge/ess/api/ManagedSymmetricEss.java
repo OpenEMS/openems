@@ -4,11 +4,14 @@ import org.osgi.annotation.versioning.ProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -162,8 +165,19 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * just before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)) //
-		;
+		DEBUG_SET_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		/**
+		 * StateChannel is set when calling applyPower() failed.
+		 * 
+		 * <ul>
+		 * <li>Interface: Managed Symmetric Ess
+		 * <li>Type: StateChannel
+		 * <li>Implementation Note: value is automatically written by
+		 * {@link Power}-Solver if {@link ManagedAsymmetricEss#applyPower(int, int)}
+		 * failed.
+		 * </ul>
+		 */
+		APPLY_POWER_FAILED(new Doc().level(Level.FAULT).text("Applying the Active/Reactive Power failed"));
 
 		private final Doc doc;
 
@@ -270,6 +284,15 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
+	 * Gets the Apply Power Failed StateChannel.
+	 * 
+	 * @return the Channel
+	 */
+	default StateChannel getApplyPowerFailed() {
+		return this.channel(ChannelId.APPLY_POWER_FAILED);
+	}
+
+	/**
 	 * Apply the calculated Power.
 	 * 
 	 * <p>
@@ -280,8 +303,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * 
 	 * @param activePower   the active power
 	 * @param reactivePower the reactive power
+	 * @throws OpenemsException on error; causes activation of APPLY_POWER_FAILED
+	 *                          StateChannel
 	 */
-	public void applyPower(int activePower, int reactivePower);
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException;
 
 	/**
 	 * Gets the smallest positive power that can be set (in W, VA or var). Example:

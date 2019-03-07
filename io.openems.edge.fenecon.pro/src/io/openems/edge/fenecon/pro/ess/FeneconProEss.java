@@ -29,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
@@ -77,21 +78,13 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
-		try {
-			this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
-			this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
-			this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
-		} catch (OpenemsException e) {
-			log.error("Unable to set ActivePower: " + e.getMessage());
-		}
-		try {
-			this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
-			this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
-			this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
-		} catch (OpenemsException e) {
-			log.error("Unable to set ReactivePower: " + e.getMessage());
-		}
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
+		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
+		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
+		this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
+		this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
+		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -101,8 +94,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 
@@ -777,7 +769,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		return this.channel(FeneconProEss.ChannelId.SET_REACTIVE_POWER_L3);
 	}
 
-	private IntegerWriteChannel getPcsModeChannel() {
+	private EnumWriteChannel getPcsModeChannel() {
 		return this.channel(FeneconProEss.ChannelId.PCS_MODE);
 	}
 
@@ -785,7 +777,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		return this.getPcsModeChannel().value().asEnum();
 	}
 
-	private IntegerWriteChannel getSetupModeChannel() {
+	private EnumWriteChannel getSetupModeChannel() {
 		return this.channel(FeneconProEss.ChannelId.SETUP_MODE);
 	}
 

@@ -110,8 +110,8 @@ public class Edge {
 	 * @param isOnline true if the Edge is online
 	 */
 	public synchronized void setOnline(boolean isOnline) {
-		this.isOnline = isOnline;
 		this.onSetOnline.forEach(listener -> listener.accept(isOnline));
+		this.isOnline = isOnline;
 	}
 
 	/*
@@ -119,6 +119,12 @@ public class Edge {
 	 */
 	private final List<Consumer<EdgeConfig>> onSetConfig = new CopyOnWriteArrayList<>();
 
+	/**
+	 * Adds a listener for reception of new EdgeConfig. The listener is called
+	 * before the new config is applied.
+	 * 
+	 * @param listener the Listener
+	 */
 	public void onSetConfig(Consumer<EdgeConfig> listener) {
 		this.onSetConfig.add(listener);
 	}
@@ -129,8 +135,8 @@ public class Edge {
 	 * @param config the configuration
 	 */
 	public synchronized void setConfig(EdgeConfig config) {
-		this.config = config;
 		this.onSetConfig.forEach(listener -> listener.accept(config));
+		this.config = config;
 	}
 
 	/*
@@ -154,9 +160,9 @@ public class Edge {
 	}
 
 	public synchronized void setLastMessageTimestamp() {
+		this.onSetLastMessageTimestamp.forEach(listener -> listener.run());
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastMessage = now;
-		this.onSetLastMessageTimestamp.forEach(listener -> listener.run());
 	}
 
 	public ZonedDateTime getLastMessageTimestamp() {
@@ -173,9 +179,9 @@ public class Edge {
 	}
 
 	public synchronized void setLastUpdateTimestamp() {
+		this.onSetLastUpdateTimestamp.forEach(listener -> listener.run());
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastUpdate = now;
-		this.onSetLastUpdateTimestamp.forEach(listener -> listener.run());
 	}
 
 	public ZonedDateTime getLastUpdateTimestamp() {
@@ -193,9 +199,9 @@ public class Edge {
 
 	public synchronized void setVersion(SemanticVersion version) {
 		if (this.version == null || !version.equals(this.version)) { // on change
-			log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
-			this.version = version;
+			this.log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
 			this.onSetVersion.forEach(listener -> listener.accept(version));
+			this.version = version;
 		}
 	}
 
@@ -210,9 +216,9 @@ public class Edge {
 
 	public synchronized void setSoc(int soc) {
 		if (this.soc == null || this.soc.intValue() != soc) { // on change
-			log.debug("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
-			this.soc = soc;
+			this.log.debug("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
 			this.onSetSoc.forEach(listener -> listener.accept(soc));
+			this.soc = soc;
 		}
 	}
 
@@ -227,9 +233,9 @@ public class Edge {
 
 	public synchronized void setIpv4(String ipv4) {
 		if (this.ipv4 == null || !ipv4.equals(this.ipv4)) { // on change
-			log.debug("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
-			this.ipv4 = ipv4;
+			this.log.debug("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
 			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
+			this.ipv4 = ipv4;
 		}
 	}
 

@@ -4,7 +4,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +21,8 @@ import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.QueryResult.Result;
 import org.influxdb.dto.QueryResult.Series;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
@@ -28,24 +32,29 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 
 public class InfluxConnector {
 
 	public final static String MEASUREMENT = "data";
+
+	private final static Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
 	private final int port;
 	private final String username;
 	private final String password;
 	private final String database;
+	private final boolean isReadOnly;
 
-	public InfluxConnector(String ip, int port, String username, String password, String database) {
+	public InfluxConnector(String ip, int port, String username, String password, String database, boolean isReadOnly) {
 		super();
 		this.ip = ip;
 		this.port = port;
 		this.username = username;
 		this.password = password;
 		this.database = database;
+		this.isReadOnly = isReadOnly;
 	}
 
 	private InfluxDB _influxDB = null;
@@ -100,6 +109,43 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries historic energy.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param fromDate     the From-Date
+	 * @param toDate       the To-Date
+	 * @param channels     the Channels to query
+	 * @return a map between ChannelAddress and value
+	 * @throws OpenemsException on error
+	 */
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// Prepare query string
+		StringBuilder b = new StringBuilder("SELECT ");
+		b.append(InfluxConnector.toChannelAddressStringEnergy(channels));
+		b.append(" FROM data WHERE ");
+		if (influxEdgeId.isPresent()) {
+			b.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
+		}
+		b.append("time > ");
+		b.append(String.valueOf(fromDate.toEpochSecond()));
+		b.append("s");
+		b.append(" AND time < ");
+		b.append(String.valueOf(toDate.toEpochSecond()));
+		b.append("s");
+		String query = b.toString();
+
+		// Execute query
+		QueryResult queryResult = executeQuery(query);
+
+		// Prepare result
+		Map<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
+				fromDate.getZone());
+
+		return result;
+	}
+
+	/**
 	 * Queries historic data.
 	 * 
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
@@ -115,7 +161,7 @@ public class InfluxConnector {
 			throws OpenemsNamedException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(InfluxConnector.toChannelAddressString(channels));
+		query.append(InfluxConnector.toChannelAddressStringData(channels));
 		query.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
 			query.append(InfluxConstants.TAG + " = '" + influxEdgeId.get() + "' AND ");
@@ -131,7 +177,7 @@ public class InfluxConnector {
 		query.append("s) fill(null)");
 
 		// Execute query
-		QueryResult queryResult = executeQuery(query.toString());
+		QueryResult queryResult = this.executeQuery(query.toString());
 
 		// Prepare result
 		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> result = InfluxConnector
@@ -190,15 +236,92 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
+	 * 
+	 * @param queryResult the Query-Result
+	 * @return
+	 * @throws OpenemsException on error
+	 */
+	private static Map<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query, QueryResult queryResult,
+			ZoneId timezone) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> map = new HashMap<>();
+		for (Result result : queryResult.getResults()) {
+			List<Series> seriess = result.getSeries();
+			if (seriess != null) {
+				for (Series series : seriess) {
+					// create ChannelAddress index
+					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
+					for (String column : series.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
+						addressIndex.add(ChannelAddress.fromString(column));
+					}
+
+					// add all data
+					for (List<Object> values : series.getValues()) {
+						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+							// Note: ignoring index '0' here as it is the 'timestamp'
+							ChannelAddress address = addressIndex.get(columnIndex);
+							Object valueObj = values.get(columnIndex + 1);
+							JsonElement value;
+							if (valueObj == null) {
+								value = JsonNull.INSTANCE;
+							} else if (valueObj instanceof Number) {
+								Number number = (Number) valueObj;
+								if (number.intValue() < 0) {
+									// do not consider negative values
+									log.warn("Got negative Energy value [" + number + "] for query: " + query);
+									value = JsonNull.INSTANCE;
+								} else {
+									value = new JsonPrimitive(number);
+								}
+							} else {
+								value = new JsonPrimitive(valueObj.toString());
+							}
+							map.put(address, value);
+						}
+					}
+				}
+			}
+		}
+
+		{
+			// Check if all values are null
+			boolean areAllValuesNull = true;
+			for (JsonElement value : map.values()) {
+				if (!value.isJsonNull()) {
+					areAllValuesNull = false;
+					break;
+				}
+			}
+			if (areAllValuesNull) {
+				throw new OpenemsException("Energy values are not available");
+			}
+		}
+
+		return map;
+	}
+
+	/**
 	 * 
 	 * @param channels
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static String toChannelAddressString(Set<ChannelAddress> channels) throws OpenemsException {
+	protected static String toChannelAddressStringData(Set<ChannelAddress> channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (ChannelAddress channel : channels) {
 			channelAddresses.add("MEAN(\"" + channel.toString() + "\") AS \"" + channel.toString() + "\"");
+		}
+		return String.join(", ", channelAddresses);
+	}
+
+	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (ChannelAddress channel : channels) {
+			channelAddresses.add("last(\"" + channel.toString() + "\") - first(\"" + channel.toString() + "\") as \""
+					+ channel.toString() + "\"");
 		}
 		return String.join(", ", channelAddresses);
 	}
@@ -210,6 +333,11 @@ public class InfluxConnector {
 	 * @throws OpenemsException on error
 	 */
 	public void write(BatchPoints batchPoints) throws OpenemsException {
+		if (this.isReadOnly) {
+			log.info("Read-Only-Mode is activated. Not writing points: "
+					+ StringUtils.toShortString(batchPoints.lineProtocol(), 100));
+			return;
+		}
 		try {
 			this.getConnection().write(batchPoints);
 		} catch (InfluxDBIOException e) {

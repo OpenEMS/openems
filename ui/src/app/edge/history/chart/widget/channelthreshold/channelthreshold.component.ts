@@ -107,7 +107,7 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
         let channeladdresses = [];
         // find all ChannelThresholdControllers
         for (let controllerId of
-          config.getComponentsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
+          config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
             .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
           const outputChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
           channeladdresses.push(outputChannel);

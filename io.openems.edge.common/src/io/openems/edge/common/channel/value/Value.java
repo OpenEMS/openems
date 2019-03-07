@@ -94,6 +94,16 @@ public class Value<T> {
 	};
 
 	/**
+	 * Is the value defined?. This is an abbreviation for
+	 * Value.asOptional().isPresent().
+	 *
+	 * @return true if the value is defined; false if it is UNDEFINED
+	 */
+	public boolean isDefined() {
+		return this.asOptional().isPresent();
+	};
+
+	/**
 	 * Gets the value or the given alternativeValue. This is short for
 	 * '.asOptional().or()'.
 	 *

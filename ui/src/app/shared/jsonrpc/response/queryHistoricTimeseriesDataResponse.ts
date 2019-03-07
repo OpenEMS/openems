@@ -31,5 +31,4 @@ export class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
     ) {
         super(id, result);
     }
-
 }

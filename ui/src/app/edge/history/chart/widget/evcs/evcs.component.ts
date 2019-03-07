@@ -98,7 +98,7 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
       this.service.getConfig().then(config => {
         let channeladdresses = [];
         // find all EVCS components
-        for (let componentId of config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
+        for (let componentId of config.getComponentIdsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
           channeladdresses.push(new ChannelAddress(componentId, 'ChargePower'));
         }
         resolve(channeladdresses);

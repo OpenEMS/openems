@@ -61,12 +61,18 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	@Activate
 	void activate(Config config) throws OpenemsException {
-		this.logInfo(this.log, "Activate [url=" + config.url() + ";port=" + config.port() + ";database="
-				+ config.database() + ";username=" + config.username() + ";password="
-				+ (config.password() != null ? "ok" : "NOT_SET") + ";measurement=" + config.measurement() + "]");
+		this.logInfo(this.log, "Activate [" + //
+				"url=" + config.url() + //
+				";port=" + config.port() + //
+				";database=" + config.database() + //
+				";username=" + config.username() + //
+				";password=" + (config.password() != null ? "ok" : "NOT_SET") + //
+				";measurement=" + config.measurement() + //
+				(config.isReadOnly() ? ";READ_ONLY_MODE" : "") + //
+				"]");
 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
-				config.database());
+				config.database(), config.isReadOnly());
 	}
 
 	@Deactivate
@@ -205,6 +211,14 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
 
 		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
+	@Override
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// parse the numeric EdgeId
+		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
+		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 
 	/**

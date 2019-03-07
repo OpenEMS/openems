@@ -1,6 +1,6 @@
 site:
   title: Open Energy Management System
-  url: http://openems.io
+  url: https://openems.github.io/openems.io/
   start_page: openems::introduction.adoc
 
 content:

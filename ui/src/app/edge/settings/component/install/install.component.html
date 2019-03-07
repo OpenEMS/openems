@@ -1,0 +1,23 @@
+<ion-grid *ngIf="factory && form">
+  <ion-row justify-content-center>
+
+    <ion-col size="12" size-sm="6">
+      <ion-card>
+        <ion-item>
+          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
+          <ion-label>
+            <ion-card-title>{{ factory.name }}</ion-card-title>
+            <ion-card-subtitle>{{ factory.description }}</ion-card-subtitle>
+          </ion-label>
+        </ion-item>
+        <ion-card-content>
+          <form [formGroup]="form" (ngSubmit)="submit(model)">
+            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+  </ion-row>
+</ion-grid>

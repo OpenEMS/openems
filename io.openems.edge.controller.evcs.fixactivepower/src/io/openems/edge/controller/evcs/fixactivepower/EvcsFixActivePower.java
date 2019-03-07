@@ -20,17 +20,18 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.evcs.FixActivePower", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "Controller.Evcs.FixActivePower", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EvcsFixActivePower extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final Clock clock;
 	private static final int RUN_EVERY_MINUTES = 1;
+
+	private final Clock clock;
+
 	private LocalDateTime lastRun = LocalDateTime.MIN;
+	private Config config;
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	private Config config;
 
 	public EvcsFixActivePower() {
 		this(Clock.systemDefaultZone());

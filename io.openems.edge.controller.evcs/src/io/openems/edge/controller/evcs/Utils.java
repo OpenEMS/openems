@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -25,6 +26,16 @@ public class Utils {
 					switch (channelId) {
 					case RUN_FAILED:
 						return new StateChannel(c, channelId);
+					}
+					return null;
+
+				}), //
+				Arrays.stream(EvcsController.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case CHARGE_MODE:
+					case DEFAULT_CHARGE_MINPOWER:
+					case FORCE_CHARGE_MINPOWER:
+						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}) //

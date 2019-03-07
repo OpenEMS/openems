@@ -12,6 +12,7 @@ Private-Package: \
 	io.openems.edge.simulator.datasource.csv,\
 	io.openems.edge.simulator.ess.symmetric.reacting,\
 	io.openems.edge.simulator.ess.asymmetric.reacting,\
+	io.openems.edge.simulator.ess.singlephase.reacting,\
 	io.openems.edge.simulator.io,\
 	io.openems.edge.simulator.battery,\
 	io.openems.edge.simulator.pvinverter,\

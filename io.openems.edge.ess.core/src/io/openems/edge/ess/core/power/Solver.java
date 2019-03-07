@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -28,6 +29,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.DummyInverter;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.OnSolved;
@@ -99,7 +101,7 @@ public class Solver {
 		try {
 			index = this.data.getCoefficient(essId, phase, pwr).getIndex();
 		} catch (IllegalArgumentException e) {
-			log.error(e.getMessage());
+			this.log.error(e.getMessage());
 			return 0d;
 		}
 		double[] cos = Solver.getEmptyCoefficients(data);
@@ -163,10 +165,10 @@ public class Solver {
 
 		// Print log with currently active EQUALS != 0 Constraints
 		if (this.debugMode) {
-			log.info("Currently active EQUALS contraints");
+			this.log.info("Currently active EQUALS contraints");
 			for (Constraint c : allConstraints) {
 				if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
-					log.info("- " + c.toString());
+					this.log.info("- " + c.toString());
 				}
 			}
 		}
@@ -494,7 +496,6 @@ public class Solver {
 	 */
 	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
 			List<Inverter> targetInverters, List<Constraint> allConstraints) {
-//		log.info("oBMTT. Direction: " + targetDirection);
 		// find maxLastActive + maxWeight
 		int maxLastActivePower = 0;
 		int sumWeights = 0;
@@ -532,18 +533,13 @@ public class Solver {
 					// Invert weights for CHARGE, i.e. give higher weight to low state-of-charge
 					// inverters
 					targetWeights.put(inv, (100 - (inv.getWeight() / sumWeights)));
-					// log.info("oBMTT. Target1 [" + inv.getEssId() + "] = " +
-					// targetWeights.get(inv));
 					break;
 				case DISCHARGE:
 					targetWeights.put(inv, inv.getWeight() / sumWeights);
-					// log.info("oBMTT. Target2 [" + inv.getEssId() + "] = " +
-					// targetWeights.get(inv));
 					break;
 				}
 			} else {
 				targetWeights.put(inv, 0);
-				// log.info("oBMTT. Target3 [" + inv.getEssId() + "] = " + 0);
 			}
 		}
 
@@ -551,21 +547,16 @@ public class Solver {
 		Map<Inverter, Double> learningRates = new HashMap<>();
 		for (Inverter inv : allInverters) {
 			learningRates.put(inv, (targetWeights.get(inv) - lastWeights.get(inv)) * LEARNING_RATE);
-			// log.info("oBMTT. Last Weight [" + lastWeights.get(inv) + "] Learning Rate ["
-			// + inv.getEssId() + "] = " + learningRates.get(inv));
 		}
 
 		// create map with next weights (= last weights + learningRates)
 		Map<Inverter, Double> nextWeights = new HashMap<>();
 		for (Inverter inv : allInverters) {
 			nextWeights.put(inv, lastWeights.get(inv) + learningRates.get(inv));
-			// log.info("oBMTT. Next Weights [" + inv.getEssId() + "] = " +
-			// nextWeights.get(inv));
 		}
 
 		// adjust towards target weight till Problem solves
 		for (double i = 0; i < 1 - LEARNING_RATE; i += LEARNING_RATE) {
-			// log.info("oBMTT. for-loop [" + i + "]");
 			List<Constraint> constraints = new ArrayList<>(allConstraints);
 			List<Inverter> inverters = new ArrayList<>(allInverters);
 
@@ -574,7 +565,6 @@ public class Solver {
 			for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 				if (entry.getValue() == 0) { // might fail... compare double to zero
 					Inverter inv = entry.getKey();
-					// log.info("oBMTT. Add EQUALS ZERO for [" + inv.getEssId() + "]");
 					Constraint c = this.data.createSimpleConstraint(inv.toString() + ": next weight = 0",
 							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0);
 					constraints.add(c);
@@ -584,7 +574,6 @@ public class Solver {
 
 			// no inverters left? -> nothing to optimize
 			if (inverters.isEmpty()) {
-				// log.info("oBMTT. inverters empty");
 				return null;
 			}
 
@@ -601,17 +590,14 @@ public class Solver {
 										this.data.getCoefficient(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE),
 										nextWeights.get(invA) * -1) },
 						Relationship.EQUALS, 0);
-				// log.info("oBMTT. add " + c);
 				constraints.add(c);
 			}
 
 			try {
 				PointValuePair solution = this.solveWithConstraints(constraints);
-				// log.info("oBMTT. Solved: " + solution.getFirst());
 				return solution;
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// Adjust next weights
-				// log.info("oBMTT. failed. next try. " + e.getMessage());
 				for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 					entry.setValue(entry.getValue() + learningRates.get(entry.getKey()));
 				}
@@ -859,6 +845,9 @@ public class Solver {
 			return i1.toString().compareTo(i2.toString());
 		});
 		for (Inverter inv : inverters) {
+			if (inv instanceof DummyInverter) {
+				continue;
+			}
 			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
 		}
 //		log.info(b.toString());
@@ -926,10 +915,21 @@ public class Solver {
 				ess.channel(ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3)
 						.setNextValue(invL3.getReactivePower());
 				// apply Power
-				((ManagedAsymmetricEss) ess).applyPower(//
-						invL1.getActivePower(), invL1.getReactivePower(), //
-						invL2.getActivePower(), invL2.getReactivePower(), //
-						invL3.getActivePower(), invL3.getReactivePower());
+				try {
+					((ManagedAsymmetricEss) ess).applyPower(//
+							invL1.getActivePower(), invL1.getReactivePower(), //
+							invL2.getActivePower(), invL2.getReactivePower(), //
+							invL3.getActivePower(), invL3.getReactivePower());
+					
+					// announce applying power was ok
+					ess.getApplyPowerFailed().setNextValue(false);
+
+				} catch (OpenemsNamedException e) {
+					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
+
+					// announce running failed
+					ess.getApplyPowerFailed().setNextValue(true);
+				}
 
 			} else if (inv != null) {
 				// set debug channels on Ess
@@ -937,7 +937,18 @@ public class Solver {
 				ess.channel(ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER)
 						.setNextValue(inv.getReactivePower());
 				// apply Power
-				ess.applyPower(inv.getActivePower(), inv.getReactivePower());
+				try {
+					ess.applyPower(inv.getActivePower(), inv.getReactivePower());
+
+					// announce applying power was ok
+					ess.getApplyPowerFailed().setNextValue(false);
+
+				} catch (OpenemsNamedException e) {
+					this.log.warn("Error in Ess [" + ess.id() + "] apply power: " + e.getMessage());
+
+					// announce running failed
+					ess.getApplyPowerFailed().setNextValue(true);
+				}
 
 			} else {
 				log.error("No Solution for [" + ess.id() + "] available!");

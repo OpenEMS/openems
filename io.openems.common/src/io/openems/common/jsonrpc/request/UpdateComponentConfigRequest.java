@@ -22,8 +22,8 @@ import io.openems.common.utils.JsonUtils;
  *   "method": "updateComponentConfig",
  *   "params": {
  *     "componentId": string,
- *     "update": [{
- *       "property": string,
+ *     "properties": [{
+ *       "name": string,
  *       "value": any 
  *     }]
  *   }
@@ -35,34 +35,34 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 	public static UpdateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();
 		String componentId = JsonUtils.getAsString(p, "componentId");
-		List<Update> update = Update.from(JsonUtils.getAsJsonArray(p, "update"));
-		return new UpdateComponentConfigRequest(r.getId(), componentId, update);
+		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
+		return new UpdateComponentConfigRequest(r.getId(), componentId, properties);
 	}
 
 	public final static String METHOD = "updateComponentConfig";
 
 	private final String componentId;
-	private final List<Update> update;
+	private final List<Property> properties;
 
-	public UpdateComponentConfigRequest(String componentId, List<Update> update) {
-		this(UUID.randomUUID(), componentId, update);
+	public UpdateComponentConfigRequest(String componentId, List<Property> properties) {
+		this(UUID.randomUUID(), componentId, properties);
 	}
 
-	public UpdateComponentConfigRequest(UUID id, String componentId, List<Update> update) {
+	public UpdateComponentConfigRequest(UUID id, String componentId, List<Property> properties) {
 		super(id, METHOD);
 		this.componentId = componentId;
-		this.update = update;
+		this.properties = properties;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray update = new JsonArray();
-		for (Update ue : this.update) {
-			update.add(ue.toJson());
+		JsonArray properties = new JsonArray();
+		for (Property property : this.properties) {
+			properties.add(property.toJson());
 		}
 		return JsonUtils.buildJsonObject() //
 				.addProperty("componentId", this.componentId) //
-				.add("update", update) //
+				.add("properties", properties) //
 				.build();
 	}
 
@@ -70,45 +70,45 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 		return componentId;
 	}
 
-	public List<Update> getUpdate() {
-		return update;
+	public List<Property> getProperties() {
+		return this.properties;
 	}
 
-	public static class Update {
+	public static class Property {
 
-		public static List<Update> from(JsonArray j) throws OpenemsNamedException {
-			List<Update> update = new ArrayList<>();
-			for (JsonElement ue : j) {
-				String property = JsonUtils.getAsString(ue, "property");
-				JsonElement value = JsonUtils.getSubElement(ue, "value");
-				update.add(new Update(property, value));
+		public static List<Property> from(JsonArray j) throws OpenemsNamedException {
+			List<Property> properties = new ArrayList<>();
+			for (JsonElement property : j) {
+				String name = JsonUtils.getAsString(property, "name");
+				JsonElement value = JsonUtils.getSubElement(property, "value");
+				properties.add(new Property(name, value));
 			}
-			return update;
+			return properties;
 		}
 
-		private final String property;
+		private final String name;
 		private final JsonElement value;
 
 		/**
-		 * @param property the Property-ID
-		 * @param value    the new value
+		 * @param name  the Property name
+		 * @param value the new value
 		 */
-		public Update(String property, JsonElement value) {
-			this.property = property;
+		public Property(String name, JsonElement value) {
+			this.name = name;
 			this.value = value;
 		}
 
-		public String getProperty() {
-			return property;
+		public String getName() {
+			return this.name;
 		}
 
 		public JsonElement getValue() {
-			return value;
+			return this.value;
 		}
 
 		public JsonObject toJson() {
 			return JsonUtils.buildJsonObject() //
-					.addProperty("property", this.getProperty()) //
+					.addProperty("name", this.getName()) //
 					.add("value", this.getValue()) //
 					.build();
 		}
