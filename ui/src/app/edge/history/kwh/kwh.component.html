@@ -1,0 +1,75 @@
+<ion-card>
+    <ion-item color="light" lines="full">
+        <ion-label>
+            <ion-card-title translate>General.Cumulative</ion-card-title>
+        </ion-label>
+    </ion-item>
+
+    <ion-item lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/production.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.Production</ion-card-title>
+        </ion-label>
+    </ion-item>
+
+    <ion-item lines="none">
+        <table class="full_width">
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.ChargePower</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["_sum/ProductionActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                </td>
+            </tr>
+        </table>
+    </ion-item>
+
+    <ion-item lines="none" lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/grid.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.Grid</ion-card-title>
+        </ion-label>
+    </ion-item>
+
+    <ion-item lines="none">
+        <table class="full_width">
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.GridBuy</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["_sum/GridBuyActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.GridSell</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["_sum/GridSellActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                </td>
+            </tr>
+        </table>
+    </ion-item>
+
+    <ion-item lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/consumption.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.Consumption</ion-card-title>
+        </ion-label>
+    </ion-item>
+
+    <ion-item lines="none">
+        <table class="full_width">
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.Load</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["_sum/ConsumptionActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                </td>
+            </tr>
+        </table>
+    </ion-item>
+</ion-card>

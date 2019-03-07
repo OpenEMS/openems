@@ -184,7 +184,8 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		try {
 			dSocket = new DatagramSocket();
 			this.logInfo(this.log, "Sending message to KEBA KeContact [" + s + "]");
-			dSocket.send(packet);
+
+			dSocket.send(packet); 
 			return true;
 		} catch (SocketException e) {
 			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + ip.getHostAddress()

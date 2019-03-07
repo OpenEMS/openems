@@ -12,6 +12,7 @@ import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
 import { HttpClient } from '@angular/common/http';
 import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
+import { ToastController } from '@ionic/angular';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -38,7 +39,8 @@ export class Service implements ErrorHandler {
   constructor(
     private router: Router,
     public translate: TranslateService,
-    private http: HttpClient
+    private http: HttpClient,
+    private toaster: ToastController
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
@@ -243,12 +245,12 @@ export class Service implements ErrorHandler {
     return new Promise<Widget[]>((resolve, reject) => {
       this.getConfig().then(config => {
         let widgets = [];
-        for (let nature of Object.keys(WidgetNature)) {
-          for (let componentId of config.getComponentsImplementingNature(nature)) {
+        for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
+          for (let componentId of config.getComponentIdsImplementingNature(nature)) {
             widgets.push({ name: nature, componentId: componentId })
           }
         }
-        for (let factory of Object.keys(WidgetFactory)) {
+        for (let factory of Object.values(WidgetFactory).filter(v => typeof v === 'string')) {
           for (let componentId of config.getComponentIdsByFactory(factory)) {
             widgets.push({ name: factory, componentId: componentId })
           }
@@ -268,5 +270,14 @@ export class Service implements ErrorHandler {
       })
     });
 
+  }
+
+  public async toast(message: string, level: 'success' | 'warning' | 'danger') {
+    const toast = await this.toaster.create({
+      message: message,
+      color: level,
+      duration: 2000
+    });
+    toast.present();
   }
 }

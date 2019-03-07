@@ -3,7 +3,9 @@ package io.openems.edge.controller.api.websocket;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.openems.edge.common.user.User;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.user.EdgeUser;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
@@ -15,7 +17,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	private UUID sessionToken = null;
 
-	private Optional<User> user = Optional.empty();
+	private Optional<EdgeUser> user = Optional.empty();
 
 	public WsData(WebsocketApi parent) {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
@@ -29,7 +31,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return sessionToken;
 	}
 
-	public void setUser(User user) {
+	public void setUser(EdgeUser user) {
 		this.user = Optional.ofNullable(user);
 	}
 
@@ -37,17 +39,24 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.user = Optional.empty();
 	}
 
-	public Optional<User> getUser() {
+	public Optional<EdgeUser> getUser() {
 		return user;
 	}
 
 	/**
-	 * Validates if the user is authenticated.
+	 * Throws an exception if the User is not authenticated.
 	 * 
-	 * @return true if the user is authenticated, false otherwise
+	 * @param resource a resource identifier; used for the exception
+	 * @return the current Role
+	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
-	public boolean isUserAuthenticated() {
-		return this.getUser().isPresent();
+	public EdgeUser assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
+		if (this.getUser().isPresent()) {
+			return this.getUser().get();
+		} else {
+			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
+					.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
+		}
 	}
 
 	/**

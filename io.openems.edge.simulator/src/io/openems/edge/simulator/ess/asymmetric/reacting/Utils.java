@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
@@ -33,7 +35,7 @@ public class Utils {
 					case ACTIVE_DISCHARGE_ENERGY:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
-						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);
+						return new EnumReadChannel(c, channelId, GridMode.ON_GRID);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
@@ -50,6 +52,8 @@ public class Utils {
 					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
 					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(c, channelId);
+					case APPLY_POWER_FAILED:
+						return new StateChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricEss.ChannelId.values()).map(channelId -> {

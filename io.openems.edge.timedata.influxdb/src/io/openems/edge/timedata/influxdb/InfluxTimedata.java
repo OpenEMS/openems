@@ -2,6 +2,7 @@ package io.openems.edge.timedata.influxdb;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -81,7 +82,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database());
+				config.database(), config.isReadOnly());
 	}
 
 	@Deactivate
@@ -126,6 +127,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case SHORT:
 						point.addField(address, (Short) value);
 						break;
+					case ENUM:
 					case INTEGER:
 						point.addField(address, (Integer) value);
 						break;
@@ -166,5 +168,13 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
 		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
+	@Override
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// ignore edgeId as Points are also written without Edge-ID
+		Optional<Integer> influxEdgeId = Optional.empty();
+		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 }

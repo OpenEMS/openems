@@ -49,7 +49,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	private Sum sum;
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		;
+		CHARGE_MODE(new Doc() //
+				.text("Configured Charge-Mode") //
+				.options(ChargeMode.values()));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -77,6 +79,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		this.minPower = Math.max(0, config.minPower()); // at least '0'
 		this.chargeMode = config.chargeMode();
+		this.channel(ChannelId.CHARGE_MODE).setNextValue(this.chargeMode);
 		this.evcsId = config.evcs_id();
 
 		// update filter for 'evcs'
@@ -101,7 +104,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		int nextChargePower = 0;
 		switch (this.chargeMode) {
-		case DEFAULT:
+		case EXCESS_POWER:
 			int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 			int essDischarge = this.sum.getEssActivePower().value().orElse(0);
 			int evcsCharge = evcs.getChargePower().value().orElse(0);

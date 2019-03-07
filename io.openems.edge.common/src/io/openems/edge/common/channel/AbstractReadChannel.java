@@ -189,7 +189,9 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 				return false;
 			}
 		case INTEGER:
+		case ENUM:
 			switch (actual) {
+			case ENUM:
 			case SHORT:
 			case INTEGER:
 				return true;
@@ -198,6 +200,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 			}
 		case LONG:
 			switch (actual) {
+			case ENUM:
 			case SHORT:
 			case INTEGER:
 			case LONG:

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.evcs.api.Evcs;
 
@@ -109,11 +110,36 @@ public class WriteHandler implements Runnable {
 			Integer power = valueOpt.get();
 			// calculate current based on phases and voltage. FIXME: this will have to be
 			// adjusted if the EVCS is connected single phase
-			Integer current = power / 3 /* 3 phases */ / 230 /* voltage */;
+			//Integer current = power / 3 /* 3 phases */ / 230 /* voltage */ * 1000; false
+			
+			//I = P / U / 1,73	=> I = Wirkleistung / Spannung(normal 230) * Wurzel^3 / Wurzel^3(1,73205080756888...) 
+			//maybe use PowerFactor = cosphi 
+			Integer current = (int) ((power / (230 * Math.sqrt(3))) / Math.sqrt(3)) * 1000;  
+			
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 				this.parent.logInfo(this.log,
-						"Setting KEBA KeContact current to [" + current + " mA] - calculated from [" + power + " W]");
+						"Setting KEBA KeContact current to [" + current + " A] - calculated from [" + power + " W]");
+				
+				
+				
+				/* the command curr can only be overridden by currtime 
+				 * 
+				this.parent.logInfo(this.log, "curr " + current);
 				boolean sentSuccessfully = parent.send("curr " + current);
+				if (sentSuccessfully) {
+					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+					this.lastCurrent = current;
+				}
+				*/
+				
+				try {
+					this.parent.setDisplayText().setNextWriteValue("Charging " + (current/1000) + "A AC");
+				} catch (OpenemsException e) {
+					e.printStackTrace();
+				}
+				
+				this.parent.logInfo(this.log, "currtime " + current);
+				boolean sentSuccessfully = parent.send("currtime " + current + " 0");
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 					this.lastCurrent = current;

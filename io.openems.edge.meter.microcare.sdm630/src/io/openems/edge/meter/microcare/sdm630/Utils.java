@@ -2,6 +2,7 @@ package io.openems.edge.meter.microcare.sdm630;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -19,20 +20,6 @@ public class Utils {
 						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(MeterMicrocareSDM630.ChannelId.values()).map(channelId -> {
-                    switch (channelId) {
-						case FREQUENCY:
-						case ACTIVE_CONSUMPTION_ENERGY:
-						case ACTIVE_PRODUCTION_ENERGY:
-						case APPARENT_POWER:
-                        case APPARENT_POWER_L1:
-                        case APPARENT_POWER_L2:
-                        case APPARENT_POWER_L3:
-                        case REACTIVE_CONSUMPTION_ENERGY:
-                        case REACTIVE_PRODUCTION_ENERGY:
-                            return new IntegerReadChannel(c, channelId);
-                    }
-                    return null;
                 }), Arrays.stream(SymmetricMeter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 						case FREQUENCY:
@@ -42,9 +29,10 @@ public class Utils {
 						case REACTIVE_POWER:
 						case CURRENT:
 						case VOLTAGE:
+							return new IntegerReadChannel(c, channelId);
 						case ACTIVE_CONSUMPTION_ENERGY:
 						case ACTIVE_PRODUCTION_ENERGY:
-							return new IntegerReadChannel(c, channelId);
+							return new LongReadChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(AsymmetricMeter.ChannelId.values()).map(channelId -> {
@@ -62,6 +50,18 @@ public class Utils {
 						case VOLTAGE_L2:
 						case VOLTAGE_L3:
 							return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(MeterMicrocareSDM630.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case FREQUENCY:
+					case APPARENT_POWER:
+					case APPARENT_POWER_L1:
+					case APPARENT_POWER_L2:
+					case APPARENT_POWER_L3:
+					case REACTIVE_CONSUMPTION_ENERGY:
+					case REACTIVE_PRODUCTION_ENERGY:
+						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				})
