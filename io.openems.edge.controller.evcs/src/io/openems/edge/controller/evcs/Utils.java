@@ -33,6 +33,8 @@ public class Utils {
 				Arrays.stream(EvcsController.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case CHARGE_MODE:
+					case DEFAULT_CHARGE_MINPOWER:
+					case FORCE_CHARGE_MINPOWER:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;

@@ -79,7 +79,28 @@ export const TRANSLATION = {
                     CurrentCharge: "Huidige lading",
                     TotalCharge: "Totale lading",
                     EnforceCharging: "Handhaaf het laden",
-                    Cable: "Kabel"
+                    Cable: "Kabel",
+                    CableNotConnected: "Kabel is niet aangesloten",
+                    CarFull: "Auto is vol",
+                    EnergieSinceBeginning: "Energie sinds het begin van de lading",
+                    ChargeMode: "laadmodus",
+                    NoConnection: {
+                        Description: "Hij kon niet op het laadstation worden aangesloten.",
+                        Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
+                        Help1_1: "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen"
+                    },
+                    OptimizedChargeMode: {
+                        Name: "Geoptimaliseerd laden",
+                        Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
+                        MinInfo: "Als u wilt voorkomen dat de auto 's nachts in het lage geheugen wordt geladen, kan een minimale lading worden ingesteld.",
+                        MinCharging: "Minimale vergoeding betalen?"
+                    },
+                    ForceChargeMode: {
+                        Name: "Gedwongen laden",
+                        Info: "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
+                        MaxCharging: "Maximale laadstroom",
+                        MaxChargingDetails: "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt."
+                    }
                 }
             }
         },

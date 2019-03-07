@@ -11,9 +11,12 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -34,7 +37,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	// private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;
 
-	private int minPower = 0;
+	private int forceChargeMinPower = 0;
+	private int defaultChargeMinPower = 0;
 	private ChargeMode chargeMode;
 	private String evcsId;
 	private LocalDateTime lastRun = LocalDateTime.MIN;
@@ -51,7 +55,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		CHARGE_MODE(new Doc() //
 				.text("Configured Charge-Mode") //
-				.options(ChargeMode.values()));
+				.options(ChargeMode.values())),
+		FORCE_CHARGE_MINPOWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).text("Minimum value for the force charge")),
+		DEFAULT_CHARGE_MINPOWER(new Doc()
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text("Minimum value for a default charge")); //
+		
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -77,9 +89,19 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
 
-		this.minPower = Math.max(0, config.minPower()); // at least '0'
-		this.chargeMode = config.chargeMode();
-		this.channel(ChannelId.CHARGE_MODE).setNextValue(this.chargeMode);
+		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
+		this.defaultChargeMinPower = Math.max(0, config.defaultChargeMinPower());
+		
+		switch(config.chargeMode()) {
+		case EXCESS_POWER:
+			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(defaultChargeMinPower);
+			break;
+		case FORCE_CHARGE:
+			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
+			break;
+		
+		}
+		this.channel(ChannelId.CHARGE_MODE).setNextValue(config.chargeMode());
 		this.evcsId = config.evcs_id();
 
 		// update filter for 'evcs'
@@ -103,26 +125,41 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		Evcs evcs = this.componentManager.getComponent(this.evcsId);
 
 		int nextChargePower = 0;
+		int nextMinPower = 0;
 		switch (this.chargeMode) {
 		case EXCESS_POWER:
 			int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 			int essDischarge = this.sum.getEssActivePower().value().orElse(0);
 			int evcsCharge = evcs.getChargePower().value().orElse(0);
 			nextChargePower = evcsCharge - buyFromGrid - essDischarge;
+			if (nextChargePower < 1380 /* min 6A */ ) {
+				nextChargePower = 0;
+			}
+			nextMinPower = defaultChargeMinPower;
 			break;
 
 		case FORCE_CHARGE:
-			nextChargePower = 22_000; // TODO intelligently find max Charge Power
+			nextChargePower = nextMinPower = forceChargeMinPower;
 			break;
 		}
 
 		// test min-Power
-		if (nextChargePower < this.minPower) {
-			nextChargePower = this.minPower;
+		if (nextChargePower < nextMinPower) {
+			nextChargePower = nextMinPower;
 		}
 
 		// set charge power
 		evcs.setChargePower().setNextWriteValue(nextChargePower);
+	}
+
+	@Override
+	protected void logDebug(Logger log, String message) {
+		super.logDebug(log, message);
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 }

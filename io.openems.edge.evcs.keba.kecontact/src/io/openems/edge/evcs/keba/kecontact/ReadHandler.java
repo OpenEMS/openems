@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
-
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.evcs.api.Evcs;
 
 /**
@@ -22,6 +22,9 @@ public class ReadHandler implements Consumer<String> {
 
 	private final Logger log = LoggerFactory.getLogger(ReadHandler.class);
 	private final KebaKeContact parent;
+	private boolean receiveReport1 = false;
+	private boolean receiveReport2 = false;
+	private boolean receiveReport3 = false;
 
 	public ReadHandler(KebaKeContact parent) {
 		this.parent = parent;
@@ -29,6 +32,7 @@ public class ReadHandler implements Consumer<String> {
 
 	@Override
 	public void accept(String message) {
+		
 		if (message.startsWith("TCH-OK")) {
 			log.debug("KEBA confirmed reception of command: TCH-OK");
 			this.parent.triggerQuery();
@@ -55,24 +59,25 @@ public class ReadHandler implements Consumer<String> {
 					/*
 					 * Reply to report 1
 					 */
+					receiveReport1 = true;
 					setString(KebaKeContact.ChannelId.PRODUCT, jMessage, "Product");
 					setString(KebaKeContact.ChannelId.SERIAL, jMessage, "Serial");
 					setString(KebaKeContact.ChannelId.FIRMWARE, jMessage, "Firmware");
-					setString(KebaKeContact.ChannelId.COM_MODULE, jMessage, "COM-module");
+					setInt(KebaKeContact.ChannelId.COM_MODULE, jMessage, "COM-module");
 
 				} else if (id.equals("2")) {
 					/*
 					 * Reply to report 2
 					 */
-					setString(KebaKeContact.ChannelId.STATUS, jMessage, "State");
-					setString(KebaKeContact.ChannelId.ERROR_1, jMessage, "Error1");
-					setString(KebaKeContact.ChannelId.ERROR_2, jMessage, "Error2");
+					receiveReport2 = true;
+					setInt(KebaKeContact.ChannelId.STATUS, jMessage, "State");
+					setInt(KebaKeContact.ChannelId.ERROR_1, jMessage, "Error1");
+					setInt(KebaKeContact.ChannelId.ERROR_2, jMessage, "Error2");
 					setInt(KebaKeContact.ChannelId.PLUG, jMessage, "Plug");
 					setBoolean(KebaKeContact.ChannelId.ENABLE_SYS, jMessage, "Enable sys");
 					setBoolean(KebaKeContact.ChannelId.ENABLE_USER, jMessage, "Enable user");
 					setInt(KebaKeContact.ChannelId.MAX_CURR, jMessage, "Max curr");
 					setInt(KebaKeContact.ChannelId.MAX_CURR_PERCENT, jMessage, "Max curr %");
-					setInt(KebaKeContact.ChannelId.CURR_HARDWARE, jMessage, "Curr HW");
 					setInt(KebaKeContact.ChannelId.CURR_USER, jMessage, "Curr user");
 					setInt(KebaKeContact.ChannelId.CURR_FAILSAFE, jMessage, "Curr FS");
 					setInt(KebaKeContact.ChannelId.TIMEOUT_FAILSAFE, jMessage, "Tmo FS");
@@ -81,11 +86,20 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaKeContact.ChannelId.ENERGY_LIMIT, jMessage, "Setenergy");
 					setBoolean(KebaKeContact.ChannelId.OUTPUT, jMessage, "Output");
 					setBoolean(KebaKeContact.ChannelId.INPUT, jMessage, "Input");
-
+					
+					// Set the maximum Power valid by the Hardware
+					Optional<Integer> hwPower_ma = JsonUtils.getAsOptionalInt(jMessage, "Curr HW"); // in [mA]
+					Integer hwPower = null;
+					if (hwPower_ma.isPresent()) {
+						hwPower = hwPower_ma.get() * 230 / 1000; // convert to [W]
+					}
+					this.parent.channel(Evcs.ChannelId.HARDWARE_POWER_LIMIT).setNextValue(hwPower);
+					
 				} else if (id.equals("3")) {
 					/*
 					 * Reply to report 3
 					 */
+					receiveReport3 = true;
 					setInt(KebaKeContact.ChannelId.VOLTAGE_L1, jMessage, "U1");
 					setInt(KebaKeContact.ChannelId.VOLTAGE_L2, jMessage, "U2");
 					setInt(KebaKeContact.ChannelId.VOLTAGE_L3, jMessage, "U3");
@@ -96,6 +110,27 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaKeContact.ChannelId.COS_PHI, jMessage, "PF");
 					setInt(KebaKeContact.ChannelId.ENERGY_SESSION, jMessage, "E pres");
 					setInt(KebaKeContact.ChannelId.ENERGY_TOTAL, jMessage, "E total");
+
+					// Set the count of the Phases that are currently used
+					Channel<Integer> currentL1 = parent.channel(KebaKeContact.ChannelId.CURRENT_L1);
+					Channel<Integer> currentL2 = parent.channel(KebaKeContact.ChannelId.CURRENT_L2);
+					Channel<Integer> currentL3 = parent.channel(KebaKeContact.ChannelId.CURRENT_L3);
+
+					if (currentL1.value().orElse(0) > 0){
+
+						if (currentL3.value().orElse(0) > 100) {
+							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
+							set(KebaKeContact.ChannelId.PHASES, 3);
+							
+						} else if (currentL2.value().orElse(0) > 100) {
+							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
+							set(KebaKeContact.ChannelId.PHASES, 2);
+							
+						} else{
+							this.parent.logInfo(this.log, "KEBA is loading on one ladder"); 
+							set(KebaKeContact.ChannelId.PHASES, 1);
+						}
+					}
 
 					// Set CHARGE_POWER
 					Optional<Integer> power_mw = JsonUtils.getAsOptionalInt(jMessage, "P"); // in [mW]
@@ -151,5 +186,32 @@ public class ReadHandler implements Consumer<String> {
 		} else {
 			set(channelId, null);
 		}
+	}
+
+
+	/**
+	 * returns true or false, if the requested report answered or not
+	 * 
+	 * @param report
+	 * @return
+	 */
+	public boolean hasResultandReset(Report report) {
+	
+		boolean result = false;
+		switch(report) {
+		case REPORT1:
+			result = receiveReport1;
+			receiveReport1 = false;
+			break;
+		case REPORT2:
+			result = receiveReport2;
+			receiveReport2 = false;
+			break;
+		case REPORT3:
+			result = receiveReport3;
+			receiveReport3 = false;
+			break;
+		}
+		return result;
 	}
 }

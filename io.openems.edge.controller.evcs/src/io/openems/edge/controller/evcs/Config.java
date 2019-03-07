@@ -15,12 +15,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Evcs-ID", description = "ID of Evcs device.")
 	String evcs_id();
 
-	@AttributeDefinition(name = "Minimum power [W]", description = "Set the minimum power in Watt.")
-	int minPower();
-
 	@AttributeDefinition(name = "Charge-Mode", description = "Set the charge-mode.")
 	ChargeMode chargeMode();
-
+	
+	@AttributeDefinition(name = "Force-charge minimum power [W]", description = "Set the minimum power for the force charge mod in Watt.")
+	int forceChargeMinPower();
+	
+	@AttributeDefinition(name = "Default-charge minimum power [W]", description = "Set the minimum power for the default charge mod in Watt.")
+	int defaultChargeMinPower();
+	
 	String webconsole_configurationFactory_nameHint() default "Controller Electric Vehicle Charging Station [{id}]";
 
 }
