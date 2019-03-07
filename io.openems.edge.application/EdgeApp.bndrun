@@ -74,7 +74,8 @@
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
-	bnd.identity;id='io.openems.edge.timedata.influxdb'
+	bnd.identity;id='io.openems.edge.timedata.influxdb',\
+	bnd.identity;id='io.openems.edge.project.controller.enbag.emergencymode'
 -runbundles: \
 	com.fazecast.jSerialComm;version='[2.2.2,2.2.3)',\
 	com.ghgande.j2mod;version='[2.5.2,2.5.3)',\
@@ -134,6 +135,7 @@
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.socomec;version=snapshot,\
+	io.openems.edge.project.controller.enbag.emergencymode,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\

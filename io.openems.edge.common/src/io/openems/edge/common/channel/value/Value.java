@@ -124,6 +124,19 @@ public class Value<T> {
 	}
 
 	/**
+	 * Gets the value as an Optional enum
+	 * 
+	 * @return
+	 */
+	public Optional<Enum<?>> asEnumOptional() {
+		try {
+			return Optional.ofNullable(asEnum());
+		} catch (Exception e) { // if there is null in asEnum a NullPointerException is thrown
+			return Optional.empty();
+		}
+	}
+
+	/**
 	 * Gets the value as its Enum option.
 	 *
 	 * @throws IllegalArgumentException no matching Enum option existing
