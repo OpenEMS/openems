@@ -209,6 +209,8 @@ export class EvcsComponent {
    * @param i 
    */
   formatNumber(i: number) {
+    if(i==null || i == 0)
+      i=32000;
     return Math.round(i / 100) * 100;
   }
 
