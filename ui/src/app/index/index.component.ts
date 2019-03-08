@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -8,6 +8,9 @@ import { environment } from '../../environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
+
+import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Alerts } from '../shared/service/alerts';
 
 @Component({
   selector: 'index',
@@ -19,6 +22,7 @@ export class IndexComponent {
 
   public env = environment;
   public form: FormGroup;
+  public wpForm: FormGroup;
   private filter: string = '';
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -30,23 +34,32 @@ export class IndexComponent {
     public utils: Utils,
     private translate: TranslateService,
     private formBuilder: FormBuilder,
+    private wpformBuilder: FormBuilder,
     private router: Router,
+    private http: HttpClient,
+
+    private alerts: Alerts,
     private service: Service) {
     this.form = this.formBuilder.group({
       "password": this.formBuilder.control('user')
     });
 
-    //Forwarding to device index if there is only 1 edge
-    service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
-      let edgeIds = Object.keys(edges);
-      if (edgeIds.length == 1) {
-        let edge = edges[edgeIds[0]];
-        if (edge.isOnline) {
-          this.router.navigate(['/device', edge.id]);
+    this.wpForm = this.wpformBuilder.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      saveAccount: [false]
+    }),
+      //Forwarding to device index if there is only 1 edge
+      service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
+        let edgeIds = Object.keys(edges);
+        if (edgeIds.length == 1) {
+          let edge = edges[edgeIds[0]];
+          if (edge.isOnline) {
+            this.router.navigate(['/device', edge.id]);
+          }
         }
-      }
-      this.updateFilteredEdges();
-    })
+        this.updateFilteredEdges();
+      })
   }
 
   updateFilteredEdges() {
@@ -99,6 +112,64 @@ export class IndexComponent {
     this.service.handleAuthentication(message.result.token, message.result.edges);
   }
 
+  async doWPLogin() {
+    if (this.wpForm.invalid) {
+      this.alerts.showError(this.translate.instant('Index.FormInvalid'));
+      return;
+    }
+    this.service.spinnerDialog.show("Login", this.translate.instant('Index.Connecting'));
+
+
+
+    let password: string = this.wpForm.value['password'];
+    let username: string = this.wpForm.value['username'];
+    let valid = await this.validateWPLogin(username, password);
+
+    if (valid['status'] === "ok") {
+      let headers = new HttpHeaders();
+      headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
+      headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
+
+      let body = new FormData();
+      body.append('log', username);
+      body.append('pwd', password);
+
+
+
+      this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.service.spinnerDialog.hide(); },
+        (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); } },
+        () => { this.websocket.wpconnect(); });
+      //this.websocket.wpconnect();
+      if (this.wpForm.value['saveAccount']) {
+        localStorage.setItem("username", username);
+        localStorage.setItem("password", password);
+        console.info("Account saved.");
+      }
+
+    } else {
+      this.service.spinnerDialog.hide();
+      if (valid['error'] === "Invalid username and/or password.") {
+        this.alerts.showError(this.translate.instant('Index.LoginWrong'));
+
+      }
+      else {
+        this.alerts.defaultAlert();
+      }
+
+      return;
+    }
+
+
+
+
+
+
+  }
+
+
+  sendWPLogin(body: FormData) {
+    return this.http.post("https://www.energydepot.de/login/", body);
+  }
   doInfinite(infiniteScroll) {
     setTimeout(() => {
       this.slice += 5;
@@ -106,6 +177,24 @@ export class IndexComponent {
     }, 200);
   }
 
+  validateWPLogin(username: string, password: string): Promise<any> {
+
+    return this.http.get("https://www.energydepot.de/api/auth/generate_auth_cookie/?username=" + username + "&password=" + password).toPromise();
+    /*
+  .then((data) => {
+      if (data['status'] === "ok") {
+        return "ok";
+      }
+      if (data['status'] === "error") {
+        return data['error'];
+      }
+    });*/
+
+
+  }
+  retrievePwd() {
+    this.alerts.retrievePwd();
+  }
   onDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();

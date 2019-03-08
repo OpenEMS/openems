@@ -314,4 +314,9 @@ export class Websocket {
     }
   }
 
+  public wpconnect() {
+    this.connect();
+    this.service.spinnerDialog.hide();
+  }
+
 }
