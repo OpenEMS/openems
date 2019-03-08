@@ -1,0 +1,16 @@
+<ion-list>
+  <ng-container *ngFor="let item of list">
+
+    <ion-list-header *ngIf="item.nature as nature">
+      <ion-label>{{ nature.name }}</ion-label>
+    </ion-list-header>
+
+    <ion-item *ngFor="let entry of item.entries" [routerLink]="[entry.component.id]">
+      <ion-label>
+        <h2>{{ entry.component.id }}</h2>
+        <p>{{ entry.factory.description }}</p>
+      </ion-label>
+    </ion-item>
+
+  </ng-container>
+</ion-list>

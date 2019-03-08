@@ -30,15 +30,28 @@ import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.m
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
+import { FormlyModule } from '@ngx-formly/core';
+import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 
 import { HttpClientModule } from '@angular/common/http';
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+import { Alerts } from './shared/service/alerts';
+import { HttpModule } from '@angular/http';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    RepeatTypeComponent
+  ],
   entryComponents: [PopoverPage],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
+    FormlyModule.forRoot({
+      types: [
+        { name: 'repeat', component: RepeatTypeComponent },
+      ],
+    }),
     AppRoutingModule,
     HttpClientModule,
     SharedModule,
@@ -52,14 +65,16 @@ import { HttpClientModule } from '@angular/common/http';
     }),
     PopoverPageModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
-
+    HttpModule
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     // { provide: ErrorHandler, useExisting: Service },
-    { provide: LOCALE_ID, useValue: 'de' }
+    { provide: LOCALE_ID, useValue: 'de' },
+    SpinnerDialog,
+    Alerts
   ],
   bootstrap: [AppComponent]
 })

@@ -19,6 +19,7 @@ public class StaticConverters {
 			switch (openemsType) {
 			case BOOLEAN:
 			case SHORT:
+			case ENUM:
 			case INTEGER:
 			case LONG:
 			case FLOAT:
@@ -82,6 +83,7 @@ public class StaticConverters {
 			switch (openemsType) {
 			case BOOLEAN:
 			case SHORT:
+			case ENUM:
 			case INTEGER:
 			case LONG:
 			case FLOAT:

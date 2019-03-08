@@ -3,7 +3,7 @@
     <ion-col size="12" size-md="6">
       <!-- Waiting for authentication -->
       <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'" padding>
-        <ion-item>
+        <ion-item lines="none">
           <ion-icon slot="start" name="contact" color="primary"></ion-icon>
           <ion-label>
             <ion-card-title>Login</ion-card-title>
@@ -14,7 +14,7 @@
         </ion-item>
 
         <ion-card-content>
-          <ion-item>
+          <ion-item lines="inset">
             <form [formGroup]="form" (ngSubmit)="doLogin()" (keyup.enter)="doLogin()">
               <ion-label position="floating">Passwort</ion-label>
               <ion-input formControlName="password" required type="password" placeholder="Passwort"></ion-input>
@@ -81,8 +81,8 @@
       <ion-col size="12" size-sm="6" size-md="4">
         <ion-list lines="full">
 
-          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" [routerLink]="edge.isOnline ? ['/device', edge.id] : null"
-            [color]="edge.isOnline ? null : 'light'">
+          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
+            [routerLink]="edge.isOnline ? ['/device', edge.id] : null" [color]="edge.isOnline ? null : 'light'">
             <ion-label>
               <h2 text-wrap>{{ edge.comment }}</h2>
               <p *ngIf="!edge.isOnline" text-wrap>Das Gerät ist nicht verbunden!</p>

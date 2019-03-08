@@ -3,6 +3,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { WidgetModule } from './chart/widget/widget.module';
 import { HistoryComponent } from './history.component';
 import { EnergyComponent } from './chart/energy/energy.component';
+import { KwhComponent } from './kwh/kwh.component';
 
 @NgModule({
   imports: [
@@ -11,7 +12,8 @@ import { EnergyComponent } from './chart/energy/energy.component';
   ],
   declarations: [
     HistoryComponent,
-    EnergyComponent
+    EnergyComponent,
+    KwhComponent
   ]
 })
 export class HistoryModule { }

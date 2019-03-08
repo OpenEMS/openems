@@ -7,9 +7,9 @@ import io.openems.common.worker.AbstractWorker;
 
 public class ReadWorker extends AbstractWorker {
 
-	private final static int REPORT_1_SECONDS = 6 * 60 * 60; // 6 hours
-	private final static int REPORT_2_SECONDS = 60 * 60; // 1 hour
-	private final static int REPORT_3_SECONDS = 10 * 60; // 10 minutes
+	private final static int REPORT_1_SECONDS = 200; //6 * 60 * 60; // 6 hours
+	private final static int REPORT_2_SECONDS = 100; //60 * 60; // 1 hour
+	private final static int REPORT_3_SECONDS =  50; //10 * 60; // 10 minutes
 
 	private final KebaKeContact parent;
 

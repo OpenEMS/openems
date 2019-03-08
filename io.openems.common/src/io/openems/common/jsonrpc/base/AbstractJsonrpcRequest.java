@@ -8,7 +8,8 @@ import io.openems.common.utils.JsonUtils;
  * This represents a JsonrpcRequest. It could either be a {@link JsonrpcRequest}
  * or a {@link JsonrpcNotification}.
  * 
- * @see https://www.jsonrpc.org/specification#request_object
+ * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
+ *      specification</a>
  */
 public abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
 

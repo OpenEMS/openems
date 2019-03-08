@@ -34,6 +34,7 @@ public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
 			switch (openemsType) {
 			case BOOLEAN:
 			case SHORT:
+			case ENUM:
 			case INTEGER:
 			case LONG:
 			case FLOAT:

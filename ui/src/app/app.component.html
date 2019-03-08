@@ -6,7 +6,7 @@
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title *ngIf="(service.currentEdge | async) as currentEdge; else elseTitle">{{ currentEdge.id }} | {{
+      <ion-title *ngIf="(service.currentEdge | async) as currentEdge; else elseTitle">{{
         currentEdge.comment
         }}</ion-title>
       <ng-template #elseTitle>
@@ -15,7 +15,7 @@
 
       <ion-buttons slot="end">
         <nav *ngIf="(service.currentEdge | async) as edge">
-          <ion-button *ngIf="edge.role == 'owner' || edge.role == 'installer' || edge.role == 'admin'" routerLink="/device/{{ edge.id }}/settings">
+          <ion-button *ngIf="edge.roleIsAtLeast('owner')" routerLink="/device/{{ edge.id }}/settings">
             <ion-icon name="settings" size="large">
             </ion-icon>
           </ion-button>
