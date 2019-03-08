@@ -38,6 +38,7 @@ export class Service implements ErrorHandler {
         return Cookie.get("token");
     }
 
+    
     /**
      * Sets the token in the cookie
      */
