@@ -3,6 +3,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum ErrorCode implements OptionsEnum {
+	UNDEFINED("", "", "", 0,0,0,0, "Undefined", "", "", false), //
 
 	TEMP_TRIP_IGBT_3_IPU_1_0x20_2_0("Hardware", "IPU", "MCU", 0x20,0,2,1, "Temp Trip IGBT 3", "RESTART", "SHUTDOWN", false),
 	TEMP_TRIP_IGBT_2_IPU_1_0x20_2_1("Hardware", "IPU", "MCU", 0x20,1,2,1, "Temp Trip IGBT 2", "RESTART", "SHUTDOWN", false),
@@ -866,10 +867,7 @@ public enum ErrorCode implements OptionsEnum {
 	SOC_FULL("ESS", "Rack", "Modbus", 0x04,12,3,0, "Rack Charge Completed", "", "INFO", false),
 	SENSOR_COMMUNICATION_FAULT("ESS", "Rack", "Modbus", 0x04,13,3,0, "Warning: Current Sensor Communication Fault", "", "WARNING", false),
 	CHARGE_OVERCURRENT("ESS", "Rack", "Modbus", 0x04,14,3,0, "Warning: Charge Current Limit Exceeded", "", "WARNING", false),
-	FAN_FAULT("ESS", "Rack", "Modbus", 0x04,15,3,0, "Warning: Fan Fault", "", "WARNING", false),
-	
-	UNDEFINED("", "", "", 0x00,0,0,0, "", "", "", false),
-	;
+	FAN_FAULT("ESS", "Rack", "Modbus", 0x04,15,3,0, "Warning: Fan Fault", "", "WARNING", false);
 
 	private ErrorCode(String level, String Type, String source, int mainCode, int bit, int b, int iPU, String text,	String autoAcknowledge, String level2, boolean needsHardReset) {
 		this.level = level;
@@ -907,7 +905,7 @@ public enum ErrorCode implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
+	public String getName() {
 		return this.text;
 	}
 
@@ -920,4 +918,8 @@ public enum ErrorCode implements OptionsEnum {
 		return UNDEFINED;
 	}
 
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
+	}
 }

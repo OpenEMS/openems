@@ -4,14 +4,18 @@ import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
 
-public class UnsignedDoublewordElement extends AbstractDoubleWordElement<Long> {
+/**
+ * An UnsignedDoublewordElement represents a Long value in an
+ * {@link AbstractDoubleWordElement}.
+ */
+public class UnsignedDoublewordElement extends AbstractDoubleWordElement<UnsignedDoublewordElement, Long> {
 
 	public UnsignedDoublewordElement(int address) {
 		super(OpenemsType.LONG, address);
 	}
 
-	public UnsignedDoublewordElement wordOrder(WordOrder wordOrder) {
-		this.wordOrder = wordOrder;
+	@Override
+	protected UnsignedDoublewordElement self() {
 		return this;
 	}
 

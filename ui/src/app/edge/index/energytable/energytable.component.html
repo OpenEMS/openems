@@ -1,4 +1,4 @@
-<ion-card>
+<ion-card *ngIf="edge">
   <ion-item>
     <ion-icon slot="start" name="today" color="primary"></ion-icon>
     <ion-label>
@@ -6,15 +6,14 @@
     </ion-label>
   </ion-item>
 
-  <ngx-loading [show]="!(currentData && config)"></ngx-loading>
-  <ng-container *ngIf="currentData && config">
+  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+  <ng-container *ngIf="edge.currentData | async as currentData">
 
     <!-- Storage -->
     <ion-item color="light">
       <ion-img style="width:40px" src="assets/img/storage.png"></ion-img>
       <ion-label translate>General.StorageSystem</ion-label>
     </ion-item>
-
 
     <ion-card-content *ngIf="currentData.summary.storage as sum">
       <table class="full_width">
@@ -32,11 +31,11 @@
           <td class="align_right">{{ sum.chargeActivePowerDC | number:'1.0-0' }}</td>
           <td>&nbsp;W</td>
         </tr>
-        <!-- Symmetric ESS -->
-        <ng-container *ngIf="sum.isAsymmetric == false && sum.chargeActivePowerAC != null && sum.dischargeActivePowerAC != null">
+        <!-- AC -->
+        <ng-container *ngIf="sum.chargeActivePowerAC != null">
           <tr>
             <td translate>General.ChargePower
-              <span *ngIf="sum.hasDC"> AC</span>
+              <span *ngIf="sum.chargeActivePowerDC != null"> AC</span>
             </td>
             <td></td>
             <ng-container *ngIf="sum.chargeActivePowerAC != 0; else empty">
@@ -48,9 +47,11 @@
               <td></td>
             </ng-template>
           </tr>
+        </ng-container>
+        <ng-container *ngIf="sum.dischargeActivePowerAC != null">
           <tr>
             <td translate>General.DischargePower
-              <span *ngIf="sum.hasDC"> AC</span>
+              <span *ngIf="sum.chargeActivePowerDC != null"> AC</span>
             </td>
             <td></td>
             <ng-container *ngIf="sum.dischargeActivePowerAC != 0; else empty">
@@ -61,49 +62,6 @@
               <td class="align_right">-</td>
               <td></td>
             </ng-template>
-          </tr>
-        </ng-container>
-        <!-- Asymmetric ESS -->
-        <ng-container *ngIf="sum.isAsymmetric == true && sum.chargeActivePowerACL1 != null && sum.dischargeActivePowerACL1 != null">
-          <tr>
-            <td translate>General.ChargePower
-              <span *ngIf="sum.hasDC"> AC</span>
-            </td>
-            <td>L1</td>
-            <td class="align_right">{{ sum.chargeActivePowerACL1 }}</td>
-            <td>&nbsp;W</td>
-          </tr>
-          <tr *ngIf="sum.chargeActivePowerACL2 != null">
-            <td></td>
-            <td>L2</td>
-            <td class="align_right">{{ sum.chargeActivePowerACL2 }}</td>
-            <td>&nbsp;W</td>
-          </tr>
-          <tr *ngIf="sum.chargeActivePowerACL3 != null" class="underline">
-            <td></td>
-            <td>L3</td>
-            <td class="align_right">{{ sum.chargeActivePowerACL3 }}</td>
-            <td>&nbsp;W</td>
-          </tr>
-          <tr>
-            <td translate>General.DischargePower
-              <span *ngIf="sum.hasDC"> AC</span>
-            </td>
-            <td>L1</td>
-            <td class="align_right">{{ sum.dischargeActivePowerACL1 }}</td>
-            <td>&nbsp;W</td>
-          </tr>
-          <tr *ngIf="sum.dischargeActivePowerACL2 != null">
-            <td></td>
-            <td>L2</td>
-            <td class="align_right">{{ sum.dischargeActivePowerACL2 }}</td>
-            <td>&nbsp;W</td>
-          </tr>
-          <tr *ngIf="sum.dischargeActivePowerACL3 != null">
-            <td></td>
-            <td>L3</td>
-            <td class="align_right">{{ sum.dischargeActivePowerACL3 }}</td>
-            <td>&nbsp;W</td>
           </tr>
         </ng-container>
       </table>
@@ -117,32 +75,30 @@
     <ion-card-content>
       <table *ngIf="currentData.summary.grid as sum" class="full_width">
         <tr class="underline" *ngIf="sum.gridMode == 0 || sum.gridMode == 2">
-          <td translate>General.OffGrid</td>
-          <hr>
-          <td></td>
+          <td colspan="4" translate>General.OffGrid</td>
         </tr>
         <tr>
-          <td translate>General.GridBuy</td>
-          <td></td>
+          <td style="width:50%" translate>General.GridBuy</td>
+          <td style="width:15%"></td>
           <ng-container *ngIf="sum.buyActivePower != 0; else empty">
-            <td class="align_right">{{ sum.buyActivePower | number:'1.0-0' }}</td>
-            <td>&nbsp;W</td>
+            <td style="width:25%" class="align_right">{{ sum.buyActivePower | number:'1.0-0' }}</td>
+            <td style="width:10%">&nbsp;W</td>
           </ng-container>
           <ng-template #empty>
-            <td class="align_right">-</td>
-            <td></td>
+            <td style="width:25%" class="align_right">-</td>
+            <td style="width:10%"></td>
           </ng-template>
         </tr>
         <tr>
-          <td translate>General.GridSell</td>
-          <td></td>
+          <td style="width:50%" translate>General.GridSell</td>
+          <td style="width:15%"></td>
           <ng-container *ngIf="sum.sellActivePower != 0; else empty">
-            <td class="align_right">{{ sum.sellActivePower | number:'1.0-0' }}</td>
-            <td>&nbsp;W</td>
+            <td style="width:25%" class="align_right">{{ sum.sellActivePower | number:'1.0-0' }}</td>
+            <td style="width:10%">&nbsp;W</td>
           </ng-container>
           <ng-template #empty>
-            <td class="align_right">-</td>
-            <td></td>
+            <td style="width:25%" class="align_right">-</td>
+            <td style="width:10%"></td>
           </ng-template>
         </tr>
       </table>
@@ -156,17 +112,17 @@
     <ion-card-content *ngIf="currentData.summary.production as sum">
       <table class="full_width">
         <!-- DC -->
-        <tr *ngIf="sum.hasDC != null">
+        <tr *ngIf="sum.activePowerDC != null">
           <td style="width:50%">
             <span translate>General.Production</span> DC</td>
           <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
           <td style="width:10%">&nbsp;W</td>
         </tr>
-        <!-- Symmetric Meter -->
-        <ng-container *ngIf="sum.isAsymmetric == false && sum.activePowerAC != null">
+        <!-- AC -->
+        <ng-container *ngIf="sum.activePowerAC != null">
           <tr>
             <td style="width:50%" translate>General.Production
-              <span *ngIf="currentData.summary.storage.hasDC"> AC</span>
+              <span *ngIf="currentData.summary.storage.chargeActivePowerDC != null"> AC</span>
             </td>
             <ng-container *ngIf="sum.activePowerAC != 0; else empty">
               <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}</td>
@@ -189,7 +145,7 @@
     <ion-card-content *ngIf="currentData.summary.consumption as sum">
       <table class="full_width">
         <tr>
-          <td style="width:50%" translate>General.Power</td>
+          <td style="width:50%"></td>
           <ng-container *ngIf="sum.activePower != 0; else empty">
             <td style="width:25%" class="align_right">{{ sum.activePower | number:'1.0-0' }}</td>
             <td style="width:10%">&nbsp;W</td>

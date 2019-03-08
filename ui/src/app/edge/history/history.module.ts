@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
+import { WidgetModule } from './chart/widget/widget.module';
 import { HistoryComponent } from './history.component';
-import { EnergyChartComponent } from './chart/energychart/energychart.component';
-import { EvcsChartComponent } from './chart/evcschart/evcschart.component';
+import { EnergyComponent } from './chart/energy/energy.component';
 
 @NgModule({
   imports: [
-    SharedModule
+    SharedModule,
+    WidgetModule
   ],
   declarations: [
     HistoryComponent,
-    EnergyChartComponent,
-    EvcsChartComponent
+    EnergyComponent
   ]
 })
 export class HistoryModule { }

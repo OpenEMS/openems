@@ -3,7 +3,7 @@ package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum CurrentState implements OptionsEnum {
-	OFF(1, "Off"), // directly addressable
+	UNDEFINED(-1, "Undefined"), OFF(1, "Off"), // directly addressable
 	STANDBY(8, "Standby"), // directly addressable
 	GRID_CONNECTED(11, "Grid connected"), // directly addressable
 	ERROR(7, "Error"), // can be reached from every state, not directly addressable
@@ -16,12 +16,12 @@ public enum CurrentState implements OptionsEnum {
 	NO_ERROR_PENDING(12, "No error pending"), // State when system goes from ERROR to OFF, not directly addressable
 	THROTTLED(5, "Throttled"); // State that can occur when system is GRID_CONNECTED, not directly addressable
 
-	int value;
-	String option;
+	private final int value;
+	private final String name;
 
-	private CurrentState(int value, String option) {
+	private CurrentState(int value, String name) {
 		this.value = value;
-		this.option = option;
+		this.name = name;
 	}
 
 	@Override
@@ -30,7 +30,12 @@ public enum CurrentState implements OptionsEnum {
 	}
 
 	@Override
-	public String getOption() {
-		return option;
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
 	}
 }

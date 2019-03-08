@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -87,7 +88,7 @@ public class TestController {
 	}
 
 	@Test
-	public void testChangeStatus() {
+	public void testChangeStatus() throws OpenemsNamedException {
 		sut.run();
 		dummyBattery.getVoltage().setNextValue(700);
 		sut.run();
@@ -128,7 +129,6 @@ public class TestController {
 		try {
 			Thread.sleep(TIME_WHILE_PENDING * 1000 + 1);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		sut.run();
@@ -141,7 +141,7 @@ public class TestController {
 	}
 
 	@Test
-	public void testAreValuesPresent() {
+	public void testAreValuesPresent() throws OpenemsNamedException {
 		sut.run();
 		dummyBattery.getVoltage().setNextValue(700);
 		sut.run();
@@ -178,11 +178,6 @@ public class TestController {
 			}
 
 			@Override
-			public String service_pid() {
-				return "";
-			}
-
-			@Override
 			public float secondCellVoltageLimit() {
 				return 2.8f;
 			}
@@ -208,11 +203,6 @@ public class TestController {
 			}
 
 			@Override
-			public String ess_target() {
-				return "";
-			}
-
-			@Override
 			public String ess_id() {
 				return "ess0";
 			}
@@ -220,11 +210,6 @@ public class TestController {
 			@Override
 			public boolean enabled() {
 				return true;
-			}
-
-			@Override
-			public String battery_target() {
-				return "";
 			}
 
 			@Override
@@ -253,49 +238,41 @@ public class TestController {
 
 		@Override
 		public Power getPower() {
-			// TODO Auto-generated method stub
 			return new Power() {
 
 				@Override
 				public void removeConstraint(Constraint constraint) {
-					// TODO Auto-generated method stub
 
 				}
 
 				@Override
 				public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 
 				@Override
 				public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 
 				@Override
 				public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase,
 						Pwr pwr, Relationship relationship, double value) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public Constraint addConstraint(Constraint constraint) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 			};

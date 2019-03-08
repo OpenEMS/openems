@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -11,6 +13,7 @@ import com.google.common.collect.Multimap;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -35,41 +38,79 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 		super(OpenemsType.INTEGER, parent, channelId);
 	}
 
+	@Override
+	public Value<Integer> value() {
+		Value<Integer> result = super.value();
+		return result;
+	}
+
+	private final BiConsumer<StateChannel, Value<Boolean>> onChangeFunction = (channel, value) -> {
+		/*
+		 * update activeStates
+		 */
+		Level channelLevel = channel.channelDoc().getLevel();
+		if (value != null && value.orElse(false)) {
+			// Value is true -> add to activeStates
+			this.activeStates.put(channelLevel, channel.channelId());
+		} else {
+			// Value is false or unknown -> remove from activeStates
+			this.activeStates.remove(channelLevel, channel.channelId());
+		}
+
+		/*
+		 * Set my own next value according to activeStates.
+		 * 
+		 * Higher value of Level beats lower value.
+		 */
+		int nextValue = 0;
+		for (Level level : Level.values()) {
+			if (this.activeStates.get(level).size() > 0) {
+				nextValue = Math.max(nextValue, level.getValue());
+			}
+		}
+		this.setNextValue(nextValue);
+	};
+
+	/**
+	 * Adds a Channel to this StateCollector.
+	 * 
+	 * @param channel the Channel
+	 */
 	public void addChannel(StateChannel channel) {
 		this.channels.put(channel.channelId(), channel);
 
 		channel.onChange(value -> {
-			/*
-			 * update activeStates
-			 */
-			Level channelLevel = channel.channelDoc().getLevel();
-			if (value.orElse(false)) {
-				// Value is true -> add to activeStates
-				this.activeStates.put(channelLevel, channel.channelId());
-			} else {
-				// Value is false or unknown -> remove from activeStates
-				this.activeStates.remove(channelLevel, channel.channelId());
-			}
-
-			/*
-			 * Set my own next value according to activeStates.
-			 * 
-			 * Higher value of Level beats lower value.
-			 */
-			int nextValue = 0;
-			for (Level level : Level.values()) {
-				if (this.activeStates.get(level).size() > 0) {
-					nextValue = Math.max(nextValue, level.getValue());
-				}
-			}
-			this.setNextValue(nextValue);
+			this.onChangeFunction.accept(channel, value);
 		});
 	}
 
+	/**
+	 * Removes a Channel from this StateCollector.
+	 * <p>
+	 * The onChange listener is removed by the {@link Channel#deactivate()} method.
+	 * 
+	 * @param channel the Channel
+	 */
+	public void removeChannel(StateChannel channel) {
+		this.channels.remove(channel.channelId());
+		this.onChangeFunction.accept(channel, null);
+	}
+
+	/**
+	 * Lists all States as Text
+	 * 
+	 * @return the text
+	 */
 	public String listStates() {
 		return this.listStates(Level.INFO);
 	}
 
+	/**
+	 * Lists all States that are at least 'fromLevel' as text.
+	 * 
+	 * @param fromLevel the minimum Level
+	 * @return the text
+	 */
 	public String listStates(Level fromLevel) {
 		StringBuilder result = new StringBuilder();
 		for (Level level : Level.values()) {
@@ -83,9 +124,15 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 					result.append("| ");
 				}
 				result.append(level.name() + ": ");
-				for (ChannelId channelId : channelIds) {
-					result.append(this.parent.channel(channelId).channelDoc().getText() + ",");
-				}
+				result.append(channelIds.stream() //
+						.map(channelId -> {
+							String docText = this.parent.channel(channelId).channelDoc().getText();
+							if (!docText.isEmpty()) {
+								return docText;
+							}
+							return channelId.id();
+						}) //
+						.collect(Collectors.joining(",")));
 			}
 		}
 		return result.toString();

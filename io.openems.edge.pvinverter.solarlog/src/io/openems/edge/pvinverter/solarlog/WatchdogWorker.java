@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.worker.AbstractWorker;
+import io.openems.common.worker.AbstractWorker;
 
 public class WatchdogWorker extends AbstractWorker {
 

@@ -1,12 +1,14 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,13 +20,16 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.User;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.core.ApiController;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -34,75 +39,78 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Websocket")
-public class WebsocketApi extends AbstractOpenemsComponent
-		implements Controller, ApiController, OpenemsComponent, PaxAppender {
+public class WebsocketApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
 
-	final Logger log = LoggerFactory.getLogger(WebsocketApi.class);
+	public static final String EDGE_ID = "0";
+	public static final String EDGE_COMMENT = "";
+	public static final String EDGE_PRODUCT_TYPE = "";
+
+	public static final int DEFAULT_PORT = 8075;
+
 	private final ApiWorker apiWorker = new ApiWorker();
+	private final SystemLogHandler systemLogHandler;
 
-	private WebsocketApiServer websocketApiServer = null;
+	protected WebsocketServer server = null;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(!(service.factoryPid=Controller.Api.Websocket))")
-	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedataService = null;
+	/**
+	 * Stores valid session tokens for authentication via Cookie.
+	 */
+	protected final Map<UUID, User> sessionTokens = new ConcurrentHashMap<>();
 
 	@Reference
-	protected ConfigurationAdmin configAdmin;
+	protected ComponentManager componentManager;
 
 	@Reference
 	protected UserService userService;
 
-	@Activate
-	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.service_pid(), config.id(), config.enabled());
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile Timedata timedata = null;
 
+	public WebsocketApi() {
+		// TODO: add Debug-Channels for writes to Channels via Websocket-Api
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.systemLogHandler = new SystemLogHandler(this);
+	}
+
+	@Activate
+	protected void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.enabled());
 		if (!this.isEnabled()) {
 			// abort if disabled
 			return;
 		}
-
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
-
-		/*
-		 * Start WebsocketApiServer
-		 */
-		this.websocketApiServer = new WebsocketApiServer(this, config.port());
-		this.websocketApiServer.start();
-		this.logInfo(this.log, "Websocket-Api started on port [" + config.port() + "].");
+		this.startServer(config.port());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		if (this.websocketApiServer != null) {
-			try {
-				this.websocketApiServer.stop();
-			} catch (IOException | InterruptedException e) {
-				this.logError(this.log, "Error while closing websocket: " + e.getMessage());
-			}
+		this.stopServer();
+	}
+
+	/**
+	 * Create and start new server.
+	 * 
+	 * @param port the port
+	 */
+	private synchronized void startServer(int port) {
+		this.server = new WebsocketServer(this, "Websocket Api", port);
+		this.server.start();
+	}
+
+	/**
+	 * Stop existing websocket server.
+	 */
+	private synchronized void stopServer() {
+		if (this.server != null) {
+			this.server.stop();
 		}
 	}
 
 	@Override
-	public void run() {
+	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
-	}
-
-	@Override
-	public Timedata getTimedataService() {
-		return this.timedataService;
-	}
-
-	@Override
-	public List<OpenemsComponent> getComponents() {
-		return this.components;
-	}
-
-	@Override
-	public ConfigurationAdmin getConfigurationAdmin() {
-		return this.configAdmin;
 	}
 
 	@Override
@@ -117,6 +125,39 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Override
 	public void doAppend(PaxLoggingEvent event) {
-		this.websocketApiServer.sendLog(event);
+		this.systemLogHandler.handlePaxLoggingEvent(event);
+	}
+
+	/**
+	 * Gets the WebSocket connection attachment for a UI token.
+	 * 
+	 * @param token the UI token
+	 * @return the WsData
+	 * @throws OpenemsNamedException if there is no connection with this token
+	 */
+	protected WsData getWsDataForTokenOrError(UUID token) throws OpenemsNamedException {
+		Collection<WebSocket> connections = this.server.getConnections();
+		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
+			WebSocket websocket = iter.next();
+			WsData wsData = websocket.getAttachment();
+			UUID thisToken = wsData.getSessionToken();
+			if (thisToken != null && thisToken.equals(token)) {
+				return wsData;
+			}
+		}
+		throw OpenemsError.BACKEND_NO_UI_WITH_TOKEN.exception(token);
+	}
+
+	/**
+	 * Handles a SubscribeSystemLogRequest by forwarding it to the
+	 * 'SystemLogHandler'.
+	 * 
+	 * @param token   the UI token
+	 * @param request the SubscribeSystemLogRequest
+	 * @throws OpenemsNamedException on error
+	 */
+	protected void handleSubscribeSystemLogRequest(UUID token, SubscribeSystemLogRequest request)
+			throws OpenemsNamedException {
+		this.systemLogHandler.handleSubscribeSystemLogRequest(token, request);
 	}
 }

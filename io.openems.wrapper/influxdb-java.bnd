@@ -4,14 +4,39 @@ Bundle-DocURL: https://github.com/influxdata/influxdb-java
 Bundle-License: https://opensource.org/licenses/MIT
 Bundle-Version: 2.14
 
-Include-Resource: @influxdb-java-2.14.jar
-
+Include-Resource: \
+	@influxdb-java-2.14.jar, \
+	@retrofit-2.4.0.jar, \
+	@converter-moshi-2.4.0.jar, \
+	@moshi-1.5.0.jar, \
+	@msgpack-core-0.8.16.jar, \
+	@okhttp-3.11.0.jar, \
+	@okio-1.14.0.jar, \
+	@logging-interceptor-3.11.0.jar
+ 
+Import-Package: \
+	android.os;resolution:=optional, \
+	android.util;resolution:=optional, \
+	org.conscrypt;resolution:=optional, \
+	*
+	
 -dsannotations: *
 
 -metatypeannotations: *
 
 -exportcontents: \
-	org.influxdb,\
-	org.influxdb.dto
+	com.squareup.moshi, \
+	org.influxdb, \
+	org.influxdb.dto, \
+	org.msgpack, \
+	org.msgpack.value, \
+	org.msgpack.value.impl, \
+	org.msgpack.core.buffer, \
+	org.msgpack.core, \
+	okhttp3, \
+	okio, \
+	retrofit2, \
+    retrofit2.http, \
+	retrofit2.converter.moshi
 	
 -sources: false

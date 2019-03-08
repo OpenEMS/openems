@@ -7,8 +7,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "EVCS KEBA KeContact", //
 		description = "Implements the KEBA KeContact P20/P30 electric vehicle charging station.")
 @interface Config {
-	String service_pid();
-
 	String id() default "evcs0";
 
 	boolean enabled() default true;

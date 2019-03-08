@@ -3,7 +3,7 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.backend.uiwebsocket.api
-Private-Package: io.openems.backend.uiwebsocket.impl.provider
+Private-Package: io.openems.backend.uiwebsocket.impl
 
 -includeresource: {readme.md}
 
@@ -17,7 +17,9 @@ Private-Package: io.openems.backend.uiwebsocket.impl.provider
 	io.openems.backend.uiwebsocket.api;version=latest,\
 	io.openems.backend.timedata.api;version=latest,\
 	io.openems.backend.edgewebsocket.api;version=latest,\
-	json
+	json,\
+	slf4j.api,\
+	io.openems.backend.common;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

@@ -1,0 +1,20 @@
+<ion-grid *ngIf="edge">
+  <ion-row justify-content-center>
+    <ion-col size="12" size-sm="6">
+      <ion-card>
+        <ion-item>
+          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
+          <ion-label>
+            <ion-card-title translate>Edge.Config.Index.Log</ion-card-title>
+          </ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-item translate>Edge.Config.Index.LiveLog</ion-item>
+          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/systemlog">
+            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

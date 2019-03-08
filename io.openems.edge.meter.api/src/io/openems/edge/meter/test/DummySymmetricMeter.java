@@ -44,7 +44,7 @@ public class DummySymmetricMeter extends AbstractOpenemsComponent implements Sym
 					channel.nextProcessImage();
 					this.addChannel(channel);
 				});
-		super.activate(null, "", id, true);
+		super.activate(null, id, true);
 	}
 
 	@Override

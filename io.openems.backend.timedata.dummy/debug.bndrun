@@ -1,0 +1,13 @@
+#
+# io.openems.backend.timedata.dummy DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.backend.timedata.dummy.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

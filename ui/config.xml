@@ -93,5 +93,5 @@
     <plugin name="cordova-plugin-ionic-keyboard" spec="^2.1.2" />
     <plugin name="cordova-plugin-native-spinner" spec="^1.1.3" />
     <engine name="android" spec="^7.0.0" />
-    <engine name="browser" spec="5.0.4" />
+    <engine name="browser" spec="^5.0.4" />
 </widget>

@@ -1,7 +1,8 @@
-import { Dataset, EMPTY_DATASET } from './chart';
-import { Service } from './service/service';
-import { Utils } from './service/utils';
-import { Websocket } from './service/websocket';
-import { Alerts } from './service/alerts';
-
-export { Service, Utils, Websocket, Dataset, EMPTY_DATASET, Alerts };
+export { Edge } from "./edge/edge";
+export { EdgeConfig } from "./edge/edgeconfig";
+export { Service } from "./service/service";
+export { Websocket } from "./service/websocket";
+export { Utils } from "./service/utils";
+export { ChannelAddress } from "./type/channeladdress";
+export { SystemLog } from "./type/systemlog";
+export { Widget, WidgetFactory, WidgetNature } from "./type/widget";

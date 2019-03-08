@@ -6,13 +6,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Bridge Modbus/RTU Serial", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/RTU device.")
 @interface ConfigSerial {
-	String service_pid();
-
 	String id() default "modbus0";
+
+	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Port-Name", description = "The name of the serial port - e.g. '/dev/ttyUSB0' or 'COM3'")
 	String portName() default "/dev/ttyUSB0";
@@ -28,8 +28,6 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 
 	@AttributeDefinition(name = "Parity", description = "The parity - 'none', 'even', 'odd', 'mark' or 'space'")
 	Parity parity() default Parity.NONE;
-
-	boolean enabled() default true;
 
 	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/RTU Serial [{id}]";
 }

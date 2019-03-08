@@ -3,14 +3,12 @@ package io.openems.edge.simulator.ess.symmetric.reacting;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.api.SymmetricEss.GridMode;
+import io.openems.edge.common.sum.GridMode;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Simulator EssSymmetric Reacting", //
 		description = "This simulates a 'reacting' symmetric Energy Storage System.")
 @interface Config {
-	String service_pid();
-
 	String id() default "ess0";
 
 	boolean enabled() default true;
@@ -26,7 +24,7 @@ import io.openems.edge.ess.api.SymmetricEss.GridMode;
 
 	@AttributeDefinition(name = "Initial State of Charge [%]")
 	int initialSoc() default 50;
-	
+
 	@AttributeDefinition(name = "Grid mode")
 	GridMode gridMode() default GridMode.ON_GRID;
 

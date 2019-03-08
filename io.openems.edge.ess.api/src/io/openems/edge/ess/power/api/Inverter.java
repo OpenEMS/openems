@@ -48,13 +48,13 @@ public abstract class Inverter {
 	 * Holds the weight of this Inverter in relation to other Inverters. Range
 	 * [1-100]
 	 */
-	private int weight = 0;
+	private int weight = 1;
 
 	public void setWeight(int weight) {
 		if (weight > 100) {
 			this.weight = 100;
-		} else if (weight < 0) {
-			this.weight = 0;
+		} else if (weight < 1) {
+			this.weight = 1;
 		} else {
 			this.weight = weight;
 		}

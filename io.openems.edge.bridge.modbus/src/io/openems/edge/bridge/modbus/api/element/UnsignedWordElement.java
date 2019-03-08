@@ -1,18 +1,21 @@
 package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import io.openems.common.types.OpenemsType;
 
-public class UnsignedWordElement extends AbstractWordElement<Integer> {
+/**
+ * An UnsignedWordElement represents an Integer value in an
+ * {@link AbstractWordElement}.
+ */
+public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement, Integer> {
 
 	public UnsignedWordElement(int address) {
 		super(OpenemsType.INTEGER, address);
 	}
 
-	public UnsignedWordElement byteOrder(ByteOrder byteOrder) {
-		this.byteOrder = byteOrder;
+	@Override
+	protected UnsignedWordElement self() {
 		return this;
 	}
 

@@ -3,12 +3,10 @@ package io.openems.edge.simulator.meter.production.acting;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Simulator ProductionMeter Acting", //
 		description = "This simulates an 'acting' Production meter using data provided by a data source.")
 @interface Config {
-	String service_pid();
-
 	String id() default "meter1";
 
 	boolean enabled() default true;

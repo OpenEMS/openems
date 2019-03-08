@@ -1,8 +1,0 @@
-<div *ngIf="things" fxLayout fxLayoutAlign="center start" fxLayout="wrap">
-  <div fxFlex="100%" *ngFor="let thingId of things">
-    <existingthing [thingId]="thingId" [edge]="edge" [showSubThings]="showSubThings"></existingthing>
-    <ng-container *ngFor="let edgeId of config.things[thingId].edges">
-      <existingthing [thingId]="edgeId" [edge]="edge" [showSubThings]="showSubThings"></existingthing>
-    </ng-container>
-  </div>
-</div>

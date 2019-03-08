@@ -7,7 +7,6 @@ import java.lang.annotation.Annotation;
  */
 public class AbstractComponentConfig {
 
-	public static final String DEFAULT_SERVICE_PID = "service_pid";
 	public static final boolean DEFAULT_ENABLED = true;
 
 	private final Class<? extends Annotation> annotation;
@@ -20,10 +19,6 @@ public class AbstractComponentConfig {
 
 	public Class<? extends Annotation> annotationType() {
 		return this.annotation;
-	}
-
-	public String service_pid() {
-		return DEFAULT_SERVICE_PID;
 	}
 
 	public String id() {
