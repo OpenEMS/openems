@@ -5,6 +5,8 @@ public enum OpenemsType {
 	/**
 	 * ENUM is a special type of INTEGER
 	 */
+	@Deprecated
+	// TODO use INTEGER by default for ENUM
 	ENUM, //
 	FLOAT, DOUBLE, //
 	STRING

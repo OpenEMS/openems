@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.sum.Sum;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -35,6 +37,37 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private String id = null;
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
+
+	/**
+	 * Default constructor for AbstractOpenemsComponent.
+	 * 
+	 * <p>
+	 * Automatically initializes (i.e. creates {@link Channel} instances for each
+	 * given {@link ChannelId} using the Channel-{@link Doc}.
+	 * 
+	 * <p>
+	 * It is important to list all Channel-ID enums of all inherited
+	 * OpenEMS-Natures, i.e. for every OpenEMS Java interface you are implementing,
+	 * you need to list the interface' ChannelID-enum here like
+	 * Interface.ChannelId.values().
+	 * 
+	 * <p>
+	 * Use as follows:
+	 * 
+	 * <pre>
+	 * public YourPhantasticOpenemsComponent() {
+	 *	super(
+	 *		OpenemsComponent.ChannelId.values(),
+	 * 		YourPhantasticOpenemsComponent.ChannelId.values()
+	 * 	);
+	 * }
+	 * </pre>
+	 * 
+	 * @param initialChannelIds the Channel-IDs to initialize.
+	 */
+	protected AbstractOpenemsComponent(io.openems.edge.common.channel.doc.ChannelId[]... initialChannelIds) {
+		this.addChannels(initialChannelIds);
+	}
 
 	/**
 	 * Handles @Activate of implementations. Prints log output.
@@ -84,6 +117,26 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		return this.componentContext;
 	}
 
+	/**
+	 * Initializes the given Channel-IDs
+	 * 
+	 * <ul>
+	 * <li>Creates object instances from Channel-Doc
+	 * <li>Registers the Channels
+	 * </ul>
+	 * 
+	 * @param initialChannelIds the given Channel-IDs
+	 */
+	protected void addChannels(io.openems.edge.common.channel.doc.ChannelId[][] initialChannelIds) {
+		for (io.openems.edge.common.channel.doc.ChannelId[] channelIds : initialChannelIds) {
+			for (io.openems.edge.common.channel.doc.ChannelId channelId : channelIds) {
+				Doc doc = channelId.doc();
+				Channel<?> channel = doc.createChannelInstance(this, channelId);
+				this.addChannel(channel);
+			}
+		}
+	}
+
 	private void logMessage(String reason) {
 		String packageName = this.getClass().getPackage().getName();
 		if (packageName.startsWith("io.openems.")) {
@@ -107,12 +160,19 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Adds a Channel to this Component.
 	 * 
 	 * @param channel the Channel
-	 * @throws NullPointerException if the Channel was not initialized.
+	 * @throws NullPointerException     if the Channel was not initialized.
+	 * @throws IllegalArgumentException if the Channel-ID had already been added.
 	 */
-	protected void addChannel(Channel<?> channel) throws NullPointerException {
+	// TODO should be private; Channels are only going to be added via
+	// addChannels()-method above in future.
+	protected void addChannel(Channel<?> channel) throws NullPointerException, IllegalArgumentException {
 		if (channel == null) {
 			throw new NullPointerException(
 					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
+		}
+		if (this.channels.containsKey(channel.channelId().id())) {
+			throw new IllegalArgumentException(
+					"Duplicated Channel-ID [" + channel.channelId().id() + "] for Component [" + this.id + "]");
 		}
 		// Add Channel to channels list
 		this.channels.put(channel.channelId().id(), channel);
@@ -127,6 +187,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * 
 	 * @param channel the Channel
 	 */
+	// TODO remove Channel(s) using Channel-ID; see addChannels()-method above.
 	protected void removeChannel(Channel<?> channel) {
 		// Add Channel to channels list
 		this.channels.remove(channel.channelId().id(), channel);

@@ -5,13 +5,18 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Provides static meta information for a {@link Channel} using Builder pattern.
@@ -30,7 +35,42 @@ import io.openems.edge.common.channel.value.Value;
  * <li>callback on initialization of a Channel via {@link #getOnInitCallback()}
  * </ul>
  */
+// TODO this class should be abstract
 public class Doc {
+
+	/**
+	 * Create a Channel-Doc with a specific OpenemsType.
+	 * 
+	 * @param type the OpenemsType
+	 */
+	public static OpenemsTypeDoc of(OpenemsType type) {
+		return new OpenemsTypeDoc(type);
+	}
+
+	/**
+	 * Create a Channel-Doc with specific options.
+	 * 
+	 * @param options the possible options as an OptionsEnum
+	 */
+	public static OptionsEnumDoc of(Enum<? extends OptionsEnum>[] options) {
+		return new OptionsEnumDoc(options);
+	}
+
+	/**
+	 * Create a Channel-Doc for a {@link StateChannel} with a given {@link Level}.
+	 * 
+	 * @param level the Level
+	 */
+	public static StateChannelDoc of(Level level) {
+		return new StateChannelDoc(level);
+	}
+
+	private final Logger log = LoggerFactory.getLogger(Doc.class);
+
+	@Deprecated
+	public Doc() {
+		this.type = null;
+	}
 
 	/**
 	 * Allowed Access-Mode for this Channel.
@@ -60,7 +100,8 @@ public class Doc {
 	/*
 	 * OpenEMS Type
 	 */
-	private Optional<OpenemsType> type = Optional.empty();
+	// TODO should be final
+	private OpenemsType type;
 
 	/**
 	 * Sets the OpenemsType. This is validated on construction of the Channel by
@@ -69,13 +110,40 @@ public class Doc {
 	 * @param type
 	 * @return
 	 */
+	@Deprecated
 	public Doc type(OpenemsType type) {
-		this.type = Optional.ofNullable(type);
+		this.type = type;
 		return this;
 	}
 
+	@Deprecated
 	public Optional<OpenemsType> getType() {
+		return Optional.ofNullable(type);
+	}
+
+	// TODO should be renamed to getType and replace the Optional variant.
+	public OpenemsType getType2() {
 		return type;
+	}
+
+	/*
+	 * Initial Value
+	 */
+	private Object initialValue = null;
+
+	/**
+	 * Initial-Value. Default: none
+	 * 
+	 * @param unit
+	 * @return
+	 */
+	public Doc initialValue(Object initialValue) {
+		this.initialValue = initialValue;
+		return this;
+	}
+
+	public Object getInitialValue() {
+		return this.initialValue;
 	}
 
 	/*
@@ -121,7 +189,7 @@ public class Doc {
 	/*
 	 * Options.
 	 */
-	private BiMap<Integer, OptionsEnum> options = HashBiMap.create();
+	protected final BiMap<Integer, OptionsEnum> options = HashBiMap.create();
 
 	/**
 	 * Set the possible options using an OptionsEnum
@@ -129,6 +197,7 @@ public class Doc {
 	 * @param options
 	 * @return
 	 */
+	@Deprecated
 	public Doc options(Enum<? extends OptionsEnum>[] options) {
 		for (Enum<? extends OptionsEnum> option : options) {
 			OptionsEnum o = (OptionsEnum) option;
@@ -244,5 +313,20 @@ public class Doc {
 
 	public List<Consumer<Channel<?>>> getOnInitCallback() {
 		return onInitCallback;
+	}
+
+	/**
+	 * Creates an instance of {@link Channel} for the given Channel-ID using its
+	 * Channel-{@link Doc}.
+	 * 
+	 * @param channelId the Channel-ID
+	 * @return the Channel
+	 */
+	// TODO this method should be abstract
+	public Channel<?> createChannelInstance(OpenemsComponent component,
+			io.openems.edge.common.channel.doc.ChannelId channelId) {
+		this.log.warn("createChannelInstance(" + component.id() + "/" + channelId.id()
+				+ "). This method should have never been called.");
+		return null;
 	}
 }

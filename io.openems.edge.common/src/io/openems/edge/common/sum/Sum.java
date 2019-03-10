@@ -25,7 +25,8 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		ESS_SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		ESS_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)),
 		/**
 		 * Ess: Active Power.
 		 * 
@@ -36,8 +37,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ESS_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ESS_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
@@ -52,8 +52,7 @@ public interface Sum extends OpenemsComponent {
 		 * the system')
 		 * </ul>
 		 */
-		GRID_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
@@ -66,8 +65,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: negative values or '0'
 		 * </ul>
 		 */
-		GRID_MIN_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		GRID_MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Grid: Maximum Ever Active Power.
@@ -79,8 +77,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		GRID_MAX_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		GRID_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Production: Active Power.
@@ -92,8 +89,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
-		PRODUCTION_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Production: AC Active Power.
@@ -105,8 +101,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
-		PRODUCTION_AC_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Production: DC Actual Power.
@@ -118,8 +113,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
-		PRODUCTION_DC_ACTUAL_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Production: Maximum Ever Active Power.
@@ -131,8 +125,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		PRODUCTION_MAX_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Production: Maximum Ever AC Active Power.
@@ -144,8 +137,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		PRODUCTION_MAX_AC_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_MAX_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Production: Maximum Ever DC Actual Power.
@@ -157,8 +149,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		PRODUCTION_MAX_DC_ACTUAL_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_MAX_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Consumption: Active Power.
@@ -172,8 +163,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production-Meter and charge/discharge of battery.
 		 * </ul>
 		 */
-		CONSUMPTION_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		CONSUMPTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Consumption: Maximum Ever Active Power.
@@ -185,20 +175,18 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		CONSUMPTION_MAX_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		CONSUMPTION_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
 		 * Grid-Mode.
 		 * 
 		 * <ul>
-		 * <li>Interface: Gridmode (origin: SymmetricEss))
+		 * <li>Interface: Sum (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Values: '0' = UNDEFINED, '1' = ON GRID, '2' = OFF GRID
 		 * </ul>
 		 */
-		GRID_MODE(new Doc() //
-				.type(OpenemsType.INTEGER).options(GridMode.values())),
+		GRID_MODE(Doc.of(GridMode.values())),
 
 		/**
 		 * Ess: Max Apparent Power.
@@ -209,8 +197,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: VA
 		 * </ul>
 		 */
-		ESS_MAX_APPARENT_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ESS_MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)),
 		/**
 		 * Ess: Active Charge Energy.
@@ -221,8 +208,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ESS_ACTIVE_CHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ESS_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Ess: Active Discharge Energy.
@@ -233,8 +219,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ESS_ACTIVE_DISCHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
@@ -245,8 +230,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		GRID_BUY_ACTIVE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		GRID_BUY_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Grid: Sell-to-grid Energy ("Consumption").
@@ -257,8 +241,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		GRID_SELL_ACTIVE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		GRID_SELL_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Production: Energy.
@@ -268,8 +251,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		PRODUCTION_ACTIVE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Production: AC Energy.
@@ -280,8 +262,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		PRODUCTION_AC_ACTIVE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		PRODUCTION_AC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Production: DC Energy.
@@ -292,8 +273,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		PRODUCTION_DC_ACTIVE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		PRODUCTION_DC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Consumption: Energy.
@@ -304,8 +284,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		CONSUMPTION_ACTIVE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;

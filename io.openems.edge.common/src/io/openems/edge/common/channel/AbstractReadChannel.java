@@ -30,10 +30,10 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	private volatile Value<T> activeValue = null;
 
 	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId) {
-		this(type, component, channelId, null);
+		this(type, component, channelId, channelId.doc().getInitialValue());
 	}
 
-	public AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, T initialValue) {
+	public AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, Object initialValue) {
 		this.nextValue = new Value<T>(this, null);
 		this.activeValue = new Value<T>(this, null);
 		this.type = type;

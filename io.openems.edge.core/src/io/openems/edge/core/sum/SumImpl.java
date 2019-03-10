@@ -59,7 +59,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	public SumImpl() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Sum.ChannelId.values() //
+		);
 	}
 
 	@Activate

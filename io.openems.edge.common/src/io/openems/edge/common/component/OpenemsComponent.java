@@ -12,8 +12,7 @@ import org.osgi.service.component.ComponentContext;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.doc.StateCollectorChannelDoc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
@@ -140,7 +139,7 @@ public interface OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new Doc().unit(Unit.NONE).options(Level.values()));
+		STATE(new StateCollectorChannelDoc());
 
 		private final Doc doc;
 

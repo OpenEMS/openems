@@ -5,20 +5,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.edge.common.channel.doc.ChannelId;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<Integer> {
+public class DoubleWriteChannel extends DoubleReadChannel implements WriteChannel<Double> {
 
-	public EnumWriteChannel(OpenemsComponent component, ChannelId channelId) {
+	public DoubleWriteChannel(OpenemsComponent component, ChannelId channelId) {
 		super(component, channelId);
 	}
 
-	public EnumWriteChannel(OpenemsComponent component, ChannelId channelId, OptionsEnum optionsEnum) {
-		super(component, channelId, optionsEnum);
-	}
-
-	private Optional<Integer> nextWriteValueOpt = Optional.empty();
+	private Optional<Double> nextWriteValueOpt = Optional.empty();
 
 	/**
 	 * Internal method. Do not call directly.
@@ -27,7 +22,7 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	 */
 	@Deprecated
 	@Override
-	public void _setNextWriteValue(Integer value) {
+	public void _setNextWriteValue(Double value) {
 		this.nextWriteValueOpt = Optional.ofNullable(value);
 	}
 
@@ -38,7 +33,7 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	 */
 	@Deprecated
 	@Override
-	public Optional<Integer> _getNextWriteValue() {
+	public Optional<Double> _getNextWriteValue() {
 		return this.nextWriteValueOpt;
 	}
 
@@ -46,12 +41,12 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<Integer>> getOnSetNextWrites() {
+	public List<Consumer<Double>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Integer> callback) {
+	public void onSetNextWrite(Consumer<Double> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

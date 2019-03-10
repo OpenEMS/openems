@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.value.Value;
@@ -20,7 +19,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Collects the values of all {@link StateChannel}s. This class is used for the
  * "State" Channel of every OpenEMS Component.
  */
-public class StateCollectorChannel extends AbstractReadChannel<Integer> {
+public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Holds all Channels that are connected to and collected by this
@@ -35,7 +34,7 @@ public class StateCollectorChannel extends AbstractReadChannel<Integer> {
 	private final Multimap<Level, io.openems.edge.common.channel.doc.ChannelId> activeStates = HashMultimap.create();
 
 	public StateCollectorChannel(OpenemsComponent parent, ChannelId channelId) {
-		super(OpenemsType.ENUM, parent, channelId);
+		super(parent, channelId, Level.OK);
 	}
 
 	@Override
