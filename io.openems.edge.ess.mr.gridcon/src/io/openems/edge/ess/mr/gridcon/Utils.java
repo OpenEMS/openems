@@ -1572,11 +1572,6 @@ public class Utils {
 					case CONTROL_DC_DC_CONVERTER_PARAMETERS_I_REF_STRING_C:	
 					case CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE:
 						return new FloatWriteChannel(ess, channelId);
-					case STATE_TEMP_TRIP_IGBT_3_IPU_1: //TODO new channelIds for errors
-						return new StateChannel(ess, channelId);
-					default:
-						break;
-										
 					}
 					return null;
 				}) //

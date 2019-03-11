@@ -156,22 +156,22 @@ public enum ErrorCodeChannelId1 implements io.openems.edge.common.channel.doc.Ch
 					.needsHardReset(false).code(0x060032).text("(XT) FREQ NOT VALID START ACDC").level(Level.WARNING)),
 	STATE_PARAM_UNDEFINED_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-					.needsHardReset(false).code(0x010000).text("Undefined fault parameter").level(Level.WARNING)),
+					.needsHardReset(true).code(0x010000).text("Undefined fault parameter").level(Level.WARNING)),
 	STATE_PARAM_NULL_POINTER_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-					.needsHardReset(false).code(0x010001).text("Null pointer to fault parameter").level(Level.WARNING)),
+					.needsHardReset(true).code(0x010001).text("Null pointer to fault parameter").level(Level.WARNING)),
 	STATE_INVALID_PARAMETER_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-					.needsHardReset(false).code(0x010002).text("Invalid fault parameter").level(Level.WARNING)),
+					.needsHardReset(true).code(0x010002).text("Invalid fault parameter").level(Level.WARNING)),
 	STATE_GROUP_INSPECTOR_NULL_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-					.needsHardReset(false).code(0x010003).text("Undefined group inspector").level(Level.WARNING)),
+					.needsHardReset(true).code(0x010003).text("Undefined group inspector").level(Level.WARNING)),
 	STATE_INVALID_CLIENT_ID_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
 					.needsHardReset(false).code(0x010004).text("Invalid Merkur client ID").level(Level.WARNING)),
 	STATE_INVALID_HIERARCHY_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-					.needsHardReset(false).code(0x010005).text("Invalid fault hierarchy").level(Level.WARNING)),
+					.needsHardReset(true).code(0x010005).text("Invalid fault hierarchy").level(Level.WARNING)),
 	STATE_MERKUR_INIT_FAIL_DSC_1(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.WARNING)
 			.needsHardReset(false).code(0x010006).text("Merkur module initialization failed").level(Level.WARNING)),
 	STATE_INVALID_MIO_ORDER_DSC_1(
@@ -198,7 +198,7 @@ public enum ErrorCodeChannelId1 implements io.openems.edge.common.channel.doc.Ch
 					.code(0x01000E).text("Warning: RTDS Version - Do not use on real hardware").level(Level.WARNING)),
 	STATE_ARRAY_OVERFLOW_Software_1(
 			new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-					.needsHardReset(false).code(0x01000F).text("Array oveflow").level(Level.WARNING)),
+					.needsHardReset(true).code(0x01000F).text("Array oveflow").level(Level.WARNING)),
 	STATE_AUTONOM_TEST_SW_Software_1(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.INFO)
 			.needsHardReset(false).code(0x010010).text("Warning: AUTONOM TEST SW ( Autostart )").level(Level.WARNING)),
 	STATE_NO_BLACKSTART_OR_SYNC_ENABLED_Software_1(

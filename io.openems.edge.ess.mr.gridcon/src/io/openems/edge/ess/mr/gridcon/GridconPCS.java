@@ -45,8 +45,10 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -57,7 +59,9 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
-import io.openems.edge.ess.mr.gridcon.enums.ErrorCode;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
@@ -89,7 +93,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
-	private static final int MAX_POWER_PER_INVERTER = 40_000;
+	private static final int MAX_POWER_PER_INVERTER = 41_900; //experimentally measured 
 	protected static float MAX_POWER_W = MAX_POWER_PER_INVERTER;
 
 	protected static final float MAX_CHARGE_W = 86 * 1000;
@@ -97,6 +101,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 
+	private Map<Integer, io.openems.edge.common.channel.doc.ChannelId> errorChannelIds = null;
+	
 	BitSet commandControlWord = new BitSet(32);
 	LocalDateTime timestampMrGridconWasSwitchedOff;
 
@@ -132,8 +138,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	DigitalOutput outputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
-//	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-//	private DigitalInput inputComponent = null;
+	
+	//TODO use the component manager to identify needed components
+	@Reference
+	protected ComponentManager componentManager;
 	
 	int minSoCA;
 	int minSoCB;
@@ -141,6 +149,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		fillErrorChannelMap();				
+	}
+
+	private void fillErrorChannelMap() {
+		errorChannelIds = new HashMap<>();
+		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId.values()) {
+			errorChannelIds.put(((ErrorDoc)id.doc()).getCode(), id);
+		}
+		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId1.values()) {
+			errorChannelIds.put(((ErrorDoc)id.doc()).getCode(), id);
+		}
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -150,6 +169,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		
 		minSoCA = config.minSoCA();
 		minSoCB = config.minSoCB();
 		minSoCC = config.minSoCC();
@@ -220,8 +240,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE);
 				mapBitToChannel(ctrlWord, PCSControlWordBitPosition.STOP, GridConChannelId.COMMAND_CONTROL_WORD_STOP);
 				mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY, GridConChannelId.COMMAND_CONTROL_WORD_READY);
-			}
-			;
+			};
 		});
 
 		this.channel(GridConChannelId.MIRROR_COMMAND_CONTROL_WORD).onUpdate(value -> {
@@ -239,8 +258,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY,
 							GridConChannelId.MIRROR_COMMAND_CONTROL_WORD_READY);
 				}
-			}
-			;
+			};
 		});
 	}
 
@@ -250,33 +268,32 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private GridMode getOnOffGrid() {
-		return GridMode.ON_GRID; //TODO jkust temporarily...
-//		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
-//				.channel(this.inputNAProtection1.getChannelId());
-//		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
-//				.channel(this.inputNAProtection1.getChannelId());
-//
-//		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-//		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-//
-//		GridMode gridMode;
-//		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
-//			gridMode = GridMode.UNDEFINED;
-//		} else {
-//			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
-//				gridMode = GridMode.ON_GRID;
-//			} else {
-//				gridMode = GridMode.OFF_GRID;
-//			}
-//		}
-//		this.getGridMode().setNextValue(gridMode);
-//		return gridMode;
+		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
+				.channel(this.inputNAProtection1.getChannelId());
+		BooleanReadChannel inputNAProtection2 = this.inputNAProtection1Component
+				.channel(this.inputNAProtection1.getChannelId());
+
+		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+
+		GridMode gridMode;
+		if (!isInputNAProtection1.isPresent() || !isInputNAProtection2.isPresent()) {
+			gridMode = GridMode.UNDEFINED;
+		} else {
+			if (isInputNAProtection1.get() && isInputNAProtection2.get()) {
+				gridMode = GridMode.ON_GRID;
+			} else {
+				gridMode = GridMode.OFF_GRID;
+			}
+		}
+		this.getGridMode().setNextValue(gridMode);
+		return gridMode;
 	}
 
 	private void handleStateMachine() {
 		this.prepareGeneralCommands();
 
-		GridMode gridMode = GridMode.ON_GRID; // TODO reactivate it!! currently not active because off null pointer //this.getOnOffGrid();
+		GridMode gridMode = this.getOnOffGrid();
 		switch (gridMode) {
 		case ON_GRID:
 			log.info("handleOnGridState");
@@ -348,7 +365,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private float getWeightingMode() {
 		float weightingMode = 0;
 
-		// TODO FALSCH!!! depends on number of battery strings!!!
+		// Depends on number of battery strings!!!
 		// battA = 1  (2^0)
 		// battB = 8  (2^3)
 		// battC = 64 (2^6)
@@ -372,8 +389,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleOnGridState() {
+		System.out.println(" ------ Currently set error channels ------- ");
+		for (io.openems.edge.common.channel.doc.ChannelId id : errorChannelIds.values()) {
+			@SuppressWarnings("unchecked")
+			Optional<Boolean> val = (Optional<Boolean>) this.channel(id).value().asOptional();
+			if (val.isPresent() && val.get()) {
+				System.out.println(this.channel(id).address().getChannelId() + " is present");
+			}
+		}
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-		// this.setOutputSyncDeviceBridge(false); //TODO reactivate it because of null pointer
+		 this.setOutputSyncDeviceBridge(false); 
 
 		// a hardware restart has been executed,
 		if (timestampMrGridconWasSwitchedOff != null) {
@@ -390,6 +415,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					BooleanWriteChannel channelHardReset = outputMRHardResetComponent
 							.channel(outputMRHardReset.getChannelId());
 					channelHardReset.setNextWriteValue(false);
+					resetErrorChannels();
 				} catch (OpenemsException e) {
 					log.error("Problem occurred while deactivating hardware switch!");
 					e.printStackTrace();
@@ -439,6 +465,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		resetErrorCodes();
 	}
 
+	private void resetErrorChannels() {
+		for (io.openems.edge.common.channel.doc.ChannelId id : errorChannelIds.values()) {
+			this.channel(id).setNextValue(false);
+		}
+	}
+
 	private void resetErrorCodes() {
 		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
 		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
@@ -449,6 +481,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doRunHandling() {
+		resetErrorChannels(); //if any error channels has been set, unset them because in here there aree n o errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war aber ein fehler in der queue und das system nicht angelaufen ist....
+		
 		boolean disableIpu1 = false;
 		boolean disableIpu2 = true;
 		boolean disableIpu3 = true;
@@ -715,12 +749,40 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doErrorHandling() {
-		if (isHardwareTrip()) {
+		StateChannel c = getErrorChannel();
+		if (c == null) {
+			System.out.println("Channel is null......");
+			return;
+		}
+		c.setNextValue(true);
+		if (((ErrorDoc)c.channelId().doc()).isNeedsHardReset()) {
 			doHardRestart();
 		} else {
 			log.info("try to acknowledge errors");
 			acknowledgeErrors();
 		}
+	}
+
+	private StateChannel getErrorChannel() {
+		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
+		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
+		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
+			int code = errorCodeOpt.get();
+			System.out.println("Code read: " + code + " ==> hex: " + Integer.toHexString(code));
+			code = code >> 8;
+			System.out.println("Code >> 8 read: " + code + " ==> hex: " + Integer.toHexString(code));
+			log.info("Error code is present --> " + code);
+			io.openems.edge.common.channel.doc.ChannelId id = errorChannelIds.get(code);
+			return this.channel(id);
+		}
+//			int mainCode = ((code >> 24) & 255);
+//			int bit = ((code >> 16) & 255);
+//			int b = ((code >> 8) & 255);
+//			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
+////			this.channel(errorCode.getChannelId()).setNextValue(true);
+//			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
+//			return errorCode.needsHardReset;
+		return null;
 	}
 
 	private void doHardRestart() {
@@ -740,23 +802,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	}
 
-	private boolean isHardwareTrip() {
-		log.info("in isHardwareTrip");
-		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
-		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-		if (errorCodeOpt.isPresent()) {
-			int code = errorCodeOpt.get();
-			log.info("Error code is present --> " + code);
-			int mainCode = ((code >> 24) & 255);
-			int bit = ((code >> 16) & 255);
-			int b = ((code >> 8) & 255);
-			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
-//			this.channel(errorCode.getChannelId()).setNextValue(true);
-			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
-			return errorCode.needsHardReset;
-		}
-		return false;
-	}
+	
+	
+	
+//	private boolean isHardwareTrip() {
+//		
+//		
+//		log.info("in isHardwareTrip");
+//		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
+//		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
+//		if (errorCodeOpt.isPresent()) {
+//			int code = errorCodeOpt.get();
+//			log.info("Error code is present --> " + code);
+//			int mainCode = ((code >> 24) & 255);
+//			int bit = ((code >> 16) & 255);
+//			int b = ((code >> 8) & 255);
+//			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
+////			this.channel(errorCode.getChannelId()).setNextValue(true);
+//			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
+//			return errorCode.needsHardReset;
+//		}
+//		return false;
+//	}
 
 	LocalDateTime lastTimeAcknowledgeCommandoWasSent;
 	long ACKNOWLEDGE_TIME_SECONDS = 5;

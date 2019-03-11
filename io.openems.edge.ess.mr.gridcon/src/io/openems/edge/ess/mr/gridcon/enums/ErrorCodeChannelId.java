@@ -1699,13 +1699,13 @@ public enum ErrorCodeChannelId implements io.openems.edge.common.channel.doc.Cha
 			.reactionLevel(ReactionLevel.DISABLED).needsHardReset(false).code(0x204808)
 			.text("(XT) DC-Link Precharge Negative Overvoltage Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_1_1(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x201809).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x201809).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_2_1(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x202809).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x202809).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_3_1(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x203809).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x203809).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_4_1(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x204809).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x204809).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_PRECHARGE_TRIP_IPU_1_1(new ErrorDoc().acknowledge(Acknowledge.RESTART).reactionLevel(ReactionLevel.SHUTDOWN)
 			.needsHardReset(false).code(0x20180A).text("(XT) Precharge Trip").level(Level.WARNING)),
 	STATE_PRECHARGE_TRIP_IPU_2_1(new ErrorDoc().acknowledge(Acknowledge.RESTART).reactionLevel(ReactionLevel.SHUTDOWN)
@@ -1979,13 +1979,13 @@ public enum ErrorCodeChannelId implements io.openems.edge.common.channel.doc.Cha
 	STATE_UDC_P_TRIP_IPU_4_5(new ErrorDoc().acknowledge(Acknowledge.RESTART).reactionLevel(ReactionLevel.FORCED)
 			.needsHardReset(false).code(0x404800).text("(XT) DC-Link Positive Voltage Fault").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_1_2(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x401801).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x401801).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_2_2(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x402801).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x402801).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_3_2(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x403801).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x403801).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_HARDWARE_TRIP_IPU_4_2(new ErrorDoc().acknowledge(Acknowledge.UNDEFINED).reactionLevel(ReactionLevel.SHUTDOWN)
-			.needsHardReset(false).code(0x404801).text("(XT) Hardware Trip").level(Level.WARNING)),
+			.needsHardReset(true).code(0x404801).text("(XT) Hardware Trip").level(Level.WARNING)),
 	STATE_PRECHARGE_TRIP_IPU_1_2(new ErrorDoc().acknowledge(Acknowledge.RESTART).reactionLevel(ReactionLevel.SHUTDOWN)
 			.needsHardReset(false).code(0x401802).text("(XT) Precharge Trip").level(Level.WARNING)),
 	STATE_PRECHARGE_TRIP_IPU_2_2(new ErrorDoc().acknowledge(Acknowledge.RESTART).reactionLevel(ReactionLevel.SHUTDOWN)
