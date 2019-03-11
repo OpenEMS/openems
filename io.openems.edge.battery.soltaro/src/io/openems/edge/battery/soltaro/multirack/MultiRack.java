@@ -79,6 +79,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private State state = State.UNDEFINED;
 	private Config config;
 	private Collection<SingleRack> racks = new ArrayList<>();
+//	private Collection<SingleRack> racks = new ArrayList<>();
 
 	
 	public MultiRack() {

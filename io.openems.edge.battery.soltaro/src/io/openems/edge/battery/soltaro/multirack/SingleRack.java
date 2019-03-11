@@ -389,7 +389,7 @@ public class SingleRack {
 	}
 	
 	private ChannelId createChannelId(String key, Doc doc) {
-		return new ChannelIdImpl("RACK_" + this.rackNumber + "_" + key, doc);
+		return new ChannelIdImpl(RACK + "_" + this.rackNumber + "_" + key, doc);
 	}
 	
 	private void addEntry(Map<String, ChannelId> map, String key, Doc doc) {
