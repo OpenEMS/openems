@@ -22,7 +22,7 @@ import io.openems.common.utils.JsonUtils;
  *   "params": {
  *     "factoryPid": string,
  *     "properties": [{
- *       "property": string,
+ *       "name": string,
  *       "value": any 
  *     }]
  *   }
