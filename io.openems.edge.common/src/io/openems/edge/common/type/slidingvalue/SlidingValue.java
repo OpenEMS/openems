@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.backend.slidingvalue;
+package io.openems.edge.common.type.slidingvalue;
 
 import java.util.Objects;
 
@@ -7,6 +7,18 @@ import com.google.gson.JsonElement;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.type.TypeUtils;
 
+/**
+ * Calculates the 'Sliding Value' for a value.
+ * 
+ * <p>
+ * Using the existing subclasses, this class can be used to
+ * <ul>
+ * <li>calculate the average of several numeric values
+ * <li>use the latest value for Enum and Boolean values
+ * </ul>
+ * 
+ * @param <T> the type of the Value
+ */
 public abstract class SlidingValue<T> {
 
 	private T lastSentValue = null;

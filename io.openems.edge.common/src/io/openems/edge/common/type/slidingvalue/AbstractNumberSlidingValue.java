@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.backend.slidingvalue;
+package io.openems.edge.common.type.slidingvalue;
 
 import java.util.ArrayList;
 import java.util.List;

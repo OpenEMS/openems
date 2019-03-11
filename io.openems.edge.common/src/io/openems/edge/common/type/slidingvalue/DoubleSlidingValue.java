@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.backend.slidingvalue;
+package io.openems.edge.common.type.slidingvalue;
 
 import io.openems.common.types.OpenemsType;
 
