@@ -5,11 +5,11 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 public enum SwitchState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 
-	SWITCH_ALL_OPEN(0, "All Switches Are Open"), //
+	ALL_SWITCHES_OPEN(0, "All Switches Are Open"), //
 
-	SWITCH_AT_OFF_GRID(1, "Switches Are At Off Grid Mode"), //
+	SWITCHED_TO_OFF_GRID(1, "Switches Are At Off Grid Mode"), //
 
-	SWITCH_AT_ON_GRID(2, "Switches Are At On Grid Mode");
+	SWITCHED_TO_ON_GRID(2, "Switches Are At On Grid Mode");
 
 	private final int value;
 	private final String name;

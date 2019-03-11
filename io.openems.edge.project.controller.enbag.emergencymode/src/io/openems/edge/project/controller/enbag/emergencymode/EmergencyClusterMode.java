@@ -2,6 +2,7 @@ package io.openems.edge.project.controller.enbag.emergencymode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,17 +22,24 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.io.api.DigitalInput;
+import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import osgi.enroute.iot.gpio.util.Digital;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.EmergencyClusterMode", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -39,18 +47,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	private final Logger log = LoggerFactory.getLogger(EmergencyClusterMode.class);
 
-	@Reference
-	protected ComponentManager componentManager;
-
-	private ChannelAddress inputChannelAddress;
-	private ChannelAddress outputChannelAddress;
-//
 	// defaults
 	private boolean isSwitchedToOffGrid = true;
-	private boolean primaryEssSwitch = false; // Q2
-	private boolean backupEssSwitch = false; // Q1
-	private boolean pvOnGridSwitch = false; // Q4
-	private boolean pvOffGridSwitch = false; // Q3
 	private int switchDealy = 10000; // 10 sec
 	private int pvSwitchDelay = 10000; // 10 sec
 	private int pvLimit = 100;
@@ -58,25 +56,26 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	private long waitOn = 0L;
 	private long waitOff = 0L;
 
-	private boolean allowChargeFromAC;
-	private boolean gridFeedLimitation;
-	private boolean isRemoteControlled;
-	private boolean remoteStart;
-	private int maxGridFeedPower;
-	private int remoteActivePower;
+	private Config config;
 
 	private PvState pvState = PvState.UNDEFINED;
-	private EssState essState = EssState.UNDEFINED;
 	private BatteryState batteryState = BatteryState.UNDEFINED;
 	private SwitchState switchState = SwitchState.UNDEFINED;
 
-	private ManagedSymmetricEss esss;
+	private ChannelAddress q1Ess1SupplyUps = null;
+	private ChannelAddress q2Ess2SupplyUps = null;
+	private ChannelAddress q3PvOffGrid = null;
+	private ChannelAddress q4PvOnGrid = null;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter gridMeter;
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter pvMeter;
 
@@ -84,146 +83,40 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	private SymmetricPvInverter pvInverter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent ess1SwitchOutputComponent = null;
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent ess1SwitchInputComponent = null;
-	private WriteChannel<Boolean> ess1SwitchWrite = null;
-	private Channel<Boolean> ess1SwitchRead = null;
+	private ManagedSymmetricEss ess1;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent ess2SwitchOutputComponent = null;
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent ess2SwitchInputComponent = null;
-	private WriteChannel<Boolean> ess2SwitchWrite = null;
-	private Channel<Boolean> ess2SwitchRead = null;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent pvOffGridSwitchOutputComponent = null;
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent pvOffGridSwitchInputComponent = null;
-	private WriteChannel<Boolean> pvOffGridSwitchWrite = null;
-	private Channel<Boolean> pvOffGridSwitchRead = null;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent pvOnGridSwitchOutputComponent = null;
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private OpenemsComponent pvOnGridSwitchInputComponent = null;
-	private WriteChannel<Boolean> pvOnGridSwitchWrite = null;
-	private Channel<Boolean> pvOnGridSwitchRead = null;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss primaryEss;
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ManagedSymmetricEss backupEss;
-	private Utils utils;
+	private ManagedSymmetricEss ess2;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
+		this.config = config;
 
-		ArrayList<Boolean> references = new ArrayList<Boolean>();
-		// update filters
-		try {
-
-			// Solar Log
-			references.add(OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "pvInverter",
-					config.pv_inverter_id()));
-
-			// meters
-			references.add(OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "gridMeter",
-					config.grid_meter_id()));
-			references.add(
-					OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "pvMeter", config.pv_meter_id()));
-
-			// esss
-			// ess2 under switch Q2
-			references.add(OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess2", config.ess2_id()));
-			// ess1 under switch Q1
-			references.add(OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "ess1", config.ess1_id()));
-
-			if (!references.contains(false)) {
-				// all update references passes
-				return;
-			}
-
-			// wago
-			// Q1
-			ChannelAddress outputChannelAddress = ChannelAddress.fromString(config.Q1_outputChannelAddress());
-			ChannelAddress inputChannelAddress = ChannelAddress.fromString(config.Q1_inputChannelAddress());
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "backupEssSwitchOutputComponent",
-					outputChannelAddress.getComponentId())) {
-				return;
-			}
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "backupEssSwitchInputComponent",
-					inputChannelAddress.getComponentId())) {
-				return;
-			}
-			this.ess1SwitchWrite = this.ess1SwitchOutputComponent.channel(outputChannelAddress.getChannelId());
-			this.ess1SwitchRead = this.ess1SwitchInputComponent.channel(inputChannelAddress.getChannelId());
-
-			// Q2
-			this.outputChannelAddress = ChannelAddress.fromString(config.Q2_outputChannelAddress());
-			this.inputChannelAddress = ChannelAddress.fromString(config.Q2_inputChannelAddress());
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "primaryEssSwitchOutputComponent",
-					outputChannelAddress.getComponentId())) {
-				return;
-			}
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "primaryEssSwitchInputComponent",
-					inputChannelAddress.getComponentId())) {
-				return;
-			}
-			this.ess2SwitchWrite = this.ess2SwitchOutputComponent.channel(outputChannelAddress.getChannelId());
-			this.ess2SwitchRead = this.ess2SwitchInputComponent.channel(inputChannelAddress.getChannelId());
-
-			// Q3
-			this.outputChannelAddress = ChannelAddress.fromString(config.Q3_outputChannelAddress());
-			this.inputChannelAddress = ChannelAddress.fromString(config.Q3_inputChannelAddress());
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "pvOffGridSwitchOutputComponent",
-					outputChannelAddress.getComponentId())) {
-				return;
-			}
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "pvOffGridSwitchInputComponent",
-					inputChannelAddress.getComponentId())) {
-				return;
-			}
-			this.pvOffGridSwitchWrite = this.pvOffGridSwitchOutputComponent
-					.channel(outputChannelAddress.getChannelId());
-			this.pvOffGridSwitchRead = this.pvOffGridSwitchInputComponent.channel(inputChannelAddress.getChannelId());
-
-			// Q4
-			outputChannelAddress = ChannelAddress.fromString(config.Q4_outputChannelAddress());
-			inputChannelAddress = ChannelAddress.fromString(config.Q4_inputChannelAddress());
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "pvOnGridSwitchOutputComponent",
-					outputChannelAddress.getComponentId())) {
-				return;
-			}
-			if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "pvOnGridSwitchInputComponent",
-					inputChannelAddress.getComponentId())) {
-				return;
-			}
-			this.pvOnGridSwitchWrite = this.pvOnGridSwitchOutputComponent.channel(outputChannelAddress.getChannelId());
-			this.pvOnGridSwitchRead = this.pvOnGridSwitchInputComponent.channel(inputChannelAddress.getChannelId());
-
-		} catch (OpenemsException e) {
-			e.printStackTrace();
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
+		// Solar Log
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "pvInverter", config.pvInverter_id())) {
+			return;
 		}
 
-		// make some preparations here
-		this.maxGridFeedPower = config.maxGridFeedPower();
-		this.allowChargeFromAC = config.allowChargeFromAC();
-		this.remoteActivePower = config.remoteActivePower();
-		this.gridFeedLimitation = config.gridFeedLimitation();
-		this.remoteStart = config.remoteStart();
-		this.isRemoteControlled = config.isRemoteControlled();
-		// TODO dont use active
-		// this.activeEss = this.primaryEss;
-		this.utils = new Utils();
-		this.utils.add(this.primaryEss);
-		this.utils.add(this.backupEss);
+		// Grid-Meter
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.gridMeter_id())) {
+			return;
+		}
 
-		this.log.debug("EmergencyClusterMode bundle activated");
+		// PV-Meter
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "pvMeter", config.pvMeter_id())) {
+			return;
+		}
+
+		// Ess1 (under switch Q1)
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess1", config.ess1_id())) {
+			return;
+		}
+
+		// Ess2 (under switch Q2)
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess2", config.ess2_id())) {
+			return;
+		}
 	}
 
 	@Deactivate
@@ -232,311 +125,172 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	}
 
 	@Override
-	public void run() {
-		if (this.remoteStart) {
-			try {
-				this.essState();
-				this.switchState();
-				this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
-				this.pvOnGridSwitchWrite.setNextWriteValue(this.pvOnGridSwitch);
-				this.pvOffGridSwitchWrite.setNextWriteValue(this.pvOffGridSwitch);
-				this.ess2SwitchWrite.setNextWriteValue(this.primaryEssSwitch);
-				this.ess1SwitchWrite.setNextWriteValue(this.backupEssSwitch);
+	public void run() throws OpenemsNamedException {
 
-				switch (this.essState) {
-				case UNDEFINED:
-					// TODO what if one of them off and the otheron grid
-					if (this.utils.isBothEssOnGrid()) {
-						this.essState = EssState.ON_GRID;
-					} else {
-						this.essState = EssState.OFF_GRID;
-					}
-					break;
-				case OFF_GRID:
-					switch (this.switchState) {
-					case SWITCH_ALL_OPEN:
-						if (this.waitOff <= System.currentTimeMillis()) {
-							this.esss = this.primaryEss;
+		this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
+		this.pvOnGridSwitchWrite.setNextWriteValue(this.pvOnGridSwitch);
+		this.pvOffGridSwitchWrite.setNextWriteValue(this.pvOffGridSwitch);
+		this.ess2SwitchWrite.setNextWriteValue(this.ess2Switch);
+		this.ess1SwitchWrite.setNextWriteValue(this.ess1Switch);
+
+		switch (this.getGridMode()) {
+		case UNDEFINED:
+			// Wait...
+			break;
+
+		case OFF_GRID:
+			switch (this.switchState) {
+			case SWITCH_ALL_OPEN:
+				if (this.waitOff <= System.currentTimeMillis()) {
+					this.esss = this.primaryEss;
+					this.batteryState();
+					this.pvState();
+					switch (this.batteryState) {
+					case BATTERY_HIGH:
+						this.setOutput(ess2SwitchOutput, Operation.CLOSE);
+//								this.ess2Switch = false;
+//								this.pvOffGridSwitch = false;
+						this.isSwitchedToOffGrid = false;
+						break;
+					case BATTERY_LOW:
+						switch (this.pvState) {
+						// In case of Off grid - Switch All Open - Battery Low - Pv High
+						// Compare Soc if backupEss has bigger, activate backup, deactivate primary
+						// And close pvOffGridSwitch
+						case PV_HIGH:
+						case PV_LOW:
+							// TODO SetBiggerSocEss
+							this.esss = this.backupEss;
+							this.setOutput(ess1SwitchOutput, Operation.OPEN);
+							this.setOutput(ess2SwitchOutput, Operation.CLOSE);
+//									this.ess2Switch = true;
+//									this.ess1Switch = false;
+							this.isSwitchedToOffGrid = false;
+							this.pvOffGridSwitch = false;
 							this.batteryState();
-							this.pvState();
+							// Active Ess is BackupEss
 							switch (this.batteryState) {
 							case BATTERY_HIGH:
-								this.primaryEssSwitch = false;
-								this.pvOffGridSwitch = false;
-								this.isSwitchedToOffGrid = false;
+								this.setOutput(ess1SwitchOutput, Operation.CLOSE);
+//										this.ess1Switch = true;
 								break;
 							case BATTERY_LOW:
-								switch (this.pvState) {
-								// In case of Off grid - Switch All Open - Battery Low - Pv High
-								// Compare Soc if backupEss has bigger, activate backup, deactivate primary
-								// And close pvOffGridSwitch
-								case PV_HIGH:
-								case PV_LOW:
-									// TODO SetBiggerSocEss
-									this.esss = this.backupEss;
-									this.primaryEssSwitch = true;
-									this.backupEssSwitch = false;
-									this.isSwitchedToOffGrid = false;
-									this.pvOffGridSwitch = false;
-									this.batteryState();
-									// Active Ess is BackupEss
-									switch (this.batteryState) {
-									case BATTERY_HIGH:
-										this.backupEssSwitch = true;
-										break;
-									case BATTERY_LOW:
-										this.esss = this.primaryEss;
-										this.primaryEssSwitch = false;
-										break;
-									case BATTERY_OKAY:
-										this.pvOffGridSwitch = false;
-										break;
-									case UNDEFINED:
-										// TODO
-										break;
-									}
-									break;
-								case PV_OKAY:
-									this.pvOffGridSwitch = true;
-									this.isSwitchedToOffGrid = true;
-									break;
-								case UNDEFINED:
-									// TOOD
-									break;
+								this.esss = this.primaryEss;
+								this.setOutput(ess2SwitchOutput, Operation.CLOSE);
+//										this.ess2Switch = false;
+								break;
+							case BATTERY_OKAY:
+								this.pvOffGridSwitch = false;
+								break;
+							case UNDEFINED:
+								// TODO
+								break;
+							}
+							break;
+						case PV_OKAY:
+							this.pvOffGridSwitch = true;
+							this.isSwitchedToOffGrid = true;
+							break;
+						case UNDEFINED:
+							// TOOD
+							break;
+						}
+						break;
+					case BATTERY_OKAY:
+						this.pvOffGridSwitch = true;
+						this.isSwitchedToOffGrid = true;
+						break;
+					case UNDEFINED:
+						// TODO
+						break;
+					}
+					// One more check for off grid mode
+					if (this.pvOffGridSwitchRead.value().getOrError()) {
+						this.isSwitchedToOffGrid = true;
+					} else {
+						this.isSwitchedToOffGrid = false;
+					}
+				}
+				break;
+
+			case SWITCH_AT_OFF_GRID:
+				this.batteryState();
+				switch (this.batteryState) {
+				// Soc is bigger than 95%
+				case BATTERY_HIGH:
+					this.pvOffGridSwitch = false;
+					break;
+				// Soc is less than 5%
+				case BATTERY_LOW:
+					// TODO Setoutput to open All switches
+					this.pvState();
+					switch (this.pvState) {
+					// Pv_High Is More Than 35kW
+					case PV_HIGH:
+						// TODO use setOutput
+						this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
+						this.pvOffGridSwitch = false;
+						this.lastPvOffGridDisconnected = System.currentTimeMillis();
+						break;
+					// Pv Power Is Less Than 3kW
+					case PV_LOW:
+						if (allEssDisconnected()) {
+							if (this.waitOff + this.switchDealy <= System.currentTimeMillis()) {
+								this.esss = this.backupEss;
+								this.setOutput(ess1SwitchOutput, Operation.CLOSE);
+								this.setOutput(ess2SwitchOutput, Operation.OPEN);
+//										this.ess2Switch = true;
+//										this.ess1Switch = true;
+							} else {
+								// TODO wait for 10 seconds after switches are disconnected
+							}
+						} else {
+							this.esss = this.backupEss;
+							this.setOutput(ess1SwitchOutput, Operation.OPEN);
+							this.setOutput(ess2SwitchOutput, Operation.OPEN);
+//									this.ess2Switch = true;
+//									this.ess1Switch = false;
+							// Condition Of BakcupEss Soc
+							// TODO maybe we can check again switch status
+							this.batteryState();
+							switch (this.batteryState) {
+							case BATTERY_HIGH:
+								this.pvOffGridSwitch = false;
+								break;
+							case BATTERY_LOW:
+								this.setOutput(ess1SwitchOutput, Operation.OPEN);
+								this.setOutput(ess2SwitchOutput, Operation.OPEN);
+//										this.ess2Switch = true;
+//										this.ess1Switch = false;
+								if (allEssDisconnected()) {
+									this.esss = this.primaryEss;
+									this.setOutput(ess1SwitchOutput, Operation.OPEN);
+									this.setOutput(ess2SwitchOutput, Operation.CLOSE);
+//											this.ess2Switch = false;
+//											this.ess1Switch = false;
+								} else {
+									// TODO wait 10 sec until switch get closed
 								}
 								break;
 							case BATTERY_OKAY:
 								this.pvOffGridSwitch = true;
-								this.isSwitchedToOffGrid = true;
 								break;
 							case UNDEFINED:
 								// TODO
 								break;
 							}
-							// One more check for off grid mode
-							if (this.pvOffGridSwitchRead.value().getOrError()) {
-								this.isSwitchedToOffGrid = true;
-							} else {
-								this.isSwitchedToOffGrid = false;
-							}
-						}
-						break;
-
-					case SWITCH_AT_OFF_GRID:
-						this.batteryState();
-						switch (this.batteryState) {
-						// Soc is bigger than 95%
-						case BATTERY_HIGH:
 							this.pvOffGridSwitch = false;
-							break;
-						// Soc is less than 5%
-						case BATTERY_LOW:
-							// TODO Setoutput to open All switches
-							this.pvState();
-							switch (this.pvState) {
-							// Pv_High Is More Than 35kW
-							case PV_HIGH:
-								// TODO use setOutput
-								this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
-								this.pvOffGridSwitch = false;
-								this.lastPvOffGridDisconnected = System.currentTimeMillis();
-								break;
-							// Pv Power Is Less Than 3kW
-							case PV_LOW:
-								if (allEssDisconnected()) {
-									if (this.waitOff + this.switchDealy <= System.currentTimeMillis()) {
-										this.esss = this.backupEss;
-										this.primaryEssSwitch = true;
-										this.backupEssSwitch = true;
-									} else {
-										// TODO wait for 10 seconds after switches are disconnected
-									}
-								} else {
-									this.esss = this.backupEss;
-									this.primaryEssSwitch = true;
-									this.backupEssSwitch = false;
-									// Condition Of BakcupEss Soc
-									// TODO maybe we can check again switch status
-									this.batteryState();
-									switch (this.batteryState) {
-									case BATTERY_HIGH:
-										this.pvOffGridSwitch = false;
-										break;
-									case BATTERY_LOW:
-										this.primaryEssSwitch = true;
-										this.backupEssSwitch = false;
-										if (allEssDisconnected()) {
-											this.esss = this.primaryEss;
-											this.primaryEssSwitch = false;
-											this.backupEssSwitch = false;
-										} else {
-											// TODO wait 10 sec until switch get closed
-										}
-										break;
-									case BATTERY_OKAY:
-										this.pvOffGridSwitch = true;
-										break;
-									case UNDEFINED:
-										// TODO
-										break;
-									}
-									this.pvOffGridSwitch = false;
-									this.waitOff = System.currentTimeMillis();
-								}
-								break;
-							// Pv Power Is between 3kW and 35kW
-							case PV_OKAY:
-								if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
-									this.pvOffGridSwitch = true;
-									this.isSwitchedToOffGrid = false;
-								} else {
-									this.pvOffGridSwitch = false;
-									this.isSwitchedToOffGrid = false;
-								}
-								break;
-							case UNDEFINED:
-								// TODO
-								break;
-							}
-							break;
-
-						// Soc is between 5% and 95%
-						case BATTERY_OKAY:
-							this.pvState();
-							switch (this.pvState) {
-							case PV_HIGH:
-								this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
-								this.pvOffGridSwitch = false;
-								this.lastPvOffGridDisconnected = System.currentTimeMillis();
-								break;
-							case PV_LOW:
-								// TODO
-								this.pvOffGridSwitch = true;
-								break;
-							case PV_OKAY:
-								if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
-									this.pvOffGridSwitch = true;
-								} else {
-									this.pvOffGridSwitch = false;
-								}
-								break;
-							case UNDEFINED:
-								// TODO
-								break;
-							}
-							break;
-						case UNDEFINED:
-							// TODO
-							break;
+							this.waitOff = System.currentTimeMillis();
 						}
 						break;
-
-					case SWITCH_AT_ON_GRID:
-						this.primaryEssSwitch = true;
-						this.backupEssSwitch = false;
-						this.pvOffGridSwitch = false;
-						this.pvOnGridSwitch = false;
-						if (!allEssDisconnected() && !pvOffGridSwitchRead.value().getOrError()
-								&& !pvOnGridSwitchRead.value().getOrError()) {
-							// TODO wait 10 sec until switches get closed
-						}
-						break;
-					case UNDEFINED:
-						// TODO
-						break;
-					}
-					break;
-
-				case ON_GRID:
-					switch (this.switchState) {
-					case SWITCH_ALL_OPEN:
-						if (this.waitOn + this.switchDealy <= System.currentTimeMillis()) {
-							this.primaryEssSwitch = false;
-							this.pvLimit = this.pvInverter.getActivePower().value().getOrError();
-							this.pvOnGridSwitch = true;
-							this.esss = null;
+					// Pv Power Is between 3kW and 35kW
+					case PV_OKAY:
+						if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
+							this.pvOffGridSwitch = true;
 							this.isSwitchedToOffGrid = false;
 						} else {
-							// wait for 10 seconds after switches are disconnected
-						}
-						break;
-					// Means Q1 or Q2 close, Q3 close and Q4 open
-					case SWITCH_AT_OFF_GRID:
-						this.primaryEssSwitch = true;
-						this.backupEssSwitch = false;
-						this.pvOffGridSwitch = this.pvOnGridSwitch = false;
-						this.waitOn = System.currentTimeMillis();
-						break;
-					case SWITCH_AT_ON_GRID:
-						// system detects that grid is on, and it is switched to
-						// On Grid
-						try {
-							int calculatedPower = this.utils.getActivePower()
-									+ this.gridMeter.getActivePower().value().getOrError();
-							int calculatedEssActivePower = calculatedPower;
-
-							if (this.isRemoteControlled) {
-								int maxPower = Math.abs(this.remoteActivePower);
-								if (calculatedEssActivePower > maxPower) {
-									calculatedEssActivePower = maxPower;
-								} else if (calculatedEssActivePower < maxPower * -1) {
-									calculatedEssActivePower = maxPower * -1;
-								}
-							}
-
-							int essSoc = this.utils.getSoc();
-							if (calculatedEssActivePower >= 0) {
-								// discharge
-								// adjust calculatedEssActivePower to max allowed discharge power
-								if (this.utils.getAllowedDischarge() < calculatedEssActivePower) {
-									calculatedEssActivePower = this.utils.getAllowedDischarge();
-								}
-							} else {
-								// charge
-								if (this.allowChargeFromAC) {
-									// This is upper part of battery which is primarily used for charging during
-									// peak PV production (after 11:00h)
-									int reservedSoc = 50;
-									if (LocalDateTime.now().getHour() <= 11 && essSoc > 100 - reservedSoc
-											&& this.gridMeter.getActivePower().value()
-													.getOrError() < this.maxGridFeedPower) {
-										// reduced charging formula – reduction based on current SOC and reservedSoc
-										calculatedEssActivePower = calculatedEssActivePower / (reservedSoc * 2)
-												* (reservedSoc - (essSoc - (100 - reservedSoc)));
-									} else {
-										// full charging formula – no restrictions except max charging power that
-										// batteries can accept
-										if (calculatedEssActivePower < this.utils.getAllowedCharge()) {
-											calculatedEssActivePower = this.utils.getAllowedCharge();
-										}
-									}
-								} else {
-									// charging disallowed
-									calculatedEssActivePower = 0;
-								}
-							}
-							if (this.gridFeedLimitation) {
-								// actual formula pvCounter.power + (calculatedEssActivePower-
-								// cluster.allowedChargePower+ maxGridFeedPower+gridCounter.power)
-								this.pvLimit = this.pvMeter.getActivePower().value().getOrError()
-										+ (calculatedEssActivePower - this.utils.getAllowedCharge()
-												+ this.maxGridFeedPower
-												+ this.gridMeter.getActivePower().value().getOrError());
-								if (this.pvLimit < 0) {
-									this.pvLimit = 0;
-								}
-							} else {
-								this.pvLimit = this.pvInverter.getActivePower().value().getOrError();
-							}
-							this.utils.applyPower(calculatedEssActivePower, 0);
-						} catch (InvalidValueException e) {
-							this.log.error("An error occured on controll the storages!", e);
-							this.pvLimit = 0;
-							try {
-								this.utils.applyPower(0, 0);
-							} catch (InvalidValueException ee) {
-								log.error("Failed to stop ess!");
-							}
+							this.pvOffGridSwitch = false;
+							this.isSwitchedToOffGrid = false;
 						}
 						break;
 					case UNDEFINED:
@@ -544,12 +298,154 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						break;
 					}
 					break;
+
+				// Soc is between 5% and 95%
+				case BATTERY_OKAY:
+					this.pvState();
+					switch (this.pvState) {
+					case PV_HIGH:
+						this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
+						this.pvOffGridSwitch = false;
+						this.lastPvOffGridDisconnected = System.currentTimeMillis();
+						break;
+					case PV_LOW:
+						// TODO
+						this.pvOffGridSwitch = true;
+						break;
+					case PV_OKAY:
+						if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
+							this.pvOffGridSwitch = true;
+						} else {
+							this.pvOffGridSwitch = false;
+						}
+						break;
+					case UNDEFINED:
+						// TODO
+						break;
+					}
+					break;
+				case UNDEFINED:
+					// TODO
+					break;
 				}
-			} catch (OpenemsException e) {
-				this.log.error("Error on reading remote Stop Element", e);
+				break;
+
+			case SWITCH_AT_ON_GRID:
+				this.setOutput(ess1SwitchOutput, Operation.OPEN);
+				this.setOutput(ess2SwitchOutput, Operation.OPEN);
+//						this.ess2Switch = true;
+//						this.ess1Switch = false;
+				this.pvOffGridSwitch = false;
+				this.pvOnGridSwitch = false;
+				if (!allEssDisconnected() && !pvOffGridSwitchRead.value().getOrError()
+						&& !pvOnGridSwitchRead.value().getOrError()) {
+					// TODO wait 10 sec until switches get closed
+				}
+				break;
+			case UNDEFINED:
+				// TODO
+				break;
 			}
-		} else {
-			this.log.info("Remote start is not available");
+			break;
+
+		case ON_GRID:
+			switch (this.switchState) {
+			case SWITCH_ALL_OPEN:
+				if (this.waitOn + this.switchDealy <= System.currentTimeMillis()) {
+					this.setOutput(ess2SwitchOutput, Operation.CLOSE);
+//							this.ess2Switch = false;
+					this.pvLimit = this.pvInverter.getActivePower().value().getOrError();
+					this.pvOnGridSwitch = true;
+					this.esss = null;
+					this.isSwitchedToOffGrid = false;
+				} else {
+					// wait for 10 seconds after switches are disconnected
+				}
+				break;
+			// Means Q1 or Q2 close, Q3 close and Q4 open
+			case SWITCH_AT_OFF_GRID:
+				this.setOutput(ess1SwitchOutput, Operation.OPEN);
+				this.setOutput(ess2SwitchOutput, Operation.OPEN);
+//						this.ess2Switch = true;
+//						this.ess1Switch = false;
+				this.pvOffGridSwitch = this.pvOnGridSwitch = false;
+				this.waitOn = System.currentTimeMillis();
+				break;
+			case SWITCH_AT_ON_GRID:
+				// system detects that grid is on, and it is switched to
+				// On Grid
+				try {
+					int calculatedPower = this.utils.getActivePower()
+							+ this.gridMeter.getActivePower().value().getOrError();
+					int calculatedEssActivePower = calculatedPower;
+
+					if (this.isRemoteControlled) {
+						int maxPower = Math.abs(this.remoteActivePower);
+						if (calculatedEssActivePower > maxPower) {
+							calculatedEssActivePower = maxPower;
+						} else if (calculatedEssActivePower < maxPower * -1) {
+							calculatedEssActivePower = maxPower * -1;
+						}
+					}
+
+					int essSoc = this.utils.getSoc();
+					if (calculatedEssActivePower >= 0) {
+						// discharge
+						// adjust calculatedEssActivePower to max allowed discharge power
+						if (this.utils.getAllowedDischarge() < calculatedEssActivePower) {
+							calculatedEssActivePower = this.utils.getAllowedDischarge();
+						}
+					} else {
+						// charge
+						if (this.allowChargeFromAC) {
+							// This is upper part of battery which is primarily used for charging during
+							// peak PV production (after 11:00h)
+							int reservedSoc = 50;
+							if (LocalDateTime.now().getHour() <= 11 && essSoc > 100 - reservedSoc
+									&& this.gridMeter.getActivePower().value().getOrError() < this.maxGridFeedPower) {
+								// reduced charging formula – reduction based on current SOC and reservedSoc
+								calculatedEssActivePower = calculatedEssActivePower / (reservedSoc * 2)
+										* (reservedSoc - (essSoc - (100 - reservedSoc)));
+							} else {
+								// full charging formula – no restrictions except max charging power that
+								// batteries can accept
+								if (calculatedEssActivePower < this.utils.getAllowedCharge()) {
+									calculatedEssActivePower = this.utils.getAllowedCharge();
+								}
+							}
+						} else {
+							// charging disallowed
+							calculatedEssActivePower = 0;
+						}
+					}
+					if (this.gridFeedLimitation) {
+						// actual formula pvCounter.power + (calculatedEssActivePower-
+						// cluster.allowedChargePower+ maxGridFeedPower+gridCounter.power)
+						this.pvLimit = this.pvMeter.getActivePower().value().getOrError()
+								+ (calculatedEssActivePower - this.utils.getAllowedCharge() + this.maxGridFeedPower
+										+ this.gridMeter.getActivePower().value().getOrError());
+						if (this.pvLimit < 0) {
+							this.pvLimit = 0;
+						}
+					} else {
+						this.pvLimit = this.pvInverter.getActivePower().value().getOrError();
+					}
+					this.utils.applyPower(calculatedEssActivePower, 0);
+				} catch (InvalidValueException e) {
+					this.log.error("An error occured on controll the storages!", e);
+					this.pvLimit = 0;
+					try {
+						this.utils.applyPower(0, 0);
+					} catch (InvalidValueException ee) {
+						log.error("Failed to stop ess!");
+					}
+				}
+				break;
+			case UNDEFINED:
+				// TODO
+				break;
+			}
+			break;
 		}
 	}
 
@@ -560,10 +456,16 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @return boolean
 	 */
 	private boolean allEssDisconnected() throws InvalidValueException {
-		if (!this.ess2SwitchRead.value().getOrError()) {
+		BooleanReadChannel ess1SwitchInput = this.ess1SwitchInputComponent.channel(this.ess1SwitchInput.getChannelId());
+		Optional<Boolean> isEss1SwitchInput = ess1SwitchInput.value().asOptional();
+		BooleanReadChannel ess2SwitchInput = this.ess2SwitchInputComponent.channel(this.ess2SwitchInput.getChannelId());
+		Optional<Boolean> isEss2SwitchInput = ess2SwitchInput.value().asOptional();
+
+		if (isEss1SwitchInput.isPresent() && !isEss1SwitchInput.get()) {
 			return false;
 		}
-		if (this.ess1SwitchRead.value().getOrError()) {
+
+		if (isEss2SwitchInput.isPresent() && isEss2SwitchInput.get()) {
 			return false;
 		}
 		return true;
@@ -579,15 +481,20 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @return boolean
 	 */
 	private boolean isSwitchedToOnGrid() throws InvalidValueException {
-		if (!this.pvOnGridSwitchRead.value().getOrError()) {
-			return false;
-		}
-		if (this.pvOffGridSwitchRead.value().getOrError()) {
-			return false;
-		}
-		if (this.ess2SwitchRead.value().getOrError() && !this.ess1SwitchRead.value().getOrError()) {
-			return false;
-		}
+//		BooleanReadChannel ess1SwitchInput = this.ess1SwitchInputComponent.channel(this.ess1SwitchInput.getChannelId());
+//		Optional<Boolean> isEss1SwitchInput = ess1SwitchInput.value().asOptional();
+//		BooleanReadChannel ess2SwitchInput = this.ess2SwitchInputComponent.channel(this.ess2SwitchInput.getChannelId());
+//		Optional<Boolean> isEss2SwitchInput = ess2SwitchInput.value().asOptional();
+//
+//		if (!this.pvOnGridSwitchRead.value().getOrError()) {
+//			return false;
+//		}
+//		if (this.pvOffGridSwitchRead.value().getOrError()) {
+//			return false;
+//		}
+//		if (!isEss1SwitchInput.get() && isEss2SwitchInput.get()) {
+//			return false;
+//		}
 		return true;
 	}
 
@@ -598,13 +505,13 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @return boolean
 	 */
 	private boolean isSwitchedToOffGrid() throws InvalidValueException {
-		if (!this.ess2SwitchRead.value().getOrError() && !this.ess1SwitchRead.value().getOrError()
-				&& this.pvOffGridSwitchRead.value().getOrError() && !this.pvOnGridSwitchRead.value().getOrError()) {
-			return true;
-		} else if (this.ess2SwitchRead.value().getOrError() && this.ess1SwitchRead.value().getOrError()
-				&& this.pvOffGridSwitchRead.value().getOrError() && !this.pvOnGridSwitchRead.value().getOrError()) {
-			return true;
-		}
+//		if (!this.ess2SwitchRead.value().getOrError() && !this.ess1SwitchInput
+//				&& this.pvOffGridSwitchRead.value().getOrError() && !this.pvOnGridSwitchRead.value().getOrError()) {
+//			return true;
+//		} else if (this.ess2SwitchRead.value().getOrError() && this.ess1SwitchRead.value().getOrError()
+//				&& this.pvOffGridSwitchRead.value().getOrError() && !this.pvOnGridSwitchRead.value().getOrError()) {
+//			return true;
+//		}
 		return false;
 	}
 
@@ -612,12 +519,12 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		if (!allEssDisconnected()) {
 			return false;
 		}
-		if (!pvOffGridSwitchRead.value().getOrError()) {
-			return false;
-		}
-		if (pvOnGridSwitchRead.value().getOrError()) {
-			return false;
-		}
+//		if (!pvOffGridSwitchRead.value().getOrError()) {
+//			return false;
+//		}
+//		if (pvOnGridSwitchRead.value().getOrError()) {
+//			return false;
+//		}
 		return true;
 	}
 
@@ -629,17 +536,60 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		}
 	}
 
-	private void switchState() throws InvalidValueException {
-		this.isSwitchedToOffGrid();
-		if (isSwitchedToOffGrid()) {
-			this.switchState = SwitchState.SWITCH_AT_OFF_GRID;
-		} else if (isSwitchedToOnGrid()) {
-			this.switchState = SwitchState.SWITCH_AT_ON_GRID;
-		} else if (isAllSwitchedToOpen()) {
-			this.switchState = SwitchState.SWITCH_ALL_OPEN;
+	/**
+	 * Gets the Grid-Mode of both ESS.
+	 * 
+	 * @return the Grid-Mode
+	 */
+	private GridMode getGridMode() {
+		GridMode ess1GridMode = this.ess1.getGridMode().value().asEnum();
+		GridMode ess2GridMode = this.ess2.getGridMode().value().asEnum();
+		if (ess1GridMode == GridMode.ON_GRID && ess2GridMode == GridMode.ON_GRID) {
+			return GridMode.ON_GRID;
+		} else if (ess1GridMode == GridMode.OFF_GRID && ess2GridMode == GridMode.OFF_GRID) {
+			return GridMode.OFF_GRID;
 		} else {
-			this.switchState = SwitchState.UNDEFINED;
+			return GridMode.UNDEFINED;
 		}
+	}
+
+	/**
+	 * Gets the state of the switches Q1 to Q4.
+	 * 
+	 * @return the Switch-State
+	 */
+	private SwitchState getSwitchState() {
+		if (this.isQ4PvOnGridClosed() && !this.isQ3PvOffGridClosed()
+				&& (this.isQ1Ess1SupplyUpsClosed() ^ this.isQ2Ess2SupplyUpsClosed())) {
+			return SwitchState.SWITCHED_TO_ON_GRID;
+
+		} else if (!this.isQ4PvOnGridClosed() && this.isQ3PvOffGridClosed()
+				&& (this.isQ1Ess1SupplyUpsClosed() ^ this.isQ2Ess2SupplyUpsClosed())) {
+			return SwitchState.SWITCHED_TO_OFF_GRID;
+
+		} else {
+			return SwitchState.UNDEFINED;
+		}
+	}
+
+	private boolean isQ1Ess1SupplyUpsClosed() {
+		BooleanWriteChannel q1Ess1SupplyUps = this.componentManager.getChannel(this.q1Ess1SupplyUps);
+		return q1Ess1SupplyUps.value().orElse(false);
+	}
+
+	private boolean isQ2Ess2SupplyUpsClosed() {
+		BooleanWriteChannel q2Ess2SupplyUps = this.componentManager.getChannel(this.q2Ess2SupplyUps);
+		return !q2Ess2SupplyUps.value().orElse(false);
+	}
+
+	private boolean isQ3PvOffGridClosed() {
+		BooleanWriteChannel q3PvOffGrid = this.componentManager.getChannel(this.q3PvOffGrid);
+		return q3PvOffGrid.value().orElse(false);
+	}
+
+	private boolean isQ4PvOnGridClosed() {
+		BooleanWriteChannel q4PvOnGrid = this.componentManager.getChannel(this.q4PvOnGrid);
+		return q4PvOnGrid.value().orElse(false);
 	}
 
 	private void pvState() {
@@ -692,42 +642,82 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	}
 
 //	private void setBiggerSocEss() {
-//		 TODO
+//		// TODO
 //	}
 //
-//	/**
-//	 * Switch the output ON.
-//	 * 
-//	 * @throws OpenemsNamedException
-//	 * @throws IllegalArgumentException
-//	 */
-//	private void on() throws IllegalArgumentException, OpenemsNamedException {
-//		this.setOutput(true);
-//	}
-//
-//	/**
-//	 * Switch the output OFF.
-//	 * 
-//	 * @throws OpenemsNamedException
-//	 * @throws IllegalArgumentException
-//	 */
-//	private void close() throws IllegalArgumentException, OpenemsNamedException {
-//		this.setOutput(false);
-//	}
-//
-//	// TODO I will re-write it again with considering for each channel
-//	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
-//		try {
-//			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
-//			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
-//			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
-//				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
-//						+ (value ^ this.invertOutput ? "OPEN" : "CLOSE") + ".");
-//				outputChannel.setNextWriteValue(value ^ invertOutput);
-//			}
-//		} catch (OpenemsException e) {
-//			this.logError(this.log, "Unable to set output: [" + this.outputChannelAddress + "] " + e.getMessage());
-//		}
-//	}
 
+	private static enum Operation implements OptionsEnum {
+
+		UNDEFINED(-1, "Undefined"), //
+
+		CLOSE(0, "Close"), //
+
+		OPEN(1, "Open");
+		private final int value;
+		private final String name;
+
+		private Operation(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return value;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	/**
+	 * Set Switch to Close or Open Operation.
+	 * 
+	 * @param Close --> Make line connection
+	 * @param Open  --> Make line disconnection
+	 * 
+	 * @throws OpenemsNamedException
+	 */
+	private void setOutput(ChannelAddress channel, Operation operation) {
+		Optional<Boolean> currentValueOpt = channel.;
+		Boolean value;
+		if (!currentValueOpt.isPresent()) {
+			try {
+				switch (operation) {
+				case CLOSE:
+					value = false;
+					if (channel.channelId().equals(ess2SwitchWrite)) {
+						channel.setNextWriteValue(value);
+						log.info("Set output [" + channel.address() + "] " + (value ? "OPEN" : "CLOSE") + ".");
+					} else {
+						channel.setNextWriteValue(!value);
+						log.info("Set output [" + channel.address() + "] " + (!value ? "OPEN" : "CLOSE") + ".");
+					}
+					break;
+
+				case OPEN:
+					value = true;
+					if (channel.channelId().equals(ess2SwitchWrite)) {
+						channel.setNextWriteValue(value);
+						log.info("Set output [" + channel.address() + "] " + (value ? "OPEN" : "CLOSE") + ".");
+					} else {
+						channel.setNextWriteValue(!value);
+						log.info("Set output [" + channel.address() + "] " + (!value ? "OPEN" : "CLOSE") + ".");
+					}
+					break;
+				case UNDEFINED:
+					break;
+				}
+			} catch (OpenemsException e) {
+				this.logError(this.log, "Unable to set output: [" + channel.address() + "] " + e.getMessage());
+			}
+		}
+	}
 }

@@ -53,11 +53,6 @@ class Utils {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(Utils.class);
-	private List<ManagedSymmetricEss> esss;
-
-	public void add(ManagedSymmetricEss ess) {
-		esss.add(ess);
-	}
 
 	/**
 	 * @param int active
