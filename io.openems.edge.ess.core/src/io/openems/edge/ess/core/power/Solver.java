@@ -29,6 +29,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.DummyInverter;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.OnSolved;
@@ -844,9 +845,12 @@ public class Solver {
 			return i1.toString().compareTo(i2.toString());
 		});
 		for (Inverter inv : inverters) {
+			if (inv instanceof DummyInverter) {
+				continue;
+			}
 			b.append(inv.toString() + " " + finalSolution.get(inv).toString() + " ");
 		}
-		log.info(b.toString());
+//		log.info(b.toString());
 
 		// store last value inside Inverter
 		finalSolution.forEach((inv, powerTuple) -> {

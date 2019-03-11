@@ -1,17 +1,21 @@
 package io.openems.common.types;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.ObjectClassDefinition;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -21,16 +25,16 @@ public class EdgeConfig {
 
 	public static class Component {
 
-		private final String factoryPid;
-		private final Map<String, JsonElement> properties;
+		private final String factoryId;
+		private final TreeMap<String, JsonElement> properties;
 
-		public Component(String factoryPid, Map<String, JsonElement> properties) {
-			this.factoryPid = factoryPid;
+		public Component(String factoryId, TreeMap<String, JsonElement> properties) {
+			this.factoryId = factoryId;
 			this.properties = properties;
 		}
 
-		public String getFactoryPid() {
-			return factoryPid;
+		public String getFactoryId() {
+			return factoryId;
 		}
 
 		public Map<String, JsonElement> getProperties() {
@@ -42,7 +46,7 @@ public class EdgeConfig {
 		 * 
 		 * <pre>
 		 * {
-		 *   factoryPid: string,
+		 *   factoryId: string,
 		 *	 properties: {
 		 *     [key: string]: value
 		 *   }
@@ -57,7 +61,7 @@ public class EdgeConfig {
 				properties.add(property.getKey(), property.getValue());
 			}
 			return JsonUtils.buildJsonObject() //
-					.addProperty("factoryPid", this.getFactoryPid()) //
+					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties) //
 					.build();
 		}
@@ -70,26 +74,230 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Component fromJson(JsonElement json) throws OpenemsNamedException {
-			Map<String, JsonElement> properties = new HashMap<>();
+			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "properties").entrySet()) {
 				properties.put(entry.getKey(), entry.getValue());
 			}
 			return new Component(//
-					JsonUtils.getAsString(json, "factoryPid"), //
+					JsonUtils.getAsString(json, "factoryId"), //
 					properties);
 		}
 	}
 
 	public static class Factory {
 
-		private final String[] natures;
-
-		public Factory(String[] natures) {
-			this.natures = natures;
+		public static Factory create(ObjectClassDefinition ocd, String[] natureIds) {
+			String name = ocd.getName();
+			String description = ocd.getDescription();
+			List<Property> properties = new ArrayList<>();
+			properties.addAll(Factory.toProperties(ocd, true));
+			properties.addAll(Factory.toProperties(ocd, false));
+			return new Factory(name, description, properties.toArray(new Property[properties.size()]), natureIds);
 		}
 
-		public String[] getNatures() {
-			return natures;
+		private static List<Property> toProperties(ObjectClassDefinition ocd, boolean isRequired) {
+			int filter;
+			if (isRequired) {
+				filter = ObjectClassDefinition.REQUIRED;
+			} else {
+				filter = ObjectClassDefinition.OPTIONAL;
+			}
+			List<Property> properties = new ArrayList<>();
+			AttributeDefinition[] ads = ocd.getAttributeDefinitions(filter);
+			for (AttributeDefinition ad : ads) {
+				if (ad.getID().endsWith(".target")) {
+					// ignore
+				} else {
+					switch (ad.getID()) {
+					case "webconsole.configurationFactory.nameHint":
+						// ignore ID
+						break;
+					default:
+						properties.add(Property.from(ad, isRequired));
+					}
+				}
+			}
+			return properties;
+		}
+
+		public static class Property {
+
+			private final String id;
+			private final String name;
+			private final String description;
+			private final boolean isRequired;
+			private final JsonElement defaultValue;
+			private final JsonObject schema;
+
+			public Property(String id, String name, String description, boolean isRequired, JsonElement defaultValue,
+					JsonObject schema) {
+				this.id = id;
+				this.name = name;
+				this.description = description;
+				this.isRequired = isRequired;
+				this.defaultValue = defaultValue;
+				this.schema = schema;
+			}
+
+			public static Property from(AttributeDefinition ad, boolean isRequired) {
+				String id = ad.getID();
+				String name = ad.getName();
+
+				String description = ad.getDescription();
+				if (description == null) {
+					description = "";
+				}
+
+				JsonElement defaultValue = JsonUtils.getAsJsonElement(ad.getDefaultValue());
+				if ((ad.getCardinality() == 0 || ad.getCardinality() == 1) && defaultValue.isJsonArray()
+						&& ((JsonArray) defaultValue).size() == 1) {
+					defaultValue = ((JsonArray) defaultValue).get(0);
+				}
+
+				JsonObject schema;
+				int cardinality = Math.abs(ad.getCardinality());
+				if (cardinality > 1) {
+					schema = JsonUtils.buildJsonObject() //
+							.addProperty("type", "repeat") //
+							.add("fieldArray", getSchema(ad)) //
+							.build();
+				} else {
+					schema = getSchema(ad);
+				}
+				return new Property(id, name, description, isRequired, defaultValue, schema);
+			}
+
+			private static JsonObject getSchema(AttributeDefinition ad) {
+				JsonObject schema = new JsonObject();
+				if (ad.getOptionLabels() != null && ad.getOptionValues() != null) {
+					// use given options for schema
+					schema.addProperty("type", "select");
+					JsonArray titleMap = new JsonArray();
+					for (int i = 0; i < ad.getOptionLabels().length; i++) {
+						titleMap.add(JsonUtils.buildJsonObject() //
+								.addProperty("value", ad.getOptionValues()[i]) //
+								.addProperty("name", ad.getOptionLabels()[i]) //
+								.build());
+					}
+					schema.add("titleMap", titleMap);
+
+				} else {
+					// generate schema from AttributeDefinition Type
+					switch (ad.getType()) {
+					case AttributeDefinition.STRING:
+					case AttributeDefinition.CHARACTER:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "input") //
+								.add("templateOptions", JsonUtils.buildJsonObject() //
+										.addProperty("type", "text") //
+										.build()) //
+								.build();
+						break;
+					case AttributeDefinition.LONG:
+					case AttributeDefinition.INTEGER:
+					case AttributeDefinition.SHORT:
+					case AttributeDefinition.DOUBLE:
+					case AttributeDefinition.FLOAT:
+					case AttributeDefinition.BYTE:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "input") //
+								.add("templateOptions", JsonUtils.buildJsonObject() //
+										.addProperty("type", "number") //
+										.build()) //
+								.build();
+						break;
+					case AttributeDefinition.PASSWORD:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "input") //
+								.add("templateOptions", JsonUtils.buildJsonObject() //
+										.addProperty("type", "password") //
+										.build()) //
+								.build();
+						break;
+					case AttributeDefinition.BOOLEAN:
+						schema = JsonUtils.buildJsonObject() //
+								.addProperty("type", "toggle") //
+								.build();
+						break;
+					}
+				}
+				return schema;
+			}
+
+			/**
+			 * Creates a Property from JSON.
+			 * 
+			 * @param json the JSON
+			 * @return the Property
+			 * @throws OpenemsNamedException on error
+			 */
+			public static Property fromJson(JsonElement json) throws OpenemsNamedException {
+				String id = JsonUtils.getAsString(json, "id");
+				String name = JsonUtils.getAsString(json, "name");
+				String description = JsonUtils.getAsString(json, "description");
+				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
+				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
+				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
+				return new Property(id, name, description, isRequired, defaultValue, schema);
+			}
+
+			/**
+			 * Returns the Factory Property as a JSON Object.
+			 * 
+			 * <pre>
+			 * {
+			 *   id: string,
+			 *   name: string,
+			 *   description: string,
+			 *   isOptional: boolean,
+			 *   defaultValue: any,
+			 *   schema: {
+			 *     type: string
+			 *   }
+			 * }
+			 * </pre>
+			 * 
+			 * @return property as a JSON Object
+			 */
+			public JsonObject toJson() {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("id", this.id) //
+						.addProperty("name", this.name) //
+						.addProperty("description", this.description) //
+						.addProperty("isRequired", this.isRequired) //
+						.add("defaultValue", this.defaultValue) //
+						.add("schema", this.schema) //
+						.build();
+			}
+
+		}
+
+		private final String name;
+		private String description;
+		private Property[] properties;
+		private final String[] natureIds;
+
+		public Factory(String name, String description, Property[] properties, String[] natureIds) {
+			this.name = name;
+			this.description = description;
+			this.properties = properties;
+			this.natureIds = natureIds;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public Property[] getProperties() {
+			return properties;
+		}
+
+		public String[] getNatureIds() {
+			return natureIds;
 		}
 
 		/**
@@ -97,19 +305,26 @@ public class EdgeConfig {
 		 * 
 		 * <pre>
 		 * {
-		 *   natures: string[]
+		 *   natureIds: string[]
 		 * }
 		 * </pre>
 		 * 
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson() {
-			JsonArray natures = new JsonArray();
-			for (String nature : this.getNatures()) {
-				natures.add(nature);
+			JsonArray natureIds = new JsonArray();
+			for (String naturId : this.getNatureIds()) {
+				natureIds.add(naturId);
+			}
+			JsonArray properties = new JsonArray();
+			for (Property property : this.getProperties()) {
+				properties.add(property.toJson());
 			}
 			return JsonUtils.buildJsonObject() //
-					.add("natures", natures) //
+					.addProperty("name", this.name) //
+					.addProperty("description", this.description) //
+					.add("natureIds", natureIds) //
+					.add("properties", properties) //
 					.build();
 		}
 
@@ -121,10 +336,17 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Factory fromJson(JsonElement json) throws OpenemsNamedException {
-			String[] natures = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(json, "natures"));
-			return new Factory(natures);
+			String name = JsonUtils.getAsString(json, "name");
+			String description = JsonUtils.getAsString(json, "description");
+			String[] natureIds = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(json, "natureIds"));
+			JsonArray jProperties = JsonUtils.getAsJsonArray(json, "properties");
+			Property[] properties = new Property[jProperties.size()];
+			for (int i = 0; i < jProperties.size(); i++) {
+				JsonElement jProperty = jProperties.get(i);
+				properties[i] = Property.fromJson(jProperty);
+			}
+			return new Factory(name, description, properties, natureIds);
 		}
-
 	}
 
 	private final TreeMap<String, Component> components = new TreeMap<>();
@@ -137,8 +359,8 @@ public class EdgeConfig {
 		this.components.put(id, component);
 	}
 
-	public void addFactory(String pid, Factory factory) {
-		this.factories.put(pid, factory);
+	public void addFactory(String id, Factory factory) {
+		this.factories.put(id, factory);
 	}
 
 	public TreeMap<String, Component> getComponents() {
@@ -152,13 +374,13 @@ public class EdgeConfig {
 	/**
 	 * Get Component-IDs of Component instances by the given Factory.
 	 * 
-	 * @param factoryPid the given Factory.
+	 * @param factoryId the given Factory.
 	 * @return a List of Component-IDs.
 	 */
-	public List<String> getComponentIdsByFactory(String factoryPid) {
+	public List<String> getComponentIdsByFactory(String factoryId) {
 		List<String> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			if (factoryPid.equals(componentEntry.getValue().factoryPid)) {
+			if (factoryId.equals(componentEntry.getValue().factoryId)) {
 				result.add(componentEntry.getKey());
 			}
 		}
@@ -168,13 +390,13 @@ public class EdgeConfig {
 	/**
 	 * Get Component instances by the given Factory.
 	 * 
-	 * @param factoryPid the given Factory.
+	 * @param factoryId the given Factory PID.
 	 * @return a List of Components.
 	 */
-	public List<Component> getComponentsByFactory(String factoryPid) {
+	public List<Component> getComponentsByFactory(String factoryId) {
 		List<Component> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			if (factoryPid.equals(componentEntry.getValue().factoryPid)) {
+			if (factoryId.equals(componentEntry.getValue().factoryId)) {
 				result.add(componentEntry.getValue());
 			}
 		}
@@ -190,12 +412,12 @@ public class EdgeConfig {
 	public List<String> getComponentsImplementingNature(String nature) {
 		List<String> result = new ArrayList<>();
 		for (Entry<String, Component> componentEntry : this.components.entrySet()) {
-			String factoryPid = componentEntry.getValue().factoryPid;
-			Factory factory = this.factories.get(factoryPid);
+			String factoryId = componentEntry.getValue().factoryId;
+			Factory factory = this.factories.get(factoryId);
 			if (factory == null) {
 				continue;
 			}
-			for (String thisNature : factory.natures) {
+			for (String thisNature : factory.natureIds) {
 				if (nature.equals(thisNature)) {
 					result.add(componentEntry.getKey());
 					break;
@@ -212,8 +434,8 @@ public class EdgeConfig {
 	 * {
 	 *   components: { {@link EdgeConfig.Component#toJson()} }, 
 	 *   factories: {
-	 *     [pid: string]: {
-	 *       natures: string[]
+	 *     [: string]: {
+	 *       natureIds: string[]
 	 *     }
 	 *   }
 	 * }
@@ -252,8 +474,8 @@ public class EdgeConfig {
 	 * 
 	 * <pre>
 	 * {
-	 *   [pid: string]: {
-	 *     natures: string[]
+	 *   [id: string]: {
+	 *     natureIds: string[]
 	 *   }
 	 * }
 	 * </pre>
@@ -301,7 +523,7 @@ public class EdgeConfig {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
 			String clazz = JsonUtils.getAsString(config, "class");
-			Map<String, JsonElement> properties = new HashMap<>();
+			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			for (Entry<String, JsonElement> property : config.entrySet()) {
 				switch (property.getKey()) {
 				case "id":
@@ -322,9 +544,10 @@ public class EdgeConfig {
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");
 		for (Entry<String, JsonElement> entry : metas.entrySet()) {
 			JsonObject meta = JsonUtils.getAsJsonObject(entry.getValue());
-			String pid = JsonUtils.getAsString(meta, "class");
+			String id = JsonUtils.getAsString(meta, "class");
 			String[] implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
-			result.addFactory(pid, new EdgeConfig.Factory(implement));
+			Property[] properties = new Property[0];
+			result.addFactory(id, new EdgeConfig.Factory(id, "", properties, implement));
 		}
 
 		return result;

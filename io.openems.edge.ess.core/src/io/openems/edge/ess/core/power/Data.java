@@ -15,11 +15,13 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Streams;
 
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.DummyInverter;
 import io.openems.edge.ess.power.api.EssType;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
@@ -53,12 +55,12 @@ public class Data {
 		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
 	}
 
-	public synchronized void addEss(String essId) {
+	public synchronized void addEss(ManagedSymmetricEss ess) {
 		// add to Ess map
-		this.essIds.add(essId);
+		this.essIds.add(ess.id());
 		// create inverters and add them to list
-		EssType essType = this.parent.getEssType(essId);
-		for (Inverter inverter : Inverter.of(essId, essType, this.symmetricMode)) {
+		EssType essType = this.parent.getEssType(ess.id());
+		for (Inverter inverter : Inverter.of(ess, essType)) {
 			this.inverters.add(inverter);
 		}
 		// Initially sort Inverters
@@ -93,6 +95,7 @@ public class Data {
 	}
 
 	public synchronized void initializeCycle() {
+		// Remove Constraints of last Cycle
 		this.constraints.clear();
 		// Update sorting of Inverters
 		this.invertersUpdateWeights(this.inverters);
@@ -155,6 +158,7 @@ public class Data {
 				this.createClusterConstraints().stream(), //
 				this.createSumOfPhasesConstraints(disabledInverters).stream(), //
 				this.createSymmetricEssConstraints().stream(), //
+				this.createSinglePhaseEssConstraints().stream(), //
 				this.constraints.stream()).collect(Collectors.toList());
 	}
 
@@ -205,7 +209,8 @@ public class Data {
 			}
 			Optional<Integer> maxApparentPower = ess.getMaxApparentPower().value().asOptional();
 			if (maxApparentPower.isPresent()) {
-				if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode) {
+				if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode
+						&& !(ess instanceof ManagedSinglePhaseEss)) {
 					double maxApparentPowerPerPhase = maxApparentPower.get() / 3d;
 					for (Phase phase : Phase.values()) {
 						if (phase == Phase.ALL) {
@@ -284,46 +289,16 @@ public class Data {
 	public List<Constraint> createSumOfPhasesConstraints(Collection<Inverter> disabledInverters) {
 		List<Constraint> result = new ArrayList<>();
 		for (String essId : this.essIds) {
-			// deactivate disabled Inverters if they are part of this Ess
-			boolean addL1 = true;
-			boolean addL2 = true;
-			boolean addL3 = true;
-			for (Inverter inverter : disabledInverters) {
-				if (Objects.equals(essId, inverter.getEssId())) {
-					switch (inverter.getPhase()) {
-					case ALL:
-						break;
-					case L1:
-						addL1 = false;
-						break;
-					case L2:
-						addL2 = false;
-						break;
-					case L3:
-						addL3 = false;
-						break;
-					}
-				}
-			}
-			if (addL1 || addL2 || addL3) {
-				for (Pwr pwr : Pwr.values()) {
-					// creates two constraint of the form
-					// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
-					// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
-					List<LinearCoefficient> cos = new ArrayList<>();
-					cos.add(new LinearCoefficient(this.coefficients.of(essId, Phase.ALL, pwr), 1));
-					if (addL1) {
-						cos.add(new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), -1));
-					}
-					if (addL2) {
-						cos.add(new LinearCoefficient(this.coefficients.of(essId, Phase.L2, pwr), -1));
-					}
-					if (addL3) {
-						cos.add(new LinearCoefficient(this.coefficients.of(essId, Phase.L3, pwr), -1));
-					}
-					result.add(new Constraint(essId + ": " + pwr.getSymbol() + "=L1+L2+L3",
-							cos.toArray(new LinearCoefficient[cos.size()]), Relationship.EQUALS, 0));
-				}
+			for (Pwr pwr : Pwr.values()) {
+				// creates two constraint of the form
+				// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
+				// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
+				result.add(new Constraint(essId + ": " + pwr.getSymbol() + "=L1+L2+L3",
+						new LinearCoefficient[] { new LinearCoefficient(this.coefficients.of(essId, Phase.ALL, pwr), 1),
+								new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), -1),
+								new LinearCoefficient(this.coefficients.of(essId, Phase.L2, pwr), -1),
+								new LinearCoefficient(this.coefficients.of(essId, Phase.L3, pwr), -1) //
+						}, Relationship.EQUALS, 0));
 			}
 		}
 		return result;
@@ -336,20 +311,46 @@ public class Data {
 	 */
 	public List<Constraint> createSymmetricEssConstraints() {
 		List<Constraint> result = new ArrayList<>();
-		for (Inverter inverter : this.inverters) {
-			if (inverter != null && inverter.getPhase() == Phase.ALL) {
-				String essId = inverter.getEssId();
+		for (String essId : this.essIds) {
+			ManagedSymmetricEss ess = this.parent.getEss(essId);
+			EssType essType = EssType.getEssType(ess);
+			if (
+			// Symmetric: always
+			essType == EssType.SYMMETRIC
+					// Asymmetric: only if symmetric-mode is activated
+					|| (essType == EssType.ASYMMETRIC && this.symmetricMode == true)) {
+				/*
+				 * Symmetric Constraints for each ESS separately
+				 */
 				for (Pwr pwr : Pwr.values()) {
 					// creates two constraint of the form
 					// 1*L1 - 1*L2 = 0
 					// 1*L1 - 1*L3 = 0
 					result.add(new Constraint(essId + ": Symmetric L1/L2", new LinearCoefficient[] { //
-							new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), 1), //
-							new LinearCoefficient(this.coefficients.of(essId, Phase.L2, pwr), -1) //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L2, pwr), -1) //
 					}, Relationship.EQUALS, 0));
 					result.add(new Constraint(essId + ": Symmetric L1/L3", new LinearCoefficient[] { //
-							new LinearCoefficient(this.coefficients.of(essId, Phase.L1, pwr), 1), //
-							new LinearCoefficient(this.coefficients.of(essId, Phase.L3, pwr), -1) //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L3, pwr), -1) //
+					}, Relationship.EQUALS, 0));
+				}
+
+			} else if (essType == EssType.META && this.symmetricMode == true) {
+				/*
+				 * Symmetric Constraint for Sum
+				 */
+				// creates two constraint of the form
+				// 1*L1 - 1*L2 = 0
+				// 1*L1 - 1*L3 = 0
+				for (Pwr pwr : Pwr.values()) {
+					result.add(new Constraint("Sum of P: Symmetric L1/L2", new LinearCoefficient[] { //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L2, pwr), -1) //
+					}, Relationship.EQUALS, 0));
+					result.add(new Constraint("Sum of P: Symmetric L1/L3", new LinearCoefficient[] { //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L1, pwr), 1), //
+							new LinearCoefficient(this.coefficients.of(ess.id(), Phase.L3, pwr), -1) //
 					}, Relationship.EQUALS, 0));
 				}
 			}
@@ -394,6 +395,26 @@ public class Data {
 	}
 
 	/**
+	 * For Single-Phase-ESS: Creates an EQUALS ZERO constraint for the not-connected
+	 * phases.
+	 * 
+	 * @return List of Constraints
+	 */
+	public List<Constraint> createSinglePhaseEssConstraints() {
+		List<Constraint> result = new ArrayList<>();
+		for (Inverter inv : inverters) {
+			if (inv instanceof DummyInverter) {
+				for (Pwr pwr : Pwr.values()) {
+					result.add(this.createSimpleConstraint(
+							inv.getEssId() + ": Dummy " + pwr.getSymbol() + inv.getPhase().getSymbol(), inv.getEssId(),
+							inv.getPhase(), pwr, Relationship.EQUALS, 0));
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Sets the weight of each Inverter according to the SoC of its ESS.
 	 * 
 	 * @param inverters a List of inverters
@@ -425,7 +446,8 @@ public class Data {
 	/**
 	 * Adjust the sorting of Inverters by weights.
 	 * 
-	 * <p>This is different to 'invertersSortByWeights()' in that it tries to avoid
+	 * <p>
+	 * This is different to 'invertersSortByWeights()' in that it tries to avoid
 	 * resorting the entire list all the time. Instead it only adjusts the list
 	 * slightly.
 	 * 

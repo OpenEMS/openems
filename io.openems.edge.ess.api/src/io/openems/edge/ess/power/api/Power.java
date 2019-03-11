@@ -1,8 +1,13 @@
 package io.openems.edge.ess.power.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public interface Power {
+
+	public final static Logger log = LoggerFactory.getLogger(Power.class);
 
 	public static Constraint[] NO_CONSTRAINTS = new Constraint[] {};
 
@@ -77,6 +82,8 @@ public interface Power {
 			// fit into max possible discharge power
 			int maxDischargePower = this.getMaxPower(ess, phase, pwr);
 			if (value > maxDischargePower) {
+				Power.log.info("Reducing discharge power from [" + value + "] to [" + maxDischargePower + "] for ["
+						+ ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
 				value = maxDischargePower;
 			}
 
@@ -87,6 +94,8 @@ public interface Power {
 			// fit into max possible discharge power
 			int maxChargePower = this.getMinPower(ess, phase, pwr);
 			if (value < maxChargePower) {
+				Power.log.info("Reducing charge power from [" + value + "] to [" + maxChargePower + "] for ["
+						+ ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
 				value = maxChargePower;
 			}
 		}

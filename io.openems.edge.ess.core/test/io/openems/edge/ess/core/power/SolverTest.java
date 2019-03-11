@@ -25,7 +25,7 @@ public class SolverTest {
 		data.setSymmetricMode(symmetricMode);
 		for (ManagedSymmetricEss ess : esss) {
 			c.addEss(ess);
-			data.addEss(ess.id());
+			data.addEss(ess);
 		}
 		data.initializeCycle();
 		return data;
@@ -36,7 +36,7 @@ public class SolverTest {
 		Data data = new Data(c);
 		for (ManagedSymmetricEss ess : esss) {
 			c.addEss(ess);
-			data.addEss(ess.id());
+			data.addEss(ess);
 		}
 		data.initializeCycle();
 		return data;

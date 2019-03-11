@@ -8,6 +8,10 @@ import { IndexComponent as EdgeIndexComponent } from './edge/index/index.compone
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemLogComponent as EdgeSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { IndexComponent as EdgeComponentInstallIndexComponentComponent } from './edge/settings/component/install/index.component';
+import { ComponentInstallComponent as EdgeComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
+import { IndexComponent as EdgeComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
+import { ComponentUpdateComponent as EdgeComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -22,6 +26,10 @@ const routes: Routes = [
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSystemLogComponent },
+  { path: 'device/:edgeId/settings/component.install', component: EdgeComponentInstallIndexComponentComponent },
+  { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeComponentInstallComponentComponent },
+  { path: 'device/:edgeId/settings/component.update', component: EdgeComponentUpdateIndexComponentComponent },
+  { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeComponentUpdateComponentComponent },
 ];
 
 export const appRoutingProviders: any[] = [

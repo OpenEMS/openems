@@ -115,8 +115,25 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		return this.ws.getConnections();
 	}
 
+	/**
+	 * Sends a message to WebSocket.
+	 * 
+	 * @param ws      the WebSocket
+	 * @param message the JSON-RPC Message
+	 */
 	public void sendMessage(WebSocket ws, JsonrpcMessage message) {
 		ws.send(message.toString());
+	}
+
+	/**
+	 * Broadcasts a message to all connected WebSockets.
+	 * 
+	 * @param message the JSON-RPC Message
+	 */
+	public void broadcastMessage(JsonrpcMessage message) {
+		for (WebSocket ws : this.getConnections()) {
+			this.sendMessage(ws, message);
+		}
 	}
 
 	/**
@@ -137,8 +154,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				this.ws.stop();
 				return;
 			} catch (NullPointerException | InterruptedException | IOException e) {
-				this.log.warn("Unable to stop websocket server [" + this.getName() + "]. " + e.getClass().getSimpleName()
-						+ ": " + e.getMessage());
+				this.log.warn("Unable to stop websocket server [" + this.getName() + "]. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e1) {
@@ -159,4 +176,5 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			throws OpenemsNamedException {
 		throw new OpenemsException("Unhandled Non-JSON-RPC message", e);
 	}
+
 }

@@ -16,6 +16,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 
@@ -34,6 +35,9 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	@Reference
+	protected UserService userService;
 
 	public RestApi() {
 		// TODO: add Debug-Channels for writes to Channels via REST-Api

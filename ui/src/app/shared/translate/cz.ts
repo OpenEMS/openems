@@ -1,11 +1,13 @@
 export const TRANSLATION = {
     General: {
+        Cumulative: "Kumulativní Hodnoty",
         Grid: "Síť",
         GridBuy: "Nákup ze sítě",
         GridSell: "Prodej do sítě",
         OffGrid: "žádné připojení k síti!",
         Production: "Výroba",
         Consumption: "Spotřeba",
+        Load: "nálož",
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
         History: "Historie",
@@ -77,7 +79,28 @@ export const TRANSLATION = {
                     CurrentCharge: "Aktuální nabíjení",
                     TotalCharge: "Celkový poplatek",
                     EnforceCharging: "Prosazování poplatků",
-                    Cable: "Kabel"
+                    Cable: "Kabel",
+                    CableNotConnected: "Kabel není připojen",
+                    CarFull: "Auto je plné",
+                    EnergieSinceBeginning: "Energie od začátku nabíjení",
+                    ChargeMode: "režim načítání",
+                    NoConnection: {
+                        Description: "Nelze jej připojit k nabíjecí stanici.",
+                        Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
+                        Help1_1: "Při opětovném zapnutí se objeví IP nabíjecí stanice"
+                    },
+                    OptimizedChargeMode: {
+                        Name: "Optimalizované zatížení",
+                        Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
+                        MinInfo: "Chcete-li zabránit nabíjení vozu při nízké paměti v noci, můžete nastavit minimální nabíjení.",
+                        MinCharging: "Garance minimálního poplatku?"
+                    },
+                    ForceChargeMode: {
+                        Name: "Nucené nakládání",
+                        Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
+                        MaxCharging: "Maximální síla náboje",
+                        MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."
+                    }
                 }
             }
         },

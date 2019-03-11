@@ -43,3 +43,18 @@ Properties 'id' and 'jsonrpc' can be omitted, as they are not required for HTTP 
   }
 }
 ```
+
+### updateComponentConfig
+
+```
+{
+	"method": "updateComponentConfig",
+	"params": {
+		"componentId": "ctrlDebugLog0",
+		"properties": [{
+ 			"name": "enabled",
+			"value": true
+		}]
+	}
+}
+```
