@@ -222,10 +222,15 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		DC_POWER(new Doc().unit(Unit.KILOWATT)), IGBT_TEMPERATURE_L1(new Doc().unit(Unit.DEGREE_CELSIUS)),
 		IGBT_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)),
 		IGBT_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELSIUS)), PCS_WARNING_0(new Doc().unit(Unit.NONE)),
-		PCS_WARNING_1(new Doc().unit(Unit.NONE)), PCS_WARNING_2(new Doc().unit(Unit.NONE)),
-		PCS_WARNING_3(new Doc().unit(Unit.NONE)), PCS_FAULTS_0(new Doc().unit(Unit.NONE)),
-		PCS_FAULTS_1(new Doc().unit(Unit.NONE)), PCS_FAULTS_2(new Doc().unit(Unit.NONE)),
-		PCS_FAULTS_3(new Doc().unit(Unit.NONE)), PCS_FAULTS_4(new Doc().unit(Unit.NONE)),
+		PCS_WARNING_1(new Doc().options(PcsWarning1.values())), //
+		PCS_WARNING_2(new Doc().unit(Unit.NONE)),
+		PCS_WARNING_3(new Doc().unit(Unit.NONE)), //
+		
+		PCS_FAULTS_0(new Doc().unit(Unit.NONE)),
+		PCS_FAULTS_1(new Doc().unit(Unit.NONE)), //
+		PCS_FAULTS_2(new Doc().unit(Unit.NONE)),
+		PCS_FAULTS_3(new Doc().unit(Unit.NONE)), //
+		PCS_FAULTS_4(new Doc().unit(Unit.NONE)),
 		PCS_FAULTS_5(new Doc().unit(Unit.NONE)),
 		// BECU registers
 		BATTERY_STRING_WORK_STATE(new Doc().options(BatteryStringWorkState.values())),
@@ -246,8 +251,10 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE(new Doc().unit(Unit.VOLT)),
 		BATTERY_STRING_CHARGE_CURRENT_LIMIT(new Doc().unit(Unit.AMPERE)),
 		BATTERY_STRING_DISCHARGE_CURRENT_LIMIT(new Doc().unit(Unit.AMPERE)),
-		BATTERY_STRING_WARNING_0_0(new Doc().unit(Unit.NONE)), BATTERY_STRING_WARNING_0_1(new Doc().unit(Unit.NONE)),
-		BATTERY_STRING_WARNING_1_0(new Doc().unit(Unit.NONE)), BATTERY_STRING_WARNING_1_1(new Doc().unit(Unit.NONE)),
+		BATTERY_STRING_WARNING_0_0(new Doc().unit(Unit.NONE)), //
+		BATTERY_STRING_WARNING_0_1(new Doc().unit(Unit.NONE)),
+		BATTERY_STRING_WARNING_1_0(new Doc().unit(Unit.NONE)), //
+		BATTERY_STRING_WARNING_1_1(new Doc().unit(Unit.NONE)),
 		// ADAS register addresses
 		CONTAINER_IMMERSION_STATE(new Doc().unit(Unit.NONE)),
 		CONTAINER_FIRE_STATUS(new Doc().unit(Unit.NONE)),
