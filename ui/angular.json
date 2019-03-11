@@ -112,6 +112,34 @@
               "sourceMap": true,
               "buildOptimizer": false
             },
+            "app-dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/primus-app.ts"
+                }
+              ],
+              "baseHref": "/",
+              "outputPath": "www",
+              "optimization": false,
+              "outputHashing": "none",
+              "sourceMap": true,
+              "buildOptimizer": false
+            },
+            "app": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/primus-app.ts"
+                }
+              ],
+              "baseHref": "./",
+              "outputPath": "www",
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "buildOptimizer": true
+            },
             "edge": {
               "optimization": true,
               "outputHashing": "all",
