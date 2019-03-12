@@ -1,7 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { ModalController } from '@ionic/angular';
+import { EvcsModalPage } from './evcs-modal/evcs-modal.page';
+
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 
@@ -20,15 +23,20 @@ export class EvcsComponent {
   public controller: EdgeConfig.Component = null;
   public chargeState: ChargeState;
   private chargePlug: ChargePlug;
+  public screenWidth: number = 0;
 
   constructor(
     private service: Service,
     private websocket: Websocket,
     private route: ActivatedRoute,
     protected translate: TranslateService,
+    public modalController: ModalController
   ) { }
 
   ngOnInit() {
+
+    this.getScreenSize();
+
     // Subscribe to CurrentData
     this.service.setCurrentEdge(this.route).then(edge => {
       this.edge = edge;
@@ -57,12 +65,21 @@ export class EvcsComponent {
         }
       }
     });
+
   }
 
   ngOnDestroy() {
     if (this.edge != null) {
       this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId);
     }
+  }
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: EvcsModalPage,
+      componentProps: { value: 123 }
+    });
+    return await modal.present();
   }
 
   /**  
@@ -209,8 +226,6 @@ export class EvcsComponent {
    * @param i 
    */
   formatNumber(i: number) {
-    if(i==null || i == 0)
-      i=32000;
     return Math.round(i / 100) * 100;
   }
 
@@ -227,6 +242,10 @@ export class EvcsComponent {
     }
   }
 
+  @HostListener('window:resize', ['$event'])
+  getScreenSize(event?) {
+    this.screenWidth = window.innerWidth;
+  }
 }
 enum ChargeState {
   UNDEFINED = -1,           //Undefined
@@ -239,9 +258,9 @@ enum ChargeState {
 }
 
 enum ChargePlug {
-  UNDEFINED = -1,                         //Undefined
-  UNPLUGGED,                              //Unplugged
-  PLUGGED_ON_EVCS,                        //Plugged on EVCS
+  UNDEFINED = -1,                           //Undefined
+  UNPLUGGED,                                //Unplugged
+  PLUGGED_ON_EVCS,                          //Plugged on EVCS
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
   PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
