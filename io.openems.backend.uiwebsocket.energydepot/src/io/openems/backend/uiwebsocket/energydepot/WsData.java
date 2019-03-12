@@ -3,8 +3,8 @@ package io.openems.backend.uiwebsocket.energydepot;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
@@ -43,10 +43,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the User or Optional.Empty if the User was not authenticated or it is
 	 *         not available from Metadata service
 	 */
-	public synchronized Optional<User> getUser(Metadata metadata) {
+	public synchronized Optional<BackendUser> getUser(Metadata metadata) {
 		Optional<String> userId = this.getUserId();
 		if (userId.isPresent()) {
-			Optional<User> user = metadata.getUser(userId.get());
+			Optional<BackendUser> user = metadata.getUser(userId.get());
 			return user;
 		}
 		return Optional.empty();

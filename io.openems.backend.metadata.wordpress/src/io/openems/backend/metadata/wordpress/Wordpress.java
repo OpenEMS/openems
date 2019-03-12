@@ -28,10 +28,10 @@ import com.google.gson.JsonSyntaxException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.User;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -53,7 +53,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	/**
 	 * Maps User-ID to User
 	 */
-	private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, BackendUser> users = new ConcurrentHashMap<>();
 	private Map<String, MyEdge> edges = new HashMap<>();
 	private final ExecutorService readEdgeExecutor = Executors.newSingleThreadExecutor();
 	private Future<?> readEdgeFuture = null;
@@ -87,7 +87,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	}
 
 	@Override
-	public User authenticate() throws OpenemsException {
+	public BackendUser authenticate() throws OpenemsException {
 		MyUser user = this.dbu.getUserFromDB("Gastzugang", null);
 		if (user == null) {
 			throw new OpenemsException("User not found: Gastzugang");
@@ -105,7 +105,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	}
 
 	@Override
-	public User authenticate(String sessionId) throws OpenemsException {
+	public BackendUser authenticate(String sessionId) throws OpenemsException {
 
 		String[] cookiesplit = sessionId.split("%");
 		String username = cookiesplit[0];
@@ -166,7 +166,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	}
 
 	@Override
-	public Optional<User> getUser(String userId) {
+	public Optional<BackendUser> getUser(String userId) {
 		// try to read from cache
 		synchronized (this.users) {
 			return Optional.ofNullable(this.users.get(userId));
@@ -278,7 +278,7 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
+	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
