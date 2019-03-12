@@ -335,10 +335,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			break;
 		case THREE:
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
-			break;
-		default:
-			break;
-		
+			break;		
 		}
 
 		writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, 0);
@@ -389,6 +386,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleOnGridState() {
+		offGridDetected = null;
 		System.out.println(" ------ Currently set error channels ------- ");
 		for (io.openems.edge.common.channel.doc.ChannelId id : errorChannelIds.values()) {
 			@SuppressWarnings("unchecked")
@@ -481,7 +479,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doRunHandling() {
-		resetErrorChannels(); //if any error channels has been set, unset them because in here there aree n o errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war aber ein fehler in der queue und das system nicht angelaufen ist....
+		resetErrorChannels(); //if any error channels has been set, unset them because in here there are no errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war aber ein fehler in der queue und das system nicht angelaufen ist....
 		
 		boolean disableIpu1 = false;
 		boolean disableIpu2 = true;
@@ -501,11 +499,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			disableIpu3 = false;
 			disableIpu4 = false;
 			break;
-		default:
-			break;
-
 		}
 
+		//send play command
+		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
+		
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), disableIpu1);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), disableIpu2);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), disableIpu3);
@@ -588,6 +586,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
 
 		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
 
@@ -1141,12 +1140,58 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	private LocalDateTime offGridDetected = null;
+	int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
+	
 	private void handleOffGridState() {
+		
+		boolean disableIpu1 = false;
+		boolean disableIpu2 = true;
+		boolean disableIpu3 = true;
+		boolean disableIpu4 = true;
+
+		switch (inverterCount) {
+		case ONE:
+			disableIpu2 = false;
+			break;
+		case TWO:
+			disableIpu2 = false;
+			disableIpu3 = false;
+			break;
+		case THREE:
+			disableIpu2 = false;
+			disableIpu3 = false;
+			disableIpu4 = false;
+			break;
+		}
+
+		//send play command
+//		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
+		
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), disableIpu1);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), disableIpu2);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), disableIpu3);
+		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), disableIpu4);
+		// Always set Voltage Control Mode + Blackstart Approval
+		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), true);
+		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), false);
+		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), false);
+		
+		
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
-		log.info("Set K3 ON");
+		log.info("Set K1 ON");
 		this.setOutputSyncDeviceBridge(true);
 		// TODO check if OutputSyncDeviceBridge was actually set to ON via
 		// inputSyncDeviceBridgeComponent. On Error switch off the MR.
+				
+		if (offGridDetected == null) {
+			offGridDetected = LocalDateTime.now();
+			return;
+		}
+		if (offGridDetected.plusSeconds(DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS).isAfter(LocalDateTime.now())) {
+			return;
+		}
 
 		// Measured by Grid-Meter, grid Values
 		int gridFreq = this.gridMeter.getFrequency().value().orElse(-1);
@@ -1154,10 +1199,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
 
-		// Always set Voltage Control Mode + Blackstart Approval
-		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), false);
-
+		
 		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
 				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
 			log.info("Off-Grid -> F/U 1");
