@@ -38,11 +38,13 @@ export class Websocket {
     private service: Service,
   ) {
     service.websocket = this;
-
+    if (env.backend != 'App') {
+      setTimeout(() => {
+        this.connect();
+      })
+    }
     // try to auto connect using token or session_id
-    setTimeout(() => {
-      this.connect();
-    })
+
   }
 
   /**
@@ -58,7 +60,7 @@ export class Websocket {
     }
 
     this.socket = webSocket({
-      url: env.url,
+      url: env.url + "?wpcookie=46546546",
       openObserver: {
         next: (value) => {
           if (env.debugMode) {
@@ -253,7 +255,7 @@ export class Websocket {
       } else {
         console.info("would redirect...");
       }
-    } else if (env.backend === "OpenEMS Edge") {
+    } else if (env.backend === "OpenEMS Edge" || env.backend === "App") {
       this.router.navigate(['/index']);
     }
   }

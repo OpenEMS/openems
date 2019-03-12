@@ -70,7 +70,7 @@
     </ion-col>
   </ion-row>
 
-  <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+  <ng-container *ngIf="env.backend === 'OpenEMS Backend' || env.backend === 'App'">
     <ion-row justify-content-center>
       <ion-col size="12" size-sm="6" size-md="4">
         <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
@@ -81,14 +81,14 @@
       <ion-col size="12" size-sm="6" size-md="4">
         <ion-list lines="full">
 
-          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
-            [routerLink]="edge.isOnline ? ['/device', edge.id] : null" [color]="edge.isOnline ? null : 'light'">
+          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset" [routerLink]="edge.isOnline ? ['/device', edge.id] : null"
+            [color]="edge.isOnline ? null : 'light'">
             <ion-label>
               <h2 text-wrap>{{ edge.comment }}</h2>
               <p *ngIf="!edge.isOnline" text-wrap>Das Gerät ist nicht verbunden!</p>
             </ion-label>
             <ion-label>
-              <ng-container *ngIf="env.backend === 'OpenEMS Backend'">
+              <ng-container *ngIf="env.backend === 'OpenEMS Backend' || env.backend === 'App'">
                 <p>ID: {{ edge.id }}</p>
                 <p text-wrap>Typ: {{ edge.producttype }}</p>
               </ng-container>
