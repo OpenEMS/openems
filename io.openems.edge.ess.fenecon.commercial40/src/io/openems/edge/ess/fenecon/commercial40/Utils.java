@@ -97,6 +97,7 @@ public class Utils {
 			case AC_DISCHARGE_ENERGY:
 			case ORIGINAL_ALLOWED_CHARGE_POWER:
 			case ORIGINAL_ALLOWED_DISCHARGE_POWER:
+			case ORIGINAL_SOC:
 				result.add(new IntegerReadChannel(c, channelId));
 				break;
 			case BATTERY_MAINTENANCE_STATE:

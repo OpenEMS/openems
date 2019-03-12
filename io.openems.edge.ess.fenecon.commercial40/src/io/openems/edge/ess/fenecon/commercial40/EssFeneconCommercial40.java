@@ -2,6 +2,7 @@ package io.openems.edge.ess.fenecon.commercial40;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,6 +20,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.EvictingQueue;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
@@ -155,6 +158,26 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 							value = Math.min(originalValue.get(), currentValue.get() + 500);
 						}
 						currentValueChannel.setNextValue(value);
+					});
+				})), //
+		ORIGINAL_SOC(new Doc() //
+				.onInit(channel -> { //
+					// This system sometimes returns wrong SoC values. To fix the problem, we are
+					// recording the average of 100 values and set it as the SoC value.
+					final EvictingQueue<Integer> lastSocValues = EvictingQueue.create(100);
+					((IntegerReadChannel) channel).onChange(originalSocChannel -> {
+						Integer originalSocValue = originalSocChannel.get();
+						Integer correctedSocValue = null;
+						if (originalSocValue != null) {
+							lastSocValues.add(originalSocValue);
+							OptionalDouble averageSoc = lastSocValues.stream().mapToInt(Integer::intValue).average();
+							if (averageSoc.isPresent()) {
+								correctedSocValue = (int) averageSoc.getAsDouble();
+							}
+						}
+						IntegerReadChannel correctedSocChannel = channel.getComponent()
+								.channel(SymmetricEss.ChannelId.SOC);
+						correctedSocChannel.setNextValue(correctedSocValue);
 					});
 				})), //
 		SYSTEM_STATE(new Doc().options(SystemState.values())), //
@@ -1101,7 +1124,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.CELL_223_VOLTAGE, new UnsignedWordElement(0x15DE)),
 						m(EssFeneconCommercial40.ChannelId.CELL_224_VOLTAGE, new UnsignedWordElement(0x15DF))),
 				new FC3ReadRegistersTask(0x1402, Priority.HIGH, //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x1402))));
+						m(EssFeneconCommercial40.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(0x1402))));
 	}
 
 	@Override
