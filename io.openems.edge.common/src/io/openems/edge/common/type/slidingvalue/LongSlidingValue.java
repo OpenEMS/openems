@@ -9,6 +9,11 @@ public class LongSlidingValue extends AbstractNumberSlidingValue<Long> {
 		return a + b;
 	}
 
+	@Override
+	protected Long divide(Long a, int b) {
+		return a / b;
+	}
+
 	protected OpenemsType getType() {
 		return OpenemsType.LONG;
 	}
