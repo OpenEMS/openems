@@ -67,16 +67,16 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
-		//log.info("Received via Reference Modbus: " + modbus.id());
+		// log.info("Received via Reference Modbus: " + modbus.id());
 		super.setModbus(modbus);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BridgeModbus modbus1;
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BridgeModbus modbus2;
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id0());
@@ -85,20 +85,20 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus1", config.modbus_id1())) {
 			return;
 		}
-		
+
 		// Configure Modbus 2
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus2", config.modbus_id2())) {
 			return;
 		}
-		
+
 		if (this.isEnabled() && this.modbus1 != null) {
 			this.modbus1.addProtocol(this.id(), this.defineModbus1Protocol());
 		}
-		
-		if(this.isEnabled() && this.modbus2 != null) {
+
+		if (this.isEnabled() && this.modbus2 != null) {
 			this.modbus2.addProtocol(this.getModbusBridgeId(), this.defineModbus2Protocol());
 		}
-		
+
 		this.modbusBridgeId = config.modbus_id1();
 		this.readonly = config.readonly();
 
@@ -185,7 +185,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 		// TODO set reactive power limit from limitInductiveReactivePower +
 		// limitCapacitiveReactivePower
-		return Power.NO_CONSTRAINTS;		
+		return Power.NO_CONSTRAINTS;
 	}
 
 	public String getModbusBridgeId() {
@@ -221,17 +221,149 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		DC_VOLTAGE(new Doc().unit(Unit.VOLT)), DC_CURRENT(new Doc().unit(Unit.AMPERE)),
 		DC_POWER(new Doc().unit(Unit.KILOWATT)), IGBT_TEMPERATURE_L1(new Doc().unit(Unit.DEGREE_CELSIUS)),
 		IGBT_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)),
-		IGBT_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELSIUS)), PCS_WARNING_0(new Doc().unit(Unit.NONE)),
-		PCS_WARNING_1(new Doc().options(PcsWarning1.values())), //
-		PCS_WARNING_2(new Doc().unit(Unit.NONE)),
-		PCS_WARNING_3(new Doc().unit(Unit.NONE)), //
-		
-		PCS_FAULTS_0(new Doc().unit(Unit.NONE)),
+		IGBT_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELSIUS)),
+
+		STATE_0(new Doc().level(Level.WARNING).text("DC pre-charging contactor checkback abnormal")),
+		STATE_1(new Doc().level(Level.WARNING).text("AC pre-charging contactor checkback abnormal")),
+		STATE_2(new Doc().level(Level.WARNING).text("AC main contactor checkback abnormal")),
+		STATE_3(new Doc().level(Level.WARNING).text("AC circuit breaker checkback abnormal")),
+		STATE_4(new Doc().level(Level.WARNING).text("Container door open")),
+		STATE_5(new Doc().level(Level.WARNING).text("Reserved")),
+		STATE_6(new Doc().level(Level.WARNING).text("AC circuit breaker is not closed")),
+		STATE_7(new Doc().level(Level.WARNING).text("Reserved")),
+
+		STATE_8(new Doc().level(Level.WARNING).text("General overload")),
+		STATE_9(new Doc().level(Level.WARNING).text("Severe overload")),
+		STATE_10(new Doc().level(Level.WARNING).text("Over temperature drop power")),
+		STATE_11(new Doc().level(Level.WARNING).text("AC three-phase current imbalance alarm")),
+		STATE_12(new Doc().level(Level.WARNING).text("Failed to reset factory settings")),
+		STATE_13(new Doc().level(Level.WARNING).text("Hardware board invalidation")),
+		STATE_14(new Doc().level(Level.WARNING).text("Self-test failure alarm")),
+		STATE_15(new Doc().level(Level.WARNING).text("Receive BMS stop signal")),
+		STATE_16(new Doc().level(Level.WARNING).text("Air-conditioner")),
+		STATE_17(new Doc().level(Level.WARNING).text("IGBT Three phase temperature difference is large")),
+		STATE_18(new Doc().level(Level.WARNING).text("EEPROM Input data overrun")),
+		STATE_19(new Doc().level(Level.WARNING).text("Back up EEPROM data failure")),
+		STATE_20(new Doc().level(Level.WARNING).text("DC circuit breaker checkback abnormal")),
+		STATE_21(new Doc().level(Level.WARNING).text("DC main contactor checkback abnormal")),
+
+		STATE_22(new Doc().level(Level.WARNING).text("Interruption of communication between PCS and Master")),
+		STATE_23(new Doc().level(Level.WARNING).text("Interruption of communication between PCS and unit controller")),
+		STATE_24(new Doc().level(Level.WARNING).text("Excessive temperature")),
+		STATE_25(new Doc().level(Level.WARNING).text("Excessive humidity")),
+		STATE_26(new Doc().level(Level.WARNING).text("Accept H31 control board signal shutdown")),
+		STATE_27(new Doc().level(Level.WARNING).text("Radiator A temperature sampling failure")),
+		STATE_28(new Doc().level(Level.WARNING).text("Radiator B temperature sampling failure")),
+		STATE_29(new Doc().level(Level.WARNING).text("Radiator C temperature sampling failure")),
+		STATE_30(new Doc().level(Level.WARNING).text("Reactor temperature sampling failure")),
+		STATE_31(new Doc().level(Level.WARNING).text("PCS cabinet environmental temperature sampling failure")),
+		STATE_32(new Doc().level(Level.WARNING).text("DC circuit breaker not engaged")),
+		STATE_33(new Doc().level(Level.WARNING)
+				.text("Controller of receive system shutdown because of abnormal command")),
+
+		STATE_34(new Doc().level(Level.WARNING).text("Interruption of communication between PCS and RTU0 ")),
+		STATE_35(new Doc().level(Level.WARNING).text("Interruption of communication between PCS and RTU1AN")),
+		STATE_36(new Doc().level(Level.WARNING).text("Interruption of communication between PCS and MasterCAN")),
+		STATE_37(new Doc().level(Level.WARNING).text("Short-term access too many times to hot standby status in a short term")),
+		STATE_38(new Doc().level(Level.WARNING).text("entry and exit dynamic monitoring too many times in a short term")),
+		STATE_39(new Doc().level(Level.WARNING).text("AC preload contactor delay closure ")),
+
+		/*
+		 * 
+		 * 
+		 * 
+		 *  
+		 */
+		//PCS_WARNING_0(new Doc().unit(Unit.NONE)), 
+		STATE_40(new Doc().level(Level.WARNING).text("DC pre-charge contactor cannot pull in")),
+		STATE_41(new Doc().level(Level.WARNING).text("AC pre-charge contactor cannot pull in")),
+		STATE_42(new Doc().level(Level.WARNING).text("AC main contactor cannot pull in")),
+		STATE_43(new Doc().level(Level.WARNING).text("AC breaker is abnormally disconnected during operation")),
+		STATE_44(new Doc().level(Level.WARNING).text("AC main contactor disconnected during operation")),
+		STATE_45(new Doc().level(Level.WARNING).text("AC main contactor cannot be disconnected")),
+		STATE_46(new Doc().level(Level.WARNING).text("Hardware PDP failure")),
+		STATE_47(new Doc().level(Level.WARNING).text("DC midpoint 1 high voltage protection")),
+		STATE_48(new Doc().level(Level.WARNING).text("DC midpoint 2 high voltage protection")),
+		//PCS_WARNING_1(new Doc().unit(Unit.NONE)),
+		STATE_49(new Doc().level(Level.WARNING).text("Radiator A over-temperature protection")),
+		STATE_50(new Doc().level(Level.WARNING).text("Radiator B over-temperature protection")),
+		STATE_51(new Doc().level(Level.WARNING).text("Radiator C over-temperature protection")),
+		STATE_52(new Doc().level(Level.WARNING).text("Electric reactor core over temperature protection")),
+		STATE_53(new Doc().level(Level.WARNING).text("DC breaker disconnected abnormally in operation")),
+		STATE_54(new Doc().level(Level.WARNING).text("DC main contactor disconnected abnormally in operation")),
+		//PCS_WARNING_2(new Doc().unit(Unit.NONE)),
+		STATE_55(new Doc().level(Level.WARNING).text("DC short-circuit protection")),
+		STATE_56(new Doc().level(Level.WARNING).text("DC overvoltage protection")),
+		STATE_57(new Doc().level(Level.WARNING).text("DC undervoltage protection")),
+		STATE_58(new Doc().level(Level.WARNING).text("DC reverse or missed connection protection")),
+		STATE_59(new Doc().level(Level.WARNING).text("DC disconnection protection")),
+		STATE_60(new Doc().level(Level.WARNING).text("DC overcurrent protection")),
+		STATE_61(new Doc().level(Level.WARNING).text("AC Phase A Peak Protection")),
+		STATE_62(new Doc().level(Level.WARNING).text("AC Phase B Peak Protection")),
+		STATE_63(new Doc().level(Level.WARNING).text("AC Phase C Peak Protection")),
+		STATE_64(new Doc().level(Level.WARNING).text("AC phase A effective value high protection")),
+		STATE_65(new Doc().level(Level.WARNING).text("AC phase B effective value high protection")),
+		STATE_66(new Doc().level(Level.WARNING).text("AC phase C effective value high protection")),
+		STATE_67(new Doc().level(Level.WARNING).text("A-phase voltage sampling Failure")),
+		STATE_68(new Doc().level(Level.WARNING).text("B-phase voltage sampling Failure")),
+		STATE_69(new Doc().level(Level.WARNING).text("C-phase voltage sampling Failure")),
+		//PCS_WARNING_3(new Doc().unit(Unit.NONE)),
+		STATE_70(new Doc().level(Level.WARNING).text("Inverted Phase A Voltage Sampling Failure")),
+		STATE_71(new Doc().level(Level.WARNING).text("Inverted Phase B Voltage Sampling Failure")),
+		STATE_72(new Doc().level(Level.WARNING).text("Inverted Phase C Voltage Sampling Failure")),
+		STATE_73(new Doc().level(Level.WARNING).text("AC current sampling failure")),
+		STATE_74(new Doc().level(Level.WARNING).text("DC current sampling failure")),
+		STATE_75(new Doc().level(Level.WARNING).text("Phase A over-temperature protection")),
+		STATE_76(new Doc().level(Level.WARNING).text("Phase B over-temperature protection")),
+		STATE_77(new Doc().level(Level.WARNING).text("Phase C over-temperature protection")),
+		STATE_78(new Doc().level(Level.WARNING).text("A phase temperature sampling failure")),
+		STATE_79(new Doc().level(Level.WARNING).text("B phase temperature sampling failure")),
+		STATE_80(new Doc().level(Level.WARNING).text("C phase temperature sampling failure")),
+		STATE_81(new Doc().level(Level.WARNING).text("AC Phase A not fully pre-charged under-protection")),
+		STATE_82(new Doc().level(Level.WARNING).text("AC Phase B not fully pre-charged under-protection")),
+		STATE_83(new Doc().level(Level.WARNING).text("AC Phase C not fully pre-charged under-protection")),
+		STATE_84(new Doc().level(Level.WARNING).text("Non-adaptable phase sequence error protection")),
+		STATE_85(new Doc().level(Level.WARNING).text("DSP protection")),
+
+		STATE_86(new Doc().level(Level.WARNING).text("A-phase grid voltage serious high protection")),
+		STATE_87(new Doc().level(Level.WARNING).text("A-phase grid voltage general high protection")),
+		STATE_88(new Doc().level(Level.WARNING).text("B-phase grid voltage serious high protection")),
+		STATE_89(new Doc().level(Level.WARNING).text("B-phase grid voltage general high protection")),
+		STATE_90(new Doc().level(Level.WARNING).text("C-phase grid voltage serious high protection")),
+		STATE_91(new Doc().level(Level.WARNING).text("C-phase grid voltage general high protection")),
+		STATE_92(new Doc().level(Level.WARNING).text("A-phase grid voltage serious low  protection")),
+		STATE_93(new Doc().level(Level.WARNING).text("A-phase grid voltage general low protection")),
+		STATE_94(new Doc().level(Level.WARNING).text("B-phase grid voltage serious low  protection")),
+		STATE_95(new Doc().level(Level.WARNING).text("B-phase grid voltage general low protection")),
+		STATE_96(new Doc().level(Level.WARNING).text("C-phase grid voltage serious low  protection")),
+		STATE_97(new Doc().level(Level.WARNING).text("C-phase grid voltage general low protection")),
+		STATE_98(new Doc().level(Level.WARNING).text("serious high frequency")),
+		STATE_99(new Doc().level(Level.WARNING).text("general high frequency")),
+		STATE_100(new Doc().level(Level.WARNING).text("serious low frequency")),
+		STATE_101(new Doc().level(Level.WARNING).text("general low frequency")),
+
+		STATE_102(new Doc().level(Level.WARNING).text("Grid A phase loss")),
+		STATE_103(new Doc().level(Level.WARNING).text("Grid B phase loss")),
+		STATE_104(new Doc().level(Level.WARNING).text("Grid C phase loss")),
+		STATE_105(new Doc().level(Level.WARNING).text("Island protection")),
+		STATE_106(new Doc().level(Level.WARNING).text("A-phase low voltage ride through")),
+		STATE_107(new Doc().level(Level.WARNING).text("B-phase low voltage ride through")),
+		STATE_108(new Doc().level(Level.WARNING).text("C-phase low voltage ride through")),
+		STATE_109(new Doc().level(Level.WARNING).text("A phase inverter voltage serious high protection")),
+		STATE_110(new Doc().level(Level.WARNING).text("A phase inverter voltage general high protection")),
+		STATE_111(new Doc().level(Level.WARNING).text("B phase inverter voltage serious high protection")),
+		STATE_112(new Doc().level(Level.WARNING).text("B phase inverter voltage general high protection")),
+		STATE_113(new Doc().level(Level.WARNING).text("C phase inverter voltage serious high protection")),
+		STATE_114(new Doc().level(Level.WARNING).text("C phase inverter voltage general high protection")),
+		STATE_115(
+				new Doc().level(Level.WARNING).text("Inverter peak voltage high protection cause by AC disconnection")),
+
+		PCS_FAULTS_0(new Doc().unit(Unit.NONE)), //
 		PCS_FAULTS_1(new Doc().unit(Unit.NONE)), //
-		PCS_FAULTS_2(new Doc().unit(Unit.NONE)),
+		PCS_FAULTS_2(new Doc().unit(Unit.NONE)), //
 		PCS_FAULTS_3(new Doc().unit(Unit.NONE)), //
-		PCS_FAULTS_4(new Doc().unit(Unit.NONE)),
-		PCS_FAULTS_5(new Doc().unit(Unit.NONE)),
+		PCS_FAULTS_4(new Doc().unit(Unit.NONE)), //
+		PCS_FAULTS_5(new Doc().unit(Unit.NONE)), //
 		// BECU registers
 		BATTERY_STRING_WORK_STATE(new Doc().options(BatteryStringWorkState.values())),
 		BATTERY_STRING_TOTAL_VOLTAGE(new Doc().unit(Unit.VOLT)), BATTERY_STRING_CURRENT(new Doc().unit(Unit.AMPERE)),
@@ -251,35 +383,44 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE(new Doc().unit(Unit.VOLT)),
 		BATTERY_STRING_CHARGE_CURRENT_LIMIT(new Doc().unit(Unit.AMPERE)),
 		BATTERY_STRING_DISCHARGE_CURRENT_LIMIT(new Doc().unit(Unit.AMPERE)),
+		
+		
 		BATTERY_STRING_WARNING_0_0(new Doc().unit(Unit.NONE)), //
-		BATTERY_STRING_WARNING_0_1(new Doc().unit(Unit.NONE)),
+		BATTERY_STRING_WARNING_0_1(new Doc().unit(Unit.NONE)), //
 		BATTERY_STRING_WARNING_1_0(new Doc().unit(Unit.NONE)), //
-		BATTERY_STRING_WARNING_1_1(new Doc().unit(Unit.NONE)),
+		BATTERY_STRING_WARNING_1_1(new Doc().unit(Unit.NONE)), //
 		// ADAS register addresses
-		CONTAINER_IMMERSION_STATE(new Doc().unit(Unit.NONE)),
-		CONTAINER_FIRE_STATUS(new Doc().unit(Unit.NONE)),
-		CONTROL_CABINET_STATE(new Doc().unit(Unit.NONE)),
-		CONTAINER_GROUNDING_FAULT(new Doc().unit(Unit.NONE)),
-		CONTAINER_DOOR_STATUS_0(new Doc().unit(Unit.NONE)),
-		CONTAINER_DOOR_STATUS_1(new Doc().unit(Unit.NONE)),
+		CONTAINER_IMMERSION_STATE(new Doc().unit(Unit.NONE)), CONTAINER_FIRE_STATUS(new Doc().unit(Unit.NONE)),
+		CONTROL_CABINET_STATE(new Doc().unit(Unit.NONE)), CONTAINER_GROUNDING_FAULT(new Doc().unit(Unit.NONE)),
+		CONTAINER_DOOR_STATUS_0(new Doc().unit(Unit.NONE)), CONTAINER_DOOR_STATUS_1(new Doc().unit(Unit.NONE)),
 		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE(new Doc().unit(Unit.NONE)),
-		/*	
-		CONTAINER_IMMERSION_STATE_1(new Doc().level(Level.WARNING).text("Immersion happens")),
-		CONTAINER_IMMERSION_STATE_0(new Doc().level(Level.WARNING).text("Immersion vanishes")),
-		CONTAINER_FIRE_STATUS_1(new Doc().level(Level.WARNING).text("Fire alarm")),
-		CONTAINER_FIRE_STATUS_0(new Doc().level(Level.WARNING).text("Fire alarm vanishes")),
-		CONTROL_CABINET_STATE_1(new Doc().level(Level.WARNING).text("Sudden stop press down")),
-		CONTROL_CABINET_STATE_0(new Doc().level(Level.WARNING).text("Sudden stop spin up")),
-		CONTAINER_GROUNDING_FAULT_1(new Doc().level(Level.WARNING).text("Grounding fault happens")),
-		CONTAINER_GROUNDING_FAULT_0(new Doc().level(Level.WARNING).text("Grounding fault vanishes")),
-		CONTAINER_DOOR_STATUS_0_1(new Doc().level(Level.WARNING).text("Door opens")),
-		CONTAINER_DOOR_STATUS_0_0(new Doc().level(Level.WARNING).text("Door closes")),
-		CONTAINER_DOOR_STATUS_1_1(new Doc().level(Level.WARNING).text("Door opens")),
-		CONTAINER_DOOR_STATUS_1_0(new Doc().level(Level.WARNING).text("Door closes")),
-		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_1(
-				new Doc().level(Level.WARNING).text("Air conditioning power supply")),
-		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_0(new Doc().level(Level.WARNING).text("Air conditioning shuts down")),
-		*/
+		/*
+		 * CONTAINER_IMMERSION_STATE_1(new
+		 * Doc().level(Level.WARNING).text("Immersion happens")),
+		 * CONTAINER_IMMERSION_STATE_0(new
+		 * Doc().level(Level.WARNING).text("Immersion vanishes")),
+		 * CONTAINER_FIRE_STATUS_1(new Doc().level(Level.WARNING).text("Fire alarm")),
+		 * CONTAINER_FIRE_STATUS_0(new
+		 * Doc().level(Level.WARNING).text("Fire alarm vanishes")),
+		 * CONTROL_CABINET_STATE_1(new
+		 * Doc().level(Level.WARNING).text("Sudden stop press down")),
+		 * CONTROL_CABINET_STATE_0(new
+		 * Doc().level(Level.WARNING).text("Sudden stop spin up")),
+		 * CONTAINER_GROUNDING_FAULT_1(new
+		 * Doc().level(Level.WARNING).text("Grounding fault happens")),
+		 * CONTAINER_GROUNDING_FAULT_0(new
+		 * Doc().level(Level.WARNING).text("Grounding fault vanishes")),
+		 * CONTAINER_DOOR_STATUS_0_1(new Doc().level(Level.WARNING).text("Door opens")),
+		 * CONTAINER_DOOR_STATUS_0_0(new
+		 * Doc().level(Level.WARNING).text("Door closes")),
+		 * CONTAINER_DOOR_STATUS_1_1(new Doc().level(Level.WARNING).text("Door opens")),
+		 * CONTAINER_DOOR_STATUS_1_0(new
+		 * Doc().level(Level.WARNING).text("Door closes")),
+		 * CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_1( new
+		 * Doc().level(Level.WARNING).text("Air conditioning power supply")),
+		 * CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_0(new
+		 * Doc().level(Level.WARNING).text("Air conditioning shuts down")),
+		 */
 		ADAS_WARNING_0_0(new Doc().unit(Unit.NONE)), ADAS_WARNING_0_1(new Doc().unit(Unit.NONE)),
 		ADAS_WARNING_0_2(new Doc().unit(Unit.NONE)), ADAS_WARNING_1_0(new Doc().unit(Unit.NONE)),
 		ADAS_WARNING_1_1(new Doc().unit(Unit.NONE)), ADAS_WARNING_1_2(new Doc().unit(Unit.NONE)),
@@ -326,18 +467,176 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L1, new SignedWordElement(0x1017)),
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L2, new SignedWordElement(0x1018)),
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L3, new SignedWordElement(0x1019)),
-				new DummyRegisterElement(0x101A, 0X103F),
-				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_0, new UnsignedWordElement(0x1040)),
-				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_1, new UnsignedWordElement(0x1041)),
-				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_2, new UnsignedWordElement(0x1042)),
-				m(EssFeneconBydContainer.ChannelId.PCS_WARNING_3, new UnsignedWordElement(0x1043)),
-				new DummyRegisterElement(0x1044, 0X104F),
-				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_0, new UnsignedWordElement(0x1050)),
-				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_1, new UnsignedWordElement(0x1051)),
-				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_2, new UnsignedWordElement(0x1052)),
-				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_3, new UnsignedWordElement(0x1053)),
-				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_4, new UnsignedWordElement(0x1054)),
-				m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_5, new UnsignedWordElement(0x1055))),
+
+				// m(EssFeneconBydContainer.ChannelId.PCS_WARNING_0, new
+				// UnsignedWordElement(0x1040)),
+
+				bm(new UnsignedWordElement(0x1040)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_0, 0) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_1, 3) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_2, 4) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_3, 5)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_4, 12)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_5, 13)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_6, 14)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_7, 15)//
+						.build(),
+
+				// (EssFeneconBydContainer.ChannelId.PCS_WARNING_1, new
+				// UnsignedWordElement(0x1041)),
+				bm(new UnsignedWordElement(0x1041))//
+						.m(EssFeneconBydContainer.ChannelId.STATE_8, 0)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_9, 1)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_10, 3)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_11, 5)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_12, 6)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_13, 7)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_14, 8)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_15, 9)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_16, 10)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_17, 11)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_18, 12)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_19, 13)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_20, 14)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_21, 15)//
+						.build(),
+
+				// m(EssFeneconBydContainer.ChannelId.PCS_WARNING_2, new
+				// UnsignedWordElement(0x1042)),
+
+				bm(new UnsignedWordElement(0x1041)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_22, 1)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_23, 2)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_24, 5)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_25, 6)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_26, 7)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_27, 8)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_28, 9)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_29, 10)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_30, 11)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_31, 12)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_32, 13)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_33, 14)//
+						.build(),
+
+				// m(EssFeneconBydContainer.ChannelId.PCS_WARNING_3, new
+				// UnsignedWordElement(0x1043)),
+
+				bm(new UnsignedWordElement(0x1043)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_34, 1)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_35, 2)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_36, 3)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_37, 4)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_38, 5)//
+						.m(EssFeneconBydContainer.ChannelId.STATE_39, 6)//
+						.build(),
+
+				new DummyRegisterElement(0x1044, 0X104F), //
+				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_0, new
+				// UnsignedWordElement(0x1050)),
+				bm(new UnsignedWordElement(0x1050)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_40, 0) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_41, 1) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_42, 2) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_43, 5) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_44, 6) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_45, 8) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_46, 11) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_47, 12) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_48, 13) //
+						.build(),
+				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_1, new
+				// UnsignedWordElement(0x1051)),
+				bm(new UnsignedWordElement(0x1051)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_49, 1) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_50, 2) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_51, 3) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_52, 4) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_53, 7) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_54, 8) //
+						.build(),
+
+				bm(new UnsignedWordElement(0x1052)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_55, 0) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_56, 1) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_57, 2) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_58, 3) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_59, 4) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_60, 6) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_61, 7) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_62, 8) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_63, 9) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_64, 10) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_65, 11) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_66, 12) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_67, 13) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_68, 14) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_69, 15) //
+						.build(),
+
+				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_3, new
+				// UnsignedWordElement(0x1053)),
+				bm(new UnsignedWordElement(0x1053)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_70, 0) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_71, 1) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_72, 2) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_73, 3) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_74, 4) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_75, 5) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_76, 6) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_77, 7) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_78, 8) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_79, 9) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_80, 10) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_81, 11) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_82, 12) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_83, 13) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_84, 14) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_85, 15) //
+						.build(),
+
+				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_4, new
+				// UnsignedWordElement(0x1054)),
+
+				bm(new UnsignedWordElement(0x1054)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_86, 0) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_87, 1) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_88, 2) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_89, 3) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_90, 4) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_91, 5) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_92, 6) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_93, 7) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_94, 8) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_95, 9) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_96, 10) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_97, 11) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_98, 12) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_99, 13) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_100, 14) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_101, 15) //
+						.build(),
+
+				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_5, new
+				// UnsignedWordElement(0x1055))),
+
+				bm(new UnsignedWordElement(0x1055)) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_102, 0) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_103, 1) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_104, 2) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_105, 3) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_106, 4) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_107, 5) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_108, 6) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_109, 7) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_110, 8) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_111, 9) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_112, 10) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_113, 11) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_114, 12) //
+						.m(EssFeneconBydContainer.ChannelId.STATE_115, 13) //
+						.build()),
+
 				// BECU registers
 				new FC3ReadRegistersTask(0x6001, Priority.LOW,
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WORK_STATE, new UnsignedWordElement(0x6001)),
@@ -387,23 +686,25 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	}
 
 	private ModbusProtocol defineModbus1Protocol() {
-		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x3410, Priority.LOW,
-				m(EssFeneconBydContainer.ChannelId.CONTAINER_IMMERSION_STATE, new UnsignedWordElement(0x3410)),
-				m(EssFeneconBydContainer.ChannelId.CONTAINER_FIRE_STATUS, new UnsignedWordElement(0x3411)),
-				m(EssFeneconBydContainer.ChannelId.CONTROL_CABINET_STATE, new UnsignedWordElement(0x3412)),
-				m(EssFeneconBydContainer.ChannelId.CONTAINER_GROUNDING_FAULT, new UnsignedWordElement(0x3413)),
-				m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_0, new UnsignedWordElement(0x3414)),
-				m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_1, new UnsignedWordElement(0x3415)),
-				m(EssFeneconBydContainer.ChannelId.CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE, new UnsignedWordElement(0x3416)),
-				new DummyRegisterElement(0X3417, 0X343F),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_0, new UnsignedWordElement(0x3440)),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_1, new UnsignedWordElement(0x3441)),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_2, new UnsignedWordElement(0x3442)),
-				new DummyRegisterElement(0X3443, 0X344F),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_0, new UnsignedWordElement(0x3450)),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_1, new UnsignedWordElement(0x3451)),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_2, new UnsignedWordElement(0x3452)),
-				m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_3, new UnsignedWordElement(0x3453))));
+		return new ModbusProtocol(this,
+				new FC3ReadRegistersTask(0x3410, Priority.LOW,
+						m(EssFeneconBydContainer.ChannelId.CONTAINER_IMMERSION_STATE, new UnsignedWordElement(0x3410)),
+						m(EssFeneconBydContainer.ChannelId.CONTAINER_FIRE_STATUS, new UnsignedWordElement(0x3411)),
+						m(EssFeneconBydContainer.ChannelId.CONTROL_CABINET_STATE, new UnsignedWordElement(0x3412)),
+						m(EssFeneconBydContainer.ChannelId.CONTAINER_GROUNDING_FAULT, new UnsignedWordElement(0x3413)),
+						m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_0, new UnsignedWordElement(0x3414)),
+						m(EssFeneconBydContainer.ChannelId.CONTAINER_DOOR_STATUS_1, new UnsignedWordElement(0x3415)),
+						m(EssFeneconBydContainer.ChannelId.CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE,
+								new UnsignedWordElement(0x3416)),
+						new DummyRegisterElement(0X3417, 0X343F),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_0, new UnsignedWordElement(0x3440)),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_1, new UnsignedWordElement(0x3441)),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_2, new UnsignedWordElement(0x3442)),
+						new DummyRegisterElement(0X3443, 0X344F),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_0, new UnsignedWordElement(0x3450)),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_1, new UnsignedWordElement(0x3451)),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_2, new UnsignedWordElement(0x3452)),
+						m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_3, new UnsignedWordElement(0x3453))));
 	}
 
 	protected ModbusProtocol defineModbus2Protocol() {
