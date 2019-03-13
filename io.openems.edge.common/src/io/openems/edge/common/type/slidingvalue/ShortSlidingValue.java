@@ -9,6 +9,11 @@ public class ShortSlidingValue extends AbstractNumberSlidingValue<Short> {
 		return (short) (a + b);
 	}
 
+	@Override
+	protected Short divide(Short a, int b) {
+		return (short) (a / b);
+	}
+
 	protected OpenemsType getType() {
 		return OpenemsType.SHORT;
 	}

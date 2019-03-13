@@ -9,6 +9,11 @@ public class FloatSlidingValue extends AbstractNumberSlidingValue<Float> {
 		return a + b;
 	}
 
+	@Override
+	protected Float divide(Float a, int b) {
+		return a / b;
+	}
+
 	protected OpenemsType getType() {
 		return OpenemsType.FLOAT;
 	}

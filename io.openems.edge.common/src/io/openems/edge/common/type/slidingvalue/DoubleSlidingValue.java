@@ -9,6 +9,11 @@ public class DoubleSlidingValue extends AbstractNumberSlidingValue<Double> {
 		return a + b;
 	}
 
+	@Override
+	protected Double divide(Double a, int b) {
+		return a / b;
+	}
+
 	protected OpenemsType getType() {
 		return OpenemsType.DOUBLE;
 	}
