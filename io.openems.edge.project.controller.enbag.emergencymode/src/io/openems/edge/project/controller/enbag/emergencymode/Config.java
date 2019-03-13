@@ -11,10 +11,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Allow Charge from AC", description = "")
-	boolean allowChargeFromAC() default true;
-	// TODO required?
-
 	@AttributeDefinition(name = "Grid Feed Limitation", description = "")
 	boolean gridFeedLimitation() default true;
 
