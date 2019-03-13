@@ -202,7 +202,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						switch (pvState()) {
 						// Pv_High Is More Than 35kW
 						case PV_HIGH:
-							// TODO ask logic to Nils again
+							// TODO pv limitation and time ?
 							this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
 							this.lastPvOffGridDisconnected = System.currentTimeMillis();
 							switch (batteryState(BatteryEnum.ESS1SOC)) {
