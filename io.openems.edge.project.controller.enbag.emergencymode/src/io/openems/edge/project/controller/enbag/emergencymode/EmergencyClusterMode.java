@@ -302,56 +302,11 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 //				 On Grid
 				try {
 					if (isQ2Ess2SupplyUpsClosed()) {
-
-						Channel<Integer> ess2ActivePowerChannel = this.ess2.getActivePower();
-						int ess2ActivePower = ess2ActivePowerChannel.value().orElse(0);
-						int calculatedEssActivePower = ess2ActivePower
-								+ this.gridMeter.getActivePower().value().orElse(0);
-
-						Channel<Integer> ess2SocChannel = this.ess2.getSoc();
-						int ess2Soc = ess2SocChannel.value().orElse(0);
-						int getMaxPower = this.ess2.getPower().getMaxPower(ess2, Phase.ALL, Pwr.ACTIVE);
-						int getMinPower = this.ess2.getPower().getMinPower(ess2, Phase.ALL, Pwr.ACTIVE);
-						if (calculatedEssActivePower >= 0) {
-							// discharge
-							// adjust calculatedEssActivePower to max allowed discharge power
-							if (getMaxPower < calculatedEssActivePower) {
-								calculatedEssActivePower = getMinPower;
-							}
-						} else {
-							// charge
-							// This is upper part of battery which is primarily used for charging during
-							// peak PV production (after 11:00h)
-							int reservedSoc = 50;
-							if (LocalDateTime.now().getHour() <= 11 && ess2Soc > 100 - reservedSoc && this.gridMeter
-									.getActivePower().value().getOrError() < config.maxGridFeedPower()) {
-								// reduced charging formula – reduction based on current SOC and reservedSoc
-								calculatedEssActivePower = calculatedEssActivePower / (reservedSoc * 2)
-										* (reservedSoc - (ess2Soc - (100 - reservedSoc)));
-							} else {
-								// full charging formula – no restrictions except max charging power that
-								// batteries can accept
-								if (calculatedEssActivePower < getMaxPower) {
-									calculatedEssActivePower = getMaxPower;
-								}
-							}
-						}
-						if (config.gridFeedLimitation()) {
-							// actual formula pvCounter.power + (calculatedEssActivePower-
-							// cluster.allowedChargePower+ maxGridFeedPower+gridCounter.power)
-							this.pvLimit = this.pvMeter.getActivePower().value().orElse(0)
-									+ (calculatedEssActivePower - getMaxPower + config.maxGridFeedPower()
-											+ this.gridMeter.getActivePower().value().orElse(0));
-							if (this.pvLimit < 0) {
-								this.pvLimit = 0;
-							}
-						} else {
-							this.pvLimit = this.pvInverter.getActivePower().value().getOrError();
-						}
-//						TODO  ? this.utils.applyPower(calculatedEssActivePower, 0);
+						this.setPvLimitation(ess2);
 					} else {
-
+						this.setPvLimitation(ess1);
 					}
+
 				} catch (InvalidValueException e) {
 					this.log.error("An error occured on controll the storages!", e);
 					this.pvLimit = 0;
@@ -364,6 +319,52 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			break;
 		}
 
+	}
+
+	private void setPvLimitation(ManagedSymmetricEss ess) {
+		Channel<Integer> essActivePowerChannel = ess.getActivePower();
+		int essActivePower = essActivePowerChannel.value().orElse(0);
+		int calculatedEssActivePower = essActivePower + this.gridMeter.getActivePower().value().orElse(0);
+
+		Channel<Integer> essSocChannel = ess.getSoc();
+		int essSoc = essSocChannel.value().orElse(0);
+		int maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+		int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+		if (calculatedEssActivePower >= 0) {
+			// discharge
+			// adjust calculatedEssActivePower to max allowed discharge power
+			if (maxPower < calculatedEssActivePower) {
+				calculatedEssActivePower = minPower;
+			}
+		} else {
+			// charge
+			// This is upper part of battery which is primarily used for charging during
+			// peak PV production (after 11:00h)
+			int reservedSoc = 50;
+			if (LocalDateTime.now().getHour() <= 11 && essSoc > 100 - reservedSoc
+					&& this.gridMeter.getActivePower().value().orElse(0) < config.maxGridFeedPower()) {
+				// reduced charging formula – reduction based on current SOC and reservedSoc
+				calculatedEssActivePower = calculatedEssActivePower / (reservedSoc * 2)
+						* (reservedSoc - (essSoc - (100 - reservedSoc)));
+			} else {
+				// full charging formula – no restrictions except max charging power that
+				// batteries can accept
+				if (calculatedEssActivePower < maxPower) {
+					calculatedEssActivePower = maxPower;
+				}
+			}
+		}
+		if (config.gridFeedLimitation()) {
+			// actual formula pvCounter.power + (calculatedEssActivePower-
+			// cluster.allowedChargePower+ maxGridFeedPower+gridCounter.power)
+			this.pvLimit = this.pvMeter.getActivePower().value().orElse(0) + (calculatedEssActivePower - maxPower
+					+ config.maxGridFeedPower() + this.gridMeter.getActivePower().value().orElse(0));
+			if (this.pvLimit < 0) {
+				this.pvLimit = 0;
+			}
+		} else {
+			this.pvLimit = this.pvInverter.getActivePower().value().orElse(0);
+		}
 	}
 
 	/**
