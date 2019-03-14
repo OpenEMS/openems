@@ -91,12 +91,14 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Geoptimaliseerd laden",
+                        ShortName: "geoptimaliseerde",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
                         MinInfo: "Als u wilt voorkomen dat de auto 's nachts in het lage geheugen wordt geladen, kan een minimale lading worden ingesteld.",
                         MinCharging: "Minimale vergoeding betalen?"
                     },
                     ForceChargeMode: {
                         Name: "Gedwongen laden",
+                        ShortName: "Gedwongen",
                         Info: "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
                         MaxCharging: "Maximale laadstroom",
                         MaxChargingDetails: "Als de auto de ingevoerde maximale waarde niet kan laden, wordt het vermogen automatisch beperkt."

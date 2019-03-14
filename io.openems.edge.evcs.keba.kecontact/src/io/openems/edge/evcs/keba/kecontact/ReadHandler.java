@@ -76,7 +76,6 @@ public class ReadHandler implements Consumer<String> {
 					setInt(KebaKeContact.ChannelId.PLUG, jMessage, "Plug");
 					setBoolean(KebaKeContact.ChannelId.ENABLE_SYS, jMessage, "Enable sys");
 					setBoolean(KebaKeContact.ChannelId.ENABLE_USER, jMessage, "Enable user");
-					setInt(KebaKeContact.ChannelId.MAX_CURR, jMessage, "Max curr");
 					setInt(KebaKeContact.ChannelId.MAX_CURR_PERCENT, jMessage, "Max curr %");
 					setInt(KebaKeContact.ChannelId.CURR_USER, jMessage, "Curr user");
 					setInt(KebaKeContact.ChannelId.CURR_FAILSAFE, jMessage, "Curr FS");
@@ -87,12 +86,19 @@ public class ReadHandler implements Consumer<String> {
 					setBoolean(KebaKeContact.ChannelId.OUTPUT, jMessage, "Output");
 					setBoolean(KebaKeContact.ChannelId.INPUT, jMessage, "Input");
 					
+					
 					// Set the maximum Power valid by the Hardware
+					// The default value will be 32 A, because an older Keba charging station sets the value to 0 if the car is unplugged
 					Optional<Integer> hwPower_ma = JsonUtils.getAsOptionalInt(jMessage, "Curr HW"); // in [mA]
 					Integer hwPower = null;
 					if (hwPower_ma.isPresent()) {
-						hwPower = hwPower_ma.get() * 230 / 1000; // convert to [W]
+						if(hwPower_ma.get() == 0) {
+							hwPower = 32000 * 230 / 1000; // [W]
+						}else {
+							hwPower = hwPower_ma.get() * 230 / 1000; // [W]
+						}
 					}
+					
 					this.parent.channel(Evcs.ChannelId.HARDWARE_POWER_LIMIT).setNextValue(hwPower);
 					
 				} else if (id.equals("3")) {

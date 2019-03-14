@@ -19,7 +19,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	ChargeMode chargeMode() default ChargeMode.FORCE_CHARGE;
 
 	@AttributeDefinition(name = "Force-charge minimum power [W]", description = "Set the minimum power for the force charge mod in Watt.")
-	int forceChargeMinPower() default 0;
+	int forceChargeMinPower() default 4000;
 
 	@AttributeDefinition(name = "Default-charge minimum power [W]", description = "Set the minimum power for the default charge mod in Watt.")
 	int defaultChargeMinPower() default 0;

@@ -30,6 +30,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeComponentInstallComponentComponent },
   { path: 'device/:edgeId/settings/component.update', component: EdgeComponentUpdateIndexComponentComponent },
   { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeComponentUpdateComponentComponent },
+
 ];
 
 export const appRoutingProviders: any[] = [

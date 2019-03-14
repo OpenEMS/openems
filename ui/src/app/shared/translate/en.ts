@@ -93,13 +93,15 @@ export const TRANSLATION = {
                         Help1_1: "The IP of the charging station appears when switching on again"
                     },
                     OptimizedChargeMode: {
-                        Name: "Optimizede charging",
+                        Name: "Optimized charging",
+                        ShortName: "Optimized",
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
                         MinCharging: "Guarantee minimum charge?"
                     },
                     ForceChargeMode: {
                         Name: "Force charging",
+                        ShortName: "Forced",
                         Info: "In this mode the loading of the car is enforced, i.e. it is always guaranteed that the car will be charged, even if the charging station needs to access grid power.",
                         MaxCharging: "Maximum charging power",
                         MaxChargingDetails: "If the car can not load the entered maximum value, the power will be automatically limited."
