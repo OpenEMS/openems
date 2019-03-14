@@ -321,15 +321,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 				}
 				break;
 			case SWITCHED_TO_ON_GRID:
-				if (isQ2Ess2SupplyUpsClosed()) {
-					this.setOutput(this.componentManager.getChannel(q4PvOnGrid), Operation.OPEN);
-					this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-					// TODO this.getBiggerSoc();
-
-				} else if (isQ1Ess1SupplyUpsClosed()) {
-					this.setOutput(this.componentManager.getChannel(q4PvOnGrid), Operation.OPEN);
-					this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-				}
+				this.setOutput(this.componentManager.getChannel(q4PvOnGrid), Operation.OPEN);
+				this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
 				break;
 			}
 			break;
