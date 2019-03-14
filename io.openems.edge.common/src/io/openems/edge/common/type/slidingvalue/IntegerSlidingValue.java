@@ -9,6 +9,11 @@ public class IntegerSlidingValue extends AbstractNumberSlidingValue<Integer> {
 		return a + b;
 	}
 
+	@Override
+	protected Integer divide(Integer a, int b) {
+		return a / b;
+	}
+
 	protected OpenemsType getType() {
 		return OpenemsType.INTEGER;
 	}
