@@ -260,6 +260,9 @@ public class JsonUtils {
 		try {
 			if (j.isJsonArray()) {
 				JsonArray jA = (JsonArray) j;
+				if (jA.size() == 0) {
+					return new Object[0];
+				}
 				// identify the array type (boolean, int or String)
 				boolean isBoolean = true;
 				boolean isInt = true;
@@ -494,7 +497,7 @@ public class JsonUtils {
 			return Optional.empty();
 		}
 	}
-	
+
 	public static boolean hasElement(JsonElement j, String... paths) {
 		return getMatchingElements(j, paths).size() > 0;
 	}

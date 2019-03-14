@@ -9,8 +9,7 @@ Require-Capability: compile-only
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest,\
-	com.google.gson
+	io.openems.edge.common;version=latest
 
 -testpath: ${testpath}
 

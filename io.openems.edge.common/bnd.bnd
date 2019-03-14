@@ -14,6 +14,7 @@ Export-Package: \
 	io.openems.edge.api.user,\
 	io.openems.edge.common.user,\
 	io.openems.edge.common.type,\
+	io.openems.edge.common.type.slidingvalue,\
 	io.openems.edge.common.taskmanager,\
 	io.openems.edge.common.modbusslave,\
 	io.openems.edge.common.meta,\

@@ -37,7 +37,7 @@ export class ComponentUpdateComponent implements OnInit {
     this.service.getConfig().then(config => {
       this.componentId = componentId;
       let component = config.components[componentId];
-      this.factory = config.factories[component.factoryId]
+      this.factory = config.factories[component.factoryId];
       let fields: FormlyFieldConfig[] = [];
       let model = {
         id: componentId
@@ -66,11 +66,11 @@ export class ComponentUpdateComponent implements OnInit {
     });
   }
 
-  submit() {
+  public submit() {
     let properties: { name: string, value: any }[] = [];
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];
-      if (control.touched) {
+      if (control.dirty) {
         let property_id = controlKey.replace('_', '.');
         properties.push({ name: property_id, value: control.value });
       }
@@ -80,6 +80,15 @@ export class ComponentUpdateComponent implements OnInit {
       this.service.toast("Successfully updated " + this.componentId + ".", 'success');
     }).catch(reason => {
       this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, 'danger');
+    });
+  }
+
+  public delete() {
+    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(response => {
+      this.form.markAsPristine();
+      this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
+    }).catch(reason => {
+      this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, 'danger');
     });
   }
 

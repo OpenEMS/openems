@@ -18,8 +18,6 @@
       </ion-card>
     </ion-col>
 
-    <!-- TODO add link to componentInstall -->
-
     <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
       <ion-card>
         <ion-item>
@@ -31,6 +29,23 @@
         </ion-item>
         <ion-card-content>
           <ion-button float-right routerLink="/device/{{ edge.id }}/settings/component.update">
+            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
+      <ion-card>
+        <ion-item>
+          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
+          <ion-label>
+            <!-- TODO translate -->
+            <ion-card-title>Komponenten installieren</ion-card-title>
+          </ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/component.install">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>
