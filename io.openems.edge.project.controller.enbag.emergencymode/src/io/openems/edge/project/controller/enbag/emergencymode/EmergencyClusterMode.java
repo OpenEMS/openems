@@ -1,7 +1,5 @@
 package io.openems.edge.project.controller.enbag.emergencymode;
 
-import java.time.LocalDateTime;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -31,8 +29,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.SymmetricPvInverter;
 
@@ -43,12 +39,9 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	private final Logger log = LoggerFactory.getLogger(EmergencyClusterMode.class);
 
 	// defaults
-	private int switchDealy = 10000; // 10 sec
 	private int pvSwitchDelay = 10000; // 10 sec
 	private int pvLimit = 100;
 	private long lastPvOffGridDisconnected = 0L;
-	private long waitOn = 0L;
-	private long waitOff = 0L;
 
 	private Config config;
 
@@ -127,55 +120,28 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			switch (getSwitchState()) {
 			case UNDEFINED:
 				this.setOutput(this.componentManager.getChannel(q4PvOnGrid), Operation.OPEN);
-				if (this.waitOff <= System.currentTimeMillis()) {
-					switch (batteryState(BatteryEnum.ESS2SOC)) {
-					case BATTERY_HIGH:
-						this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
-						this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
-						this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-						break;
-					case BATTERY_LOW:
-						switch (pvState()) {
-						// In case of (Off grid - Battery Low - Pv High/Low)
-						// Compare Soc if backupEss has bigger, activate backup, deactivate primary
-						// And close pvOffGridSwitch
-						case PV_HIGH:
-						case PV_LOW:
-							// Active Ess is BackupEss
-							switch (batteryState(BatteryEnum.ESS1SOC)) {
-							case BATTERY_HIGH:
-								this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.CLOSE);
-								this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.OPEN);
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-								break;
-							case BATTERY_LOW:
-							case BATTERY_OKAY:
-								this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
-								this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-								break;
-							case UNDEFINED:
-								break;
-							}
-							break;
-						case PV_OKAY:
-							this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
-							this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
-							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-							break;
-						case UNDEFINED:
-							break;
-						}
-						break;
-					case BATTERY_OKAY:
-						switch (pvState()) {
-						case PV_HIGH:
-							this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
-							this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
+				switch (batteryState(BatteryEnum.ESS2SOC)) {
+				case BATTERY_HIGH:
+					this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
+					this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
+					this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
+					break;
+				case BATTERY_LOW:
+					switch (pvState()) {
+					// In case of (Off grid - Battery Low - Pv High/Low)
+					// Compare Soc if backupEss has bigger, activate backup, deactivate primary
+					// And close pvOffGridSwitch
+					case PV_HIGH:
+					case PV_LOW:
+						// Active Ess is BackupEss
+						switch (batteryState(BatteryEnum.ESS1SOC)) {
+						case BATTERY_HIGH:
+							this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.CLOSE);
+							this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.OPEN);
 							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
 							break;
-						case PV_LOW:
-						case PV_OKAY:
+						case BATTERY_LOW:
+						case BATTERY_OKAY:
 							this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
 							this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
 							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
@@ -183,10 +149,35 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						case UNDEFINED:
 							break;
 						}
+						break;
+					case PV_OKAY:
+						this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
+						this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
+						this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
 						break;
 					case UNDEFINED:
 						break;
 					}
+					break;
+				case BATTERY_OKAY:
+					switch (pvState()) {
+					case PV_HIGH:
+						this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
+						this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
+						this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
+						break;
+					case PV_LOW:
+					case PV_OKAY:
+						this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
+						this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
+						this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
+						break;
+					case UNDEFINED:
+						break;
+					}
+					break;
+				case UNDEFINED:
+					break;
 				}
 				break;
 
@@ -222,21 +213,16 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						// Pv Power Is Less Than 3kW
 						case PV_LOW:
 //							TODO switch closing time ?
-							if (this.waitOff + this.switchDealy <= System.currentTimeMillis()) {
-								switch (batteryState(BatteryEnum.ESS1SOC)) {
-								case BATTERY_OKAY:
-								case BATTERY_HIGH:
-									this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.CLOSE);
-									this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.OPEN);
-									break;
-								// If Ess1 Soc Low too, Keep on staying at OffGrid with ess2
-								case BATTERY_LOW:
-								case UNDEFINED:
-									break;
-								}
-							} else {
-								this.waitOff = System.currentTimeMillis();
-//								 TODO wait for 10 seconds after switches are disconnected
+							switch (batteryState(BatteryEnum.ESS1SOC)) {
+							case BATTERY_OKAY:
+							case BATTERY_HIGH:
+								this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.CLOSE);
+								this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.OPEN);
+								break;
+							// If Ess1 Soc Low too, Keep on staying at OffGrid with ess2
+							case BATTERY_LOW:
+							case UNDEFINED:
+								break;
 							}
 							break;
 						// Pv Power Is between 3kW and 35kW
@@ -327,27 +313,23 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			}
 			break;
 
-		// Its not important at all if we have pv low, load going to supplied by grid
+		// INFO:load going to supplied by grid, without consideration of Pv okay/low
 		case ON_GRID:
 			switch (getSwitchState()) {
 			case SWITCHED_TO_OFF_GRID:
 				this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
 				this.setOutput(this.componentManager.getChannel(q4PvOnGrid), Operation.CLOSE);
-				this.waitOn = System.currentTimeMillis();
 				break;
 			case SWITCHED_TO_ON_GRID:
-//				 system detects that grid is on, and it is switched to
-//				 On Grid
+				// system detects that grid is on, and it is switched to
+				// On Grid
 				try {
-					if (isQ2Ess2SupplyUpsClosed()) {
-						this.setOnGridPvLimitation(ess2);
-					} else {
-						this.setOnGridPvLimitation(ess1);
+					if (isQ1Ess1SupplyUpsClosed()) {
+						this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
+						this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
 					}
 				} catch (InvalidValueException e) {
 					this.log.error("An error occured on controll the storages!", e);
-					this.pvLimit = 0;
-//						TODO  ? this.utils.applyPower(0, 0);
 				}
 				break;
 			case UNDEFINED:
@@ -357,52 +339,51 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		}
 
 	}
-
-	private void setOnGridPvLimitation(ManagedSymmetricEss ess) {
-		Channel<Integer> essActivePowerChannel = ess.getActivePower();
-		int essActivePower = essActivePowerChannel.value().orElse(0);
-		int calculatedEssActivePower = essActivePower + this.gridMeter.getActivePower().value().orElse(0);
-
-		Channel<Integer> essSocChannel = ess.getSoc();
-		int essSoc = essSocChannel.value().orElse(0);
-		int maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		if (calculatedEssActivePower >= 0) {
-			// discharge
-			// adjust calculatedEssActivePower to max allowed discharge power
-			if (maxPower < calculatedEssActivePower) {
-				calculatedEssActivePower = minPower;
-			}
-		} else {
-			// charge
-			// This is upper part of battery which is primarily used for charging during
-			// peak PV production (after 11:00h)
-			int reservedSoc = 50;
-			if (LocalDateTime.now().getHour() <= 11 && essSoc > 100 - reservedSoc
-					&& this.gridMeter.getActivePower().value().orElse(0) < config.maxGridFeedPower()) {
-				// reduced charging formula – reduction based on current SOC and reservedSoc
-				calculatedEssActivePower = calculatedEssActivePower / (reservedSoc * 2)
-						* (reservedSoc - (essSoc - (100 - reservedSoc)));
-			} else {
-				// full charging formula – no restrictions except max charging power that
-				// batteries can accept
-				if (calculatedEssActivePower < maxPower) {
-					calculatedEssActivePower = maxPower;
-				}
-			}
-		}
-		if (config.gridFeedLimitation()) {
-			// actual formula pvCounter.power + (calculatedEssActivePower-
-			// cluster.allowedChargePower+ maxGridFeedPower+gridCounter.power)
-			this.pvLimit = this.pvMeter.getActivePower().value().orElse(0) + (calculatedEssActivePower - maxPower
-					+ config.maxGridFeedPower() + this.gridMeter.getActivePower().value().orElse(0));
-			if (this.pvLimit < 0) {
-				this.pvLimit = 0;
-			}
-		} else {
-			this.pvLimit = this.pvInverter.getActivePower().value().orElse(0);
-		}
-	}
+//	private void setOnGridPvLimitation(ManagedSymmetricEss ess) {
+//		Channel<Integer> essActivePowerChannel = ess.getActivePower();
+//		int essActivePower = essActivePowerChannel.value().orElse(0);
+//		int calculatedEssActivePower = essActivePower + this.gridMeter.getActivePower().value().orElse(0);
+//
+//		Channel<Integer> essSocChannel = ess.getSoc();
+//		int essSoc = essSocChannel.value().orElse(0);
+//		int maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+//		int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+//		if (calculatedEssActivePower >= 0) {
+//			// discharge
+//			// adjust calculatedEssActivePower to max allowed discharge power
+//			if (maxPower < calculatedEssActivePower) {
+//				calculatedEssActivePower = minPower;
+//			}
+//		} else {
+//			// charge
+//			// This is upper part of battery which is primarily used for charging during
+//			// peak PV production (after 11:00h)
+//			int reservedSoc = 50;
+//			if (LocalDateTime.now().getHour() <= 11 && essSoc > 100 - reservedSoc
+//					&& this.gridMeter.getActivePower().value().orElse(0) < config.maxGridFeedPower()) {
+//				// reduced charging formula – reduction based on current SOC and reservedSoc
+//				calculatedEssActivePower = calculatedEssActivePower / (reservedSoc * 2)
+//						* (reservedSoc - (essSoc - (100 - reservedSoc)));
+//			} else {
+//				// full charging formula – no restrictions except max charging power that
+//				// batteries can accept
+//				if (calculatedEssActivePower < maxPower) {
+//					calculatedEssActivePower = maxPower;
+//				}
+//			}
+//		}
+//		if (config.gridFeedLimitation()) {
+//			// actual formula pvCounter.power + (calculatedEssActivePower-
+//			// cluster.allowedChargePower+ maxGridFeedPower+gridCounter.power)
+//			this.pvLimit = this.pvMeter.getActivePower().value().orElse(0) + (calculatedEssActivePower - maxPower
+//					+ config.maxGridFeedPower() + this.gridMeter.getActivePower().value().orElse(0));
+//			if (this.pvLimit < 0) {
+//				this.pvLimit = 0;
+//			}
+//		} else {
+//			this.pvLimit = this.pvInverter.getActivePower().value().orElse(0);
+//		}
+//	}
 
 	/**
 	 * Gets the Grid-Mode of both ESS.
