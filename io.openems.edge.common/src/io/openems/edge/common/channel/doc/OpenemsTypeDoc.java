@@ -43,59 +43,58 @@ public class OpenemsTypeDoc extends Doc {
 		case BOOLEAN:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new BooleanWriteChannel(component, channelId);
+				return new BooleanReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new BooleanReadChannel(component, channelId);
+				return new BooleanWriteChannel(component, channelId);
 			}
-			// TODO StateChannel
 		case DOUBLE:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new DoubleWriteChannel(component, channelId);
+				return new DoubleReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new DoubleReadChannel(component, channelId);
+				return new DoubleWriteChannel(component, channelId);
 			}
 		case FLOAT:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new FloatWriteChannel(component, channelId);
+				return new FloatReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new FloatReadChannel(component, channelId);
+				return new FloatWriteChannel(component, channelId);
 			}
 		case INTEGER:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new IntegerWriteChannel(component, channelId);
+				return new IntegerReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new IntegerReadChannel(component, channelId);
+				return new IntegerWriteChannel(component, channelId);
 			}
 		case LONG:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new LongWriteChannel(component, channelId);
+				return new LongReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new LongReadChannel(component, channelId);
+				return new LongWriteChannel(component, channelId);
 			}
 		case SHORT:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new ShortWriteChannel(component, channelId);
+				return new ShortReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new ShortReadChannel(component, channelId);
+				return new ShortWriteChannel(component, channelId);
 			}
 		case STRING:
 			switch (this.getAccessMode()) {
 			case READ_ONLY:
-				return new StringWriteChannel(component, channelId);
+				return new StringReadChannel(component, channelId);
 			case READ_WRITE:
 			case WRITE_ONLY:
-				return new StringReadChannel(component, channelId);
+				return new StringWriteChannel(component, channelId);
 			}
 		case ENUM:
 			// TODO is already handled by doc.hasOptions() above.

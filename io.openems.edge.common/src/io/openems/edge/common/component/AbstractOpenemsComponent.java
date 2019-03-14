@@ -56,10 +56,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * 
 	 * <pre>
 	 * public YourPhantasticOpenemsComponent() {
-	 *	super(
-	 *		OpenemsComponent.ChannelId.values(),
-	 * 		YourPhantasticOpenemsComponent.ChannelId.values()
-	 * 	);
+	 * 	super(//
+	 * 			OpenemsComponent.ChannelId.values(), //
+	 * 			YourPhantasticOpenemsComponent.ChannelId.values());
 	 * }
 	 * </pre>
 	 * 

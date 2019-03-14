@@ -41,6 +41,14 @@ public class Doc {
 	/**
 	 * Create a Channel-Doc with a specific OpenemsType.
 	 * 
+	 * <p>
+	 * use like this:
+	 * 
+	 * <pre>
+	 * Doc.of(OpenemsType.INTEGER)
+	 * </pre>
+	 * 
+	 * 
 	 * @param type the OpenemsType
 	 */
 	public static OpenemsTypeDoc of(OpenemsType type) {
@@ -48,16 +56,30 @@ public class Doc {
 	}
 
 	/**
-	 * Create a Channel-Doc with specific options.
+	 * Create a Channel-Doc with specific options defined by an {@link OptionsEnum}.
+	 * 
+	 * <p>
+	 * use like this:
+	 * 
+	 * <pre>
+	 * Doc.of([YourOptionsEnum].values())
+	 * </pre>
 	 * 
 	 * @param options the possible options as an OptionsEnum
 	 */
-	public static OptionsEnumDoc of(Enum<? extends OptionsEnum>[] options) {
+	public static OptionsEnumDoc of(OptionsEnum[] options) {
 		return new OptionsEnumDoc(options);
 	}
 
 	/**
 	 * Create a Channel-Doc for a {@link StateChannel} with a given {@link Level}.
+	 * 
+	 * <p>
+	 * use like this:
+	 * 
+	 * <pre>
+	 * Doc.of(Level.FAULT)
+	 * </pre>
 	 * 
 	 * @param level the Level
 	 */
@@ -169,6 +191,7 @@ public class Doc {
 	/*
 	 * Unit
 	 */
+	// TODO move Unit to OpenemsTypeDoc
 	private Unit unit = Unit.NONE;
 
 	/**
@@ -194,12 +217,12 @@ public class Doc {
 	/**
 	 * Set the possible options using an OptionsEnum
 	 * 
-	 * @param options
+	 * @param options2
 	 * @return
 	 */
 	@Deprecated
-	public Doc options(Enum<? extends OptionsEnum>[] options) {
-		for (Enum<? extends OptionsEnum> option : options) {
+	public Doc options(OptionsEnum[] options2) {
+		for (OptionsEnum option : options2) {
 			OptionsEnum o = (OptionsEnum) option;
 			this.options.put(o.getValue(), o);
 		}

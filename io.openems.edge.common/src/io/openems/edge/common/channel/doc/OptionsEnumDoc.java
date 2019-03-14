@@ -8,7 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class OptionsEnumDoc extends Doc {
 
-	protected OptionsEnumDoc(Enum<? extends OptionsEnum>[] options) {
+	public OptionsEnumDoc(OptionsEnum[] options) {
 		this.type(OpenemsType.INTEGER);
 		this.options(options);
 	}
