@@ -508,18 +508,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		}
 	}
 
-	private BatteryEnum getBiggerSoc() {
-		Channel<Integer> ess1SocChannel = this.ess1.getSoc();
-		int ess1Soc = ess1SocChannel.value().orElse(0);
-		Channel<Integer> ess2SocChannel = this.ess2.getSoc();
-		int ess2Soc = ess2SocChannel.value().orElse(0);
-		if (ess1Soc > ess2Soc) {
-			return BatteryEnum.ESS1SOC;
-		} else {
-			return BatteryEnum.ESS1SOC;
-		}
-	}
-
 	/**
 	 * Gets the soc of the Ess1, Ess2.
 	 * 
