@@ -2,7 +2,7 @@
   <ion-row>
     <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
 
-      <div *ngIf="edge && edge.id == 'fems7'">
+      <div *ngIf="edge && (edge.id == 'fems7' || edge.id == 'fems1246')">
         <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
           <evcs [componentId]="widget.componentId"></evcs>
         </ion-col>
