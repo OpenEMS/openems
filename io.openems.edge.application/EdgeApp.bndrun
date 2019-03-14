@@ -52,6 +52,7 @@ JPM-Command:				openems-edge
 	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
 	bnd.identity;id='io.openems.edge.ess.refu',\
+	bnd.identity;id='io.openems.edge.ess.refu88k',\
 	bnd.identity;id='io.openems.edge.ess.streetscooter',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
@@ -117,6 +118,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
 	io.openems.edge.ess.mr.gridcon;version=snapshot,\
 	io.openems.edge.ess.refu;version=snapshot,\
+	io.openems.edge.ess.refu88k;version=snapshot,\
 	io.openems.edge.ess.streetscooter;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
