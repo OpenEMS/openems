@@ -168,6 +168,6 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	com.fazecast.jSerialComm;version='[2.2.2,2.2.3)',\
 	com.ghgande.j2mod;version='[2.5.2,2.5.3)',\
-	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.wrapper.edcom;version=snapshot,\
-	com.ed.openems.centurio;version=snapshot
+	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot
+-resolve: auto
