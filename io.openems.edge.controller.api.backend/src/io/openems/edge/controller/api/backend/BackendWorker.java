@@ -20,13 +20,13 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.controller.api.backend.slidingvalue.DoubleSlidingValue;
-import io.openems.edge.controller.api.backend.slidingvalue.FloatSlidingValue;
-import io.openems.edge.controller.api.backend.slidingvalue.IntegerSlidingValue;
-import io.openems.edge.controller.api.backend.slidingvalue.LatestSlidingValue;
-import io.openems.edge.controller.api.backend.slidingvalue.LongSlidingValue;
-import io.openems.edge.controller.api.backend.slidingvalue.ShortSlidingValue;
-import io.openems.edge.controller.api.backend.slidingvalue.SlidingValue;
+import io.openems.edge.common.type.slidingvalue.DoubleSlidingValue;
+import io.openems.edge.common.type.slidingvalue.FloatSlidingValue;
+import io.openems.edge.common.type.slidingvalue.IntegerSlidingValue;
+import io.openems.edge.common.type.slidingvalue.LatestSlidingValue;
+import io.openems.edge.common.type.slidingvalue.LongSlidingValue;
+import io.openems.edge.common.type.slidingvalue.ShortSlidingValue;
+import io.openems.edge.common.type.slidingvalue.SlidingValue;
 
 class BackendWorker extends AbstractCycleWorker {
 

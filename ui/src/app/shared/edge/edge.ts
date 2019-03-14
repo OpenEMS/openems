@@ -4,6 +4,8 @@ import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
+import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
 import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
@@ -16,7 +18,6 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse'
 
 export class Edge {
 
@@ -149,6 +150,18 @@ export class Edge {
   }
 
   /**
+   * Creates a configuration for a OpenEMS Edge Component.
+   * 
+   * @param ws          the Websocket
+   * @param factoryPId  the OpenEMS Edge Factory-PID 
+   * @param properties  the properties to be updated.
+   */
+  public createComponentConfig(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+    let request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
+    return this.sendRequest(ws, request);
+  }
+
+  /**
    * Updates the configuration of a OpenEMS Edge Component.
    * 
    * @param ws          the Websocket
@@ -157,6 +170,17 @@ export class Edge {
    */
   public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
     let request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
+    return this.sendRequest(ws, request);
+  }
+
+  /**
+   * Deletes the configuration of a OpenEMS Edge Component.
+   * 
+   * @param ws          the Websocket
+   * @param componentId the OpenEMS Edge Component-ID 
+   */
+  public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
+    let request = new DeleteComponentConfigRequest({ componentId: componentId });
     return this.sendRequest(ws, request);
   }
 
