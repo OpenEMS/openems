@@ -90,7 +90,7 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "protractor": "~5.4.0",
     "ts-node": "~8.0.3",
-    "tslint": "~5.13.1",
+    "tslint": "~5.14.0",
     "typescript": "~3.1.6"
   },
   "description": "OpenEMS UI",
