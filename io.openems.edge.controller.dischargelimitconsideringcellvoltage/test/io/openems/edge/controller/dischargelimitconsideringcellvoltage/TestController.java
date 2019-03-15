@@ -320,7 +320,6 @@ public class TestController {
 						case VOLTAGE:
 						case MAX_CELL_TEMPERATURE:
 						case MAX_CELL_VOLTAGE:
-						case MAX_POWER:
 						case MIN_CELL_TEMPERATURE:
 						case MIN_CELL_VOLTAGE:
 							return new IntegerReadChannel(s, channelId);

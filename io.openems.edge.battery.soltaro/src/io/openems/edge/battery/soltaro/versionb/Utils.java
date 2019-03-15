@@ -42,8 +42,6 @@ public class Utils {
 						return new IntegerReadChannel(s, channelId);
 					case DISCHARGE_MAX_CURRENT:
 						return new IntegerReadChannel(s, channelId, 0);
-					case MAX_POWER:
-						return new IntegerReadChannel(s, channelId, SoltaroRackVersionB.MAX_POWER_W);
 					case DISCHARGE_MIN_VOLTAGE:
 						return new IntegerReadChannel(s, channelId);
 					case READY_FOR_WORKING:

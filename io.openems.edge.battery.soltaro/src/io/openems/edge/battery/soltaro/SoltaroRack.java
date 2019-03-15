@@ -63,7 +63,6 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 
 	private static final int SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS = 3;
 	private static final int MAX_TIME_FOR_INITIALIZATION_IN_SECONDS = 30;
-	public static final int MAX_POWER_WATT = 50000;
 
 	private final Logger log = LoggerFactory.getLogger(SoltaroRack.class);
 

@@ -32,13 +32,13 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	InverterCount inverterCount() default InverterCount.ONE;
 
 	@AttributeDefinition(name = "MinSoCA", description = "Minimal SoC of Battery String A, if reached no further discharging is allowed")
-	int minSoCA() default 25;
+	int minSocA() default 25;
 
 	@AttributeDefinition(name = "MinSoCB", description = "Minimal SoC of Battery String B, if reached no further discharging is allowed")
-	int minSoCB() default 25;
+	int minSocB() default 25;
 
 	@AttributeDefinition(name = "MinSoCC", description = "Minimal SoC of Battery String C, if reached no further discharging is allowed")
-	int minSoCC() default 25;
+	int minSocC() default 25;
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of Grid-Meter")
 	String meter() default "meter0";

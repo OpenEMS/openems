@@ -47,8 +47,6 @@ public class Utils {
 						return new IntegerReadChannel(s, channelId, SoltaroRack.DISCHARGE_MIN_V);
 					case READY_FOR_WORKING:
 						return new BooleanReadChannel(s, channelId);
-					case MAX_POWER:
-						return new IntegerReadChannel(s, channelId, SoltaroRack.MAX_POWER_WATT);
 					}
 					return null;
 				}), Arrays.stream(SoltaroRack.ChannelId.values()).map(channelId -> {

@@ -42,7 +42,7 @@ public class Utils {
 					case ACTIVE_DISCHARGE_ENERGY: // TODO must be LongReadChannel
 						return new IntegerReadChannel(ess, channelId);
 					case MAX_APPARENT_POWER:
-						return new IntegerReadChannel(ess, channelId, GridconPCS.MAX_APPARENT_POWER);
+						return new IntegerReadChannel(ess, channelId, 0);
 					case GRID_MODE:
 						return new EnumReadChannel(ess, channelId, GridMode.UNDEFINED);
 					case ACTIVE_POWER:

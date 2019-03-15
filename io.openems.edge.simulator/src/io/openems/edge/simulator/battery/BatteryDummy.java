@@ -33,7 +33,6 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int capacityKWh;
 	private int voltage;
 	private int minCellVoltage; // in mV
-	private int maximalPower; // in W
 
 	public BatteryDummy() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -52,7 +51,6 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		this.capacityKWh = config.capacityKWh();
 		this.voltage = config.voltage();
 		this.minCellVoltage = config.minCellVoltage_mV();
-		this.maximalPower = config.maximalPower_W();
 	}
 
 	@Override
@@ -78,8 +76,6 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		this.getVoltage().setNextValue(this.voltage);
 		this.getMinCellVoltage().setNextValue(this.minCellVoltage);
 		this.getMaxCellVoltage().setNextValue(this.minCellVoltage);
-
-		this.getMaxPower().setNextValue(this.maximalPower);
 	}
 
 }

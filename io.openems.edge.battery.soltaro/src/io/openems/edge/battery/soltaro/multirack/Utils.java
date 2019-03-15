@@ -29,7 +29,6 @@ public class Utils {
 					case CURRENT:
 					case MAX_CELL_TEMPERATURE:
 					case MAX_CELL_VOLTAGE:
-					case MAX_POWER:
 					case MIN_CELL_TEMPERATURE:
 					case MIN_CELL_VOLTAGE:
 					case VOLTAGE:

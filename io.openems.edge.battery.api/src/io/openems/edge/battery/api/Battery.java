@@ -14,6 +14,8 @@ import io.openems.edge.common.modbusslave.ModbusType;
 public interface Battery extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		// TODO evaluate channels for allowedCharge/allowedDischarge power in W
+		
 		/**
 		 * Indicates that the battery has started and is ready for charging/discharging.
 		 * 
@@ -166,18 +168,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		MAX_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
-
-		/**
-		 * Maximum power.
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		// TODO: how is max_power defined?
-		MAX_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT));
+		MAX_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
 
 		private final Doc doc;
 
@@ -206,7 +197,6 @@ public interface Battery extends OpenemsComponent {
 				.channel(18, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
 				.channel(20, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
 				.channel(22, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
-				.channel(24, ChannelId.MAX_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -334,14 +324,5 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMaxCellVoltage() {
 		return this.channel(ChannelId.MAX_CELL_VOLTAGE);
-	}
-
-	/**
-	 * Gets the maximum power.
-	 * 
-	 * @return the Channel
-	 */
-	default Channel<Integer> getMaxPower() {
-		return this.channel(ChannelId.MAX_POWER);
 	}
 }

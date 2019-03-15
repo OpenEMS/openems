@@ -63,7 +63,6 @@ import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
-import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.power.api.Constraint;
@@ -90,35 +89,30 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private static final int GRIDCON_SWITCH_OFF_TIME_SECONDS = 15;
 	private static final int GRIDCON_BOOT_TIME_SECONDS = 30;
+	private static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
+	private static final float MAX_CHARGE_W = 86 * 1000;
+	private static final float MAX_DISCHARGE_W = 86 * 1000;
 
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
-	private static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
-	protected static float MAX_POWER_W = MAX_POWER_PER_INVERTER;
-
-	protected static final float MAX_CHARGE_W = 86 * 1000;
-	protected static final float MAX_DISCHARGE_W = 86 * 1000;
-
-	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
-
+	private Config config;
 	private Map<Integer, io.openems.edge.common.channel.doc.ChannelId> errorChannelIds = null;
-
-	BitSet commandControlWord = new BitSet(32);
-	LocalDateTime timestampMrGridconWasSwitchedOff;
+	private BitSet commandControlWord = new BitSet(32);
+	private LocalDateTime timestampMrGridconWasSwitchedOff;
+	private ChannelAddress inputNAProtection1 = null;
+	private ChannelAddress inputNAProtection2 = null;
+	private ChannelAddress inputSyncDeviceBridge = null;
+	private ChannelAddress outputSyncDeviceBridge = null;
+	private ChannelAddress outputMRHardReset = null;
 
 	@Reference
 	private Power power;
 
-	InverterCount inverterCount;
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	ChannelAddress inputNAProtection1 = null;
-	ChannelAddress inputNAProtection2 = null;
-	ChannelAddress inputSyncDeviceBridge = null;
-	ChannelAddress outputSyncDeviceBridge = null;
-	ChannelAddress outputMRHardReset = null;
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	Battery batteryStringA;
@@ -139,27 +133,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
 
-	// TODO use the component manager to identify needed components
-	@Reference
-	protected ComponentManager componentManager;
-
-	int minSoCA;
-	int minSoCB;
-	int minSoCC;
-
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 		fillErrorChannelMap();
-	}
-
-	private void fillErrorChannelMap() {
-		errorChannelIds = new HashMap<>();
-		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId.values()) {
-			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
-		}
-		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId1.values()) {
-			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
-		}
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -169,14 +145,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
 
-		minSoCA = config.minSoCA();
-		minSoCB = config.minSoCB();
-		minSoCC = config.minSoCC();
-
-		inverterCount = config.inverterCount();
-
-		MAX_POWER_W = inverterCount.getCount() * MAX_POWER_PER_INVERTER;
+		// Calculate max apparent power from number of inverters
+		this.getMaxApparentPower().setNextValue(config.inverterCount().getCount() * MAX_POWER_PER_INVERTER);
 
 		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus", config.modbus_id());
 
@@ -269,6 +241,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
+	private void fillErrorChannelMap() {
+		errorChannelIds = new HashMap<>();
+		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId.values()) {
+			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
+		}
+		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId1.values()) {
+			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
+		}
+	}
+
 	private GridMode getOnOffGrid() {
 		BooleanReadChannel inputNAProtection1 = this.inputNAProtection1Component
 				.channel(this.inputNAProtection1.getChannelId());
@@ -328,7 +310,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
 
 		// Enable DC DC
-		switch (inverterCount) {
+		switch (this.config.inverterCount()) {
 		case ONE:
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
 			break;
@@ -355,10 +337,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeCCUControlParameters(PControlMode.ACTIVE_POWER_CONTROL);
 		writeIPUParameters(1f, 1f, 1f, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_DISCHARGE_W, MAX_CHARGE_W, MAX_CHARGE_W,
 				MAX_CHARGE_W, getWeightingMode());
-
-//		//TODO still necessary?
-		((ManagedSymmetricEss) this).getAllowedCharge().setNextValue(-MAX_APPARENT_POWER);
-		((ManagedSymmetricEss) this).getAllowedDischarge().setNextValue(MAX_APPARENT_POWER);
 	}
 
 	private float getWeightingMode() {
@@ -490,7 +468,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		boolean disableIpu3 = true;
 		boolean disableIpu4 = true;
 
-		switch (inverterCount) {
+		switch (this.config.inverterCount()) {
 		case ONE:
 			disableIpu2 = false;
 			break;
@@ -598,7 +576,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
-		switch (inverterCount) {
+		switch (this.config.inverterCount()) {
 		case ONE:
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
 			break;
@@ -654,7 +632,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			float pMaxDischargeIPU2, float pMaxDischargeIPU3, float pMaxChargeIPU1, float pMaxChargeIPU2,
 			float pMaxChargeIPU3, float stringControlMode) {
 
-		if (inverterCount == InverterCount.ONE) {
+		switch (this.config.inverterCount()) {
+		case ONE:
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT, 0f);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, 0f);
@@ -666,9 +645,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			// charge values
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU1);
-		}
+			break;
 
-		if (inverterCount == InverterCount.TWO) {
+		case TWO:
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT, 0f);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, 0f);
@@ -692,9 +671,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			// charge values
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_2_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU2);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_2_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU2);
-		}
+			break;
 
-		if (inverterCount == InverterCount.THREE) {
+		case THREE:
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_DC_CURRENT_SETPOINT, 0f);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_1_PARAMETERS_U0_OFFSET_TO_CCU_VALUE, 0f);
@@ -730,6 +709,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			// charge values
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_3_PARAMETERS_P_MAX_DISCHARGE, -pMaxDischargeIPU3);
 			writeValueToChannel(GridConChannelId.CONTROL_IPU_3_PARAMETERS_P_MAX_CHARGE, pMaxChargeIPU3);
+			break;
 		}
 
 		writeValueToChannel(GridConChannelId.CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_VOLTAGE_SETPOINT, 0f);
@@ -913,85 +893,27 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		} else {
-//			return Power.NO_CONSTRAINTS;
-			// calculate max charge and discharge power
-			int currentMaxChargeBatteryA_W = 0;
-			int maxChargeA_W = 0;
-			int currentMaxChargeBatteryB_W = 0;
-			int maxChargeB_W = 0;
-			int currentMaxChargeBatteryC_W = 0;
-			int maxChargeC_W = 0;
-			if (batteryStringA != null) {
-				currentMaxChargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
-						* batteryStringA.getChargeMaxCurrent().value().orElse(0);
-				maxChargeA_W = Math.min(currentMaxChargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
-			}
-			if (batteryStringB != null) {
-				currentMaxChargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
-						* batteryStringB.getChargeMaxCurrent().value().orElse(0);
-				maxChargeB_W = Math.min(currentMaxChargeBatteryB_W, batteryStringB.getMaxPower().value().orElse(0));
-			}
-			if (batteryStringC != null) {
-				currentMaxChargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
-						* batteryStringC.getChargeMaxCurrent().value().orElse(0);
-				maxChargeC_W = Math.min(currentMaxChargeBatteryC_W, batteryStringC.getMaxPower().value().orElse(0));
-			}
-			int maxCharge_W = (maxChargeA_W + maxChargeB_W + maxChargeC_W);
-			maxCharge_W = (-1) * Math.min(maxCharge_W, (int) MAX_CHARGE_W);
-
-			int currentMaxDischargeBatteryA_W = 0;
-			int maxDischargeA_W = 0;
-			int currentMaxDischargeBatteryB_W = 0;
-			int maxDischargeB_W = 0;
-			int currentMaxDischargeBatteryC_W = 0;
-			int maxDischargeC_W = 0;
-
-			if (batteryStringA != null) {
-				currentMaxDischargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
-						* batteryStringA.getDischargeMaxCurrent().value().orElse(0);
-				maxDischargeA_W = Math.min(currentMaxDischargeBatteryA_W,
-						batteryStringA.getMaxPower().value().orElse(0));
-			}
-			if (batteryStringB != null) {
-				currentMaxDischargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
-						* batteryStringB.getDischargeMaxCurrent().value().orElse(0);
-				maxDischargeB_W = Math.min(currentMaxDischargeBatteryB_W,
-						batteryStringB.getMaxPower().value().orElse(0));
-			}
-			if (batteryStringC != null) {
-				currentMaxDischargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
-						* batteryStringC.getDischargeMaxCurrent().value().orElse(0);
-				maxDischargeC_W = Math.min(currentMaxDischargeBatteryC_W,
-						batteryStringC.getMaxPower().value().orElse(0));
-			}
-			int maxDischarge_W = (maxDischargeA_W + maxDischargeB_W + maxDischargeC_W);
-			maxDischarge_W = Math.min(maxDischarge_W, (int) MAX_DISCHARGE_W);
-
-			log.info("getStaticConstraints() maxCharge:" + maxCharge_W + "; maxDischarge:" + maxDischarge_W);
-
-			return new Constraint[] {
-					this.createPowerConstraint("GridCon PCS calculated max charge power", Phase.ALL, Pwr.ACTIVE,
-							Relationship.GREATER_OR_EQUALS, maxCharge_W),
-					this.createPowerConstraint("GridCon PCS calculated max discharge power", Phase.ALL, Pwr.ACTIVE,
-							Relationship.LESS_OR_EQUALS, maxDischarge_W),
-					this.createPowerConstraint("GridCon PCS", Phase.ALL, Pwr.REACTIVE, Relationship.LESS_OR_EQUALS,
-							MAX_APPARENT_POWER) };
+			return Power.NO_CONSTRAINTS;
 		}
 	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
-
 		doStringWeighting(activePower, reactivePower);
-		/*
-		 * !! signum, MR calculates negative values as discharge, positive as charge.
-		 * Gridcon sets the (dis)charge according to a percentage of the MAX_POWER. So
-		 * 0.1 => 10% of max power. Values should never take values lower than -1 or
-		 * higher than 1.
-		 */
-		float activePowerFactor = -activePower / MAX_POWER_W;
-		float reactivePowerFactor = -reactivePower / MAX_POWER_W;
-
+		
+		Optional<Integer> maxApparentPower = this.getMaxApparentPower().value().asOptional();
+		float activePowerFactor = 0f;
+		float reactivePowerFactor = 0f;
+		if (maxApparentPower.isPresent()) {
+			/*
+			 * !! signum, MR calculates negative values as discharge, positive as charge.
+			 * Gridcon sets the (dis)charge according to a percentage of the
+			 * MAX_APPARENT_POWER. So 0.1 => 10% of max power. Values should never take
+			 * values lower than -1 or higher than 1.
+			 */
+			activePowerFactor = -activePower / maxApparentPower.get();
+			reactivePowerFactor = -reactivePower / maxApparentPower.get();
+		}
 		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF, activePowerFactor);
 		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF, reactivePowerFactor);
 	}
@@ -1010,7 +932,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringA != null) {
 				weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
 				// if minSoc is reached, do not allow further discharging
-				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= minSoCA) {
+				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocA()) {
 					weightA = 0;
 				}
 			}
@@ -1018,7 +940,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringB != null) {
 				weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
 				// if minSoc is reached, do not allow further discharging
-				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= minSoCB) {
+				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocB()) {
 					weightB = 0;
 				}
 			}
@@ -1026,7 +948,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringC != null) {
 				weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
 				// if minSoc is reached, do not allow further discharging
-				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= minSoCC) {
+				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocC()) {
 					weightC = 0;
 				}
 			}
@@ -1138,10 +1060,27 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			handleStateMachine();
-			calculateSoC();
+			this.handleBatteryData();
+			this.handleStateMachine();
+			this.calculateSoC();
 			break;
 		}
+	}
+
+	/**
+	 * Handles Battery data, i.e. setting allowed charge/discharge power.
+	 */
+	private void handleBatteryData() {
+		int allowedCharge = 0;
+		int allowedDischarge = 0;
+		for (Battery battery : this.getBatteries()) {
+			allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0)
+					* -1;
+			allowedDischarge += battery.getVoltage().value().orElse(0)
+					* battery.getDischargeMaxCurrent().value().orElse(0);
+		}
+		this.getAllowedCharge().setNextValue(allowedCharge);
+		this.getAllowedDischarge().setNextValue(allowedDischarge);
 	}
 
 	private LocalDateTime offGridDetected = null;
@@ -1154,7 +1093,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		boolean disableIpu3 = true;
 		boolean disableIpu4 = true;
 
-		switch (inverterCount) {
+		switch (this.config.inverterCount()) {
 		case ONE:
 			disableIpu2 = false;
 			break;
@@ -1238,7 +1177,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getSoc().setNextValue(soC);
 	}
 
-	Collection<Battery> getBatteries() {
+	/**
+	 * Gets all Batteries.
+	 * 
+	 * @return a collection of Batteries; guaranteed to be not-null.
+	 */
+	private Collection<Battery> getBatteries() {
 		Collection<Battery> batteries = new ArrayList<>();
 		if (batteryStringA != null) {
 			batteries.add(batteryStringA);
@@ -1728,7 +1672,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		);
 		// if one inverter is used, dc dc converter is ipu2 ...
 		int startAddress = 32720;
-		switch (inverterCount) {
+		switch (this.config.inverterCount()) {
 		case ONE:
 			startAddress = 32656;
 			break;
@@ -1861,7 +1805,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		tasks.add(mirrorControlParameter);
 		tasks.add(controlDCDCParameters);
 
-		switch (inverterCount) {
+		switch (this.config.inverterCount()) {
 		case ONE:
 			tasks.add(ipu1State);
 			tasks.add(ipu1Measurements);
