@@ -4,8 +4,8 @@ import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum GridMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	ON_GRID(1, "On-Grid"), //
-	OFF_GRID(2, "Off-Grid");
+	ON_GRID(0, "On-Grid"), //
+	OFF_GRID(1, "Off-Grid");
 
 	private int value;
 	private String name;

@@ -104,7 +104,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
 		switch (this.getGridMode()) {
 		case UNDEFINED:
 			// Wait...
