@@ -2,6 +2,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.doc.Level;
 
 /**
  * This enum holds every possible channel id for a gridcon.
@@ -325,10 +326,8 @@ public enum GridConChannelId implements io.openems.edge.common.channel.doc.Chann
 	MIRROR_CONTROL_IPU_1_PARAMETERS_P_REF_OFFSET_TO_CCU_VALUE(new Doc().unit(Unit.NONE)),
 	MIRROR_CONTROL_IPU_1_PARAMETERS_P_MAX_DISCHARGE(new Doc().unit(Unit.WATT)),
 	MIRROR_CONTROL_IPU_1_PARAMETERS_P_MAX_CHARGE(new Doc().unit(Unit.WATT)),
-
-	//STATE_TEMP_TRIP_IGBT_3_IPU_1(new ErrorDoc().acknowledge(Acknowledge.RESTART).reactionLevel(ReactionLevel.SHUTDOWN)
-		//	.needsHardReset(false).code(0x201200).text("Temp Trip IGBT 3").level(Level.WARNING)),
-	//Error codes channels are defined in different files
+	
+	STATE_CYCLE_ERROR(new Doc().level(Level.FAULT)),
 	;
 
 	private final Doc doc;

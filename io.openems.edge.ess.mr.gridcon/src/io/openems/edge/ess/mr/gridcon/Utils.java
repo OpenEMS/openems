@@ -1581,6 +1581,8 @@ public class Utils {
 					case CONTROL_DC_DC_CONVERTER_PARAMETERS_DC_DC_STRING_CONTROL_MODE:
 						return new FloatWriteChannel(ess, channelId);
 
+					case STATE_CYCLE_ERROR:
+						return new StateChannel(ess, channelId);
 					}
 					return null;
 				}) //

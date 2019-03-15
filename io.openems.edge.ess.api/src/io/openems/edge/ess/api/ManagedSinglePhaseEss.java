@@ -2,7 +2,7 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.doc.Doc;
 
 /**
@@ -26,7 +26,7 @@ public interface ManagedSinglePhaseEss extends ManagedSymmetricEss, SinglePhaseE
 	}
 
 	public default void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		switch (this.getPhase()) {
 		case L1:
 			this.applyPower(activePowerL1, reactivePowerL1);

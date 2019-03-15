@@ -2,7 +2,7 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.AccessMode;
@@ -403,7 +403,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	}
 
 	@Override
-	default void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	default void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		int activePowerBy3 = activePower / 3;
 		int reactivePowerBy3 = reactivePower / 3;
 		this.applyPower(activePowerBy3, reactivePowerBy3, activePowerBy3, reactivePowerBy3, activePowerBy3,
@@ -421,7 +421,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	 * @param reactivePowerL3
 	 */
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException;
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException;
 
 	/**
 	 * Gets the Set Active Power L1 Equals in [W]
