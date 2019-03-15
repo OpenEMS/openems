@@ -28,6 +28,7 @@ JPM-Command:				openems-edge
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
+	bnd.identity;id='io.openems.edge.controller.byd.alarm',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
@@ -98,6 +99,7 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
+	io.openems.edge.controller.byd.alarm;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\

@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "",
-		description = ""
+		name = "Controller Byd Alarm",
+		description = "The controller to read state channels and signal alarms"
 		)
 
 @interface Config {
@@ -13,8 +13,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	boolean enabled() default true;
 	
+	
 	@AttributeDefinition(name = "Input Channel", description = "")
-	String inputChannelAddress();
+	String[] inputChannelAddress();
 
 	@AttributeDefinition(name = "Output Channel", description = "")
 	String outputChannelAddress();
