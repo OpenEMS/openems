@@ -39,10 +39,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	private final Logger log = LoggerFactory.getLogger(EmergencyClusterMode.class);
 
 	// defaults
-	private int pvSwitchDelay = 10000; // 10 sec
 	private int pvLimit = 100;
-	private long lastPvOffGridDisconnected = 0L;
-
 	private Config config;
 
 	private ChannelAddress q1Ess1SupplyUps = null;
@@ -55,9 +52,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	@Reference
 	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter gridMeter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter pvMeter;
@@ -77,30 +71,30 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		this.config = config;
 
 		// TODO still requires?
-		// Solar Log
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "pvInverter", config.pvInverter_id())) {
-			return;
-		}
-
-		// Grid-Meter
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.gridMeter_id())) {
-			return;
-		}
-
-		// PV-Meter
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "pvMeter", config.pvMeter_id())) {
-			return;
-		}
-
-		// Ess1 (under switch Q1)
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess1", config.ess1_id())) {
-			return;
-		}
-
-		// Ess2 (under switch Q2)
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess2", config.ess2_id())) {
-			return;
-		}
+//		// Solar Log
+//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "pvInverter", config.pvInverter_id())) {
+//			return;
+//		}
+//
+//		// Grid-Meter
+//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.gridMeter_id())) {
+//			return;
+//		}
+//
+//		// PV-Meter
+//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "pvMeter", config.pvMeter_id())) {
+//			return;
+//		}
+//
+//		// Ess1 (under switch Q1)
+//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess1", config.ess1_id())) {
+//			return;
+//		}
+//
+//		// Ess2 (under switch Q2)
+//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess2", config.ess2_id())) {
+//			return;
+//		}
 	}
 
 	@Deactivate
@@ -195,7 +189,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						case PV_HIGH:
 							// TODO pv limitation and time ?
 							this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
-							this.lastPvOffGridDisconnected = System.currentTimeMillis();
 							switch (batteryState(BatteryEnum.ESS1SOC)) {
 							case BATTERY_OKAY:
 							case BATTERY_HIGH:
@@ -238,20 +231,16 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						case PV_HIGH:
 							this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
 							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-							this.lastPvOffGridDisconnected = System.currentTimeMillis();
 							break;
 						case PV_LOW:
 						case PV_OKAY:
-							if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-							} else {
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-							}
+							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
 							break;
 						case UNDEFINED:
 							break;
 						}
 						break;
+
 					case UNDEFINED:
 						break;
 					}
@@ -263,15 +252,10 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						case PV_HIGH:
 							this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
 							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-							this.lastPvOffGridDisconnected = System.currentTimeMillis();
 							break;
 						case PV_LOW:
 						case PV_OKAY:
-							if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-							} else {
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-							}
+							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
 							break;
 						case UNDEFINED:
 							break;
@@ -282,18 +266,13 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 						case PV_HIGH:
 							this.pvInverter.getActivePowerLimit().setNextWriteValue(this.pvLimit);
 							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-							this.lastPvOffGridDisconnected = System.currentTimeMillis();
 							break;
 						case PV_LOW:
 							this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
 							this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
 							break;
 						case PV_OKAY:
-							if (this.lastPvOffGridDisconnected + this.pvSwitchDelay <= System.currentTimeMillis()) {
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
-							} else {
-								this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
-							}
+							this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.CLOSE);
 							break;
 						case UNDEFINED:
 							break;
@@ -333,6 +312,10 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 				}
 				break;
 			case UNDEFINED:
+				this.setOutput(this.componentManager.getChannel(q1Ess1SupplyUps), Operation.OPEN);
+				this.setOutput(this.componentManager.getChannel(q2Ess2SupplyUps), Operation.CLOSE);
+				this.setOutput(this.componentManager.getChannel(q3PvOffGrid), Operation.OPEN);
+				this.setOutput(this.componentManager.getChannel(q4PvOnGrid), Operation.CLOSE);
 				break;
 			}
 			break;
