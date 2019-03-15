@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -60,6 +61,8 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent implement
 					case SET_REACTIVE_POWER_LESS_OR_EQUALS:
 					case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 						return new IntegerWriteChannel(this, channelId);
+					case APPLY_POWER_FAILED:
+						return new StateChannel(this, channelId);
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> {

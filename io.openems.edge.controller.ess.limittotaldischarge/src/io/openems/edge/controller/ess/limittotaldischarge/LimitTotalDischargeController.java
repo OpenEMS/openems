@@ -61,8 +61,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 				.options(State.values())), //
 		AWAITING_HYSTERESIS(new Doc() //
 				.level(Level.INFO) //
-				.text("Would change State, but hystesis is active") //
-				.options(State.values())); //
+				.text("Would change State, but hystesis is active")); //
 
 		private final Doc doc;
 

@@ -30,13 +30,25 @@ import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.m
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
+import { FormlyModule } from '@ngx-formly/core';
+import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
+import { EvcsModalPageModule } from './edge/index/widget/evcs/evcs-modal/evcs-modal.module';
+
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    RepeatTypeComponent
+  ],
   entryComponents: [PopoverPage],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
+    FormlyModule.forRoot({
+      types: [
+        { name: 'repeat', component: RepeatTypeComponent },
+      ],
+    }),
     AppRoutingModule,
     SharedModule,
     AboutModule,
@@ -44,6 +56,7 @@ import { environment as env } from '../environments/environment';
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,
+    EvcsModalPageModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -37,7 +39,7 @@ public class Utils {
 				result.add(new IntegerReadChannel(c, channelId, 3000));
 				break;
 			case GRID_MODE:
-				result.add(new IntegerReadChannel(c, channelId, GridMode.UNDEFINED));
+				result.add(new EnumReadChannel(c, channelId, GridMode.UNDEFINED));
 				break;
 			case ACTIVE_DISCHARGE_ENERGY:
 			case ACTIVE_CHARGE_ENERGY:
@@ -61,18 +63,14 @@ public class Utils {
 			case SET_REACTIVE_POWER_GREATER_OR_EQUALS:
 				result.add(new IntegerWriteChannel(c, channelId));
 				break;
+			case APPLY_POWER_FAILED:
+				result.add(new StateChannel(c, channelId));
+				break;
 			}
 		}
 		for (EssFeneconCommercial40.ChannelId channelId : EssFeneconCommercial40.ChannelId.values()) {
 			switch (channelId) {
-			case SYSTEM_STATE:
-			case CONTROL_MODE:
-			case BATTERY_MAINTENANCE_STATE:
-			case INVERTER_STATE:
 			case PROTOCOL_VERSION:
-			case SYSTEM_MANUFACTURER:
-			case SYSTEM_TYPE:
-			case BATTERY_STRING_SWITCH_STATE:
 			case BATTERY_VOLTAGE:
 			case BATTERY_CURRENT:
 			case BATTERY_POWER:
@@ -95,19 +93,46 @@ public class Utils {
 			case IPM_TEMPERATURE_L2:
 			case IPM_TEMPERATURE_L3:
 			case TRANSFORMER_TEMPERATURE_L2:
-			case BMS_DCDC_WORK_MODE:
-			case BMS_DCDC_WORK_STATE:
 			case AC_CHARGE_ENERGY:
 			case AC_DISCHARGE_ENERGY:
 			case ORIGINAL_ALLOWED_CHARGE_POWER:
 			case ORIGINAL_ALLOWED_DISCHARGE_POWER:
 				result.add(new IntegerReadChannel(c, channelId));
 				break;
-			case SET_WORK_STATE:
+			case BATTERY_MAINTENANCE_STATE:
+				result.add(new EnumReadChannel(c, channelId, BatteryMaintenanceState.UNDEFINED));
+				break;
+			case BATTERY_STRING_SWITCH_STATE:
+				result.add(new EnumReadChannel(c, channelId, BatteryStringSwitchState.UNDEFINED));
+				break;
+			case BMS_DCDC_WORK_MODE:
+				result.add(new EnumReadChannel(c, channelId, BmsDcdcWorkMode.UNDEFINED));
+				break;
+			case BMS_DCDC_WORK_STATE:
+				result.add(new EnumReadChannel(c, channelId, BmsDcdcWorkState.UNDEFINED));
+				break;
+			case CONTROL_MODE:
+				result.add(new EnumReadChannel(c, channelId, ControlMode.UNDEFINED));
+				break;
+			case INVERTER_STATE:
+				result.add(new EnumReadChannel(c, channelId, InverterState.UNDEFINED));
+				break;
+			case SYSTEM_MANUFACTURER:
+				result.add(new EnumReadChannel(c, channelId, SystemManufacturer.UNDEFINED));
+				break;
+			case SYSTEM_STATE:
+				result.add(new EnumReadChannel(c, channelId, SystemState.UNDEFINED));
+				break;
+			case SYSTEM_TYPE:
+				result.add(new EnumReadChannel(c, channelId, SystemType.UNDEFINED));
+				break;
 			case SET_ACTIVE_POWER:
 			case SET_REACTIVE_POWER:
 			case SET_PV_POWER_LIMIT:
 				result.add(new IntegerWriteChannel(c, channelId));
+				break;
+			case SET_WORK_STATE:
+				result.add(new EnumWriteChannel(c, channelId, SetWorkState.UNDEFINED));
 				break;
 			case STATE_0:
 			case STATE_1:
@@ -261,6 +286,233 @@ public class Utils {
 			case STATE_149:
 				result.add(new StateChannel(c, channelId));
 				break;
+			case CELL_1_VOLTAGE:
+			case CELL_2_VOLTAGE:
+			case CELL_3_VOLTAGE:
+			case CELL_4_VOLTAGE:
+			case CELL_5_VOLTAGE:
+			case CELL_6_VOLTAGE:
+			case CELL_7_VOLTAGE:
+			case CELL_8_VOLTAGE:
+			case CELL_9_VOLTAGE:
+			case CELL_10_VOLTAGE:
+			case CELL_11_VOLTAGE:
+			case CELL_12_VOLTAGE:
+			case CELL_13_VOLTAGE:
+			case CELL_14_VOLTAGE:
+			case CELL_15_VOLTAGE:
+			case CELL_16_VOLTAGE:
+			case CELL_17_VOLTAGE:
+			case CELL_18_VOLTAGE:
+			case CELL_19_VOLTAGE:
+			case CELL_20_VOLTAGE:
+			case CELL_21_VOLTAGE:
+			case CELL_22_VOLTAGE:
+			case CELL_23_VOLTAGE:
+			case CELL_24_VOLTAGE:
+			case CELL_25_VOLTAGE:
+			case CELL_26_VOLTAGE:
+			case CELL_27_VOLTAGE:
+			case CELL_28_VOLTAGE:
+			case CELL_29_VOLTAGE:
+			case CELL_30_VOLTAGE:
+			case CELL_31_VOLTAGE:
+			case CELL_32_VOLTAGE:
+			case CELL_33_VOLTAGE:
+			case CELL_34_VOLTAGE:
+			case CELL_35_VOLTAGE:
+			case CELL_36_VOLTAGE:
+			case CELL_37_VOLTAGE:
+			case CELL_38_VOLTAGE:
+			case CELL_39_VOLTAGE:
+			case CELL_40_VOLTAGE:
+			case CELL_41_VOLTAGE:
+			case CELL_42_VOLTAGE:
+			case CELL_43_VOLTAGE:
+			case CELL_44_VOLTAGE:
+			case CELL_45_VOLTAGE:
+			case CELL_46_VOLTAGE:
+			case CELL_47_VOLTAGE:
+			case CELL_48_VOLTAGE:
+			case CELL_49_VOLTAGE:
+			case CELL_50_VOLTAGE:
+			case CELL_51_VOLTAGE:
+			case CELL_52_VOLTAGE:
+			case CELL_53_VOLTAGE:
+			case CELL_54_VOLTAGE:
+			case CELL_55_VOLTAGE:
+			case CELL_56_VOLTAGE:
+			case CELL_57_VOLTAGE:
+			case CELL_58_VOLTAGE:
+			case CELL_59_VOLTAGE:
+			case CELL_60_VOLTAGE:
+			case CELL_61_VOLTAGE:
+			case CELL_62_VOLTAGE:
+			case CELL_63_VOLTAGE:
+			case CELL_64_VOLTAGE:
+			case CELL_65_VOLTAGE:
+			case CELL_66_VOLTAGE:
+			case CELL_67_VOLTAGE:
+			case CELL_68_VOLTAGE:
+			case CELL_69_VOLTAGE:
+			case CELL_70_VOLTAGE:
+			case CELL_71_VOLTAGE:
+			case CELL_72_VOLTAGE:
+			case CELL_73_VOLTAGE:
+			case CELL_74_VOLTAGE:
+			case CELL_75_VOLTAGE:
+			case CELL_76_VOLTAGE:
+			case CELL_77_VOLTAGE:
+			case CELL_78_VOLTAGE:
+			case CELL_79_VOLTAGE:
+			case CELL_80_VOLTAGE:
+			case CELL_81_VOLTAGE:
+			case CELL_82_VOLTAGE:
+			case CELL_83_VOLTAGE:
+			case CELL_84_VOLTAGE:
+			case CELL_85_VOLTAGE:
+			case CELL_86_VOLTAGE:
+			case CELL_87_VOLTAGE:
+			case CELL_88_VOLTAGE:
+			case CELL_89_VOLTAGE:
+			case CELL_90_VOLTAGE:
+			case CELL_91_VOLTAGE:
+			case CELL_92_VOLTAGE:
+			case CELL_93_VOLTAGE:
+			case CELL_94_VOLTAGE:
+			case CELL_95_VOLTAGE:
+			case CELL_96_VOLTAGE:
+			case CELL_97_VOLTAGE:
+			case CELL_98_VOLTAGE:
+			case CELL_99_VOLTAGE:
+			case CELL_100_VOLTAGE:
+			case CELL_101_VOLTAGE:
+			case CELL_102_VOLTAGE:
+			case CELL_103_VOLTAGE:
+			case CELL_104_VOLTAGE:
+			case CELL_105_VOLTAGE:
+			case CELL_106_VOLTAGE:
+			case CELL_107_VOLTAGE:
+			case CELL_108_VOLTAGE:
+			case CELL_109_VOLTAGE:
+			case CELL_110_VOLTAGE:
+			case CELL_111_VOLTAGE:
+			case CELL_112_VOLTAGE:
+			case CELL_113_VOLTAGE:
+			case CELL_114_VOLTAGE:
+			case CELL_115_VOLTAGE:
+			case CELL_116_VOLTAGE:
+			case CELL_117_VOLTAGE:
+			case CELL_118_VOLTAGE:
+			case CELL_119_VOLTAGE:
+			case CELL_120_VOLTAGE:
+			case CELL_121_VOLTAGE:
+			case CELL_122_VOLTAGE:
+			case CELL_123_VOLTAGE:
+			case CELL_124_VOLTAGE:
+			case CELL_125_VOLTAGE:
+			case CELL_126_VOLTAGE:
+			case CELL_127_VOLTAGE:
+			case CELL_128_VOLTAGE:
+			case CELL_129_VOLTAGE:
+			case CELL_130_VOLTAGE:
+			case CELL_131_VOLTAGE:
+			case CELL_132_VOLTAGE:
+			case CELL_133_VOLTAGE:
+			case CELL_134_VOLTAGE:
+			case CELL_135_VOLTAGE:
+			case CELL_136_VOLTAGE:
+			case CELL_137_VOLTAGE:
+			case CELL_138_VOLTAGE:
+			case CELL_139_VOLTAGE:
+			case CELL_140_VOLTAGE:
+			case CELL_141_VOLTAGE:
+			case CELL_142_VOLTAGE:
+			case CELL_143_VOLTAGE:
+			case CELL_144_VOLTAGE:
+			case CELL_145_VOLTAGE:
+			case CELL_146_VOLTAGE:
+			case CELL_147_VOLTAGE:
+			case CELL_148_VOLTAGE:
+			case CELL_149_VOLTAGE:
+			case CELL_150_VOLTAGE:
+			case CELL_151_VOLTAGE:
+			case CELL_152_VOLTAGE:
+			case CELL_153_VOLTAGE:
+			case CELL_154_VOLTAGE:
+			case CELL_155_VOLTAGE:
+			case CELL_156_VOLTAGE:
+			case CELL_157_VOLTAGE:
+			case CELL_158_VOLTAGE:
+			case CELL_159_VOLTAGE:
+			case CELL_160_VOLTAGE:
+			case CELL_161_VOLTAGE:
+			case CELL_162_VOLTAGE:
+			case CELL_163_VOLTAGE:
+			case CELL_164_VOLTAGE:
+			case CELL_165_VOLTAGE:
+			case CELL_166_VOLTAGE:
+			case CELL_167_VOLTAGE:
+			case CELL_168_VOLTAGE:
+			case CELL_169_VOLTAGE:
+			case CELL_170_VOLTAGE:
+			case CELL_171_VOLTAGE:
+			case CELL_172_VOLTAGE:
+			case CELL_173_VOLTAGE:
+			case CELL_174_VOLTAGE:
+			case CELL_175_VOLTAGE:
+			case CELL_176_VOLTAGE:
+			case CELL_177_VOLTAGE:
+			case CELL_178_VOLTAGE:
+			case CELL_179_VOLTAGE:
+			case CELL_180_VOLTAGE:
+			case CELL_181_VOLTAGE:
+			case CELL_182_VOLTAGE:
+			case CELL_183_VOLTAGE:
+			case CELL_184_VOLTAGE:
+			case CELL_185_VOLTAGE:
+			case CELL_186_VOLTAGE:
+			case CELL_187_VOLTAGE:
+			case CELL_188_VOLTAGE:
+			case CELL_189_VOLTAGE:
+			case CELL_190_VOLTAGE:
+			case CELL_191_VOLTAGE:
+			case CELL_192_VOLTAGE:
+			case CELL_193_VOLTAGE:
+			case CELL_194_VOLTAGE:
+			case CELL_195_VOLTAGE:
+			case CELL_196_VOLTAGE:
+			case CELL_197_VOLTAGE:
+			case CELL_198_VOLTAGE:
+			case CELL_199_VOLTAGE:
+			case CELL_200_VOLTAGE:
+			case CELL_201_VOLTAGE:
+			case CELL_202_VOLTAGE:
+			case CELL_203_VOLTAGE:
+			case CELL_204_VOLTAGE:
+			case CELL_205_VOLTAGE:
+			case CELL_206_VOLTAGE:
+			case CELL_207_VOLTAGE:
+			case CELL_208_VOLTAGE:
+			case CELL_209_VOLTAGE:
+			case CELL_210_VOLTAGE:
+			case CELL_211_VOLTAGE:
+			case CELL_212_VOLTAGE:
+			case CELL_213_VOLTAGE:
+			case CELL_214_VOLTAGE:
+			case CELL_215_VOLTAGE:
+			case CELL_216_VOLTAGE:
+			case CELL_217_VOLTAGE:
+			case CELL_218_VOLTAGE:
+			case CELL_219_VOLTAGE:
+			case CELL_220_VOLTAGE:
+			case CELL_221_VOLTAGE:
+			case CELL_222_VOLTAGE:
+			case CELL_223_VOLTAGE:
+			case CELL_224_VOLTAGE:
+				result.add(new IntegerReadChannel(c, channelId));				
+				break;
+	
 			}
 		}
 		return result.stream();

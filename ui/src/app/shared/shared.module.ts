@@ -13,6 +13,10 @@ import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
 import { SocComponent } from '../edge/history/chart/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormlyIonicModule } from '@ngx-formly/ionic';
+import { KwhComponent } from '../edge/history/kwh/kwh.component';
+
 /*
  * Components
  */
@@ -45,7 +49,7 @@ import { Websocket } from './service/websocket';
     ChartsModule,
     NgxLoadingModule,
     MyDateRangePickerModule,
-    ToasterModule
+    ToasterModule,
   ],
   declarations: [
     // pipes
@@ -77,6 +81,8 @@ import { Websocket } from './service/websocket';
     TranslateModule,
     MyDateRangePickerModule,
     ToasterModule,
+    FormlyModule,
+    FormlyIonicModule,
     // components
     SocComponent,
     NgxLoadingModule,

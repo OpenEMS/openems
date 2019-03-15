@@ -93,7 +93,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
-	private static final int MAX_POWER_PER_INVERTER = 41_900; //experimentally measured 
+	private static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
 	protected static float MAX_POWER_W = MAX_POWER_PER_INVERTER;
 
 	protected static final float MAX_CHARGE_W = 86 * 1000;
@@ -102,7 +102,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	static final int MAX_APPARENT_POWER = (int) MAX_POWER_W; // TODO Checkif correct
 
 	private Map<Integer, io.openems.edge.common.channel.doc.ChannelId> errorChannelIds = null;
-	
+
 	BitSet commandControlWord = new BitSet(32);
 	LocalDateTime timestampMrGridconWasSwitchedOff;
 
@@ -138,27 +138,27 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	DigitalOutput outputSyncDeviceBridgeComponent;
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	DigitalOutput outputMRHardResetComponent;
-	
-	//TODO use the component manager to identify needed components
+
+	// TODO use the component manager to identify needed components
 	@Reference
 	protected ComponentManager componentManager;
-	
+
 	int minSoCA;
 	int minSoCB;
 	int minSoCC;
 
 	public GridconPCS() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		fillErrorChannelMap();				
+		fillErrorChannelMap();
 	}
 
 	private void fillErrorChannelMap() {
 		errorChannelIds = new HashMap<>();
 		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId.values()) {
-			errorChannelIds.put(((ErrorDoc)id.doc()).getCode(), id);
+			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
 		}
 		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId1.values()) {
-			errorChannelIds.put(((ErrorDoc)id.doc()).getCode(), id);
+			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
 		}
 	}
 
@@ -169,7 +169,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		
+
 		minSoCA = config.minSoCA();
 		minSoCB = config.minSoCB();
 		minSoCC = config.minSoCC();
@@ -177,7 +177,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		inverterCount = config.inverterCount();
 
 		MAX_POWER_W = inverterCount.getCount() * MAX_POWER_PER_INVERTER;
-		
+
 		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus", config.modbus_id());
 
 		// TODO use ComponentManager to replace the following hard references
@@ -240,7 +240,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 						GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE);
 				mapBitToChannel(ctrlWord, PCSControlWordBitPosition.STOP, GridConChannelId.COMMAND_CONTROL_WORD_STOP);
 				mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY, GridConChannelId.COMMAND_CONTROL_WORD_READY);
-			};
+			}
+			;
 		});
 
 		this.channel(GridConChannelId.MIRROR_COMMAND_CONTROL_WORD).onUpdate(value -> {
@@ -258,7 +259,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					mapBitToChannel(ctrlWord, PCSControlWordBitPosition.READY,
 							GridConChannelId.MIRROR_COMMAND_CONTROL_WORD_READY);
 				}
-			};
+			}
+			;
 		});
 	}
 
@@ -324,8 +326,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
-		
-		// Enable DC DC 
+
+		// Enable DC DC
 		switch (inverterCount) {
 		case ONE:
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
@@ -335,7 +337,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			break;
 		case THREE:
 			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
-			break;		
+			break;
 		}
 
 		writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, 0);
@@ -363,8 +365,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		float weightingMode = 0;
 
 		// Depends on number of battery strings!!!
-		// battA = 1  (2^0)
-		// battB = 8  (2^3)
+		// battA = 1 (2^0)
+		// battB = 8 (2^3)
 		// battC = 64 (2^6)
 
 		if (batteryStringA != null) {
@@ -376,7 +378,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		if (batteryStringC != null) {
 			weightingMode = weightingMode + 64;
 		}
-		
+
 		return weightingMode;
 	}
 
@@ -396,7 +398,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 		}
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-		 this.setOutputSyncDeviceBridge(false); 
+		this.setOutputSyncDeviceBridge(false);
 
 		// a hardware restart has been executed,
 		if (timestampMrGridconWasSwitchedOff != null) {
@@ -479,8 +481,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doRunHandling() {
-		resetErrorChannels(); //if any error channels has been set, unset them because in here there are no errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war aber ein fehler in der queue und das system nicht angelaufen ist....
-		
+		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
+								// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
+								// aber ein fehler in der queue und das system nicht angelaufen ist....
+
 		boolean disableIpu1 = false;
 		boolean disableIpu2 = true;
 		boolean disableIpu3 = true;
@@ -501,9 +505,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			break;
 		}
 
-		//send play command
+		// send play command
 		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-		
+
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), disableIpu1);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), disableIpu2);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), disableIpu3);
@@ -754,7 +758,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			return;
 		}
 		c.setNextValue(true);
-		if (((ErrorDoc)c.channelId().doc()).isNeedsHardReset()) {
+		if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
 			doHardRestart();
 		} else {
 			log.info("try to acknowledge errors");
@@ -801,9 +805,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	}
 
-	
-	
-	
 //	private boolean isHardwareTrip() {
 //		
 //		
@@ -921,17 +922,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			int currentMaxChargeBatteryC_W = 0;
 			int maxChargeC_W = 0;
 			if (batteryStringA != null) {
-				currentMaxChargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0) * batteryStringA.getChargeMaxCurrent().value().orElse(0);
+				currentMaxChargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
+						* batteryStringA.getChargeMaxCurrent().value().orElse(0);
 				maxChargeA_W = Math.min(currentMaxChargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
 			}
 			if (batteryStringB != null) {
 				currentMaxChargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
-					* batteryStringB.getChargeMaxCurrent().value().orElse(0);
+						* batteryStringB.getChargeMaxCurrent().value().orElse(0);
 				maxChargeB_W = Math.min(currentMaxChargeBatteryB_W, batteryStringB.getMaxPower().value().orElse(0));
 			}
 			if (batteryStringC != null) {
 				currentMaxChargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
-					* batteryStringC.getChargeMaxCurrent().value().orElse(0);
+						* batteryStringC.getChargeMaxCurrent().value().orElse(0);
 				maxChargeC_W = Math.min(currentMaxChargeBatteryC_W, batteryStringC.getMaxPower().value().orElse(0));
 			}
 			int maxCharge_W = (maxChargeA_W + maxChargeB_W + maxChargeC_W);
@@ -943,23 +945,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			int maxDischargeB_W = 0;
 			int currentMaxDischargeBatteryC_W = 0;
 			int maxDischargeC_W = 0;
-			
+
 			if (batteryStringA != null) {
 				currentMaxDischargeBatteryA_W = batteryStringA.getVoltage().value().orElse(0)
-					* batteryStringA.getDischargeMaxCurrent().value().orElse(0);
-				maxDischargeA_W = Math.min(currentMaxDischargeBatteryA_W, batteryStringA.getMaxPower().value().orElse(0));
+						* batteryStringA.getDischargeMaxCurrent().value().orElse(0);
+				maxDischargeA_W = Math.min(currentMaxDischargeBatteryA_W,
+						batteryStringA.getMaxPower().value().orElse(0));
 			}
-			if (batteryStringB!= null) {
+			if (batteryStringB != null) {
 				currentMaxDischargeBatteryB_W = batteryStringB.getVoltage().value().orElse(0)
-					* batteryStringB.getDischargeMaxCurrent().value().orElse(0);
+						* batteryStringB.getDischargeMaxCurrent().value().orElse(0);
 				maxDischargeB_W = Math.min(currentMaxDischargeBatteryB_W,
-					batteryStringB.getMaxPower().value().orElse(0));
+						batteryStringB.getMaxPower().value().orElse(0));
 			}
 			if (batteryStringC != null) {
 				currentMaxDischargeBatteryC_W = batteryStringC.getVoltage().value().orElse(0)
-					* batteryStringC.getDischargeMaxCurrent().value().orElse(0);
+						* batteryStringC.getDischargeMaxCurrent().value().orElse(0);
 				maxDischargeC_W = Math.min(currentMaxDischargeBatteryC_W,
-				batteryStringC.getMaxPower().value().orElse(0));
+						batteryStringC.getMaxPower().value().orElse(0));
 			}
 			int maxDischarge_W = (maxDischargeA_W + maxDischargeB_W + maxDischargeC_W);
 			maxDischarge_W = Math.min(maxDischarge_W, (int) MAX_DISCHARGE_W);
@@ -977,7 +980,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
 
 		doStringWeighting(activePower, reactivePower);
 		/*
@@ -1048,30 +1051,30 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					weightA = vAopt.get() - min;
 					weightB = vBopt.get() - min;
 					weightC = vCopt.get() - min;
-				}	
+				}
 			} else if (batteryStringA != null && batteryStringB != null && batteryStringC == null) { // AB
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();				
+				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vBopt.isPresent()) {
 					int min = Math.min(vAopt.get(), vBopt.get());
 					weightA = vAopt.get() - min;
-					weightB = vBopt.get() - min;					
+					weightB = vBopt.get() - min;
 				}
-			}  else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { //AC
+			} else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { // AC
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();				
+				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vCopt.isPresent()) {
 					int min = Math.min(vAopt.get(), vCopt.get());
 					weightA = vAopt.get() - min;
-					weightB = vCopt.get() - min;					
+					weightB = vCopt.get() - min;
 				}
-			}  else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { //BC
+			} else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { // BC
 				Optional<Integer> vBopt = batteryStringA.getVoltage().value().asOptional();
-				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();				
+				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vBopt.isPresent() && vCopt.isPresent()) {
 					int min = Math.min(vBopt.get(), vCopt.get());
 					weightA = vBopt.get() - min;
-					weightB = vCopt.get() - min;					
+					weightB = vCopt.get() - min;
 				}
 			}
 		}
@@ -1113,6 +1116,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/** Writes the given value into the channel */
+	// TODO should throws OpenemsException
 	void writeValueToChannel(GridConChannelId channelId, Object value) {
 		try {
 			((WriteChannel<?>) this.channel(channelId)).setNextWriteValueFromObject(value);
@@ -1142,9 +1146,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private LocalDateTime offGridDetected = null;
 	int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
-	
+
 	private void handleOffGridState() {
-		
+
 		boolean disableIpu1 = false;
 		boolean disableIpu2 = true;
 		boolean disableIpu3 = true;
@@ -1165,9 +1169,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			break;
 		}
 
-		//send play command
+		// send play command
 //		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-		
+
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), disableIpu1);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), disableIpu2);
 		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), disableIpu3);
@@ -1177,14 +1181,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), false);
 		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), false);
-		
-		
+
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
 		log.info("Set K1 ON");
 		this.setOutputSyncDeviceBridge(true);
 		// TODO check if OutputSyncDeviceBridge was actually set to ON via
 		// inputSyncDeviceBridgeComponent. On Error switch off the MR.
-				
+
 		if (offGridDetected == null) {
 			offGridDetected = LocalDateTime.now();
 			return;
@@ -1199,7 +1202,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
 
-		
 		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
 				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
 			log.info("Off-Grid -> F/U 1");
@@ -1235,7 +1237,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		int soC = (int) (sumCurrentCapacity * 100 / sumCapacity);
 		this.getSoc().setNextValue(soC);
 	}
-	
+
 	Collection<Battery> getBatteries() {
 		Collection<Battery> batteries = new ArrayList<>();
 		if (batteryStringA != null) {
@@ -1250,7 +1252,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return batteries;
 	}
 
-	// TODO why are there two methods? 
+	// TODO why are there two methods?
 	// checks if bit at requested position is set and writes it to given channel id
 	private void mapBitToChannel(Long ctrlWord, PCSControlWordBitPosition bitPosition, GridConChannelId id) {
 		boolean val = ((ctrlWord >> bitPosition.getBitPosition()) & 1) == 1;
@@ -1856,16 +1858,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		tasks.add(control);
 		tasks.add(mirrorCommand);
 		tasks.add(controlParameters);
-		tasks.add(mirrorControlParameter);		
+		tasks.add(mirrorControlParameter);
 		tasks.add(controlDCDCParameters);
-		
+
 		switch (inverterCount) {
 		case ONE:
 			tasks.add(ipu1State);
 			tasks.add(ipu1Measurements);
 			tasks.add(controlIpu1Parameters);
 			tasks.add(mirrorControlIpu1);
-			
+
 			tasks.add(ipu2State);
 			tasks.add(ipu2Measurements);
 			tasks.add(controlIpu2Parameters);
@@ -1881,7 +1883,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			tasks.add(ipu2Measurements);
 			tasks.add(controlIpu2Parameters);
 			tasks.add(mirrorControlIpu2);
-			
+
 			tasks.add(ipu3State);
 			tasks.add(ipu3Measurements);
 			tasks.add(controlIpu3Parameters);
@@ -1901,7 +1903,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			tasks.add(ipu3Measurements);
 			tasks.add(controlIpu3Parameters);
 			tasks.add(mirrorControlIpu3);
-			
+
 			tasks.add(ipu4State);
 			tasks.add(ipu4Measurements);
 			tasks.add(mirrorControlIpu4);

@@ -5,40 +5,44 @@ import com.google.common.base.CaseFormat;
 import io.openems.common.types.OpenemsType;
 
 public enum Unit {
-	/*
-	 * Generic
-	 */
+	// ##########
+	// Generic
+	// ##########
 
 	/**
 	 * No Unit
 	 */
 	NONE(""),
+
 	/**
 	 * Percentage [%], 0-100
 	 */
 	PERCENT("%"),
+
 	/**
-	 *  Thousandth [‰], 0-1000
+	 * Thousandth [‰], 0-1000
 	 */
 	THOUSANDTH("‰"),
-	/**
+
 	/**
 	 * On or Off
 	 */
 	ON_OFF(""),
 
-	/*
-	 * Power
-	 */
+	// ##########
+	// Power
+	// ##########
 
 	/**
 	 * Unit of Active Power [W]
 	 */
 	WATT("W"),
+
 	/**
 	 * Unit of Active Power [mW]
 	 */
 	MILLIWATT("mW", WATT, -3),
+
 	/**
 	 * Unit of Active Power [kW]
 	 */
@@ -48,23 +52,25 @@ public enum Unit {
 	 * Unit of Reactive Power [var]
 	 */
 	VOLT_AMPERE_REACTIVE("var"),
+
 	/**
 	 * Unit of Reactive Power [kvar]
 	 */
-	KILO_VOLT_AMPERE_REACTIVE("kvar", VOLT_AMPERE_REACTIVE, 3),
+	KILOVOLT_AMPERE_REACTIVE("kvar", VOLT_AMPERE_REACTIVE, 3),
 
 	/**
 	 * Unit of Apparent Power [VA]
 	 */
 	VOLT_AMPERE("VA"),
-	/**
-	 * Unit of kilo Apparent Power [kVA]
-	 */
-	KILO_VOLT_AMPERE("kVA", VOLT_AMPERE, 3),
 
-	/*
-	 * Voltage
+	/**
+	 * Unit of Apparent Power [kVA]
 	 */
+	KILOVOLT_AMPERE("kVA", VOLT_AMPERE, 3),
+
+	// ##########
+	// Voltage
+	// ##########
 
 	/**
 	 * Unit of Voltage [V]
@@ -76,27 +82,43 @@ public enum Unit {
 	 */
 	MILLIVOLT("mV", VOLT, -3),
 
-	/*
-	 * Current
-	 */
+	// ##########
+	// Current
+	// ##########
 
 	/**
 	 * Unit of Current [A]
 	 */
 	AMPERE("A"),
+
 	/**
 	 * Unit of Current [mA]
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
 
-	/*
-	 * Energy
+	// ##########
+	// Electric Charge
+	// ##########
+
+	/**
+	 * Unit of Electric Charge
 	 */
+	AMPERE_HOURS("Ah"),
+
+	/**
+	 * Unit of Electric Charge
+	 */
+	MILLIAMPERE_HOURS("mAh"),
+
+	// ##########
+	// Energy
+	// ##########
 
 	/**
 	 * Unit of Energy [Wh]
 	 */
 	WATT_HOURS("Wh"),
+
 	/**
 	 * Unit of Energy [kWh]
 	 */
@@ -106,6 +128,7 @@ public enum Unit {
 	 * Unit of Reactive Energy [varh]
 	 */
 	VOLT_AMPERE_REACTIVE_HOURS("varh"),
+
 	/**
 	 * Unit of Reactive Energy [kVArh]
 	 */
@@ -116,60 +139,66 @@ public enum Unit {
 	 */
 	WATT_HOURS_BY_WATT_PEAK("Wh/Wp"),
 
-	/*
-	 * Charge
+	/**
+	 * Unit of Apparent Energy [VAh]
 	 */
+	VOLT_AMPERE_HOURS("VAh"),
 
-	/**
-	 * Unit of charge [Ah]
-	 */
-	AMPERE_HOUR("Ah"),
-	/**
-	 * Unit of charge [mAh]
-	 */
-	MILLIAMPERE_HOUR("mAh", AMPERE_HOUR, -3),
-	
-	/*
-	 * Frequency
-	 */
+	// ##########
+	// Frequency
+	// ##########
 
 	/**
 	 * Unit of Frequency [Hz]
 	 */
 	HERTZ("Hz"),
+
 	/**
 	 * Unit of Frequency [mHz]
 	 */
 	MILLIHERTZ("mHz", HERTZ, -3),
 
-	/*
-	 * Temperature
-	 */
+	// ##########
+	// Temperature
+	// ##########
 
 	/**
-	 * Unit of Temperature [�C]
+	 * Unit of Temperature [C]
 	 */
-	DEGREE_CELSIUS("�C"),
-	/**
-	 * Unit of Temperature [d�C]
-	 */
-	DEZIDEGREE_CELSIUS("d�C", DEGREE_CELSIUS, -1),
+	DEGREE_CELSIUS("C"),
 
-	/*
-	 * Time
-	 */
 	/**
-	 * Unit of Time in Seconds [s]
+	 * Unit of Temperature [dC]
+	 */
+	DEZIDEGREE_CELSIUS("dC", DEGREE_CELSIUS, -1),
+
+	// ##########
+	// Time
+	// ##########
+
+	/**
+	 * Unit of Time [s]
 	 */
 	SECONDS("sec"),
+
 	/**
-	 * Unit of Frequency [mHz]
+	 * Unit of Time [ms]
 	 */
 	MILLISECONDS("ms", SECONDS, -3),
 
-	/*
-	 * Resistance
+	/**
+	 * Unit of Time
 	 */
+	MINUTE("min"),
+
+	/**
+	 * Unit of Time
+	 */
+	HOUR("h"),
+
+	// ##########
+	// Resistance
+	// ##########
 
 	/**
 	 * Unit of Resistance [Ohm]
@@ -179,15 +208,17 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [kOhm]
 	 */
-	KILOOHM("kOhm", OHM, 3),	
+	KILOOHM("kOhm", OHM, 3),
+
 	/**
 	 * Unit of Resistance [mOhm]
 	 */
 	MILLIOHM("mOhm", OHM, -3),
+
 	/**
-	 * Unit of Resistance [µOhm]
+	 * Unit of Resistance [uOhm]
 	 */
-	MIKROOHM("µOhm", OHM, -6);
+	MICROOHM("uOhm", OHM, -6);
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -227,7 +258,6 @@ public enum Unit {
 		case MILLIHERTZ:
 		case MILLIVOLT:
 		case PERCENT:
-		case THOUSANDTH:
 		case VOLT:
 		case VOLT_AMPERE:
 		case VOLT_AMPERE_REACTIVE:
@@ -235,24 +265,15 @@ public enum Unit {
 		case KILOWATT:
 		case MILLIWATT:
 		case WATT_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-		case KILO_VOLT_AMPERE:
-		case KILO_VOLT_AMPERE_REACTIVE:
-		case VOLT_AMPERE_REACTIVE_HOURS:
 		case OHM:
 		case KILOOHM:
-		case MILLIOHM:
-		case MIKROOHM:
 		case SECONDS:
-		case AMPERE_HOUR:
-		case MILLIAMPERE_HOUR:
-		case KILOWATT_HOURS:
-		case MILLISECONDS:
-		case WATT_HOURS_BY_WATT_PEAK:		
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
 			return booleanValue ? "ON" : "OFF";
+		default:
+			break;
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
@@ -261,6 +282,7 @@ public enum Unit {
 		if (this.baseUnit != null) {
 			switch (type) {
 			case SHORT:
+			case ENUM:
 			case INTEGER:
 			case LONG:
 			case FLOAT:

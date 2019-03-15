@@ -41,5 +41,4 @@ export abstract class AbstractHistoryChart {
             });
         });
     }
-
 }

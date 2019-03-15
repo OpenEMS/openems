@@ -265,23 +265,54 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Override
 	public String debugLog() {
+		StringBuilder result = new StringBuilder();
+		// State
 		Level state = this.getState().value().asEnum();
+		result.append("State:" + state.getName() + " ");
+		// Ess
+		Value<Integer> essSoc = this.getEssSoc().value();
+		Value<Integer> essActivePower = this.getEssActivePower().value();
+		if (essSoc.isDefined() || essActivePower.isDefined()) {
+			result.append("Ess ");
+			if (essSoc.isDefined() && essActivePower.isDefined()) {
+				result.append("SoC:" + essSoc.asString() + "|L:" + essActivePower.asString());
+			} else if (essSoc.isDefined()) {
+				result.append("SoC:" + essSoc.asString());
+			} else {
+				result.append("L:" + essActivePower.asString());
+			}
+			result.append(" ");
+		}
+		// Grid
+		Value<Integer> gridActivePower = this.getGridActivePower().value();
+		if (gridActivePower.isDefined()) {
+			result.append("Grid:" + gridActivePower.asString() + " ");
+		}
+		// Production
+		Value<Integer> production = this.getProductionActivePower().value();
 		Value<Integer> productionAc = this.getProductionAcActivePower().value();
 		Value<Integer> productionDc = this.getProductionDcActualPower().value();
-		String production;
-		if (productionAc.asOptional().isPresent() && productionDc.asOptional().isPresent()) {
-			production = " Production:" + this.getProductionActivePower().value().asString();
-		} else {
-			production = " Production Total:" + this.getProductionActivePower().value().asString() //
-					+ ",AC:" + productionAc.asString() //
-					+ ",DC:" + productionDc.asString(); //
+		if (productionAc.isDefined() || productionDc.isDefined()) {
+			result.append("Production ");
+			if (productionAc.isDefined() && productionDc.isDefined()) {
+				result.append(" Total:" + production.asString() //
+						+ ",AC:" + productionAc.asString() //
+						+ ",DC:" + productionDc.asString()); //
+			} else if (productionAc.isDefined()) {
+				result.append("AC:" + productionAc.asString());
+			} else {
+				result.append("DC:" + productionDc.asString());
+			}
+			result.append(" ");
 		}
-		return "State:" + state.getName() //
-				+ " Ess SoC:" + this.getEssSoc().value().asString() //
-				+ "|L:" + this.getEssActivePower().value().asString() //
-				+ " Grid:" + this.getGridActivePower().value().asString() //
-				+ production //
-				+ " Consumption L:" + this.getConsumptionActivePower().value().asString(); //
+		// Consumption
+		Value<Integer> consumptionActivePower = this.getConsumptionActivePower().value();
+		if (consumptionActivePower.isDefined()) {
+			result.append("Consumption:" + consumptionActivePower.asString() + " ");
+		}
+		// Remove last 'space' character and return result
+		String resultString = result.toString();
+		return resultString.substring(0, resultString.length() - 1);
 	}
 
 }

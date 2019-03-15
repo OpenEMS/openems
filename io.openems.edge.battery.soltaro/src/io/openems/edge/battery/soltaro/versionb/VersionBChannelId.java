@@ -209,9 +209,9 @@ public enum VersionBChannelId implements io.openems.edge.common.channel.doc.Chan
 	CLUSTER_1_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
 	CLUSTER_1_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEZIDEGREE_CELSIUS)), //
 	MAX_CELL_RESISTANCE_ID(new Doc().unit(Unit.NONE)), //
-	MAX_CELL_RESISTANCE(new Doc().unit(Unit.MIKROOHM)), //
+	MAX_CELL_RESISTANCE(new Doc().unit(Unit.MICROOHM)), //
 	MIN_CELL_RESISTANCE_ID(new Doc().unit(Unit.NONE)), //
-	MIN_CELL_RESISTANCE(new Doc().unit(Unit.MIKROOHM)), //
+	MIN_CELL_RESISTANCE(new Doc().unit(Unit.MICROOHM)), //
 	POSITIVE_INSULATION(new Doc().unit(Unit.KILOOHM)), //
 	NEGATIVE_INSULATION(new Doc().unit(Unit.KILOOHM)), //
 	MAIN_CONTACTOR_FLAG(new Doc()), // 
@@ -337,11 +337,11 @@ public enum VersionBChannelId implements io.openems.edge.common.channel.doc.Chan
 
 	SYSTEM_TIME_HIGH(new Doc().unit(Unit.NONE)), //
 	SYSTEM_TIME_LOW(new Doc().unit(Unit.NONE)), //
-	LAST_TIME_CHARGE_CAPACITY_LOW_BITS(new Doc().unit(Unit.MILLIAMPERE_HOUR)), //		
+	LAST_TIME_CHARGE_CAPACITY_LOW_BITS(new Doc().unit(Unit.MILLIAMPERE_HOURS)), //		
 	LAST_TIME_CHARGE_END_TIME_HIGH_BITS(new Doc().unit(Unit.NONE)), //
 	LAST_TIME_CHARGE_END_TIME_LOW_BITS(new Doc().unit(Unit.NONE)), //
 	
-	LAST_TIME_DISCHARGE_CAPACITY_LOW_BITS(new Doc().unit(Unit.MILLIAMPERE_HOUR)), //
+	LAST_TIME_DISCHARGE_CAPACITY_LOW_BITS(new Doc().unit(Unit.MILLIAMPERE_HOURS)), //
 	LAST_TIME_DISCHARGE_END_TIME_HIGH_BITS(new Doc().unit(Unit.NONE)), //
 	LAST_TIME_DISCHARGE_END_TIME_LOW_BITS(new Doc().unit(Unit.NONE)), //
 	

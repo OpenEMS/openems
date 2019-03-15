@@ -27,10 +27,10 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 
 	@AttributeDefinition(name = "BatteryStringC", description = "ID of battery connected to string C.")
 	String battery_string_C_id();
-	
+
 	@AttributeDefinition(name = "IPUs", description = "Which IPUs are used, InverterCount 4 is DC DC Converter", required = true)
 	InverterCount inverterCount() default InverterCount.ONE;
-	
+
 	@AttributeDefinition(name = "MinSoCA", description = "Minimal SoC of Battery String A, if reached no further discharging is allowed")
 	int minSoCA() default 25;
 

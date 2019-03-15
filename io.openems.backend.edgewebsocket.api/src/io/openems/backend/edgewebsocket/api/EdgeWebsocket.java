@@ -10,20 +10,22 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.session.User;
 
 @ProviderType
 public interface EdgeWebsocket {
 
 	/**
-	 * Send a JSON-RPC Request to an Edge via Websocket and expect a JSON-RPC
-	 * Response.
+	 * Send an authenticated JSON-RPC Request to an Edge via Websocket and expect a
+	 * JSON-RPC Response.
 	 * 
 	 * @param edgeId  the Edge-ID
 	 * @param request the JsonrpcRequest
+	 * @param user    the authenticated User
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
 			throws OpenemsNamedException;
 
 	/**
@@ -44,7 +46,7 @@ public interface EdgeWebsocket {
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, UUID token,
-			SubscribeSystemLogRequest request) throws OpenemsNamedException;
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
+			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException;
 
 }

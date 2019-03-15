@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 
 public class Utils {
@@ -34,9 +36,10 @@ public class Utils {
 					case PRODUCTION_MAX_DC_ACTUAL_POWER:
 					case CONSUMPTION_ACTIVE_POWER:
 					case CONSUMPTION_MAX_ACTIVE_POWER:
-					case GRID_MODE:
 					case ESS_MAX_APPARENT_POWER:
 						return new IntegerReadChannel(c, channelId, 0);
+					case GRID_MODE:
+						return new EnumReadChannel(c, channelId, GridMode.UNDEFINED);
 					case ESS_ACTIVE_CHARGE_ENERGY:
 					case ESS_ACTIVE_DISCHARGE_ENERGY:
 					case GRID_BUY_ACTIVE_ENERGY:

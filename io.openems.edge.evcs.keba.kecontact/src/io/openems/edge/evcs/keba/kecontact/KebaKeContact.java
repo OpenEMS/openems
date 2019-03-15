@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -75,9 +76,6 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 				.text("Current preset value via Control pilot")), //
 		MAX_CURR_PERCENT(new Doc().type(OpenemsType.INTEGER)
 				.text("Current preset value via Control pilot in 0,1% of the PWM value")), //
-		CURR_HARDWARE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)
-				.text("Highest possible charging current of the charging connection. "
-						+ "Contains device maximum, DIP-switch setting, cable coding and temperature reduction.")), //
 		CURR_USER(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)
 				.text("Current preset value of the user via UDP; Default = 63000mA")), //
 		CURR_FAILSAFE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)
@@ -110,13 +108,21 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		// TODO: 0.1 Wh
 		ENERGY_TOTAL(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text(
 				"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
+
+		PHASES(new Doc().type(OpenemsType.INTEGER).text("Count of ladders, the car is louding with")), //
+
 		/*
 		 * Write Channels
 		 */
 		SET_ENABLED(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)
 				.text("Disabled is indicated with a blue flashing LED. "
 						+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
-						+ "and disabling can lead to an error in the charging station.")); //
+						+ "and disabling can lead to an error in the charging station.")), //
+
+		/*
+		 * Fail State Channels
+		 */
+		ChargingStation_COMMUNICATION_FAILED(new Doc().level(Level.FAULT));
 
 		private final Doc doc;
 
@@ -215,5 +221,13 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	@Override
 	public String debugLog() {
 		return "Limit:" + this.channel(KebaKeContact.ChannelId.CURR_USER).value().asString();
+	}
+
+	public ReadWorker getReadWorker() {
+		return readWorker;
+	}
+
+	public ReadHandler getReadHandler() {
+		return readHandler;
 	}
 }

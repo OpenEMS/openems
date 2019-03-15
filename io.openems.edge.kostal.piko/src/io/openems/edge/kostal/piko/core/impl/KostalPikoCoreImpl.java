@@ -5,10 +5,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -44,10 +40,6 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-
-	/* INVERTER, BATTERY */
 	private KostalPikoEss ess = null;
 
 	@Override

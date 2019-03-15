@@ -82,6 +82,7 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler, O
 	 */
 	private synchronized void updateSortedControllers() {
 		TreeMap<String, Controller> allControllers = new TreeMap<>(this._controllers);
+		List<String> notAvailableControllers = new ArrayList<>();
 		this.sortedControllers.clear();
 		// add sorted controllers
 		for (String id : this.controllersIds) {
@@ -90,9 +91,20 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler, O
 			}
 			Controller controller = allControllers.remove(id);
 			if (controller == null) {
-				this.logWarn(this.log, "Required Controller [" + id + "] is not available.");
+				notAvailableControllers.add(id);
 			} else {
 				this.sortedControllers.add(controller);
+			}
+		}
+
+		// log warning for not-available Controllers
+		if (!notAvailableControllers.isEmpty()) {
+			if (notAvailableControllers.size() > 1) {
+				this.logWarn(this.log,
+						"Required Controllers [" + String.join(",", notAvailableControllers) + "] are not available.");
+			} else {
+				this.logWarn(this.log,
+						"Required Controller [" + notAvailableControllers.get(0) + "] is not available.");
 			}
 		}
 
