@@ -37,14 +37,8 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 		this(Clock.systemDefaultZone());
 	}
 
-	protected EvcsFixActivePower(Clock clock) {
-		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
-
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -55,6 +49,15 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	protected EvcsFixActivePower(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
+		this.clock = clock;
 	}
 
 	@Activate
