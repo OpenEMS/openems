@@ -21,6 +21,8 @@ import com.google.common.collect.Multimap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.EnumReadChannel;
 import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -47,8 +49,26 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 
 	private Config config;
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public DebugDetailedLog() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Activate
@@ -100,11 +120,10 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 						 * create descriptive text
 						 */
 						String description = "";
-						if (channel.channelDoc().hasOptions()) {
+						if (channel instanceof EnumReadChannel) {
 							try {
 								description += channel.value().asOptionString();
 							} catch (IllegalArgumentException e) {
-
 								description += "UNKNOWN OPTION VALUE [" + channel.value().asString() + "]";
 								description += "ERROR: " + e.getMessage();
 							}
