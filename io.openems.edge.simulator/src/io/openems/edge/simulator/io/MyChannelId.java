@@ -1,8 +1,8 @@
 package io.openems.edge.simulator.io;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 
-public class MyChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public class MyChannelId implements io.openems.edge.common.channel.ChannelId {
 
 	private final String name;
 	private final Doc doc = new Doc();

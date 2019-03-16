@@ -22,8 +22,8 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -116,7 +116,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		ACTIVE_ENERGY_L1(new Doc().unit(Unit.WATT_HOURS)), //
 		ACTIVE_ENERGY_L2(new Doc().unit(Unit.WATT_HOURS)), //

@@ -1,6 +1,6 @@
 package io.openems.edge.ess.refu;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.internal.OptionsEnum;
 
 enum SystemState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

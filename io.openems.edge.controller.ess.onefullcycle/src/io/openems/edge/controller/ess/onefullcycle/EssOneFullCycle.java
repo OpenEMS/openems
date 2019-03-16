@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -49,7 +49,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	private final TemporalAmount hysteresis = Duration.ofMinutes(30);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(new Doc() //
 				.level(Level.INFO) //
 				.text("Current State of State-Machine") //

@@ -1,8 +1,8 @@
 package io.openems.edge.wago;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 
-public class FieldbusChannel implements io.openems.edge.common.channel.doc.ChannelId {
+public class FieldbusChannel implements io.openems.edge.common.channel.ChannelId {
 
 	private final String name;
 	private final Doc doc = new Doc();

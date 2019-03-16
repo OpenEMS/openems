@@ -18,7 +18,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -30,7 +30,7 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 
 	// private final Logger log = LoggerFactory.getLogger(ModbusSimulator.class);
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
 

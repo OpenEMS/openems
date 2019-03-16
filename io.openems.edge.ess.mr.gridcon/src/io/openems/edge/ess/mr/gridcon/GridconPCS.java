@@ -37,12 +37,12 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.FloatReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.internal.BooleanWriteChannel;
+import io.openems.edge.common.channel.internal.FloatReadChannel;
+import io.openems.edge.common.channel.internal.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -936,7 +936,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			});
 		}
 
-		public DoubleWordErrorCodeChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
+		public DoubleWordErrorCodeChannelMapper m(io.openems.edge.common.channel.ChannelId channelId, int bitIndex) {
 			Channel<?> channel = channel(channelId);
 			if (channel.getType() != OpenemsType.BOOLEAN) {
 				throw new IllegalArgumentException(

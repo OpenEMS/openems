@@ -1,9 +1,9 @@
 package io.openems.edge.meter.microcare.sdm630;
 
-import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.LongReadChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.IntegerReadChannel;
+import io.openems.edge.common.channel.internal.LongReadChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;

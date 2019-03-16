@@ -3,11 +3,11 @@ package io.openems.edge.ess.core.power;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.internal.EnumReadChannel;
+import io.openems.edge.common.channel.internal.IntegerReadChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.power.api.SolverStrategy;
 

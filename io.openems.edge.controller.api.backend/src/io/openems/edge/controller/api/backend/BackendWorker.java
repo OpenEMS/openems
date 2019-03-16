@@ -19,7 +19,7 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.common.channel.doc.AccessMode;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.type.slidingvalue.DoubleSlidingValue;
 import io.openems.edge.common.type.slidingvalue.FloatSlidingValue;
 import io.openems.edge.common.type.slidingvalue.IntegerSlidingValue;

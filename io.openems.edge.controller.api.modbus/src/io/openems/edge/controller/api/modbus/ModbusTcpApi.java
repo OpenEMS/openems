@@ -29,9 +29,9 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -84,7 +84,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		UNABLE_TO_START(new Doc() //
 				.level(Level.FAULT) //
 				.text("Unable to start Modbus/TCP-Api Server"));

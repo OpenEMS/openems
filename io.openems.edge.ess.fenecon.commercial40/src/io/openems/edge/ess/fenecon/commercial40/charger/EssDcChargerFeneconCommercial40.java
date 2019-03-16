@@ -25,8 +25,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
@@ -101,7 +101,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		BMS_DCDC0_OUTPUT_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		BMS_DCDC0_OUTPUT_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		BMS_DCDC0_OUTPUT_POWER(new Doc().unit(Unit.WATT)), //

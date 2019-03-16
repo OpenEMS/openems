@@ -7,11 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.StringWriteChannel;
+import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.internal.BooleanWriteChannel;
+import io.openems.edge.common.channel.internal.EnumReadChannel;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
+import io.openems.edge.common.channel.internal.StringWriteChannel;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
 
 public class PowerHandler implements BiConsumer<Integer, Integer> {

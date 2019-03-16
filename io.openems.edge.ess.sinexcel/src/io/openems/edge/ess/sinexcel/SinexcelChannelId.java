@@ -2,14 +2,14 @@ package io.openems.edge.ess.sinexcel;
 
 import java.util.Optional;
 
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.sum.GridMode;
 
-public enum SinexcelChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public enum SinexcelChannelId implements io.openems.edge.common.channel.ChannelId {
 	SUNSPEC_DID_0103(new Doc()), //
 	SET_INTERN_DC_RELAY(new Doc() //
 			.unit(Unit.NONE)),

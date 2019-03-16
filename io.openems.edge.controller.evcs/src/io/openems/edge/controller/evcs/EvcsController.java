@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -52,7 +52,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Reference
 	private Sum sum;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CHARGE_MODE(new Doc() //
 				.text("Configured Charge-Mode") //
 				.options(ChargeMode.values())),

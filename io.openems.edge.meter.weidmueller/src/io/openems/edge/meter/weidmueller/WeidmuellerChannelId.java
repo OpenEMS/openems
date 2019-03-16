@@ -1,9 +1,9 @@
 package io.openems.edge.meter.weidmueller;
 
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 
-public enum WeidmuellerChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public enum WeidmuellerChannelId implements io.openems.edge.common.channel.ChannelId {
 	VOLTAGE_L1_L2(new Doc().unit(Unit.VOLT)), //
 	VOLTAGE_L2_L3(new Doc().unit(Unit.VOLT)), //
 	VOLTAGE_L1_L3(new Doc().unit(Unit.VOLT)), //

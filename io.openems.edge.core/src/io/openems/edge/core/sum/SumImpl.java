@@ -17,10 +17,10 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;

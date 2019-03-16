@@ -1,8 +1,8 @@
 package io.openems.edge.sma;
 
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.sma.enums.AbsorptionPhaseActive;
 import io.openems.edge.sma.enums.AcknowledgeGeneratorErrors;
 import io.openems.edge.sma.enums.ActiveBatteryChargingMode;
@@ -44,7 +44,7 @@ import io.openems.edge.sma.enums.TimeControlledGeneratorOperation;
 import io.openems.edge.sma.enums.TimeControlledInverterOperation;
 import io.openems.edge.sma.enums.TypeOfACSubdistribution;
 
-public enum SiChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public enum SiChannelId implements io.openems.edge.common.channel.ChannelId {
 		DEVICE_CLASS(new Doc()), //
 		DEVICE_TYPE(new Doc()), //
 		SERIAL_NUMBER(new Doc()), //

@@ -22,7 +22,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
@@ -64,7 +64,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SYSTEM_STATE(new Doc().options(SystemState.values())), //
 		@SuppressWarnings("unchecked")
 		BSMU_WORK_STATE(new Doc() //

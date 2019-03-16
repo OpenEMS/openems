@@ -46,9 +46,9 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.internal.BooleanWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.DigitalInput;
@@ -209,7 +209,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		}
 	}
 
-	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.doc.ChannelId channelId,
+	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.ChannelId channelId,
 			int address) {
 		return m(channelId, new CoilElement(address));
 	}

@@ -34,13 +34,13 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.internal.EnumReadChannel;
+import io.openems.edge.common.channel.internal.EnumWriteChannel;
+import io.openems.edge.common.channel.internal.IntegerReadChannel;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -436,7 +436,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		});
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*
 		 * DEBUG
 		 */

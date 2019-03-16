@@ -1,6 +1,6 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.internal.OptionsEnum;
 
 public enum SystemState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

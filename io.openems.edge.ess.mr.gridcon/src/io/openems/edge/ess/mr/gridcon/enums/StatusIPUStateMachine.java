@@ -1,6 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.internal.OptionsEnum;
 
 public enum StatusIPUStateMachine implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

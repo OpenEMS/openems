@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
-import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 

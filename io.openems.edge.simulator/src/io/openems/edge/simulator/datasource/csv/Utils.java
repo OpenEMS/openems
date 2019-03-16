@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {

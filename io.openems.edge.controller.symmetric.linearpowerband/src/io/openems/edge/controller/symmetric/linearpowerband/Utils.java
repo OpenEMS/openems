@@ -2,9 +2,9 @@ package io.openems.edge.controller.symmetric.linearpowerband;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.StateChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 

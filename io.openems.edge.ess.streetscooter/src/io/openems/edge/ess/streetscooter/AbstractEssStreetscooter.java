@@ -16,13 +16,13 @@ import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC2ReadInputsTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
-import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.internal.BooleanWriteChannel;
+import io.openems.edge.common.channel.internal.IntegerReadChannel;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -207,7 +207,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ChannelId.BATTERY_OVERLOAD, new CoilElement(getBatteryOverloadAddress()))));
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		DEBUG_ICU_RUN(new Doc()), //
 		ICU_RUN(new Doc().unit(Unit.ON_OFF) //
 				// on each setNextWrite to the channel -> store the value in the DEBUG-channel

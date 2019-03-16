@@ -1,7 +1,7 @@
 package io.openems.edge.simulator.io;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 import java.util.Arrays;

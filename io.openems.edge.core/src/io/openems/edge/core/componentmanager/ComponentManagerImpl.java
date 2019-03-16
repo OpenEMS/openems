@@ -67,9 +67,9 @@ import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -97,7 +97,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(new Doc() //
 				.text("A configured OpenEMS Component was not activated") //
 				.type(OpenemsType.BOOLEAN) //

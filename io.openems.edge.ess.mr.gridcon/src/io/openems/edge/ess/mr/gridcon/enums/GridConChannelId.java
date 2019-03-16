@@ -1,12 +1,12 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 
 /**
  * This enum holds every possible channel id for a gridcon.
  */
-public enum GridConChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public enum GridConChannelId implements io.openems.edge.common.channel.ChannelId {
 	CCU_STATE_IDLE(new Doc()),
 	CCU_STATE_PRECHARGE(new Doc()),
 	CCU_STATE_STOP_PRECHARGE(new Doc()),

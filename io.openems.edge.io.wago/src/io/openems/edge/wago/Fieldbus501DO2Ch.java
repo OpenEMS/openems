@@ -3,8 +3,8 @@ package io.openems.edge.wago;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.internal.BooleanWriteChannel;
 
 public class Fieldbus501DO2Ch extends FieldbusModule {
 

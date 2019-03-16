@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.internal.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -278,9 +278,9 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		timeUntilChargeIsForced = config.timeSpan();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		STATE_MACHINE(new Doc().level(Level.INFO).text("Current state").options(State.values())), //
+		STATE_MACHINE(Doc.of(Level.INFO).text("Current state").options(State.values())), //
 		; //
 
 		private final Doc doc;

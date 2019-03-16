@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
