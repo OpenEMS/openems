@@ -10,9 +10,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateCollectorChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.StateCollectorChannelDoc;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannelDoc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
@@ -28,7 +28,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
  * <li>an OSGi service PID (see {@link #servicePid()}
  * <li>Channels (see {@link Channel}), identified by {@link ChannelId} or
  * String-ID and provided via {@link #channel(String)},
- * {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
+ * {@link #channel(io.openems.edge.common.channel.ChannelId)} and
  * {@link #channels()}
  * <li>a kind of 'toString' method which provides the most important info about
  * the component. (see {@link #debugLog()})
@@ -125,7 +125,7 @@ public interface OpenemsComponent {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
-	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) {
 		T channel = this.<T>channel(channelId.id());
 		return channel;
 	}
@@ -137,7 +137,7 @@ public interface OpenemsComponent {
 	 */
 	public Collection<Channel<?>> channels();
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
 		STATE(new StateCollectorChannelDoc());
 

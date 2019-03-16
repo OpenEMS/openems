@@ -3,8 +3,8 @@ package io.openems.edge.common.sum;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -14,7 +14,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
  */
 public interface Sum extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Ess: Average State of Charge.
 		 * 

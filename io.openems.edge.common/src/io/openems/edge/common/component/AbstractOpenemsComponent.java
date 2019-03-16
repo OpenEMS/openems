@@ -11,9 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.StateChannel;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -62,10 +61,22 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * }
 	 * </pre>
 	 * 
-	 * @param initialChannelIds the Channel-IDs to initialize.
+	 * Note: the separation in firstInitialChannelIds and furtherInitialChannelIds
+	 * is only there to enforce that calling the constructor cannot be forgotten.
+	 * This way it needs to be called with at least one parameter - which is always
+	 * at least "OpenemsComponent.ChannelId.values()". Just use it as if it was:
+	 * 
+	 * <pre>
+	 * AbstractOpenemsComponent(ChannelId[]... channelIds)
+	 * </pre>
+	 * 
+	 * @param firstInitialChannelIds   the Channel-IDs to initialize.
+	 * @param furtherInitialChannelIds the Channel-IDs to initialize.
 	 */
-	protected AbstractOpenemsComponent(io.openems.edge.common.channel.doc.ChannelId[]... initialChannelIds) {
-		this.addChannels(initialChannelIds);
+	protected AbstractOpenemsComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		this.addChannels(firstInitialChannelIds);
+		this.addChannels(furtherInitialChannelIds);
 	}
 
 	/**
@@ -126,9 +137,27 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * 
 	 * @param initialChannelIds the given Channel-IDs
 	 */
-	protected void addChannels(io.openems.edge.common.channel.doc.ChannelId[][] initialChannelIds) {
-		for (io.openems.edge.common.channel.doc.ChannelId[] channelIds : initialChannelIds) {
-			for (io.openems.edge.common.channel.doc.ChannelId channelId : channelIds) {
+	protected void addChannels(io.openems.edge.common.channel.ChannelId[] initialChannelIds) {
+		for (io.openems.edge.common.channel.ChannelId channelId : initialChannelIds) {
+			Doc doc = channelId.doc();
+			Channel<?> channel = doc.createChannelInstance(this, channelId);
+			this.addChannel(channel);
+		}
+	}
+
+	/**
+	 * Initializes the given Channel-IDs
+	 * 
+	 * <ul>
+	 * <li>Creates object instances from Channel-Doc
+	 * <li>Registers the Channels
+	 * </ul>
+	 * 
+	 * @param initialChannelIds the given Channel-IDs
+	 */
+	protected void addChannels(io.openems.edge.common.channel.ChannelId[][] initialChannelIds) {
+		for (io.openems.edge.common.channel.ChannelId[] channelIds : initialChannelIds) {
+			for (io.openems.edge.common.channel.ChannelId channelId : channelIds) {
 				Doc doc = channelId.doc();
 				Channel<?> channel = doc.createChannelInstance(this, channelId);
 				this.addChannel(channel);
@@ -162,9 +191,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @throws NullPointerException     if the Channel was not initialized.
 	 * @throws IllegalArgumentException if the Channel-ID had already been added.
 	 */
-	// TODO should be private; Channels are only going to be added via
-	// addChannels()-method above in future.
-	protected void addChannel(Channel<?> channel) throws NullPointerException, IllegalArgumentException {
+	private void addChannel(Channel<?> channel) throws NullPointerException, IllegalArgumentException {
 		if (channel == null) {
 			throw new NullPointerException(
 					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
