@@ -98,7 +98,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(defaultChargeMinPower);
 			break;
 		case FORCE_CHARGE:
-			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
+			this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
 			break;
 		
 		}
