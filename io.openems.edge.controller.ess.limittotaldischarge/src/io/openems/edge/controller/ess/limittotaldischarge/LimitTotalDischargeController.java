@@ -29,7 +29,7 @@ import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Ess.AvoidTotalChargeDischarge", //
+		name = "Controller.Ess.LimitTotalDischarge", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -55,12 +55,9 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	private State state = State.NORMAL;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(new Doc() //
-				.level(Level.INFO) //
-				.text("Current State of State-Machine") //
-				.options(State.values())), //
-		AWAITING_HYSTERESIS(new Doc() //
-				.level(Level.INFO) //
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
 				.text("Would change State, but hystesis is active")); //
 
 		private final Doc doc;
@@ -80,8 +77,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	protected LimitTotalDischargeController(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
