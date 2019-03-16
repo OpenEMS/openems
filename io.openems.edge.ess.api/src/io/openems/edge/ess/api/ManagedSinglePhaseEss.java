@@ -3,7 +3,7 @@ package io.openems.edge.ess.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 
 /**
  * Represents a Single-Phase Energy Storage System.
@@ -11,7 +11,7 @@ import io.openems.edge.common.channel.doc.Doc;
 @ProviderType
 public interface ManagedSinglePhaseEss extends ManagedSymmetricEss, SinglePhaseEss {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 
 		private final Doc doc;

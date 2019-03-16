@@ -4,8 +4,8 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -16,7 +16,7 @@ public interface SymmetricEss extends OpenemsComponent {
 
 	public static final String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * State of Charge.
 		 * 
@@ -27,8 +27,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)),
 		/**
 		 * Grid-Mode.
@@ -39,9 +38,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.options(GridMode.values())),
+		GRID_MODE(Doc.of(GridMode.values())),
 		/**
 		 * Active Power.
 		 * 
@@ -52,8 +49,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -67,8 +63,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -83,7 +78,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_APPARENT_POWER(new Doc() //
+		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
 		/**
 		 * Active Charge Energy.
@@ -94,8 +89,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_CHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Active Discharge Energy.
@@ -106,8 +100,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_DISCHARGE_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;

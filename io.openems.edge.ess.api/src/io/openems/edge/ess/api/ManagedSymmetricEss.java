@@ -6,13 +6,14 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.internal.IntegerDoc;
+import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Constraint;
@@ -27,7 +28,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 
 	public static final Logger log = LoggerFactory.getLogger(ManagedSymmetricEss.class);
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Holds the currently maximum allowed charge power. This value is commonly
 		 * defined by current battery limitations.
@@ -39,7 +40,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: zero or negative value
 		 * </ul>
 		 */
-		ALLOWED_CHARGE_POWER(new Doc().unit(Unit.WATT)), //
+		ALLOWED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Holds the currently maximum allowed discharge power. This value is commonly
 		 * defined by current battery limitations.
@@ -51,7 +53,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		ALLOWED_DISCHARGE_POWER(new Doc().unit(Unit.WATT)), //
+		ALLOWED_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Sets a fixed Active Power.
 		 * 
@@ -62,7 +65,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerEquals", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS))), //
@@ -76,7 +79,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerEquals", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS))), //
@@ -90,7 +93,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_LESS_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerLessOrEquals", Phase.ALL, Pwr.ACTIVE,
@@ -105,7 +108,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_GREATER_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerGreaterOrEquals", Phase.ALL, Pwr.ACTIVE,
@@ -120,7 +123,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_LESS_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerLessOrEquals", Phase.ALL, Pwr.REACTIVE,
@@ -135,7 +138,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_GREATER_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerGreaterOrEquals", Phase.ALL, Pwr.REACTIVE,
@@ -152,7 +155,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Holds settings of Reactive Power for debugging.
 		 * 
@@ -165,7 +169,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * just before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		DEBUG_SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * StateChannel is set when calling applyPower() failed.
 		 * 
@@ -177,7 +182,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * failed.
 		 * </ul>
 		 */
-		APPLY_POWER_FAILED(new Doc().level(Level.FAULT).text("Applying the Active/Reactive Power failed"));
+		APPLY_POWER_FAILED(Doc.of(Level.FAULT) //
+				.text("Applying the Active/Reactive Power failed"));
 
 		private final Doc doc;
 

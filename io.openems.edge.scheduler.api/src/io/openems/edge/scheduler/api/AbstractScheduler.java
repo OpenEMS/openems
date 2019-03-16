@@ -8,6 +8,11 @@ public abstract class AbstractScheduler extends AbstractOpenemsComponent impleme
 
 	private int cycleTime = Scheduler.DEFAULT_CYCLE_TIME;
 
+	protected AbstractScheduler(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
 	protected void activate(ComponentContext context, String id, boolean enabled, int cycleTime) {
 		if (cycleTime < 1) {
 			this.cycleTime = Scheduler.DEFAULT_CYCLE_TIME;

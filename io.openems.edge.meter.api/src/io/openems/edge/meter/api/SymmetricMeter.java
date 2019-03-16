@@ -5,25 +5,24 @@ import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.internal.IntegerDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Represents a Symmetric Meter.
  * 
- * - Negative ActivePower and ConsumptionActivePower represent Consumption, i.e.
- * power that is 'leaving the system', e.g. feed-to-grid
- * 
- * - Positive ActivePower and ProductionActivePower represent Production, i.e.
+ * <ul>
+ * <li>Negative ActivePower and ConsumptionActivePower represent Consumption,
+ * i.e. power that is 'leaving the system', e.g. feed-to-grid
+ * <li>Positive ActivePower and ProductionActivePower represent Production, i.e.
  * power that is 'entering the system', e.g. buy-from-grid
- * 
- * @author stefan.feilmeier
- *
+ * </ul>
  */
 public interface SymmetricMeter extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Frequency
 		 * 
@@ -34,7 +33,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		FREQUENCY(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ)), //
+		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIHERTZ)), //
 		/**
 		 * Minimum Ever Active Power
 		 * 
@@ -46,7 +46,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
 		 * </ul>
 		 */
-		MIN_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Maximum Ever Active Power
 		 * 
@@ -58,7 +59,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
 		 * </ul>
 		 */
-		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Active Power
 		 * 
@@ -71,8 +73,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * the system')
 		 * </ul>
 		 */
-		ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ACTIVE_POWER(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT) //
 				.onInit(channel -> {
@@ -80,8 +81,8 @@ public interface SymmetricMeter extends OpenemsComponent {
 						/*
 						 * Fill Min/Max Active Power channels
 						 */
-						if (value.asOptional().isPresent()) {
-							int newValue = (Integer) value.get();
+						if (value.isDefined()) {
+							int newValue = value.get();
 							{
 								Channel<Integer> minActivePowerChannel = channel.getComponent()
 										.channel(ChannelId.MIN_ACTIVE_POWER);
@@ -119,7 +120,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * the system')
 		 * </ul>
 		 */
-		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER) //
+		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)), //
 		/**
@@ -131,8 +132,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Active Consumption Energy
@@ -143,8 +143,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_CONSUMPTION_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
 		 * Voltage
@@ -155,8 +154,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		/**
 		 * Current
@@ -167,8 +165,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)); //
 
 		private final Doc doc;

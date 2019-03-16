@@ -4,10 +4,11 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.internal.IntegerDoc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Phase;
@@ -17,7 +18,7 @@ import io.openems.edge.ess.power.api.Relationship;
 @ProviderType
 public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Sets a fixed Active Power on L1.
 		 * 
@@ -28,7 +29,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L1_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L1_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL1Equals", Phase.L1, Pwr.ACTIVE, Relationship.EQUALS))), //
@@ -42,7 +43,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L2_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L2_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL2Equals", Phase.L2, Pwr.ACTIVE, Relationship.EQUALS))), //
@@ -56,7 +57,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L3_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL3Equals", Phase.L3, Pwr.ACTIVE, Relationship.EQUALS))), //
@@ -70,7 +71,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L1_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L1_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL1Equals", Phase.L1, Pwr.REACTIVE, Relationship.EQUALS))), //
@@ -84,7 +85,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L2_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L2_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL2Equals", Phase.L2, Pwr.REACTIVE, Relationship.EQUALS))), //
@@ -98,7 +99,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L3_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL2Equals", Phase.L3, Pwr.REACTIVE, Relationship.EQUALS))), //
@@ -112,7 +113,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L1_LESS_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL1LessOrEquals", Phase.L1, Pwr.ACTIVE,
@@ -127,7 +128,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L2_LESS_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL2LessOrEquals", Phase.L2, Pwr.ACTIVE,
@@ -142,7 +143,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L3_LESS_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL3LessOrEquals", Phase.L3, Pwr.ACTIVE,
@@ -157,7 +158,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL1GreaterOrEquals", Phase.L1, Pwr.ACTIVE,
@@ -172,7 +173,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL2GreaterOrEquals", Phase.L2, Pwr.ACTIVE,
@@ -187,7 +188,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS(new Doc() //
+		SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetActivePowerL3GreaterOrEquals", Phase.L3, Pwr.ACTIVE,
@@ -202,7 +203,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L1_LESS_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL1LessOrEquals", Phase.L1, Pwr.REACTIVE,
@@ -217,7 +218,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L2_LESS_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL2LessOrEquals", Phase.L2, Pwr.REACTIVE,
@@ -232,7 +233,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L3_LESS_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL3LessOrEquals", Phase.L3, Pwr.REACTIVE,
@@ -247,7 +248,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL1GreaterOrEquals", Phase.L1, Pwr.REACTIVE,
@@ -262,7 +263,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL2GreaterOrEquals", Phase.L2, Pwr.REACTIVE,
@@ -277,7 +278,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS(new Doc() //
+		SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new PowerConstraint("SetReactivePowerL3GreaterOrEquals", Phase.L3, Pwr.REACTIVE,
@@ -295,7 +296,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		DEBUG_SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Holds settings of Reactive Power for debugging
 		 * 
@@ -309,7 +311,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		DEBUG_SET_REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Holds settings of Active Power L2 for debugging
 		 * 
@@ -323,7 +326,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		DEBUG_SET_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Holds settings of Reactive Power for debugging
 		 * 
@@ -337,7 +341,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		DEBUG_SET_REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Holds settings of Active Power L1 for debugging
 		 * 
@@ -351,7 +356,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		DEBUG_SET_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 		/**
 		 * Holds settings of Reactive Power for debugging
 		 * 
@@ -365,7 +371,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		DEBUG_SET_REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		;
 
 		private final Doc doc;
