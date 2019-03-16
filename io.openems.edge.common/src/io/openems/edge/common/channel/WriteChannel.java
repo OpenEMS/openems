@@ -12,7 +12,7 @@ public interface WriteChannel<T> extends Channel<T> {
 	/**
 	 * Updates the 'next' write value of Channel.
 	 * 
-	 * @param value
+	 * @param value the typed value
 	 */
 	public default void setNextWriteValue(T value) throws OpenemsException {
 		this.setNextWriteValueFromObject(value);
@@ -23,12 +23,11 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * 
 	 * <p>
 	 * Use this method if the value is not yet in the correct Type. Otherwise use
-	 * setNextWriteValue() directly.
+	 * {@link WriteChannel#setNextWriteValue(Object)} directly.
 	 * 
-	 * @param value
+	 * @param value the value as an Object
 	 */
-	@Deprecated
-	public default void setNextWriteValueFromObject(T value) throws OpenemsException {
+	public default void setNextWriteValueFromObject(Object value) throws OpenemsException {
 		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
 		// set the write value
 		this._setNextWriteValue(typedValue);
