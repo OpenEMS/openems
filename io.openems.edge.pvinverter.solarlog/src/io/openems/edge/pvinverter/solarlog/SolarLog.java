@@ -30,10 +30,10 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
@@ -182,25 +182,25 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		}
 	};
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		LAST_UPDATE_TIME(new Doc().type(OpenemsType.INTEGER).unit(Unit.SECONDS)),
-		PDC(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		UDC(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		YESTERDAY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		MONTHLY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		YEARLY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		PAC_CONSUMPTION(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		YESTERDAY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		MONTHLY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		YEARLY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)),
+		PDC(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		UDC(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		YESTERDAY_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		MONTHLY_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		YEARLY_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		TOTAL_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		PAC_CONSUMPTION(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		YESTERDAY_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		MONTHLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		YEARLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		TOTAL_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		TOTAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
 
 		// PV
 		// TODO: should use an enum for this; once
 		// https://github.com/OpenEMS/openems/pull/175 is merged
-		P_LIMIT_TYPE(new Doc().type(OpenemsType.INTEGER)), //
+		P_LIMIT_TYPE(Doc.of(OpenemsType.INTEGER)), //
 		P_LIMIT_PERC(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
@@ -211,7 +211,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 				.unit(Unit.KILOWATT)),
 		WATCH_DOG_TAG(new Doc() //
 				.type(OpenemsType.INTEGER)),
-		STATUS(new Doc().type(OpenemsType.INTEGER));
+		STATUS(Doc.of(OpenemsType.INTEGER));
 
 		private final Doc doc;
 

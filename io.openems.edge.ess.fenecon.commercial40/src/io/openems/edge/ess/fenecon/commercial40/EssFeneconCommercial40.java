@@ -33,12 +33,12 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.internal.EnumWriteChannel;
+import io.openems.edge.common.channel.internal.IntegerReadChannel;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -112,7 +112,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		return modbusBridgeId;
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ORIGINAL_ALLOWED_CHARGE_POWER(new Doc() //
 				.onInit(channel -> { //
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
@@ -195,156 +195,156 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		SET_PV_POWER_LIMIT(new Doc().unit(Unit.WATT)), //
 		BMS_DCDC_WORK_STATE(new Doc().options(BmsDcdcWorkState.values())), //
 		BMS_DCDC_WORK_MODE(new Doc().options(BmsDcdcWorkMode.values())), //
-		STATE_0(new Doc().level(Level.WARNING).text("Emergency Stop")), //
-		STATE_1(new Doc().level(Level.WARNING).text("Key Manual Stop")), //
-		STATE_2(new Doc().level(Level.WARNING).text("Transformer Phase B Temperature Sensor Invalidation")), //
-		STATE_3(new Doc().level(Level.WARNING).text("SD Memory Card Invalidation")), //
-		STATE_4(new Doc().level(Level.WARNING).text("Inverter Communication Abnormity")), //
-		STATE_5(new Doc().level(Level.WARNING).text("Battery Stack Communication Abnormity")), //
-		STATE_6(new Doc().level(Level.WARNING).text("Multifunctional Ammeter Communication Abnormity")), //
-		STATE_7(new Doc().level(Level.WARNING).text("Remote Communication Abnormity")), //
-		STATE_8(new Doc().level(Level.WARNING).text("PVDC1 Communication Abnormity")), //
-		STATE_9(new Doc().level(Level.WARNING).text("PVDC2 Communication Abnormity")), //
-		STATE_10(new Doc().level(Level.WARNING).text("Transformer Severe Overtemperature")), //
-		STATE_11(new Doc().level(Level.FAULT).text("DC Precharge Contactor Close Unsuccessfully")), //
-		STATE_12(new Doc().level(Level.FAULT).text("AC Precharge Contactor Close Unsuccessfully")), //
-		STATE_13(new Doc().level(Level.FAULT).text("AC Main Contactor Close Unsuccessfully")), //
-		STATE_14(new Doc().level(Level.FAULT).text("DC Electrical Breaker1 Close Unsuccessfully")), //
-		STATE_15(new Doc().level(Level.FAULT).text("DC Main Contactor Close Unsuccessfully")), //
-		STATE_16(new Doc().level(Level.FAULT).text("AC Breaker Trip")), //
-		STATE_17(new Doc().level(Level.FAULT).text("AC Main Contactor Open When Running")), //
-		STATE_18(new Doc().level(Level.FAULT).text("DC Main Contactor Open When Running")), //
-		STATE_19(new Doc().level(Level.FAULT).text("AC Main Contactor Open Unsuccessfully")), //
-		STATE_20(new Doc().level(Level.FAULT).text("DC Electrical Breaker1 Open Unsuccessfully")), //
-		STATE_21(new Doc().level(Level.FAULT).text("DC Main Contactor Open Unsuccessfully")), //
-		STATE_22(new Doc().level(Level.FAULT).text("Hardware PDP Fault")), //
-		STATE_23(new Doc().level(Level.FAULT).text("Master Stop Suddenly")), //
-		STATE_24(new Doc().level(Level.FAULT).text("DCShortCircuitProtection")), //
-		STATE_25(new Doc().level(Level.FAULT).text("DCOvervoltageProtection")), //
-		STATE_26(new Doc().level(Level.FAULT).text("DCUndervoltageProtection")), //
-		STATE_27(new Doc().level(Level.FAULT).text("DCInverseNoConnectionProtection")), //
-		STATE_28(new Doc().level(Level.FAULT).text("DCDisconnectionProtection")), //
-		STATE_29(new Doc().level(Level.FAULT).text("CommutingVoltageAbnormityProtection")), //
-		STATE_30(new Doc().level(Level.FAULT).text("DCOvercurrentProtection")), //
-		STATE_31(new Doc().level(Level.FAULT).text("Phase1PeakCurrentOverLimitProtection")), //
-		STATE_32(new Doc().level(Level.FAULT).text("Phase2PeakCurrentOverLimitProtection")), //
-		STATE_33(new Doc().level(Level.FAULT).text("Phase3PeakCurrentOverLimitProtection")), //
-		STATE_34(new Doc().level(Level.FAULT).text("Phase1GridVoltageSamplingInvalidation")), //
-		STATE_35(new Doc().level(Level.FAULT).text("Phase2VirtualCurrentOverLimitProtection")), //
-		STATE_36(new Doc().level(Level.FAULT).text("Phase3VirtualCurrentOverLimitProtection")), //
-		STATE_37(new Doc().level(Level.FAULT).text("Phase1GridVoltageSamplingInvalidation2")), //
-		STATE_38(new Doc().level(Level.FAULT).text("Phase2ridVoltageSamplingInvalidation")), //
-		STATE_39(new Doc().level(Level.FAULT).text("Phase3GridVoltageSamplingInvalidation")), //
-		STATE_40(new Doc().level(Level.FAULT).text("Phase1InvertVoltageSamplingInvalidation")), //
-		STATE_41(new Doc().level(Level.FAULT).text("Phase2InvertVoltageSamplingInvalidation")), //
-		STATE_42(new Doc().level(Level.FAULT).text("Phase3InvertVoltageSamplingInvalidation")), //
-		STATE_43(new Doc().level(Level.FAULT).text("ACCurrentSamplingInvalidation")), //
-		STATE_44(new Doc().level(Level.FAULT).text("DCCurrentSamplingInvalidation")), //
-		STATE_45(new Doc().level(Level.FAULT).text("Phase1OvertemperatureProtection")), //
-		STATE_46(new Doc().level(Level.FAULT).text("Phase2OvertemperatureProtection")), //
-		STATE_47(new Doc().level(Level.FAULT).text("Phase3OvertemperatureProtection")), //
-		STATE_48(new Doc().level(Level.FAULT).text("Phase1TemperatureSamplingInvalidation")), //
-		STATE_49(new Doc().level(Level.FAULT).text("Phase2TemperatureSamplingInvalidation")), //
-		STATE_50(new Doc().level(Level.FAULT).text("Phase3TemperatureSamplingInvalidation")), //
-		STATE_51(new Doc().level(Level.FAULT).text("Phase1PrechargeUnmetProtection")), //
-		STATE_52(new Doc().level(Level.FAULT).text("Phase2PrechargeUnmetProtection")), //
-		STATE_53(new Doc().level(Level.FAULT).text("Phase3PrechargeUnmetProtection")), //
-		STATE_54(new Doc().level(Level.FAULT).text("UnadaptablePhaseSequenceErrorProtection")), //
-		STATE_55(new Doc().level(Level.FAULT).text("DSPProtection")), //
-		STATE_56(new Doc().level(Level.FAULT).text("Phase1GridVoltageSevereOvervoltageProtection")), //
-		STATE_57(new Doc().level(Level.FAULT).text("Phase1GridVoltageGeneralOvervoltageProtection")), //
-		STATE_58(new Doc().level(Level.FAULT).text("Phase2GridVoltageSevereOvervoltageProtection")), //
-		STATE_59(new Doc().level(Level.FAULT).text("Phase2GridVoltageGeneralOvervoltageProtection")), //
-		STATE_60(new Doc().level(Level.FAULT).text("Phase3GridVoltageSevereOvervoltageProtection")), //
-		STATE_61(new Doc().level(Level.FAULT).text("Phase3GridVoltageGeneralOvervoltageProtection")), //
-		STATE_62(new Doc().level(Level.FAULT).text("Phase1GridVoltageSevereUndervoltageProtection")), //
-		STATE_63(new Doc().level(Level.FAULT).text("Phase1GridVoltageGeneralUndervoltageProtection")), //
-		STATE_64(new Doc().level(Level.FAULT).text("Phase2GridVoltageSevereUndervoltageProtection")), //
-		STATE_65(new Doc().level(Level.FAULT).text("Phase2GridVoltageGeneralUndervoltageProtection")), //
-		STATE_66(new Doc().level(Level.FAULT).text("Phase3GridVoltageSevereUndervoltageProtection")), //
-		STATE_67(new Doc().level(Level.FAULT).text("Phase3GridVoltageGeneralUndervoltageProtection")), //
-		STATE_68(new Doc().level(Level.FAULT).text("SevereOverfrequncyProtection")), //
-		STATE_69(new Doc().level(Level.FAULT).text("GeneralOverfrequncyProtection")), //
-		STATE_70(new Doc().level(Level.FAULT).text("SevereUnderfrequncyProtection")), //
-		STATE_71(new Doc().level(Level.FAULT).text("GeneralsUnderfrequncyProtection")), //
-		STATE_72(new Doc().level(Level.FAULT).text("Phase1Gridloss")), //
-		STATE_73(new Doc().level(Level.FAULT).text("Phase2Gridloss")), //
-		STATE_74(new Doc().level(Level.FAULT).text("Phase3Gridloss")), //
-		STATE_75(new Doc().level(Level.FAULT).text("IslandingProtection")), //
-		STATE_76(new Doc().level(Level.FAULT).text("Phase1UnderVoltageRideThrough")), //
-		STATE_77(new Doc().level(Level.FAULT).text("Phase2UnderVoltageRideThrough")), //
-		STATE_78(new Doc().level(Level.FAULT).text("Phase3UnderVoltageRideThrough")), //
-		STATE_79(new Doc().level(Level.FAULT).text("Phase1InverterVoltageSevereOvervoltageProtection")), //
-		STATE_80(new Doc().level(Level.FAULT).text("Phase1InverterVoltageGeneralOvervoltageProtection")), //
-		STATE_81(new Doc().level(Level.FAULT).text("Phase2InverterVoltageSevereOvervoltageProtection")), //
-		STATE_82(new Doc().level(Level.FAULT).text("Phase2InverterVoltageGeneralOvervoltageProtection")), //
-		STATE_83(new Doc().level(Level.FAULT).text("Phase3InverterVoltageSevereOvervoltageProtection")), //
-		STATE_84(new Doc().level(Level.FAULT).text("Phase3InverterVoltageGeneralOvervoltageProtection")), //
-		STATE_85(new Doc().level(Level.FAULT).text("InverterPeakVoltageHighProtectionCauseByACDisconnect")), //
-		STATE_86(new Doc().level(Level.WARNING).text("DCPrechargeContactorInspectionAbnormity")), //
-		STATE_87(new Doc().level(Level.WARNING).text("DCBreaker1InspectionAbnormity")), //
-		STATE_88(new Doc().level(Level.WARNING).text("DCBreaker2InspectionAbnormity")), //
-		STATE_89(new Doc().level(Level.WARNING).text("ACPrechargeContactorInspectionAbnormity")), //
-		STATE_90(new Doc().level(Level.WARNING).text("ACMainontactorInspectionAbnormity")), //
-		STATE_91(new Doc().level(Level.WARNING).text("ACBreakerInspectionAbnormity")), //
-		STATE_92(new Doc().level(Level.WARNING).text("DCBreaker1CloseUnsuccessfully")), //
-		STATE_93(new Doc().level(Level.WARNING).text("DCBreaker2CloseUnsuccessfully")), //
-		STATE_94(new Doc().level(Level.WARNING).text("ControlSignalCloseAbnormallyInspectedBySystem")), //
-		STATE_95(new Doc().level(Level.WARNING).text("ControlSignalOpenAbnormallyInspectedBySystem")), //
-		STATE_96(new Doc().level(Level.WARNING).text("NeutralWireContactorCloseUnsuccessfully")), //
-		STATE_97(new Doc().level(Level.WARNING).text("NeutralWireContactorOpenUnsuccessfully")), //
-		STATE_98(new Doc().level(Level.WARNING).text("WorkDoorOpen")), //
-		STATE_99(new Doc().level(Level.WARNING).text("Emergency1Stop")), //
-		STATE_100(new Doc().level(Level.WARNING).text("ACBreakerCloseUnsuccessfully")), //
-		STATE_101(new Doc().level(Level.WARNING).text("ControlSwitchStop")), //
-		STATE_102(new Doc().level(Level.WARNING).text("GeneralOverload")), //
-		STATE_103(new Doc().level(Level.WARNING).text("SevereOverload")), //
-		STATE_104(new Doc().level(Level.WARNING).text("BatteryCurrentOverLimit")), //
-		STATE_105(new Doc().level(Level.WARNING).text("PowerDecreaseCausedByOvertemperature")), //
-		STATE_106(new Doc().level(Level.WARNING).text("InverterGeneralOvertemperature")), //
-		STATE_107(new Doc().level(Level.WARNING).text("ACThreePhaseCurrentUnbalance")), //
-		STATE_108(new Doc().level(Level.WARNING).text("RestoreFactorySettingUnsuccessfully")), //
-		STATE_109(new Doc().level(Level.WARNING).text("PoleBoardInvalidation")), //
-		STATE_110(new Doc().level(Level.WARNING).text("SelfInspectionFailed")), //
-		STATE_111(new Doc().level(Level.WARNING).text("ReceiveBMSFaultAndStop")), //
-		STATE_112(new Doc().level(Level.WARNING).text("RefrigerationEquipmentinvalidation")), //
-		STATE_113(new Doc().level(Level.WARNING).text("LargeTemperatureDifferenceAmongIGBTThreePhases")), //
-		STATE_114(new Doc().level(Level.WARNING).text("EEPROMParametersOverRange")), //
-		STATE_115(new Doc().level(Level.WARNING).text("EEPROMParametersBackupFailed")), //
-		STATE_116(new Doc().level(Level.WARNING).text("DCBreakerCloseunsuccessfully")), //
-		STATE_117(new Doc().level(Level.WARNING).text("CommunicationBetweenInverterAndBSMUDisconnected")), //
-		STATE_118(new Doc().level(Level.WARNING).text("CommunicationBetweenInverterAndMasterDisconnected")), //
-		STATE_119(new Doc().level(Level.WARNING).text("CommunicationBetweenInverterAndUCDisconnected")), //
-		STATE_120(new Doc().level(Level.WARNING).text("BMSStartOvertimeControlledByPCS")), //
-		STATE_121(new Doc().level(Level.WARNING).text("BMSStopOvertimeControlledByPCS")), //
-		STATE_122(new Doc().level(Level.WARNING).text("SyncSignalInvalidation")), //
-		STATE_123(new Doc().level(Level.WARNING).text("SyncSignalContinuousCaputureFault")), //
-		STATE_124(new Doc().level(Level.WARNING).text("SyncSignalSeveralTimesCaputureFault")), //
-		STATE_125(new Doc().level(Level.WARNING).text("CurrentSamplingChannelAbnormityOnHighVoltageSide")), //
-		STATE_126(new Doc().level(Level.WARNING).text("CurrentSamplingChannelAbnormityOnLowVoltageSide")), //
-		STATE_127(new Doc().level(Level.WARNING).text("EEPROMParametersOverRange")), //
-		STATE_128(new Doc().level(Level.WARNING).text("UpdateEEPROMFailed")), //
-		STATE_129(new Doc().level(Level.WARNING).text("ReadEEPROMFailed")), //
-		STATE_130(new Doc().level(Level.WARNING).text("CurrentSamplingChannelAbnormityBeforeInductance")), //
-		STATE_131(new Doc().level(Level.WARNING).text("ReactorPowerDecreaseCausedByOvertemperature")), //
-		STATE_132(new Doc().level(Level.WARNING).text("IGBTPowerDecreaseCausedByOvertemperature")), //
-		STATE_133(new Doc().level(Level.WARNING).text("TemperatureChanel3PowerDecreaseCausedByOvertemperature")), //
-		STATE_134(new Doc().level(Level.WARNING).text("TemperatureChanel4PowerDecreaseCausedByOvertemperature")), //
-		STATE_135(new Doc().level(Level.WARNING).text("TemperatureChanel5PowerDecreaseCausedByOvertemperature")), //
-		STATE_136(new Doc().level(Level.WARNING).text("TemperatureChanel6PowerDecreaseCausedByOvertemperature")), //
-		STATE_137(new Doc().level(Level.WARNING).text("TemperatureChanel7PowerDecreaseCausedByOvertemperature")), //
-		STATE_138(new Doc().level(Level.WARNING).text("TemperatureChanel8PowerDecreaseCausedByOvertemperature")), //
-		STATE_139(new Doc().level(Level.WARNING).text("Fan1StopFailed")), //
-		STATE_140(new Doc().level(Level.WARNING).text("Fan2StopFailed")), //
-		STATE_141(new Doc().level(Level.WARNING).text("Fan3StopFailed")), //
-		STATE_142(new Doc().level(Level.WARNING).text("Fan4StopFailed")), //
-		STATE_143(new Doc().level(Level.WARNING).text("Fan1StartupFailed")), //
-		STATE_144(new Doc().level(Level.WARNING).text("Fan2StartupFailed")), //
-		STATE_145(new Doc().level(Level.WARNING).text("Fan3StartupFailed")), //
-		STATE_146(new Doc().level(Level.WARNING).text("Fan4StartupFailed")), //
-		STATE_147(new Doc().level(Level.WARNING).text("HighVoltageSideOvervoltage")), //
-		STATE_148(new Doc().level(Level.WARNING).text("HighVoltageSideUndervoltage")), //
-		STATE_149(new Doc().level(Level.WARNING).text("HighVoltageSideVoltageChangeUnconventionally")), //
+		STATE_0(Doc.of(Level.WARNING).text("Emergency Stop")), //
+		STATE_1(Doc.of(Level.WARNING).text("Key Manual Stop")), //
+		STATE_2(Doc.of(Level.WARNING).text("Transformer Phase B Temperature Sensor Invalidation")), //
+		STATE_3(Doc.of(Level.WARNING).text("SD Memory Card Invalidation")), //
+		STATE_4(Doc.of(Level.WARNING).text("Inverter Communication Abnormity")), //
+		STATE_5(Doc.of(Level.WARNING).text("Battery Stack Communication Abnormity")), //
+		STATE_6(Doc.of(Level.WARNING).text("Multifunctional Ammeter Communication Abnormity")), //
+		STATE_7(Doc.of(Level.WARNING).text("Remote Communication Abnormity")), //
+		STATE_8(Doc.of(Level.WARNING).text("PVDC1 Communication Abnormity")), //
+		STATE_9(Doc.of(Level.WARNING).text("PVDC2 Communication Abnormity")), //
+		STATE_10(Doc.of(Level.WARNING).text("Transformer Severe Overtemperature")), //
+		STATE_11(Doc.of(Level.FAULT).text("DC Precharge Contactor Close Unsuccessfully")), //
+		STATE_12(Doc.of(Level.FAULT).text("AC Precharge Contactor Close Unsuccessfully")), //
+		STATE_13(Doc.of(Level.FAULT).text("AC Main Contactor Close Unsuccessfully")), //
+		STATE_14(Doc.of(Level.FAULT).text("DC Electrical Breaker1 Close Unsuccessfully")), //
+		STATE_15(Doc.of(Level.FAULT).text("DC Main Contactor Close Unsuccessfully")), //
+		STATE_16(Doc.of(Level.FAULT).text("AC Breaker Trip")), //
+		STATE_17(Doc.of(Level.FAULT).text("AC Main Contactor Open When Running")), //
+		STATE_18(Doc.of(Level.FAULT).text("DC Main Contactor Open When Running")), //
+		STATE_19(Doc.of(Level.FAULT).text("AC Main Contactor Open Unsuccessfully")), //
+		STATE_20(Doc.of(Level.FAULT).text("DC Electrical Breaker1 Open Unsuccessfully")), //
+		STATE_21(Doc.of(Level.FAULT).text("DC Main Contactor Open Unsuccessfully")), //
+		STATE_22(Doc.of(Level.FAULT).text("Hardware PDP Fault")), //
+		STATE_23(Doc.of(Level.FAULT).text("Master Stop Suddenly")), //
+		STATE_24(Doc.of(Level.FAULT).text("DCShortCircuitProtection")), //
+		STATE_25(Doc.of(Level.FAULT).text("DCOvervoltageProtection")), //
+		STATE_26(Doc.of(Level.FAULT).text("DCUndervoltageProtection")), //
+		STATE_27(Doc.of(Level.FAULT).text("DCInverseNoConnectionProtection")), //
+		STATE_28(Doc.of(Level.FAULT).text("DCDisconnectionProtection")), //
+		STATE_29(Doc.of(Level.FAULT).text("CommutingVoltageAbnormityProtection")), //
+		STATE_30(Doc.of(Level.FAULT).text("DCOvercurrentProtection")), //
+		STATE_31(Doc.of(Level.FAULT).text("Phase1PeakCurrentOverLimitProtection")), //
+		STATE_32(Doc.of(Level.FAULT).text("Phase2PeakCurrentOverLimitProtection")), //
+		STATE_33(Doc.of(Level.FAULT).text("Phase3PeakCurrentOverLimitProtection")), //
+		STATE_34(Doc.of(Level.FAULT).text("Phase1GridVoltageSamplingInvalidation")), //
+		STATE_35(Doc.of(Level.FAULT).text("Phase2VirtualCurrentOverLimitProtection")), //
+		STATE_36(Doc.of(Level.FAULT).text("Phase3VirtualCurrentOverLimitProtection")), //
+		STATE_37(Doc.of(Level.FAULT).text("Phase1GridVoltageSamplingInvalidation2")), //
+		STATE_38(Doc.of(Level.FAULT).text("Phase2ridVoltageSamplingInvalidation")), //
+		STATE_39(Doc.of(Level.FAULT).text("Phase3GridVoltageSamplingInvalidation")), //
+		STATE_40(Doc.of(Level.FAULT).text("Phase1InvertVoltageSamplingInvalidation")), //
+		STATE_41(Doc.of(Level.FAULT).text("Phase2InvertVoltageSamplingInvalidation")), //
+		STATE_42(Doc.of(Level.FAULT).text("Phase3InvertVoltageSamplingInvalidation")), //
+		STATE_43(Doc.of(Level.FAULT).text("ACCurrentSamplingInvalidation")), //
+		STATE_44(Doc.of(Level.FAULT).text("DCCurrentSamplingInvalidation")), //
+		STATE_45(Doc.of(Level.FAULT).text("Phase1OvertemperatureProtection")), //
+		STATE_46(Doc.of(Level.FAULT).text("Phase2OvertemperatureProtection")), //
+		STATE_47(Doc.of(Level.FAULT).text("Phase3OvertemperatureProtection")), //
+		STATE_48(Doc.of(Level.FAULT).text("Phase1TemperatureSamplingInvalidation")), //
+		STATE_49(Doc.of(Level.FAULT).text("Phase2TemperatureSamplingInvalidation")), //
+		STATE_50(Doc.of(Level.FAULT).text("Phase3TemperatureSamplingInvalidation")), //
+		STATE_51(Doc.of(Level.FAULT).text("Phase1PrechargeUnmetProtection")), //
+		STATE_52(Doc.of(Level.FAULT).text("Phase2PrechargeUnmetProtection")), //
+		STATE_53(Doc.of(Level.FAULT).text("Phase3PrechargeUnmetProtection")), //
+		STATE_54(Doc.of(Level.FAULT).text("UnadaptablePhaseSequenceErrorProtection")), //
+		STATE_55(Doc.of(Level.FAULT).text("DSPProtection")), //
+		STATE_56(Doc.of(Level.FAULT).text("Phase1GridVoltageSevereOvervoltageProtection")), //
+		STATE_57(Doc.of(Level.FAULT).text("Phase1GridVoltageGeneralOvervoltageProtection")), //
+		STATE_58(Doc.of(Level.FAULT).text("Phase2GridVoltageSevereOvervoltageProtection")), //
+		STATE_59(Doc.of(Level.FAULT).text("Phase2GridVoltageGeneralOvervoltageProtection")), //
+		STATE_60(Doc.of(Level.FAULT).text("Phase3GridVoltageSevereOvervoltageProtection")), //
+		STATE_61(Doc.of(Level.FAULT).text("Phase3GridVoltageGeneralOvervoltageProtection")), //
+		STATE_62(Doc.of(Level.FAULT).text("Phase1GridVoltageSevereUndervoltageProtection")), //
+		STATE_63(Doc.of(Level.FAULT).text("Phase1GridVoltageGeneralUndervoltageProtection")), //
+		STATE_64(Doc.of(Level.FAULT).text("Phase2GridVoltageSevereUndervoltageProtection")), //
+		STATE_65(Doc.of(Level.FAULT).text("Phase2GridVoltageGeneralUndervoltageProtection")), //
+		STATE_66(Doc.of(Level.FAULT).text("Phase3GridVoltageSevereUndervoltageProtection")), //
+		STATE_67(Doc.of(Level.FAULT).text("Phase3GridVoltageGeneralUndervoltageProtection")), //
+		STATE_68(Doc.of(Level.FAULT).text("SevereOverfrequncyProtection")), //
+		STATE_69(Doc.of(Level.FAULT).text("GeneralOverfrequncyProtection")), //
+		STATE_70(Doc.of(Level.FAULT).text("SevereUnderfrequncyProtection")), //
+		STATE_71(Doc.of(Level.FAULT).text("GeneralsUnderfrequncyProtection")), //
+		STATE_72(Doc.of(Level.FAULT).text("Phase1Gridloss")), //
+		STATE_73(Doc.of(Level.FAULT).text("Phase2Gridloss")), //
+		STATE_74(Doc.of(Level.FAULT).text("Phase3Gridloss")), //
+		STATE_75(Doc.of(Level.FAULT).text("IslandingProtection")), //
+		STATE_76(Doc.of(Level.FAULT).text("Phase1UnderVoltageRideThrough")), //
+		STATE_77(Doc.of(Level.FAULT).text("Phase2UnderVoltageRideThrough")), //
+		STATE_78(Doc.of(Level.FAULT).text("Phase3UnderVoltageRideThrough")), //
+		STATE_79(Doc.of(Level.FAULT).text("Phase1InverterVoltageSevereOvervoltageProtection")), //
+		STATE_80(Doc.of(Level.FAULT).text("Phase1InverterVoltageGeneralOvervoltageProtection")), //
+		STATE_81(Doc.of(Level.FAULT).text("Phase2InverterVoltageSevereOvervoltageProtection")), //
+		STATE_82(Doc.of(Level.FAULT).text("Phase2InverterVoltageGeneralOvervoltageProtection")), //
+		STATE_83(Doc.of(Level.FAULT).text("Phase3InverterVoltageSevereOvervoltageProtection")), //
+		STATE_84(Doc.of(Level.FAULT).text("Phase3InverterVoltageGeneralOvervoltageProtection")), //
+		STATE_85(Doc.of(Level.FAULT).text("InverterPeakVoltageHighProtectionCauseByACDisconnect")), //
+		STATE_86(Doc.of(Level.WARNING).text("DCPrechargeContactorInspectionAbnormity")), //
+		STATE_87(Doc.of(Level.WARNING).text("DCBreaker1InspectionAbnormity")), //
+		STATE_88(Doc.of(Level.WARNING).text("DCBreaker2InspectionAbnormity")), //
+		STATE_89(Doc.of(Level.WARNING).text("ACPrechargeContactorInspectionAbnormity")), //
+		STATE_90(Doc.of(Level.WARNING).text("ACMainontactorInspectionAbnormity")), //
+		STATE_91(Doc.of(Level.WARNING).text("ACBreakerInspectionAbnormity")), //
+		STATE_92(Doc.of(Level.WARNING).text("DCBreaker1CloseUnsuccessfully")), //
+		STATE_93(Doc.of(Level.WARNING).text("DCBreaker2CloseUnsuccessfully")), //
+		STATE_94(Doc.of(Level.WARNING).text("ControlSignalCloseAbnormallyInspectedBySystem")), //
+		STATE_95(Doc.of(Level.WARNING).text("ControlSignalOpenAbnormallyInspectedBySystem")), //
+		STATE_96(Doc.of(Level.WARNING).text("NeutralWireContactorCloseUnsuccessfully")), //
+		STATE_97(Doc.of(Level.WARNING).text("NeutralWireContactorOpenUnsuccessfully")), //
+		STATE_98(Doc.of(Level.WARNING).text("WorkDoorOpen")), //
+		STATE_99(Doc.of(Level.WARNING).text("Emergency1Stop")), //
+		STATE_100(Doc.of(Level.WARNING).text("ACBreakerCloseUnsuccessfully")), //
+		STATE_101(Doc.of(Level.WARNING).text("ControlSwitchStop")), //
+		STATE_102(Doc.of(Level.WARNING).text("GeneralOverload")), //
+		STATE_103(Doc.of(Level.WARNING).text("SevereOverload")), //
+		STATE_104(Doc.of(Level.WARNING).text("BatteryCurrentOverLimit")), //
+		STATE_105(Doc.of(Level.WARNING).text("PowerDecreaseCausedByOvertemperature")), //
+		STATE_106(Doc.of(Level.WARNING).text("InverterGeneralOvertemperature")), //
+		STATE_107(Doc.of(Level.WARNING).text("ACThreePhaseCurrentUnbalance")), //
+		STATE_108(Doc.of(Level.WARNING).text("RestoreFactorySettingUnsuccessfully")), //
+		STATE_109(Doc.of(Level.WARNING).text("PoleBoardInvalidation")), //
+		STATE_110(Doc.of(Level.WARNING).text("SelfInspectionFailed")), //
+		STATE_111(Doc.of(Level.WARNING).text("ReceiveBMSFaultAndStop")), //
+		STATE_112(Doc.of(Level.WARNING).text("RefrigerationEquipmentinvalidation")), //
+		STATE_113(Doc.of(Level.WARNING).text("LargeTemperatureDifferenceAmongIGBTThreePhases")), //
+		STATE_114(Doc.of(Level.WARNING).text("EEPROMParametersOverRange")), //
+		STATE_115(Doc.of(Level.WARNING).text("EEPROMParametersBackupFailed")), //
+		STATE_116(Doc.of(Level.WARNING).text("DCBreakerCloseunsuccessfully")), //
+		STATE_117(Doc.of(Level.WARNING).text("CommunicationBetweenInverterAndBSMUDisconnected")), //
+		STATE_118(Doc.of(Level.WARNING).text("CommunicationBetweenInverterAndMasterDisconnected")), //
+		STATE_119(Doc.of(Level.WARNING).text("CommunicationBetweenInverterAndUCDisconnected")), //
+		STATE_120(Doc.of(Level.WARNING).text("BMSStartOvertimeControlledByPCS")), //
+		STATE_121(Doc.of(Level.WARNING).text("BMSStopOvertimeControlledByPCS")), //
+		STATE_122(Doc.of(Level.WARNING).text("SyncSignalInvalidation")), //
+		STATE_123(Doc.of(Level.WARNING).text("SyncSignalContinuousCaputureFault")), //
+		STATE_124(Doc.of(Level.WARNING).text("SyncSignalSeveralTimesCaputureFault")), //
+		STATE_125(Doc.of(Level.WARNING).text("CurrentSamplingChannelAbnormityOnHighVoltageSide")), //
+		STATE_126(Doc.of(Level.WARNING).text("CurrentSamplingChannelAbnormityOnLowVoltageSide")), //
+		STATE_127(Doc.of(Level.WARNING).text("EEPROMParametersOverRange")), //
+		STATE_128(Doc.of(Level.WARNING).text("UpdateEEPROMFailed")), //
+		STATE_129(Doc.of(Level.WARNING).text("ReadEEPROMFailed")), //
+		STATE_130(Doc.of(Level.WARNING).text("CurrentSamplingChannelAbnormityBeforeInductance")), //
+		STATE_131(Doc.of(Level.WARNING).text("ReactorPowerDecreaseCausedByOvertemperature")), //
+		STATE_132(Doc.of(Level.WARNING).text("IGBTPowerDecreaseCausedByOvertemperature")), //
+		STATE_133(Doc.of(Level.WARNING).text("TemperatureChanel3PowerDecreaseCausedByOvertemperature")), //
+		STATE_134(Doc.of(Level.WARNING).text("TemperatureChanel4PowerDecreaseCausedByOvertemperature")), //
+		STATE_135(Doc.of(Level.WARNING).text("TemperatureChanel5PowerDecreaseCausedByOvertemperature")), //
+		STATE_136(Doc.of(Level.WARNING).text("TemperatureChanel6PowerDecreaseCausedByOvertemperature")), //
+		STATE_137(Doc.of(Level.WARNING).text("TemperatureChanel7PowerDecreaseCausedByOvertemperature")), //
+		STATE_138(Doc.of(Level.WARNING).text("TemperatureChanel8PowerDecreaseCausedByOvertemperature")), //
+		STATE_139(Doc.of(Level.WARNING).text("Fan1StopFailed")), //
+		STATE_140(Doc.of(Level.WARNING).text("Fan2StopFailed")), //
+		STATE_141(Doc.of(Level.WARNING).text("Fan3StopFailed")), //
+		STATE_142(Doc.of(Level.WARNING).text("Fan4StopFailed")), //
+		STATE_143(Doc.of(Level.WARNING).text("Fan1StartupFailed")), //
+		STATE_144(Doc.of(Level.WARNING).text("Fan2StartupFailed")), //
+		STATE_145(Doc.of(Level.WARNING).text("Fan3StartupFailed")), //
+		STATE_146(Doc.of(Level.WARNING).text("Fan4StartupFailed")), //
+		STATE_147(Doc.of(Level.WARNING).text("HighVoltageSideOvervoltage")), //
+		STATE_148(Doc.of(Level.WARNING).text("HighVoltageSideUndervoltage")), //
+		STATE_149(Doc.of(Level.WARNING).text("HighVoltageSideVoltageChangeUnconventionally")), //
 		CELL_1_VOLTAGE((new Doc().unit(Unit.MILLIVOLT))), //
 		CELL_2_VOLTAGE((new Doc().unit(Unit.MILLIVOLT))), //
 		CELL_3_VOLTAGE((new Doc().unit(Unit.MILLIVOLT))), //

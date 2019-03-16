@@ -29,11 +29,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.internal.EnumWriteChannel;
+import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -440,7 +440,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 				+ this.getAllowedDischarge().value().asString();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SET_WORK_STATE(new Doc().options(SetWorkState.values())), //
 		WORK_MODE(new Doc().options(WorkMode.values())), //
 		@SuppressWarnings("unchecked")
@@ -543,184 +543,184 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		SETUP_MODE(new Doc().options(SetupMode.values())), //
 		PCS_MODE(new Doc().options(PcsMode.values())), //
 
-		STATE_0(new Doc().level(Level.WARNING).text("FailTheSystemShouldBeStopped")), //
-		STATE_1(new Doc().level(Level.WARNING).text("CommonLowVoltageAlarm")), //
-		STATE_2(new Doc().level(Level.WARNING).text("CommonHighVoltageAlarm")), //
-		STATE_3(new Doc().level(Level.WARNING).text("ChargingOverCurrentAlarm")), //
-		STATE_4(new Doc().level(Level.WARNING).text("DischargingOverCurrentAlarm")), //
-		STATE_5(new Doc().level(Level.WARNING).text("OverTemperatureAlarm")), //
-		STATE_6(new Doc().level(Level.WARNING).text("InteralCommunicationAbnormal")), //
-		STATE_7(new Doc().level(Level.WARNING).text("GridUndervoltageL1")), //
-		STATE_8(new Doc().level(Level.WARNING).text("GridOvervoltageL1")), //
-		STATE_9(new Doc().level(Level.WARNING).text("GridUnderFrequencyL1")), //
-		STATE_10(new Doc().level(Level.WARNING).text("GridOverFrequencyL1")), //
-		STATE_11(new Doc().level(Level.WARNING).text("GridPowerSupplyOffL1")), //
-		STATE_12(new Doc().level(Level.WARNING).text("GridConditionUnmeetL1")), //
-		STATE_13(new Doc().level(Level.WARNING).text("DCUnderVoltageL1")), //
-		STATE_14(new Doc().level(Level.WARNING).text("InputOverResistanceL1")), //
-		STATE_15(new Doc().level(Level.WARNING).text("CombinationErrorL1")), //
-		STATE_16(new Doc().level(Level.WARNING).text("CommWithInverterErrorL1")), //
-		STATE_17(new Doc().level(Level.WARNING).text("TmeErrorL1")), //
-		STATE_18(new Doc().level(Level.WARNING).text("PcsAlarm2L1")), //
-		STATE_19(new Doc().level(Level.FAULT).text("ControlCurrentOverload100PercentL1")), //
-		STATE_20(new Doc().level(Level.FAULT).text("ControlCurrentOverload110PercentL1")), //
-		STATE_21(new Doc().level(Level.FAULT).text("ControlCurrentOverload150PercentL1")), //
-		STATE_22(new Doc().level(Level.FAULT).text("ControlCurrentOverload200PercentL1")), //
-		STATE_23(new Doc().level(Level.FAULT).text("ControlCurrentOverload210PercentL1")), //
-		STATE_24(new Doc().level(Level.FAULT).text("ControlCurrentOverload300PercentL1")), //
-		STATE_25(new Doc().level(Level.FAULT).text("ControlTransientLoad300PercentL1")), //
-		STATE_26(new Doc().level(Level.FAULT).text("GridOverCurrentL1")), //
-		STATE_27(new Doc().level(Level.FAULT).text("LockingWaveformTooManyTimesL1")), //
-		STATE_28(new Doc().level(Level.FAULT).text("InverterVoltageZeroDriftErrorL1")), //
-		STATE_29(new Doc().level(Level.FAULT).text("GridVoltageZeroDriftErrorL1")), //
-		STATE_30(new Doc().level(Level.FAULT).text("ControlCurrentZeroDriftErrorL1")), //
-		STATE_31(new Doc().level(Level.FAULT).text("InverterCurrentZeroDriftErrorL1")), //
-		STATE_32(new Doc().level(Level.FAULT).text("GridCurrentZeroDriftErrorL1")), //
-		STATE_33(new Doc().level(Level.FAULT).text("PDPProtectionL1")), //
-		STATE_34(new Doc().level(Level.FAULT).text("HardwareControlCurrentProtectionL1")), //
-		STATE_35(new Doc().level(Level.FAULT).text("HardwareACVoltageProtectionL1")), //
-		STATE_36(new Doc().level(Level.FAULT).text("HardwareDCCurrentProtectionL1")), //
-		STATE_37(new Doc().level(Level.FAULT).text("HardwareTemperatureProtectionL1")), //
-		STATE_38(new Doc().level(Level.FAULT).text("NoCapturingSignalL1")), //
-		STATE_39(new Doc().level(Level.FAULT).text("DCOvervoltageL1")), //
-		STATE_40(new Doc().level(Level.FAULT).text("DCDisconnectedL1")), //
-		STATE_41(new Doc().level(Level.FAULT).text("InverterUndervoltageL1")), //
-		STATE_42(new Doc().level(Level.FAULT).text("InverterOvervoltageL1")), //
-		STATE_43(new Doc().level(Level.FAULT).text("CurrentSensorFailL1")), //
-		STATE_44(new Doc().level(Level.FAULT).text("VoltageSensorFailL1")), //
-		STATE_45(new Doc().level(Level.FAULT).text("PowerUncontrollableL1")), //
-		STATE_46(new Doc().level(Level.FAULT).text("CurrentUncontrollableL1")), //
-		STATE_47(new Doc().level(Level.FAULT).text("FanErrorL1")), //
-		STATE_48(new Doc().level(Level.FAULT).text("PhaseLackL1")), //
-		STATE_49(new Doc().level(Level.FAULT).text("InverterRelayFaultL1")), //
-		STATE_50(new Doc().level(Level.FAULT).text("GridRelayFaultL1")), //
-		STATE_51(new Doc().level(Level.FAULT).text("ControlPanelOvertempL1")), //
-		STATE_52(new Doc().level(Level.FAULT).text("PowerPanelOvertempL1")), //
-		STATE_53(new Doc().level(Level.FAULT).text("DCInputOvercurrentL1")), //
-		STATE_54(new Doc().level(Level.FAULT).text("CapacitorOvertempL1")), //
-		STATE_55(new Doc().level(Level.FAULT).text("RadiatorOvertempL1")), //
-		STATE_56(new Doc().level(Level.FAULT).text("TransformerOvertempL1")), //
-		STATE_57(new Doc().level(Level.FAULT).text("CombinationCommErrorL1")), //
-		STATE_58(new Doc().level(Level.FAULT).text("EEPROMErrorL1")), //
-		STATE_59(new Doc().level(Level.FAULT).text("LoadCurrentZeroDriftErrorL1")), //
-		STATE_60(new Doc().level(Level.FAULT).text("CurrentLimitRErrorL1")), //
-		STATE_61(new Doc().level(Level.FAULT).text("PhaseSyncErrorL1")), //
-		STATE_62(new Doc().level(Level.FAULT).text("ExternalPVCurrentZeroDriftErrorL1")), //
-		STATE_63(new Doc().level(Level.FAULT).text("ExternalGridCurrentZeroDriftErrorL1")), //
-		STATE_64(new Doc().level(Level.WARNING).text("GridUndervoltageL2")), //
-		STATE_65(new Doc().level(Level.WARNING).text("GridOvervoltageL2")), //
-		STATE_66(new Doc().level(Level.WARNING).text("GridUnderFrequencyL2")), //
-		STATE_67(new Doc().level(Level.WARNING).text("GridOverFrequencyL2")), //
-		STATE_68(new Doc().level(Level.WARNING).text("GridPowerSupplyOffL2")), //
-		STATE_69(new Doc().level(Level.WARNING).text("GridConditionUnmeetL2")), //
-		STATE_70(new Doc().level(Level.WARNING).text("DCUnderVoltageL2")), //
-		STATE_71(new Doc().level(Level.WARNING).text("InputOverResistanceL2")), //
-		STATE_72(new Doc().level(Level.WARNING).text("CombinationErrorL2")), //
-		STATE_73(new Doc().level(Level.WARNING).text("CommWithInverterErrorL2")), //
-		STATE_74(new Doc().level(Level.WARNING).text("TmeErrorL2")), //
-		STATE_75(new Doc().level(Level.WARNING).text("PcsAlarm2L2")), //
-		STATE_76(new Doc().level(Level.FAULT).text("ControlCurrentOverload100PercentL2")), //
-		STATE_77(new Doc().level(Level.FAULT).text("ControlCurrentOverload110PercentL2")), //
-		STATE_78(new Doc().level(Level.FAULT).text("ControlCurrentOverload150PercentL2")), //
-		STATE_79(new Doc().level(Level.FAULT).text("ControlCurrentOverload200PercentL2")), //
-		STATE_80(new Doc().level(Level.FAULT).text("ControlCurrentOverload210PercentL2")), //
-		STATE_81(new Doc().level(Level.FAULT).text("ControlCurrentOverload300PercentL2")), //
-		STATE_82(new Doc().level(Level.FAULT).text("ControlTransientLoad300PercentL2")), //
-		STATE_83(new Doc().level(Level.FAULT).text("GridOverCurrentL2")), //
-		STATE_84(new Doc().level(Level.FAULT).text("LockingWaveformTooManyTimesL2")), //
-		STATE_85(new Doc().level(Level.FAULT).text("InverterVoltageZeroDriftErrorL2")), //
-		STATE_86(new Doc().level(Level.FAULT).text("GridVoltageZeroDriftErrorL2")), //
-		STATE_87(new Doc().level(Level.FAULT).text("ControlCurrentZeroDriftErrorL2")), //
-		STATE_88(new Doc().level(Level.FAULT).text("InverterCurrentZeroDriftErrorL2")), //
-		STATE_89(new Doc().level(Level.FAULT).text("GridCurrentZeroDriftErrorL2")), //
-		STATE_90(new Doc().level(Level.FAULT).text("PDPProtectionL2")), //
-		STATE_91(new Doc().level(Level.FAULT).text("HardwareControlCurrentProtectionL2")), //
-		STATE_92(new Doc().level(Level.FAULT).text("HardwareACVoltageProtectionL2")), //
-		STATE_93(new Doc().level(Level.FAULT).text("HardwareDCCurrentProtectionL2")), //
-		STATE_94(new Doc().level(Level.FAULT).text("HardwareTemperatureProtectionL2")), //
-		STATE_95(new Doc().level(Level.FAULT).text("NoCapturingSignalL2")), //
-		STATE_96(new Doc().level(Level.FAULT).text("DCOvervoltageL2")), //
-		STATE_97(new Doc().level(Level.FAULT).text("DCDisconnectedL2")), //
-		STATE_98(new Doc().level(Level.FAULT).text("InverterUndervoltageL2")), //
-		STATE_99(new Doc().level(Level.FAULT).text("InverterOvervoltageL2")), //
-		STATE_100(new Doc().level(Level.FAULT).text("CurrentSensorFailL2")), //
-		STATE_101(new Doc().level(Level.FAULT).text("VoltageSensorFailL2")), //
-		STATE_102(new Doc().level(Level.FAULT).text("PowerUncontrollableL2")), //
-		STATE_103(new Doc().level(Level.FAULT).text("CurrentUncontrollableL2")), //
-		STATE_104(new Doc().level(Level.FAULT).text("FanErrorL2")), //
-		STATE_105(new Doc().level(Level.FAULT).text("PhaseLackL2")), //
-		STATE_106(new Doc().level(Level.FAULT).text("InverterRelayFaultL2")), //
-		STATE_107(new Doc().level(Level.FAULT).text("GridRelayFaultL2")), //
-		STATE_108(new Doc().level(Level.FAULT).text("ControlPanelOvertempL2")), //
-		STATE_109(new Doc().level(Level.FAULT).text("PowerPanelOvertempL2")), //
-		STATE_110(new Doc().level(Level.FAULT).text("DCInputOvercurrentL2")), //
-		STATE_111(new Doc().level(Level.FAULT).text("CapacitorOvertempL2")), //
-		STATE_112(new Doc().level(Level.FAULT).text("RadiatorOvertempL2")), //
-		STATE_113(new Doc().level(Level.FAULT).text("TransformerOvertempL2")), //
-		STATE_114(new Doc().level(Level.FAULT).text("CombinationCommErrorL2")), //
-		STATE_115(new Doc().level(Level.FAULT).text("EEPROMErrorL2")), //
-		STATE_116(new Doc().level(Level.FAULT).text("LoadCurrentZeroDriftErrorL2")), //
-		STATE_117(new Doc().level(Level.FAULT).text("CurrentLimitRErrorL2")), //
-		STATE_118(new Doc().level(Level.FAULT).text("PhaseSyncErrorL2")), //
-		STATE_119(new Doc().level(Level.FAULT).text("ExternalPVCurrentZeroDriftErrorL2")), //
-		STATE_120(new Doc().level(Level.FAULT).text("ExternalGridCurrentZeroDriftErrorL2")), //
-		STATE_121(new Doc().level(Level.WARNING).text("GridUndervoltageL3")), //
-		STATE_122(new Doc().level(Level.WARNING).text("GridOvervoltageL3")), //
-		STATE_123(new Doc().level(Level.WARNING).text("GridUnderFrequencyL3")), //
-		STATE_124(new Doc().level(Level.WARNING).text("GridOverFrequencyL3")), //
-		STATE_125(new Doc().level(Level.WARNING).text("GridPowerSupplyOffL3")), //
-		STATE_126(new Doc().level(Level.WARNING).text("GridConditionUnmeetL3")), //
-		STATE_127(new Doc().level(Level.WARNING).text("DCUnderVoltageL3")), //
-		STATE_128(new Doc().level(Level.WARNING).text("InputOverResistanceL3")), //
-		STATE_129(new Doc().level(Level.WARNING).text("CombinationErrorL3")), //
-		STATE_130(new Doc().level(Level.WARNING).text("CommWithInverterErrorL3")), //
-		STATE_131(new Doc().level(Level.WARNING).text("TmeErrorL3")), //
-		STATE_132(new Doc().level(Level.WARNING).text("PcsAlarm2L3")), //
-		STATE_133(new Doc().level(Level.FAULT).text("ControlCurrentOverload100PercentL3")), //
-		STATE_134(new Doc().level(Level.FAULT).text("ControlCurrentOverload110PercentL3")), //
-		STATE_135(new Doc().level(Level.FAULT).text("ControlCurrentOverload150PercentL3")), //
-		STATE_136(new Doc().level(Level.FAULT).text("ControlCurrentOverload200PercentL3")), //
-		STATE_137(new Doc().level(Level.FAULT).text("ControlCurrentOverload210PercentL3")), //
-		STATE_138(new Doc().level(Level.FAULT).text("ControlCurrentOverload300PercentL3")), //
-		STATE_139(new Doc().level(Level.FAULT).text("ControlTransientLoad300PercentL3")), //
-		STATE_140(new Doc().level(Level.FAULT).text("GridOverCurrentL3")), //
-		STATE_141(new Doc().level(Level.FAULT).text("LockingWaveformTooManyTimesL3")), //
-		STATE_142(new Doc().level(Level.FAULT).text("InverterVoltageZeroDriftErrorL3")), //
-		STATE_143(new Doc().level(Level.FAULT).text("GridVoltageZeroDriftErrorL3")), //
-		STATE_144(new Doc().level(Level.FAULT).text("ControlCurrentZeroDriftErrorL3")), //
-		STATE_145(new Doc().level(Level.FAULT).text("InverterCurrentZeroDriftErrorL3")), //
-		STATE_146(new Doc().level(Level.FAULT).text("GridCurrentZeroDriftErrorL3")), //
-		STATE_147(new Doc().level(Level.FAULT).text("PDPProtectionL3")), //
-		STATE_148(new Doc().level(Level.FAULT).text("HardwareControlCurrentProtectionL3")), //
-		STATE_149(new Doc().level(Level.FAULT).text("HardwareACVoltageProtectionL3")), //
-		STATE_150(new Doc().level(Level.FAULT).text("HardwareDCCurrentProtectionL3")), //
-		STATE_151(new Doc().level(Level.FAULT).text("HardwareTemperatureProtectionL3")), //
-		STATE_152(new Doc().level(Level.FAULT).text("NoCapturingSignalL3")), //
-		STATE_153(new Doc().level(Level.FAULT).text("DCOvervoltageL3")), //
-		STATE_154(new Doc().level(Level.FAULT).text("DCDisconnectedL3")), //
-		STATE_155(new Doc().level(Level.FAULT).text("InverterUndervoltageL3")), //
-		STATE_156(new Doc().level(Level.FAULT).text("InverterOvervoltageL3")), //
-		STATE_157(new Doc().level(Level.FAULT).text("CurrentSensorFailL3")), //
-		STATE_158(new Doc().level(Level.FAULT).text("VoltageSensorFailL3")), //
-		STATE_159(new Doc().level(Level.FAULT).text("PowerUncontrollableL3")), //
-		STATE_160(new Doc().level(Level.FAULT).text("CurrentUncontrollableL3")), //
-		STATE_161(new Doc().level(Level.FAULT).text("FanErrorL3")), //
-		STATE_162(new Doc().level(Level.FAULT).text("PhaseLackL3")), //
-		STATE_163(new Doc().level(Level.FAULT).text("InverterRelayFaultL3")), //
-		STATE_164(new Doc().level(Level.FAULT).text("GridRelayFaultL3")), //
-		STATE_165(new Doc().level(Level.FAULT).text("ControlPanelOvertempL3")), //
-		STATE_166(new Doc().level(Level.FAULT).text("PowerPanelOvertempL3")), //
-		STATE_167(new Doc().level(Level.FAULT).text("DCInputOvercurrentL3")), //
-		STATE_168(new Doc().level(Level.FAULT).text("CapacitorOvertempL3")), //
-		STATE_169(new Doc().level(Level.FAULT).text("RadiatorOvertempL3")), //
-		STATE_170(new Doc().level(Level.FAULT).text("TransformerOvertempL3")), //
-		STATE_171(new Doc().level(Level.FAULT).text("CombinationCommErrorL3")), //
-		STATE_172(new Doc().level(Level.FAULT).text("EEPROMErrorL3")), //
-		STATE_173(new Doc().level(Level.FAULT).text("LoadCurrentZeroDriftErrorL3")), //
-		STATE_174(new Doc().level(Level.FAULT).text("CurrentLimitRErrorL3")), //
-		STATE_175(new Doc().level(Level.FAULT).text("PhaseSyncErrorL3")), //
-		STATE_176(new Doc().level(Level.FAULT).text("ExternalPVCurrentZeroDriftErrorL3")), //
-		STATE_177(new Doc().level(Level.FAULT).text("ExternalGridCurrentZeroDriftErrorL3")) //
+		STATE_0(Doc.of(Level.WARNING).text("FailTheSystemShouldBeStopped")), //
+		STATE_1(Doc.of(Level.WARNING).text("CommonLowVoltageAlarm")), //
+		STATE_2(Doc.of(Level.WARNING).text("CommonHighVoltageAlarm")), //
+		STATE_3(Doc.of(Level.WARNING).text("ChargingOverCurrentAlarm")), //
+		STATE_4(Doc.of(Level.WARNING).text("DischargingOverCurrentAlarm")), //
+		STATE_5(Doc.of(Level.WARNING).text("OverTemperatureAlarm")), //
+		STATE_6(Doc.of(Level.WARNING).text("InteralCommunicationAbnormal")), //
+		STATE_7(Doc.of(Level.WARNING).text("GridUndervoltageL1")), //
+		STATE_8(Doc.of(Level.WARNING).text("GridOvervoltageL1")), //
+		STATE_9(Doc.of(Level.WARNING).text("GridUnderFrequencyL1")), //
+		STATE_10(Doc.of(Level.WARNING).text("GridOverFrequencyL1")), //
+		STATE_11(Doc.of(Level.WARNING).text("GridPowerSupplyOffL1")), //
+		STATE_12(Doc.of(Level.WARNING).text("GridConditionUnmeetL1")), //
+		STATE_13(Doc.of(Level.WARNING).text("DCUnderVoltageL1")), //
+		STATE_14(Doc.of(Level.WARNING).text("InputOverResistanceL1")), //
+		STATE_15(Doc.of(Level.WARNING).text("CombinationErrorL1")), //
+		STATE_16(Doc.of(Level.WARNING).text("CommWithInverterErrorL1")), //
+		STATE_17(Doc.of(Level.WARNING).text("TmeErrorL1")), //
+		STATE_18(Doc.of(Level.WARNING).text("PcsAlarm2L1")), //
+		STATE_19(Doc.of(Level.FAULT).text("ControlCurrentOverload100PercentL1")), //
+		STATE_20(Doc.of(Level.FAULT).text("ControlCurrentOverload110PercentL1")), //
+		STATE_21(Doc.of(Level.FAULT).text("ControlCurrentOverload150PercentL1")), //
+		STATE_22(Doc.of(Level.FAULT).text("ControlCurrentOverload200PercentL1")), //
+		STATE_23(Doc.of(Level.FAULT).text("ControlCurrentOverload210PercentL1")), //
+		STATE_24(Doc.of(Level.FAULT).text("ControlCurrentOverload300PercentL1")), //
+		STATE_25(Doc.of(Level.FAULT).text("ControlTransientLoad300PercentL1")), //
+		STATE_26(Doc.of(Level.FAULT).text("GridOverCurrentL1")), //
+		STATE_27(Doc.of(Level.FAULT).text("LockingWaveformTooManyTimesL1")), //
+		STATE_28(Doc.of(Level.FAULT).text("InverterVoltageZeroDriftErrorL1")), //
+		STATE_29(Doc.of(Level.FAULT).text("GridVoltageZeroDriftErrorL1")), //
+		STATE_30(Doc.of(Level.FAULT).text("ControlCurrentZeroDriftErrorL1")), //
+		STATE_31(Doc.of(Level.FAULT).text("InverterCurrentZeroDriftErrorL1")), //
+		STATE_32(Doc.of(Level.FAULT).text("GridCurrentZeroDriftErrorL1")), //
+		STATE_33(Doc.of(Level.FAULT).text("PDPProtectionL1")), //
+		STATE_34(Doc.of(Level.FAULT).text("HardwareControlCurrentProtectionL1")), //
+		STATE_35(Doc.of(Level.FAULT).text("HardwareACVoltageProtectionL1")), //
+		STATE_36(Doc.of(Level.FAULT).text("HardwareDCCurrentProtectionL1")), //
+		STATE_37(Doc.of(Level.FAULT).text("HardwareTemperatureProtectionL1")), //
+		STATE_38(Doc.of(Level.FAULT).text("NoCapturingSignalL1")), //
+		STATE_39(Doc.of(Level.FAULT).text("DCOvervoltageL1")), //
+		STATE_40(Doc.of(Level.FAULT).text("DCDisconnectedL1")), //
+		STATE_41(Doc.of(Level.FAULT).text("InverterUndervoltageL1")), //
+		STATE_42(Doc.of(Level.FAULT).text("InverterOvervoltageL1")), //
+		STATE_43(Doc.of(Level.FAULT).text("CurrentSensorFailL1")), //
+		STATE_44(Doc.of(Level.FAULT).text("VoltageSensorFailL1")), //
+		STATE_45(Doc.of(Level.FAULT).text("PowerUncontrollableL1")), //
+		STATE_46(Doc.of(Level.FAULT).text("CurrentUncontrollableL1")), //
+		STATE_47(Doc.of(Level.FAULT).text("FanErrorL1")), //
+		STATE_48(Doc.of(Level.FAULT).text("PhaseLackL1")), //
+		STATE_49(Doc.of(Level.FAULT).text("InverterRelayFaultL1")), //
+		STATE_50(Doc.of(Level.FAULT).text("GridRelayFaultL1")), //
+		STATE_51(Doc.of(Level.FAULT).text("ControlPanelOvertempL1")), //
+		STATE_52(Doc.of(Level.FAULT).text("PowerPanelOvertempL1")), //
+		STATE_53(Doc.of(Level.FAULT).text("DCInputOvercurrentL1")), //
+		STATE_54(Doc.of(Level.FAULT).text("CapacitorOvertempL1")), //
+		STATE_55(Doc.of(Level.FAULT).text("RadiatorOvertempL1")), //
+		STATE_56(Doc.of(Level.FAULT).text("TransformerOvertempL1")), //
+		STATE_57(Doc.of(Level.FAULT).text("CombinationCommErrorL1")), //
+		STATE_58(Doc.of(Level.FAULT).text("EEPROMErrorL1")), //
+		STATE_59(Doc.of(Level.FAULT).text("LoadCurrentZeroDriftErrorL1")), //
+		STATE_60(Doc.of(Level.FAULT).text("CurrentLimitRErrorL1")), //
+		STATE_61(Doc.of(Level.FAULT).text("PhaseSyncErrorL1")), //
+		STATE_62(Doc.of(Level.FAULT).text("ExternalPVCurrentZeroDriftErrorL1")), //
+		STATE_63(Doc.of(Level.FAULT).text("ExternalGridCurrentZeroDriftErrorL1")), //
+		STATE_64(Doc.of(Level.WARNING).text("GridUndervoltageL2")), //
+		STATE_65(Doc.of(Level.WARNING).text("GridOvervoltageL2")), //
+		STATE_66(Doc.of(Level.WARNING).text("GridUnderFrequencyL2")), //
+		STATE_67(Doc.of(Level.WARNING).text("GridOverFrequencyL2")), //
+		STATE_68(Doc.of(Level.WARNING).text("GridPowerSupplyOffL2")), //
+		STATE_69(Doc.of(Level.WARNING).text("GridConditionUnmeetL2")), //
+		STATE_70(Doc.of(Level.WARNING).text("DCUnderVoltageL2")), //
+		STATE_71(Doc.of(Level.WARNING).text("InputOverResistanceL2")), //
+		STATE_72(Doc.of(Level.WARNING).text("CombinationErrorL2")), //
+		STATE_73(Doc.of(Level.WARNING).text("CommWithInverterErrorL2")), //
+		STATE_74(Doc.of(Level.WARNING).text("TmeErrorL2")), //
+		STATE_75(Doc.of(Level.WARNING).text("PcsAlarm2L2")), //
+		STATE_76(Doc.of(Level.FAULT).text("ControlCurrentOverload100PercentL2")), //
+		STATE_77(Doc.of(Level.FAULT).text("ControlCurrentOverload110PercentL2")), //
+		STATE_78(Doc.of(Level.FAULT).text("ControlCurrentOverload150PercentL2")), //
+		STATE_79(Doc.of(Level.FAULT).text("ControlCurrentOverload200PercentL2")), //
+		STATE_80(Doc.of(Level.FAULT).text("ControlCurrentOverload210PercentL2")), //
+		STATE_81(Doc.of(Level.FAULT).text("ControlCurrentOverload300PercentL2")), //
+		STATE_82(Doc.of(Level.FAULT).text("ControlTransientLoad300PercentL2")), //
+		STATE_83(Doc.of(Level.FAULT).text("GridOverCurrentL2")), //
+		STATE_84(Doc.of(Level.FAULT).text("LockingWaveformTooManyTimesL2")), //
+		STATE_85(Doc.of(Level.FAULT).text("InverterVoltageZeroDriftErrorL2")), //
+		STATE_86(Doc.of(Level.FAULT).text("GridVoltageZeroDriftErrorL2")), //
+		STATE_87(Doc.of(Level.FAULT).text("ControlCurrentZeroDriftErrorL2")), //
+		STATE_88(Doc.of(Level.FAULT).text("InverterCurrentZeroDriftErrorL2")), //
+		STATE_89(Doc.of(Level.FAULT).text("GridCurrentZeroDriftErrorL2")), //
+		STATE_90(Doc.of(Level.FAULT).text("PDPProtectionL2")), //
+		STATE_91(Doc.of(Level.FAULT).text("HardwareControlCurrentProtectionL2")), //
+		STATE_92(Doc.of(Level.FAULT).text("HardwareACVoltageProtectionL2")), //
+		STATE_93(Doc.of(Level.FAULT).text("HardwareDCCurrentProtectionL2")), //
+		STATE_94(Doc.of(Level.FAULT).text("HardwareTemperatureProtectionL2")), //
+		STATE_95(Doc.of(Level.FAULT).text("NoCapturingSignalL2")), //
+		STATE_96(Doc.of(Level.FAULT).text("DCOvervoltageL2")), //
+		STATE_97(Doc.of(Level.FAULT).text("DCDisconnectedL2")), //
+		STATE_98(Doc.of(Level.FAULT).text("InverterUndervoltageL2")), //
+		STATE_99(Doc.of(Level.FAULT).text("InverterOvervoltageL2")), //
+		STATE_100(Doc.of(Level.FAULT).text("CurrentSensorFailL2")), //
+		STATE_101(Doc.of(Level.FAULT).text("VoltageSensorFailL2")), //
+		STATE_102(Doc.of(Level.FAULT).text("PowerUncontrollableL2")), //
+		STATE_103(Doc.of(Level.FAULT).text("CurrentUncontrollableL2")), //
+		STATE_104(Doc.of(Level.FAULT).text("FanErrorL2")), //
+		STATE_105(Doc.of(Level.FAULT).text("PhaseLackL2")), //
+		STATE_106(Doc.of(Level.FAULT).text("InverterRelayFaultL2")), //
+		STATE_107(Doc.of(Level.FAULT).text("GridRelayFaultL2")), //
+		STATE_108(Doc.of(Level.FAULT).text("ControlPanelOvertempL2")), //
+		STATE_109(Doc.of(Level.FAULT).text("PowerPanelOvertempL2")), //
+		STATE_110(Doc.of(Level.FAULT).text("DCInputOvercurrentL2")), //
+		STATE_111(Doc.of(Level.FAULT).text("CapacitorOvertempL2")), //
+		STATE_112(Doc.of(Level.FAULT).text("RadiatorOvertempL2")), //
+		STATE_113(Doc.of(Level.FAULT).text("TransformerOvertempL2")), //
+		STATE_114(Doc.of(Level.FAULT).text("CombinationCommErrorL2")), //
+		STATE_115(Doc.of(Level.FAULT).text("EEPROMErrorL2")), //
+		STATE_116(Doc.of(Level.FAULT).text("LoadCurrentZeroDriftErrorL2")), //
+		STATE_117(Doc.of(Level.FAULT).text("CurrentLimitRErrorL2")), //
+		STATE_118(Doc.of(Level.FAULT).text("PhaseSyncErrorL2")), //
+		STATE_119(Doc.of(Level.FAULT).text("ExternalPVCurrentZeroDriftErrorL2")), //
+		STATE_120(Doc.of(Level.FAULT).text("ExternalGridCurrentZeroDriftErrorL2")), //
+		STATE_121(Doc.of(Level.WARNING).text("GridUndervoltageL3")), //
+		STATE_122(Doc.of(Level.WARNING).text("GridOvervoltageL3")), //
+		STATE_123(Doc.of(Level.WARNING).text("GridUnderFrequencyL3")), //
+		STATE_124(Doc.of(Level.WARNING).text("GridOverFrequencyL3")), //
+		STATE_125(Doc.of(Level.WARNING).text("GridPowerSupplyOffL3")), //
+		STATE_126(Doc.of(Level.WARNING).text("GridConditionUnmeetL3")), //
+		STATE_127(Doc.of(Level.WARNING).text("DCUnderVoltageL3")), //
+		STATE_128(Doc.of(Level.WARNING).text("InputOverResistanceL3")), //
+		STATE_129(Doc.of(Level.WARNING).text("CombinationErrorL3")), //
+		STATE_130(Doc.of(Level.WARNING).text("CommWithInverterErrorL3")), //
+		STATE_131(Doc.of(Level.WARNING).text("TmeErrorL3")), //
+		STATE_132(Doc.of(Level.WARNING).text("PcsAlarm2L3")), //
+		STATE_133(Doc.of(Level.FAULT).text("ControlCurrentOverload100PercentL3")), //
+		STATE_134(Doc.of(Level.FAULT).text("ControlCurrentOverload110PercentL3")), //
+		STATE_135(Doc.of(Level.FAULT).text("ControlCurrentOverload150PercentL3")), //
+		STATE_136(Doc.of(Level.FAULT).text("ControlCurrentOverload200PercentL3")), //
+		STATE_137(Doc.of(Level.FAULT).text("ControlCurrentOverload210PercentL3")), //
+		STATE_138(Doc.of(Level.FAULT).text("ControlCurrentOverload300PercentL3")), //
+		STATE_139(Doc.of(Level.FAULT).text("ControlTransientLoad300PercentL3")), //
+		STATE_140(Doc.of(Level.FAULT).text("GridOverCurrentL3")), //
+		STATE_141(Doc.of(Level.FAULT).text("LockingWaveformTooManyTimesL3")), //
+		STATE_142(Doc.of(Level.FAULT).text("InverterVoltageZeroDriftErrorL3")), //
+		STATE_143(Doc.of(Level.FAULT).text("GridVoltageZeroDriftErrorL3")), //
+		STATE_144(Doc.of(Level.FAULT).text("ControlCurrentZeroDriftErrorL3")), //
+		STATE_145(Doc.of(Level.FAULT).text("InverterCurrentZeroDriftErrorL3")), //
+		STATE_146(Doc.of(Level.FAULT).text("GridCurrentZeroDriftErrorL3")), //
+		STATE_147(Doc.of(Level.FAULT).text("PDPProtectionL3")), //
+		STATE_148(Doc.of(Level.FAULT).text("HardwareControlCurrentProtectionL3")), //
+		STATE_149(Doc.of(Level.FAULT).text("HardwareACVoltageProtectionL3")), //
+		STATE_150(Doc.of(Level.FAULT).text("HardwareDCCurrentProtectionL3")), //
+		STATE_151(Doc.of(Level.FAULT).text("HardwareTemperatureProtectionL3")), //
+		STATE_152(Doc.of(Level.FAULT).text("NoCapturingSignalL3")), //
+		STATE_153(Doc.of(Level.FAULT).text("DCOvervoltageL3")), //
+		STATE_154(Doc.of(Level.FAULT).text("DCDisconnectedL3")), //
+		STATE_155(Doc.of(Level.FAULT).text("InverterUndervoltageL3")), //
+		STATE_156(Doc.of(Level.FAULT).text("InverterOvervoltageL3")), //
+		STATE_157(Doc.of(Level.FAULT).text("CurrentSensorFailL3")), //
+		STATE_158(Doc.of(Level.FAULT).text("VoltageSensorFailL3")), //
+		STATE_159(Doc.of(Level.FAULT).text("PowerUncontrollableL3")), //
+		STATE_160(Doc.of(Level.FAULT).text("CurrentUncontrollableL3")), //
+		STATE_161(Doc.of(Level.FAULT).text("FanErrorL3")), //
+		STATE_162(Doc.of(Level.FAULT).text("PhaseLackL3")), //
+		STATE_163(Doc.of(Level.FAULT).text("InverterRelayFaultL3")), //
+		STATE_164(Doc.of(Level.FAULT).text("GridRelayFaultL3")), //
+		STATE_165(Doc.of(Level.FAULT).text("ControlPanelOvertempL3")), //
+		STATE_166(Doc.of(Level.FAULT).text("PowerPanelOvertempL3")), //
+		STATE_167(Doc.of(Level.FAULT).text("DCInputOvercurrentL3")), //
+		STATE_168(Doc.of(Level.FAULT).text("CapacitorOvertempL3")), //
+		STATE_169(Doc.of(Level.FAULT).text("RadiatorOvertempL3")), //
+		STATE_170(Doc.of(Level.FAULT).text("TransformerOvertempL3")), //
+		STATE_171(Doc.of(Level.FAULT).text("CombinationCommErrorL3")), //
+		STATE_172(Doc.of(Level.FAULT).text("EEPROMErrorL3")), //
+		STATE_173(Doc.of(Level.FAULT).text("LoadCurrentZeroDriftErrorL3")), //
+		STATE_174(Doc.of(Level.FAULT).text("CurrentLimitRErrorL3")), //
+		STATE_175(Doc.of(Level.FAULT).text("PhaseSyncErrorL3")), //
+		STATE_176(Doc.of(Level.FAULT).text("ExternalPVCurrentZeroDriftErrorL3")), //
+		STATE_177(Doc.of(Level.FAULT).text("ExternalGridCurrentZeroDriftErrorL3")) //
 		; //
 
 		private final Doc doc;

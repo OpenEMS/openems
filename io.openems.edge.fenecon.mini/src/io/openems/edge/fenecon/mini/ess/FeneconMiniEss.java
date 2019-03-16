@@ -22,9 +22,9 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -76,7 +76,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		return this.phase;
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SYSTEM_STATE(new Doc().options(SystemState.values())), //
 		CONTROL_MODE(new Doc().options(ControlMode.values())), //
 		BATTERY_GROUP_STATE(new Doc().options(BatteryGroupState.values())), //
@@ -137,152 +137,152 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 		SETUP_MODE(new Doc().options(SetupMode.values())), //
 		PCS_MODE(new Doc().options(PcsMode.values())), //
 
-		STATE_1(new Doc().level(Level.WARNING).text("BECU1GeneralChargeOverCurrentAlarm")), //
-		STATE_2(new Doc().level(Level.WARNING).text("BECU1GeneralDischargeOverCurrentAlarm")), //
-		STATE_3(new Doc().level(Level.WARNING).text("BECU1ChargeCurrentLimitAlarm")), //
-		STATE_4(new Doc().level(Level.WARNING).text("BECU1DischargeCurrentLimitAlarm")), //
-		STATE_5(new Doc().level(Level.WARNING).text("BECU1GeneralHighVoltageAlarm")), //
-		STATE_6(new Doc().level(Level.WARNING).text("BECU1GeneralLowVoltageAlarm")), //
-		STATE_7(new Doc().level(Level.WARNING).text("BECU1AbnormalVoltageChangeAlarm")), //
-		STATE_8(new Doc().level(Level.WARNING).text("BECU1GeneralHighTemperatureAlarm")), //
-		STATE_9(new Doc().level(Level.WARNING).text("BECU1GeneralLowTemperatureAlarm")), //
-		STATE_10(new Doc().level(Level.WARNING).text("BECU1AbnormalTemperatureChangeAlarm")), //
-		STATE_11(new Doc().level(Level.WARNING).text("BECU1SevereHighVoltageAlarm")), //
-		STATE_12(new Doc().level(Level.WARNING).text("BECU1SevereLowVoltageAlarm")), //
-		STATE_13(new Doc().level(Level.WARNING).text("BECU1SevereLowTemperatureAlarm")), //
-		STATE_14(new Doc().level(Level.WARNING).text("BECU1SeverveChargeOverCurrentAlarm")), //
-		STATE_15(new Doc().level(Level.WARNING).text("BECU1SeverveDischargeOverCurrentAlarm")), //
-		STATE_16(new Doc().level(Level.WARNING).text("BECU1AbnormalCellCapacityAlarm")), //
-		STATE_17(new Doc().level(Level.WARNING).text("BECU1BalancedSamplingAlarm")), //
-		STATE_18(new Doc().level(Level.WARNING).text("BECU1BalancedControlAlarm")), //
-		STATE_19(new Doc().level(Level.WARNING).text("BECU1HallSensorDoesNotWorkAccurately")), //
-		STATE_20(new Doc().level(Level.WARNING).text("BECU1Generalleakage")), //
-		STATE_21(new Doc().level(Level.WARNING).text("BECU1Severeleakage")), //
-		STATE_22(new Doc().level(Level.WARNING).text("BECU1Contactor1TurnOnAbnormity")), //
-		STATE_23(new Doc().level(Level.WARNING).text("BECU1Contactor1TurnOffAbnormity")), //
-		STATE_24(new Doc().level(Level.WARNING).text("BECU1Contactor2TurnOnAbnormity")), //
-		STATE_25(new Doc().level(Level.WARNING).text("BECU1Contactor2TurnOffAbnormity")), //
-		STATE_26(new Doc().level(Level.WARNING).text("BECU1Contactor4CheckAbnormity")), //
-		STATE_27(new Doc().level(Level.WARNING).text("BECU1ContactorCurrentUnsafe")), //
-		STATE_28(new Doc().level(Level.WARNING).text("BECU1Contactor5CheckAbnormity")), //
-		STATE_29(new Doc().level(Level.WARNING).text("BECU1HighVoltageOffset")), //
-		STATE_30(new Doc().level(Level.WARNING).text("BECU1LowVoltageOffset")), //
-		STATE_31(new Doc().level(Level.WARNING).text("BECU1HighTemperatureOffset")), //
-		STATE_32(new Doc().level(Level.FAULT).text("BECU1DischargeSevereOvercurrent")), //
-		STATE_33(new Doc().level(Level.FAULT).text("BECU1ChargeSevereOvercurrent")), //
-		STATE_34(new Doc().level(Level.FAULT).text("BECU1GeneralUndervoltage")), //
-		STATE_35(new Doc().level(Level.FAULT).text("BECU1SevereOvervoltage")), //
-		STATE_36(new Doc().level(Level.FAULT).text("BECU1GeneralOvervoltage")), //
-		STATE_37(new Doc().level(Level.FAULT).text("BECU1SevereUndervoltage")), //
-		STATE_38(new Doc().level(Level.FAULT).text("BECU1InsideCANBroken")), //
-		STATE_39(new Doc().level(Level.FAULT).text("BECU1GeneralUndervoltageHighCurrentDischarge")), //
-		STATE_40(new Doc().level(Level.FAULT).text("BECU1BMUError")), //
-		STATE_41(new Doc().level(Level.FAULT).text("BECU1CurrentSamplingInvalidation")), //
-		STATE_42(new Doc().level(Level.FAULT).text("BECU1BatteryFail")), //
-		STATE_43(new Doc().level(Level.FAULT).text("BECU1TemperatureSamplingBroken")), //
-		STATE_44(new Doc().level(Level.FAULT).text("BECU1Contactor1TestBackIsAbnormalTurnOnAbnormity")), //
-		STATE_45(new Doc().level(Level.FAULT).text("BECU1Contactor1TestBackIsAbnormalTurnOffAbnormity")), //
-		STATE_46(new Doc().level(Level.FAULT).text("BECU1Contactor2TestBackIsAbnormalTurnOnAbnormity")), //
-		STATE_47(new Doc().level(Level.FAULT).text("BECU1Contactor2TestBackIsAbnormalTurnOffAbnormity")), //
-		STATE_48(new Doc().level(Level.FAULT).text("BECU1SevereHighTemperatureFault")), //
-		STATE_49(new Doc().level(Level.FAULT).text("BECU1HallInvalidation")), //
-		STATE_50(new Doc().level(Level.FAULT).text("BECU1ContactorInvalidation")), //
-		STATE_51(new Doc().level(Level.FAULT).text("BECU1OutsideCANBroken")), //
-		STATE_52(new Doc().level(Level.FAULT).text("BECU1CathodeContactorBroken")), //
+		STATE_1(Doc.of(Level.WARNING).text("BECU1GeneralChargeOverCurrentAlarm")), //
+		STATE_2(Doc.of(Level.WARNING).text("BECU1GeneralDischargeOverCurrentAlarm")), //
+		STATE_3(Doc.of(Level.WARNING).text("BECU1ChargeCurrentLimitAlarm")), //
+		STATE_4(Doc.of(Level.WARNING).text("BECU1DischargeCurrentLimitAlarm")), //
+		STATE_5(Doc.of(Level.WARNING).text("BECU1GeneralHighVoltageAlarm")), //
+		STATE_6(Doc.of(Level.WARNING).text("BECU1GeneralLowVoltageAlarm")), //
+		STATE_7(Doc.of(Level.WARNING).text("BECU1AbnormalVoltageChangeAlarm")), //
+		STATE_8(Doc.of(Level.WARNING).text("BECU1GeneralHighTemperatureAlarm")), //
+		STATE_9(Doc.of(Level.WARNING).text("BECU1GeneralLowTemperatureAlarm")), //
+		STATE_10(Doc.of(Level.WARNING).text("BECU1AbnormalTemperatureChangeAlarm")), //
+		STATE_11(Doc.of(Level.WARNING).text("BECU1SevereHighVoltageAlarm")), //
+		STATE_12(Doc.of(Level.WARNING).text("BECU1SevereLowVoltageAlarm")), //
+		STATE_13(Doc.of(Level.WARNING).text("BECU1SevereLowTemperatureAlarm")), //
+		STATE_14(Doc.of(Level.WARNING).text("BECU1SeverveChargeOverCurrentAlarm")), //
+		STATE_15(Doc.of(Level.WARNING).text("BECU1SeverveDischargeOverCurrentAlarm")), //
+		STATE_16(Doc.of(Level.WARNING).text("BECU1AbnormalCellCapacityAlarm")), //
+		STATE_17(Doc.of(Level.WARNING).text("BECU1BalancedSamplingAlarm")), //
+		STATE_18(Doc.of(Level.WARNING).text("BECU1BalancedControlAlarm")), //
+		STATE_19(Doc.of(Level.WARNING).text("BECU1HallSensorDoesNotWorkAccurately")), //
+		STATE_20(Doc.of(Level.WARNING).text("BECU1Generalleakage")), //
+		STATE_21(Doc.of(Level.WARNING).text("BECU1Severeleakage")), //
+		STATE_22(Doc.of(Level.WARNING).text("BECU1Contactor1TurnOnAbnormity")), //
+		STATE_23(Doc.of(Level.WARNING).text("BECU1Contactor1TurnOffAbnormity")), //
+		STATE_24(Doc.of(Level.WARNING).text("BECU1Contactor2TurnOnAbnormity")), //
+		STATE_25(Doc.of(Level.WARNING).text("BECU1Contactor2TurnOffAbnormity")), //
+		STATE_26(Doc.of(Level.WARNING).text("BECU1Contactor4CheckAbnormity")), //
+		STATE_27(Doc.of(Level.WARNING).text("BECU1ContactorCurrentUnsafe")), //
+		STATE_28(Doc.of(Level.WARNING).text("BECU1Contactor5CheckAbnormity")), //
+		STATE_29(Doc.of(Level.WARNING).text("BECU1HighVoltageOffset")), //
+		STATE_30(Doc.of(Level.WARNING).text("BECU1LowVoltageOffset")), //
+		STATE_31(Doc.of(Level.WARNING).text("BECU1HighTemperatureOffset")), //
+		STATE_32(Doc.of(Level.FAULT).text("BECU1DischargeSevereOvercurrent")), //
+		STATE_33(Doc.of(Level.FAULT).text("BECU1ChargeSevereOvercurrent")), //
+		STATE_34(Doc.of(Level.FAULT).text("BECU1GeneralUndervoltage")), //
+		STATE_35(Doc.of(Level.FAULT).text("BECU1SevereOvervoltage")), //
+		STATE_36(Doc.of(Level.FAULT).text("BECU1GeneralOvervoltage")), //
+		STATE_37(Doc.of(Level.FAULT).text("BECU1SevereUndervoltage")), //
+		STATE_38(Doc.of(Level.FAULT).text("BECU1InsideCANBroken")), //
+		STATE_39(Doc.of(Level.FAULT).text("BECU1GeneralUndervoltageHighCurrentDischarge")), //
+		STATE_40(Doc.of(Level.FAULT).text("BECU1BMUError")), //
+		STATE_41(Doc.of(Level.FAULT).text("BECU1CurrentSamplingInvalidation")), //
+		STATE_42(Doc.of(Level.FAULT).text("BECU1BatteryFail")), //
+		STATE_43(Doc.of(Level.FAULT).text("BECU1TemperatureSamplingBroken")), //
+		STATE_44(Doc.of(Level.FAULT).text("BECU1Contactor1TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_45(Doc.of(Level.FAULT).text("BECU1Contactor1TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_46(Doc.of(Level.FAULT).text("BECU1Contactor2TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_47(Doc.of(Level.FAULT).text("BECU1Contactor2TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_48(Doc.of(Level.FAULT).text("BECU1SevereHighTemperatureFault")), //
+		STATE_49(Doc.of(Level.FAULT).text("BECU1HallInvalidation")), //
+		STATE_50(Doc.of(Level.FAULT).text("BECU1ContactorInvalidation")), //
+		STATE_51(Doc.of(Level.FAULT).text("BECU1OutsideCANBroken")), //
+		STATE_52(Doc.of(Level.FAULT).text("BECU1CathodeContactorBroken")), //
 
-		STATE_53(new Doc().level(Level.WARNING).text("BECU2GeneralChargeOverCurrentAlarm")), //
-		STATE_54(new Doc().level(Level.WARNING).text("BECU2GeneralDischargeOverCurrentAlarm")), //
-		STATE_55(new Doc().level(Level.WARNING).text("BECU2ChargeCurrentLimitAlarm")), //
-		STATE_56(new Doc().level(Level.WARNING).text("BECU2DischargeCurrentLimitAlarm")), //
-		STATE_57(new Doc().level(Level.WARNING).text("BECU2GeneralHighVoltageAlarm")), //
-		STATE_58(new Doc().level(Level.WARNING).text("BECU2GeneralLowVoltageAlarm")), //
-		STATE_59(new Doc().level(Level.WARNING).text("BECU2AbnormalVoltageChangeAlarm")), //
-		STATE_60(new Doc().level(Level.WARNING).text("BECU2GeneralHighTemperatureAlarm")), //
-		STATE_61(new Doc().level(Level.WARNING).text("BECU2GeneralLowTemperatureAlarm")), //
-		STATE_62(new Doc().level(Level.WARNING).text("BECU2AbnormalTemperatureChangeAlarm")), //
-		STATE_63(new Doc().level(Level.WARNING).text("BECU2SevereHighVoltageAlarm")), //
-		STATE_64(new Doc().level(Level.WARNING).text("BECU2SevereLowVoltageAlarm")), //
-		STATE_65(new Doc().level(Level.WARNING).text("BECU2SevereLowTemperatureAlarm")), //
-		STATE_66(new Doc().level(Level.WARNING).text("BECU2SeverveChargeOverCurrentAlarm")), //
-		STATE_67(new Doc().level(Level.WARNING).text("BECU2SeverveDischargeOverCurrentAlarm")), //
-		STATE_68(new Doc().level(Level.WARNING).text("BECU2AbnormalCellCapacityAlarm")), //
-		STATE_69(new Doc().level(Level.WARNING).text("BECU2BalancedSamplingAlarm")), //
-		STATE_70(new Doc().level(Level.WARNING).text("BECU2BalancedControlAlarm")), //
-		STATE_71(new Doc().level(Level.WARNING).text("BECU2HallSensorDoesNotWorkAccurately")), //
-		STATE_72(new Doc().level(Level.WARNING).text("BECU2Generalleakage")), //
-		STATE_73(new Doc().level(Level.WARNING).text("BECU2Severeleakage")), //
-		STATE_74(new Doc().level(Level.WARNING).text("BECU2Contactor1TurnOnAbnormity")), //
-		STATE_75(new Doc().level(Level.WARNING).text("BECU2Contactor1TurnOffAbnormity")), //
-		STATE_76(new Doc().level(Level.WARNING).text("BECU2Contactor2TurnOnAbnormity")), //
-		STATE_77(new Doc().level(Level.WARNING).text("BECU2Contactor2TurnOffAbnormity")), //
-		STATE_78(new Doc().level(Level.WARNING).text("BECU2Contactor4CheckAbnormity")), //
-		STATE_79(new Doc().level(Level.WARNING).text("BECU2ContactorCurrentUnsafe")), //
-		STATE_80(new Doc().level(Level.WARNING).text("BECU2Contactor5CheckAbnormity")), //
-		STATE_81(new Doc().level(Level.WARNING).text("BECU2HighVoltageOffset")), //
-		STATE_82(new Doc().level(Level.WARNING).text("BECU2LowVoltageOffset")), //
-		STATE_83(new Doc().level(Level.WARNING).text("BECU2HighTemperatureOffset")), //
-		STATE_84(new Doc().level(Level.FAULT).text("BECU2DischargeSevereOvercurrent")), //
-		STATE_85(new Doc().level(Level.FAULT).text("BECU2ChargeSevereOvercurrent")), //
-		STATE_86(new Doc().level(Level.FAULT).text("BECU2GeneralUndervoltage")), //
-		STATE_87(new Doc().level(Level.FAULT).text("BECU2SevereOvervoltage")), //
-		STATE_88(new Doc().level(Level.FAULT).text("BECU2GeneralOvervoltage")), //
-		STATE_89(new Doc().level(Level.FAULT).text("BECU2SevereUndervoltage")), //
-		STATE_90(new Doc().level(Level.FAULT).text("BECU2InsideCANBroken")), //
-		STATE_91(new Doc().level(Level.FAULT).text("BECU2GeneralUndervoltageHighCurrentDischarge")), //
-		STATE_92(new Doc().level(Level.FAULT).text("BECU2BMUError")), //
-		STATE_93(new Doc().level(Level.FAULT).text("BECU2CurrentSamplingInvalidation")), //
-		STATE_94(new Doc().level(Level.FAULT).text("BECU2BatteryFail")), //
-		STATE_95(new Doc().level(Level.FAULT).text("BECU2TemperatureSamplingBroken")), //
-		STATE_96(new Doc().level(Level.FAULT).text("BECU2Contactor1TestBackIsAbnormalTurnOnAbnormity")), //
-		STATE_97(new Doc().level(Level.FAULT).text("BECU2Contactor1TestBackIsAbnormalTurnOffAbnormity")), //
-		STATE_98(new Doc().level(Level.FAULT).text("BECU2Contactor2TestBackIsAbnormalTurnOnAbnormity")), //
-		STATE_99(new Doc().level(Level.FAULT).text("BECU2Contactor2TestBackIsAbnormalTurnOffAbnormity")), //
-		STATE_100(new Doc().level(Level.FAULT).text("BECU2SevereHighTemperatureFault")), //
-		STATE_101(new Doc().level(Level.FAULT).text("BECU2HallInvalidation")), //
-		STATE_102(new Doc().level(Level.FAULT).text("BECU2ContactorInvalidation")), //
-		STATE_103(new Doc().level(Level.FAULT).text("BECU2OutsideCANBroken")), //
-		STATE_104(new Doc().level(Level.FAULT).text("BECU2CathodeContactorBroken")), //
+		STATE_53(Doc.of(Level.WARNING).text("BECU2GeneralChargeOverCurrentAlarm")), //
+		STATE_54(Doc.of(Level.WARNING).text("BECU2GeneralDischargeOverCurrentAlarm")), //
+		STATE_55(Doc.of(Level.WARNING).text("BECU2ChargeCurrentLimitAlarm")), //
+		STATE_56(Doc.of(Level.WARNING).text("BECU2DischargeCurrentLimitAlarm")), //
+		STATE_57(Doc.of(Level.WARNING).text("BECU2GeneralHighVoltageAlarm")), //
+		STATE_58(Doc.of(Level.WARNING).text("BECU2GeneralLowVoltageAlarm")), //
+		STATE_59(Doc.of(Level.WARNING).text("BECU2AbnormalVoltageChangeAlarm")), //
+		STATE_60(Doc.of(Level.WARNING).text("BECU2GeneralHighTemperatureAlarm")), //
+		STATE_61(Doc.of(Level.WARNING).text("BECU2GeneralLowTemperatureAlarm")), //
+		STATE_62(Doc.of(Level.WARNING).text("BECU2AbnormalTemperatureChangeAlarm")), //
+		STATE_63(Doc.of(Level.WARNING).text("BECU2SevereHighVoltageAlarm")), //
+		STATE_64(Doc.of(Level.WARNING).text("BECU2SevereLowVoltageAlarm")), //
+		STATE_65(Doc.of(Level.WARNING).text("BECU2SevereLowTemperatureAlarm")), //
+		STATE_66(Doc.of(Level.WARNING).text("BECU2SeverveChargeOverCurrentAlarm")), //
+		STATE_67(Doc.of(Level.WARNING).text("BECU2SeverveDischargeOverCurrentAlarm")), //
+		STATE_68(Doc.of(Level.WARNING).text("BECU2AbnormalCellCapacityAlarm")), //
+		STATE_69(Doc.of(Level.WARNING).text("BECU2BalancedSamplingAlarm")), //
+		STATE_70(Doc.of(Level.WARNING).text("BECU2BalancedControlAlarm")), //
+		STATE_71(Doc.of(Level.WARNING).text("BECU2HallSensorDoesNotWorkAccurately")), //
+		STATE_72(Doc.of(Level.WARNING).text("BECU2Generalleakage")), //
+		STATE_73(Doc.of(Level.WARNING).text("BECU2Severeleakage")), //
+		STATE_74(Doc.of(Level.WARNING).text("BECU2Contactor1TurnOnAbnormity")), //
+		STATE_75(Doc.of(Level.WARNING).text("BECU2Contactor1TurnOffAbnormity")), //
+		STATE_76(Doc.of(Level.WARNING).text("BECU2Contactor2TurnOnAbnormity")), //
+		STATE_77(Doc.of(Level.WARNING).text("BECU2Contactor2TurnOffAbnormity")), //
+		STATE_78(Doc.of(Level.WARNING).text("BECU2Contactor4CheckAbnormity")), //
+		STATE_79(Doc.of(Level.WARNING).text("BECU2ContactorCurrentUnsafe")), //
+		STATE_80(Doc.of(Level.WARNING).text("BECU2Contactor5CheckAbnormity")), //
+		STATE_81(Doc.of(Level.WARNING).text("BECU2HighVoltageOffset")), //
+		STATE_82(Doc.of(Level.WARNING).text("BECU2LowVoltageOffset")), //
+		STATE_83(Doc.of(Level.WARNING).text("BECU2HighTemperatureOffset")), //
+		STATE_84(Doc.of(Level.FAULT).text("BECU2DischargeSevereOvercurrent")), //
+		STATE_85(Doc.of(Level.FAULT).text("BECU2ChargeSevereOvercurrent")), //
+		STATE_86(Doc.of(Level.FAULT).text("BECU2GeneralUndervoltage")), //
+		STATE_87(Doc.of(Level.FAULT).text("BECU2SevereOvervoltage")), //
+		STATE_88(Doc.of(Level.FAULT).text("BECU2GeneralOvervoltage")), //
+		STATE_89(Doc.of(Level.FAULT).text("BECU2SevereUndervoltage")), //
+		STATE_90(Doc.of(Level.FAULT).text("BECU2InsideCANBroken")), //
+		STATE_91(Doc.of(Level.FAULT).text("BECU2GeneralUndervoltageHighCurrentDischarge")), //
+		STATE_92(Doc.of(Level.FAULT).text("BECU2BMUError")), //
+		STATE_93(Doc.of(Level.FAULT).text("BECU2CurrentSamplingInvalidation")), //
+		STATE_94(Doc.of(Level.FAULT).text("BECU2BatteryFail")), //
+		STATE_95(Doc.of(Level.FAULT).text("BECU2TemperatureSamplingBroken")), //
+		STATE_96(Doc.of(Level.FAULT).text("BECU2Contactor1TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_97(Doc.of(Level.FAULT).text("BECU2Contactor1TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_98(Doc.of(Level.FAULT).text("BECU2Contactor2TestBackIsAbnormalTurnOnAbnormity")), //
+		STATE_99(Doc.of(Level.FAULT).text("BECU2Contactor2TestBackIsAbnormalTurnOffAbnormity")), //
+		STATE_100(Doc.of(Level.FAULT).text("BECU2SevereHighTemperatureFault")), //
+		STATE_101(Doc.of(Level.FAULT).text("BECU2HallInvalidation")), //
+		STATE_102(Doc.of(Level.FAULT).text("BECU2ContactorInvalidation")), //
+		STATE_103(Doc.of(Level.FAULT).text("BECU2OutsideCANBroken")), //
+		STATE_104(Doc.of(Level.FAULT).text("BECU2CathodeContactorBroken")), //
 
-		STATE_105(new Doc().level(Level.FAULT).text("NoAvailableBatteryGroup")), //
-		STATE_106(new Doc().level(Level.FAULT).text("StackGeneralLeakage")), //
-		STATE_107(new Doc().level(Level.FAULT).text("StackSevereLeakage")), //
-		STATE_108(new Doc().level(Level.FAULT).text("StackStartingFail")), //
-		STATE_109(new Doc().level(Level.FAULT).text("StackStoppingFail")), //
-		STATE_110(new Doc().level(Level.FAULT).text("BatteryProtection")), //
-		STATE_111(new Doc().level(Level.FAULT).text("StackAndGroup1CANCommunicationInterrupt")), //
-		STATE_112(new Doc().level(Level.FAULT).text("StackAndGroup2CANCommunicationInterrupt")), //
-		STATE_113(new Doc().level(Level.WARNING).text("GeneralOvercurrentAlarmAtCellStackCharge")), //
-		STATE_114(new Doc().level(Level.WARNING).text("GeneralOvercurrentAlarmAtCellStackDischarge")), //
-		STATE_115(new Doc().level(Level.WARNING).text("CurrentLimitAlarmAtCellStackCharge")), //
-		STATE_116(new Doc().level(Level.WARNING).text("CurrentLimitAlarmAtCellStackDischarge")), //
-		STATE_117(new Doc().level(Level.WARNING).text("GeneralCellStackHighVoltageAlarm")), //
-		STATE_118(new Doc().level(Level.WARNING).text("GeneralCellStackLowVoltageAlarm")), //
-		STATE_119(new Doc().level(Level.WARNING).text("AbnormalCellStackVoltageChangeAlarm")), //
-		STATE_120(new Doc().level(Level.WARNING).text("GeneralCellStackHighTemperatureAlarm")), //
-		STATE_121(new Doc().level(Level.WARNING).text("GeneralCellStackLowTemperatureAlarm")), //
-		STATE_122(new Doc().level(Level.WARNING).text("AbnormalCellStackTemperatureChangeAlarm")), //
-		STATE_123(new Doc().level(Level.WARNING).text("SevereCellStackHighVoltageAlarm")), //
-		STATE_124(new Doc().level(Level.WARNING).text("SevereCellStackLowVoltageAlarm")), //
-		STATE_125(new Doc().level(Level.WARNING).text("SevereCellStackLowTemperatureAlarm")), //
-		STATE_126(new Doc().level(Level.WARNING).text("SeverveOverCurrentAlarmAtCellStackDharge")), //
-		STATE_127(new Doc().level(Level.WARNING).text("SeverveOverCurrentAlarmAtCellStackDischarge")), //
-		STATE_128(new Doc().level(Level.WARNING).text("AbnormalCellStackCapacityAlarm")), //
-		STATE_129(new Doc().level(Level.WARNING).text("TheParameterOfEEPROMInCellStackLoseEffectiveness")), //
-		STATE_130(new Doc().level(Level.WARNING).text("IsolatingSwitchInConfluenceArkBreak")), //
+		STATE_105(Doc.of(Level.FAULT).text("NoAvailableBatteryGroup")), //
+		STATE_106(Doc.of(Level.FAULT).text("StackGeneralLeakage")), //
+		STATE_107(Doc.of(Level.FAULT).text("StackSevereLeakage")), //
+		STATE_108(Doc.of(Level.FAULT).text("StackStartingFail")), //
+		STATE_109(Doc.of(Level.FAULT).text("StackStoppingFail")), //
+		STATE_110(Doc.of(Level.FAULT).text("BatteryProtection")), //
+		STATE_111(Doc.of(Level.FAULT).text("StackAndGroup1CANCommunicationInterrupt")), //
+		STATE_112(Doc.of(Level.FAULT).text("StackAndGroup2CANCommunicationInterrupt")), //
+		STATE_113(Doc.of(Level.WARNING).text("GeneralOvercurrentAlarmAtCellStackCharge")), //
+		STATE_114(Doc.of(Level.WARNING).text("GeneralOvercurrentAlarmAtCellStackDischarge")), //
+		STATE_115(Doc.of(Level.WARNING).text("CurrentLimitAlarmAtCellStackCharge")), //
+		STATE_116(Doc.of(Level.WARNING).text("CurrentLimitAlarmAtCellStackDischarge")), //
+		STATE_117(Doc.of(Level.WARNING).text("GeneralCellStackHighVoltageAlarm")), //
+		STATE_118(Doc.of(Level.WARNING).text("GeneralCellStackLowVoltageAlarm")), //
+		STATE_119(Doc.of(Level.WARNING).text("AbnormalCellStackVoltageChangeAlarm")), //
+		STATE_120(Doc.of(Level.WARNING).text("GeneralCellStackHighTemperatureAlarm")), //
+		STATE_121(Doc.of(Level.WARNING).text("GeneralCellStackLowTemperatureAlarm")), //
+		STATE_122(Doc.of(Level.WARNING).text("AbnormalCellStackTemperatureChangeAlarm")), //
+		STATE_123(Doc.of(Level.WARNING).text("SevereCellStackHighVoltageAlarm")), //
+		STATE_124(Doc.of(Level.WARNING).text("SevereCellStackLowVoltageAlarm")), //
+		STATE_125(Doc.of(Level.WARNING).text("SevereCellStackLowTemperatureAlarm")), //
+		STATE_126(Doc.of(Level.WARNING).text("SeverveOverCurrentAlarmAtCellStackDharge")), //
+		STATE_127(Doc.of(Level.WARNING).text("SeverveOverCurrentAlarmAtCellStackDischarge")), //
+		STATE_128(Doc.of(Level.WARNING).text("AbnormalCellStackCapacityAlarm")), //
+		STATE_129(Doc.of(Level.WARNING).text("TheParameterOfEEPROMInCellStackLoseEffectiveness")), //
+		STATE_130(Doc.of(Level.WARNING).text("IsolatingSwitchInConfluenceArkBreak")), //
 		STATE_131(
-				new Doc().level(Level.WARNING).text("TheCommunicationBetweenCellStackAndTemperatureOfCollectorBreak")), //
-		STATE_132(new Doc().level(Level.WARNING).text("TheTemperatureOfCollectorFail")), //
-		STATE_133(new Doc().level(Level.WARNING).text("HallSensorDoNotWorkAccurately")), //
-		STATE_134(new Doc().level(Level.WARNING).text("TheCommunicationOfPCSBreak")), //
-		STATE_135(new Doc().level(Level.WARNING).text("AdvancedChargingOrMainContactorCloseAbnormally")), //
-		STATE_136(new Doc().level(Level.WARNING).text("AbnormalSampledVoltage")), //
-		STATE_137(new Doc().level(Level.WARNING).text("AbnormalAdvancedContactorOrAbnormalRS485GalleryOfPCS")), //
-		STATE_138(new Doc().level(Level.WARNING).text("AbnormalMainContactor")), //
-		STATE_139(new Doc().level(Level.WARNING).text("GeneralCellStackLeakage")), //
-		STATE_140(new Doc().level(Level.WARNING).text("SevereCellStackLeakage")), //
-		STATE_141(new Doc().level(Level.WARNING).text("SmokeAlarm")), //
-		STATE_142(new Doc().level(Level.WARNING).text("TheCommunicationWireToAmmeterBreak")), //
-		STATE_143(new Doc().level(Level.INFO).text("TheCommunicationWireToDredBreak")//
+				Doc.of(Level.WARNING).text("TheCommunicationBetweenCellStackAndTemperatureOfCollectorBreak")), //
+		STATE_132(Doc.of(Level.WARNING).text("TheTemperatureOfCollectorFail")), //
+		STATE_133(Doc.of(Level.WARNING).text("HallSensorDoNotWorkAccurately")), //
+		STATE_134(Doc.of(Level.WARNING).text("TheCommunicationOfPCSBreak")), //
+		STATE_135(Doc.of(Level.WARNING).text("AdvancedChargingOrMainContactorCloseAbnormally")), //
+		STATE_136(Doc.of(Level.WARNING).text("AbnormalSampledVoltage")), //
+		STATE_137(Doc.of(Level.WARNING).text("AbnormalAdvancedContactorOrAbnormalRS485GalleryOfPCS")), //
+		STATE_138(Doc.of(Level.WARNING).text("AbnormalMainContactor")), //
+		STATE_139(Doc.of(Level.WARNING).text("GeneralCellStackLeakage")), //
+		STATE_140(Doc.of(Level.WARNING).text("SevereCellStackLeakage")), //
+		STATE_141(Doc.of(Level.WARNING).text("SmokeAlarm")), //
+		STATE_142(Doc.of(Level.WARNING).text("TheCommunicationWireToAmmeterBreak")), //
+		STATE_143(Doc.of(Level.INFO).text("TheCommunicationWireToDredBreak")//
 		); //
 
 		private final Doc doc;

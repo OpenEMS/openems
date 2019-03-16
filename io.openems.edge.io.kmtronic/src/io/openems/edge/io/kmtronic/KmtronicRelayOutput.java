@@ -21,10 +21,10 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
-import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.internal.BooleanWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.DigitalOutput;
@@ -33,7 +33,7 @@ import io.openems.edge.io.api.DigitalOutput;
 @Component(name = "IO.KMtronic", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implements DigitalOutput, OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Holds writes to Relay Output 1 for debugging
 		 * 
@@ -43,7 +43,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_1(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 1
 		 * 
@@ -72,7 +72,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_2(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 2
 		 * 
@@ -101,7 +101,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_3(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_3(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 3
 		 * 
@@ -130,7 +130,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_4(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_4(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 4
 		 * 
@@ -159,7 +159,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_5(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_5(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 5
 		 * 
@@ -188,7 +188,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_6(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_6(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 6
 		 * 
@@ -217,7 +217,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_7(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_7(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 7
 		 * 
@@ -246,7 +246,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_8(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		DEBUG_RELAY_8(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Relay Output 8
 		 * 
