@@ -85,8 +85,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	protected ConfigurationAdmin cm;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		UNABLE_TO_START(new Doc() //
-				.level(Level.FAULT) //
+		UNABLE_TO_START(Doc.of(Level.FAULT) //
 				.text("Unable to start Modbus/TCP-Api Server"));
 
 		private final Doc doc;
@@ -107,10 +106,13 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	private int maxConcurrentConnections = ModbusTcpApi.DEFAULT_MAX_CONCURRENT_CONNECTIONS;
 
 	public ModbusTcpApi() {
-		this.processImage = new MyProcessImage(this);
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
-		// TODO: add Debug-Channels for writes to Channels via Modbus/TCP
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.processImage = new MyProcessImage(this);
 	}
 
 	@Activate
