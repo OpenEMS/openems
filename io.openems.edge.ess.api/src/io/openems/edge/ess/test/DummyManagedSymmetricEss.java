@@ -11,7 +11,8 @@ import io.openems.edge.ess.power.api.Power;
  * Provides a simple, simulated ManagedSymmetricEss component that can be used
  * together with the OpenEMS Component test framework.
  */
-public class DummyManagedSymmetricEss extends AbstractOpenemsComponent implements ManagedSymmetricEss, SymmetricEss {
+public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
+		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 	public static final int MAX_APPARENT_POWER = Integer.MAX_VALUE;
 
@@ -20,7 +21,8 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent implement
 	public DummyManagedSymmetricEss(String id) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), ManagedSymmetricEss.ChannelId.values() //
+				ManagedSymmetricEss.ChannelId.values(), //
+				SymmetricEss.ChannelId.values() //
 		);
 		this.power = new DummyPower(MAX_APPARENT_POWER);
 		for (Channel<?> channel : this.channels()) {

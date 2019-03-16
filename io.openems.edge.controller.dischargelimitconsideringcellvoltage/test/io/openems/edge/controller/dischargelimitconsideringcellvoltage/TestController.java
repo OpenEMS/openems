@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,23 +13,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.internal.AbstractReadChannel;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
-import io.openems.edge.common.channel.internal.IntegerReadChannel;
-import io.openems.edge.common.channel.internal.StateCollectorChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.controller.dischargelimitconsideringcellvoltage.DischargeLimitConsideringCellVoltage.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Coefficient;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.PowerException;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class TestController {
 
@@ -227,121 +213,24 @@ public class TestController {
 	}
 
 	private ManagedSymmetricEss getDummyEss() {
-		ManagedSymmetricEss ess = new EssDummy();
+		ManagedSymmetricEss ess = new DummyManagedSymmetricEss("ess0");
 		return ess;
 	}
 
+	private static final Integer CAPACITY_KWH = 50;
+	private static final Integer DISCHARGE_MIN_V = 600;
+	private static final Integer DISCHARGE_MAX_A = 80;
+	private static final Integer CHARGE_MAX_V = 850;
+	private static final Integer CHARGE_MAX_A = 80;
+
 	private Battery getDummyBattery() {
-		return new BatteryDummy();
+		Battery b = new DummyBattery("bms0");
+		b.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(CHARGE_MAX_A);
+		b.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(CHARGE_MAX_V);
+		b.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(DISCHARGE_MAX_A);
+		b.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(DISCHARGE_MIN_V);
+		b.channel(Battery.ChannelId.CAPACITY).setNextValue(CAPACITY_KWH);
+		return b;
 	}
 
-	private static class EssDummy extends AbstractOpenemsComponent implements ManagedSymmetricEss {
-
-		@Override
-		public Power getPower() {
-			return new Power() {
-
-				@Override
-				public void removeConstraint(Constraint constraint) {
-
-				}
-
-				@Override
-				public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					return 0;
-				}
-
-				@Override
-				public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					return 0;
-				}
-
-				@Override
-				public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-					return null;
-				}
-
-				@Override
-				public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase,
-						Pwr pwr, Relationship relationship, double value) {
-					return null;
-				}
-
-				@Override
-				public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
-					return null;
-				}
-
-				@Override
-				public Constraint addConstraint(Constraint constraint) {
-					return null;
-				}
-			};
-		}
-
-		@Override
-		public void applyPower(int activePower, int reactivePower) throws OpenemsException {
-
-		}
-
-		@Override
-		public int getPowerPrecision() {
-			return 1;
-		}
-
-	}
-
-	private static class BatteryDummy extends AbstractOpenemsComponent implements Battery {
-
-		private static final Integer CAPACITY_KWH = 50;
-		private static final Integer DISCHARGE_MIN_V = 600;
-		private static final Integer DISCHARGE_MAX_A = 80;
-		private static final Integer CHARGE_MAX_V = 850;
-		private static final Integer CHARGE_MAX_A = 80;
-
-		BatteryDummy() {
-			initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		}
-
-		public Stream<? extends AbstractReadChannel<?>> initializeChannels(BatteryDummy s) {
-			// Define the channels. Using streams + switch enables Eclipse IDE to tell us if
-			// we are missing an Enum value.
-			return Stream.of( //
-					Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
-						switch (channelId) {
-						case STATE:
-							return new StateCollectorChannel(s, channelId);
-						}
-						return null;
-					}), Arrays.stream(Battery.ChannelId.values()).map(channelId -> {
-						switch (channelId) {
-						case SOC:
-						case SOH:
-						case VOLTAGE:
-						case MAX_CELL_TEMPERATURE:
-						case MAX_CELL_VOLTAGE:
-						case MAX_POWER:
-						case MIN_CELL_TEMPERATURE:
-						case MIN_CELL_VOLTAGE:
-							return new IntegerReadChannel(s, channelId);
-						case CHARGE_MAX_CURRENT:
-							return new IntegerReadChannel(s, channelId, BatteryDummy.CHARGE_MAX_A);
-						case CHARGE_MAX_VOLTAGE:
-							return new IntegerReadChannel(s, channelId, BatteryDummy.CHARGE_MAX_V);
-						case DISCHARGE_MAX_CURRENT:
-							return new IntegerReadChannel(s, channelId, BatteryDummy.DISCHARGE_MAX_A);
-						case DISCHARGE_MIN_VOLTAGE:
-							return new IntegerReadChannel(s, channelId, BatteryDummy.DISCHARGE_MIN_V);
-						case READY_FOR_WORKING:
-							return new BooleanReadChannel(s, channelId);
-						case CAPACITY:
-							return new IntegerReadChannel(s, channelId, BatteryDummy.CAPACITY_KWH);
-						case CURRENT:
-							break;
-						}
-						return null;
-					})).flatMap(channel -> channel);
-		}
-
-	}
 }

@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.internal.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -35,7 +34,6 @@ import io.openems.edge.ess.power.api.Relationship;
  * voltage goes below a specified value - the minimal cell voltage goes below a
  * specified value - the minimal cell voltage goes below a specified value
  * within a certain time period
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -67,8 +65,28 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	private static String KEY_MIN_CELL_VOLTAGE = "KEY_MIN_CELL_VOLTAGE";
 	private static String KEY_SOC = "KEY_SOC";
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current state"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public DischargeLimitConsideringCellVoltage() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
@@ -276,23 +294,6 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		chargeSoC = config.chargeSoc();
 		minSoC = config.minSoc();
 		timeUntilChargeIsForced = config.timeSpan();
-	}
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		STATE_MACHINE(Doc.of(Level.INFO).text("Current state").options(State.values())), //
-		; //
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 
 	@Deactivate
