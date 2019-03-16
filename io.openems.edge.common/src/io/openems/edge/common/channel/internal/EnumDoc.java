@@ -25,6 +25,17 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	}
 
 	/**
+	 * Initial-Value. Default: none
+	 * 
+	 * @param initialValue
+	 * @return myself
+	 */
+	public EnumDoc initialValue(OptionsEnum initialValue) {
+		this.initialValue(initialValue.getValue());
+		return this.self();
+	}
+
+	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link Doc}.
 	 * 
