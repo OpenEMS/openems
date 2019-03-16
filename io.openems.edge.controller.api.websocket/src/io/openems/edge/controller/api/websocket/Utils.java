@@ -1,39 +1,13 @@
 package io.openems.edge.controller.api.websocket;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
 import io.openems.common.session.Role;
-import io.openems.edge.common.channel.internal.StateChannel;
-import io.openems.edge.common.channel.internal.AbstractReadChannel;
-import io.openems.edge.common.channel.internal.StateCollectorChannel;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.Controller;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(WebsocketApi c) {
-		return Stream.of(//
-				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case STATE:
-						return new StateCollectorChannel(c, channelId);
-					}
-					return null;
-				}), //
-				Arrays.stream(Controller.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case RUN_FAILED:
-						return new StateChannel(c, channelId);
-					}
-					return null;
-				}) //
-		).flatMap(channel -> channel);
-	}
-
 	/**
 	 * Gets the EdgeMetadata for one Edge.
 	 * 
