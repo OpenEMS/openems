@@ -25,11 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -89,7 +89,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		SOLVED(Doc.of(Level.WARNING));
+		NOT_SOLVED(Doc.of(Level.WARNING));
 
 		private final Doc doc;
 
@@ -127,7 +127,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		this.solver = new Solver(data);
 
 		this.solver.onSolved((isSolved, duration, strategy) -> {
-			this.getSolvedChannel().setNextValue(isSolved);
+			this.getNotSolvedChannel().setNextValue(!isSolved);
 			this.getSolveDurationChannel().setNextValue(duration);
 			this.getSolveStrategyChannel().setNextValue(strategy);
 		});
@@ -249,8 +249,8 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		}
 	}
 
-	protected BooleanReadChannel getSolvedChannel() {
-		return this.channel(ChannelId.SOLVED);
+	protected StateChannel getNotSolvedChannel() {
+		return this.channel(ChannelId.NOT_SOLVED);
 	}
 
 	protected IntegerReadChannel getSolveDurationChannel() {

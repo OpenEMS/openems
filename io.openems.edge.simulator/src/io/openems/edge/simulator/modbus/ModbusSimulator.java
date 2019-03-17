@@ -57,8 +57,6 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
-				BridgeModbusSerial.ChannelId.values(), //
-				BridgeModbusTcp.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}

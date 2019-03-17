@@ -47,7 +47,7 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 	 * @return myself
 	 */
 	public OpenemsTypeDoc<T> accessMode(AccessMode accessMode) {
-		this.accessMode(accessMode);
+		super.accessMode(accessMode);
 		return this;
 	}
 
