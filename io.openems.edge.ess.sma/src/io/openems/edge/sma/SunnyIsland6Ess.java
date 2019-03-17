@@ -23,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
@@ -55,7 +56,17 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	protected ConfigurationAdmin cm;
 
 	public SunnyIsland6Ess() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				SinglePhaseEss.ChannelId.values(), //
+				ManagedSinglePhaseEss.ChannelId.values(), //
+				SiChannelId.values() //
+		);
+		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(SunnyIsland6Ess.MAX_APPARENT_POWER);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -79,7 +90,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	// TODO IMP!! LOAD_POWER "30861"
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
-		IntegerWriteChannel setControlMode = this.channel(SiChannelId.SET_CONTROL_MODE);
+		EnumWriteChannel setControlMode = this.channel(SiChannelId.SET_CONTROL_MODE);
 		IntegerWriteChannel setActivePowerChannel = this.channel(SiChannelId.SET_ACTIVE_POWER);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(SiChannelId.SET_REACTIVE_POWER);
 		setControlMode.setNextWriteValue(SetControlMode.START);
