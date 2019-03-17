@@ -27,12 +27,9 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
- * Implements the Janitza UMG 96RM-E power analyser
+ * Implements the Janitza UMG 96RM-E power analyzer.
  * 
  * https://www.janitza.com/umg-96rm-e.html
- * 
- * @author stefan.feilmeier
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Janitza.UMG96RME", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -50,7 +47,12 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	public MeterJanitzaUmg96rme() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -63,8 +65,8 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		this.meterType = config.type();
 		this.invert = config.invert();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
