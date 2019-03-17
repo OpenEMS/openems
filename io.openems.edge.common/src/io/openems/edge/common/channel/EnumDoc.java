@@ -1,15 +1,11 @@
-package io.openems.edge.common.channel.internal;
+package io.openems.edge.common.channel;
 
 import java.util.Arrays;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 

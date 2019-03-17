@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.openems.edge.common.channel.internal.BooleanDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class BooleanWriteChannel extends BooleanReadChannel implements WriteChannel<Boolean> {

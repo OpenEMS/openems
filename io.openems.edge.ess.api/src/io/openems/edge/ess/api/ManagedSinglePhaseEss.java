@@ -2,7 +2,7 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 
 /**

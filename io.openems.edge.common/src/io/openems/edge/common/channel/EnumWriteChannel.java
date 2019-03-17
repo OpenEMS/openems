@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.internal.EnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<Integer> {

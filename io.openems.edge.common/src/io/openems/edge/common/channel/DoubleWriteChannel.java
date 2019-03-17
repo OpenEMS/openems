@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.openems.edge.common.channel.internal.DoubleDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class DoubleWriteChannel extends DoubleReadChannel implements WriteChannel<Double> {

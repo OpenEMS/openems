@@ -1,6 +1,13 @@
 package io.openems.edge.common.channel.internal;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.edge.common.channel.DoubleDoc;
+import io.openems.edge.common.channel.FloatDoc;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.LongDoc;
+import io.openems.edge.common.channel.ShortDoc;
+import io.openems.edge.common.channel.StringDoc;
 import io.openems.edge.common.channel.Unit;
 
 public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {

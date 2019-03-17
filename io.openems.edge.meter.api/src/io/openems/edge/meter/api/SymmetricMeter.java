@@ -6,8 +6,8 @@ import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.Unit;
-import io.openems.edge.common.channel.internal.IntegerDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
