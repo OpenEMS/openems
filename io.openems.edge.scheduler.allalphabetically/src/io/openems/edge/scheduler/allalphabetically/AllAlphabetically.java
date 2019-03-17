@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.AbstractScheduler;
@@ -68,8 +69,26 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler, O
 		super.deactivate();
 	}
 
+	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ThisChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public AllAlphabetically() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Scheduler.ChannelId.values(), //
+				ThisChannelId.values() //
+		);
 	}
 
 	@Override
