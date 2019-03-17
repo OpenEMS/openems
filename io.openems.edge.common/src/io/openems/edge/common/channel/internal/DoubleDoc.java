@@ -2,6 +2,8 @@ package io.openems.edge.common.channel.internal;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.DoubleReadChannel;
+import io.openems.edge.common.channel.DoubleWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class DoubleDoc extends OpenemsTypeDoc<Double> {

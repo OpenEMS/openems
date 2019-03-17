@@ -1,7 +1,7 @@
 package io.openems.edge.wago;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanReadChannel;
 
 public abstract class FieldbusModule {
 

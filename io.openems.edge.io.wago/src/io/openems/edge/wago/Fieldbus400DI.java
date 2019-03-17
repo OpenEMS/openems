@@ -3,7 +3,7 @@ package io.openems.edge.wago;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanReadChannel;
 
 public class Fieldbus400DI extends FieldbusModule {
 

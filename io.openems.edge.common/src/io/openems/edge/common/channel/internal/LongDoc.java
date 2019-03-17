@@ -2,6 +2,8 @@ package io.openems.edge.common.channel.internal;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.LongWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class LongDoc extends OpenemsTypeDoc<Long> {

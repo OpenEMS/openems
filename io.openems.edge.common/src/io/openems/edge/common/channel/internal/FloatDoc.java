@@ -2,6 +2,8 @@ package io.openems.edge.common.channel.internal;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class FloatDoc extends OpenemsTypeDoc<Float> {

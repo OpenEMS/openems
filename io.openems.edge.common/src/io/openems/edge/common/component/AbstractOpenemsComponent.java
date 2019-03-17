@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.internal.StateChannel;
+import io.openems.edge.common.channel.StateChannel;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.

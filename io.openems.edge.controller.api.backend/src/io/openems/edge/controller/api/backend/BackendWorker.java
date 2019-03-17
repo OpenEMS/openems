@@ -17,7 +17,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.channel.AccessMode;
-import io.openems.edge.common.channel.internal.EnumReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.type.slidingvalue.DoubleSlidingValue;
 import io.openems.edge.common.type.slidingvalue.FloatSlidingValue;
 import io.openems.edge.common.type.slidingvalue.IntegerSlidingValue;

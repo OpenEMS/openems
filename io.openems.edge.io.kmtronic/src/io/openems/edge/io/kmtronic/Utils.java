@@ -3,9 +3,9 @@ package io.openems.edge.io.kmtronic;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
-import io.openems.edge.common.channel.internal.BooleanWriteChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 

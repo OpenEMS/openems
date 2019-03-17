@@ -1,9 +1,9 @@
-package io.openems.edge.common.channel.internal;
+package io.openems.edge.common.channel;
 
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.EnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class EnumReadChannel extends AbstractReadChannel<EnumDoc, Integer> {

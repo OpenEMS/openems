@@ -13,10 +13,10 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.Unit;
-import io.openems.edge.common.channel.internal.IntegerReadChannel;
-import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**

@@ -1,10 +1,10 @@
 package io.openems.edge.io.test;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
-import io.openems.edge.common.channel.internal.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalInput;

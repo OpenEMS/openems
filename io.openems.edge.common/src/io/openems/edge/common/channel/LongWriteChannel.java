@@ -1,11 +1,10 @@
-package io.openems.edge.common.channel.internal;
+package io.openems.edge.common.channel;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.internal.LongDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class LongWriteChannel extends LongReadChannel implements WriteChannel<Long> {

@@ -3,9 +3,9 @@ package io.openems.edge.simulator.meter;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
-import io.openems.edge.common.channel.internal.IntegerReadChannel;
-import io.openems.edge.common.channel.internal.LongReadChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.AsymmetricMeter;

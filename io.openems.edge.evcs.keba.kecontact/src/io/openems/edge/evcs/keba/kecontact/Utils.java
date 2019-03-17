@@ -3,16 +3,16 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
-import io.openems.edge.common.channel.internal.BooleanWriteChannel;
-import io.openems.edge.common.channel.internal.EnumReadChannel;
-import io.openems.edge.common.channel.internal.IntegerReadChannel;
-import io.openems.edge.common.channel.internal.IntegerWriteChannel;
-import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
-import io.openems.edge.common.channel.internal.StringReadChannel;
-import io.openems.edge.common.channel.internal.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.api.Evcs;
 

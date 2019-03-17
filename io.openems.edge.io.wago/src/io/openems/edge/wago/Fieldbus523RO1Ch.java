@@ -4,8 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
-import io.openems.edge.common.channel.internal.BooleanReadChannel;
-import io.openems.edge.common.channel.internal.BooleanWriteChannel;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 
 public class Fieldbus523RO1Ch extends FieldbusModule {
 

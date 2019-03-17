@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.internal.IntegerWriteChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;

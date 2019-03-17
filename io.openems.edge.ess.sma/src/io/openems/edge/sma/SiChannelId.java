@@ -1,8 +1,8 @@
 package io.openems.edge.sma;
 
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.Unit;
-import io.openems.edge.common.channel.internal.IntegerWriteChannel;
 import io.openems.edge.sma.enums.AbsorptionPhaseActive;
 import io.openems.edge.sma.enums.AcknowledgeGeneratorErrors;
 import io.openems.edge.sma.enums.ActiveBatteryChargingMode;

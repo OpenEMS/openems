@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.internal.EnumWriteChannel;
 
 public class ChannelTest {
 

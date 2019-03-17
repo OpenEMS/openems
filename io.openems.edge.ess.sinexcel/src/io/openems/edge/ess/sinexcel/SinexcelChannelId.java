@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.internal.StateChannel;
 import io.openems.edge.common.sum.GridMode;
 
 public enum SinexcelChannelId implements io.openems.edge.common.channel.ChannelId {

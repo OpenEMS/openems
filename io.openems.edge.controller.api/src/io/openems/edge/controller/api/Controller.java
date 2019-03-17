@@ -5,7 +5,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.internal.StateChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType

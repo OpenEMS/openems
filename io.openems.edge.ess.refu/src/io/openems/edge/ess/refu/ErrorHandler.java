@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.internal.EnumWriteChannel;
-import io.openems.edge.common.channel.internal.IntegerReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.ess.refu.RefuEss.ChannelId;
 
 public class ErrorHandler implements Runnable {

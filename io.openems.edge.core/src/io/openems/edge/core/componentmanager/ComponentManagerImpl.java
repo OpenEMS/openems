@@ -66,7 +66,7 @@ import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.internal.StateChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
