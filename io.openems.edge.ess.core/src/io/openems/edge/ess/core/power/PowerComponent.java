@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.internal.BooleanReadChannel;
 import io.openems.edge.common.channel.internal.EnumReadChannel;
@@ -79,7 +80,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		SOLVE_STRATEGY(Doc.of(OpenemsType.INTEGER).options(SolverStrategy.values())),
+		SOLVE_STRATEGY(Doc.of(SolverStrategy.values())),
 		/**
 		 * Whether the Power problem could be solved.
 		 * 
@@ -88,7 +89,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		SOLVED(Doc.of(OpenemsType.BOOLEAN));
+		SOLVED(Doc.of(Level.WARNING));
 
 		private final Doc doc;
 
@@ -118,7 +119,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
 	public PowerComponent() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.data = new Data(this);
 		this.solver = new Solver(data);
 
