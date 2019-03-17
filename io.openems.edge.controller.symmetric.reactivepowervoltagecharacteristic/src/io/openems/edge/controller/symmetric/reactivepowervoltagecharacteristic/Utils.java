@@ -1,7 +1,6 @@
 package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -9,34 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import io.openems.edge.common.channel.internal.AbstractReadChannel;
-import io.openems.edge.common.channel.internal.StateChannel;
-import io.openems.edge.common.channel.internal.StateCollectorChannel;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.Controller;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(ReactivePowerVoltageCharacteristic c) {
-		return Stream.of( //
-				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case STATE:
-						return new StateCollectorChannel(c, channelId);
-					}
-					return null;
-				}), //
-				Arrays.stream(Controller.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case RUN_FAILED:
-						return new StateChannel(c, channelId);
-					}
-					return null;
-				}) //
-		).flatMap(channel -> channel);
-	}
-
 	public static float getValueOfLine(Map<Float, Float> points, float voltageRatio) {
 		float x = voltageRatio;
 		List<Float> percentList = new ArrayList<Float>(points.values());
@@ -57,10 +30,10 @@ public class Utils {
 		// bubble sort outer loop
 		qCharacteristic.put(voltageRatio, (float) 0);
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Float, Float> Map = qCharacteristic.entrySet().stream().sorted(valueComparator)
+		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Float> voltageList = new ArrayList<Float>(Map.keySet());
-		List<Float> percentList = new ArrayList<Float>(Map.values());
+		List<Float> voltageList = new ArrayList<Float>(map.keySet());
+		List<Float> percentList = new ArrayList<Float>(map.values());
 		if (voltageList.get(i) != voltageRatio) {
 			i++;
 		}
@@ -81,10 +54,10 @@ public class Utils {
 		// 0 random number, just to fill value
 		qCharacteristic.put(voltageRatio, (float) 0);
 		Comparator<Entry<Float, Float>> valueComparator = (e1, e2) -> e1.getKey().compareTo(e2.getKey());
-		Map<Float, Float> Map = qCharacteristic.entrySet().stream().sorted(valueComparator)
+		Map<Float, Float> map = qCharacteristic.entrySet().stream().sorted(valueComparator)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		List<Float> voltageList = new ArrayList<Float>(Map.keySet());
-		List<Float> percentList = new ArrayList<Float>(Map.values());
+		List<Float> voltageList = new ArrayList<Float>(map.keySet());
+		List<Float> percentList = new ArrayList<Float>(map.values());
 		if (voltageList.get(i) != voltageRatio) {
 			i++;
 		}
@@ -98,8 +71,7 @@ public class Utils {
 		return p;
 	}
 
-	static class Point {
-
+	protected static class Point {
 		private final float x;
 		private final float y;
 
