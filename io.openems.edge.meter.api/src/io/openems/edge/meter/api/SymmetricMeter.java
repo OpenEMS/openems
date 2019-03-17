@@ -13,6 +13,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 /**
  * Represents a Symmetric Meter.
  * 
+ * <p>
  * <ul>
  * <li>Negative ActivePower and ConsumptionActivePower represent Consumption,
  * i.e. power that is 'leaving the system', e.g. feed-to-grid
@@ -24,7 +25,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Frequency
+		 * Frequency.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -36,7 +37,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIHERTZ)), //
 		/**
-		 * Minimum Ever Active Power
+		 * Minimum Ever Active Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -49,7 +50,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		/**
-		 * Maximum Ever Active Power
+		 * Maximum Ever Active Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -62,7 +63,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		/**
-		 * Active Power
+		 * Active Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -109,7 +110,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 					});
 				})), //
 		/**
-		 * Reactive Power
+		 * Reactive Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -124,7 +125,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)), //
 		/**
-		 * Active Production Energy
+		 * Active Production Energy.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -135,7 +136,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
-		 * Active Consumption Energy
+		 * Active Consumption Energy.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -146,7 +147,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
-		 * Voltage
+		 * Voltage.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -157,7 +158,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		/**
-		 * Current
+		 * Current.
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
@@ -180,7 +181,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the type of this Meter
+	 * Gets the type of this Meter.
 	 * 
 	 * @return the MeterType
 	 */

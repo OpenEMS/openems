@@ -49,7 +49,12 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	public MeterBControlEM300() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -61,8 +66,8 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -71,22 +76,38 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		ACTIVE_POWER_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L1_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L1_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L2_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L2_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L3_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		ACTIVE_POWER_L3_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		REACTIVE_POWER_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L1_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L1_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L2_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L2_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L3_POS(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)),
-		REACTIVE_POWER_L3_NEG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE));
+		ACTIVE_POWER_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_L1_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_L1_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_L2_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_L2_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_L3_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		ACTIVE_POWER_L3_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		REACTIVE_POWER_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_L1_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_L1_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_L2_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_L2_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_L3_POS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+		REACTIVE_POWER_L3_NEG(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE));
 
 		private final Doc doc;
 
