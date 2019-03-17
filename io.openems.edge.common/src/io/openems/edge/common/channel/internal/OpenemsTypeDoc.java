@@ -1,6 +1,7 @@
 package io.openems.edge.common.channel.internal;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.DoubleDoc;
 import io.openems.edge.common.channel.FloatDoc;
@@ -34,6 +35,20 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	protected OpenemsTypeDoc(OpenemsType type) {
 		super(type);
+	}
+
+	/**
+	 * Sets the Access-Mode for the Channel.
+	 * 
+	 * <p>
+	 * This is validated on construction of the Channel by
+	 * {@link AbstractReadChannel}
+	 * 
+	 * @return myself
+	 */
+	public OpenemsTypeDoc<T> accessMode(AccessMode accessMode) {
+		this.accessMode(accessMode);
+		return this;
 	}
 
 	/*
