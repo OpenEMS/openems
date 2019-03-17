@@ -120,7 +120,7 @@ public class ReadWorker extends AbstractWorker {
 	 */
 	private void currentCommunication(boolean receivedAMessage) {
 		this.parent.logInfo(log, "Existing charging communication: "+receivedAMessage);
-		this.parent.channel(KebaKeContact.ChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+		this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
 	}
 	
 }
