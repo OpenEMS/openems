@@ -58,7 +58,12 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	private int maxActivePower = 0;
 
 	public SolarLog() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				SymmetricPvInverter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
 		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
 	}
@@ -70,8 +75,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 
 		this.maxActivePower = config.maxActivePower();
 
@@ -183,35 +188,43 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	};
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)),
-		PDC(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		UDC(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		YESTERDAY_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		MONTHLY_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		YEARLY_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_YIELD(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		PAC_CONSUMPTION(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		YESTERDAY_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		MONTHLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		YEARLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_YIELD_CONS(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
+		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS)), //
+		PDC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		UDC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)),
+		YESTERDAY_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		MONTHLY_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		YEARLY_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		TOTAL_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		PAC_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		YESTERDAY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		MONTHLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		YEARLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		TOTAL_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		TOTAL_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
 
 		// PV
-		// TODO: should use an enum for this; once
-		// https://github.com/OpenEMS/openems/pull/175 is merged
-		P_LIMIT_TYPE(Doc.of(OpenemsType.INTEGER)), //
-		P_LIMIT_PERC(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		P_LIMIT_TYPE(Doc.of(PLimitType.values()) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		P_LIMIT_PERC(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.PERCENT)),
-		P_LIMIT(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
+		P_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT)),
-		WATCH_DOG_TAG(new Doc() //
-				.type(OpenemsType.INTEGER)),
-		STATUS(Doc.of(OpenemsType.INTEGER));
+		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER)), //
+		STATUS(Doc.of(Status.values()));
 
 		private final Doc doc;
 
@@ -222,6 +235,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		public Doc doc() {
 			return this.doc;
 		}
+
 	}
 
 	protected IntegerWriteChannel getWatchdogTagChannel() {
