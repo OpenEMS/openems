@@ -9,7 +9,7 @@ import io.openems.edge.common.channel.ChannelId;
 
 public class IntegerWriteChannel extends IntegerReadChannel implements WriteChannel<Integer> {
 
-	public static class MirrorToDebugChannel implements Consumer<Channel<?>> {
+	public static class MirrorToDebugChannel implements Consumer<Channel<Integer>> {
 
 		private final ChannelId targetChannelId;
 
@@ -18,7 +18,7 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 		}
 
 		@Override
-		public void accept(Channel<?> channel) {
+		public void accept(Channel<Integer> channel) {
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((IntegerWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);

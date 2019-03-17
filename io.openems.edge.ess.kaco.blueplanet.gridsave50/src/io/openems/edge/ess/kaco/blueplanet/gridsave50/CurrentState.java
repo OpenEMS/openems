@@ -3,7 +3,8 @@ package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 import io.openems.edge.common.channel.OptionsEnum;
 
 public enum CurrentState implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), OFF(1, "Off"), // directly addressable
+	UNDEFINED(-1, "Undefined"), //
+	OFF(1, "Off"), // directly addressable
 	STANDBY(8, "Standby"), // directly addressable
 	GRID_CONNECTED(11, "Grid connected"), // directly addressable
 	ERROR(7, "Error"), // can be reached from every state, not directly addressable
