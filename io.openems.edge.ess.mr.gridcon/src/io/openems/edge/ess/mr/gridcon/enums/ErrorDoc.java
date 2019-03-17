@@ -3,9 +3,14 @@ package io.openems.edge.ess.mr.gridcon.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.StateChannelDoc;
 
-public class ErrorDoc extends Doc {
+public class ErrorDoc extends StateChannelDoc {
+
+	public ErrorDoc(Level level) {
+		super(level);
+	}
 
 	private static Map<Integer, ErrorDoc> mapCodeToDoc = new HashMap<>();
 	

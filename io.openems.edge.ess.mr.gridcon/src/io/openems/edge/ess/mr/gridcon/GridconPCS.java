@@ -25,7 +25,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -93,7 +92,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	private Config config;
-	private Map<Integer, io.openems.edge.common.channel.doc.ChannelId> errorChannelIds = null;
+	private Map<Integer, io.openems.edge.common.channel.ChannelId> errorChannelIds = null;
 	private BitSet commandControlWord = new BitSet(32);
 	private LocalDateTime timestampMrGridconWasSwitchedOff;
 
@@ -107,7 +106,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected ComponentManager componentManager;
 
 	public GridconPCS() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				ErrorCodeChannelId.values(), //
+				ErrorCodeChannelId1.values(), //
+				GridConChannelId.values() //
+		);
 		fillErrorChannelMap();
 	}
 
@@ -134,10 +140,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private void fillErrorChannelMap() {
 		errorChannelIds = new HashMap<>();
-		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId.values()) {
+		for (io.openems.edge.common.channel.ChannelId id : ErrorCodeChannelId.values()) {
 			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
 		}
-		for (io.openems.edge.common.channel.doc.ChannelId id : ErrorCodeChannelId1.values()) {
+		for (io.openems.edge.common.channel.ChannelId id : ErrorCodeChannelId1.values()) {
 			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
 		}
 	}
@@ -241,7 +247,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
 		offGridDetected = null;
 		System.out.println(" ------ Currently set error channels ------- ");
-		for (io.openems.edge.common.channel.doc.ChannelId id : errorChannelIds.values()) {
+		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
 			@SuppressWarnings("unchecked")
 			Optional<Boolean> val = (Optional<Boolean>) this.channel(id).value().asOptional();
 			if (val.isPresent() && val.get()) {
@@ -317,7 +323,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void resetErrorChannels() {
-		for (io.openems.edge.common.channel.doc.ChannelId id : errorChannelIds.values()) {
+		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
 			this.channel(id).setNextValue(false);
 		}
 	}
@@ -627,7 +633,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			code = code >> 8;
 			System.out.println("Code >> 8 read: " + code + " ==> hex: " + Integer.toHexString(code));
 			log.info("Error code is present --> " + code);
-			io.openems.edge.common.channel.doc.ChannelId id = errorChannelIds.get(code);
+			io.openems.edge.common.channel.ChannelId id = errorChannelIds.get(code);
 			return this.channel(id);
 		}
 //			int mainCode = ((code >> 24) & 255);
@@ -1153,8 +1159,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			});
 		}
 
-		public DoubleWordErrorCodeChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
-				int bitIndex) {
+		public DoubleWordErrorCodeChannelMapper m(io.openems.edge.common.channel.ChannelId channelId, int bitIndex) {
 			Channel<?> channel = channel(channelId);
 			if (channel.getType() != OpenemsType.BOOLEAN) {
 				throw new IllegalArgumentException(
@@ -1698,8 +1703,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					new FC3ReadRegistersTask(startAddressIpuState, Priority.LOW, // // IPU 4 state
 							m(GridConChannelId.DCDC_STATUS_STATE_MACHINE,
 									new UnsignedWordElement(startAddressIpuState)), //
-							m(GridConChannelId.DCDC_STATUS_MCU,
-									new UnsignedWordElement(startAddressIpuState + 1)), //
+							m(GridConChannelId.DCDC_STATUS_MCU, new UnsignedWordElement(startAddressIpuState + 1)), //
 							m(GridConChannelId.DCDC_STATUS_FILTER_CURRENT,
 									new FloatDoublewordElement(startAddressIpuState + 2).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE,

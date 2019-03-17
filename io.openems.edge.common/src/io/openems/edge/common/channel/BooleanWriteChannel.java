@@ -8,6 +8,23 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class BooleanWriteChannel extends BooleanReadChannel implements WriteChannel<Boolean> {
 
+	public static class MirrorToDebugChannel implements Consumer<Channel<Boolean>> {
+
+		private final ChannelId targetChannelId;
+
+		public MirrorToDebugChannel(ChannelId targetChannelId) {
+			this.targetChannelId = targetChannelId;
+		}
+
+		@Override
+		public void accept(Channel<Boolean> channel) {
+			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+			((BooleanWriteChannel) channel).onSetNextWrite(value -> {
+				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
+			});
+		}
+	}
+
 	private Optional<Boolean> nextWriteValueOpt = Optional.empty();
 
 	protected BooleanWriteChannel(OpenemsComponent component, ChannelId channelId, BooleanDoc channelDoc) {

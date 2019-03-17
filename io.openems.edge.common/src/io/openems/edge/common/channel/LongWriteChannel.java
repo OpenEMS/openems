@@ -8,6 +8,23 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class LongWriteChannel extends LongReadChannel implements WriteChannel<Long> {
 
+	public static class MirrorToDebugChannel implements Consumer<Channel<Long>> {
+
+		private final ChannelId targetChannelId;
+
+		public MirrorToDebugChannel(ChannelId targetChannelId) {
+			this.targetChannelId = targetChannelId;
+		}
+
+		@Override
+		public void accept(Channel<Long> channel) {
+			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+			((LongWriteChannel) channel).onSetNextWrite(value -> {
+				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
+			});
+		}
+	}
+
 	protected LongWriteChannel(OpenemsComponent component, ChannelId channelId, LongDoc channelDoc) {
 		super(component, channelId, channelDoc);
 	}

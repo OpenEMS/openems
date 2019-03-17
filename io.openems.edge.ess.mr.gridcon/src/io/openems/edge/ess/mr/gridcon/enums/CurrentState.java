@@ -1,6 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 // TODO count are not correctly
 public enum CurrentState implements OptionsEnum { // see Software manual chapter 5.1
@@ -32,7 +32,7 @@ public enum CurrentState implements OptionsEnum { // see Software manual chapter
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
