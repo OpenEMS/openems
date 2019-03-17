@@ -40,7 +40,12 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	public MeterCarloGavazziEm300() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -52,8 +57,8 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -62,34 +67,21 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		APPARENT_POWER_L1(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		APPARENT_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		APPARENT_POWER_L2(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		APPARENT_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		APPARENT_POWER_L3(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		APPARENT_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		APPARENT_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		FREQUENCY(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIHERTZ)), //
-		ACTIVE_ENERGY_POSITIVE(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		REACTIVE_ENERGY_POSITIVE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS)), //
-		REACTIVE_ENERGY_POSITIVE(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
-		ACTIVE_ENERGY_NEGATIVE(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
-		REACTIVE_ENERGY_NEGATIVE(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS)), //
-		;
+		REACTIVE_ENERGY_NEGATIVE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -170,8 +162,7 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
 								new SignedDoublewordElement(300045 - OFFSET).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1))
-				);
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 //				new FC4ReadInputRegistersTask(300052 - OFFSET, Priority.LOW, //
 //						m(MeterCarloGavazziEm300.ChannelId.FREQUENCY, new SignedWordElement(300052 - OFFSET),
 //								ElementToChannelConverter.SCALE_FACTOR_2),
