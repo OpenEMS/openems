@@ -19,6 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.AbstractScheduler;
@@ -54,13 +55,35 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 		this.updateSortedControllers();
 	}
 
+	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ThisChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
+	protected FixedOrder() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Scheduler.ChannelId.values(), //
+				ThisChannelId.values() //
+		);
+	}
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();
 
 		super.activate(context, config.id(), config.enabled(), config.cycleTime());
-		
+
 		// update filter for 'Controller'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controller",
 				config.controllers_ids())) {
