@@ -69,7 +69,11 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	public InfluxTimedata() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Timedata.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
@@ -127,7 +131,6 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case SHORT:
 						point.addField(address, (Short) value);
 						break;
-					case ENUM:
 					case INTEGER:
 						point.addField(address, (Integer) value);
 						break;
