@@ -102,7 +102,12 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	}
 
 	public EssSymmetric() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override

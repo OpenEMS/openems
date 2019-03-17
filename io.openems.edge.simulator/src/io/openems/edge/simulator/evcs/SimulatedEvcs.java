@@ -34,7 +34,8 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_CHARGE_POWER(new Doc().unit(Unit.WATT));
+		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -68,7 +69,11 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, Ope
 	}
 
 	public SimulatedEvcs() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
@@ -82,7 +87,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, Ope
 
 	private void updateChannels() {
 		Optional<Integer> chargePowerLimitOpt = this.setChargePower().getNextWriteValueAndReset();
-		
+
 		// copy write value to read value
 		this.setChargePower().setNextValue(chargePowerLimitOpt);
 

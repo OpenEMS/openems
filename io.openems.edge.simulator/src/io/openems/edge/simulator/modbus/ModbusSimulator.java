@@ -54,7 +54,13 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 	}
 
 	public ModbusSimulator() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				BridgeModbus.ChannelId.values(), //
+				BridgeModbusSerial.ChannelId.values(), //
+				BridgeModbusTcp.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override

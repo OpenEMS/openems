@@ -35,7 +35,10 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 	private int minCellVoltage; // in mV
 
 	public BatteryDummy() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Battery.ChannelId.values() //
+		);
 	}
 
 	@Activate

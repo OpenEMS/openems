@@ -80,10 +80,9 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.enabled());
-		
+
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource",
-				config.datasource_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
 			return;
 		}
 
@@ -102,7 +101,14 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	}
 
 	public EssAsymmetric() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override

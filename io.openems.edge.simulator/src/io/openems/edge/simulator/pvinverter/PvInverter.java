@@ -37,7 +37,9 @@ public class PvInverter extends AbstractOpenemsComponent
 		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_ACTIVE_POWER(new Doc().unit(Unit.WATT));
+		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -71,7 +73,12 @@ public class PvInverter extends AbstractOpenemsComponent
 	}
 
 	public PvInverter() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				SymmetricPvInverter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
