@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 

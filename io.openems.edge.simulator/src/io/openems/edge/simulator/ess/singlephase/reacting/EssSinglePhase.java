@@ -205,7 +205,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
 				activePowerL3, reactivePowerL3);
 	}

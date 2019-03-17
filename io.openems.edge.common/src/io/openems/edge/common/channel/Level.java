@@ -1,7 +1,5 @@
 package io.openems.edge.common.channel;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
-
 /**
  * Severity/visibility Level
  */

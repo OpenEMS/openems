@@ -4,6 +4,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.AccessMode;
@@ -311,8 +312,9 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @param reactivePower the reactive power
 	 * @throws OpenemsException on error; causes activation of APPLY_POWER_FAILED
 	 *                          StateChannel
+	 * @throws OpenemsNamedException 
 	 */
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException;
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException;
 
 	/**
 	 * Gets the smallest positive power that can be set (in W, VA or var). Example:

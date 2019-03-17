@@ -1,6 +1,6 @@
 package io.openems.edge.controller.channelthreshold;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum State implements OptionsEnum {
 	/**

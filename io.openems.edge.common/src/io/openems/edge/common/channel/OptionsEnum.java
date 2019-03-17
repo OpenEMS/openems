@@ -1,4 +1,4 @@
-package io.openems.edge.common.channel.internal;
+package io.openems.edge.common.channel;
 
 public interface OptionsEnum {
 

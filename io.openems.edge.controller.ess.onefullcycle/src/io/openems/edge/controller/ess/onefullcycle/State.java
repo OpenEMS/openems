@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.onefullcycle;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

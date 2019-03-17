@@ -1,6 +1,6 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum PControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

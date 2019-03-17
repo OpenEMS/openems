@@ -1,6 +1,6 @@
 package io.openems.edge.ess.streetscooter;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum InverterMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

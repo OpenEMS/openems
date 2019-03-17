@@ -1,6 +1,6 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum CurrentState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), OFF(1, "Off"), // directly addressable

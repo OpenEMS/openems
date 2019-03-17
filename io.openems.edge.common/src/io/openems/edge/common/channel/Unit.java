@@ -20,6 +20,11 @@ public enum Unit {
 	PERCENT("%"),
 
 	/**
+	 * Thousandth [‰], 0-1000
+	 */
+	THOUSANDTH("‰"),
+
+	/**
 	 * On or Off
 	 */
 	ON_OFF(""),
@@ -99,6 +104,11 @@ public enum Unit {
 	 * Unit of Electric Charge
 	 */
 	AMPERE_HOURS("Ah"),
+
+	/**
+	 * Unit of Electric Charge
+	 */
+	MILLIAMPERE_HOURS("mAh"),
 
 	// ##########
 	// Energy
@@ -198,7 +208,17 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [kOhm]
 	 */
-	KILOOHM("kOhm", OHM, 3);
+	KILOOHM("kOhm", OHM, 3),
+
+	/**
+	 * Unit of Resistance [mOhm]
+	 */
+	MILLIOHM("mOhm", OHM, -3),
+
+	/**
+	 * Unit of Resistance [uOhm]
+	 */
+	MICROOHM("uOhm", OHM, -6);
 
 	private final Unit baseUnit;
 	private final int scaleFactor;

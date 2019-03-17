@@ -64,7 +64,6 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 
 	private static final int SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS = 3;
 	private static final int MAX_TIME_FOR_INITIALIZATION_IN_SECONDS = 30;
-	public static final int MAX_POWER_WATT = 50000;
 
 	private final Logger log = LoggerFactory.getLogger(SoltaroRack.class);
 
@@ -93,7 +92,6 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(SoltaroRack.CHARGE_MAX_V);
 		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(SoltaroRack.DISCHARGE_MAX_A);
 		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(SoltaroRack.DISCHARGE_MIN_V);
-		this.channel(Battery.ChannelId.MAX_POWER).setNextValue(SoltaroRack.MAX_POWER_WATT);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

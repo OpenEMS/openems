@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -26,7 +26,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 /**
  * 
@@ -186,8 +185,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 
 	private void forbidDischarging() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.forbidDischarging()");
-		this.getEss().addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
-				Relationship.LESS_OR_EQUALS, 0);
+		this.getEss().getSetActivePowerLessOrEquals().setNextWriteValue(0);
 	}
 
 	private void setPending() {
@@ -198,13 +196,8 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 
 	private void startCharging() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.startCharging()");
-		ManagedSymmetricEss ess = this.getEss();
 		timeSinceMinCellVoltageWasBelowLimit = null;
-		int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int calculatedPower = maxCharge / 5;
-		debug("Calculated power: " + calculatedPower);
-		ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
-				Relationship.LESS_OR_EQUALS, calculatedPower);
+		this.calculateAndSetPower();
 		this.setStatus(State.CHARGING);
 	}
 
@@ -217,6 +210,20 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 				&& values.get(KEY_SOC) > chargeSoC) {
 			debug("Limits are reached --> stop charging");
 			stopCharging();
+		} else {
+			this.calculateAndSetPower();
+		}
+	}
+
+	private void calculateAndSetPower() {
+		try {
+			ManagedSymmetricEss ess = this.getEss();
+			int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			int calculatedPower = maxCharge / 5;
+			debug("Calculated power: " + calculatedPower);
+			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+		} catch (OpenemsNamedException e) {
+			log.error("Error while charging!\n" +  e.getMessage());
 		}
 	}
 

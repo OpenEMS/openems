@@ -170,9 +170,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
-
-		EnumWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
-		EnumWriteChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
+		//TODO reactive power
+		IntegerWriteChannel wSetPctChannel = this.channel(ChannelId.W_SET_PCT);
+		IntegerReadChannel wSetPct_SFChannel = this.channel(ChannelId.W_SET_PCT_SF);
 
 		Optional<Integer> wSetPctSFOpt = wSetPct_SFChannel.value().asOptional();
 		if (wSetPctSFOpt.isPresent()) {
@@ -221,14 +221,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			doErrorHandling();
 			break;
 		case GRID_CONNECTED:
+		case THROTTLED: // if inverter is throttled, maybe full power is not reachable, but the device is working
 			doGridConnectedHandling();
 			break;
 		case NO_ERROR_PENDING:
 			doErrorHandling();
 		case PRECHARGE:
 		case SHUTTING_DOWN:
-		case STARTING:
-		case THROTTLED:
+		case STARTING:		
 		case CURRENTLY_UNKNOWN:
 		case UNDEFINED:
 			// Do nothing because these states are only temporarily reached
@@ -280,9 +280,14 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		// TODO: The actual AC allowed charge and discharge should come from the KACO
 		// Blueplanet instead of calculating it from DC parameters.
 		final double EFFICIENCY_FACTOR = 0.9;
+		
+		// FIXME
+		// allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0) * -1;
+		// allowedDischarge += battery.getVoltage().value().orElse(0) * battery.getDischargeMaxCurrent().value().orElse(0);
+		
 		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
 		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
-
+		
 		if (disMinV == 0 || chaMaxV == 0) {
 			return; // according to setup manual 64202.DisMinV and 64202.ChaMaxV must not be zero
 		}
@@ -566,10 +571,12 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	private final static int SUNSPEC_64203 = 40893 - 1;
 	private final static int SUNSPEC_64302 = 40931 - 1;
 	/*
-	 * private final static int SUNSPEC_103 = 40071; private final static int
-	 * SUNSPEC_121 = 40213; private final static int SUNSPEC_64201 = 40823; private
-	 * final static int SUNSPEC_64202 = 40877; private final static int
-	 * SUNSPEC_64203 = 40893; private final static int SUNSPEC_64302 = 40931;
+	 * private final static int SUNSPEC_103 = 40071; // 
+	 * private final static int SUNSPEC_121 = 40213; //
+	 * private final static int SUNSPEC_64201 = 40823; //
+	 * private final static int SUNSPEC_64202 = 40877; //
+	 * private final static int SUNSPEC_64203 = 40893; //
+	 * private final static int SUNSPEC_64302 = 40931; //
 	 */
 
 	@Override

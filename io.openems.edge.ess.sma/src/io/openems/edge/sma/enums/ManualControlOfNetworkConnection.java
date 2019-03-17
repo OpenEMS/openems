@@ -1,6 +1,6 @@
 package io.openems.edge.sma.enums;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum ManualControlOfNetworkConnection implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

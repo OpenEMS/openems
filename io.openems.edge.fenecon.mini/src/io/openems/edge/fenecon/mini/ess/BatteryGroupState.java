@@ -1,6 +1,6 @@
 package io.openems.edge.fenecon.mini.ess;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum BatteryGroupState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

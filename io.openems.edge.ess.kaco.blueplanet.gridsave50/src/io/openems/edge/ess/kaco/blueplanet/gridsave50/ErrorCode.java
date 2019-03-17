@@ -1,6 +1,6 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
-import io.openems.edge.common.channel.internal.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum ErrorCode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"),
@@ -119,7 +119,10 @@ public enum ErrorCode implements OptionsEnum {
 	READY_FOR_PRECHARGING(219, "Ready for precharging Precharge unit: Ready for precharging"),
 	PRECHARGE_PRECHARGE_UNIT(220, "Precharge Precharge unit: Precharge process being carried out"),
 	WAIT_FOR_COOLDOWN_TIME(221,
-			"Wait for cooldown time Precharge unit: Precharge resistance requires time to cool down");
+			"Wait for cooldown time Precharge unit: Precharge resistance requires time to cool down"),
+	CURRENTLY_UNKNOWN(222, "State is currently unknown"), 
+	CHARGE_RANGES_REACHEDX(223, "Charge ranges are reached")
+	;
 
 	private final int value;
 	private final String name;
