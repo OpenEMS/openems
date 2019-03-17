@@ -128,7 +128,25 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	/**
-	 * Initializes the given Channel-IDs
+	 * Initializes the given Channel-ID.
+	 * 
+	 * <ul>
+	 * <li>Creates an object instance from Channel-Doc
+	 * <li>Registers the Channel
+	 * </ul>
+	 * 
+	 * @param channelId the given Channel-ID
+	 * @return the newly created Channel
+	 */
+	protected Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
+		Doc doc = channelId.doc();
+		Channel<?> channel = doc.createChannelInstance(this, channelId);
+		this.addChannel(channel);
+		return channel;
+	}
+
+	/**
+	 * Initializes the given Channel-IDs.
 	 * 
 	 * <ul>
 	 * <li>Creates object instances from Channel-Doc
@@ -139,14 +157,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected void addChannels(io.openems.edge.common.channel.ChannelId[] initialChannelIds) {
 		for (io.openems.edge.common.channel.ChannelId channelId : initialChannelIds) {
-			Doc doc = channelId.doc();
-			Channel<?> channel = doc.createChannelInstance(this, channelId);
-			this.addChannel(channel);
+			this.addChannel(channelId);
 		}
 	}
 
 	/**
-	 * Initializes the given Channel-IDs
+	 * Initializes the given Channel-IDs.
 	 * 
 	 * <ul>
 	 * <li>Creates object instances from Channel-Doc
@@ -158,9 +174,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	protected void addChannels(io.openems.edge.common.channel.ChannelId[][] initialChannelIds) {
 		for (io.openems.edge.common.channel.ChannelId[] channelIds : initialChannelIds) {
 			for (io.openems.edge.common.channel.ChannelId channelId : channelIds) {
-				Doc doc = channelId.doc();
-				Channel<?> channel = doc.createChannelInstance(this, channelId);
-				this.addChannel(channel);
+				this.addChannel(channelId);
 			}
 		}
 	}
