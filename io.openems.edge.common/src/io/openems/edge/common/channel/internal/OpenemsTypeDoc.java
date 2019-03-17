@@ -62,9 +62,9 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 	 * @param unit the Unit
 	 * @return myself
 	 */
-	public AbstractDoc<T> unit(Unit unit) {
+	public OpenemsTypeDoc<T> unit(Unit unit) {
 		this.unit = unit;
-		return this.self();
+		return this;
 	}
 
 	/**
