@@ -43,7 +43,12 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 	}
 
 	public FeneconDessGridMeter() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
 		// automatically calculate Active/ReactivePower from L1/L2/L3
 		AsymmetricMeter.initializePowerSumChannels(this);
@@ -51,8 +56,8 @@ public class FeneconDessGridMeter extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID,
-				this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
