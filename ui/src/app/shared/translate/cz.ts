@@ -91,12 +91,14 @@ export const TRANSLATION = {
                     },
                     OptimizedChargeMode: {
                         Name: "Optimalizované zatížení",
+                        ShortName: "optimalizované",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
                         MinInfo: "Chcete-li zabránit nabíjení vozu při nízké paměti v noci, můžete nastavit minimální nabíjení.",
                         MinCharging: "Garance minimálního poplatku?"
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
+                        ShortName: "vynucený",
                         Info: "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         MaxCharging: "Maximální síla náboje",
                         MaxChargingDetails: "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen."
