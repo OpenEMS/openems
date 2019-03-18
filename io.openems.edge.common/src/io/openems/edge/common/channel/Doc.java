@@ -115,7 +115,7 @@ public interface Doc {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
-	public <T extends Channel<?>> T createChannelInstance(OpenemsComponent component,
+	public <C extends Channel<?>> C createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId);
 
 }

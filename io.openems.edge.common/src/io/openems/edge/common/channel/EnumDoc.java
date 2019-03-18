@@ -41,6 +41,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public EnumReadChannel createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId) {

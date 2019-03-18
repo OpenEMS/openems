@@ -15,6 +15,7 @@ public class BooleanDoc extends OpenemsTypeDoc<Boolean> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public BooleanReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {

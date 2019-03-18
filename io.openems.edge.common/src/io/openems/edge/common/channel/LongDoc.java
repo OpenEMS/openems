@@ -15,6 +15,7 @@ public class LongDoc extends OpenemsTypeDoc<Long> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public LongReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {

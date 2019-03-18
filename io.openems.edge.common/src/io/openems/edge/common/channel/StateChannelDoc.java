@@ -25,6 +25,7 @@ public class StateChannelDoc extends AbstractDoc<Boolean> {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public StateChannel createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId) {
