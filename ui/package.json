@@ -37,7 +37,7 @@
     "@ngx-translate/core": "^11.0.1",
     "angular2-toaster": "7.0.0",
     "angular2-uuid": "^1.1.1",
-    "chart.js": "^2.7.3",
+    "chart.js": "^2.8.0",
     "classlist.js": "^1.1.20150312",
     "core-js": "^2.6.4",
     "d3": "5.9.2",
