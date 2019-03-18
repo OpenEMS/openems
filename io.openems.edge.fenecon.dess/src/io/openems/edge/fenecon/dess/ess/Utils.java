@@ -56,6 +56,8 @@ public class Utils {
 						return new EnumReadChannel(c, channelId, StackChargeState.UNDEFINED);
 					case SYSTEM_STATE:
 						return new EnumReadChannel(c, channelId, SystemState.UNDEFINED);
+					case ORIGINAL_SOC:
+						return new IntegerReadChannel(c, channelId);	
 					}
 					return null;
 				}) //

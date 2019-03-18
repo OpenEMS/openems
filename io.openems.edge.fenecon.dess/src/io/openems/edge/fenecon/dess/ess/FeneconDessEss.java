@@ -12,6 +12,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.google.common.collect.EvictingQueue;
+import java.util.OptionalDouble;
+
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -21,6 +24,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -66,6 +70,26 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		SYSTEM_STATE(new Doc().options(SystemState.values())), //
+		ORIGINAL_SOC(new Doc() //
+				.onInit(channel -> { //
+					// This system sometimes returns wrong SoC values. To fix the problem, we are
+					// recording the average of 100 values and set it as the SoC value.
+					final EvictingQueue<Integer> lastSocValues = EvictingQueue.create(100);
+					((IntegerReadChannel) channel).onChange(originalSocChannel -> {
+						Integer originalSocValue = originalSocChannel.get();
+						Integer correctedSocValue = null;
+						if (originalSocValue != null) {
+							lastSocValues.add(originalSocValue);
+							OptionalDouble averageSoc = lastSocValues.stream().mapToInt(Integer::intValue).average();
+							if (averageSoc.isPresent()) {
+								correctedSocValue = (int) averageSoc.getAsDouble();
+							}
+						}
+						IntegerReadChannel correctedSocChannel = channel.getComponent()
+								.channel(SymmetricEss.ChannelId.SOC);
+						correctedSocChannel.setNextValue(correctedSocValue);
+					});
+				})),
 		@SuppressWarnings("unchecked")
 		BSMU_WORK_STATE(new Doc() //
 				.options(BsmuWorkState.values()) //
@@ -117,7 +141,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						m(FeneconDessEss.ChannelId.BSMU_WORK_STATE, new UnsignedWordElement(10001)), //
 						m(FeneconDessEss.ChannelId.STACK_CHARGE_STATE, new UnsignedWordElement(10002))), //
 				new FC3ReadRegistersTask(10143, Priority.LOW, //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
+						//m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
+						m(FeneconDessEss.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(10143)),//
 						new DummyRegisterElement(10144, 10150),
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
 								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),

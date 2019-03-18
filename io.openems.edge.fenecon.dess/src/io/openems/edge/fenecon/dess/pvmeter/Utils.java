@@ -31,7 +31,6 @@ public class Utils {
 					case VOLTAGE:
 						return new IntegerReadChannel(c, channelId);
 					case ACTIVE_CONSUMPTION_ENERGY:
-						return new IntegerReadChannel(c, channelId, 0);
 					case ACTIVE_PRODUCTION_ENERGY:
 						return new LongReadChannel(c, channelId);
 					}
