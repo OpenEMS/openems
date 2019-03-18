@@ -2,53 +2,22 @@ package io.openems.edge.common.type.slidingvalue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import io.openems.common.types.OpenemsType;
 
 public abstract class AbstractNumberSlidingValue<T> extends SlidingValue<T> {
 
-	private final List<T> values = new ArrayList<>();
+	protected final List<T> values = new ArrayList<>();
 
-	/**
-	 * Add two numbers.
-	 * 
-	 * @param a first number; guaranteed to be not-null
-	 * @param b second number; guaranteed to be not-null
-	 * @return the sum
-	 */
-	protected abstract T add(T a, T b);
-
-	/**
-	 * Divide first number by second number.
-	 * 
-	 * @param a first number; guaranteed to be not-null
-	 * @param b second number; guaranteed to be > 0
-	 * @return the sum
-	 */
-	protected abstract T divide(T a, int b);
-
-	public synchronized void addValue(T value) {
-		this.values.add(value);
+	protected AbstractNumberSlidingValue(OpenemsType type) {
+		super(type);
 	}
 
 	@Override
-	protected synchronized T getSlidingValue() {
-		T result = null;
-		int noOfNotNullValues = 0;
-		for (T value : this.values) {
-			if (value == null) {
-				// nothing
-			} else {
-				noOfNotNullValues++;
-				if (result == null) {
-					result = value;
-				} else {
-					value = this.add(value, result);
-				}
-			}
-		}
-		if (noOfNotNullValues > 0 && result != null) {
-			return this.divide(result, noOfNotNullValues);
-		} else {
-			return result;
+	public synchronized void addValue(T value) {
+		if (value != null) {
+			this.values.add(value);
 		}
 	}
 
@@ -57,4 +26,10 @@ public abstract class AbstractNumberSlidingValue<T> extends SlidingValue<T> {
 		this.values.clear();
 	}
 
+	@Override
+	public String toString() {
+		return this.values.stream() //
+				.map(Object::toString) //
+				.collect(Collectors.joining(","));
+	}
 }
