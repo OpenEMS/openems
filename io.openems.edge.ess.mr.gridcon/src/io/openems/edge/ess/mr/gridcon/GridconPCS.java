@@ -25,10 +25,10 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -43,7 +43,6 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -64,7 +63,6 @@ import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
-import io.openems.edge.ess.mr.gridcon.enums.PCSControlWordBitPosition;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
@@ -93,7 +91,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private Config config;
 	private Map<Integer, io.openems.edge.common.channel.ChannelId> errorChannelIds = null;
-	private BitSet commandControlWord = new BitSet(32);
 	private LocalDateTime timestampMrGridconWasSwitchedOff;
 
 	@Reference
@@ -104,6 +101,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	private LocalDateTime lastTimeAcknowledgeCommandoWasSent;
+	private long ACKNOWLEDGE_TIME_SECONDS = 5;
 
 	public GridconPCS() {
 		super(//
@@ -164,35 +164,31 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case UNDEFINED:
 			break;
 		}
-
-		this.writeGeneralCommands();
 	}
 
 	private void prepareGeneralCommands() throws OpenemsNamedException {
-		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.READY.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), false);
-
-		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
-
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true);
 
 		// Enable DC DC
 		switch (this.config.inverterCount()) {
 		case ONE:
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false);
 			break;
 		case TWO:
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, false);
 			break;
 		case THREE:
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, false);
 			break;
 		}
 
@@ -238,12 +234,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return weightingMode;
 	}
 
-	private void writeGeneralCommands() {
-		Integer value = convertToInteger(commandControlWord);
-		// FIXME
-//		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_WORD, value);
-	}
-
 	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
 		offGridDetected = null;
 		System.out.println(" ------ Currently set error channels ------- ");
@@ -260,17 +250,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// a hardware restart has been executed,
 		if (timestampMrGridconWasSwitchedOff != null) {
 			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
-			if (LocalDateTime.now()
-					.isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS))
-					&& LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff
-							.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS))
-
+			if ( //
+					LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS)) && //
+					LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS)) //
 			) {
 				try {
 					log.info("try to write to channel hardware reset, set it to 'false'");
 					// after 15 seconds switch Mr. Gridcon on again!
-					BooleanWriteChannel channelHardReset = this.componentManager
-							.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
+					BooleanWriteChannel channelHardReset = this.componentManager.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
 					channelHardReset.setNextWriteValue(false);
 					resetErrorChannels();
 				} catch (IllegalArgumentException | OpenemsNamedException e) {
@@ -337,7 +324,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private void doRunHandling() {
+	private void doRunHandling() throws OpenemsException {
 		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
 								// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
 								// aber ein fehler in der queue und das system nicht angelaufen ist....
@@ -361,18 +348,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			disableIpu4 = false;
 			break;
 		}
-
+		
 		// send play command
-		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true); //TODO just for testing purposes, because play is only necessary at startup
 
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), disableIpu1);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), disableIpu2);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), disableIpu3);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), disableIpu4);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, disableIpu1);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, disableIpu2);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, disableIpu3);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);		
+	}
+
+	private void setNextWriteValueToBooleanWriteChannel(GridConChannelId id, boolean b) throws OpenemsException {
+		((BooleanWriteChannel) this.channel(id)).setNextWriteValue(true);
+		
 	}
 
 	private void writeCCUControlParameters(PControlMode mode) {
-
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN, 0f);
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, 0f);
 		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN, 0f);
@@ -420,8 +411,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	/**
 	 * This turns on the system by enabling ALL IPUs.
+	 * @throws OpenemsException 
 	 */
-	private void startSystem() {
+	private void startSystem() throws OpenemsException {
 		log.info("Try to start system");
 		/*
 		 * Coming from state idle first write 800V to IPU4 voltage setpoint, set "73" to
@@ -444,26 +436,26 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
 		// should change state to "RUN"
-		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-
-		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), true);
-
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
+		
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true);
+		
 		switch (this.config.inverterCount()) {
 		case ONE:
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), false);
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false);
 			break;
 		case TWO:
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), false);
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, false);
 			break;
 		case THREE:
-			commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), false);
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, false);
 			break;
 		}
 	}
@@ -609,7 +601,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, stringControlMode); //
 	}
 
-	private void doErrorHandling() {
+	private void doErrorHandling() throws OpenemsException {
 		StateChannel c = getErrorChannel();
 		if (c == null) {
 			System.out.println("Channel is null......");
@@ -636,13 +628,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			io.openems.edge.common.channel.ChannelId id = errorChannelIds.get(code);
 			return this.channel(id);
 		}
-//			int mainCode = ((code >> 24) & 255);
-//			int bit = ((code >> 16) & 255);
-//			int b = ((code >> 8) & 255);
-//			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
-////			this.channel(errorCode.getChannelId()).setNextValue(true);
-//			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
-//			return errorCode.needsHardReset;
 		return null;
 	}
 
@@ -663,38 +648,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	}
 
-//	private boolean isHardwareTrip() {
-//		
-//		
-//		log.info("in isHardwareTrip");
-//		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
-//		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-//		if (errorCodeOpt.isPresent()) {
-//			int code = errorCodeOpt.get();
-//			log.info("Error code is present --> " + code);
-//			int mainCode = ((code >> 24) & 255);
-//			int bit = ((code >> 16) & 255);
-//			int b = ((code >> 8) & 255);
-//			ErrorCode errorCode = ErrorCode.getErrorCodeFromCode(code);
-////			this.channel(errorCode.getChannelId()).setNextValue(true);
-//			log.info("main code: " + mainCode + "; bit: " + bit + "; b: " + b + "; ==> Errorcode: " + errorCode.text);
-//			return errorCode.needsHardReset;
-//		}
-//		return false;
-//	}
-
-	LocalDateTime lastTimeAcknowledgeCommandoWasSent;
-	long ACKNOWLEDGE_TIME_SECONDS = 5;
-
 	/**
 	 * This sends an ACKNOWLEDGE message. This does not fix the error. If the error
 	 * was fixed previously the system should continue operating normally. If not a
 	 * manual restart may be necessary.
+	 * @throws OpenemsException 
 	 */
-	private void acknowledgeErrors() {
-		if (lastTimeAcknowledgeCommandoWasSent == null || LocalDateTime.now()
-				.isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS))) {
-			commandControlWord.set(PCSControlWordBitPosition.ACKNOWLEDGE.getBitPosition(), true);
+	private void acknowledgeErrors() throws OpenemsException {
+		if ( //
+				lastTimeAcknowledgeCommandoWasSent == null || //
+				LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS)) //
+		) {
+			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, true);
 			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
 		}
 	}
@@ -1033,15 +998,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// send play command
 //		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
 
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), disableIpu1);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), disableIpu2);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), disableIpu3);
-		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), disableIpu4);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, disableIpu1);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, disableIpu2);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, disableIpu3);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);
 		// Always set Voltage Control Mode + Blackstart Approval
-		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), true);
-		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), false);
-		commandControlWord.set(PCSControlWordBitPosition.ACTIVATE_SHORT_CIRCUIT_HANDLING.getBitPosition(), false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false);
 
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
 		log.info("Set K1 ON");
@@ -1140,49 +1105,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 		}
 		return batteries;
-	}
-
-	/**
-	 * Handles channels that are mapping to one bit of a modbus unsigned double word
-	 * element
-	 */
-	public class DoubleWordErrorCodeChannelMapper {
-		private final UnsignedDoublewordElement element;
-		private final Map<Integer, Channel<?>> channels = new HashMap<>();
-
-		public DoubleWordErrorCodeChannelMapper(UnsignedDoublewordElement element) {
-			this.element = element;
-			this.element.onUpdateCallback((value) -> {
-				this.channels.forEach((bitIndex, channel) -> {
-					channel.setNextValue(value << ~bitIndex < 0);
-				});
-			});
-		}
-
-		public DoubleWordErrorCodeChannelMapper m(io.openems.edge.common.channel.ChannelId channelId, int bitIndex) {
-			Channel<?> channel = channel(channelId);
-			if (channel.getType() != OpenemsType.BOOLEAN) {
-				throw new IllegalArgumentException(
-						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
-			}
-			this.channels.put(bitIndex, channel);
-			return this;
-		}
-
-		public UnsignedDoublewordElement build() {
-			return this.element;
-		}
-	}
-
-	/**
-	 * Creates a DoubleWordErrorCodeChannelMapper that can be used with builder
-	 * pattern inside the protocol definition.
-	 * 
-	 * @param element
-	 * @return
-	 */
-	protected final DoubleWordErrorCodeChannelMapper map(UnsignedDoublewordElement element) {
-		return new DoubleWordErrorCodeChannelMapper(element);
 	}
 
 	@Override
