@@ -13,9 +13,9 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -115,103 +115,88 @@ public class SingleRack {
 	private Map<String, Channel<?>> createChannelMap() {
 		Map<String, Channel<?>> channels = new HashMap<>();
 
-		channels.put(KEY_VOLTAGE, new IntegerReadChannel(parent, channelIds.get(KEY_VOLTAGE)));
-		channels.put(KEY_CURRENT, new IntegerReadChannel(parent, channelIds.get(KEY_CURRENT)));
-		channels.put(KEY_CHARGE_INDICATION, new IntegerReadChannel(parent, channelIds.get(KEY_CHARGE_INDICATION)));
-		channels.put(KEY_SOC, new IntegerReadChannel(parent, channelIds.get(KEY_SOC)));
-		channels.put(KEY_SOH, new IntegerReadChannel(parent, channelIds.get(KEY_SOH)));
-		channels.put(KEY_MAX_CELL_VOLTAGE_ID, new IntegerReadChannel(parent, channelIds.get(KEY_MAX_CELL_VOLTAGE_ID)));
-		channels.put(KEY_MAX_CELL_VOLTAGE, new IntegerReadChannel(parent, channelIds.get(KEY_MAX_CELL_VOLTAGE)));
-		channels.put(KEY_MIN_CELL_VOLTAGE_ID, new IntegerReadChannel(parent, channelIds.get(KEY_MIN_CELL_VOLTAGE_ID)));
-		channels.put(KEY_MIN_CELL_VOLTAGE, new IntegerReadChannel(parent, channelIds.get(KEY_MIN_CELL_VOLTAGE)));
-		channels.put(KEY_MAX_CELL_TEMPERATURE_ID,
-				new IntegerReadChannel(parent, channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID)));
-		channels.put(KEY_MAX_CELL_TEMPERATURE,
-				new IntegerReadChannel(parent, channelIds.get(KEY_MAX_CELL_TEMPERATURE)));
-		channels.put(KEY_MIN_CELL_TEMPERATURE_ID,
-				new IntegerReadChannel(parent, channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID)));
-		channels.put(KEY_MIN_CELL_TEMPERATURE,
-				new IntegerReadChannel(parent, channelIds.get(KEY_MIN_CELL_TEMPERATURE)));
+		channels.put(KEY_VOLTAGE, parent.addChannel(channelIds.get(KEY_VOLTAGE)));
+		channels.put(KEY_CURRENT, parent.addChannel(channelIds.get(KEY_CURRENT)));
+		channels.put(KEY_CHARGE_INDICATION, parent.addChannel(channelIds.get(KEY_CHARGE_INDICATION)));
+		channels.put(KEY_SOC, parent.addChannel(channelIds.get(KEY_SOC)));
+		channels.put(KEY_SOH, parent.addChannel(channelIds.get(KEY_SOH)));
+		channels.put(KEY_MAX_CELL_VOLTAGE_ID, parent.addChannel(channelIds.get(KEY_MAX_CELL_VOLTAGE_ID)));
+		channels.put(KEY_MAX_CELL_VOLTAGE, parent.addChannel(channelIds.get(KEY_MAX_CELL_VOLTAGE)));
+		channels.put(KEY_MIN_CELL_VOLTAGE_ID, parent.addChannel(channelIds.get(KEY_MIN_CELL_VOLTAGE_ID)));
+		channels.put(KEY_MIN_CELL_VOLTAGE, parent.addChannel(channelIds.get(KEY_MIN_CELL_VOLTAGE)));
+		channels.put(KEY_MAX_CELL_TEMPERATURE_ID, parent.addChannel(channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID)));
+		channels.put(KEY_MAX_CELL_TEMPERATURE, parent.addChannel(channelIds.get(KEY_MAX_CELL_TEMPERATURE)));
+		channels.put(KEY_MIN_CELL_TEMPERATURE_ID, parent.addChannel(channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID)));
+		channels.put(KEY_MIN_CELL_TEMPERATURE, parent.addChannel(channelIds.get(KEY_MIN_CELL_TEMPERATURE)));
 
 		channels.put(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)));
 		channels.put(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)));
 		channels.put(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)));
 		channels.put(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW)));
 		channels.put(KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)));
 
 		channels.put(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW)));
 		channels.put(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH)));
 		channels.put(KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH)));
-		channels.put(KEY_ALARM_LEVEL_1_SOC_LOW, new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_SOC_LOW)));
-		channels.put(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW)));
-		channels.put(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH)));
-		channels.put(KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH)));
-		channels.put(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW)));
-		channels.put(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW)));
-		channels.put(KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH)));
-		channels.put(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH)));
-		channels.put(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH,
-				new StateChannel(parent, channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH)));
+				parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH)));
+		channels.put(KEY_ALARM_LEVEL_1_SOC_LOW, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_SOC_LOW)));
+		channels.put(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW)));
+		channels.put(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH)));
+		channels.put(KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH)));
+		channels.put(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW)));
+		channels.put(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW)));
+		channels.put(KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH)));
+		channels.put(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH)));
+		channels.put(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH, parent.addChannel(channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH)));
 
-		channels.put(KEY_RUN_STATE, new IntegerReadChannel(parent, channelIds.get(KEY_RUN_STATE)));
+		channels.put(KEY_RUN_STATE, parent.addChannel(channelIds.get(KEY_RUN_STATE)));
 
-		channels.put(KEY_FAILURE_INITIALIZATION, new StateChannel(parent, channelIds.get(KEY_FAILURE_INITIALIZATION)));
-		channels.put(KEY_FAILURE_EEPROM, new StateChannel(parent, channelIds.get(KEY_FAILURE_EEPROM)));
+		channels.put(KEY_FAILURE_INITIALIZATION, parent.addChannel(channelIds.get(KEY_FAILURE_INITIALIZATION)));
+		channels.put(KEY_FAILURE_EEPROM, parent.addChannel(channelIds.get(KEY_FAILURE_EEPROM)));
 		channels.put(KEY_FAILURE_INTRANET_COMMUNICATION,
-				new StateChannel(parent, channelIds.get(KEY_FAILURE_INTRANET_COMMUNICATION)));
+				parent.addChannel(channelIds.get(KEY_FAILURE_INTRANET_COMMUNICATION)));
 		channels.put(KEY_FAILURE_TEMPERATURE_SENSOR_CABLE,
-				new StateChannel(parent, channelIds.get(KEY_FAILURE_TEMPERATURE_SENSOR_CABLE)));
-		channels.put(KEY_FAILURE_BALANCING_MODULE,
-				new StateChannel(parent, channelIds.get(KEY_FAILURE_BALANCING_MODULE)));
-		channels.put(KEY_FAILURE_TEMPERATURE_PCB,
-				new StateChannel(parent, channelIds.get(KEY_FAILURE_TEMPERATURE_PCB)));
-		channels.put(KEY_FAILURE_GR_TEMPERATURE, new StateChannel(parent, channelIds.get(KEY_FAILURE_GR_TEMPERATURE)));
-		channels.put(KEY_FAILURE_TEMP_SENSOR, new StateChannel(parent, channelIds.get(KEY_FAILURE_TEMP_SENSOR)));
-		channels.put(KEY_FAILURE_TEMP_SAMPLING, new StateChannel(parent, channelIds.get(KEY_FAILURE_TEMP_SAMPLING)));
-		channels.put(KEY_FAILURE_VOLTAGE_SAMPLING,
-				new StateChannel(parent, channelIds.get(KEY_FAILURE_VOLTAGE_SAMPLING)));
-		channels.put(KEY_FAILURE_LTC6803, new StateChannel(parent, channelIds.get(KEY_FAILURE_LTC6803)));
-		channels.put(KEY_FAILURE_CONNECTOR_WIRE, new StateChannel(parent, channelIds.get(KEY_FAILURE_CONNECTOR_WIRE)));
-		channels.put(KEY_FAILURE_SAMPLING_WIRE, new StateChannel(parent, channelIds.get(KEY_FAILURE_SAMPLING_WIRE)));
+				parent.addChannel(channelIds.get(KEY_FAILURE_TEMPERATURE_SENSOR_CABLE)));
+		channels.put(KEY_FAILURE_BALANCING_MODULE, parent.addChannel(channelIds.get(KEY_FAILURE_BALANCING_MODULE)));
+		channels.put(KEY_FAILURE_TEMPERATURE_PCB, parent.addChannel(channelIds.get(KEY_FAILURE_TEMPERATURE_PCB)));
+		channels.put(KEY_FAILURE_GR_TEMPERATURE, parent.addChannel(channelIds.get(KEY_FAILURE_GR_TEMPERATURE)));
+		channels.put(KEY_FAILURE_TEMP_SENSOR, parent.addChannel(channelIds.get(KEY_FAILURE_TEMP_SENSOR)));
+		channels.put(KEY_FAILURE_TEMP_SAMPLING, parent.addChannel(channelIds.get(KEY_FAILURE_TEMP_SAMPLING)));
+		channels.put(KEY_FAILURE_VOLTAGE_SAMPLING, parent.addChannel(channelIds.get(KEY_FAILURE_VOLTAGE_SAMPLING)));
+		channels.put(KEY_FAILURE_LTC6803, parent.addChannel(channelIds.get(KEY_FAILURE_LTC6803)));
+		channels.put(KEY_FAILURE_CONNECTOR_WIRE, parent.addChannel(channelIds.get(KEY_FAILURE_CONNECTOR_WIRE)));
+		channels.put(KEY_FAILURE_SAMPLING_WIRE, parent.addChannel(channelIds.get(KEY_FAILURE_SAMPLING_WIRE)));
 
 		// Cell voltages
 		for (int i = 0; i < this.numberOfSlaves; i++) {
 			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_" + VOLTAGE;
-				channels.put(key, new IntegerReadChannel(parent, channelIds.get(key)));
+				channels.put(key, parent.addChannel(channelIds.get(key)));
 			}
 		}
 
@@ -219,7 +204,7 @@ public class SingleRack {
 		for (int i = 0; i < this.numberOfSlaves; i++) {
 			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_" + TEMPERATURE;
-				channels.put(key, new IntegerReadChannel(parent, channelIds.get(key)));
+				channels.put(key, parent.addChannel(channelIds.get(key)));
 			}
 		}
 
@@ -229,120 +214,131 @@ public class SingleRack {
 	private Map<String, ChannelId> createChannelIdMap() {
 		Map<String, ChannelId> map = new HashMap<String, ChannelId>();
 
-		addEntry(map, KEY_VOLTAGE, new Doc().unit(Unit.MILLIVOLT));
-		addEntry(map, KEY_CURRENT, new Doc().unit(Unit.MILLIAMPERE));
-		addEntry(map, KEY_CHARGE_INDICATION, new Doc().options(Enums.ChargeIndication.values()));
-		addEntry(map, KEY_SOC, new Doc().unit(Unit.PERCENT));
-		addEntry(map, KEY_SOH, new Doc().unit(Unit.PERCENT));
-		addEntry(map, KEY_MAX_CELL_VOLTAGE_ID, new Doc().unit(Unit.NONE));
-		addEntry(map, KEY_MAX_CELL_VOLTAGE, new Doc().unit(Unit.MILLIVOLT));
-		addEntry(map, KEY_MIN_CELL_VOLTAGE_ID, new Doc().unit(Unit.NONE));
-		addEntry(map, KEY_MIN_CELL_VOLTAGE, new Doc().unit(Unit.MILLIVOLT));
-		addEntry(map, KEY_MAX_CELL_TEMPERATURE_ID, new Doc().unit(Unit.NONE));
-		addEntry(map, KEY_MAX_CELL_TEMPERATURE, new Doc().unit(Unit.DEZIDEGREE_CELSIUS));
-		addEntry(map, KEY_MIN_CELL_TEMPERATURE_ID, new Doc().unit(Unit.NONE));
-		addEntry(map, KEY_MIN_CELL_TEMPERATURE, new Doc().unit(Unit.DEZIDEGREE_CELSIUS));
+		addEntry(map, KEY_VOLTAGE, new IntegerDoc().unit(Unit.MILLIVOLT));
+		addEntry(map, KEY_CURRENT, new IntegerDoc().unit(Unit.MILLIAMPERE));
 
-		addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, new Doc().level(Level.FAULT)
-				.text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 2")); // Bit 15
-		addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, new Doc().level(Level.FAULT)
-				.text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 2")); // Bit 14
+		addEntry(map, KEY_CHARGE_INDICATION, Doc.of(Enums.ChargeIndication.values()));
+		addEntry(map, KEY_SOC, new IntegerDoc().unit(Unit.PERCENT));
+		addEntry(map, KEY_SOH, new IntegerDoc().unit(Unit.PERCENT));
+		addEntry(map, KEY_MAX_CELL_VOLTAGE_ID, new IntegerDoc().unit(Unit.NONE));
+		addEntry(map, KEY_MAX_CELL_VOLTAGE, new IntegerDoc().unit(Unit.MILLIVOLT));
+		addEntry(map, KEY_MIN_CELL_VOLTAGE_ID, new IntegerDoc().unit(Unit.NONE));
+		addEntry(map, KEY_MIN_CELL_VOLTAGE, new IntegerDoc().unit(Unit.MILLIVOLT));
+		addEntry(map, KEY_MAX_CELL_TEMPERATURE_ID, new IntegerDoc().unit(Unit.NONE));
+		addEntry(map, KEY_MAX_CELL_TEMPERATURE, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS));
+		addEntry(map, KEY_MIN_CELL_TEMPERATURE_ID, new IntegerDoc().unit(Unit.NONE));
+		addEntry(map, KEY_MIN_CELL_TEMPERATURE, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS));
+
+		addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW,
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 2")); // Bit
+																														// 15
+		addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH,
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 2")); // Bit
+																														// 14
 		addEntry(map, KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH,
-				new Doc().level(Level.FAULT).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 2")); // Bit
-																														// 10
-		addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, new Doc().level(Level.FAULT)
-				.text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 2")); // Bit 7
-		addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, new Doc().level(Level.FAULT)
-				.text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 2")); // Bit 6
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 2")); // Bit
+																											// 10
+		addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW,
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 2")); // Bit
+																													// 7
+		addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH,
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 2")); // Bit
+																														// 6
 		addEntry(map, KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH,
-				new Doc().level(Level.FAULT).text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 2")); // Bit
-																														// 5
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 2")); // Bit
+																												// 5
 		addEntry(map, KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW,
-				new Doc().level(Level.FAULT).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 2")); // Bit
-																													// 4
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 2")); // Bit
+																											// 4
 		addEntry(map, KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW,
-				new Doc().level(Level.FAULT).text("Cluster 1 Cell Voltage Low Alarm Level 2")); // Bit 3
+				Doc.of(Level.FAULT).text("Cluster 1 Cell Voltage Low Alarm Level 2")); // Bit 3
 		addEntry(map, KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH,
-				new Doc().level(Level.FAULT).text("Rack" + this.rackNumber + " Charge Current High Alarm Level 2")); // Bit
-																														// 2
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Charge Current High Alarm Level 2")); // Bit
+																											// 2
 		addEntry(map, KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH,
-				new Doc().level(Level.FAULT).text("Rack" + this.rackNumber + " Total Voltage High Alarm Level 2")); // Bit
-																													// 1
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Total Voltage High Alarm Level 2")); // Bit
+																											// 1
 		addEntry(map, KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH,
-				new Doc().level(Level.FAULT).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 2")); // Bit
-																													// 0
+				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 2")); // Bit
+																											// 0
 
-		addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 1")); // Bit 15
-		addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, new Doc().level(Level.WARNING)
+		addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 1")); // Bit
+																															// 15
+		addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 1")); // Bit 14
-		addEntry(map, KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Total Voltage Diff High Alarm Level 1")); // Bit 13
-		addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Cell Voltage Diff High Alarm Level 1")); // Bit 11
+		addEntry(map, KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Diff High Alarm Level 1")); // Bit
+																													// 13
+		addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage Diff High Alarm Level 1")); // Bit
+																													// 11
 		addEntry(map, KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 1")); // Bit
-																														// 10
-		addEntry(map, KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Cell temperature Diff High Alarm Level 1")); // Bit 9
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 1")); // Bit
+																												// 10
+		addEntry(map, KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell temperature Diff High Alarm Level 1")); // Bit
+																														// 9
 		addEntry(map, KEY_ALARM_LEVEL_1_SOC_LOW,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " SOC Low Alarm Level 1")); // Bit 8
-		addEntry(map, KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 1")); // Bit 7
-		addEntry(map, KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 1")); // Bit 6
-		addEntry(map, KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH, new Doc().level(Level.WARNING)
-				.text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 1")); // Bit 5
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " SOC Low Alarm Level 1")); // Bit 8
+		addEntry(map, KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 1")); // Bit
+																														// 7
+		addEntry(map, KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 1")); // Bit
+																														// 6
+		addEntry(map, KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH,
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 1")); // Bit
+																													// 5
 		addEntry(map, KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 1")); // Bit
-																														// 4
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 1")); // Bit
+																											// 4
 		addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage Low Alarm Level 1")); // Bit
-																													// 3
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage Low Alarm Level 1")); // Bit
+																											// 3
 		addEntry(map, KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " Charge Current High Alarm Level 1")); // Bit
-																														// 2
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Charge Current High Alarm Level 1")); // Bit
+																												// 2
 		addEntry(map, KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage High Alarm Level 1")); // Bit
-																														// 1
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage High Alarm Level 1")); // Bit
+																												// 1
 		addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH,
-				new Doc().level(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 1")); // Bit
-																														// 0
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 1")); // Bit
+																											// 0
+		addEntry(map, KEY_RUN_STATE, Doc.of(Enums.ClusterRunState.values())); //
 
-		addEntry(map, KEY_RUN_STATE, new Doc().options(Enums.ClusterRunState.values())); //
-
-		addEntry(map, KEY_FAILURE_INITIALIZATION, new Doc().level(Level.FAULT).text("Initialization failure")); // Bit
-																												// 12
-		addEntry(map, KEY_FAILURE_EEPROM, new Doc().level(Level.FAULT).text("EEPROM fault")); // Bit 11
-		addEntry(map, KEY_FAILURE_INTRANET_COMMUNICATION,
-				new Doc().level(Level.FAULT).text("Internal communication fault")); // Bit 10
-		addEntry(map, KEY_FAILURE_TEMPERATURE_SENSOR_CABLE,
-				new Doc().level(Level.FAULT).text("Temperature sensor cable fault")); // Bit 9
-		addEntry(map, KEY_FAILURE_BALANCING_MODULE, new Doc().level(Level.FAULT).text("Balancing module fault")); // Bit
-																													// 8
-		addEntry(map, KEY_FAILURE_TEMPERATURE_PCB, new Doc().level(Level.FAULT).text("Temperature PCB error")); // Bit 7
-		addEntry(map, KEY_FAILURE_GR_TEMPERATURE, new Doc().level(Level.FAULT).text("GR Temperature error")); // Bit 6
-		addEntry(map, KEY_FAILURE_TEMP_SENSOR, new Doc().level(Level.FAULT).text("Temperature sensor fault")); // Bit 5
-		addEntry(map, KEY_FAILURE_TEMP_SAMPLING, new Doc().level(Level.FAULT).text("Temperature sampling fault")); // Bit
-																													// 4
-		addEntry(map, KEY_FAILURE_VOLTAGE_SAMPLING, new Doc().level(Level.FAULT).text("Voltage sampling fault")); // Bit
-																													// 3
-		addEntry(map, KEY_FAILURE_LTC6803, new Doc().level(Level.FAULT).text("LTC6803 fault")); // Bit 2
-		addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, new Doc().level(Level.FAULT).text("connector wire fault")); // Bit 1
-		addEntry(map, KEY_FAILURE_SAMPLING_WIRE, new Doc().level(Level.FAULT).text("sampling wire fault")); // Bit 0
+		addEntry(map, KEY_FAILURE_INITIALIZATION, Doc.of(Level.FAULT).text("Initialization failure")); // Bit
+																										// 12
+		addEntry(map, KEY_FAILURE_EEPROM, Doc.of(Level.FAULT).text("EEPROM fault")); // Bit 11
+		addEntry(map, KEY_FAILURE_INTRANET_COMMUNICATION, Doc.of(Level.FAULT).text("Internal communication fault")); // Bit
+																														// 10
+		addEntry(map, KEY_FAILURE_TEMPERATURE_SENSOR_CABLE, Doc.of(Level.FAULT).text("Temperature sensor cable fault")); // Bit
+																															// 9
+		addEntry(map, KEY_FAILURE_BALANCING_MODULE, Doc.of(Level.FAULT).text("Balancing module fault")); // Bit
+																											// 8
+		addEntry(map, KEY_FAILURE_TEMPERATURE_PCB, Doc.of(Level.FAULT).text("Temperature PCB error")); // Bit 7
+		addEntry(map, KEY_FAILURE_GR_TEMPERATURE, Doc.of(Level.FAULT).text("GR Temperature error")); // Bit 6
+		addEntry(map, KEY_FAILURE_TEMP_SENSOR, Doc.of(Level.FAULT).text("Temperature sensor fault")); // Bit 5
+		addEntry(map, KEY_FAILURE_TEMP_SAMPLING, Doc.of(Level.FAULT).text("Temperature sampling fault")); // Bit
+																											// 4
+		addEntry(map, KEY_FAILURE_VOLTAGE_SAMPLING, Doc.of(Level.FAULT).text("Voltage sampling fault")); // Bit
+																											// 3
+		addEntry(map, KEY_FAILURE_LTC6803, Doc.of(Level.FAULT).text("LTC6803 fault")); // Bit 2
+		addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, Doc.of(Level.FAULT).text("connector wire fault")); // Bit 1
+		addEntry(map, KEY_FAILURE_SAMPLING_WIRE, Doc.of(Level.FAULT).text("sampling wire fault")); // Bit 0
 
 		// Cell voltages formatted like: "RACK_1_BATTERY_000_VOLTAGE"
 		for (int i = 0; i < this.numberOfSlaves; i++) {
 			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_" + VOLTAGE;
-				addEntry(map, key, new Doc().unit(Unit.MILLIVOLT));
+				addEntry(map, key, new IntegerDoc().unit(Unit.MILLIVOLT));
 			}
 		}
 		// Cell temperatures formatted like : "RACK_1_BATTERY_000_TEMPERATURE"
 		for (int i = 0; i < numberOfSlaves; i++) {
 			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_" + TEMPERATURE;
-				map.put(key, new ChannelIdImpl(key, new Doc().unit(Unit.DEZIDEGREE_CELSIUS)));
+				map.put(key, new ChannelIdImpl(key, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS)));
 			}
 		}
 

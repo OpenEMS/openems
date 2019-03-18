@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
-import io.openems.edge.battery.soltaro.master.Master;
 import io.openems.edge.battery.soltaro.multirack.Enums.ContactorControl;
 import io.openems.edge.battery.soltaro.multirack.Enums.RackUsage;
 import io.openems.edge.battery.soltaro.multirack.Enums.StartStop;
+import io.openems.edge.battery.soltaro.versionb.ModuleParameters;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -58,11 +58,8 @@ import io.openems.edge.common.taskmanager.Priority;
 )
 public class MultiRack extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler {
 
-	public static final int DISCHARGE_MIN_V = 696; // 696 / 20 = 34,8
-	public static final int CHARGE_MAX_V = 854; // 854 / 20 = 42,7
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
-	public static final Integer CAPACITY_KWH = 150; // depends on number of slave modules
 
 	private static final int ADDRESS_OFFSET_RACK_1 = 0x2000;
 	private static final int ADDRESS_OFFSET_RACK_2 = 0x3000;
@@ -71,16 +68,19 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
-
 	private final Logger log = LoggerFactory.getLogger(MultiRack.class);
+	
+	protected ConfigurationAdmin cm;
+	// If an error has occurred, this indicates the time when next action could be done
+	private LocalDateTime errorDelayIsOver = null;
+	private int unsuccessfulStarts = 0;
+	private LocalDateTime startAttemptTime = null;	
 	private String modbusBridgeId;
 	private BatteryState batteryState;
 	@Reference
-	protected ConfigurationAdmin cm;
 	private State state = State.UNDEFINED;
 	private Config config;
 	private Collection<SingleRack> racks = new ArrayList<>();
-//	private Collection<SingleRack> racks = new ArrayList<>();
 
 	public MultiRack() {
 		super(//
@@ -88,11 +88,6 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 				Battery.ChannelId.values(), //
 				MultiRackChannelId.values() //
 		);
-		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(MultiRack.CHARGE_MAX_A);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(MultiRack.CHARGE_MAX_V);
-		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(MultiRack.DISCHARGE_MAX_A);
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(MultiRack.DISCHARGE_MIN_V);
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue(MultiRack.CAPACITY_KWH);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -113,12 +108,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		for (int i : config.racks()) {
 			this.racks.add(new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
 		}
-
-		for (SingleRack rack : this.racks) {
-			for (Channel<?> channel : rack.getChannels()) {
-				this.addChannel(channel);
-			}
-		}
+		
+		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(MultiRack.CHARGE_MAX_A);
+		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(MultiRack.DISCHARGE_MAX_A);
+		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);		
+		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);		
+		this.channel(Battery.ChannelId.CAPACITY).setNextValue( this.config.racks().length * this.config.numberOfSlaves() * ModuleParameters.CAPACITY_WH.getValue() / 1000 );
 	}
 
 	@Override
@@ -148,13 +143,6 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 			break;
 		}
 	}
-
-	// If an error has occurred, this indicates the time when next action could be
-	// done
-	private LocalDateTime errorDelayIsOver = null;
-	private int unsuccessfulStarts = 0;
-	//
-	private LocalDateTime startAttemptTime = null;
 
 	private void handleStateMachine() {
 		log.info("MultiRack.doNormalHandling(): State: " + this.getStateMachineState());
@@ -237,91 +225,32 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private boolean isError() {
 		// TODO define what is an error
 		// should we look at the submasters for level 2 errors?
-		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_LEVEL_2_INSULATION))
+		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
 			return true;
-		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL))
+		}
+		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL)) {
 			return true;
-		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE))
+		}
+		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE)) {
 			return true;
-		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER))
+		}
+		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER)) {
 			return true;
+		}
 
-//		if (config.rack1IsUsed()) {
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CHA_CURRENT_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW))
-//				return true;
-//		}
-//		if (config.rack2IsUsed()) {
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CHA_CURRENT_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW))
-//				return true;
-//		}
-//		if (config.rack3IsUsed()) {
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CHA_CURRENT_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH))
-//				return true;
-//			if (readValueFromStateChannel(MultiRackChannelId.RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW))
-//				return true;
-//		}
 		return false;
 	}
+	
+	public Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
+		return this.addChannel(channelId);
+	}
 
-	private boolean readValueFromStateChannel(io.openems.edge.common.channel.doc.ChannelId channelId) {
+	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {		
 		StateChannel s = this.channel(channelId);
 		Optional<Boolean> val = s.value().asOptional();
 		return val.isPresent() && val.get();
 	}
 
-	// TODO check if this is working because hardware has changed
 	private boolean isSystemStopped() {
 		boolean ret = true;
 
@@ -333,7 +262,6 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		return ret;
 	}
 
-	// TODO check if this is working because hardware has changed
 	private boolean isSystemRunning() {
 		boolean ret = true;
 
@@ -350,12 +278,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
 	 */
-	private boolean isSystemStatePending() { // TODO refactor and check if necessary
+	private boolean isSystemStatePending() { 
 		boolean ret = true;
 
 		for (SingleRack rack : racks) {
 			IntegerReadChannel channel = this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId);
-			Optional<Integer> val = channel.value().asOptional();
+			Optional<Integer> val = channel.value().asOptional();			
 			ret = ret && val.isPresent();
 		}
 
@@ -575,12 +503,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 	}
 
-	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.doc.ChannelId channelId,
+	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,
 			AbstractModbusElement<?> element) {
 		return this.m(channelId, element);
 	}
 
-	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.doc.ChannelId channelId,
+	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,
 			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
 		return this.m(channelId, element, converter);
 	}

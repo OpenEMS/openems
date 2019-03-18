@@ -42,9 +42,11 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -59,25 +61,32 @@ import io.openems.edge.common.taskmanager.Priority;
 public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		implements Battery, OpenemsComponent, EventHandler { // , JsonApi TODO
 
+	protected static final int SYSTEM_ON = 1;
+	protected final static int SYSTEM_OFF = 0;
+
 	private static final String KEY_TEMPERATURE = "_TEMPERATURE";
 	private static final String KEY_VOLTAGE = "_VOLTAGE";
-	protected final static int SYSTEM_ON = 1;
-	protected final static int SYSTEM_OFF = 0;
 	private static final Integer SYSTEM_RESET = 0x1;
+	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 
+	protected ConfigurationAdmin cm;
 	private final Logger log = LoggerFactory.getLogger(SoltaroRackVersionB.class);
-
 	private String modbusBridgeId;
 	private State state = State.UNDEFINED;
 	// if configuring is needed this is used to go through the necessary steps
 	private ConfiguringProcess nextConfiguringProcess = ConfiguringProcess.NONE;
-
 	@Reference
-	protected ConfigurationAdmin cm;
-
 	private Config config;
+	private Map<String, Channel<?>> channelMap;	
+	// If an error has occurred, this indicates the time when next action could be done
+	private LocalDateTime errorDelayIsOver = null;
+	private int unsuccessfulStarts = 0;
+	private LocalDateTime startAttemptTime = null;
 
-	private Map<String, Channel<?>> channelMap;
+	private LocalDateTime timeAfterAutoId = null;
+	private LocalDateTime configuringFinished = null;
+	private int DELAY_AUTO_ID_SECONDS = 5;
+	private int DELAY_AFTER_CONFIGURING_FINISHED = 5;
 
 	public SoltaroRackVersionB() {
 		super(//
@@ -99,10 +108,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		// adds dynamically created channels and save them into a map to access them
 		// when modbus tasks are created
 		channelMap = createDynamicChannels();
-		for (Channel<?> c : this.channelMap.values()) {
-			this.addChannel(c);
-		}
-
+		
 		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
@@ -114,10 +120,91 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 
 	private void setCapacity() {
-		int capacity = this.config.numberOfSlaves() * ModuleParameters.CAPACITY_KWH.getValue();
+		int capacity = this.config.numberOfSlaves() * ModuleParameters.CAPACITY_WH.getValue() / 1000;
 		this.channel(Battery.ChannelId.CAPACITY).setNextValue(capacity);
 	}
 
+	private void handleStateMachine() {
+		log.info("SoltaroRackVersionB.handleStateMachine(): State: " + this.getStateMachineState());
+		boolean readyForWorking = false;
+		switch (this.getStateMachineState()) {
+		case ERROR:
+			stopSystem();
+			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
+			setStateMachineState(State.ERRORDELAY);
+			break;
+
+		case ERRORDELAY:
+			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
+				errorDelayIsOver = null;
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else {
+					this.setStateMachineState(State.OFF);
+				}
+			}
+			break;
+		case INIT:
+			if (this.isSystemIsRunning()) {
+				this.setStateMachineState(State.RUNNING);
+				unsuccessfulStarts = 0;
+				startAttemptTime = null;
+			} else {
+				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
+					startAttemptTime = null;
+					unsuccessfulStarts++;
+					this.stopSystem();
+					this.setStateMachineState(State.STOPPING);
+					if (unsuccessfulStarts >= config.maxStartAppempts()) {
+						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
+						this.setStateMachineState(State.ERRORDELAY);
+						unsuccessfulStarts = 0;
+					}
+				}
+			}
+			break;
+		case OFF:
+			log.debug("in case 'OFF'; try to start the system");
+			this.startSystem();
+			log.debug("set state to 'INIT'");
+			this.setStateMachineState(State.INIT);
+			startAttemptTime = LocalDateTime.now();
+			break;
+		case RUNNING:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else {
+				readyForWorking = true;
+			}
+			break;
+		case STOPPING:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else {
+				if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+				}
+			}
+			break;
+		case UNDEFINED:
+			if (isSystemStateUndefined()) { // do nothing until state is clearly defined
+				log.info(" ===>>> STATE is currently undefined! <<<===");
+				break;
+			}
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
+			} else if (this.isSystemIsRunning()) {
+				this.setStateMachineState(State.RUNNING);
+			}
+			break;
+		}
+
+		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+
+	
 	/*
 	 * creates a map containing channels for voltage and temperature depending on
 	 * the number of modules
@@ -129,7 +216,10 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * voltSensors; j < (i + 1) * voltSensors; j++) {
 				String key = getSingleCellPrefix(j) + KEY_VOLTAGE;
-				map.put(key, new IntegerReadChannel(this, new ChannelIdImpl(key, new Doc().unit(Unit.MILLIVOLT))));
+				IntegerDoc doc = new IntegerDoc();
+				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key, doc.unit(Unit.MILLIVOLT));
+				IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
+				map.put(key, integerReadChannel);
 			}
 		}
 
@@ -137,14 +227,15 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
 				String key = getSingleCellPrefix(j) + KEY_TEMPERATURE;
-				map.put(key,
-						new IntegerReadChannel(this, new ChannelIdImpl(key, new Doc().unit(Unit.DEZIDEGREE_CELSIUS))));
+				
+				IntegerDoc doc = new IntegerDoc();
+				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key, doc.unit(Unit.DEZIDEGREE_CELSIUS));
+				IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
+				map.put(key, integerReadChannel);
 			}
 		}
 		return map;
 	}
-
-	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 
 	private String getSingleCellPrefix(int num) {
 		return "CLUSTER_1_BATTERY_" + String.format(NUMBER_FORMAT, num);
@@ -273,97 +364,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 
 		}
 	}
-
-	// If an error has occurred, this indicates the time when next action could be
-	// done
-	private LocalDateTime errorDelayIsOver = null;
-	private int unsuccessfulStarts = 0;
-	private LocalDateTime startAttemptTime = null;
-
-	private void handleStateMachine() {
-		log.info("SoltaroRackVersionB.handleStateMachine(): State: " + this.getStateMachineState());
-		boolean readyForWorking = false;
-		switch (this.getStateMachineState()) {
-		case ERROR:
-			stopSystem();
-			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-			setStateMachineState(State.ERRORDELAY);
-			break;
-
-		case ERRORDELAY:
-			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
-				errorDelayIsOver = null;
-				if (this.isError()) {
-					this.setStateMachineState(State.ERROR);
-				} else {
-					this.setStateMachineState(State.OFF);
-				}
-			}
-			break;
-		case INIT:
-			if (this.isSystemIsRunning()) {
-				this.setStateMachineState(State.RUNNING);
-				unsuccessfulStarts = 0;
-				startAttemptTime = null;
-			} else {
-				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
-					startAttemptTime = null;
-					unsuccessfulStarts++;
-					this.stopSystem();
-					this.setStateMachineState(State.STOPPING);
-					if (unsuccessfulStarts >= config.maxStartAppempts()) {
-						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
-						this.setStateMachineState(State.ERRORDELAY);
-						unsuccessfulStarts = 0;
-					}
-				}
-			}
-			break;
-		case OFF:
-			log.debug("in case 'OFF'; try to start the system");
-			this.startSystem();
-			log.debug("set state to 'INIT'");
-			this.setStateMachineState(State.INIT);
-			startAttemptTime = LocalDateTime.now();
-			break;
-		case RUNNING:
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
-			} else {
-				readyForWorking = true;
-			}
-			break;
-		case STOPPING:
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
-			} else {
-				if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-				}
-			}
-			break;
-		case UNDEFINED:
-			if (isSystemStateUndefined()) { // do nothing until state is clearly defined
-				log.info(" ===>>> STATE is currently undefined! <<<===");
-				break;
-			}
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
-			} else if (this.isSystemStopped()) {
-				this.setStateMachineState(State.OFF);
-			} else if (this.isSystemIsRunning()) {
-				this.setStateMachineState(State.RUNNING);
-			}
-			break;
-		}
-
-		this.getReadyForWorking().setNextValue(readyForWorking);
-	}
-
-	private LocalDateTime timeAfterAutoId = null;
-	private LocalDateTime configuringFinished = null;
-	int DELAY_AUTO_ID_SECONDS = 5;
-	int DELAY_AFTER_CONFIGURING_FINISHED = 5;
 
 	private void configureSlaves() {
 		if (nextConfiguringProcess == ConfiguringProcess.NONE) {
