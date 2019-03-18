@@ -2,17 +2,15 @@ package io.openems.edge.project.controller.enbag.emergencymode;
 
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
-public enum SwitchState implements OptionsEnum {
+enum Battery implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-
-	SWITCHED_TO_OFF_GRID(0, "Switches Are At Off Grid Mode"), //
-
-	SWITCHED_TO_ON_GRID(1, "Switches Are At On Grid Mode");
-
+	ESS1(0, "Ess1"), //
+	ESS2(1, "Ess2");
+	
 	private final int value;
 	private final String name;
 
-	private SwitchState(int value, String name) {
+	private Battery(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

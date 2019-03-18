@@ -3,16 +3,9 @@ package io.openems.edge.project.controller.enbag.emergencymode;
 import io.openems.edge.common.channel.doc.OptionsEnum;
 
 public enum PvState implements OptionsEnum {
-	/**
-	 * Unknown state on first start.
-	 */
-	UNDEFINED(-1, "Undefined"), //
-
-	PV_LOW(0, "Pv Power Is Less Than 3kW "), //
-
-	PV_OKAY(1, "Pv Power Is Between 3kW and 35kW"), //
-
-	PV_HIGH(1, "Pv Power Is More Than 35kW");
+	UNKNOWN(-1, "Unknown"), //
+	SUFFICIENT(0, ""), //
+	NOT_SUFFICIENT(1, "");
 
 	private final int value;
 	private final String name;
@@ -34,6 +27,6 @@ public enum PvState implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return UNDEFINED;
+		return UNKNOWN;
 	}
 }
