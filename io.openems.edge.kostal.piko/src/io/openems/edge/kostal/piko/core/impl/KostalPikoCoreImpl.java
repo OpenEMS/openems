@@ -92,7 +92,10 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	}
 
 	public KostalPikoCoreImpl() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				KostalPikoCore.ChannelId.values() //
+		);
 		this.readTasksManager = new TasksManager<ReadTask>(//
 				/*
 				 * ONCE

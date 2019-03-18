@@ -32,6 +32,7 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
 import io.openems.common.session.User;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -57,8 +58,26 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 
 	private List<GridConnSchedule> schedule = new ArrayList<>();
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public BalancingSchedule() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Activate

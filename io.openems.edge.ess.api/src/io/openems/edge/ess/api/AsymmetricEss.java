@@ -6,8 +6,8 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -16,7 +16,7 @@ import io.openems.edge.common.type.TypeUtils;
 @ProviderType
 public interface AsymmetricEss extends SymmetricEss {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Active Power L1
 		 * 
@@ -27,8 +27,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER_L1(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -42,8 +41,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER_L2(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -57,8 +55,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER_L3(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -72,8 +69,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER_L1(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -87,8 +83,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER_L2(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(POWER_DOC_TEXT) //
 		),
@@ -102,8 +97,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER_L3(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(POWER_DOC_TEXT) //
 		);

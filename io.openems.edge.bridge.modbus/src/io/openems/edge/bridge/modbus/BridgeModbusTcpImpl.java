@@ -20,6 +20,7 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -43,10 +44,28 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	 */
 	private InetAddress ipAddress = null;
 
-	public BridgeModbusTcpImpl() {
-		UtilsTcp.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
 	}
-	
+
+	public BridgeModbusTcpImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				BridgeModbus.ChannelId.values(), //
+				ChannelId.values() //
+		);
+	}
+
 	@Activate
 	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, config.id(), config.enabled());

@@ -1,17 +1,18 @@
 package io.openems.edge.common.channel;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class LongReadChannel extends AbstractReadChannel<Long> {
+public class LongReadChannel extends AbstractReadChannel<OpenemsTypeDoc<Long>, Long> {
 
-	public LongReadChannel(OpenemsComponent component, ChannelId channelId) {
-		super(OpenemsType.LONG, component, channelId);
+	protected LongReadChannel(OpenemsComponent component, ChannelId channelId, LongDoc channelDoc) {
+		this(component, channelId, channelDoc, null);
 	}
 
-	public LongReadChannel(OpenemsComponent component, ChannelId channelId, Long initialValue) {
-		super(OpenemsType.LONG, component, channelId, initialValue);
+	protected LongReadChannel(OpenemsComponent component, ChannelId channelId, LongDoc channelDoc, Long initialValue) {
+		super(OpenemsType.LONG, component, channelId, channelDoc, initialValue);
 	}
 
 }

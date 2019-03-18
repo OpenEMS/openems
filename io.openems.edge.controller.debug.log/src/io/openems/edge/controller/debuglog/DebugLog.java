@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -24,9 +25,6 @@ import io.openems.edge.controller.api.Controller;
 /**
  * This controller prints information about all available components on the
  * console.
- * 
- * @author stefan.feilmeier
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Debug.Log", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -40,8 +38,26 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 			target = "(&(enabled=true)(!(service.factoryPid=Controller.Debug.Log)))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public DebugLog() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Activate

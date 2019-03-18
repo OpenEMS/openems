@@ -6,14 +6,14 @@ import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Maximum Ever Actual Power
 		 * 
@@ -25,7 +25,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Implementation Note: value is automatically derived from ACTUAL_POWER
 		 * </ul>
 		 */
-		MAX_ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		MAX_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Actual Power
 		 * 
@@ -36,7 +36,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).onInit(channel -> {
+		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).onInit(channel -> {
 			channel.onSetNextValue(value -> {
 				/*
 				 * Fill Max Actual Power channel
@@ -63,8 +63,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTUAL_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;

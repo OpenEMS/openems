@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -46,8 +47,26 @@ public class KostalPikoEss extends AbstractOpenemsComponent implements Symmetric
 		core.unsetEss(this);
 	}
 
+	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ThisChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public KostalPikoEss() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ThisChannelId.values() //
+		);
 	}
 
 	@Activate

@@ -7,7 +7,6 @@ Private-Package: \
 	io.openems.edge.simulator.meter.grid.reacting,\
 	io.openems.edge.simulator.meter.production.acting,\
 	io.openems.edge.simulator.meter.nrc.acting,\
-	io.openems.edge.simulator.meter,\
 	io.openems.edge.simulator.datasource.api,\
 	io.openems.edge.simulator.datasource.csv,\
 	io.openems.edge.simulator.ess.symmetric.reacting,\

@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 public interface WriteChannel<T> extends Channel<T> {
@@ -13,39 +12,22 @@ public interface WriteChannel<T> extends Channel<T> {
 	/**
 	 * Updates the 'next' write value of Channel.
 	 * 
-	 * @param value
+	 * @param value the typed value
 	 */
 	public default void setNextWriteValue(T value) throws OpenemsException {
 		this.setNextWriteValueFromObject(value);
 	}
 
 	/**
-	 * Updates the 'next' write value of Channel from an Enum value.
+	 * Updates the 'next' write value of Channel from an Object value.
 	 * 
-	 * @param value
-	 * @throws OpenemsException
-	 */
-	public default void setNextWriteValue(OptionsEnum value) throws OpenemsException {
-		this.setNextWriteValueFromObject(value);
-	}
-
-	/**
-	 * Updates the 'next' write value of Channel from an Object value. Use this
-	 * method if the value is not yet in the correct Type. Otherwise use
-	 * setNextWriteValue() directly.
+	 * <p>
+	 * Use this method if the value is not yet in the correct Type. Otherwise use
+	 * {@link WriteChannel#setNextWriteValue(Object)} directly.
 	 * 
-	 * @param value
+	 * @param value the value as an Object
 	 */
 	public default void setNextWriteValueFromObject(Object value) throws OpenemsException {
-		// Convert Strings to their Enum-Value
-		if (value instanceof String) {
-			try {
-				value = this.channelDoc().getOptionFromEnumString((String) value);
-			} catch (IllegalArgumentException e) {
-				// No enum value with this string; continue with original value
-			}
-		}
-
 		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
 		// set the write value
 		this._setNextWriteValue(typedValue);
@@ -66,14 +48,19 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * @return
 	 */
 	public default Optional<T> getNextWriteValueAndReset() {
-		Optional<T> valueOpt = this._getNextWriteValue();
+		Optional<T> valueOpt = this.getNextWriteValue();
 		if (valueOpt.isPresent()) {
 			this._setNextWriteValue(null);
 		}
 		return valueOpt;
 	}
 
-	public Optional<T> _getNextWriteValue();
+	/**
+	 * Gets the next write value.
+	 * 
+	 * @return the next write value; not-present if no write value had been set
+	 */
+	public Optional<T> getNextWriteValue();
 
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
