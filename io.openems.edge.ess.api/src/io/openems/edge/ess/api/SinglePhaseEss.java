@@ -2,12 +2,12 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 
 @ProviderType
 public interface SinglePhaseEss extends AsymmetricEss {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 
 		private final Doc doc;

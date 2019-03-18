@@ -7,7 +7,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 
 /**
@@ -117,8 +117,7 @@ public class TypeUtils {
 				return (T) Short.valueOf(Short.parseShort(stringValue));
 			}
 			break;
-			
-		case ENUM:
+
 		case INTEGER:
 			if (value == null) {
 				return (T) ((Integer) value);
@@ -285,7 +284,6 @@ public class TypeUtils {
 			return new JsonPrimitive(((Boolean) value) ? 1 : 0);
 		case SHORT:
 			return new JsonPrimitive((Short) value);
-		case ENUM:
 		case INTEGER:
 			return new JsonPrimitive((Integer) value);
 		case LONG:

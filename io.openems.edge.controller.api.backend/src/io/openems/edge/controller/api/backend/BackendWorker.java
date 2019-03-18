@@ -8,9 +8,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
 
@@ -19,7 +16,8 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.common.channel.doc.AccessMode;
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.type.slidingvalue.DoubleSlidingValue;
 import io.openems.edge.common.type.slidingvalue.FloatSlidingValue;
 import io.openems.edge.common.type.slidingvalue.IntegerSlidingValue;
@@ -32,7 +30,7 @@ class BackendWorker extends AbstractCycleWorker {
 
 	private static final int MAX_CACHED_MESSAGES = 1000;
 
-	private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
+	// private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
 
 	private final BackendApi parent;
 
@@ -170,66 +168,65 @@ class BackendWorker extends AbstractCycleWorker {
 				.forEach(channel -> {
 					ChannelAddress address = channel.address();
 					Object value = channel.value().get();
-					boolean isEnum = channel.channelDoc().hasOptions();
-					if (isEnum && !channel.getType().equals(OpenemsType.ENUM)) {
-						this.log.warn(
-								"Channel [" + address.toString() + "] should have been defined as an EnumReadChannel");
-					}
 
 					// Get existing SlidingValue object or add new one
 					SlidingValue<?> slidingValue = this.data.get(address);
+
 					if (slidingValue == null) {
-						switch (channel.getType()) {
-						case INTEGER:
-							slidingValue = new IntegerSlidingValue();
-							break;
-						case BOOLEAN:
-							slidingValue = new LatestSlidingValue(OpenemsType.BOOLEAN);
-							break;
-						case DOUBLE:
-							slidingValue = new DoubleSlidingValue();
-							break;
-						case FLOAT:
-							slidingValue = new FloatSlidingValue();
-							break;
-						case LONG:
-							slidingValue = new LongSlidingValue();
-							break;
-						case SHORT:
-							slidingValue = new ShortSlidingValue();
-							break;
-						case STRING:
-							slidingValue = new LatestSlidingValue(OpenemsType.STRING);
-							break;
-						case ENUM:
-							slidingValue = new LatestSlidingValue(OpenemsType.ENUM);
-							break;
+						// Create new SlidingValue object
+						if (channel instanceof EnumReadChannel) {
+							slidingValue = new LatestSlidingValue(OpenemsType.INTEGER);
+						} else {
+							switch (channel.getType()) {
+							case INTEGER:
+								slidingValue = new IntegerSlidingValue();
+								break;
+							case DOUBLE:
+								slidingValue = new DoubleSlidingValue();
+								break;
+							case FLOAT:
+								slidingValue = new FloatSlidingValue();
+								break;
+							case LONG:
+								slidingValue = new LongSlidingValue();
+								break;
+							case SHORT:
+								slidingValue = new ShortSlidingValue();
+								break;
+							case BOOLEAN:
+							case STRING:
+								slidingValue = new LatestSlidingValue(channel.getType());
+								break;
+							}
 						}
 						this.data.put(address, slidingValue);
 					}
 
 					// Add Value to SlidingValue object
-					switch (channel.getType()) {
-					case INTEGER:
-						((IntegerSlidingValue) slidingValue).addValue((Integer) value);
-						break;
-					case DOUBLE:
-						((DoubleSlidingValue) slidingValue).addValue((Double) value);
-						break;
-					case FLOAT:
-						((FloatSlidingValue) slidingValue).addValue((Float) value);
-						break;
-					case LONG:
-						((LongSlidingValue) slidingValue).addValue((Long) value);
-						break;
-					case SHORT:
-						((ShortSlidingValue) slidingValue).addValue((Short) value);
-						break;
-					case BOOLEAN:
-					case STRING:
-					case ENUM:
+					if (slidingValue instanceof LatestSlidingValue) {
 						((LatestSlidingValue) slidingValue).addValue(value);
-						break;
+					} else {
+						switch (channel.getType()) {
+						case INTEGER:
+							((IntegerSlidingValue) slidingValue).addValue((Integer) value);
+							break;
+						case DOUBLE:
+							((DoubleSlidingValue) slidingValue).addValue((Double) value);
+							break;
+						case FLOAT:
+							((FloatSlidingValue) slidingValue).addValue((Float) value);
+							break;
+						case LONG:
+							((LongSlidingValue) slidingValue).addValue((Long) value);
+							break;
+						case SHORT:
+							((ShortSlidingValue) slidingValue).addValue((Short) value);
+							break;
+						case BOOLEAN:
+						case STRING:
+							// already covered as they are of type LatestSlidingValue
+							break;
+						}
 					}
 				});
 	}

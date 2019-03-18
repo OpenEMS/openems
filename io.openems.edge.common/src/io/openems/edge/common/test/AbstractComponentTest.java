@@ -127,7 +127,7 @@ public abstract class AbstractComponentTest {
 						.channel(output.address.getChannelId());
 				Object got;
 				if (channel instanceof WriteChannel) {
-					got = ((WriteChannel<?>) channel)._getNextWriteValue().orElse(null);
+					got = ((WriteChannel<?>) channel).getNextWriteValue().orElse(null);
 				} else {
 					got = channel.getNextValue().orElse(null);
 				}
