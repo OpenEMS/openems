@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -92,15 +91,11 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
-		try {
-			WriteChannel<Boolean> channel = this.componentManager.getChannel(this.outputChannelAddress);
-			if (channel.value().asOptional().equals(Optional.of(value))) {
-				// it is already in the desired state
-			} else {
-				channel.setNextWriteValue(value);
-			}
-		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to set output: [" + this.outputChannelAddress + "] " + e.getMessage());
+		WriteChannel<Boolean> channel = this.componentManager.getChannel(this.outputChannelAddress);
+		if (channel.value().asOptional().equals(Optional.of(value))) {
+			// it is already in the desired state
+		} else {
+			channel.setNextWriteValue(value);
 		}
 	}
 }
