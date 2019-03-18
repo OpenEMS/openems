@@ -163,6 +163,6 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * @return the Channel
 	 */
 	@SuppressWarnings("unchecked")
-	public abstract Channel<T> createChannelInstance(OpenemsComponent component,
+	public abstract <T extends Channel<?>> T createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId);
 }
