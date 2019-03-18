@@ -204,7 +204,6 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		this.getReadyForWorking().setNextValue(readyForWorking);
 	}
 
-	
 	/*
 	 * creates a map containing channels for voltage and temperature depending on
 	 * the number of modules
