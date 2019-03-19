@@ -15,6 +15,7 @@ public class ShortDoc extends OpenemsTypeDoc<Short> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ShortReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {

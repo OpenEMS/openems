@@ -181,9 +181,6 @@ class BackendWorker extends AbstractCycleWorker {
 							case INTEGER:
 								slidingValue = new IntegerSlidingValue();
 								break;
-							case BOOLEAN:
-								slidingValue = new LatestSlidingValue(OpenemsType.BOOLEAN);
-								break;
 							case DOUBLE:
 								slidingValue = new DoubleSlidingValue();
 								break;
@@ -196,8 +193,9 @@ class BackendWorker extends AbstractCycleWorker {
 							case SHORT:
 								slidingValue = new ShortSlidingValue();
 								break;
+							case BOOLEAN:
 							case STRING:
-								slidingValue = new LatestSlidingValue(OpenemsType.STRING);
+								slidingValue = new LatestSlidingValue(channel.getType());
 								break;
 							}
 						}

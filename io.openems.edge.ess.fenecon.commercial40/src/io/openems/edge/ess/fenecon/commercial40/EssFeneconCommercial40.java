@@ -75,6 +75,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	private final static int MAX_REACTIVE_POWER = 10000;
 
 	private String modbusBridgeId;
+	private boolean readOnlyMode = false;
 
 	@Reference
 	private Power power;
@@ -93,6 +94,10 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+		if (this.readOnlyMode) {
+			return;
+		}
+
 		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
 		setActivePowerChannel.setNextWriteValue(activePower);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
@@ -108,6 +113,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
+		this.readOnlyMode = config.readOnlyMode();
 	}
 
 	@Deactivate
@@ -1578,12 +1584,19 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() {
-		return new Constraint[] {
-				// ReactivePower limitations
-				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
-						Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER),
-				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
-						Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
+		if (this.readOnlyMode) {
+			return new Constraint[] { //
+					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+			};
+		} else {
+			return new Constraint[] {
+					// ReactivePower limitations
+					this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
+							Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER),
+					this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
+							Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
+		}
 	}
 
 	@Override

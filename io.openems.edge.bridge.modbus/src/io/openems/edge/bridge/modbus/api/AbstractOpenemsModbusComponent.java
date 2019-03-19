@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -19,6 +20,7 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
@@ -61,6 +63,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * }
 	 * </pre>
 	 * 
+	 * <p>
 	 * Note: the separation in firstInitialChannelIds and furtherInitialChannelIds
 	 * is only there to enforce that calling the constructor cannot be forgotten.
 	 * This way it needs to be called with at least one parameter - which is always
@@ -293,9 +296,19 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			private final Channel<?> channel;
 			private final BitConverter converter;
 
+			private Optional<Boolean> writeValue = Optional.empty();
+
 			protected ChannelWrapper(Channel<?> channel, BitConverter converter) {
 				this.channel = channel;
 				this.converter = converter;
+			}
+
+			protected void setWriteValue(Boolean value) {
+				this.writeValue = Optional.ofNullable(value);
+			}
+
+			public Optional<Boolean> getWriteValue() {
+				return writeValue;
 			}
 		}
 
@@ -347,7 +360,46 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				throw new IllegalArgumentException(
 						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
 			}
-			this.channels.put(bitIndex, new ChannelWrapper(channel, converter));
+
+			ChannelWrapper channelWrapper = new ChannelWrapper(channel, converter);
+
+			// Handle Writes to Bit-Channels
+			if (channel instanceof WriteChannel<?>) {
+				BooleanWriteChannel c = (BooleanWriteChannel) channel;
+				c.onSetNextWrite(value -> {
+					// Listen on Writes to the BooleanChannel and store the value
+					channelWrapper.setWriteValue(value);
+
+					// Combine all stored values and set the parent Channel value
+					Integer result = null;
+					for (Entry<Integer, ChannelWrapper> entry : this.channels.entrySet()) {
+						int bitindex = 15 - entry.getKey(); // TODO consider little/big endian
+						ChannelWrapper cw = entry.getValue();
+						Optional<Boolean> thisValueOpt = cw.getWriteValue();
+						if (!thisValueOpt.isPresent()) {
+							log.debug("Value for channel [" + channel.address() + "] has not been set.");
+							continue;
+						}
+						boolean thisValue = thisValueOpt.get();
+						if ((thisValue && cw.converter == BitConverter.DIRECT_1_TO_1)
+								|| (!thisValue && cw.converter == BitConverter.INVERT)) {
+							// the BooleanWriteChannel has been set
+							int positionOfThisBitValue = 1 << bitindex; // move the '1' bit to the correct bitindex
+							if (result == null) {
+								result = positionOfThisBitValue;
+							} else {
+								result |= positionOfThisBitValue; // combine with the existing value
+							}
+						}
+					}
+					try {
+						BitChannelMapper.this.element.setNextWriteValue(Optional.ofNullable(result));
+					} catch (OpenemsException e) {
+						log.warn("Error setting value: " + e.getMessage());
+					}
+				});
+			}
+			this.channels.put(bitIndex, channelWrapper);
 			return this;
 		}
 
@@ -358,6 +410,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		public UnsignedWordElement build() {
 			return this.element;
 		}
+
 	}
 
 	/**
