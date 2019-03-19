@@ -125,7 +125,7 @@ public interface OpenemsComponent {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
-	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) {
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) throws IllegalArgumentException {
 		T channel = this.<T>channel(channelId.id());
 		return channel;
 	}

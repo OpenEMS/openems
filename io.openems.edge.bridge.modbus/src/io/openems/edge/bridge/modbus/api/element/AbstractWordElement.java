@@ -64,6 +64,7 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 		} else {
 			this.setNextWriteValueRegisters(Optional.empty());
 		}
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	/**

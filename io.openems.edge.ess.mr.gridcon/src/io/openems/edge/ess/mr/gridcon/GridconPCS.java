@@ -1230,13 +1230,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, 11) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, 12) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, 13) //
-								.build(), //
+								.build().debug(), //
 						bm(new UnsignedWordElement(32881)) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
-								.build(), //
+								.build().debug(), //
 						m(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32882).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0,

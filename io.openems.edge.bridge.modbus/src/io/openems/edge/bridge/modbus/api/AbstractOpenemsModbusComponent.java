@@ -295,7 +295,6 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		private class ChannelWrapper {
 			private final Channel<?> channel;
 			private final BitConverter converter;
-
 			private Optional<Boolean> writeValue = Optional.empty();
 
 			protected ChannelWrapper(Channel<?> channel, BitConverter converter) {
@@ -307,7 +306,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				this.writeValue = Optional.ofNullable(value);
 			}
 
-			public Optional<Boolean> getWriteValue() {
+			protected Optional<Boolean> getWriteValue() {
 				return writeValue;
 			}
 		}
@@ -351,11 +350,31 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 					channel.setNextValue(setValue);
 				});
 			});
+			this.element.onSetNextWrite(value -> {
+				// this is called by WriteTask#executeWrite
+				// -> ((ModbusRegisterElement<?>) element).getNextWriteValueAndReset();
+
+				if (!value.isPresent()) {
+					// Intermediate value was set. -> do not reset channels
+					return;
+				}
+
+				// Reset all BooleanWriteChannel writeValues
+				for (ChannelWrapper cw : this.channels.values()) {
+					cw.setWriteValue(null);
+				}
+			});
 		}
 
 		public BitChannelMapper m(io.openems.edge.common.channel.ChannelId channelId, int bitIndex,
 				BitConverter converter) {
-			Channel<?> channel = channel(channelId);
+			Channel<?> channel;
+			try {
+				channel = AbstractOpenemsModbusComponent.this.channel(channelId);
+			} catch (IllegalArgumentException e) {
+				log.error("Channel [" + channelId.name() + "] was not initialized!");
+				throw e;
+			}
 			if (channel.getType() != OpenemsType.BOOLEAN) {
 				throw new IllegalArgumentException(
 						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
@@ -370,17 +389,30 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 					// Listen on Writes to the BooleanChannel and store the value
 					channelWrapper.setWriteValue(value);
 
-					// Combine all stored values and set the parent Channel value
+					// Check if all BooleanWriteChannel have a Write-Value.
+					boolean isAllBooleanWriteChannelSet = true;
+					for (ChannelWrapper cw : this.channels.values()) {
+						if (!cw.getWriteValue().isPresent()) {
+							isAllBooleanWriteChannelSet = false;
+							break;
+						}
+					}
+					// Abort if not all WriteChannels have been set
+					if (!isAllBooleanWriteChannelSet) {
+						return;
+					}
+
 					Integer result = null;
+					// If at least one BooleanWriteChannel has a Write-Value:
+					// Combine all stored values and set the parent Channel value
 					for (Entry<Integer, ChannelWrapper> entry : this.channels.entrySet()) {
 						int bitindex = 15 - entry.getKey(); // TODO consider little/big endian
 						ChannelWrapper cw = entry.getValue();
 						Optional<Boolean> thisValueOpt = cw.getWriteValue();
 						if (!thisValueOpt.isPresent()) {
 							log.debug("Value for channel [" + channel.address() + "] has not been set.");
-							continue;
 						}
-						boolean thisValue = thisValueOpt.get();
+						boolean thisValue = thisValueOpt.orElse(false);
 						if ((thisValue && cw.converter == BitConverter.DIRECT_1_TO_1)
 								|| (!thisValue && cw.converter == BitConverter.INVERT)) {
 							// the BooleanWriteChannel has been set
@@ -392,6 +424,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 							}
 						}
 					}
+
 					try {
 						BitChannelMapper.this.element.setNextWriteValue(Optional.ofNullable(result));
 					} catch (OpenemsException e) {
@@ -416,6 +449,11 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Creates a BitChannelMapper that can be used with builder pattern inside the
 	 * protocol definition..
+	 * 
+	 * <p>
+	 * BE AWARE for BooleanWriteChannels: the Modbus Element is only going to be
+	 * written, if all mapped BooleanWriteChannels were explicitly set. Otherwise
+	 * the value it just silently does not write anything!
 	 * 
 	 * @param element the ModbusElement
 	 * @return the BitChannelMapper

@@ -204,11 +204,26 @@ public enum GridConChannelId implements ChannelId {
 			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG))),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_4(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_3(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_2(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_1(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
-
+	COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_4(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG))),
+	COMMAND_CONTROL_WORD_DISABLE_IPU_3_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_3(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3_DEBUG))),
+	COMMAND_CONTROL_WORD_DISABLE_IPU_2_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_2(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2_DEBUG))),
+	COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_1(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG))),
 	COMMAND_ERROR_CODE_FEEDBACK_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
 	COMMAND_ERROR_CODE_FEEDBACK(new IntegerDoc() //
 			.accessMode(AccessMode.READ_WRITE)
