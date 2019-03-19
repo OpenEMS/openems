@@ -1,8 +1,11 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 import { cmp } from 'semver-compare-multi';
+import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
+import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
 import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
@@ -147,14 +150,37 @@ export class Edge {
   }
 
   /**
+   * Creates a configuration for a OpenEMS Edge Component.
+   * 
+   * @param ws          the Websocket
+   * @param factoryPId  the OpenEMS Edge Factory-PID 
+   * @param properties  the properties to be updated.
+   */
+  public createComponentConfig(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+    let request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
+    return this.sendRequest(ws, request);
+  }
+
+  /**
    * Updates the configuration of a OpenEMS Edge Component.
    * 
    * @param ws          the Websocket
    * @param componentId the OpenEMS Edge Component-ID 
-   * @param update      the attributes to be updated.
+   * @param properties  the properties to be updated.
    */
-  public updateComponentConfig(ws: Websocket, componentId: string, update: [{ property: string, value: any }]): Promise<JsonrpcResponseSuccess> {
-    let request = new UpdateComponentConfigRequest(componentId, update);
+  public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+    let request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
+    return this.sendRequest(ws, request);
+  }
+
+  /**
+   * Deletes the configuration of a OpenEMS Edge Component.
+   * 
+   * @param ws          the Websocket
+   * @param componentId the OpenEMS Edge Component-ID 
+   */
+  public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
+    let request = new DeleteComponentConfigRequest({ componentId: componentId });
     return this.sendRequest(ws, request);
   }
 
@@ -169,8 +195,14 @@ export class Edge {
     let wrap = new EdgeRpcRequest(this.id, request);
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
+        if (env.debugMode) {
+          console.info("Response     [" + request.method + "]", response);
+        }
         resolve(response['result']['payload']);
       }).catch(reason => {
+        if (env.debugMode) {
+          console.warn("Request fail [" + request.method + "]", reason);
+        }
         reject(reason);
       });
     });
@@ -212,5 +244,16 @@ export class Edge {
    */
   public isVersionAtLeast(version: string): boolean {
     return cmp(this.version, version) >= 0;
+  }
+
+  /**
+	 * Evaluates whether the current Role is equal or more privileged than the
+	 * given Role.
+	 * 
+	 * @param role     the compared Role
+	 * @return true if the current Role is equal or more privileged than the given Role
+	 */
+  public roleIsAtLeast(role: Role | string): boolean {
+    return Role.isAtLeast(this.role, role);
   }
 }

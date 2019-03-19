@@ -11,7 +11,7 @@ public interface UserService {
 	 * @param password
 	 * @return the authenticated User or Empty if authentication failed
 	 */
-	Optional<User> authenticate(String password);
+	Optional<EdgeUser> authenticate(String password);
 
 	/**
 	 * Authenticates a user with his username and password
@@ -19,5 +19,5 @@ public interface UserService {
 	 * @param password
 	 * @return the authenticated User or Empty if authentication failed
 	 */
-	Optional<User> authenticate(String username, String password);
+	Optional<EdgeUser> authenticate(String username, String password);
 }

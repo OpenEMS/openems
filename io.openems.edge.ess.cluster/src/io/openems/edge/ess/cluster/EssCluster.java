@@ -20,6 +20,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
@@ -89,8 +90,30 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 		}
 	}
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public EssCluster() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				MetaEss.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Activate
@@ -202,14 +225,14 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
-		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+		throw new OpenemsException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
-		throw new IllegalArgumentException("EssClusterImpl.applyPower() should never be called.");
+			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+		throw new OpenemsException("EssClusterImpl.applyPower() should never be called.");
 	}
 
 	@Override

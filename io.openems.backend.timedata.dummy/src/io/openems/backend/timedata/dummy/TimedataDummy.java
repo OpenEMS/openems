@@ -110,4 +110,11 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 		return TreeBasedTable.create();
 	}
 
+	@Override
+	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		this.logWarn(this.log, "I do not support querying historic energy");
+		return null;
+	}
+
 }

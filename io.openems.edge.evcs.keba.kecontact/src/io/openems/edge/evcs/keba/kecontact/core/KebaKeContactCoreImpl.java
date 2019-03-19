@@ -27,6 +27,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 	private final Logger log = LoggerFactory.getLogger(KebaKeContactCoreImpl.class);
 	private final List<BiConsumer<InetAddress, String>> onReceiveCallbacks = new CopyOnWriteArrayList<>();
 	private ReceiveWorker receiveWorker = null;
+	
 
 	@Activate
 	void activate() throws OpenemsException {
@@ -73,6 +74,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 
 		@Override
 		protected void forever() {
+			
 			// Wait for message
 			DatagramPacket packet = new DatagramPacket(new byte[512], 512);
 			try {
@@ -86,7 +88,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 			int len = packet.getLength();
 			byte[] data = packet.getData();
 			String message = new String(data, 0, len);
-
+			
 			// call callbacks
 			onReceiveCallbacks.forEach(consumer -> consumer.accept(ip, message));
 		}

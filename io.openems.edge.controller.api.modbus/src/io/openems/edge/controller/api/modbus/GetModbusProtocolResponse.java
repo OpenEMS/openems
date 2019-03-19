@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 
 /**

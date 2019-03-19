@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -23,11 +25,15 @@ import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.types.EdgeConfig;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.User;
+import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
@@ -39,7 +45,8 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Websocket")
-public class WebsocketApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, PaxAppender {
+public class WebsocketApi extends AbstractOpenemsComponent
+		implements Controller, OpenemsComponent, PaxAppender, ConfigurationListener {
 
 	public static final String EDGE_ID = "0";
 	public static final String EDGE_COMMENT = "";
@@ -55,7 +62,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	/**
 	 * Stores valid session tokens for authentication via Cookie.
 	 */
-	protected final Map<UUID, User> sessionTokens = new ConcurrentHashMap<>();
+	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -64,11 +71,28 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	protected UserService userService;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedata = null;
+	private volatile Timedata timedata = null;
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	public WebsocketApi() {
-		// TODO: add Debug-Channels for writes to Channels via Websocket-Api
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.systemLogHandler = new SystemLogHandler(this);
 	}
 
@@ -159,5 +183,25 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	protected void handleSubscribeSystemLogRequest(UUID token, SubscribeSystemLogRequest request)
 			throws OpenemsNamedException {
 		this.systemLogHandler.handleSubscribeSystemLogRequest(token, request);
+	}
+
+	@Override
+	public void configurationEvent(ConfigurationEvent event) {
+		EdgeConfig config = this.componentManager.getEdgeConfig();
+		EdgeConfigNotification message = new EdgeConfigNotification(config);
+		this.server.broadcastMessage(message);
+	}
+
+	/**
+	 * Gets the Timedata service.
+	 * 
+	 * @return the service
+	 * @throws OpenemsException if the timeservice is not available
+	 */
+	public Timedata getTimedata() throws OpenemsException {
+		if (this.timedata != null) {
+			return this.timedata;
+		}
+		throw new OpenemsException("There is no Timedata-Service available!");
 	}
 }

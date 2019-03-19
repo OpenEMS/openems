@@ -20,7 +20,7 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -41,7 +41,12 @@ public class MeterSocomecDirisA10 extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	public MeterSocomecDirisA10() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -53,8 +58,8 @@ public class MeterSocomecDirisA10 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -62,7 +67,7 @@ public class MeterSocomecDirisA10 extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
 
@@ -88,23 +93,34 @@ public class MeterSocomecDirisA10 extends AbstractOpenemsModbusComponent
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0xc55A), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0xc55A),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //
 						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0xc566)), //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568), ElementToChannelConverter.SCALE_FACTOR_1), // evtl scalefactor -1 !?
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A), ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
+								ElementToChannelConverter.SCALE_FACTOR_1), // evtl scalefactor -1 !?
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
 						// TODO: add ApparentPower here
 						new DummyRegisterElement(0xc56C, 0xc56F), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A), ElementToChannelConverter.SCALE_FACTOR_1) //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578),
+								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A),
+								ElementToChannelConverter.SCALE_FACTOR_1) //
 				), new FC3ReadRegistersTask(0x0358, Priority.LOW, //
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0x0358)) //
 //						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708), ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //

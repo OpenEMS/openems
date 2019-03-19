@@ -19,7 +19,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -54,7 +55,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	 */
 	private int maxApparentPower = 0;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
 
@@ -101,7 +102,12 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	}
 
 	public EssSymmetric() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
@@ -131,7 +137,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
 		/*
 		 * calculate State of charge
 		 */

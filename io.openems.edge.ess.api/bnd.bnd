@@ -16,12 +16,14 @@ Require-Capability: \
 
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+-buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	com.google.guava;version=27,\
-	io.openems.common;version=latest
+	com.google.guava,\
+	org.apache.felix.configadmin,\
+	slf4j.api
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

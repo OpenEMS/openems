@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.backend;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,20 +14,35 @@ import com.google.gson.JsonElement;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.channel.doc.AccessMode;
+import io.openems.common.types.OpenemsType;
+import io.openems.common.worker.AbstractCycleWorker;
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.type.slidingvalue.DoubleSlidingValue;
+import io.openems.edge.common.type.slidingvalue.FloatSlidingValue;
+import io.openems.edge.common.type.slidingvalue.IntegerSlidingValue;
+import io.openems.edge.common.type.slidingvalue.LatestSlidingValue;
+import io.openems.edge.common.type.slidingvalue.LongSlidingValue;
+import io.openems.edge.common.type.slidingvalue.ShortSlidingValue;
+import io.openems.edge.common.type.slidingvalue.SlidingValue;
 
-class BackendWorker extends AbstractWorker {
+class BackendWorker extends AbstractCycleWorker {
 
 	private static final int MAX_CACHED_MESSAGES = 1000;
 
 	// private final Logger log = LoggerFactory.getLogger(BackendWorker.class);
+
 	private final BackendApi parent;
 
-	private Optional<Integer> increasedCycleTime = Optional.empty();
+	// Counts the number of Cycles till data is sent to Backend.
+	private int cycleCount = 0;
 
-	// Last cached values
-	private final HashMap<ChannelAddress, JsonElement> last = new HashMap<>();
+	// Holds an current NoOfCycles
+	private Optional<Integer> increasedNoOfCycles = Optional.empty();
+
+	// Current values
+	private final ConcurrentHashMap<ChannelAddress, SlidingValue<?>> data = new ConcurrentHashMap<>();
+
 	// Unsent queue (FIFO)
 	private EvictingQueue<JsonrpcMessage> unsent = EvictingQueue.create(MAX_CACHED_MESSAGES);
 
@@ -59,30 +75,63 @@ class BackendWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
-		Map<ChannelAddress, JsonElement> values = this.getValues(//
-				this.sendChangedValuesOnly.getAndSet(true) // resets the mode to 'send changed values only'
-		);
+		// Update the data from ChannelValues
+		this.updateData();
+
+		// Increase CycleCount
+		if (++this.cycleCount < this.parent.noOfCycles) {
+			// Stop here if not reached CycleCount
+			return;
+		}
+
+		/*
+		 * Reached CycleCount -> Send data
+		 */
+		// Reset CycleCount
+		this.cycleCount = 0;
+
+		// resets the mode to 'send changed values only'
+		boolean sendChangedValuesOnly = this.sendChangedValuesOnly.getAndSet(true);
+
+		// Prepare message values
+		Map<ChannelAddress, JsonElement> sendValues = new HashMap<>();
+
+		if (sendChangedValuesOnly) {
+			// Only Changed Values
+			for (Entry<ChannelAddress, SlidingValue<?>> entry : this.data.entrySet()) {
+				JsonElement changedValueOrNull = entry.getValue().getChangedValueOrNull();
+				if (changedValueOrNull != null) {
+					sendValues.put(entry.getKey(), changedValueOrNull);
+				}
+			}
+		} else {
+			// All Values
+			for (Entry<ChannelAddress, SlidingValue<?>> entry : this.data.entrySet()) {
+				sendValues.put(entry.getKey(), entry.getValue().getValue());
+			}
+		}
+
 		boolean canSendFromCache;
 
 		/*
 		 * send, if list is not empty
 		 */
-		if (!values.isEmpty()) {
+		if (!sendValues.isEmpty()) {
 			// Get timestamp and round to Cycle-Time
 			int cycleTime = this.getCycleTime();
 			long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
 
 			// create JSON-RPC notification
 			TimestampedDataNotification message = new TimestampedDataNotification();
-			message.add(timestamp, values);
+			message.add(timestamp, sendValues);
 
 			// reset cycleTime to default
-			resetCycleTime();
+			resetNoOfCycles();
 
 			boolean wasSent = this.parent.websocket.sendMessage(message);
 			if (!wasSent) {
 				// increase cycleTime
-				increaseCycleTime();
+				increaseNoOfCycles();
 
 				// cache data for later
 				this.unsent.add(message);
@@ -106,21 +155,10 @@ class BackendWorker extends AbstractWorker {
 		}
 	}
 
-	@Override
-	protected int getCycleTime() {
-		return this.increasedCycleTime.orElse(this.parent.cycleTime);
-	}
-
 	/**
-	 * Cycles through all Channels and gets the value. If 'changedValuesOnly' is
-	 * set, then only values that changed since last check are added to the queue.
-	 * 
-	 * @param changedValuesOnly take changed values only or take all channels
-	 *                          values?
-	 * @return a map of channels who's value changed since last check
+	 * Cycles through all Channels and updates the value.
 	 */
-	private Map<ChannelAddress, JsonElement> getValues(boolean changedValuesOnly) {
-		final ConcurrentHashMap<ChannelAddress, JsonElement> values = new ConcurrentHashMap<>();
+	private void updateData() {
 		this.parent.componentManager.getComponents().parallelStream() //
 				.filter(c -> c.isEnabled()) //
 				.flatMap(component -> component.channels().parallelStream()) //
@@ -129,44 +167,93 @@ class BackendWorker extends AbstractWorker {
 						|| channel.channelDoc().getAccessMode() == AccessMode.READ_WRITE)
 				.forEach(channel -> {
 					ChannelAddress address = channel.address();
-					JsonElement jValue = channel.value().asJson();
+					Object value = channel.value().get();
 
-					if (changedValuesOnly) {
-						JsonElement jLastValue = this.last.get(address);
-						if (jLastValue == null || !jLastValue.equals(jValue)) {
-							// this value differs from the last sent value
-							this.last.put(address, jValue);
-							values.put(address, jValue);
+					// Get existing SlidingValue object or add new one
+					SlidingValue<?> slidingValue = this.data.get(address);
+
+					if (slidingValue == null) {
+						// Create new SlidingValue object
+						if (channel instanceof EnumReadChannel) {
+							slidingValue = new LatestSlidingValue(OpenemsType.INTEGER);
+						} else {
+							switch (channel.getType()) {
+							case INTEGER:
+								slidingValue = new IntegerSlidingValue();
+								break;
+							case DOUBLE:
+								slidingValue = new DoubleSlidingValue();
+								break;
+							case FLOAT:
+								slidingValue = new FloatSlidingValue();
+								break;
+							case LONG:
+								slidingValue = new LongSlidingValue();
+								break;
+							case SHORT:
+								slidingValue = new ShortSlidingValue();
+								break;
+							case BOOLEAN:
+							case STRING:
+								slidingValue = new LatestSlidingValue(channel.getType());
+								break;
+							}
 						}
+						this.data.put(address, slidingValue);
+					}
 
+					// Add Value to SlidingValue object
+					if (slidingValue instanceof LatestSlidingValue) {
+						((LatestSlidingValue) slidingValue).addValue(value);
 					} else {
-						this.last.put(address, jValue);
-						values.put(address, jValue);
-
+						switch (channel.getType()) {
+						case INTEGER:
+							((IntegerSlidingValue) slidingValue).addValue((Integer) value);
+							break;
+						case DOUBLE:
+							((DoubleSlidingValue) slidingValue).addValue((Double) value);
+							break;
+						case FLOAT:
+							((FloatSlidingValue) slidingValue).addValue((Float) value);
+							break;
+						case LONG:
+							((LongSlidingValue) slidingValue).addValue((Long) value);
+							break;
+						case SHORT:
+							((ShortSlidingValue) slidingValue).addValue((Short) value);
+							break;
+						case BOOLEAN:
+						case STRING:
+							// already covered as they are of type LatestSlidingValue
+							break;
+						}
 					}
 				});
-		return values;
-	}
-
-	private void increaseCycleTime() {
-		int currentCycleTime = this.getCycleTime();
-		int newCycleTime;
-		if (currentCycleTime < 30000 /* 30 seconds */) {
-			newCycleTime = currentCycleTime * 2;
-		} else {
-			newCycleTime = currentCycleTime;
-		}
-		if (currentCycleTime != newCycleTime) {
-			this.increasedCycleTime = Optional.of(newCycleTime);
-		}
 	}
 
 	/**
-	 * Cycletime is adjusted if connection to Backend fails. This method resets it
+	 * NoOfCycles is adjusted if connection to Backend fails. This method increases
+	 * the NoOfCycles.
+	 */
+	private void increaseNoOfCycles() {
+		int increasedNoOfCycles;
+		if (this.increasedNoOfCycles.isPresent()) {
+			increasedNoOfCycles = this.increasedNoOfCycles.get();
+		} else {
+			increasedNoOfCycles = this.parent.noOfCycles;
+		}
+		if (increasedNoOfCycles < 60) {
+			increasedNoOfCycles++;
+		}
+		this.increasedNoOfCycles = Optional.of(increasedNoOfCycles);
+	}
+
+	/**
+	 * NoOfCycles is adjusted if connection to Backend fails. This method resets it
 	 * to configured or default value.
 	 */
-	private void resetCycleTime() {
-		this.increasedCycleTime = Optional.empty();
+	private void resetNoOfCycles() {
+		this.increasedNoOfCycles = Optional.empty();
 	}
 
 }

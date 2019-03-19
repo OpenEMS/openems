@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -57,13 +58,32 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	private int hysteresisSoc;
 	private WeekdayFilter weekdayDayFilter;
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		// TODO implement State_Machine channel
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public HighLoadTimeslot() {
 		this(Clock.systemDefaultZone());
 	}
 
 	protected HighLoadTimeslot(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

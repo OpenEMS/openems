@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
-
 import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
@@ -20,6 +18,12 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
 import io.openems.common.types.ChannelAddress;
 
+/**
+ * This Test demonstrates the usage of the OpenEMS Backend-to-Backend API
+ * interface. To start the tests make sure to start OpenEMS Backend and activate
+ * the B2bWebsocket component via Apache Felix. Afterwards uncomment the "@Test"
+ * annotations below and execute the Tests.
+ */
 public class B2bWebsocketTest {
 
 	private static final String URI = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
@@ -36,7 +40,7 @@ public class B2bWebsocketTest {
 		return client;
 	}
 
-	@Test
+//	@Test
 	public void testGetEdgesStatusRequest()
 			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		TestClient client = prepareTestClient();
@@ -51,12 +55,13 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	@Test
+	// @Test
 	public void testGetEdgesChannelsValuesRequest() throws URISyntaxException, InterruptedException {
 		TestClient client = prepareTestClient();
 
 		GetEdgesChannelsValuesRequest request = new GetEdgesChannelsValuesRequest();
 		request.addEdgeId("edge0");
+		request.addEdgeId("edge5");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try {
@@ -68,7 +73,7 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	@Test
+	// @Test
 	public void testSubscribeEdgesChannelsRequest()
 			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		TestClient client = prepareTestClient();
@@ -78,6 +83,7 @@ public class B2bWebsocketTest {
 
 		SubscribeEdgesChannelsRequest request = new SubscribeEdgesChannelsRequest(0);
 		request.addEdgeId("edge0");
+		request.addEdgeId("edge5");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try {
@@ -91,9 +97,8 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	@Test
-	public void testSetGridConnSchedule()
-			throws URISyntaxException, InterruptedException {
+	// @Test
+	public void testSetGridConnSchedule() throws URISyntaxException, InterruptedException {
 		TestClient client = prepareTestClient();
 
 		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("edge0");

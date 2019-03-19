@@ -21,8 +21,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -31,7 +31,6 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
-import io.openems.edge.simulator.meter.MeterUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.GridMeter.Acting", //
@@ -42,8 +41,10 @@ public class GridMeter extends AbstractOpenemsComponent
 
 	// private final Logger log = LoggerFactory.getLogger(GridMeter.class);
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SIMULATED_ACTIVE_POWER(new Doc().unit(Unit.WATT));
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -84,7 +85,12 @@ public class GridMeter extends AbstractOpenemsComponent
 	}
 
 	public GridMeter() {
-		MeterUtils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override

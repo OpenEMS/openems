@@ -64,7 +64,6 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		public long getChangeCount() {
 			return 0;
 		}
-
 	}
 
 	private final DummyConfiguration dummyConfiguration = new DummyConfiguration();

@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.modbus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -25,11 +26,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -82,9 +84,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		UNABLE_TO_START(new Doc() //
-				.level(Level.FAULT) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		UNABLE_TO_START(Doc.of(Level.FAULT) //
 				.text("Unable to start Modbus/TCP-Api Server"));
 
 		private final Doc doc;
@@ -105,10 +106,13 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	private int maxConcurrentConnections = ModbusTcpApi.DEFAULT_MAX_CONCURRENT_CONNECTIONS;
 
 	public ModbusTcpApi() {
-		this.processImage = new MyProcessImage(this);
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
-		// TODO: add Debug-Channels for writes to Channels via Modbus/TCP
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.processImage = new MyProcessImage(this);
 	}
 
 	@Activate
@@ -326,10 +330,11 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	@Override
-	public JsonrpcResponseSuccess handleJsonrpcRequest(JsonrpcRequest message) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
+			throws OpenemsNamedException {
 		switch (message.getMethod()) {
 		case GetModbusProtocolRequest.METHOD:
-			return new GetModbusProtocolResponse(message.getId(), this.records);
+			return CompletableFuture.completedFuture(new GetModbusProtocolResponse(message.getId(), this.records));
 		}
 		return null;
 	}

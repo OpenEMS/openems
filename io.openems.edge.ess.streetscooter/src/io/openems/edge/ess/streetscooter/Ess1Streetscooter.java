@@ -21,7 +21,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config1.class, factory = true)
-@Component(name = "Ess1.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
+@Component(name = "Ess.Streetscooter.1", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class Ess1Streetscooter extends AbstractEssStreetscooter
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {
@@ -49,8 +49,8 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter
 
 	@Activate
 	protected void activate(ComponentContext context, Config1 config1) {
-		super.activate(context, config1.id(), config1.enabled(), config1.readonly(), UNIT_ID,
-				this.cm, "Modbus", config1.modbus_id());
+		super.activate(context, config1.id(), config1.enabled(), config1.readonly(), UNIT_ID, this.cm, "Modbus",
+				config1.modbus_id());
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
