@@ -81,6 +81,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
+	private static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
+	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20; 
 	private static final int GRIDCON_SWITCH_OFF_TIME_SECONDS = 15;
 	private static final int GRIDCON_BOOT_TIME_SECONDS = 30;
 	private static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
@@ -104,6 +106,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private LocalDateTime lastTimeAcknowledgeCommandoWasSent;
 	private long ACKNOWLEDGE_TIME_SECONDS = 5;
+	private LocalDateTime offGridDetected = null;
+	private int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
 
 	public GridconPCS() {
 		super(//
@@ -247,6 +251,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
 		this.setOutputSyncDeviceBridge(false);
 
+		//TODO check 
+		// Just temporarily, because sometime gridcon reduces the link voltage, i.e. there is no function any longer but also no errors
+		if (!islinkVoltageInRange()) {
+			doHardRestart();
+			return;
+		}
+		
 		// a hardware restart has been executed,
 		if (timestampMrGridconWasSwitchedOff != null) {
 			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
@@ -307,6 +318,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 
 		resetErrorCodes();
+	}
+
+	private boolean islinkVoltageInRange() {		
+		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
+		if (!linkVoltageOpt.isPresent()) {
+			return false;
+		}
+		
+		float linkVoltage = linkVoltageOpt.get();
+		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+		
+		return difference < GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT;
 	}
 
 	private void resetErrorChannels() {
@@ -593,7 +617,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, 0f); //
 
 		// The value of 800 Volt is given by MR as a good reference value
-		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, 800f);
+		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, DC_LINK_VOLTAGE_SETPOINT);
 		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, weightA);
 		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, weightB);
 		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, weightC);
@@ -969,9 +993,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getAllowedCharge().setNextValue(allowedCharge);
 		this.getAllowedDischarge().setNextValue(allowedDischarge);
 	}
-
-	private LocalDateTime offGridDetected = null;
-	int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
 
 	private void handleOffGridState() throws OpenemsNamedException {
 
