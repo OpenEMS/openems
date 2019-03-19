@@ -1,6 +1,6 @@
 package io.openems.edge.common.modbusslave;
 
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class ModbusRecord {

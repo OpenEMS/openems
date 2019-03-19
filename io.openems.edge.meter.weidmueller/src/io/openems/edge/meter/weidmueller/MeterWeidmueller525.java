@@ -34,7 +34,11 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent implemen
 	protected ConfigurationAdmin cm;
 
 	public MeterWeidmueller525() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				WeidmuellerChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

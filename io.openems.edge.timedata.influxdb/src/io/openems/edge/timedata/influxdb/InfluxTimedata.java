@@ -33,7 +33,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -54,7 +54,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 	private InfluxConnector influxConnector = null;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
 
@@ -69,7 +69,11 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	public InfluxTimedata() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Timedata.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
@@ -127,7 +131,6 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case SHORT:
 						point.addField(address, (Short) value);
 						break;
-					case ENUM:
 					case INTEGER:
 						point.addField(address, (Integer) value);
 						break;

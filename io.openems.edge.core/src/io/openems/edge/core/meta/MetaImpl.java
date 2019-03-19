@@ -21,7 +21,11 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsComponent, ModbusSlave {
 
 	public MetaImpl() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Meta.ChannelId.values() //
+		);
+		this.channel(Meta.ChannelId.VERSION).setNextValue(OpenemsConstants.VERSION.toString());
 	}
 
 	@Activate

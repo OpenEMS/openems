@@ -10,6 +10,7 @@ Require-Capability: compile-only
 -includeresource: {readme.md}
 
 -buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	slf4j.api
 

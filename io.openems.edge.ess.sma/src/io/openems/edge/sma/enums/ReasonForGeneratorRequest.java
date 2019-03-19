@@ -1,6 +1,6 @@
 package io.openems.edge.sma.enums;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum ReasonForGeneratorRequest implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

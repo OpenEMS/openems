@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
@@ -16,7 +16,7 @@ import io.openems.edge.common.type.TypeUtils;
  * A Channel has
  * <ul>
  * <li>a Channel-ID which is unique among the OpenemsComponent. (see
- * {@link io.openems.edge.common.channel.doc.ChannelId})
+ * {@link io.openems.edge.common.channel.ChannelId})
  * <li>a {@link Doc} as static meta information. (via {@link #channelDoc()})
  * <li>a system-wide unique {@link ChannelAddress} built from Component-ID and
  * Channel-ID. (via {@link #address()}
@@ -44,7 +44,7 @@ public interface Channel<T> {
 	 * 
 	 * @return
 	 */
-	io.openems.edge.common.channel.doc.ChannelId channelId();
+	io.openems.edge.common.channel.ChannelId channelId();
 
 	/**
 	 * Gets the ChannelDoc of this Channel

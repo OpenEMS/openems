@@ -3,8 +3,11 @@ package io.openems.edge.wago;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
+import io.openems.edge.common.channel.AccessMode;
 
 public class Fieldbus501DO2Ch extends FieldbusModule {
 
@@ -18,12 +21,21 @@ public class Fieldbus501DO2Ch extends FieldbusModule {
 	public Fieldbus501DO2Ch(Wago parent, int inputOffset, int outputOffset) {
 		String id = ID_TEMPLATE + count.incrementAndGet();
 
-		BooleanWriteChannel channel1 = new BooleanWriteChannel(parent, new FieldbusChannel(id + "_C1"));
-		BooleanWriteChannel channel2 = new BooleanWriteChannel(parent, new FieldbusChannel(id + "_C2"));
+		BooleanWriteChannel channel1;
+		{
+			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
+					.accessMode(AccessMode.WRITE_ONLY);
+			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C1", doc);
+			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
+		}
+		BooleanWriteChannel channel2;
+		{
+			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
+					.accessMode(AccessMode.WRITE_ONLY);
+			FieldbusChannelId channelId = new FieldbusChannelId(id + "_C2", doc);
+			channel2 = (BooleanWriteChannel) parent.addChannel(channelId);
+		}
 		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };
-
-		parent.addChannel(channel1);
-		parent.addChannel(channel2);
 
 		this.inputElements = new AbstractModbusElement<?>[] { //
 				parent.createModbusElement(channel1.channelId(), outputOffset), //
