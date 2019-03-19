@@ -50,10 +50,10 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	private Config config;
 
-	private ChannelAddress q1Ess1SupplyUps = null;
-	private ChannelAddress q2Ess2SupplyUps = null;
-	private ChannelAddress q3PvOffGrid = null;
-	private ChannelAddress q4PvOnGrid = null;
+	private ChannelAddress q1Ess1SupplyUps;
+	private ChannelAddress q2Ess2SupplyUps;
+	private ChannelAddress q3PvOffGrid;
+	private ChannelAddress q4PvOnGrid;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -294,13 +294,14 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
 			pvInverter.getActivePowerLimit().setNextWriteValue(OFFGRID_PV_LIMIT);
+
 			power = pvInverter.getActivePower().value().orElse(Integer.MAX_VALUE);
 		} catch (OpenemsNamedException e) {
 			// ignore
 		}
 		if (power > OFFGRID_PV_LIMIT_FAULT) {
 			// Limit did not work: disconnect PV
-			this.offgridPv(PvConnected.NO);
+			this.setOutput(q3PvOffGrid, Operation.OPEN);
 		}
 	}
 

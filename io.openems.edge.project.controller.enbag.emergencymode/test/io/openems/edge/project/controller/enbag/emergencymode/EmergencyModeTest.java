@@ -119,7 +119,7 @@ public class EmergencyModeTest {
 		ChannelAddress ess2AllowedDischargePower = new ChannelAddress("ess2", "AllowedDischargePower");
 
 		SymmetricMeter meter1 = new DummySymmetricMeter("meter1");
-		ChannelAddress meter1ActivePower = new ChannelAddress("meter1", "ActivePower");
+//		ChannelAddress meter1ActivePower = new ChannelAddress("meter1", "ActivePower");
 
 		SymmetricPvInverter pvInverter0 = new DummySymmetricPvInverter("pvInverter0");
 		ChannelAddress pvInverterActivePower = new ChannelAddress("pvInverter0", "ActivePower");
@@ -138,30 +138,97 @@ public class EmergencyModeTest {
 		new ControllerTest(controller, componentManager, pvInverter0, meter1, ess1, ess2, io0) //
 				/*
 				 * ESS1_FULL__ESS2_FULL__PV_SUFFICIENT //
-				 * ESS1_LOW__ESS2_FULL__PV_NOT_SUFFICIENT//
-				 * ESS1_EMPTY__ESS2_EMPTY__PV_SUFFICIENT//
 				 */
 				.next(new TestCase()//
 						.input(ess1GridMode, GridMode.OFF_GRID)//
+						.input(ess1Soc, 100)//
+						.input(ess1AllowedChargePower, 0)//
+						.input(ess1AllowedDischargePower, 10_000)//
 						.input(ess2GridMode, GridMode.OFF_GRID)//
-						.input(ess1Soc, 5)//
-						.input(ess2Soc, 5)//
-						.input(ess1AllowedChargePower, 10000)//
-						.input(ess2AllowedChargePower, 10000)//
-						.input(ess1AllowedDischargePower, 200)//
-						.input(ess2AllowedDischargePower, 200)//
-						.input(pvInverterActivePower, 40000))//
-//						.input(io0Q1, false)//
+						.input(ess2Soc, 100)//
+						.input(ess2AllowedChargePower, 0)//
+						.input(ess2AllowedDischargePower, 10_000)//
+						.input(pvInverterActivePower, 30_000)//
+//						.input(io0Q1, true)//
 //						.input(io0Q2, true)//
 //						.input(io0Q3, false)//
 //						.input(io0Q4, false)//
-//						.output(io0Q1, false)//
-//						.output(io0Q2, false))//
-//						.output(io0Q3, true)//
-//						.output(io0Q4, false))//
+						.output(io0Q1, false))//
 				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.SECONDS) //
-						.output(io0Q3, false)) //
+						.output(io0Q2, false)//
+						.output(io0Q3, false) //
+						.output(io0Q4, false))//
+
+				/*
+				 * ESS1_FULL__ESS2_NORMAL__PV_UNKNOWN //
+				 */
+				.next(new TestCase()//
+						.input(ess1GridMode, GridMode.OFF_GRID)//
+						.input(ess1Soc, 100)//
+						.input(ess1AllowedChargePower, 0)//
+						.input(ess1AllowedDischargePower, 10000)//
+						.input(ess2GridMode, GridMode.OFF_GRID)//
+						.input(ess2Soc, 50)//
+						.input(ess2AllowedChargePower, 10000)//
+						.input(ess2AllowedDischargePower, 10000)//
+						.input(pvInverterActivePower, 5000)//
+//						.input(io0Q1, true)//
+//						.input(io0Q2, true)//
+//						.input(io0Q3, false)//
+//						.input(io0Q4, false)//
+						.output(io0Q1, false)//
+						.output(io0Q4, false))//
+				.next(new TestCase()//
+						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+						.output(io0Q2, false)//
+						.output(io0Q3, true)) //
+
+//
+				/*
+				 * ESS1_EMPTY__ESS2_FULL__PV_SUFFICIENT//
+				 */
+				.next(new TestCase()//
+						.input(ess1GridMode, GridMode.OFF_GRID)//
+						.input(ess1Soc, 5)//
+						.input(ess1AllowedChargePower, 10_000)//
+						.input(ess1AllowedDischargePower, 0)//
+						.input(ess2GridMode, GridMode.OFF_GRID)//
+						.input(ess2Soc, 100)//
+						.input(ess2AllowedChargePower, 0)//
+						.input(ess2AllowedDischargePower, 10_000)//
+						.input(pvInverterActivePower, 60_000)//
+//						.input(io0Q1, true)//
+//						.input(io0Q2, true)//
+//						.input(io0Q3, true)//
+//						.input(io0Q4, false)//
+						.output(io0Q1, false)//
+						.output(io0Q2, false))//
+				.next(new TestCase()//
+						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+						.output(io0Q3, false) //
+						.output(io0Q4, false))//
+
+				/*
+				 * ESS1_FULL__ESS2_LOW__PV_UNKNOWN //
+				 */
+				.next(new TestCase()//
+						.input(ess1GridMode, GridMode.OFF_GRID)//
+						.input(ess1Soc, 100)//
+						.input(ess1AllowedChargePower, 0)//
+						.input(ess1AllowedDischargePower, 10_000)//
+						.input(ess2GridMode, GridMode.OFF_GRID)//
+						.input(ess2Soc, 5)//
+						.input(ess2AllowedChargePower, 5000)//
+						.input(ess2AllowedDischargePower, 200)//
+						.input(pvInverterActivePower, 800)//
+						.output(io0Q2, true))//
+				.next(new TestCase()//
+						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+						.output(io0Q1, true)//
+						.output(io0Q3, false) //
+						.output(io0Q4, false)) //
+
 				.run();
 	}
 

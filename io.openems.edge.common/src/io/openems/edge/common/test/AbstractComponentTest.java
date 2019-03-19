@@ -178,6 +178,7 @@ public abstract class AbstractComponentTest {
 	 * @throws Exception on validation failure
 	 */
 	public void run() throws Exception {
+
 		for (TestCase testCase : this.testCases) {
 			testCase.applyTimeLeap();
 			testCase.applyInputs(this.components);
