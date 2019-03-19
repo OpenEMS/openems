@@ -66,8 +66,12 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	}
 
 	protected EmergencyClusterMode(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ThisChannelId.values() //
+		);
 		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
@@ -231,7 +235,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 		// Always disconnect PV from Grid
 		this.setOutput(this.q4PvOnGrid, Operation.OPEN);
-		if (!this.isQ4PvOnGridClosed()) {
+		if (this.isQ4PvOnGridClosed()) {
 			return;
 		}
 
@@ -342,7 +346,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	private boolean isQ2Ess2SupplyUpsClosed() throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel q2Ess2SupplyUps = this.componentManager.getChannel(this.q2Ess2SupplyUps);
-		return !q2Ess2SupplyUps.value().orElse(false);
+		return !q2Ess2SupplyUps.value().orElse(true);
 	}
 
 	private boolean isQ3PvOffGridClosed() throws IllegalArgumentException, OpenemsNamedException {

@@ -5,6 +5,7 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalInput;
@@ -19,16 +20,26 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 	private final BooleanWriteChannel[] ioChannels;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		INPUT_OUTPUT_0(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_1(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_2(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_3(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_4(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_5(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_6(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_7(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_8(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_9(Doc.of(OpenemsType.BOOLEAN));
+		INPUT_OUTPUT_0(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_1(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_2(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_3(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), ///
+		INPUT_OUTPUT_4(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), ///
+		INPUT_OUTPUT_5(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), ///
+		INPUT_OUTPUT_6(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), ///
+		INPUT_OUTPUT_7(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_8(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_9(Doc.of(OpenemsType.BOOLEAN).//
+				accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;
 

@@ -1,8 +1,8 @@
 package io.openems.edge.project.controller.enbag.emergencymode;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 
-public enum ThisChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 	;
 
 	private final Doc doc;

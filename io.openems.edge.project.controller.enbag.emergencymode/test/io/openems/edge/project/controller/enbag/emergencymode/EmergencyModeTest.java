@@ -31,9 +31,11 @@ public class EmergencyModeTest {
 		private final String pvMeter_id;
 		private final String ess1_id;
 		private final String ess2_id;
+		private final int pvSufficientPower;
 
 		public MyConfig(String id, String ess1_id, String ess2_id, String q1ChannelAddress, String q2ChannelAddress,
-				String q3ChannelAddress, String q4ChannelAddress, String pvInverter_id, String pvMeter_id) {
+				String q3ChannelAddress, String q4ChannelAddress, String pvInverter_id, String pvMeter_id,
+				int pvSufficientPower) {
 			super(Config.class, id);
 			this.q1ChannelAddress = q1ChannelAddress;
 			this.q2ChannelAddress = q2ChannelAddress;
@@ -43,6 +45,7 @@ public class EmergencyModeTest {
 			this.pvInverter_id = pvInverter_id;
 			this.ess1_id = ess1_id;
 			this.ess2_id = ess2_id;
+			this.pvSufficientPower = pvSufficientPower;
 		}
 
 		@Override
@@ -106,10 +109,14 @@ public class EmergencyModeTest {
 		ManagedSymmetricEss ess1 = new DummyManagedSymmetricEss("ess1");
 		ChannelAddress ess1Soc = new ChannelAddress("ess1", "Soc");
 		ChannelAddress ess1GridMode = new ChannelAddress("ess1", "GridMode");
+		ChannelAddress ess1AllowedChargePower = new ChannelAddress("ess1", "AllowedChargePower");
+		ChannelAddress ess1AllowedDischargePower = new ChannelAddress("ess1", "AllowedDischargePower");
 
 		ManagedSymmetricEss ess2 = new DummyManagedSymmetricEss("ess2");
 		ChannelAddress ess2Soc = new ChannelAddress("ess2", "Soc");
 		ChannelAddress ess2GridMode = new ChannelAddress("ess2", "GridMode");
+		ChannelAddress ess2AllowedChargePower = new ChannelAddress("ess2", "AllowedChargePower");
+		ChannelAddress ess2AllowedDischargePower = new ChannelAddress("ess2", "AllowedDischargePower");
 
 		SymmetricMeter meter1 = new DummySymmetricMeter("meter1");
 		ChannelAddress meter1ActivePower = new ChannelAddress("meter1", "ActivePower");
@@ -124,35 +131,38 @@ public class EmergencyModeTest {
 		ChannelAddress io0Q4 = new ChannelAddress("io0", "InputOutput4");
 
 		MyConfig myconfig = new MyConfig("ctrl1", ess1.id(), ess2.id(), io0Q1.toString(), io0Q2.toString(),
-				io0Q3.toString(), io0Q4.toString(), pvInverter0.id(), meter1.id());
+				io0Q3.toString(), io0Q4.toString(), pvInverter0.id(), meter1.id(), 20000);
 		controller.activate(null, myconfig);
 
 		// Build and run test
 		new ControllerTest(controller, componentManager, pvInverter0, meter1, ess1, ess2, io0) //
+				/*
+				 * ESS1_FULL__ESS2_FULL__PV_SUFFICIENT //
+				 * ESS1_LOW__ESS2_FULL__PV_NOT_SUFFICIENT//
+				 * ESS1_EMPTY__ESS2_EMPTY__PV_SUFFICIENT//
+				 */
 				.next(new TestCase()//
-						// OffGrid-SwitchTOffGrid-BatteryOkay-PvOkay
-						.input(ess1GridMode, GridMode.OFF_GRID) //
-						.input(ess2GridMode, GridMode.OFF_GRID) //
-						.input(ess1Soc, 50)//
-						.input(ess2Soc, 50)//
+						.input(ess1GridMode, GridMode.OFF_GRID)//
+						.input(ess2GridMode, GridMode.OFF_GRID)//
+						.input(ess1Soc, 5)//
+						.input(ess2Soc, 5)//
+						.input(ess1AllowedChargePower, 10000)//
+						.input(ess2AllowedChargePower, 10000)//
+						.input(ess1AllowedDischargePower, 200)//
+						.input(ess2AllowedDischargePower, 200)//
+						.input(pvInverterActivePower, 40000))//
 //						.input(io0Q1, false)//
-//						.input(io0Q2, false)//
-//						.input(io0Q3, true)//
-//						.input(io0Q4, true)//
-						.input(pvInverterActivePower, 20000)//
-						.input(meter1ActivePower, 5000)//
-						.output(io0Q1, false)//
-						.output(io0Q2, false)//
-						.output(io0Q3, null)//
-						.output(io0Q4, false)//
-						.output(pvInverterActivePower, 20000))//
-//				.next(new TestCase()//
-//						.input(io0Q4, false))//
-//				.next(new TestCase()//
-//						.timeleap(clock, 11, ChronoUnit.SECONDS) //
-//						.output(io0Q3, true)) //
+//						.input(io0Q2, true)//
+//						.input(io0Q3, false)//
+//						.input(io0Q4, false)//
+//						.output(io0Q1, false)//
+//						.output(io0Q2, false))//
+//						.output(io0Q3, true)//
+//						.output(io0Q4, false))//
+				.next(new TestCase()//
+						.timeleap(clock, 11, ChronoUnit.SECONDS) //
+						.output(io0Q3, false)) //
 				.run();
-
 	}
 
 }

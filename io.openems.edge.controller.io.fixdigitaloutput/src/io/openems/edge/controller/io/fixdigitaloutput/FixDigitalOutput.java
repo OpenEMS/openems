@@ -10,8 +10,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -25,8 +23,6 @@ import io.openems.edge.controller.api.Controller;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Io.FixDigitalOutput", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class FixDigitalOutput extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	private final Logger log = LoggerFactory.getLogger(FixDigitalOutput.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
