@@ -15,6 +15,7 @@ public class FloatDoc extends OpenemsTypeDoc<Float> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public FloatReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {

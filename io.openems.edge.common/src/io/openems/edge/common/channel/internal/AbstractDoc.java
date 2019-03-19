@@ -162,7 +162,6 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
-	@SuppressWarnings("unchecked")
-	public abstract Channel<T> createChannelInstance(OpenemsComponent component,
+	public abstract <C extends Channel<?>> C createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId);
 }
