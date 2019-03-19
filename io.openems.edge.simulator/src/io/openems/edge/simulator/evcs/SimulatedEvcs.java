@@ -19,8 +19,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -33,8 +33,9 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, OpenemsComponent, EventHandler {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SIMULATED_CHARGE_POWER(new Doc().unit(Unit.WATT));
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -68,7 +69,11 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, Ope
 	}
 
 	public SimulatedEvcs() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
@@ -82,7 +87,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent implements Evcs, Ope
 
 	private void updateChannels() {
 		Optional<Integer> chargePowerLimitOpt = this.setChargePower().getNextWriteValueAndReset();
-		
+
 		// copy write value to read value
 		this.setChargePower().setNextValue(chargePowerLimitOpt);
 

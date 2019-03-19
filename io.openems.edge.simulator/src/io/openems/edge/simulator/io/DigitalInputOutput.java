@@ -11,9 +11,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -34,10 +36,15 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(DigitalInputOutput.class);
 
-	private WriteChannel<Boolean>[] channels = new BooleanWriteChannel[0];
+	private BooleanWriteChannel[] writeChannels = new BooleanWriteChannel[0];
+	private BooleanReadChannel[] readChannels = new BooleanReadChannel[0];
 
 	public DigitalInputOutput() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				DigitalOutput.ChannelId.values(), //
+				DigitalInput.ChannelId.values() //
+		);
 	}
 
 	@Activate
@@ -45,10 +52,14 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.enabled());
 
 		// Generate OutputChannels
-		this.channels = new BooleanWriteChannel[config.numberOfOutputs()];
+		this.writeChannels = new BooleanWriteChannel[config.numberOfOutputs()];
+		this.readChannels = new BooleanReadChannel[config.numberOfOutputs()];
 		for (int i = 0; i < config.numberOfOutputs(); i++) {
 			String channelName = String.format(CHANNEL_NAME, i);
-			BooleanWriteChannel channel = new BooleanWriteChannel(this, new MyChannelId(channelName));
+			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
+					.accessMode(AccessMode.WRITE_ONLY);
+			BooleanWriteChannel channel = (BooleanWriteChannel) this.addChannel(new MyChannelId(channelName, doc));
+
 			// default to OFF
 			channel.setNextValue(false);
 			this.logInfo(log, "Creating simulated DigitalOutput [" + channel.address() + "]");
@@ -57,25 +68,25 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 				this.logInfo(log, "DigitalOutput [" + channel.address() + "] was turned " + (value ? "ON" : "OFF"));
 				channel.setNextValue(value);
 			});
-			this.addChannel(channel);
-			this.channels[i] = channel;
+			this.readChannels[i] = channel;
+			this.writeChannels[i] = channel;
 		}
 	}
 
 	@Override
-	public Channel<Boolean>[] digitalInputChannels() {
-		return this.channels;
+	public BooleanReadChannel[] digitalInputChannels() {
+		return this.readChannels;
 	}
 
 	@Override
-	public WriteChannel<Boolean>[] digitalOutputChannels() {
-		return this.channels;
+	public BooleanWriteChannel[] digitalOutputChannels() {
+		return this.writeChannels;
 	}
 
 	@Override
 	public String debugLog() {
 		StringBuilder b = new StringBuilder();
-		for (WriteChannel<Boolean> channel : this.channels) {
+		for (BooleanReadChannel channel : this.readChannels) {
 			Optional<Boolean> valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
 				b.append(valueOpt.get() ? "x" : "-");

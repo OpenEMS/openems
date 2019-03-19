@@ -89,8 +89,6 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 			byte[] data = packet.getData();
 			String message = new String(data, 0, len);
 			
-			log.info("Nachricht der Ladestation: "+message);	
-			
 			// call callbacks
 			onReceiveCallbacks.forEach(consumer -> consumer.accept(ip, message));
 		}

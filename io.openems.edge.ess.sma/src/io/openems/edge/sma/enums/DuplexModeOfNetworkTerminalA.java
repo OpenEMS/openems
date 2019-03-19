@@ -1,6 +1,6 @@
 package io.openems.edge.sma.enums;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum DuplexModeOfNetworkTerminalA implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

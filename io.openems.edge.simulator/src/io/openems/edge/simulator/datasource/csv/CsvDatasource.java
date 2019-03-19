@@ -35,7 +35,9 @@ public class CsvDatasource extends AbstractOpenemsComponent
 	private long lastIteration;
 
 	public CsvDatasource() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values() //
+		);
 	}
 
 	@Activate
@@ -47,7 +49,6 @@ public class CsvDatasource extends AbstractOpenemsComponent
 		this.lastIteration = System.currentTimeMillis();
 		// read csv-data
 		this.data = Utils.getValues(config.source(), config.factor());
-
 	}
 
 	@Override

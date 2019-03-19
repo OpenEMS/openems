@@ -17,9 +17,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -36,20 +35,9 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	@Reference
 	protected ComponentManager componentManager;
 
-	public ControllerChpSoc() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-	}
-
-	private ChannelAddress inputChannelAddress;
-	private ChannelAddress outputChannelAddress;
-	private int lowThreshold = 0;
-	private int highThreshold = 0;
-
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		STATE_MACHINE(new Doc() //
-				.level(Level.INFO) //
-				.text("Current State of State-Machine") //
-				.options(State.values()));
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine"));
 
 		private final Doc doc;
 
@@ -62,6 +50,19 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			return this.doc;
 		}
 	}
+
+	public ControllerChpSoc() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
+	}
+
+	private ChannelAddress inputChannelAddress;
+	private ChannelAddress outputChannelAddress;
+	private int lowThreshold = 0;
+	private int highThreshold = 0;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -148,7 +149,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 				break;
 			}
 		} while (stateChanged); // execute again if the state changed
-		
+
 		// store current state in StateMachine channel
 		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
