@@ -76,6 +76,13 @@ public abstract class AbstractComponentTest {
 			this.inputs.add(new ChannelValue(address, value));
 			return this;
 		}
+		
+		public TestCase input(ArrayList<ChannelAddress> address, ArrayList<Object> value) {
+			for (int i = 0; i< address.size() ; i++) {
+				this.inputs.add(new ChannelValue(address.get(i), value.get(i)));
+			}		
+			return this;
+		}
 
 		public TestCase output(ChannelAddress address, Object value) {
 			this.outputs.add(new ChannelValue(address, value));

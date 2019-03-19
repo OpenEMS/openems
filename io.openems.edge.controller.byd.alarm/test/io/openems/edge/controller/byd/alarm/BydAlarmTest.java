@@ -48,30 +48,64 @@ public class BydAlarmTest {
 		DummyComponentManager componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;
 
+		/*
+		 * Generate the array of input channels and its corresponding values
+		 */
 		ArrayList<ChannelAddress> channelAddress = new ArrayList<ChannelAddress>();
-		ChannelAddress ess0 = new ChannelAddress("ess0", "State1");
-		//ChannelAddress ess1 = new ChannelAddress("ess0", "State2");
+		ArrayList<Object> value = new ArrayList<Object>();
+		
+		ChannelAddress ess0 = new ChannelAddress("ess0", "State0");
+		Boolean ess0_value = true;
+		ChannelAddress ess1 = new ChannelAddress("ess0", "State1");
+		Boolean ess1_value = false;
+		
+		
 		channelAddress.add(ess0);
-		//channelAddress.add(ess1);
+		value.add(ess0_value);
+		channelAddress.add(ess1);
+		//value.add(ess1_value);
+		
+		
+		/*
+		 * Generate the array of Output channels 
+		 */
 		ChannelAddress output0 = new ChannelAddress("io0", "InputOutput0");
+		
+		
+		/*
+		 * Generate the array for constructor
+		 */
 		String[] inAddress = new String[channelAddress.size()];
 
 		for (int i = 0; i < channelAddress.size(); i++) {
 			inAddress[i] = channelAddress.get(i).toString();
 		}
 
+		
 		MyConfig myconfig = new MyConfig("ctrl1", inAddress, output0.toString());
 
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);
 
-		DummyComponent ess = new DummyComponent("ess0");
+		DummyComponent ess_0 = new DummyComponent("ess0");
+		
+	/*
+	 * Generate the array of input channels 
+	 */
+		/*
+		 * ChannelAddress[] channel = new ChannelAddress[channelAddress.size()];
+		 * Object[] object = new Object[channelAddress.size()];
+		 * 
+		 * for (int i = 0; i < channelAddress.size(); i++) { channel[i] =
+		 * channelAddress.get(i); object[i] = false; }
+		 */
+		
+		
 		DummyInputOutput io = new DummyInputOutput("io0");
 
-		new ControllerTest(controller, componentManager, ess, io)//
+		new ControllerTest(controller, componentManager, ess_0, io)//
 				.next(new TestCase() //
-						.input(ess0, "true") //
-						.input(ess0, "false") //
+						.input(channelAddress, value) //
 						.output(output0, true)) //
 				.run();
 
