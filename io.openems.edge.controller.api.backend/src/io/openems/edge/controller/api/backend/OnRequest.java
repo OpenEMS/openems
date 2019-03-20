@@ -16,6 +16,8 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
+import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
@@ -65,8 +67,16 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
 			break;
 
+		case CreateComponentConfigRequest.METHOD:
+			resultFuture = this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
+			break;
+
 		case UpdateComponentConfigRequest.METHOD:
 			resultFuture = this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
+			break;
+
+		case DeleteComponentConfigRequest.METHOD:
+			resultFuture = this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
 			break;
 
 		case ComponentJsonApiRequest.METHOD:
@@ -117,6 +127,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	/**
+	 * Handles a CreateComponentConfigRequest.
+	 * 
+	 * @param user                         the User
+	 * @param createComponentConfigRequest the CreateComponentConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
+			CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
+		// wrap original request inside ComponentJsonApiRequest
+		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, createComponentConfigRequest);
+
+		return this.handleComponentJsonApiRequest(user, request);
+	}
+
+	/**
 	 * Handles a UpdateComponentConfigRequest.
 	 * 
 	 * @param user                         the User
@@ -129,6 +156,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		// wrap original request inside ComponentJsonApiRequest
 		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
 		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
+
+		return this.handleComponentJsonApiRequest(user, request);
+	}
+
+	/**
+	 * Handles a DeleteComponentConfigRequest.
+	 * 
+	 * @param user                         the User
+	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
+			DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
+		// wrap original request inside ComponentJsonApiRequest
+		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
+		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, deleteComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
 	}

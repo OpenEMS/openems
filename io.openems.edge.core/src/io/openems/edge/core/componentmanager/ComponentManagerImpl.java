@@ -57,6 +57,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
@@ -178,6 +179,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		case UpdateComponentConfigRequest.METHOD:
 			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
 
+		case DeleteComponentConfigRequest.METHOD:
+			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
+
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
@@ -251,7 +255,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!this.ignorePropertyKey(property.getName())) {
-				properties.put(property.getName(), JsonUtils.getAsBestType(property.getValue()));
+				Object value = JsonUtils.getAsBestType(property.getValue());
+				if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					value = new String[0];
+				}
+				properties.put(property.getName(), value);
 			}
 		}
 
@@ -261,6 +269,28 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
+		}
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a DeleteComponentConfigRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the DeleteComponentConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
+			DeleteComponentConfigRequest request) throws OpenemsNamedException {
+		Configuration config = this.getExistingConfigForId(request.getComponentId());
+
+		try {
+			config.delete();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.getComponentId(), e.getMessage());
 		}
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

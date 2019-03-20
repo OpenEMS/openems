@@ -82,7 +82,30 @@ export const TRANSLATION = {
                     CurrentCharge: "Current charge",
                     TotalCharge: "Total charge",
                     EnforceCharging: "Enforce charging",
-                    Cable: "Cable"
+                    Cable: "Cable",
+                    CableNotConnected: "Cable is not connected",
+                    CarFull: "Car is full",
+                    EnergieSinceBeginning: "Energy since the begin of charge",
+                    ChargeMode: "Charge Mode",
+                    NoConnection: {
+                        Description: "No connection to the charging station.",
+                        Help1: "Check if the charging station is switched on and can be reached via the network.",
+                        Help1_1: "The IP of the charging station appears when switching on again"
+                    },
+                    OptimizedChargeMode: {
+                        Name: "Optimized charging",
+                        ShortName: "Optimized",
+                        Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
+                        MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
+                        MinCharging: "Guarantee minimum charge?"
+                    },
+                    ForceChargeMode: {
+                        Name: "Force charging",
+                        ShortName: "Forced",
+                        Info: "In this mode the loading of the car is enforced, i.e. it is always guaranteed that the car will be charged, even if the charging station needs to access grid power.",
+                        MaxCharging: "Maximum charging power",
+                        MaxChargingDetails: "If the car can not load the entered maximum value, the power will be automatically limited."
+                    }
                 }
             }
         },
