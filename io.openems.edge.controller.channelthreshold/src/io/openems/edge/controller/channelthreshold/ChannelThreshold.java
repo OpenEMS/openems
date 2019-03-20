@@ -17,9 +17,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -35,22 +34,9 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	@Reference
 	protected ComponentManager componentManager;
 
-	public ChannelThreshold() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-	}
-
-	private ChannelAddress inputChannelAddress;
-	private ChannelAddress outputChannelAddress;
-	private int lowThreshold = 0;
-	private int highThreshold = 0;
-	private int hysteresis = 0;
-	private boolean invertOutput = false;
-
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		STATE_MACHINE(new Doc() //
-				.level(Level.INFO) //
-				.text("Current State of State-Machine") //
-				.options(State.values()));
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine"));
 
 		private final Doc doc;
 
@@ -63,6 +49,21 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 			return this.doc;
 		}
 	}
+
+	public ChannelThreshold() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
+	}
+
+	private ChannelAddress inputChannelAddress;
+	private ChannelAddress outputChannelAddress;
+	private int lowThreshold = 0;
+	private int highThreshold = 0;
+	private int hysteresis = 0;
+	private boolean invertOutput = false;
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -238,8 +239,8 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Switch the output ON.
 	 * 
-	 * @throws OpenemsNamedException 
-	 * @throws IllegalArgumentException 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
 	 */
 	private void on() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
@@ -248,8 +249,8 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Switch the output OFF.
 	 * 
-	 * @throws OpenemsNamedException 
-	 * @throws IllegalArgumentException 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
 	 */
 	private void off() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);

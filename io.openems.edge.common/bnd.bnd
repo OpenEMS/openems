@@ -9,6 +9,7 @@ Export-Package: \
 	io.openems.edge.common.event,\
 	io.openems.edge.common.channel.calculate,\
 	io.openems.edge.common.converter,\
+	io.openems.edge.common.channel.internal,\
 	io.openems.edge.common.channel.value,\
 	io.openems.edge.common.channel,\
 	io.openems.edge.api.user,\

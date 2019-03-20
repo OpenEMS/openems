@@ -2,14 +2,14 @@ package io.openems.edge.common.meta;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 public interface Meta extends ModbusSlave {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * OpenEMS Version
 		 * 
@@ -18,7 +18,7 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(new Doc().type(OpenemsType.STRING));
+		VERSION(Doc.of(OpenemsType.STRING));
 
 		private final Doc doc;
 

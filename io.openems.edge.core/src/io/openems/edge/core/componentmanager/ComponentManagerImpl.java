@@ -65,11 +65,8 @@ import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -97,23 +94,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		CONFIG_NOT_ACTIVATED(new Doc() //
-				.text("A configured OpenEMS Component was not activated") //
-				.type(OpenemsType.BOOLEAN) //
-				.level(Level.WARNING));
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
@@ -121,8 +101,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	public ComponentManagerImpl() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ComponentManager.ChannelId.values() //
+		);
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
 	}
 
@@ -150,7 +132,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	protected StateChannel configNotActivatedChannel() {
-		return this.channel(ChannelId.CONFIG_NOT_ACTIVATED);
+		return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
 	}
 
 	@Override

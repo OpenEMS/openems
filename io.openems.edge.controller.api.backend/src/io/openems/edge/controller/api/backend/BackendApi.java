@@ -35,6 +35,7 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.websocket.AbstractWebsocketClient;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -85,8 +86,26 @@ public class BackendApi extends AbstractOpenemsComponent
 			target = "(&(enabled=true)(!(service.factoryPid=" + COMPONENT_NAME + ")))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public BackendApi() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Activate

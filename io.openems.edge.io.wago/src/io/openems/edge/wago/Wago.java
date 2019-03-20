@@ -48,7 +48,7 @@ import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.DigitalInput;
@@ -69,8 +69,27 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	private ModbusProtocol protocol = null;
 	private CopyOnWriteArrayList<FieldbusModule> modules = new CopyOnWriteArrayList<FieldbusModule>();
 
+	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
+		private final Doc doc;
+
+		private ThisChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public Wago() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				DigitalOutput.ChannelId.values(), //
+				DigitalInput.ChannelId.values(), //
+				ThisChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -209,7 +228,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		}
 	}
 
-	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.doc.ChannelId channelId,
+	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.ChannelId channelId,
 			int address) {
 		return m(channelId, new CoilElement(address));
 	}
@@ -267,7 +286,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	}
 
 	@Override
-	public Channel<Boolean>[] digitalInputChannels() {
+	public BooleanReadChannel[] digitalInputChannels() {
 		List<BooleanReadChannel> channels = new ArrayList<>();
 		for (FieldbusModule module : this.modules) {
 			for (BooleanReadChannel channel : module.getChannels()) {
@@ -298,7 +317,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 		return result;
 	}
 
-	protected void addChannel(Channel<?> channel) {
-		super.addChannel(channel);
+	protected BooleanReadChannel addChannel(FieldbusChannelId channelId) {
+		return (BooleanReadChannel) super.addChannel(channelId);
 	}
 }

@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -25,8 +26,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
@@ -52,7 +53,11 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	protected ConfigurationAdmin cm;
 
 	public EssDcChargerFeneconCommercial40() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				EssDcCharger.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
 		/*
 		 * Merge PV_DCDC0_INPUT_POWER and PV_DCDC1_INPUT_POWER to ACTUAL_POWER
@@ -92,8 +97,8 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), this.ess.get().getUnitId(),
-				this.cm, "Modbus", this.ess.get().getModbusBridgeId());
+		super.activate(context, config.id(), config.enabled(), this.ess.get().getUnitId(), this.cm, "Modbus",
+				this.ess.get().getModbusBridgeId());
 	}
 
 	@Deactivate
@@ -101,67 +106,123 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		BMS_DCDC0_OUTPUT_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		BMS_DCDC0_OUTPUT_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		BMS_DCDC0_OUTPUT_POWER(new Doc().unit(Unit.WATT)), //
-		BMS_DCDC0_INPUT_VOLTAGE(new Doc().unit(Unit.MILLIWATT)), //
-		BMS_DCDC0_INPUT_CURRENT(new Doc().unit(Unit.MILLIWATT)), //
-		BMS_DCDC0_INPUT_POWER(new Doc().unit(Unit.WATT)), //
-		BMS_DCDC0_INPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC0_OUTPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC0_REACTOR_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BMS_DCDC0_IGBT_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BMS_DCDC0_INPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC0_INPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC0_OUTPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC0_OUTPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		// LongReadChannel
+		BMS_DCDC0_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC0_INPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC0_INPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC0_INPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC0_OUTPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC0_OUTPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC1_INPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC1_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC1_INPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC1_INPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC1_OUTPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		BMS_DCDC1_OUTPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC0_INPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC0_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC0_INPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC0_INPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC0_OUTPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC0_OUTPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC1_INPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC1_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC1_INPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC1_INPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC1_OUTPUT_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
+		PV_DCDC1_OUTPUT_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)), //
 
-		BMS_DCDC1_OUTPUT_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		BMS_DCDC1_OUTPUT_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		BMS_DCDC1_OUTPUT_POWER(new Doc().unit(Unit.WATT)), //
-		BMS_DCDC1_INPUT_VOLTAGE(new Doc().unit(Unit.MILLIWATT)), //
-		BMS_DCDC1_INPUT_CURRENT(new Doc().unit(Unit.MILLIWATT)), //
-		BMS_DCDC1_INPUT_POWER(new Doc().unit(Unit.WATT)), //
-		BMS_DCDC1_INPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC1_OUTPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC1_REACTOR_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BMS_DCDC1_IGBT_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BMS_DCDC1_INPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC1_INPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC1_OUTPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		BMS_DCDC1_OUTPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
+		// IntegerReadChannel
+		BMS_DCDC0_OUTPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BMS_DCDC0_OUTPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BMS_DCDC0_OUTPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		BMS_DCDC0_INPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		BMS_DCDC0_INPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		BMS_DCDC0_INPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		BMS_DCDC0_REACTOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BMS_DCDC0_IGBT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BMS_DCDC1_OUTPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BMS_DCDC1_OUTPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BMS_DCDC1_OUTPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		BMS_DCDC1_INPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		BMS_DCDC1_INPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		BMS_DCDC1_INPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		BMS_DCDC1_REACTOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BMS_DCDC1_IGBT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		PV_DCDC0_OUTPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		PV_DCDC0_OUTPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		PV_DCDC0_OUTPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		PV_DCDC0_INPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		PV_DCDC0_INPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		PV_DCDC0_INPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		PV_DCDC0_REACTOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		PV_DCDC0_IGBT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		PV_DCDC1_OUTPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		PV_DCDC1_OUTPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		PV_DCDC1_OUTPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		PV_DCDC1_INPUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		PV_DCDC1_INPUT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT)), //
+		PV_DCDC1_INPUT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		PV_DCDC1_REACTOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		PV_DCDC1_IGBT_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS));
 
-		PV_DCDC0_OUTPUT_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		PV_DCDC0_OUTPUT_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		PV_DCDC0_OUTPUT_POWER(new Doc().unit(Unit.WATT)), //
-		PV_DCDC0_INPUT_VOLTAGE(new Doc().unit(Unit.MILLIWATT)), //
-		PV_DCDC0_INPUT_CURRENT(new Doc().unit(Unit.MILLIWATT)), //
-		PV_DCDC0_INPUT_POWER(new Doc().unit(Unit.WATT)), //
-		PV_DCDC0_INPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC0_OUTPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC0_REACTOR_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		PV_DCDC0_IGBT_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		PV_DCDC0_INPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC0_INPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC0_OUTPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC0_OUTPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-
-		PV_DCDC1_OUTPUT_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		PV_DCDC1_OUTPUT_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		PV_DCDC1_OUTPUT_POWER(new Doc().unit(Unit.WATT)), //
-		PV_DCDC1_INPUT_VOLTAGE(new Doc().unit(Unit.MILLIWATT)), //
-		PV_DCDC1_INPUT_CURRENT(new Doc().unit(Unit.MILLIWATT)), //
-		PV_DCDC1_INPUT_POWER(new Doc().unit(Unit.WATT)), //
-		PV_DCDC1_INPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC1_OUTPUT_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC1_REACTOR_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		PV_DCDC1_IGBT_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		PV_DCDC1_INPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC1_INPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC1_OUTPUT_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		PV_DCDC1_OUTPUT_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
-		;
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {

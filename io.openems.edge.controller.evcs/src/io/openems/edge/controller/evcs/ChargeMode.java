@@ -1,6 +1,6 @@
 package io.openems.edge.controller.evcs;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum ChargeMode implements OptionsEnum {
 	FORCE_CHARGE(0, "Force-Charge"), //

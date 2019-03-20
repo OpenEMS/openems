@@ -32,6 +32,7 @@ public enum OpenemsError {
 	EDGE_UNABLE_TO_APPLY_CONFIG(2002, "Unable to apply configuration to Component [%s]: [%s]"), //
 	EDGE_UNABLE_TO_CREATE_CONFIG(2003, "Unable to create configuration for Factory [%s]: [%s]"), //
 	EDGE_UNABLE_TO_DELETE_CONFIG(2004, "Unable to delete configuration for Component [%s]: [%s]"), //
+	EDGE_CHANNEL_NO_OPTION(2005, "Channel has no Option [%s]. Existing options: %s"), //
 	/*
 	 * Backend errors. 3000-3999
 	 */

@@ -21,8 +21,8 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -43,7 +43,12 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	public MeterSocomecDirisA14() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -64,12 +69,10 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		REACTIVE_PRODUCTION_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		REACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS)),
-		REACTIVE_CONSUMPTION_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		REACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS));
 		private final Doc doc;
 
