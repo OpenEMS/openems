@@ -1,5 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import java.nio.ByteOrder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -82,7 +83,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
-	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20; 
+	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
 	private static final int GRIDCON_SWITCH_OFF_TIME_SECONDS = 15;
 	private static final int GRIDCON_BOOT_TIME_SECONDS = 30;
 	private static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
@@ -171,13 +172,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void prepareGeneralCommands() throws OpenemsNamedException {
+		// set command parameters to on grid mode, enable only dc dc
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, true);
+		this.setNextWriteValueToBooleanWriteChannel(
+				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, true);
-		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, false);
+		this.setNextWriteValueToBooleanWriteChannel(
+				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION, false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET,
+				false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET,
+				false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET,
+				false);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET,
+				false);
+
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true);
@@ -222,19 +238,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// battB = 8 (2^3)
 		// battC = 64 (2^6)
 
-		Battery batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
-		if (batteryStringA != null) {
-			weightingMode = weightingMode + 1;
+		if (this.config.batteryStringA_id() != null && this.config.batteryStringA_id().length() > 0) {
+			Battery batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
+			if (batteryStringA != null) {
+				weightingMode = weightingMode + 1;
+			}
 		}
-		Battery batteryStringB = this.componentManager.getComponent(this.config.batteryStringB_id());
-		if (batteryStringB != null) {
-			weightingMode = weightingMode + 8;
+		if (this.config.batteryStringB_id() != null && this.config.batteryStringB_id().length() > 0) {
+			Battery batteryStringB = this.componentManager.getComponent(this.config.batteryStringB_id());
+			if (batteryStringB != null) {
+				weightingMode = weightingMode + 8;
+			}
 		}
-		Battery batteryStringC = this.componentManager.getComponent(this.config.batteryStringC_id());
-		if (batteryStringC != null) {
-			weightingMode = weightingMode + 64;
+		if (this.config.batteryStringC_id() != null && this.config.batteryStringC_id().length() > 0) {
+			Battery batteryStringC = this.componentManager.getComponent(this.config.batteryStringC_id());
+			if (batteryStringC != null) {
+				weightingMode = weightingMode + 64;
+			}
 		}
-
 		return weightingMode;
 	}
 
@@ -251,24 +272,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
 		this.setOutputSyncDeviceBridge(false);
 
-		//TODO check 
-		// Just temporarily, because sometime gridcon reduces the link voltage, i.e. there is no function any longer but also no errors
-		if (!islinkVoltageInRange()) {
-			doHardRestart();
-			return;
-		}
-		
+		// TODO check
+		// Just temporarily, because sometime gridcon reduces the link voltage, i.e.
+		// there is no function any longer but also no errors
+
 		// a hardware restart has been executed,
 		if (timestampMrGridconWasSwitchedOff != null) {
 			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
 			if ( //
-					LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS)) && //
-					LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS)) //
+			LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS))
+					&& //
+					LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff
+							.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS)) //
 			) {
 				try {
 					log.info("try to write to channel hardware reset, set it to 'false'");
 					// after 15 seconds switch Mr. Gridcon on again!
-					BooleanWriteChannel channelHardReset = this.componentManager.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
+					BooleanWriteChannel channelHardReset = this.componentManager
+							.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
 					channelHardReset.setNextWriteValue(false);
 					resetErrorChannels();
 				} catch (IllegalArgumentException | OpenemsNamedException e) {
@@ -320,19 +341,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		resetErrorCodes();
 	}
 
-	private boolean islinkVoltageInRange() {		
-		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
-		if (!linkVoltageOpt.isPresent()) {
-			return false;
-		}
-		
-		float linkVoltage = linkVoltageOpt.get();
-		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
-		
-		return difference < GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT;
-	}
-
 	private void resetErrorChannels() {
 		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
 			this.channel(id).setNextValue(false);
@@ -349,6 +357,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	private void doRunHandling() throws OpenemsException {
+
+		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
+		if (!linkVoltageOpt.isPresent()) {
+			return;
+		}
+
+		float linkVoltage = linkVoltageOpt.get();
+		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+
+		if (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT) {
+			doHardRestart();
+			return;
+		}
+
 		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
 								// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
 								// aber ein fehler in der queue und das system nicht angelaufen ist....
@@ -372,19 +395,25 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			disableIpu4 = false;
 			break;
 		}
-		
+
 		// send play command
-		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true); //TODO just for testing purposes, because play is only necessary at startup
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true); // TODO just for
+																										// testing
+																										// purposes,
+																										// because play
+																										// is only
+																										// necessary at
+																										// startup
 
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, disableIpu1);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, disableIpu2);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, disableIpu3);
-		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);		
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);
 	}
 
 	private void setNextWriteValueToBooleanWriteChannel(GridConChannelId id, boolean b) throws OpenemsException {
 		((BooleanWriteChannel) this.channel(id)).setNextWriteValue(true);
-		
+
 	}
 
 	private void writeCCUControlParameters(PControlMode mode) {
@@ -435,7 +464,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	/**
 	 * This turns on the system by enabling ALL IPUs.
-	 * @throws OpenemsException 
+	 * 
+	 * @throws OpenemsException
 	 */
 	private void startSystem() throws OpenemsException {
 		log.info("Try to start system");
@@ -460,17 +490,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
 		// should change state to "RUN"
-		
+
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, true);
-		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
-		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true);
+		this.setNextWriteValueToBooleanWriteChannel(
+				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
+		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true);
-		
+
 		switch (this.config.inverterCount()) {
 		case ONE:
 			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false);
@@ -676,11 +707,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * This sends an ACKNOWLEDGE message. This does not fix the error. If the error
 	 * was fixed previously the system should continue operating normally. If not a
 	 * manual restart may be necessary.
-	 * @throws OpenemsException 
+	 * 
+	 * @throws OpenemsException
 	 */
 	private void acknowledgeErrors() throws OpenemsException {
 		if ( //
-				lastTimeAcknowledgeCommandoWasSent == null || //
+		lastTimeAcknowledgeCommandoWasSent == null || //
 				LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS)) //
 		) {
 			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, true);
@@ -803,7 +835,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringA != null) {
 				weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
 				// if minSoc is reached, do not allow further discharging
-				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocA()) {
+				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryA()) {
 					weightA = 0;
 				}
 			}
@@ -811,7 +843,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringB != null) {
 				weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
 				// if minSoc is reached, do not allow further discharging
-				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocB()) {
+				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryB()) {
 					weightB = 0;
 				}
 			}
@@ -819,7 +851,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			if (batteryStringC != null) {
 				weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
 				// if minSoc is reached, do not allow further discharging
-				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocC()) {
+				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryC()) {
 					weightC = 0;
 				}
 			}
@@ -1027,7 +1059,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, true);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false);
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false);
-		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false);
+		this.setNextWriteValueToBooleanWriteChannel(
+				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false);
 
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
 		log.info("Set K1 ON");
@@ -1175,6 +1208,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				 */
 				new FC16WriteRegistersTask(32560, //
 						bm(new UnsignedWordElement(32560)) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
+								.build().debug(), //
+						bm(new UnsignedWordElement(32561)) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, 0) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_READY, 1) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, 2) //
@@ -1189,13 +1228,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, 11) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, 12) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, 13) //
-								.build(), //
-						bm(new UnsignedWordElement(32561)) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
-								.build(), //
+								.build().debug(), //
 						m(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32562).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0,
@@ -1216,6 +1249,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				 */
 				new FC3ReadRegistersTask(32880, Priority.LOW, //
 						bm(new UnsignedWordElement(32880)) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
+								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
+								.build(), //
+						bm(new UnsignedWordElement(32881)) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, 0) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_READY, 1) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, 2) //
@@ -1230,13 +1269,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, 11) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, 12) //
 								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, 13) //
-								.build().debug(), //
-						bm(new UnsignedWordElement(32881)) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
-								.build().debug(), //
+								.build(), //
 						m(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32882).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0,

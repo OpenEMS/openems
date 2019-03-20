@@ -386,6 +386,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			if (channel instanceof WriteChannel<?>) {
 				BooleanWriteChannel c = (BooleanWriteChannel) channel;
 				c.onSetNextWrite(value -> {
+					System.out.println(channel.address() + ": "  + value);
 					// Listen on Writes to the BooleanChannel and store the value
 					channelWrapper.setWriteValue(value);
 

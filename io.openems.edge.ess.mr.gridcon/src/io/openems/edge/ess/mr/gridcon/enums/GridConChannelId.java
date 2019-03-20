@@ -513,14 +513,14 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE_DEBUG))),
 
-	DCDC_CONTROL_DC_VOLTAGE_SETPOINT(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
-	DCDC_CONTROL_WEIGHT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_WEIGHT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_WEIGHT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	DCDC_CONTROL_DC_VOLTAGE_SETPOINT(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)),
+	DCDC_CONTROL_WEIGHT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_WEIGHT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_WEIGHT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),
 
 	STATE_CYCLE_ERROR(Doc.of(Level.FAULT));
 
