@@ -69,16 +69,18 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	private static final Integer SYSTEM_RESET = 0x1;
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 
+	@Reference
 	protected ConfigurationAdmin cm;
+
 	private final Logger log = LoggerFactory.getLogger(SoltaroRackVersionB.class);
 	private String modbusBridgeId;
 	private State state = State.UNDEFINED;
 	// if configuring is needed this is used to go through the necessary steps
 	private ConfiguringProcess nextConfiguringProcess = ConfiguringProcess.NONE;
-	@Reference
 	private Config config;
-	private Map<String, Channel<?>> channelMap;	
-	// If an error has occurred, this indicates the time when next action could be done
+	private Map<String, Channel<?>> channelMap;
+	// If an error has occurred, this indicates the time when next action could be
+	// done
 	private LocalDateTime errorDelayIsOver = null;
 	private int unsuccessfulStarts = 0;
 	private LocalDateTime startAttemptTime = null;
@@ -108,7 +110,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		// adds dynamically created channels and save them into a map to access them
 		// when modbus tasks are created
 		channelMap = createDynamicChannels();
-		
+
 		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
@@ -226,9 +228,10 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		for (int i = 0; i < this.config.numberOfSlaves(); i++) {
 			for (int j = i * tempSensors; j < (i + 1) * tempSensors; j++) {
 				String key = getSingleCellPrefix(j) + KEY_TEMPERATURE;
-				
+
 				IntegerDoc doc = new IntegerDoc();
-				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key, doc.unit(Unit.DEZIDEGREE_CELSIUS));
+				io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl(key,
+						doc.unit(Unit.DEZIDEGREE_CELSIUS));
 				IntegerReadChannel integerReadChannel = (IntegerReadChannel) this.addChannel(channelId);
 				map.put(key, integerReadChannel);
 			}
