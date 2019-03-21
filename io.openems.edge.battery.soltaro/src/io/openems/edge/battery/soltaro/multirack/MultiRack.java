@@ -69,15 +69,17 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
 	private final Logger log = LoggerFactory.getLogger(MultiRack.class);
-	
+
+	@Reference
 	protected ConfigurationAdmin cm;
-	// If an error has occurred, this indicates the time when next action could be done
+	
+	// If an error has occurred, this indicates the time when next action could be
+	// done
 	private LocalDateTime errorDelayIsOver = null;
 	private int unsuccessfulStarts = 0;
-	private LocalDateTime startAttemptTime = null;	
+	private LocalDateTime startAttemptTime = null;
 	private String modbusBridgeId;
 	private BatteryState batteryState;
-	@Reference
 	private State state = State.UNDEFINED;
 	private Config config;
 	private Collection<SingleRack> racks = new ArrayList<>();
@@ -108,12 +110,15 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		for (int i : config.racks()) {
 			this.racks.add(new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
 		}
-		
+
 		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(MultiRack.CHARGE_MAX_A);
 		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(MultiRack.DISCHARGE_MAX_A);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);		
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);		
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue( this.config.racks().length * this.config.numberOfSlaves() * ModuleParameters.CAPACITY_WH.getValue() / 1000 );
+		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
+				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
+				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this.channel(Battery.ChannelId.CAPACITY).setNextValue(this.config.racks().length * this.config.numberOfSlaves()
+				* ModuleParameters.CAPACITY_WH.getValue() / 1000);
 	}
 
 	@Override
@@ -240,12 +245,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 		return false;
 	}
-	
+
 	public Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		return this.addChannel(channelId);
 	}
 
-	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {		
+	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		StateChannel s = this.channel(channelId);
 		Optional<Boolean> val = s.value().asOptional();
 		return val.isPresent() && val.get();
@@ -278,12 +283,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
 	 */
-	private boolean isSystemStatePending() { 
+	private boolean isSystemStatePending() {
 		boolean ret = true;
 
 		for (SingleRack rack : racks) {
 			IntegerReadChannel channel = this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId);
-			Optional<Integer> val = channel.value().asOptional();			
+			Optional<Integer> val = channel.value().asOptional();
 			ret = ret && val.isPresent();
 		}
 
