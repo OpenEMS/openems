@@ -1,0 +1,27 @@
+Bundle-Name: OpenEMS Edge Controller IOAlarm
+Bundle-Vendor: FENECON GmbH
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: The provider bundle for io.openems.edge.controller.io.alarm. This Controller \
+	can be used to describe the alarms in multiple different levels.
+
+Export-Package:  io.openems.edge.controller.api
+	
+
+Private-Package:  \
+	io.openems.edge.controller.io.alarm
+	
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.controller.api;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.io.api;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

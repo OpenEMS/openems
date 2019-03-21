@@ -204,11 +204,9 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		
 		//READ_ONLY_MODE(new Doc().level(Level.INFO)),
 		READ_ONLY_MODE(Doc.of(Level.INFO)),
-		// RTU registers
-		
-		SYSTEM_WORKSTATE(Doc.of(SystemWorkstate.values())),
-		
-		SYSTEM_WORKMODE(Doc.of(SystemWorkmode.values())),		
+		// RTU registers		
+		SYSTEM_WORKSTATE(Doc.of(SystemWorkstate.values())),		
+		SYSTEM_WORKMODE(Doc.of(SystemWorkmode.values())),	
 				
 		LIMIT_INDUCTIVE_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
 		LIMIT_CAPACITIVE_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
