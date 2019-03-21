@@ -4,22 +4,22 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Controller Byd Alarm",
+		name = "Controller IO Alarm",
 		description = "The controller to read state channels and signal alarms"
 		)
 
 @interface Config {
-	String id() default "ctrlBydAlarm0";
+	String id() default "ctrlIOAlarm0";
 	
 	boolean enabled() default true;
 	
 	
-	@AttributeDefinition(name = "Input Channel", description = "")
+	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel")
 	String[] inputChannelAddress();
 
-	@AttributeDefinition(name = "Output Channel", description = "")
+	@AttributeDefinition(name = "Output Channel", description = "Channel address of the Digital Output that should be switched")
 	String outputChannelAddress();
 	
-	String webconsole_configurationFactory_nameHint() default "Controller Byd Alarm [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Controller IO Alarm [{id}]";
 	
 }
