@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
@@ -28,13 +29,14 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.session.User;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
 
-	// private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
+	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 
 	private WebsocketServer server = null;
 
@@ -101,9 +103,22 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 			WsData wsData = ws.getAttachment();
 			// Wrap Request in AuthenticatedRpc
 			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(user, request);
-			return wsData.send(authenticatedRpc);
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
+
+			// Unwrap Response
+			CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<JsonrpcResponseSuccess>();
+			responseFuture.thenAccept(r -> {
+				try {
+					AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
+					result.complete(response.getPayload());
+				} catch (OpenemsNamedException e) {
+					this.logError(this.log, e.getMessage());
+					throw new RuntimeException(e.getMessage());
+				}
+			});
+			return result;
 		} else {
-			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(request.getId().toString(), edgeId);
+			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId);
 		}
 	}
 
