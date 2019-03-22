@@ -60,39 +60,45 @@ public class ReadHandler implements Consumer<String> {
 					 * Reply to report 1
 					 */
 					receiveReport1 = true;
-					setString(KebaKeContact.ChannelId.PRODUCT, jMessage, "Product");
-					setString(KebaKeContact.ChannelId.SERIAL, jMessage, "Serial");
-					setString(KebaKeContact.ChannelId.FIRMWARE, jMessage, "Firmware");
-					setInt(KebaKeContact.ChannelId.COM_MODULE, jMessage, "COM-module");
+					setString(KebaChannelId.PRODUCT, jMessage, "Product");
+					setString(KebaChannelId.SERIAL, jMessage, "Serial");
+					setString(KebaChannelId.FIRMWARE, jMessage, "Firmware");
+					setInt(KebaChannelId.COM_MODULE, jMessage, "COM-module");
 
 				} else if (id.equals("2")) {
 					/*
 					 * Reply to report 2
 					 */
 					receiveReport2 = true;
-					setInt(KebaKeContact.ChannelId.STATUS, jMessage, "State");
-					setInt(KebaKeContact.ChannelId.ERROR_1, jMessage, "Error1");
-					setInt(KebaKeContact.ChannelId.ERROR_2, jMessage, "Error2");
-					setInt(KebaKeContact.ChannelId.PLUG, jMessage, "Plug");
-					setBoolean(KebaKeContact.ChannelId.ENABLE_SYS, jMessage, "Enable sys");
-					setBoolean(KebaKeContact.ChannelId.ENABLE_USER, jMessage, "Enable user");
-					setInt(KebaKeContact.ChannelId.MAX_CURR, jMessage, "Max curr");
-					setInt(KebaKeContact.ChannelId.MAX_CURR_PERCENT, jMessage, "Max curr %");
-					setInt(KebaKeContact.ChannelId.CURR_USER, jMessage, "Curr user");
-					setInt(KebaKeContact.ChannelId.CURR_FAILSAFE, jMessage, "Curr FS");
-					setInt(KebaKeContact.ChannelId.TIMEOUT_FAILSAFE, jMessage, "Tmo FS");
-					setInt(KebaKeContact.ChannelId.CURR_TIMER, jMessage, "Curr timer");
-					setInt(KebaKeContact.ChannelId.TIMEOUT_CT, jMessage, "Tmo CT");
-					setInt(KebaKeContact.ChannelId.ENERGY_LIMIT, jMessage, "Setenergy");
-					setBoolean(KebaKeContact.ChannelId.OUTPUT, jMessage, "Output");
-					setBoolean(KebaKeContact.ChannelId.INPUT, jMessage, "Input");
+					setInt(KebaChannelId.STATUS, jMessage, "State");
+					setInt(KebaChannelId.ERROR_1, jMessage, "Error1");
+					setInt(KebaChannelId.ERROR_2, jMessage, "Error2");
+					setInt(KebaChannelId.PLUG, jMessage, "Plug");
+					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
+					setBoolean(KebaChannelId.ENABLE_USER, jMessage, "Enable user");
+					setInt(KebaChannelId.MAX_CURR_PERCENT, jMessage, "Max curr %");
+					setInt(KebaChannelId.CURR_USER, jMessage, "Curr user");
+					setInt(KebaChannelId.CURR_FAILSAFE, jMessage, "Curr FS");
+					setInt(KebaChannelId.TIMEOUT_FAILSAFE, jMessage, "Tmo FS");
+					setInt(KebaChannelId.CURR_TIMER, jMessage, "Curr timer");
+					setInt(KebaChannelId.TIMEOUT_CT, jMessage, "Tmo CT");
+					setInt(KebaChannelId.ENERGY_LIMIT, jMessage, "Setenergy");
+					setBoolean(KebaChannelId.OUTPUT, jMessage, "Output");
+					setBoolean(KebaChannelId.INPUT, jMessage, "Input");
+					
 					
 					// Set the maximum Power valid by the Hardware
+					// The default value will be 32 A, because an older Keba charging station sets the value to 0 if the car is unplugged
 					Optional<Integer> hwPower_ma = JsonUtils.getAsOptionalInt(jMessage, "Curr HW"); // in [mA]
 					Integer hwPower = null;
 					if (hwPower_ma.isPresent()) {
-						hwPower = hwPower_ma.get() * 230 / 1000; // convert to [W]
+						if(hwPower_ma.get() == 0) {
+							hwPower = 32000 * 230 / 1000; // [W]
+						}else {
+							hwPower = hwPower_ma.get() * 230 / 1000; // [W]
+						}
 					}
+					
 					this.parent.channel(Evcs.ChannelId.HARDWARE_POWER_LIMIT).setNextValue(hwPower);
 					
 				} else if (id.equals("3")) {
@@ -100,35 +106,35 @@ public class ReadHandler implements Consumer<String> {
 					 * Reply to report 3
 					 */
 					receiveReport3 = true;
-					setInt(KebaKeContact.ChannelId.VOLTAGE_L1, jMessage, "U1");
-					setInt(KebaKeContact.ChannelId.VOLTAGE_L2, jMessage, "U2");
-					setInt(KebaKeContact.ChannelId.VOLTAGE_L3, jMessage, "U3");
-					setInt(KebaKeContact.ChannelId.CURRENT_L1, jMessage, "I1");
-					setInt(KebaKeContact.ChannelId.CURRENT_L2, jMessage, "I2");
-					setInt(KebaKeContact.ChannelId.CURRENT_L3, jMessage, "I3");
-					setInt(KebaKeContact.ChannelId.ACTUAL_POWER, jMessage, "P");
-					setInt(KebaKeContact.ChannelId.COS_PHI, jMessage, "PF");
-					setInt(KebaKeContact.ChannelId.ENERGY_SESSION, jMessage, "E pres");
-					setInt(KebaKeContact.ChannelId.ENERGY_TOTAL, jMessage, "E total");
+					setInt(KebaChannelId.VOLTAGE_L1, jMessage, "U1");
+					setInt(KebaChannelId.VOLTAGE_L2, jMessage, "U2");
+					setInt(KebaChannelId.VOLTAGE_L3, jMessage, "U3");
+					setInt(KebaChannelId.CURRENT_L1, jMessage, "I1");
+					setInt(KebaChannelId.CURRENT_L2, jMessage, "I2");
+					setInt(KebaChannelId.CURRENT_L3, jMessage, "I3");
+					setInt(KebaChannelId.ACTUAL_POWER, jMessage, "P");
+					setInt(KebaChannelId.COS_PHI, jMessage, "PF");
+					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
+					setInt(KebaChannelId.ENERGY_TOTAL, jMessage, "E total");
 
 					// Set the count of the Phases that are currently used
-					Channel<Integer> currentL1 = parent.channel(KebaKeContact.ChannelId.CURRENT_L1);
-					Channel<Integer> currentL2 = parent.channel(KebaKeContact.ChannelId.CURRENT_L2);
-					Channel<Integer> currentL3 = parent.channel(KebaKeContact.ChannelId.CURRENT_L3);
+					Channel<Integer> currentL1 = parent.channel(KebaChannelId.CURRENT_L1);
+					Channel<Integer> currentL2 = parent.channel(KebaChannelId.CURRENT_L2);
+					Channel<Integer> currentL3 = parent.channel(KebaChannelId.CURRENT_L3);
 
 					if (currentL1.value().orElse(0) > 0){
 
 						if (currentL3.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
-							set(KebaKeContact.ChannelId.PHASES, 3);
+							set(KebaChannelId.PHASES, 3);
 							
 						} else if (currentL2.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
-							set(KebaKeContact.ChannelId.PHASES, 2);
+							set(KebaChannelId.PHASES, 2);
 							
 						} else{
 							this.parent.logInfo(this.log, "KEBA is loading on one ladder"); 
-							set(KebaKeContact.ChannelId.PHASES, 1);
+							set(KebaChannelId.PHASES, 1);
 						}
 					}
 
@@ -146,40 +152,40 @@ public class ReadHandler implements Consumer<String> {
 				 * message without ID -> UDP broadcast
 				 */
 				if (jMessage.has("State")) {
-					setInt(KebaKeContact.ChannelId.STATUS, jMessage, "State");
+					setInt(KebaChannelId.STATUS, jMessage, "State");
 				}
 				if (jMessage.has("Plug")) {
-					setInt(KebaKeContact.ChannelId.PLUG, jMessage, "Plug");
+					setInt(KebaChannelId.PLUG, jMessage, "Plug");
 				}
 				if (jMessage.has("Input")) {
-					setBoolean(KebaKeContact.ChannelId.INPUT, jMessage, "Input");
+					setBoolean(KebaChannelId.INPUT, jMessage, "Input");
 				}
 				if (jMessage.has("Enable sys")) {
-					setBoolean(KebaKeContact.ChannelId.ENABLE_SYS, jMessage, "Enable sys");
+					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
 				}
 				if (jMessage.has("Max curr")) {
-					setInt(KebaKeContact.ChannelId.MAX_CURR, jMessage, "Max curr");
+					setInt(KebaChannelId.MAX_CURR, jMessage, "Max curr");
 				}
 				if (jMessage.has("E pres")) {
-					setInt(KebaKeContact.ChannelId.ENERGY_SESSION, jMessage, "E pres");
+					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
 				}
 			}
 		}
 	}
 
-	private void set(KebaKeContact.ChannelId channelId, Object value) {
+	private void set(KebaChannelId channelId, Object value) {
 		this.parent.channel(channelId).setNextValue(value);
 	}
 
-	private void setString(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setString(KebaChannelId channelId, JsonObject jMessage, String name) {
 		set(channelId, JsonUtils.getAsOptionalString(jMessage, name).orElse(null));
 	}
 
-	private void setInt(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setInt(KebaChannelId channelId, JsonObject jMessage, String name) {
 		set(channelId, JsonUtils.getAsOptionalInt(jMessage, name).orElse(null));
 	}
 
-	private void setBoolean(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setBoolean(KebaChannelId channelId, JsonObject jMessage, String name) {
 		Optional<Integer> enableSysOpt = JsonUtils.getAsOptionalInt(jMessage, name);
 		if (enableSysOpt.isPresent()) {
 			set(channelId, enableSysOpt.get() == 1);

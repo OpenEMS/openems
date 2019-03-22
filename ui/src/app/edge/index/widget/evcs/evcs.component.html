@@ -1,7 +1,7 @@
 <ion-card *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-    <ion-item>
+    <ion-item (click)="presentModal()">
       <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
       <!-- TODO Fix formatting -->
       <ion-label>
@@ -35,26 +35,27 @@
           <ion-label translate>Edge.Index.Widgets.EVCS.ChargeMode</ion-label>
         </ion-item>
         <ion-card-content *ngIf="!showBelademodus">
-          <table class="full_width">
-            <tr>
-              <td>
-                <ion-segment (ionChange)="updateChargeMode($event)" value={{controller.properties.chargeMode}}>
-                  <ion-segment-button value="EXCESS_POWER">
-                    <ion-item>
-                      <ion-icon style="width:40px" name="sunny"></ion-icon>
-                      <ion-label translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.Name</ion-label>
-                    </ion-item>
-                  </ion-segment-button>
-                  <ion-segment-button value="FORCE_CHARGE">
-                    <ion-item>
-                      <ion-img style="width:30px" src="assets/img/gridStorage.png"></ion-img>
-                      <ion-label translate>Edge.Index.Widgets.EVCS.ForceChargeMode.Name</ion-label>
-                    </ion-item>
-                  </ion-segment-button>
-                </ion-segment>
-              </td>
-            </tr>
-          </table>
+          <ion-segment width="full_width" ion-margin="0px;" (ionChange)="updateChargeMode($event)"
+            value={{controller.properties.chargeMode}}>
+            <ion-segment-button ion-margin="0px" ion-padding="0px" value="EXCESS_POWER">
+              <ion-item lines="none">
+                <ion-icon style="width:40px" name="sunny"></ion-icon>
+                <ion-label *ngIf=" screenWidth >= 1555 " translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.Name
+                </ion-label>
+                <ion-label *ngIf=" 1555 > screenWidth " translate>Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
+                </ion-label>
+              </ion-item>
+            </ion-segment-button>
+            <ion-segment-button ion-margin="0px" ion-padding="0px" value="FORCE_CHARGE">
+              <ion-item lines="none">
+                <ion-img style="width:30px" src="assets/img/gridStorage.png"></ion-img>
+                <ion-label *ngIf=" screenWidth >= 1555 " translate>Edge.Index.Widgets.EVCS.ForceChargeMode.Name
+                </ion-label>
+                <ion-label *ngIf=" 1555 > screenWidth " translate>Edge.Index.Widgets.EVCS.ForceChargeMode.ShortName
+                </ion-label>
+              </ion-item>
+            </ion-segment-button>
+          </ion-segment>
           <table style="margin-top: 20px;">
             <tr *ngIf="controller.properties.chargeMode == 'EXCESS_POWER'">
               <td>

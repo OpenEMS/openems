@@ -22,7 +22,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
@@ -47,7 +47,12 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 	}
 
 	public FeneconDessEss() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
 		// automatically calculate Active/ReactivePower from L1/L2/L3
 		AsymmetricEss.initializePowerSumChannels(this);
@@ -55,8 +60,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID,
-				this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -64,11 +69,9 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SYSTEM_STATE(new Doc().options(SystemState.values())), //
-		@SuppressWarnings("unchecked")
-		BSMU_WORK_STATE(new Doc() //
-				.options(BsmuWorkState.values()) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		SYSTEM_STATE(Doc.of(SystemState.values())), //
+		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
 				.onInit(channel -> { //
 					// on each update set Grid-Mode channel
 					((Channel<Integer>) channel).onChange(value -> {
@@ -95,7 +98,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						}
 					});
 				})), //
-		STACK_CHARGE_STATE(new Doc().options(StackChargeState.values())); //
+		STACK_CHARGE_STATE(Doc.of(StackChargeState.values())); //
 
 		private final Doc doc;
 

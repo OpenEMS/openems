@@ -197,14 +197,8 @@ public class RestHandler extends AbstractHandler {
 		JsonObject j = new JsonObject();
 		j.add("value", channel.value().asJson());
 		// type
-		Optional<OpenemsType> typeOpt = channel.channelDoc().getType();
-		String type;
-		if (typeOpt.isPresent()) {
-			type = typeOpt.get().toString().toLowerCase();
-		} else {
-			type = "UNDEFINED";
-		}
-		j.addProperty("type", type);
+		OpenemsType type = channel.channelDoc().getType();
+		j.addProperty("type", type.toString().toLowerCase());
 		// writable
 		j.addProperty("writable", //
 				channel instanceof WriteChannel<?> ? true : false //

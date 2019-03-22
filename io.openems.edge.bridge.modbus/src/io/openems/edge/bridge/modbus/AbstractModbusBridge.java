@@ -1,8 +1,5 @@
 package io.openems.edge.bridge.modbus;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -11,19 +8,16 @@ import org.slf4j.Logger;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateCollectorChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
  * Abstract service for connecting to, querying and writing to a Modbus device.
  */
-public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements EventHandler {
+public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements BridgeModbus, EventHandler {
 
 	/**
 	 * Default Modbus timeout in [ms].
@@ -45,30 +39,9 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	// LoggerFactory.getLogger(AbstractModbusBridge.class);
 	private final ModbusWorker worker = new ModbusWorker(this);
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SLAVE_COMMUNICATION_FAILED(new Doc().level(Level.FAULT));
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	public AbstractModbusBridge() {
-		Stream.of(//
-				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case STATE:
-						return new StateCollectorChannel(this, channelId);
-					}
-					return null;
-				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
+	protected AbstractModbusBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
 	protected void activate(ComponentContext context, String id, boolean enabled) {
@@ -131,7 +104,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * @return the Channel instance
 	 */
 	protected Channel<Boolean> getSlaveCommunicationFailedChannel() {
-		return this.channel(AbstractModbusBridge.ChannelId.SLAVE_COMMUNICATION_FAILED);
+		return this.channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED);
 	}
 
 	@Override

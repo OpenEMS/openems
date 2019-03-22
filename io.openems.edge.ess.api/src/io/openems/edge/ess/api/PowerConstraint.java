@@ -18,7 +18,7 @@ import io.openems.edge.ess.power.api.Relationship;
  * is directly validated and only added if the Power problem is still solvable
  * with the new constraint. Otherwise an error is logged.
  */
-public class PowerConstraint implements Consumer<Channel<?>> {
+public class PowerConstraint implements Consumer<Channel<Integer>> {
 
 	private static final Logger log = LoggerFactory.getLogger(PowerConstraint.class);
 
@@ -35,7 +35,7 @@ public class PowerConstraint implements Consumer<Channel<?>> {
 	}
 
 	@Override
-	public void accept(Channel<?> channel) {
+	public void accept(Channel<Integer> channel) {
 		((IntegerWriteChannel) channel).onSetNextWrite(value -> {
 			if (value != null) {
 				ManagedSymmetricEss ess = (ManagedSymmetricEss) channel.getComponent();

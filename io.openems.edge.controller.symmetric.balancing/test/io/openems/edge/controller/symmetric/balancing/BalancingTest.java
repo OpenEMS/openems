@@ -3,6 +3,7 @@ package io.openems.edge.controller.symmetric.balancing;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -49,6 +50,7 @@ public class BalancingTest {
 		controller.activate(null, config);
 		controller.activate(null, config);
 		// Prepare Channels
+		ChannelAddress ess0GridMode = new ChannelAddress("ess0", "GridMode");
 		ChannelAddress ess0ActivePower = new ChannelAddress("ess0", "ActivePower");
 		ChannelAddress meter0ActivePower = new ChannelAddress("meter0", "ActivePower");
 		ChannelAddress ess0SetActivePowerEquals = new ChannelAddress("ess0", "SetActivePowerEquals");
@@ -57,6 +59,7 @@ public class BalancingTest {
 		SymmetricMeter meter = new DummySymmetricMeter("meter0");
 		new ControllerTest(controller, componentManager, ess, meter) //
 				.next(new TestCase() //
+						.input(ess0GridMode, GridMode.ON_GRID) //
 						.input(ess0ActivePower, 1000).input(meter0ActivePower, 2000) //
 						.output(ess0SetActivePowerEquals, 3000)) //
 				.next(new TestCase() //

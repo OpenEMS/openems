@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,7 +29,7 @@ import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Ess.AvoidTotalChargeDischarge", //
+		name = "Controller.Ess.LimitTotalDischarge", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -54,13 +54,10 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	private Optional<Integer> forceChargePower = Optional.empty();
 	private State state = State.NORMAL;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		STATE_MACHINE(new Doc() //
-				.level(Level.INFO) //
-				.text("Current State of State-Machine") //
-				.options(State.values())), //
-		AWAITING_HYSTERESIS(new Doc() //
-				.level(Level.INFO) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
 				.text("Would change State, but hystesis is active")); //
 
 		private final Doc doc;
@@ -80,8 +77,12 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 	}
 
 	protected LimitTotalDischargeController(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate

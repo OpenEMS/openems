@@ -4,32 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.StateCollectorChannel;
-import io.openems.edge.common.component.OpenemsComponent;
-
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(CsvDatasource c) {
-		return Stream.of(//
-				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case STATE:
-						return new StateCollectorChannel(c, channelId);
-					}
-					return null;
-					// }), Arrays.stream(ComponentManagerImpl.ChannelId.values()).map(channelId -> {
-					// switch (channelId) {
-					// }
-					// return null;
-				}) //
-		).flatMap(channel -> channel);
-	}
 
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
@@ -46,6 +25,8 @@ public class Utils {
 			return "h0-summer-weekday-pv-production.csv";
 		case H0_HOUSEHOLD_SUMMER_WEEKDAY_NON_REGULATED_CONSUMPTION:
 			return "h0-summer-weekday-non-regulated-consumption.csv";
+		case H0_HOUSEHOLD_SUMMER_WEEKDAY_PV_PRODUCTION2:
+			return "h0-summer-weekday-pv-production2.csv";
 		}
 		return null;
 	}

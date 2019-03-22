@@ -1,18 +1,19 @@
 package io.openems.edge.common.channel;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class ShortReadChannel extends AbstractReadChannel<Short> {
+public class ShortReadChannel extends AbstractReadChannel<OpenemsTypeDoc<Short>, Short> {
 
-	public ShortReadChannel(OpenemsComponent component, ChannelId channelId) {
-		super(OpenemsType.SHORT, component, channelId);
+	protected ShortReadChannel(OpenemsComponent component, ChannelId channelId, ShortDoc channelDoc) {
+		this(component, channelId, channelDoc, null);
 	}
 
-	public ShortReadChannel(OpenemsComponent component, ChannelId channelId, Short initialValue) {
-		super(OpenemsType.SHORT, component, channelId, initialValue);
+	protected ShortReadChannel(OpenemsComponent component, ChannelId channelId, ShortDoc channelDoc,
+			Short initialValue) {
+		super(OpenemsType.SHORT, component, channelId, channelDoc, initialValue);
 	}
-
 
 }

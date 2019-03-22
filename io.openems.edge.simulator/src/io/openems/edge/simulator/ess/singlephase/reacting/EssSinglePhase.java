@@ -19,8 +19,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -57,7 +57,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	private SinglePhase phase;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 		private final Doc doc;
 
@@ -106,7 +106,16 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 	}
 
 	public EssSinglePhase() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				SinglePhaseEss.ChannelId.values(), //
+				ManagedSinglePhaseEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
@@ -205,7 +214,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
 				activePowerL3, reactivePowerL3);
 	}

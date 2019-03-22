@@ -4,6 +4,5 @@ public enum BatteryState {
 	
 	DEFAULT,
 	ON,
-	OFF
-
+	OFF,
 }
