@@ -4,15 +4,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class BooleanWriteChannel extends BooleanReadChannel implements WriteChannel<Boolean> {
 
+	public static class MirrorToDebugChannel implements Consumer<Channel<Boolean>> {
+
+		private final ChannelId targetChannelId;
+
+		public MirrorToDebugChannel(ChannelId targetChannelId) {
+			this.targetChannelId = targetChannelId;
+		}
+
+		@Override
+		public void accept(Channel<Boolean> channel) {
+			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+			((BooleanWriteChannel) channel).onSetNextWrite(value -> {
+				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
+			});
+		}
+	}
+
 	private Optional<Boolean> nextWriteValueOpt = Optional.empty();
 
-	public BooleanWriteChannel(OpenemsComponent component, ChannelId channelId) {
-		super(component, channelId);
+	protected BooleanWriteChannel(OpenemsComponent component, ChannelId channelId, BooleanDoc channelDoc) {
+		super(component, channelId, channelDoc);
 	}
 
 	/**
@@ -26,14 +42,8 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 		this.nextWriteValueOpt = Optional.ofNullable(value);
 	}
 
-	/**
-	 * Internal method. Do not call directly.
-	 * 
-	 * @return
-	 */
-	@Deprecated
 	@Override
-	public Optional<Boolean> _getNextWriteValue() {
+	public Optional<Boolean> getNextWriteValue() {
 		return this.nextWriteValueOpt;
 	}
 

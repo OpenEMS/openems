@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -54,18 +54,16 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Reference
 	private Sum sum;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		CHARGE_MODE(new Doc() //
-				.text("Configured Charge-Mode") //
-				.options(ChargeMode.values())),
-		FORCE_CHARGE_MINPOWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		CHARGE_MODE(Doc.of(ChargeMode.values()) //
+				.initialValue(ChargeMode.FORCE_CHARGE) //
+				.text("Configured Charge-Mode")), //
+		FORCE_CHARGE_MINPOWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).text("Minimum value for the force charge")),
-		DEFAULT_CHARGE_MINPOWER(new Doc()
-				.type(OpenemsType.INTEGER) //
+		DEFAULT_CHARGE_MINPOWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text("Minimum value for a default charge")); //
-		
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -83,8 +81,12 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	protected EvcsController(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Activate
@@ -94,15 +96,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
 		this.defaultChargeMinPower = Math.max(0, config.defaultChargeMinPower());
 		this.chargeMode = config.chargeMode();
-		
-		switch(config.chargeMode()) {
+
+		switch (config.chargeMode()) {
 		case EXCESS_POWER:
 			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(defaultChargeMinPower);
 			break;
 		case FORCE_CHARGE:
 			this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
 			break;
-		
+
 		}
 		this.channel(ChannelId.CHARGE_MODE).setNextValue(config.chargeMode());
 		this.evcsId = config.evcs_id();

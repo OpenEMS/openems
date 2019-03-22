@@ -7,11 +7,28 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 
 /**
  * A Service that provides access to OpenEMS-Components.
  */
 public interface ComponentManager {
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
+				.text("A configured OpenEMS Component was not activated"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	/**
 	 * Gets all enabled OpenEMS-Components.

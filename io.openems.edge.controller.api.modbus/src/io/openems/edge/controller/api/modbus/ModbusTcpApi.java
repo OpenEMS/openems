@@ -29,9 +29,9 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -84,9 +84,8 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		UNABLE_TO_START(new Doc() //
-				.level(Level.FAULT) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		UNABLE_TO_START(Doc.of(Level.FAULT) //
 				.text("Unable to start Modbus/TCP-Api Server"));
 
 		private final Doc doc;
@@ -107,10 +106,13 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	private int maxConcurrentConnections = ModbusTcpApi.DEFAULT_MAX_CONCURRENT_CONNECTIONS;
 
 	public ModbusTcpApi() {
-		this.processImage = new MyProcessImage(this);
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
-		// TODO: add Debug-Channels for writes to Channels via Modbus/TCP
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.processImage = new MyProcessImage(this);
 	}
 
 	@Activate

@@ -25,11 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -57,7 +58,7 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 		})
 public class PowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EventHandler, Power {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * The duration needed for solving the Power.
 		 * 
@@ -68,7 +69,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		SOLVE_DURATION(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
+		SOLVE_DURATION(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLISECONDS)),
 		/**
 		 * The eventually used solving strategy.
 		 * 
@@ -79,7 +80,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		SOLVE_STRATEGY(new Doc().type(OpenemsType.INTEGER).options(SolverStrategy.values())),
+		SOLVE_STRATEGY(Doc.of(SolverStrategy.values())),
 		/**
 		 * Whether the Power problem could be solved.
 		 * 
@@ -88,7 +89,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		SOLVED(new Doc().type(OpenemsType.BOOLEAN));
+		NOT_SOLVED(Doc.of(Level.WARNING));
 
 		private final Doc doc;
 
@@ -118,12 +119,15 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
 
 	public PowerComponent() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.data = new Data(this);
 		this.solver = new Solver(data);
 
 		this.solver.onSolved((isSolved, duration, strategy) -> {
-			this.getSolvedChannel().setNextValue(isSolved);
+			this.getNotSolvedChannel().setNextValue(!isSolved);
 			this.getSolveDurationChannel().setNextValue(duration);
 			this.getSolveStrategyChannel().setNextValue(strategy);
 		});
@@ -245,8 +249,8 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		}
 	}
 
-	protected BooleanReadChannel getSolvedChannel() {
-		return this.channel(ChannelId.SOLVED);
+	protected StateChannel getNotSolvedChannel() {
+		return this.channel(ChannelId.NOT_SOLVED);
 	}
 
 	protected IntegerReadChannel getSolveDurationChannel() {

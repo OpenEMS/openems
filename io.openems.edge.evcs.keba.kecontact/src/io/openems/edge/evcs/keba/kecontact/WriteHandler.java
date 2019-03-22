@@ -78,7 +78,7 @@ public class WriteHandler implements Runnable {
 	 * Sets the enabled state from SET_ENABLED channel
 	 */
 	private void setEnabled() {
-		WriteChannel<Boolean> channel = this.parent.channel(KebaKeContact.ChannelId.SET_ENABLED);
+		WriteChannel<Boolean> channel = this.parent.channel(KebaChannelId.SET_ENABLED);
 		Optional<Boolean> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			Boolean enabled = valueOpt.get();
@@ -110,7 +110,7 @@ public class WriteHandler implements Runnable {
 		if (valueOpt.isPresent()) {
 
 			Integer power = valueOpt.get();
-			Channel<Integer> phases = this.parent.channel(KebaKeContact.ChannelId.PHASES);
+			Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
 			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
 
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
@@ -119,7 +119,7 @@ public class WriteHandler implements Runnable {
 						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
 
 				try {
-					Channel<Integer> currPower = this.parent.channel(KebaKeContact.ChannelId.ACTUAL_POWER);
+					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
 					this.parent.setDisplayText()
 							.setNextWriteValue("Charging " + (currPower.value().orElse(0) / 1000) + "W");
 				} catch (OpenemsException e) {

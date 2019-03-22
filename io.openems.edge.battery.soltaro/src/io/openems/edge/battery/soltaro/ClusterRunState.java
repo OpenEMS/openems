@@ -1,6 +1,6 @@
 package io.openems.edge.battery.soltaro;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum ClusterRunState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

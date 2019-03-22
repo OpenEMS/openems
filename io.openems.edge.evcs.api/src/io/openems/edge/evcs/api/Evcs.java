@@ -3,11 +3,11 @@ package io.openems.edge.evcs.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -15,8 +15,8 @@ import io.openems.edge.common.modbusslave.ModbusType;
 @ProviderType
 public interface Evcs extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
 		/**
 		 * Charge Power.
 		 * 
@@ -27,8 +27,9 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		CHARGE_POWER(new Doc().accessMode(AccessMode.READ_ONLY).type(OpenemsType.INTEGER).unit(Unit.WATT)),
-
+		CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)), //
 		/**
 		 * Maximum Power valid by the Hardware.
 		 * 
@@ -39,10 +40,11 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		HARDWARE_POWER_LIMIT(new Doc().accessMode(AccessMode.READ_ONLY).type(OpenemsType.INTEGER).unit(Unit.WATT)
-		  						.text("Highest possible charging current of the charging connection. "
-		  						+ "Contains device maximum, DIP-switch setting, cable coding and temperature reduction.")),
-		
+		HARDWARE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Highest possible charging power of the charging connection. "
+						+ "Contains device maximum, DIP-switch setting, cable coding and temperature reduction.")),
 		/**
 		 * Set Charge Power.
 		 * 
@@ -53,8 +55,9 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		SET_CHARGE_POWER(new Doc().accessMode(AccessMode.READ_WRITE).type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		
+		SET_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)),
 		/**
 		 * Set Display Text.
 		 * 
@@ -64,9 +67,8 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		SET_DISPLAY_TEXT(new Doc().accessMode(AccessMode.READ_WRITE).type(OpenemsType.STRING));
-
-		// TODO add debug channel for set charge power
+		SET_DISPLAY_TEXT(Doc.of(OpenemsType.STRING) //
+				.accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;
 
