@@ -15,6 +15,7 @@ public class StringDoc extends OpenemsTypeDoc<String> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public StringReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {

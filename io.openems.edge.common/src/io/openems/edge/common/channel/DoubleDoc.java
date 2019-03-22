@@ -15,6 +15,7 @@ public class DoubleDoc extends OpenemsTypeDoc<Double> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public DoubleReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {

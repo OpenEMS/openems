@@ -15,6 +15,7 @@ public class IntegerDoc extends OpenemsTypeDoc<Integer> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IntegerReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
 		switch (this.getAccessMode()) {
