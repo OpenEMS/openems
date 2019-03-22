@@ -3,7 +3,7 @@ package io.openems.edge.common.modbusslave;
 import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint16 extends ModbusRecordConstant {

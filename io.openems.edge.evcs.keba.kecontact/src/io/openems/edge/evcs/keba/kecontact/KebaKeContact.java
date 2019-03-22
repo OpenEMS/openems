@@ -23,11 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -58,6 +54,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
 
+	
 	public KebaKeContact() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -99,7 +96,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 
 			// Clear channels if the connection to the Charging Station has been lost
-			Channel<Boolean> connectionLostChannel = this.channel(ChannelId.ChargingStation_COMMUNICATION_FAILED);
+			Channel<Boolean> connectionLostChannel = this.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED);
 			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
 			if (connectionLost != lastConnectionLostState) {
 				if (connectionLost) {
@@ -169,8 +166,8 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	private void resetChannelValues() {
-		for (ChannelId c : ChannelId.values()) {
-			if (c != ChannelId.ChargingStation_COMMUNICATION_FAILED) {
+		for (KebaChannelId c : KebaChannelId.values()) {
+			if (c != KebaChannelId.ChargingStation_COMMUNICATION_FAILED) {
 				Channel<?> channel = this.channel(c);
 				channel.setNextValue(null);
 			}
@@ -194,41 +191,41 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		return ModbusSlaveNatureTable.of(KebaKeContact.class, 300) //
 		
 				
-		.channel(0, ChannelId.PRODUCT, ModbusType.STRING16)
-		.channel(16, ChannelId.SERIAL, ModbusType.STRING16)
-		.channel(32, ChannelId.FIRMWARE, ModbusType.STRING16)
-		.channel(48, ChannelId.COM_MODULE, ModbusType.STRING16)
-		.channel(64, ChannelId.STATUS, ModbusType.UINT16)
-		.channel(65, ChannelId.ERROR_1, ModbusType.UINT16)
-		.channel(66, ChannelId.ERROR_2, ModbusType.UINT16)
-		.channel(67, ChannelId.PLUG, ModbusType.UINT16)
-		.channel(68, ChannelId.ENABLE_SYS, ModbusType.UINT16)
-		.channel(69, ChannelId.ENABLE_USER, ModbusType.UINT16)
-		.channel(70, ChannelId.MAX_CURR, ModbusType.UINT16)
-		.channel(71, ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
-		.channel(72, ChannelId.CURR_USER, ModbusType.UINT16)
-		.channel(73, ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
-		.channel(74, ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
-		.channel(75, ChannelId.CURR_TIMER, ModbusType.UINT16)
-		.channel(76, ChannelId.TIMEOUT_CT, ModbusType.UINT16)
-		.channel(77, ChannelId.ENERGY_LIMIT, ModbusType.UINT16)
-		.channel(78, ChannelId.OUTPUT, ModbusType.UINT16)
-		.channel(79, ChannelId.INPUT, ModbusType.UINT16)
+		.channel(0, KebaChannelId.PRODUCT, ModbusType.STRING16)
+		.channel(16, KebaChannelId.SERIAL, ModbusType.STRING16)
+		.channel(32, KebaChannelId.FIRMWARE, ModbusType.STRING16)
+		.channel(48, KebaChannelId.COM_MODULE, ModbusType.STRING16)
+		.channel(64, KebaChannelId.STATUS, ModbusType.UINT16)
+		.channel(65, KebaChannelId.ERROR_1, ModbusType.UINT16)
+		.channel(66, KebaChannelId.ERROR_2, ModbusType.UINT16)
+		.channel(67, KebaChannelId.PLUG, ModbusType.UINT16)
+		.channel(68, KebaChannelId.ENABLE_SYS, ModbusType.UINT16)
+		.channel(69, KebaChannelId.ENABLE_USER, ModbusType.UINT16)
+		.channel(70, KebaChannelId.MAX_CURR, ModbusType.UINT16)
+		.channel(71, KebaChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
+		.channel(72, KebaChannelId.CURR_USER, ModbusType.UINT16)
+		.channel(73, KebaChannelId.CURR_FAILSAFE, ModbusType.UINT16)
+		.channel(74, KebaChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
+		.channel(75, KebaChannelId.CURR_TIMER, ModbusType.UINT16)
+		.channel(76, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16)
+		.channel(77, KebaChannelId.ENERGY_LIMIT, ModbusType.UINT16)
+		.channel(78, KebaChannelId.OUTPUT, ModbusType.UINT16)
+		.channel(79, KebaChannelId.INPUT, ModbusType.UINT16)
 		 
 		//Report 3
-		.channel(80, ChannelId.VOLTAGE_L1, ModbusType.UINT16)
-		.channel(81, ChannelId.VOLTAGE_L2, ModbusType.UINT16)
-		.channel(82, ChannelId.VOLTAGE_L3, ModbusType.UINT16)
-		.channel(83, ChannelId.CURRENT_L1, ModbusType.UINT16)
-		.channel(84, ChannelId.CURRENT_L2, ModbusType.UINT16)
-		.channel(85, ChannelId.CURRENT_L3, ModbusType.UINT16)
-		.channel(86, ChannelId.ACTUAL_POWER, ModbusType.UINT16)
-		.channel(87, ChannelId.COS_PHI, ModbusType.UINT16)
-		.channel(88, ChannelId.ENERGY_SESSION, ModbusType.UINT16)
-		.channel(89, ChannelId.ENERGY_TOTAL, ModbusType.UINT16)
-		.channel(90, ChannelId.PHASES, ModbusType.UINT16)
-		.channel(91, ChannelId.SET_ENABLED, ModbusType.UINT16)
-		.channel(92, ChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
+		.channel(80, KebaChannelId.VOLTAGE_L1, ModbusType.UINT16)
+		.channel(81, KebaChannelId.VOLTAGE_L2, ModbusType.UINT16)
+		.channel(82, KebaChannelId.VOLTAGE_L3, ModbusType.UINT16)
+		.channel(83, KebaChannelId.CURRENT_L1, ModbusType.UINT16)
+		.channel(84, KebaChannelId.CURRENT_L2, ModbusType.UINT16)
+		.channel(85, KebaChannelId.CURRENT_L3, ModbusType.UINT16)
+		.channel(86, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
+		.channel(87, KebaChannelId.COS_PHI, ModbusType.UINT16)
+		.channel(88, KebaChannelId.ENERGY_SESSION, ModbusType.UINT16)
+		.channel(89, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
+		.channel(90, KebaChannelId.PHASES, ModbusType.UINT16)
+		.channel(91, KebaChannelId.SET_ENABLED, ModbusType.UINT16)
+		.channel(92, KebaChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
 		.build();
 	}
 }

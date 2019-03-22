@@ -6,7 +6,9 @@ import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.AccessMode;
 
+@SuppressWarnings("restriction") // Todo: Remove Warnings in an other way
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
+	
 	/*
 	 * Report 1
 	 */
