@@ -78,6 +78,8 @@ image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
 .. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
 +
 Login with username *admin* and password *admin*.
+
+Note: *Apache Felix Web Console Configuration* only works with a running console, otherwise you will receive a *error message* on your Browser.
 +
 .Apache Felix Web Console Configuration
 image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]
@@ -186,11 +188,11 @@ NOTE: The Controller Api Websocket is required to enable access to OpenEMS Edge 
 . Download https://code.visualstudio.com/[Visual Studio Code icon:external-link[]], install and start it.
 . Open OpenEMS UI source code in Visual Studio Code:
 +
-Menu: btn:[File] → btn:[Open directory...] → Select the `ui` directory inside the downloaded source code (for example `C:\Users\your.user\git\openems\ui`) → btn:[Select directory]
+Menu: btn:[File] → btn:[Open Folder...] → Select the `ui` directory inside the downloaded source code (for example `C:\Users\your.user\git\openems\ui`) → btn:[Select directory]
 
 . Open the integrated terminal:
 +
-Menu: btn:[Show] → btn:[Integrated terminal]
+Menu: btn:[Terminal] → btn:[New Terminal]
 
 . Install https://cli.angular.io/[Angular CLI icon:external-link[]]:
 +
@@ -237,7 +239,7 @@ Instead of having Edge and UI talk to each other directly, the communication can
 
 === Run and configure OpenEMS Backend
 
-. In Eclipse IDE open the project btn:[io.openems.backend.application] and double click on btn:[BackendApp.run].
+. In Eclipse IDE open the project btn:[io.openems.backend.application] and double click on btn:[BackendApp.bndrun].
 +
 .io.openems.backend.application project in Eclipse IDE
 image::eclipse-io.openems.backend.application.png[io.openems.backend.application project in Eclipse IDE]
