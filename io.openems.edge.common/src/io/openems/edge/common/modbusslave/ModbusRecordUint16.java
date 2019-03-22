@@ -3,6 +3,7 @@ package io.openems.edge.common.modbusslave;
 import java.nio.ByteBuffer;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint16 extends ModbusRecordConstant {
@@ -28,7 +29,7 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 	}
 
 	public static byte[] toByteArray(Object value) {
-		if (value == null) {
+		if (value == null || (value instanceof OptionsEnum && ((OptionsEnum) value).isUndefined())) {
 			return UNDEFINED_VALUE;
 		} else {
 			return toByteArray((short) TypeUtils.getAsType(OpenemsType.SHORT, value));

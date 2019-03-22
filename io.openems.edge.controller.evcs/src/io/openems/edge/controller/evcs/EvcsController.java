@@ -20,6 +20,8 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
@@ -30,7 +32,7 @@ import io.openems.edge.evcs.api.Evcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
 
 	private static final int RUN_EVERY_MINUTES = 1;
 
@@ -163,4 +165,10 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		super.logInfo(log, message);
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		return new ModbusSlaveTable(
+				OpenemsComponent.getModbusSlaveNatureTable()
+		);
+	}
 }

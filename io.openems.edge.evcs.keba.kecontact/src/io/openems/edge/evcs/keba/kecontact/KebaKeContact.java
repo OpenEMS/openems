@@ -24,12 +24,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
@@ -39,7 +44,8 @@ import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
-public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, OpenemsComponent, EventHandler {
+public class KebaKeContact extends AbstractOpenemsComponent
+		implements Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public final static int UDP_PORT = 7090;
 
@@ -47,6 +53,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	private final ReadWorker readWorker = new ReadWorker(this);
 	private final ReadHandler readHandler = new ReadHandler(this);
 	private final WriteHandler writeHandler = new WriteHandler(this);
+	private Boolean lastConnectionLostState = false;
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -171,6 +178,17 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+
+			// Clear channels if the connection to the Charging Station has been lost
+			Channel<Boolean> connectionLostChannel = this.channel(ChannelId.ChargingStation_COMMUNICATION_FAILED);
+			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
+			if (connectionLost != lastConnectionLostState) {
+				if (connectionLost) {
+					resetChannelValues();
+				}
+				lastConnectionLostState = connectionLost;
+			}
+
 			// handle writes
 			this.writeHandler.run();
 			break;
@@ -229,5 +247,69 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 
 	public ReadHandler getReadHandler() {
 		return readHandler;
+	}
+
+	private void resetChannelValues() {
+		for (ChannelId c : ChannelId.values()) {
+			if (c != ChannelId.ChargingStation_COMMUNICATION_FAILED) {
+				Channel<?> channel = this.channel(c);
+				channel.setNextValue(null);
+			}
+		}
+
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable() {
+		
+		return new ModbusSlaveTable(
+				OpenemsComponent.getModbusSlaveNatureTable(), 
+				Evcs.getModbusSlaveNatureTable(),
+				this.getModbusSlaveNatureTable()
+				
+		);
+	}
+	
+	private ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		
+		return ModbusSlaveNatureTable.of(KebaKeContact.class, 300) //
+		
+				
+		.channel(0, ChannelId.PRODUCT, ModbusType.STRING16)
+		.channel(16, ChannelId.SERIAL, ModbusType.STRING16)
+		.channel(32, ChannelId.FIRMWARE, ModbusType.STRING16)
+		.channel(48, ChannelId.COM_MODULE, ModbusType.STRING16)
+		.channel(64, ChannelId.STATUS, ModbusType.UINT16)
+		.channel(65, ChannelId.ERROR_1, ModbusType.UINT16)
+		.channel(66, ChannelId.ERROR_2, ModbusType.UINT16)
+		.channel(67, ChannelId.PLUG, ModbusType.UINT16)
+		.channel(68, ChannelId.ENABLE_SYS, ModbusType.UINT16)
+		.channel(69, ChannelId.ENABLE_USER, ModbusType.UINT16)
+		.channel(70, ChannelId.MAX_CURR, ModbusType.UINT16)
+		.channel(71, ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
+		.channel(72, ChannelId.CURR_USER, ModbusType.UINT16)
+		.channel(73, ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
+		.channel(74, ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
+		.channel(75, ChannelId.CURR_TIMER, ModbusType.UINT16)
+		.channel(76, ChannelId.TIMEOUT_CT, ModbusType.UINT16)
+		.channel(77, ChannelId.ENERGY_LIMIT, ModbusType.UINT16)
+		.channel(78, ChannelId.OUTPUT, ModbusType.UINT16)
+		.channel(79, ChannelId.INPUT, ModbusType.UINT16)
+		 
+		//Report 3
+		.channel(80, ChannelId.VOLTAGE_L1, ModbusType.UINT16)
+		.channel(81, ChannelId.VOLTAGE_L2, ModbusType.UINT16)
+		.channel(82, ChannelId.VOLTAGE_L3, ModbusType.UINT16)
+		.channel(83, ChannelId.CURRENT_L1, ModbusType.UINT16)
+		.channel(84, ChannelId.CURRENT_L2, ModbusType.UINT16)
+		.channel(85, ChannelId.CURRENT_L3, ModbusType.UINT16)
+		.channel(86, ChannelId.ACTUAL_POWER, ModbusType.UINT16)
+		.channel(87, ChannelId.COS_PHI, ModbusType.UINT16)
+		.channel(88, ChannelId.ENERGY_SESSION, ModbusType.UINT16)
+		.channel(89, ChannelId.ENERGY_TOTAL, ModbusType.UINT16)
+		.channel(90, ChannelId.PHASES, ModbusType.UINT16)
+		.channel(91, ChannelId.SET_ENABLED, ModbusType.UINT16)
+		.channel(92, ChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
+		.build();
 	}
 }

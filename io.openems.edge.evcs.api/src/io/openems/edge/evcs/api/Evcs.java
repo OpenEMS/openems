@@ -9,6 +9,8 @@ import io.openems.edge.common.channel.doc.AccessMode;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface Evcs extends OpenemsComponent {
@@ -77,6 +79,17 @@ public interface Evcs extends OpenemsComponent {
 			return this.doc;
 		}
 	}
+	
+	
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+		return ModbusSlaveNatureTable.of(Evcs.class, 100) //
+				.channel(0, ChannelId.CHARGE_POWER, ModbusType.UINT16) //
+				.channel(1, ChannelId.HARDWARE_POWER_LIMIT, ModbusType.UINT16) //
+				.channel(2, ChannelId.SET_CHARGE_POWER, ModbusType.UINT16)
+				.channel(3, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16)
+				.build();
+	}
+
 
 	/**
 	 * Gets the Charge Power in [W].
