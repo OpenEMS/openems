@@ -75,8 +75,6 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 				.unit(Unit.VOLT_AMPERE)), //
 		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIHERTZ)), //
 		REACTIVE_ENERGY_POSITIVE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS)), //
 		REACTIVE_ENERGY_NEGATIVE(Doc.of(OpenemsType.INTEGER) //
