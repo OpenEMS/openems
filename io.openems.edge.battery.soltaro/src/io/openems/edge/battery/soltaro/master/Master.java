@@ -22,7 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.master.Enums.RackUsage;
@@ -474,7 +474,7 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 			} else {
 				rack3UsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
@@ -490,7 +490,7 @@ public class Master extends AbstractOpenemsModbusComponent implements Battery, O
 			rack1UsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
 			rack2UsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
 			rack3UsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}

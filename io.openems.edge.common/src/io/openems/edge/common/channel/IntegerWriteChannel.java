@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.channel.ChannelId;
 
 public class IntegerWriteChannel extends IntegerReadChannel implements WriteChannel<Integer> {
@@ -52,12 +53,12 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<Integer>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Integer>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Integer> callback) {
+	public void onSetNextWrite(CheckedConsumer<Integer> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

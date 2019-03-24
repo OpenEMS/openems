@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class LongWriteChannel extends LongReadChannel implements WriteChannel<Long> {
@@ -51,12 +52,12 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<Long>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Long>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Long> callback) {
+	public void onSetNextWrite(CheckedConsumer<Long> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

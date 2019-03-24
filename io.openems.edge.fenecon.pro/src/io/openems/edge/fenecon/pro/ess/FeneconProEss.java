@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -80,7 +80,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
 		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
 		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
@@ -528,7 +528,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 					this.getSetupModeChannel().setNextWriteValue(SetupMode.OFF);
 				}
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(log, "Unable to activate Remote-Mode: " + e.getMessage());
 		}
 	}

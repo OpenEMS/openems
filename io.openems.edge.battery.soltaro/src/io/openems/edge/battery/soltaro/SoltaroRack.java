@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -228,7 +228,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 
 		try {
 			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
@@ -246,7 +246,7 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 		try {
 			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
 			isStopping = true;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}
