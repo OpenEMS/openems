@@ -36,7 +36,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        let power = Utils.subtractSafely(sum.storage.chargeActivePowerAC, sum.storage.dischargeActivePowerAC);
+        let power = Utils.addSafely(
+            Utils.subtractSafely(sum.storage.chargeActivePowerAC,
+                sum.storage.dischargeActivePowerAC),
+            sum.production.activePowerDC);
         if (power == null || power == 0) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
             super.updateSectionData(0, 0, 0);
