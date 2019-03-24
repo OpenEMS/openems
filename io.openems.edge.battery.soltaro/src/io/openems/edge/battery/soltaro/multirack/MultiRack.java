@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.multirack.Enums.ContactorControl;
@@ -311,7 +311,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 				IntegerWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(r.getRackNumber()).usageChannelId);
 				rackUsageChannel.setNextWriteValue(RackUsage.USED.getValue());
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
@@ -326,7 +326,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 				IntegerWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(r.getRackNumber()).usageChannelId);
 				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class ShortWriteChannel extends ShortReadChannel implements WriteChannel<Short> {
@@ -51,12 +52,12 @@ public class ShortWriteChannel extends ShortReadChannel implements WriteChannel<
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<Short>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Short>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Short> callback) {
+	public void onSetNextWrite(CheckedConsumer<Short> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 
