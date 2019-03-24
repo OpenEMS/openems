@@ -8,6 +8,12 @@
 ** xref:edge/scheduler.adoc[Scheduler]
 ** xref:edge/controller.adoc[Controller]
 ** xref:edge/implement.adoc[Implementing a Device]
+** Apps
+*** xref:edge/apps/controllers.adoc[Implemented Controllers]
+*** xref:edge/apps/devices.adoc[Implemented Devices]
+*** xref:edge/apps/schedulers.adoc[Implemented Schedulers]
+*** xref:edge/apps/timedata.adoc[Timedata services]
+*** xref:edge/apps/utils.adoc[Helpful utilities]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
 * OpenEMS UI
