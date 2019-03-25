@@ -8,11 +8,13 @@ Private-Package:  \
 
 -includeresource: {readme.md}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	io.openems.edge.evcs.api;version=latest
+	io.openems.edge.evcs.api;version=latest,\
+	io.openems.edge.evcs.keba.kecontact;version=latest
 
 -testpath: ${testpath}
 

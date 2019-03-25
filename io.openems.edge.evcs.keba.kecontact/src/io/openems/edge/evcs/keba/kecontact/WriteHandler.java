@@ -113,6 +113,11 @@ public class WriteHandler implements Runnable {
 			Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
 			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
 
+			// limits the charging value because KEBA knows only values between 6000 and 63000
+			if(current>63000) {
+				current = 63000;
+			}
+			
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
 				this.parent.logInfo(this.log, "Setting KEBA KeContact current to [" + current

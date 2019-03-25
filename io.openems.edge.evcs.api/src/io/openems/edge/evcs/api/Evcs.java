@@ -30,6 +30,37 @@ public interface Evcs extends OpenemsComponent {
 		CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)), //
+		
+		
+		/**
+		 * Minimum Power .
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		 MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		
+		/**
+		 * Maximum Power .
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		 MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+					.unit(Unit.WATT) //
+					.accessMode(AccessMode.READ_WRITE)),
+		
 		/**
 		 * Maximum Power valid by the Hardware.
 		 * 

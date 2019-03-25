@@ -26,6 +26,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
 
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Evcs", //
@@ -36,7 +37,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	private static final int RUN_EVERY_MINUTES = 1;
 
-	// private final Logger log = LoggerFactory.getLogger(EvcsController.class);
+	//private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;
 
 	private int forceChargeMinPower = 0;
@@ -90,7 +91,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException{
 		super.activate(context, config.id(), config.enabled());
 
 		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
@@ -103,6 +104,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			break;
 		case FORCE_CHARGE:
 			this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
+			
 			break;
 
 		}
@@ -128,7 +130,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 
 		Evcs evcs = this.componentManager.getComponent(this.evcsId);
-
+		//Channel<Integer> phases = evcs.channel("Phases");
+		
+		
 		int nextChargePower = 0;
 		int nextMinPower = 0;
 		switch (this.chargeMode) {
@@ -152,7 +156,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (nextChargePower < nextMinPower) {
 			nextChargePower = nextMinPower;
 		}
-
+		
 		// set charge power
 		evcs.setChargePower().setNextWriteValue(nextChargePower);
 	}
