@@ -279,7 +279,35 @@ public class Wordpress extends AbstractOpenemsBackendComponent implements Metada
 
 	@Override
 	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		// TODO Auto-generated method stub
+		
+		try {
+
+			String valid;
+			
+			
+
+			JsonObject j = this.dbu.getWPResponse("/auth/generate_auth_cookie/?username=" + username + "&password=" + password);
+
+			valid = j.get("status").getAsString();
+
+			if (valid.equals("ok")) {
+				
+				String cookie = j.get("cookie").getAsString();
+				
+				log.debug("Cookie: " + cookie);
+				
+				return authenticate(cookie);
+				
+
+			} else {
+				throw new OpenemsException("User Login not valid!");
+			}
+		} catch (JsonSyntaxException e) {
+
+			e.printStackTrace();
+
+		}
+		
 		return null;
 	}
 
