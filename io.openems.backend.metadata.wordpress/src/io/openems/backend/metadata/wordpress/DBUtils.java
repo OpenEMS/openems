@@ -158,7 +158,7 @@ public class DBUtils {
 
 		if (sessionId == null) {
 			
-			return new MyUser("0", "Gast", new ArrayList<String>(Arrays.asList("3","4")),"guest" );
+			return new MyUser("0", "Gast", new ArrayList<String>(Arrays.asList("2","4")),"guest" );
 			
 		}
 
