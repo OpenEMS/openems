@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "ESS KACO blueplanet gridsave 50.0 TL3", //
-		description = "Implements the FENECON Commercial 40 energy storage system.")
+		description = "Implements the KACO blueplanet gridsave 50.0 TL3 inverter.")
 @interface Config {
 	String id() default "ess0";
 

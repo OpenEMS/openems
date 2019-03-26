@@ -77,7 +77,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private LocalDateTime startAttemptTime = null;	
 	private String modbusBridgeId;
 	private BatteryState batteryState;
-	@Reference
+//	@Reference
 	private State state = State.UNDEFINED;
 	private Config config;
 	private Collection<SingleRack> racks = new ArrayList<>();
