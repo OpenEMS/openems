@@ -226,8 +226,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	}
 
 	private boolean isError() {
-		// TODO define what is an error
-		// should we look at the submasters for level 2 errors?
+		// still TODO define what is exactly an error
 		if (readValueFromStateChannel(MultiRackChannelId.MASTER_ALARM_LEVEL_2_INSULATION)) {
 			return true;
 		}
@@ -241,10 +240,17 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 			return true;
 		}
 
+		// Check for communication errors
+		for (int key : racks.keySet()) {
+			if (readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 
-	public Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
+	protected Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		return super.addChannel(channelId);
 	}
 
@@ -255,25 +261,19 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	}
 
 	private boolean isSystemStopped() {
-		boolean ret = true;
-
-		for (SingleRack rack : racks.values()) {
-			ret = ret && ContactorControl.CUT_OFF == this
-					.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId).value().asEnum();
-		}
-
-		return ret;
+		return haveAllRacksTheSameContactorControlState(ContactorControl.CUT_OFF);
 	}
 
 	private boolean isSystemRunning() {
-		boolean ret = true;
+		return haveAllRacksTheSameContactorControlState(ContactorControl.ON_GRID);
+	}
 
+	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
+		boolean r = true;
 		for (SingleRack rack : racks.values()) {
-			ret = ret && ContactorControl.ON_GRID == this
-					.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId).value().asEnum();
+			r = r && cctrl == this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId).value().asEnum();
 		}
-
-		return ret;
+		return r;
 	}
 
 	/**
@@ -322,7 +322,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		EnumWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
 		try {
 			startStopChannel.setNextWriteValue(StartStop.STOP);
-			//write to all racks unused!!
+			// write to all racks unused!!
 			for (RackInfo r : RACK_INFO.values()) {
 				EnumWriteChannel rackUsageChannel = this.channel(r.usageChannelId);
 				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
@@ -527,16 +527,26 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 	private static Map<Integer, RackInfo> createRackInfo() {
 		Map<Integer, RackInfo> map = new HashMap<Integer, RackInfo>();
-		map.put(1, new RackInfo(ADDRESS_OFFSET_RACK_1, MultiRackChannelId.RACK_1_USAGE,
-				MultiRackChannelId.RACK_1_POSITIVE_CONTACTOR));
-		map.put(2, new RackInfo(ADDRESS_OFFSET_RACK_2, MultiRackChannelId.RACK_2_USAGE,
-				MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR));
-		map.put(3, new RackInfo(ADDRESS_OFFSET_RACK_3, MultiRackChannelId.RACK_3_USAGE,
-				MultiRackChannelId.RACK_3_POSITIVE_CONTACTOR));
-		map.put(4, new RackInfo(ADDRESS_OFFSET_RACK_4, MultiRackChannelId.RACK_4_USAGE,
-				MultiRackChannelId.RACK_4_POSITIVE_CONTACTOR));
-		map.put(5, new RackInfo(ADDRESS_OFFSET_RACK_5, MultiRackChannelId.RACK_5_USAGE,
-				MultiRackChannelId.RACK_5_POSITIVE_CONTACTOR));
+		map.put(1,
+				new RackInfo(ADDRESS_OFFSET_RACK_1, MultiRackChannelId.RACK_1_USAGE,
+						MultiRackChannelId.RACK_1_POSITIVE_CONTACTOR,
+						MultiRackChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1));
+		map.put(2,
+				new RackInfo(ADDRESS_OFFSET_RACK_2, MultiRackChannelId.RACK_2_USAGE,
+						MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR,
+						MultiRackChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2));
+		map.put(3,
+				new RackInfo(ADDRESS_OFFSET_RACK_3, MultiRackChannelId.RACK_3_USAGE,
+						MultiRackChannelId.RACK_3_POSITIVE_CONTACTOR,
+						MultiRackChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3));
+		map.put(4,
+				new RackInfo(ADDRESS_OFFSET_RACK_4, MultiRackChannelId.RACK_4_USAGE,
+						MultiRackChannelId.RACK_4_POSITIVE_CONTACTOR,
+						MultiRackChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4));
+		map.put(5,
+				new RackInfo(ADDRESS_OFFSET_RACK_5, MultiRackChannelId.RACK_5_USAGE,
+						MultiRackChannelId.RACK_5_POSITIVE_CONTACTOR,
+						MultiRackChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5));
 
 		return map;
 	}
@@ -546,10 +556,17 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		int addressOffset;
 		MultiRackChannelId usageChannelId;
 		MultiRackChannelId positiveContactorChannelId;
+		MultiRackChannelId subMasterCommunicationAlarmChannelId;
 
-		RackInfo(int addressOffset, MultiRackChannelId usageChannelId, MultiRackChannelId positiveContactorChannelId) {
+		RackInfo( //
+				int addressOffset, //
+				MultiRackChannelId usageChannelId, //
+				MultiRackChannelId positiveContactorChannelId, //
+				MultiRackChannelId subMasterCommunicationAlarmChannelId //
+		) {
 			this.addressOffset = addressOffset;
 			this.usageChannelId = usageChannelId;
+			this.subMasterCommunicationAlarmChannelId = subMasterCommunicationAlarmChannelId;
 			this.positiveContactorChannelId = positiveContactorChannelId;
 		}
 	}
