@@ -1,9 +1,6 @@
 package io.openems.edge.battery.soltaro.multirack;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.multirack.Enums.ContactorControl;
@@ -42,8 +39,8 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -66,21 +63,24 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private static final int ADDRESS_OFFSET_RACK_3 = 0x4000;
 	private static final int ADDRESS_OFFSET_RACK_4 = 0x5000;
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
+	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
 
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
 	private final Logger log = LoggerFactory.getLogger(MultiRack.class);
-	
+
+	@Reference
 	protected ConfigurationAdmin cm;
-	// If an error has occurred, this indicates the time when next action could be done
+
+	// If an error has occurred, this indicates the time when next action could be
+	// done
 	private LocalDateTime errorDelayIsOver = null;
 	private int unsuccessfulStarts = 0;
-	private LocalDateTime startAttemptTime = null;	
+	private LocalDateTime startAttemptTime = null;
 	private String modbusBridgeId;
 	private BatteryState batteryState;
-//	@Reference
 	private State state = State.UNDEFINED;
 	private Config config;
-	private Collection<SingleRack> racks = new ArrayList<>();
+	private Map<Integer, SingleRack> racks = new HashMap<>();
 
 	public MultiRack() {
 		super(//
@@ -106,14 +106,17 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 		// Create racks dynamically
 		for (int i : config.racks()) {
-			this.racks.add(new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
+			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
 		}
-		
+
 		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(MultiRack.CHARGE_MAX_A);
 		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(MultiRack.DISCHARGE_MAX_A);
-		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE).setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);		
-		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE).setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);		
-		this.channel(Battery.ChannelId.CAPACITY).setNextValue( this.config.racks().length * this.config.numberOfSlaves() * ModuleParameters.CAPACITY_WH.getValue() / 1000 );
+		this.channel(Battery.ChannelId.CHARGE_MAX_VOLTAGE)
+				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MAX_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this.channel(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE)
+				.setNextValue(this.config.numberOfSlaves() * ModuleParameters.MIN_VOLTAGE_MILLIVOLT.getValue() / 1000);
+		this.channel(Battery.ChannelId.CAPACITY).setNextValue(this.config.racks().length * this.config.numberOfSlaves()
+				* ModuleParameters.CAPACITY_WH.getValue() / 1000);
 	}
 
 	@Override
@@ -240,12 +243,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 		return false;
 	}
-	
+
 	public Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
-		return this.addChannel(channelId);
+		return super.addChannel(channelId);
 	}
 
-	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {		
+	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		StateChannel s = this.channel(channelId);
 		Optional<Boolean> val = s.value().asOptional();
 		return val.isPresent() && val.get();
@@ -254,7 +257,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private boolean isSystemStopped() {
 		boolean ret = true;
 
-		for (SingleRack rack : racks) {
+		for (SingleRack rack : racks.values()) {
 			ret = ret && ContactorControl.CUT_OFF == this
 					.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId).value().asEnum();
 		}
@@ -265,7 +268,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private boolean isSystemRunning() {
 		boolean ret = true;
 
-		for (SingleRack rack : racks) {
+		for (SingleRack rack : racks.values()) {
 			ret = ret && ContactorControl.ON_GRID == this
 					.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId).value().asEnum();
 		}
@@ -278,12 +281,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
 	 */
-	private boolean isSystemStatePending() { 
+	private boolean isSystemStatePending() {
 		boolean ret = true;
 
-		for (SingleRack rack : racks) {
-			IntegerReadChannel channel = this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId);
-			Optional<Integer> val = channel.value().asOptional();			
+		for (SingleRack rack : racks.values()) {
+			EnumReadChannel channel = this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId);
+			Optional<Integer> val = channel.value().asOptional();
 			ret = ret && val.isPresent();
 		}
 
@@ -298,30 +301,33 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	}
 
 	private void startSystem() {
-		IntegerWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
+		EnumWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
 		try {
-			startStopChannel.setNextWriteValue(StartStop.START.getValue());
-// TODO write to all racks unused!!
-			for (SingleRack r : racks) {
-				IntegerWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(r.getRackNumber()).usageChannelId);
-				rackUsageChannel.setNextWriteValue(RackUsage.USED.getValue());
+			startStopChannel.setNextWriteValue(StartStop.START);
+			// Only set the racks that are used
+			for (int i = 1; i < 6; i++) {
+				EnumWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(i).usageChannelId);
+				if (racks.containsKey(i)) {
+					rackUsageChannel.setNextWriteValue(RackUsage.USED);
+				} else {
+					rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
+				}
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
 
 	private void stopSystem() {
-
-		IntegerWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
+		EnumWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
 		try {
-			startStopChannel.setNextWriteValue(StartStop.STOP.getValue());
-//			TODO write to all racks unused!!
-			for (SingleRack r : racks) {
-				IntegerWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(r.getRackNumber()).usageChannelId);
-				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED.getValue());
+			startStopChannel.setNextWriteValue(StartStop.STOP);
+			//write to all racks unused!!
+			for (RackInfo r : RACK_INFO.values()) {
+				EnumWriteChannel rackUsageChannel = this.channel(r.usageChannelId);
+				rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}
@@ -341,8 +347,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		Collection<Task> tasks = new ArrayList<>();
-		tasks.addAll(Arrays.asList(new Task[] {
+		return new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1017, m(MultiRackChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
 						m(MultiRackChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
@@ -376,55 +381,60 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 						m(MultiRackChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
 				), //
 
-				new FC16WriteRegistersTask(ADDRESS_OFFSET_RACK_1 + 10, m(MultiRackChannelId.RACK_1_POSITIVE_CONTACTOR,
-						new UnsignedWordElement(ADDRESS_OFFSET_RACK_1 + 10)) //
-				), //
-				new FC3ReadRegistersTask(ADDRESS_OFFSET_RACK_1 + 10, Priority.LOW,
+				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1),
 						m(MultiRackChannelId.RACK_1_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(ADDRESS_OFFSET_RACK_1 + 10)) //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1))) //
+				), //
+				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1), Priority.HIGH,
+						m(MultiRackChannelId.RACK_1_POSITIVE_CONTACTOR,
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1))) //
 				), //
 
-				new FC16WriteRegistersTask(ADDRESS_OFFSET_RACK_2 + 10, m(MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR,
-						new UnsignedWordElement(ADDRESS_OFFSET_RACK_2 + 10)) //
-				), //
-				new FC3ReadRegistersTask(ADDRESS_OFFSET_RACK_2 + 10, Priority.LOW,
+				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2),
 						m(MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(ADDRESS_OFFSET_RACK_2 + 10)) //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2))) //
+				), //
+				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2), Priority.HIGH,
+						m(MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR,
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2))) //
 				), //
 
-				new FC16WriteRegistersTask(ADDRESS_OFFSET_RACK_3 + 10, m(MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR,
-						new UnsignedWordElement(ADDRESS_OFFSET_RACK_3 + 10)) //
+				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3),
+						m(MultiRackChannelId.RACK_2_POSITIVE_CONTACTOR,
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
 				), //
-				new FC3ReadRegistersTask(ADDRESS_OFFSET_RACK_3 + 10, Priority.LOW,
+				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3), Priority.HIGH,
 						m(MultiRackChannelId.RACK_3_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(ADDRESS_OFFSET_RACK_3 + 10)) //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
 				), //
 
-				new FC16WriteRegistersTask(ADDRESS_OFFSET_RACK_4 + 10, m(MultiRackChannelId.RACK_4_POSITIVE_CONTACTOR,
-						new UnsignedWordElement(ADDRESS_OFFSET_RACK_4 + 10)) //
-				), //
-				new FC3ReadRegistersTask(ADDRESS_OFFSET_RACK_4 + 10, Priority.LOW,
+				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4),
 						m(MultiRackChannelId.RACK_4_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(ADDRESS_OFFSET_RACK_4 + 10)) //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4))) //
+				), //
+				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4), Priority.HIGH,
+						m(MultiRackChannelId.RACK_4_POSITIVE_CONTACTOR,
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4))) //
 				), //
 
-				new FC16WriteRegistersTask(ADDRESS_OFFSET_RACK_5 + 10, m(MultiRackChannelId.RACK_5_POSITIVE_CONTACTOR,
-						new UnsignedWordElement(ADDRESS_OFFSET_RACK_5 + 10)) //
-				), //
-				new FC3ReadRegistersTask(ADDRESS_OFFSET_RACK_5 + 10, Priority.LOW,
+				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5),
 						m(MultiRackChannelId.RACK_5_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(ADDRESS_OFFSET_RACK_5 + 10)) //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5))) //
+				), //
+				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5), Priority.HIGH,
+						m(MultiRackChannelId.RACK_5_POSITIVE_CONTACTOR,
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5))) //
 				), //
 
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(MultiRackChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
-						m(MultiRackChannelId.CURRENT, new UnsignedWordElement(0x1045), //
+						m(MultiRackChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)), //
 						m(MultiRackChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
-						m(MultiRackChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
+						m(MultiRackChannelId.SYSTEM_VOLTAGE, new UnsignedWordElement(0x1049), //
 								ElementToChannelConverter.SCALE_FACTOR_2) // TODO Check if scale factor is correct
 				), //
 
@@ -493,14 +503,12 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 								.m(MultiRackChannelId.RACK_5_VOLTAGE_DIFFERENCE, 0) //
 								.build() //
 				) //
-		}));
+		});
 
-		for (SingleRack rack : this.racks) {
-			tasks.addAll(rack.getTasks());
-		}
+	}
 
-		return new ModbusProtocol(this, tasks.toArray(new Task[0]));//
-
+	private int getAddressContactorControl(int addressOffsetRack) {
+		return addressOffsetRack + OFFSET_CONTACTOR_CONTROL;
 	}
 
 	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,

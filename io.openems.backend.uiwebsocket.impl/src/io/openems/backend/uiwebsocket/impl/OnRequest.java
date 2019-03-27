@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 		BackendUser user = this.assertUser(wsData, request);
@@ -95,7 +94,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData, BackendUser backendUser,
+	private CompletableFuture<EdgeRpcResponse> handleEdgeRpcRequest(WsData wsData, BackendUser backendUser,
 			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		String edgeId = edgeRpcRequest.getEdgeId();
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
@@ -143,20 +142,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 
-		// Get Response
-		JsonrpcResponseSuccess result;
-		try {
-			result = resultFuture.get();
-		} catch (InterruptedException | ExecutionException e) {
-			if (e.getCause() instanceof OpenemsNamedException) {
-				throw (OpenemsNamedException) e.getCause();
-			} else {
-				throw OpenemsError.GENERIC.exception(e.getMessage());
-			}
-		}
-
 		// Wrap reply in EdgeRpcResponse
-		return CompletableFuture.completedFuture(new EdgeRpcResponse(edgeRpcRequest.getId(), result));
+		CompletableFuture<EdgeRpcResponse> result = new CompletableFuture<EdgeRpcResponse>();
+		resultFuture.thenAccept(r -> {
+			result.complete(new EdgeRpcResponse(edgeRpcRequest.getId(), r));
+		});
+		return result;
 	}
 
 	/**

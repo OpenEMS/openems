@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -53,9 +54,9 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	 * Updates the 'next' write value of Channel from an Enum value.
 	 * 
 	 * @param value the OptionsEnum value
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
-	public void setNextWriteValue(OptionsEnum value) throws OpenemsException {
+	public void setNextWriteValue(OptionsEnum value) throws OpenemsNamedException {
 		this.setNextWriteValue(value.getValue());
 	}
 
@@ -79,12 +80,12 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<Integer>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Integer>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Integer> callback) {
+	public void onSetNextWrite(CheckedConsumer<Integer> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class FloatWriteChannel extends FloatReadChannel implements WriteChannel<Float> {
@@ -51,12 +52,12 @@ public class FloatWriteChannel extends FloatReadChannel implements WriteChannel<
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<Float>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Float>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Float> callback) {
+	public void onSetNextWrite(CheckedConsumer<Float> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

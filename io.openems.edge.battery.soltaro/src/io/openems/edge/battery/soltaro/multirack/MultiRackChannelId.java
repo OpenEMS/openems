@@ -34,20 +34,15 @@ public enum MultiRackChannelId implements io.openems.edge.common.channel.Channel
 	EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.SECONDS) //
 			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_1_POSITIVE_CONTACTOR(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.NONE) //
+	RACK_1_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_2_POSITIVE_CONTACTOR(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.NONE) //
+	RACK_2_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_3_POSITIVE_CONTACTOR(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.NONE) //
+	RACK_3_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_4_POSITIVE_CONTACTOR(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.NONE) //
+	RACK_4_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
-	RACK_5_POSITIVE_CONTACTOR(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.NONE) //
+	RACK_5_POSITIVE_CONTACTOR(Doc.of(Enums.ContactorControl.values()) //
 			.accessMode(AccessMode.READ_WRITE)), //
 	SYSTEM_INSULATION_LEVEL_1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.OHM) //
@@ -57,9 +52,9 @@ public enum MultiRackChannelId implements io.openems.edge.common.channel.Channel
 			.accessMode(AccessMode.READ_WRITE)), //
 
 	// IntegerReadChannels
-	CURRENT(Doc.of(OpenemsType.INTEGER) //
+	SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIAMPERE)), //
-	VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+	SYSTEM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)), //
 	SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.OHM)), //
@@ -148,7 +143,8 @@ public enum MultiRackChannelId implements io.openems.edge.common.channel.Channel
 	RACK_5_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
 			.text("Rack 1 Cycle over current")),
 	RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
-			.text("Rack 1 Voltage difference"));
+			.text("Rack 1 Voltage difference"))
+	;
 
 	private final Doc doc;
 
