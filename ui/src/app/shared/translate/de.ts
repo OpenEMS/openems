@@ -94,7 +94,30 @@ export const TRANSLATION = {
                     CurrentCharge: "Aktuelle Beladung",
                     TotalCharge: "Gesamte Beladung",
                     EnforceCharging: "Erzwinge Beladung",
-                    Cable: "Kabel"
+                    Cable: "Kabel",
+                    CableNotConnected: "Kabel ist nicht angeschlossen",
+                    CarFull: "Auto ist voll",
+                    EnergieSinceBeginning: "Energie seit Beginn der Ladung",
+                    ChargeMode: "Belademodus",
+                    NoConnection: {
+                        Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
+                        Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
+                        Help1_1: "Die IP der Ladesäule erscheint beim erneuten einschalten"
+                    },
+                    OptimizedChargeMode: {
+                        Name: "Optimierte Beladung",
+                        ShortName: "Optimiert",
+                        Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
+                        MinInfo: "Falls verhindert werden soll, dass das Auto bei leerem Speicher, in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
+                        MinCharging: "Minimale Aufladung garantieren?"
+                    },
+                    ForceChargeMode: {
+                        Name: "Erzwungene Beladung",
+                        ShortName: "Erzwungen",
+                        Info: "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
+                        MaxCharging: "Maximale Ladestärke",
+                        MaxChargingDetails: "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt."
+                    }
                 }
             }
         },

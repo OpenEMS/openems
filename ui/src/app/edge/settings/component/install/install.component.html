@@ -11,9 +11,11 @@
           </ion-label>
         </ion-item>
         <ion-card-content>
-          <form [formGroup]="form" (ngSubmit)="submit(model)">
+          <form [formGroup]="form" (ngSubmit)="submit()">
             <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-            <button type="submit" class="btn btn-default">Submit</button>
+            <ion-item>
+              <ion-button type="submit" color="primary">Komponente anlegen</ion-button>
+            </ion-item>
           </form>
         </ion-card-content>
       </ion-card>

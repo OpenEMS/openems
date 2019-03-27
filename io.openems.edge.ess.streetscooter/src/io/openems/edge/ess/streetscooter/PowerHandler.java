@@ -6,13 +6,12 @@ import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
-import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
 
 public class PowerHandler implements BiConsumer<Integer, Integer> {
 
@@ -78,7 +77,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 				this.parent.logInfo(this.log, "Try to restart the system for the second time after detecting fault");
 			} else if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart > 1) {
 				// Do nothing, let system in fault mode
-				StringWriteChannel errorChannel = parent.channel(ChannelId.SYSTEM_STATE_INFORMATION);
+				StringWriteChannel errorChannel = parent.channel(StrtsctrChannelId.SYSTEM_STATE_INFORMATION);
 				errorChannel.setNextValue("System could not be started after waiting period and two start attempts");
 			}
 		}
@@ -86,28 +85,28 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 
 	private void writeActivePower(Integer activePower) {
 		try {
-			IntegerWriteChannel setActivePowerChannel = parent.channel(ChannelId.INVERTER_SET_ACTIVE_POWER);
+			IntegerWriteChannel setActivePowerChannel = parent.channel(StrtsctrChannelId.INVERTER_SET_ACTIVE_POWER);
 			setActivePowerChannel.setNextWriteValue(activePower);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log, "Unable to set ActivePower: " + e.getMessage());
 		}
 	}
 
 	private boolean isInverterInNormalMode() {
-		EnumReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
+		EnumReadChannel inverterModeChannel = parent.channel(StrtsctrChannelId.INVERTER_MODE);
 		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue())
 				.equals(InverterMode.NORMAL.getValue());
 	}
 
 	private boolean isInverterInFaultMode() {
-		EnumReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
+		EnumReadChannel inverterModeChannel = parent.channel(StrtsctrChannelId.INVERTER_MODE);
 		return inverterModeChannel.value().orElse(InverterMode.UNDEFINED.getValue())
 				.equals(InverterMode.FAULT.getValue());
 	}
 
 	private void setEnabled(boolean value) {
 		try {
-			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_ENABLED);
+			BooleanWriteChannel channel = parent.channel(StrtsctrChannelId.ICU_ENABLED);
 			channel.setNextWriteValue(value);
 		} catch (Exception e) {
 			this.parent.logError(this.log, "Unable to set icu enabled: " + e.getMessage());
@@ -116,7 +115,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 
 	private void setRunning(boolean value) {
 		try {
-			BooleanWriteChannel channel = parent.channel(ChannelId.ICU_RUN);
+			BooleanWriteChannel channel = parent.channel(StrtsctrChannelId.ICU_RUN);
 			channel.setNextWriteValue(value);
 		} catch (Exception e) {
 			this.parent.logError(this.log, "Unable to set icu run: " + e.getMessage());
@@ -124,13 +123,13 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 	}
 
 	private boolean isEnabled() {
-		BooleanReadChannel icuEnabled = parent.channel(ChannelId.ICU_ENABLED);
+		BooleanReadChannel icuEnabled = parent.channel(StrtsctrChannelId.ICU_ENABLED);
 		boolean value = icuEnabled.value().orElse(false);
 		return value;
 	}
 
 	private boolean isRunning() {
-		BooleanReadChannel icuRunChannel = parent.channel(ChannelId.ICU_RUN);
+		BooleanReadChannel icuRunChannel = parent.channel(StrtsctrChannelId.ICU_RUN);
 		boolean value = icuRunChannel.value().orElse(false);
 		return value;
 	}

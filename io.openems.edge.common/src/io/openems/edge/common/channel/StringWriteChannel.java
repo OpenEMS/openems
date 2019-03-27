@@ -4,13 +4,30 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class StringWriteChannel extends StringReadChannel implements WriteChannel<String> {
 
-	public StringWriteChannel(OpenemsComponent component, ChannelId channelId) {
-		super(component, channelId);
+	public static class MirrorToDebugChannel implements Consumer<Channel<String>> {
+
+		private final ChannelId targetChannelId;
+
+		public MirrorToDebugChannel(ChannelId targetChannelId) {
+			this.targetChannelId = targetChannelId;
+		}
+
+		@Override
+		public void accept(Channel<String> channel) {
+			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+			((StringWriteChannel) channel).onSetNextWrite(value -> {
+				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
+			});
+		}
+	}
+
+	public StringWriteChannel(OpenemsComponent component, ChannelId channelId, StringDoc channelDoc) {
+		super(component, channelId, channelDoc);
 	}
 
 	private Optional<String> nextWriteValueOpt = Optional.empty();
@@ -26,14 +43,8 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 		this.nextWriteValueOpt = Optional.ofNullable(value);
 	}
 
-	/**
-	 * Internal method. Do not call directly.
-	 * 
-	 * @return
-	 */
-	@Deprecated
 	@Override
-	public Optional<String> _getNextWriteValue() {
+	public Optional<String> getNextWriteValue() {
 		return this.nextWriteValueOpt;
 	}
 
@@ -41,12 +52,12 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 	 * onSetNextWrite
 	 */
 	@Override
-	public List<Consumer<String>> getOnSetNextWrites() {
+	public List<CheckedConsumer<String>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<String> callback) {
+	public void onSetNextWrite(CheckedConsumer<String> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

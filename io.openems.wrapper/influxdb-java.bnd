@@ -2,7 +2,7 @@ Bundle-Name: influxdb-java
 Bundle-Description: Java client for InfluxDB
 Bundle-DocURL: https://github.com/influxdata/influxdb-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 2.14
+Bundle-Version: 2.15
 
 Include-Resource: \
 	@influxdb-java-2.15.jar, \
@@ -17,9 +17,14 @@ Include-Resource: \
 Import-Package: \
 	android.os;resolution:=optional, \
 	android.util;resolution:=optional, \
+	android.net.http;resolution:=optional, \
+	android.security;resolution:=optional, \
+	com.android.org.conscrypt;resolution:=optional, \
 	org.conscrypt;resolution:=optional, \
+	dalvik.system;resolution:=optional, \
 	kotlin;resolution:=optional, \
 	kotlin.jvm.internal;resolution:=optional, \
+	sun.security.ssl;resolution:=optional, \
 	*
 	
 -dsannotations: *

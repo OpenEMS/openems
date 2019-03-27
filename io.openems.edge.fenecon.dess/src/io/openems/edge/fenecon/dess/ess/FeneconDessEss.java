@@ -1,5 +1,8 @@
 package io.openems.edge.fenecon.dess.ess;
 
+
+import com.google.common.collect.EvictingQueue;
+import java.util.OptionalDouble;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,13 +25,16 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.fenecon.dess.FeneconDessConstants;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -47,7 +53,12 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 	}
 
 	public FeneconDessEss() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
 		// automatically calculate Active/ReactivePower from L1/L2/L3
 		AsymmetricEss.initializePowerSumChannels(this);
@@ -55,8 +66,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID,
-				this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -64,11 +75,27 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		SYSTEM_STATE(new Doc().options(SystemState.values())), //
-		@SuppressWarnings("unchecked")
-		BSMU_WORK_STATE(new Doc() //
-				.options(BsmuWorkState.values()) //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		SYSTEM_STATE(Doc.of(SystemState.values())), //		
+		ORIGINAL_SOC(new IntegerDoc()//
+				.onInit(channel -> { //
+					final EvictingQueue<Integer> lastSocValues = EvictingQueue.create(100);
+					((IntegerReadChannel) channel).onChange(originalSocChannel -> {
+						Integer originalSocValue = originalSocChannel.get();
+						Integer correctedSocValue = null;
+						if (originalSocValue != null) {
+							lastSocValues.add(originalSocValue);
+							OptionalDouble averageSoc = lastSocValues.stream().mapToInt(Integer::intValue).average();
+							if (averageSoc.isPresent()) {
+								correctedSocValue = (int) averageSoc.getAsDouble();
+							}
+						}
+						IntegerReadChannel correctedSocChannel = channel.getComponent()
+								.channel(SymmetricEss.ChannelId.SOC);
+						correctedSocChannel.setNextValue(correctedSocValue);
+					});
+				})),
+		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
 				.onInit(channel -> { //
 					// on each update set Grid-Mode channel
 					((Channel<Integer>) channel).onChange(value -> {
@@ -95,7 +122,7 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						}
 					});
 				})), //
-		STACK_CHARGE_STATE(new Doc().options(StackChargeState.values())); //
+		STACK_CHARGE_STATE(Doc.of(StackChargeState.values())); //
 
 		private final Doc doc;
 
@@ -117,7 +144,8 @@ public class FeneconDessEss extends AbstractOpenemsModbusComponent
 						m(FeneconDessEss.ChannelId.BSMU_WORK_STATE, new UnsignedWordElement(10001)), //
 						m(FeneconDessEss.ChannelId.STACK_CHARGE_STATE, new UnsignedWordElement(10002))), //
 				new FC3ReadRegistersTask(10143, Priority.LOW, //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
+						//m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
+						m(FeneconDessEss.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(10143)),//
 						new DummyRegisterElement(10144, 10150),
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
 								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),

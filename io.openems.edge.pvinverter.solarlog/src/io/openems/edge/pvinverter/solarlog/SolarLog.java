@@ -1,7 +1,5 @@
 package io.openems.edge.pvinverter.solarlog;
 
-import java.util.function.Consumer;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,6 +14,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractWorker;
@@ -30,10 +30,10 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.AccessMode;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
@@ -58,7 +58,12 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	private int maxActivePower = 0;
 
 	public SolarLog() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				SymmetricPvInverter.ChannelId.values(), //
+				ChannelId.values() //
+		);
 
 		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
 	}
@@ -70,8 +75,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id());
 
 		this.maxActivePower = config.maxActivePower();
 
@@ -155,7 +160,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		return "L:" + this.getActivePower().value().asString();
 	}
 
-	public final Consumer<Integer> setPvLimit = (power) -> {
+	public final CheckedConsumer<Integer> setPvLimit = (power) -> {
 		int pLimitPerc = (int) ((double) power / (double) this.maxActivePower * 100.0);
 
 		// keep percentage in range [0, 100]
@@ -177,41 +182,49 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		try {
 			pLimitTypeCh.setNextWriteValue(2);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
 		}
 	};
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		LAST_UPDATE_TIME(new Doc().type(OpenemsType.INTEGER).unit(Unit.SECONDS)),
-		PDC(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		UDC(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		YESTERDAY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		MONTHLY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		YEARLY_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_YIELD(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		PAC_CONSUMPTION(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)),
-		YESTERDAY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		MONTHLY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		YEARLY_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_YIELD_CONS(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
-		TOTAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS)), //
+		PDC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		UDC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)),
+		YESTERDAY_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		MONTHLY_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		YEARLY_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		TOTAL_YIELD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		PAC_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		YESTERDAY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		MONTHLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		YEARLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		TOTAL_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		TOTAL_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
 
 		// PV
-		// TODO: should use an enum for this; once
-		// https://github.com/OpenEMS/openems/pull/175 is merged
-		P_LIMIT_TYPE(new Doc().type(OpenemsType.INTEGER)), //
-		P_LIMIT_PERC(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		P_LIMIT_TYPE(Doc.of(PLimitType.values()) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		P_LIMIT_PERC(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.PERCENT)),
-		P_LIMIT(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
+		P_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT)),
-		WATCH_DOG_TAG(new Doc() //
-				.type(OpenemsType.INTEGER)),
-		STATUS(new Doc().type(OpenemsType.INTEGER));
+		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER)), //
+		STATUS(Doc.of(Status.values()));
 
 		private final Doc doc;
 
@@ -222,6 +235,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		public Doc doc() {
 			return this.doc;
 		}
+
 	}
 
 	protected IntegerWriteChannel getWatchdogTagChannel() {

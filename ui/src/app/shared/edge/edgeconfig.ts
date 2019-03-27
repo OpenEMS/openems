@@ -187,6 +187,15 @@ export module EdgeConfig {
         ) { }
     }
 
+    export class FactoryProperty {
+        public readonly id: string;
+        public readonly name: string;
+        public readonly description: string;
+        public readonly isRequired: boolean;
+        public readonly defaultValue: any;
+        public readonly schema: {};
+    }
+
     export class Factory {
         public id: string = "";
         public componentIds: string[] = [];
@@ -194,15 +203,22 @@ export module EdgeConfig {
         constructor(
             public readonly name: string,
             public readonly natureIds: string[] = [],
-            public readonly properties: {
-                id: string,
-                name: string,
-                description: string,
-                isRequired: boolean,
-                defaultValue: any,
-                schema: {}
-            }[] = []
+            public readonly properties: FactoryProperty[] = []
         ) { }
+
+        /**
+         * Gets the FactoryProperty definition for a Property-ID.
+         * 
+         * @param propertyId the Property-ID
+         */
+        static getPropertyForId(factory: Factory, propertyId: string): FactoryProperty {
+            for (let property of factory.properties) {
+                if (property.id === propertyId) {
+                    return property;
+                }
+            }
+            return null;
+        }
     }
 
     export class Nature {

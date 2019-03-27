@@ -37,9 +37,11 @@ export class ComponentUpdateComponent implements OnInit {
     this.service.getConfig().then(config => {
       this.componentId = componentId;
       let component = config.components[componentId];
-      this.factory = config.factories[component.factoryId]
+      this.factory = config.factories[component.factoryId];
       let fields: FormlyFieldConfig[] = [];
-      let model = {};
+      let model = {
+        id: componentId
+      };
       for (let property of this.factory.properties) {
         let property_id = property.id.replace('.', '_');
         let field: FormlyFieldConfig = {
@@ -54,8 +56,8 @@ export class ComponentUpdateComponent implements OnInit {
         // add Property Schema 
         Utils.deepCopy(property.schema, field);
         fields.push(field);
-        if (property.defaultValue) {
-          model[property_id] = property.defaultValue;
+        if (component.properties[property.id]) {
+          model[property_id] = component.properties[property.id];
         }
       }
       this.form = new FormGroup({});
@@ -64,14 +66,13 @@ export class ComponentUpdateComponent implements OnInit {
     });
   }
 
-  submit() {
+  public submit() {
     let properties: { name: string, value: any }[] = [];
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];
-      if (control instanceof FormControl) {
-        if (control.touched) {
-          properties.push({ name: controlKey, value: control.value });
-        }
+      if (control.dirty) {
+        let property_id = controlKey.replace('_', '.');
+        properties.push({ name: property_id, value: control.value });
       }
     }
     this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(response => {
@@ -79,6 +80,15 @@ export class ComponentUpdateComponent implements OnInit {
       this.service.toast("Successfully updated " + this.componentId + ".", 'success');
     }).catch(reason => {
       this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, 'danger');
+    });
+  }
+
+  public delete() {
+    this.edge.deleteComponentConfig(this.websocket, this.componentId).then(response => {
+      this.form.markAsPristine();
+      this.service.toast("Successfully deleted " + this.componentId + ".", 'success');
+    }).catch(reason => {
+      this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, 'danger');
     });
   }
 

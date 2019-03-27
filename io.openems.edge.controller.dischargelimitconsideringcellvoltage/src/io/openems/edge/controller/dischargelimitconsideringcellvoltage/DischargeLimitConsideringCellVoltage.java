@@ -17,9 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -27,7 +26,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 /**
  * 
@@ -35,7 +33,6 @@ import io.openems.edge.ess.power.api.Relationship;
  * voltage goes below a specified value - the minimal cell voltage goes below a
  * specified value - the minimal cell voltage goes below a specified value
  * within a certain time period
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -67,8 +64,28 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	private static String KEY_MIN_CELL_VOLTAGE = "KEY_MIN_CELL_VOLTAGE";
 	private static String KEY_SOC = "KEY_SOC";
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current state"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	public DischargeLimitConsideringCellVoltage() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 	}
 
 	@Override
@@ -168,8 +185,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 
 	private void forbidDischarging() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.forbidDischarging()");
-		this.getEss().addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
-				Relationship.LESS_OR_EQUALS, 0);
+		this.getEss().getSetActivePowerLessOrEquals().setNextWriteValue(0);
 	}
 
 	private void setPending() {
@@ -180,13 +196,8 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 
 	private void startCharging() throws OpenemsNamedException {
 		debug("DischargeLimitConsideringCellVoltage.startCharging()");
-		ManagedSymmetricEss ess = this.getEss();
 		timeSinceMinCellVoltageWasBelowLimit = null;
-		int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		int calculatedPower = maxCharge / 5;
-		debug("Calculated power: " + calculatedPower);
-		ess.addPowerConstraintAndValidate("DischargeLimitConsideringCellVoltage", Phase.ALL, Pwr.ACTIVE,
-				Relationship.LESS_OR_EQUALS, calculatedPower);
+		this.calculateAndSetPower();
 		this.setStatus(State.CHARGING);
 	}
 
@@ -199,6 +210,20 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 				&& values.get(KEY_SOC) > chargeSoC) {
 			debug("Limits are reached --> stop charging");
 			stopCharging();
+		} else {
+			this.calculateAndSetPower();
+		}
+	}
+
+	private void calculateAndSetPower() {
+		try {
+			ManagedSymmetricEss ess = this.getEss();
+			int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			int calculatedPower = maxCharge / 5;
+			debug("Calculated power: " + calculatedPower);
+			ess.getSetActivePowerLessOrEquals().setNextWriteValue(calculatedPower);
+		} catch (OpenemsNamedException e) {
+			log.error("Error while charging!\n" +  e.getMessage());
 		}
 	}
 
@@ -276,23 +301,6 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 		chargeSoC = config.chargeSoc();
 		minSoC = config.minSoc();
 		timeUntilChargeIsForced = config.timeSpan();
-	}
-
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-
-		STATE_MACHINE(new Doc().level(Level.INFO).text("Current state").options(State.values())), //
-		; //
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 
 	@Deactivate

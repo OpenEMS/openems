@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 import 'hammerjs';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
-import { ChartsModule } from 'ng2-charts/ng2-charts';
+import { ChartsModule } from 'ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
 import { SocComponent } from '../edge/history/chart/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';

@@ -82,7 +82,30 @@ export const TRANSLATION = {
                     CurrentCharge: "Carga actual",
                     TotalCharge: "Carga total",
                     EnforceCharging: "Forzar la carga",
-                    Cable: "Cable"
+                    Cable: "Cable",
+                    CableNotConnected: "El cable no esta conectado",
+                    CarFull: "El carro esta lleno",
+                    EnergieSinceBeginning: "Energía desde el inicio de la carga.",
+                    ChargeMode: "Modo de carga",
+                    NoConnection: {
+                        Description: "No se pudo conectar a la estación de carga.",
+                        Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
+                        Help1_1: "La IP de la estación de carga aparece cuando se enciende nuevamente"
+                    },
+                    OptimizedChargeMode: {
+                        Name: "Carga optimizada",
+                        ShortName: "Optimizado",
+                        Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
+                        MinInfo: "Si desea evitar que el automóvil se cargue con poca memoria por la noche, se puede establecer una carga mínima.",
+                        MinCharging: "Garantía de carga mínima?"
+                    },
+                    ForceChargeMode: {
+                        Name: "Carga forzada",
+                        ShortName: "Forzado",
+                        Info: "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
+                        MaxCharging: "Fuerza de carga maxima:",
+                        MaxChargingDetails: "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente."
+                    }
                 }
             }
         },

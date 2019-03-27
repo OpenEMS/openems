@@ -3,20 +3,25 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.worker.AbstractWorker;
 
 public class ReadWorker extends AbstractWorker {
 
-	private final static int REPORT_1_SECONDS = 200; //6 * 60 * 60; // 6 hours
-	private final static int REPORT_2_SECONDS = 100; //60 * 60; // 1 hour
-	private final static int REPORT_3_SECONDS =  50; //10 * 60; // 10 minutes
-
+	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
+	
 	private final KebaKeContact parent;
 
-	private LocalDateTime nextReport1 = LocalDateTime.MIN;
-	private LocalDateTime nextReport2 = LocalDateTime.MIN;
-	private LocalDateTime nextReport3 = LocalDateTime.MIN;
-
+	private LocalDateTime lastReport1 = LocalDateTime.MIN;
+	private LocalDateTime lastReport2 = LocalDateTime.MIN;
+	private LocalDateTime lastReport3 = LocalDateTime.MIN;
+	private boolean validateReport1 = false;
+	private boolean validateReport2 = false;
+	private boolean validateReport3 = false;
+	
+	
 	public ReadWorker(KebaKeContact parent) {
 		this.parent = parent;
 	}
@@ -32,21 +37,46 @@ public class ReadWorker extends AbstractWorker {
 	}
 
 	@Override
-	protected void forever() {
+	protected void forever() throws InterruptedException {   
+		
 		// REPORT 1
-		if (this.nextReport1.isBefore(LocalDateTime.now())) {
-			this.nextReport1 = LocalDateTime.now().plusSeconds(REPORT_1_SECONDS);
+		if (this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(Report.REPORT1.getRequestSeconds()))) {
+			this.lastReport1 = LocalDateTime.now();
 			this.parent.send("report 1");
+			this.validateReport1 = true;
+			Thread.sleep(10);
 		}
+		
 		// REPORT 2
-		if (this.nextReport2.isBefore(LocalDateTime.now())) {
-			this.nextReport2 = LocalDateTime.now().plusSeconds(REPORT_2_SECONDS);
-			parent.send("report 2");
+		if (this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(Report.REPORT2.getRequestSeconds()))) {
+			this.lastReport2 = LocalDateTime.now();
+			this.parent.send("report 2");
+			this.validateReport2 = true;
+			Thread.sleep(10);
 		}
+		
 		// REPORT 3
-		if (this.nextReport3.isBefore(LocalDateTime.now())) {
-			this.nextReport3 = LocalDateTime.now().plusSeconds(REPORT_3_SECONDS);
-			parent.send("report 3");
+		if (this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(Report.REPORT3.getRequestSeconds()))) {
+			this.lastReport3 = LocalDateTime.now();
+			this.parent.send("report 3");
+			this.validateReport3 = true;
+			Thread.sleep(10);
+		}
+		
+		// RESULTS
+		// Sets the state of the component if the report doesn't answer in a few seconds
+		if (this.validateReport1 && this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(2))) {
+			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT1));
+			this.validateReport1 = false;
+		}
+		if (this.validateReport2 && this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(2))) {
+			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT2));
+			this.validateReport2 = false;
+		}
+		
+		if (this.validateReport3 && this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(2))) {
+			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT3));
+			this.validateReport3 = false;
 		}
 	}
 
@@ -54,12 +84,14 @@ public class ReadWorker extends AbstractWorker {
 	protected int getCycleTime() {
 		// get minimum required time till next report
 		LocalDateTime now = LocalDateTime.now();
-		if (this.nextReport1.isBefore(now) || this.nextReport2.isBefore(now) || this.nextReport3.isBefore(now)) {
+		if (this.lastReport1.isBefore(now.minusSeconds(Report.REPORT1.getRequestSeconds())) 
+		    || this.lastReport2.isBefore(now.minusSeconds(Report.REPORT2.getRequestSeconds())) 
+		    || this.lastReport3.isBefore(now.minusSeconds(Report.REPORT3.getRequestSeconds()))) {
 			return 0;
 		}
-		long tillReport1 = ChronoUnit.MILLIS.between(now, this.nextReport1);
-		long tillReport2 = ChronoUnit.MILLIS.between(now, this.nextReport2);
-		long tillReport3 = ChronoUnit.MILLIS.between(now, this.nextReport3);
+		long tillReport1 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT1.getRequestSeconds()), this.lastReport1);  
+		long tillReport2 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT2.getRequestSeconds()), this.lastReport2);
+		long tillReport3 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT3.getRequestSeconds()), this.lastReport3);
 		long min = Math.min(Math.min(tillReport1, tillReport2), tillReport3);
 		if (min < 0) {
 			return 0;
@@ -72,12 +104,23 @@ public class ReadWorker extends AbstractWorker {
 
 	@Override
 	public void triggerNextRun() {
+		
 		// reset times for next report query
-		this.nextReport1 = LocalDateTime.MIN;
-		this.nextReport2 = LocalDateTime.MIN;
-		this.nextReport3 = LocalDateTime.MIN;
+		this.lastReport1 = LocalDateTime.MIN;
+		this.lastReport2 = LocalDateTime.MIN;
+		this.lastReport3 = LocalDateTime.MIN;
 
 		super.triggerNextRun();
 	}
 
+	/**
+	 * Set the current fail state of the EVCS to true or false
+	 * 
+	 * @param receivedAMessage return value from the ReadHandler   
+	 */
+	private void currentCommunication(boolean receivedAMessage) {
+		this.parent.logInfo(log, "Existing charging communication: "+receivedAMessage);
+		this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+	}
+	
 }

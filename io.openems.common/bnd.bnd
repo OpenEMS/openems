@@ -14,7 +14,6 @@ Export-Package: \
 	io.openems.common.timedata,\
 	io.openems.common.jsonrpc,\
 	io.openems.common.jsonrpc.base,\
-	io.openems.common.websocket,\
 	io.openems.common.jsonrpc.notification,\
 	io.openems.common.jsonrpc.request,\
 	io.openems.common.jsonrpc.response,\
