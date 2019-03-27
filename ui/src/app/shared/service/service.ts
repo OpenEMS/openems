@@ -40,6 +40,8 @@ export class Service implements ErrorHandler {
    */
   public websocket = null;
 
+  private auth: string;
+
   constructor(
     private router: Router,
     public translate: TranslateService,
@@ -289,6 +291,14 @@ export class Service implements ErrorHandler {
       return "";
     }
 
+  }
+
+  public setAuth(username: string, password: string) {
+    this.auth = username + ":" + password;
+  }
+
+  public getAuth(): string {
+    return this.auth;
   }
 
 }

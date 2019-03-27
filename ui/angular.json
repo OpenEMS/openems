@@ -137,7 +137,7 @@
               "outputPath": "www",
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
+              "sourceMap": true,
               "buildOptimizer": true,
               "aot": true
             },

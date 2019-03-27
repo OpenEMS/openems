@@ -60,7 +60,7 @@ export class Websocket {
     }
 
     this.socket = webSocket({
-      url: env.url + "?wpcookie=46546546",
+      url: env.url + "?auth=" + this.service.getAuth(),
       openObserver: {
         next: (value) => {
           if (env.debugMode) {
@@ -140,6 +140,7 @@ export class Websocket {
       })
     return this.isWebsocketConnected;
   }
+
 
   /**
    * Sends a JSON-RPC request to a Websocket and registers a callback.
@@ -313,6 +314,13 @@ export class Websocket {
   public wpconnect() {
     this.connect();
     this.service.spinnerDialog.hide();
+  }
+
+  getUrl(): string {
+    if (env.backend === 'App') {
+      return "wss://" + this.service.getAuth() + "@www.energydepot.de/primus-ui-dev";
+    }
+    return env.url;
   }
 
 }

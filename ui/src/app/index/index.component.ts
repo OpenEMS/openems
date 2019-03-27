@@ -123,23 +123,16 @@ export class IndexComponent {
 
     let password: string = this.wpForm.value['password'];
     let username: string = this.wpForm.value['username'];
+
+    this.service.setAuth(username, password);
+
+
     let valid = await this.validateWPLogin(username, password);
 
     if (valid['status'] === "ok") {
-      let headers = new HttpHeaders();
-      headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
-      headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
 
-      let body = new FormData();
-      body.append('log', username);
-      body.append('pwd', password);
+      this.websocket.wpconnect();
 
-
-
-      this.sendWPLogin(body).subscribe((response: Response) => { console.info("Response"); this.service.spinnerDialog.hide(); },
-        (error: HttpErrorResponse) => { console.info(error); if (error.status === 200) { this.websocket.wpconnect(); } },
-        () => { this.websocket.wpconnect(); });
-      //this.websocket.wpconnect();
       if (this.wpForm.value['saveAccount']) {
         localStorage.setItem("username", username);
         localStorage.setItem("password", password);
