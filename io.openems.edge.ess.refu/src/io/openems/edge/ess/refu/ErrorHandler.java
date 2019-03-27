@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.ess.refu.RefuEss.ChannelId;
@@ -67,7 +67,7 @@ public class ErrorHandler implements Runnable {
 			case PRE_OPERATION:
 				try {
 					setWorkStateChannel.setNextWriteValue(StopStart.START.getValue());
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					this.parent.logError(this.log, "Unable to Set Work-State to START");
 				}
 				break;
@@ -104,7 +104,7 @@ public class ErrorHandler implements Runnable {
 			}
 			try {
 				setWorkStateChannel.setNextWriteValue(StopStart.STOP.getValue());
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				this.parent.logError(this.log, "Unable to Set Work-State to STOP");
 			}
 			if (this.lastErrorReset.isAfter(LocalDateTime.now().minusHours(2))) {
@@ -129,7 +129,7 @@ public class ErrorHandler implements Runnable {
 			} else {
 				try {
 					systemErrorResetChannel.setNextWriteValue(StopStart.START.getValue());
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					this.parent.logError(this.log, "Unable to Set System-Error-Reset to START");
 				}
 			}
@@ -142,7 +142,7 @@ public class ErrorHandler implements Runnable {
 			} else {
 				try {
 					systemErrorResetChannel.setNextWriteValue(StopStart.STOP.getValue());
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					this.parent.logError(this.log, "Unable to Set System-Error-Reset to STOP");
 				}
 			}

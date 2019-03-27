@@ -324,7 +324,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private void doRunHandling() throws OpenemsException {
+	private void doRunHandling() throws OpenemsNamedException {
 		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
 								// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
 								// aber ein fehler in der queue und das system nicht angelaufen ist....
@@ -358,7 +358,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);		
 	}
 
-	private void setNextWriteValueToBooleanWriteChannel(GridConChannelId id, boolean b) throws OpenemsException {
+	private void setNextWriteValueToBooleanWriteChannel(GridConChannelId id, boolean b) throws OpenemsNamedException {
 		((BooleanWriteChannel) this.channel(id)).setNextWriteValue(true);
 		
 	}
@@ -413,7 +413,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * This turns on the system by enabling ALL IPUs.
 	 * @throws OpenemsException 
 	 */
-	private void startSystem() throws OpenemsException {
+	private void startSystem() throws OpenemsNamedException {
 		log.info("Try to start system");
 		/*
 		 * Coming from state idle first write 800V to IPU4 voltage setpoint, set "73" to
@@ -601,7 +601,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, stringControlMode); //
 	}
 
-	private void doErrorHandling() throws OpenemsException {
+	private void doErrorHandling() throws OpenemsNamedException {
 		StateChannel c = getErrorChannel();
 		if (c == null) {
 			System.out.println("Channel is null......");
@@ -654,7 +654,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * manual restart may be necessary.
 	 * @throws OpenemsException 
 	 */
-	private void acknowledgeErrors() throws OpenemsException {
+	private void acknowledgeErrors() throws OpenemsNamedException {
 		if ( //
 				lastTimeAcknowledgeCommandoWasSent == null || //
 				LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS)) //
@@ -889,7 +889,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	void writeValueToChannel(GridConChannelId channelId, Object value) {
 		try {
 			((WriteChannel<?>) this.channel(channelId)).setNextWriteValueFromObject(value);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 			log.error("Problem occurred during writing '" + value + "' to channel " + channelId.name());
 		}
@@ -1733,7 +1733,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			log.info("Set output [" + channel.address() + "] " + (value ? "ON" : "OFF") + ".");
 			try {
 				channel.setNextWriteValue(value);
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				this.logError(this.log, "Unable to set output: [" + channel.address() + "] " + e.getMessage());
 			}
 		}

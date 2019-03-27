@@ -23,7 +23,7 @@ import io.openems.common.utils.JsonUtils;
  *       "id": string,
  *       "name: string,
  *       "role": string
- *     }
+ *     },
  *     "payload": {@link JsonrpcRequest}
  *   }
  * }

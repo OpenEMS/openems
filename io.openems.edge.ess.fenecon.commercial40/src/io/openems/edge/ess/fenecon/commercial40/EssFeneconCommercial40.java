@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -93,7 +93,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		if (this.readOnlyMode) {
 			return;
 		}
@@ -1566,7 +1566,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 			EnumWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
 			try {
 				setWorkStateChannel.setNextWriteValue(SetWorkState.START);
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				logError(this.log, "Unable to start: " + e.getMessage());
 			}
 		}

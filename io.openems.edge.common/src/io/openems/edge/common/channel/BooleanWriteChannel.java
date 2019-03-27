@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class BooleanWriteChannel extends BooleanReadChannel implements WriteChannel<Boolean> {
@@ -53,12 +54,12 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 	 * @return
 	 */
 	@Override
-	public List<Consumer<Boolean>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Boolean>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Boolean> callback) {
+	public void onSetNextWrite(CheckedConsumer<Boolean> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

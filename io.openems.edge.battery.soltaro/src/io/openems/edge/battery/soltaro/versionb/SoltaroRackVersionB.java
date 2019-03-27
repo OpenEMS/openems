@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.multirack.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.versionb.VersionBEnums.AutoSetFunction;
@@ -247,7 +247,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		try {
 			IntegerWriteChannel c = this.channel(VersionBChannelId.EMS_COMMUNICATION_TIMEOUT);
 			c.setNextWriteValue(time_seconds);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while setting ems timeout!\n" + e.getMessage());
 		}
 	}
@@ -426,7 +426,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 					try {
 						resetChannel.setNextWriteValue(SYSTEM_RESET);
 						configuringFinished = null;
-					} catch (OpenemsException e) {
+					} catch (OpenemsNamedException e) {
 						log.error("Error while trying to reset the system!");
 					}
 				}
@@ -485,7 +485,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_FINISHED;
 			configuringFinished = LocalDateTime.now();
 
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting voltage ranges not successful!");
 		}
 
@@ -517,7 +517,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			autoSetSlavesTemperatureIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
 			timeAfterAutoId = LocalDateTime.now();
 			nextConfiguringProcess = ConfiguringProcess.CHECK_TEMPERATURE_ID_AUTO_CONFIGURING;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting temperature id auto set not successful"); // Set was not successful, it will be tried
 																			// until it succeeded
 		}
@@ -547,7 +547,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			autoSetSlavesIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
 			timeAfterAutoId = LocalDateTime.now();
 			nextConfiguringProcess = ConfiguringProcess.CHECK_ID_AUTO_CONFIGURING;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting slave numbers not successful"); // Set was not successful, it will be tried until it
 																// succeeded
 		}
@@ -560,7 +560,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		try {
 			numberOfSlavesChannel.setNextWriteValue(this.config.numberOfSlaves());
 			nextConfiguringProcess = ConfiguringProcess.SET_ID_AUTO_CONFIGURING;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting slave numbers not successful"); // Set was not successful, it will be tried until it
 																// succeeded
 		}
@@ -668,7 +668,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		try {
 			log.debug("write value to contactor control channel: value: " + SYSTEM_ON);
 			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
@@ -686,7 +686,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		try {
 			log.debug("write value to contactor control channel: value: " + SYSTEM_OFF);
 			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}
@@ -706,7 +706,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 					.setNextWriteValue(soCLowAlarm);
 			((IntegerWriteChannel) this.channel(VersionBChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER))
 					.setNextWriteValue(soCLowAlarm);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while setting parameter for soc low protection!" + e.getMessage());
 		}
 	}

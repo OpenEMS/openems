@@ -152,7 +152,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	}
 
 	private void applyPower(ManagedSymmetricEss ess, int maxChargePower, int maxDischargePower)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		switch (this.state) {
 		case FIRST_CHARGE: {
 			/*
