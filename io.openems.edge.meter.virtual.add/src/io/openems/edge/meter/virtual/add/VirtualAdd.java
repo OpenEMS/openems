@@ -151,7 +151,7 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 			} else if (meterCurrent.isDefined()) {
 				result.append("A:" + meterCurrent.asString());
 			} else {
-				result.append("XLX:" + meterActivePower.asString());
+				result.append("L:" + meterActivePower.asString());
 			}
 			result.append(" ");
 		}
