@@ -7,6 +7,7 @@ Export-Package: \
 	io.openems.edge.meter.asymmetric.api,\
 	io.openems.edge.meter.symmetric.api
 Private-Package: \
+	io.openems.edge.meter.socomec.countise14,\
 	io.openems.edge.meter.socomec.dirisa14,\
 	io.openems.edge.meter.socomec.dirise24,\
 	io.openems.edge.meter.socomec.dirisa10,\
