@@ -48,7 +48,9 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'Plug'),
         new ChannelAddress(this.componentId, 'Status'),
         new ChannelAddress(this.componentId, 'State'),
-        new ChannelAddress(this.componentId, 'EnergySession')
+        new ChannelAddress(this.componentId, 'EnergySession'),
+        new ChannelAddress(this.componentId, 'MinimumPower'),
+        new ChannelAddress(this.componentId, 'MaximumPower')
       ]);
 
     });
@@ -221,12 +223,14 @@ export class EvcsComponent {
   }
 
   /**
-   * Round to 100
+   * Round to 100 and 
+   * Round up (ceil)
    * 
    * @param i 
    */
   formatNumber(i: number) {
-    return Math.round(i / 100) * 100;
+    let round = Math.ceil(i / 100) * 100;
+    return round;
   }
 
   /**

@@ -120,6 +120,8 @@ public interface Evcs extends OpenemsComponent {
 				.channel(1, ChannelId.HARDWARE_POWER_LIMIT, ModbusType.UINT16) //
 				.channel(2, ChannelId.SET_CHARGE_POWER, ModbusType.UINT16)
 				.channel(3, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16)
+				.channel(19,ChannelId.MINIMUM_POWER, ModbusType.UINT16)
+				.channel(20, ChannelId.MAXIMUM_POWER, ModbusType.UINT16)
 				.build();
 	}
 

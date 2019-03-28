@@ -24,7 +24,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	PLUG(Doc.of(Plug.values())),
 	ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN).text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 	ENABLE_USER(Doc.of(OpenemsType.BOOLEAN).text("Enable condition via UDP")), //
-	MAX_CURR(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current preset value via Control pilot")), //
 	MAX_CURR_PERCENT(
 			Doc.of(OpenemsType.INTEGER).text("Current preset value via Control pilot in 0,1% of the PWM value")), //
 	CURR_USER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)

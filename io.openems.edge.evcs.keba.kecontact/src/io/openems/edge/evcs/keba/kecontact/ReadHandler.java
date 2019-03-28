@@ -128,6 +128,7 @@ public class ReadHandler implements Consumer<String> {
 							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
 							set(KebaChannelId.PHASES, 3);
 							
+							
 						} else if (currentL2.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
 							set(KebaChannelId.PHASES, 2);
@@ -136,7 +137,10 @@ public class ReadHandler implements Consumer<String> {
 							this.parent.logInfo(this.log, "KEBA is loading on one ladder"); 
 							set(KebaChannelId.PHASES, 1);
 						}
-					}
+						Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
+						this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * phases.value().orElse(3));
+						this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * phases.value().orElse(3));
+					}//TODO: Min und Max sinnfoll einbauen
 
 					// Set CHARGE_POWER
 					Optional<Integer> power_mw = JsonUtils.getAsOptionalInt(jMessage, "P"); // in [mW]
@@ -162,9 +166,6 @@ public class ReadHandler implements Consumer<String> {
 				}
 				if (jMessage.has("Enable sys")) {
 					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
-				}
-				if (jMessage.has("Max curr")) {
-					setInt(KebaChannelId.MAX_CURR, jMessage, "Max curr");
 				}
 				if (jMessage.has("E pres")) {
 					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
@@ -194,7 +195,6 @@ public class ReadHandler implements Consumer<String> {
 		}
 	}
 
-
 	/**
 	 * returns true or false, if the requested report answered or not
 	 * 
@@ -202,9 +202,9 @@ public class ReadHandler implements Consumer<String> {
 	 * @return
 	 */
 	public boolean hasResultandReset(Report report) {
-	
+
 		boolean result = false;
-		switch(report) {
+		switch (report) {
 		case REPORT1:
 			result = receiveReport1;
 			receiveReport1 = false;
