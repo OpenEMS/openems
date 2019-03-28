@@ -27,7 +27,10 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.io.alarm", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.IO.Alarm", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class IOAlarm extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(IOAlarm.class);
@@ -60,7 +63,6 @@ public class IOAlarm extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-
 		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
@@ -78,15 +80,10 @@ public class IOAlarm extends AbstractOpenemsComponent implements Controller, Ope
 		 * Reading all the input channel address from the config, and adding the boolean
 		 * values into an inputs array.
 		 */
-		try {
-			for (String channelAddress : this.config.inputChannelAddress()) {
-				StateChannel channel = this.componentManager.getChannel(ChannelAddress.fromString(channelAddress));
-				value = TypeUtils.getAsType(OpenemsType.BOOLEAN, channel.value().getOrError());
-				inputs.add(value);
-			}
-		} catch (Exception e) {
-			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
-			return;
+		for (String channelAddress : this.config.inputChannelAddress()) {
+			StateChannel channel = this.componentManager.getChannel(ChannelAddress.fromString(channelAddress));
+			value = TypeUtils.getAsType(OpenemsType.BOOLEAN, channel.value().getOrError());
+			inputs.add(value);
 		}
 
 		/**
