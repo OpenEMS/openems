@@ -65,6 +65,7 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
 
+	// Helper that holds general information about single racks, independent if they are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
 	private final Logger log = LoggerFactory.getLogger(MultiRack.class);
 
@@ -269,11 +270,11 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	}
 
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
-		boolean r = true;
-		for (SingleRack rack : racks.values()) {
-			r = r && cctrl == this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId).value().asEnum();
+		boolean b = true;
+		for (SingleRack r : racks.values()) {
+			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value().asEnum();
 		}
-		return r;
+		return b;
 	}
 
 	/**
@@ -282,15 +283,15 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 	 * from state undefined
 	 */
 	private boolean isSystemStatePending() {
-		boolean ret = true;
+		boolean b = true;
 
-		for (SingleRack rack : racks.values()) {
-			EnumReadChannel channel = this.channel(RACK_INFO.get(rack.getRackNumber()).positiveContactorChannelId);
+		for (SingleRack r : racks.values()) {
+			EnumReadChannel channel = this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId);
 			Optional<Integer> val = channel.value().asOptional();
-			ret = ret && val.isPresent();
+			b = b && val.isPresent();
 		}
 
-		return ret && !isSystemRunning() && !isSystemStopped();
+		return b && !isSystemRunning() && !isSystemStopped();
 	}
 
 	@Override
@@ -304,8 +305,8 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 		EnumWriteChannel startStopChannel = this.channel(MultiRackChannelId.START_STOP);
 		try {
 			startStopChannel.setNextWriteValue(StartStop.START);
-			// Only set the racks that are used
-			for (int i = 1; i < 6; i++) {
+			// Only set the racks that are used, but set the others to unused
+			for (int i : RACK_INFO.keySet() ) {
 				EnumWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(i).usageChannelId);
 				if (racks.containsKey(i)) {
 					rackUsageChannel.setNextWriteValue(RackUsage.USED);

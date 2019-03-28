@@ -42,6 +42,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -577,13 +578,13 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 
 	private boolean isSystemIsRunning() {
-		IntegerReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
+		EnumReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 		return cc == ContactorControl.ON_GRID;
 	}
 
 	private boolean isSystemStopped() {
-		IntegerReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
+		EnumReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 		return cc == ContactorControl.CUT_OFF;
 	}
@@ -608,26 +609,51 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 
 	private boolean isSlaveCommunicationError() {
-		return readValueFromBooleanChannel(VersionBChannelId.SLAVE_20_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_19_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_18_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_17_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_16_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_15_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_14_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_13_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_12_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_11_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_10_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_9_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_8_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_7_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_6_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_5_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_4_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_3_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_2_COMMUNICATION_ERROR)
-				|| readValueFromBooleanChannel(VersionBChannelId.SLAVE_1_COMMUNICATION_ERROR);
+		boolean b = false;
+		switch (this.config.numberOfSlaves()) {
+		case 20:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_20_COMMUNICATION_ERROR);
+		case 19:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_19_COMMUNICATION_ERROR);
+		case 18:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_18_COMMUNICATION_ERROR);
+		case 17:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_17_COMMUNICATION_ERROR);
+		case 16:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_16_COMMUNICATION_ERROR);
+		case 15:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_15_COMMUNICATION_ERROR);
+		case 14:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_14_COMMUNICATION_ERROR);
+		case 13:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_13_COMMUNICATION_ERROR);
+		case 12:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_12_COMMUNICATION_ERROR);
+		case 11:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_11_COMMUNICATION_ERROR);
+		case 10:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_10_COMMUNICATION_ERROR);
+		case 9:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_9_COMMUNICATION_ERROR);
+		case 8:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_8_COMMUNICATION_ERROR);
+		case 7:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_7_COMMUNICATION_ERROR);
+		case 6:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_6_COMMUNICATION_ERROR);
+		case 5:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_5_COMMUNICATION_ERROR);
+		case 4:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_4_COMMUNICATION_ERROR);
+		case 3:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_3_COMMUNICATION_ERROR);
+		case 2:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_2_COMMUNICATION_ERROR);
+		case 1:
+			b = b || readValueFromBooleanChannel(VersionBChannelId.SLAVE_1_COMMUNICATION_ERROR);
+		}
+		
+		return b;
 	}
 
 	private boolean isError() {

@@ -314,8 +314,7 @@ public class SingleRack {
 																														// 10
 		addEntry(map, KEY_FAILURE_TEMPERATURE_SENSOR_CABLE, Doc.of(Level.FAULT).text("Temperature sensor cable fault")); // Bit
 																															// 9
-		addEntry(map, KEY_FAILURE_BALANCING_MODULE, Doc.of(Level.FAULT).text("Balancing module fault")); // Bit
-																											// 8
+		addEntry(map, KEY_FAILURE_BALANCING_MODULE, Doc.of(Level.OK).text("Balancing module fault")); // Bit 8
 		addEntry(map, KEY_FAILURE_TEMPERATURE_PCB, Doc.of(Level.FAULT).text("Temperature PCB error")); // Bit 7
 		addEntry(map, KEY_FAILURE_GR_TEMPERATURE, Doc.of(Level.FAULT).text("GR Temperature error")); // Bit 6
 		addEntry(map, KEY_FAILURE_TEMP_SENSOR, Doc.of(Level.FAULT).text("Temperature sensor fault")); // Bit 5
