@@ -1,7 +1,5 @@
 package io.openems.edge.controller.io.alarm;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -74,41 +72,27 @@ public class IOAlarm extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
-		List<Boolean> inputs = new ArrayList<Boolean>();
-		Boolean value;
-		/**
-		 * Reading all the input channel address from the config, and adding the boolean
-		 * values into an inputs array.
-		 */
+		boolean setOutput = false;
+
 		for (String channelAddress : this.config.inputChannelAddress()) {
 			StateChannel channel = this.componentManager.getChannel(ChannelAddress.fromString(channelAddress));
-			value = TypeUtils.getAsType(OpenemsType.BOOLEAN, channel.value().getOrError());
-			inputs.add(value);
-		}
+			// Reading the value of all input channels
+			boolean isStateChannelSet = TypeUtils.getAsType(OpenemsType.BOOLEAN, channel.value().getOrError());
 
-		/**
-		 * traversing the elements in the input array, and signaling true if any one
-		 * value from the configuration is true.
-		 */
-		boolean signal = false;
-		for (Boolean input : inputs) {
-			if (input) {
-				signal = true;
+			if (isStateChannelSet) {
+				// If Channel was set: signal true
+				setOutput = true;
 				break;
 			}
 		}
-		String outputChannelAddress = this.config.outputChannelAddress();
-		try {
 
-			WriteChannel<Boolean> outputChannel = this.componentManager
-					.getChannel(ChannelAddress.fromString(outputChannelAddress));
-			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
-			if (!currentValueOpt.isPresent() || currentValueOpt.get() != signal) {
-				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (signal) + ".");
-				outputChannel.setNextWriteValue(signal);
-			}
-		} catch (Exception e) {
-			this.logError(this.log, "Unable to set output: [" + outputChannelAddress + "] " + e.getMessage());
+		// Set Output Channel
+		WriteChannel<Boolean> outputChannel = this.componentManager
+				.getChannel(ChannelAddress.fromString(this.config.outputChannelAddress()));
+		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != setOutput) {
+			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + setOutput + ".");
+			outputChannel.setNextWriteValue(setOutput);
 		}
 	}
 }
