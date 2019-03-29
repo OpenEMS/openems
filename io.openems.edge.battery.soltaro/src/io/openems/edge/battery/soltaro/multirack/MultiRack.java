@@ -442,9 +442,9 @@ public class MultiRack extends AbstractOpenemsModbusComponent implements Battery
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(MultiRackChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104C), //
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104D),
+						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
+						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x104F),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 
