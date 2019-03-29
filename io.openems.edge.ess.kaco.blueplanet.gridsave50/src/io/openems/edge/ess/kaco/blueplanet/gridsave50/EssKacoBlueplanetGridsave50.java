@@ -490,7 +490,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		/*
 		 * SUNSPEC_64201
 		 */
-		REQUESTED_STATE(Doc.of(RequestedState.values()) //
+		REQUESTED_STATE(Doc.of(RequestedState.values()).accessMode(AccessMode.READ_WRITE)
 				.onInit(new EnumWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_REQUESTED_STATE))),
 		CURRENT_STATE(Doc.of(CurrentState.values())), //
 		WATCHDOG(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS) //
