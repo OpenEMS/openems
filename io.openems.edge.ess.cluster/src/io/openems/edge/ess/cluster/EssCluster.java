@@ -107,7 +107,6 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	public EssCluster() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				MetaEss.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
