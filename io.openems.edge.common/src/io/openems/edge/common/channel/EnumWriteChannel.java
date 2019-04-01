@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsException;
@@ -13,6 +16,8 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 
 	public static class MirrorToDebugChannel implements Consumer<Channel<Integer>> {
 
+		private final Logger log = LoggerFactory.getLogger(MirrorToDebugChannel.class);
+
 		private final ChannelId targetChannelId;
 
 		public MirrorToDebugChannel(ChannelId targetChannelId) {
@@ -21,6 +26,12 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 
 		@Override
 		public void accept(Channel<Integer> channel) {
+			if (!(channel instanceof EnumWriteChannel)) {
+				this.log.error("Channel [" + channel.address()
+						+ "] is not an EnumWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
+				return;
+			}
+
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((EnumWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);

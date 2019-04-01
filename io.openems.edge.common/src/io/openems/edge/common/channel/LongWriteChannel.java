@@ -4,12 +4,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class LongWriteChannel extends LongReadChannel implements WriteChannel<Long> {
 
 	public static class MirrorToDebugChannel implements Consumer<Channel<Long>> {
+
+		private final Logger log = LoggerFactory.getLogger(MirrorToDebugChannel.class);
 
 		private final ChannelId targetChannelId;
 
@@ -19,6 +24,12 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 
 		@Override
 		public void accept(Channel<Long> channel) {
+			if (!(channel instanceof LongWriteChannel)) {
+				this.log.error("Channel [" + channel.address()
+						+ "] is not an LongWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
+				return;
+			}
+			
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((LongWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
