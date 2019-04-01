@@ -1,17 +1,19 @@
 package io.openems.edge.common.channel;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class BooleanReadChannel extends AbstractReadChannel<Boolean> {
+public class BooleanReadChannel extends AbstractReadChannel<OpenemsTypeDoc<Boolean>, Boolean> {
 
-	public BooleanReadChannel(OpenemsComponent component, ChannelId channelId) {
-		super(OpenemsType.BOOLEAN, component, channelId);
+	protected BooleanReadChannel(OpenemsComponent component, ChannelId channelId, BooleanDoc channelDoc) {
+		this(component, channelId, channelDoc, null);
 	}
 
-	public BooleanReadChannel(OpenemsComponent component, ChannelId channelId, Boolean initialValue) {
-		super(OpenemsType.BOOLEAN, component, channelId, initialValue);
+	protected BooleanReadChannel(OpenemsComponent component, ChannelId channelId, BooleanDoc channelDoc,
+			Boolean initialValue) {
+		super(OpenemsType.BOOLEAN, component, channelId, channelDoc, initialValue);
 	}
 
 }

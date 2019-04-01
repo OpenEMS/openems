@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,14 +28,15 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Ess.OneFullCycle", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.Ess.OneFullCycle", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EssOneFullCycle extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EssOneFullCycle.class);
 	private final Clock clock;
-
-	@Reference
-	protected ComponentManager componentManager;
+	private final TemporalAmount hysteresis = Duration.ofMinutes(30);
 
 	private int power;
 	private String essId;
@@ -46,22 +46,18 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	/**
 	 * Length of hysteresis. States are not changed quicker than this.
 	 */
-	private final TemporalAmount hysteresis = Duration.ofMinutes(30);
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		STATE_MACHINE(new Doc() //
-				.level(Level.INFO) //
-				.text("Current State of State-Machine") //
-				.options(State.values())),
-		CYCLE_ORDER(new Doc() //
-				.level(Level.INFO) //
-				.text("First Charge or First Discharge") //
-				.options(CycleOrder.values())),
-		AWAITING_HYSTERESIS(new Doc() //
-				.level(Level.INFO) //
-				.text("Would change State, but hystesis is active") //
-				.options(State.values())); //
+	@Reference
+	protected ComponentManager componentManager;
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		CYCLE_ORDER(Doc.of(CycleOrder.values()) //
+				.text("First Charge or First Discharge")), //
+		AWAITING_HYSTERESIS(Doc.of(State.values()) //
+				.text("Would change State, but hystesis is active")); //
 
 		private final Doc doc;
 
@@ -76,8 +72,12 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	}
 
 	public EssOneFullCycle(Clock clock) {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
+				ChannelId.values() //
+		);
 		this.clock = clock;
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 	}
 
 	public EssOneFullCycle() {
@@ -152,7 +152,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	}
 
 	private void applyPower(ManagedSymmetricEss ess, int maxChargePower, int maxDischargePower)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		switch (this.state) {
 		case FIRST_CHARGE: {
 			/*

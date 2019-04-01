@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -22,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
@@ -54,7 +56,17 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	protected ConfigurationAdmin cm;
 
 	public SunnyIsland6Ess() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				SinglePhaseEss.ChannelId.values(), //
+				ManagedSinglePhaseEss.ChannelId.values(), //
+				SiChannelId.values() //
+		);
+		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(SunnyIsland6Ess.MAX_APPARENT_POWER);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -77,8 +89,8 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	// TODO IMP!! LOAD_POWER "30861"
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
-		IntegerWriteChannel setControlMode = this.channel(SiChannelId.SET_CONTROL_MODE);
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		EnumWriteChannel setControlMode = this.channel(SiChannelId.SET_CONTROL_MODE);
 		IntegerWriteChannel setActivePowerChannel = this.channel(SiChannelId.SET_ACTIVE_POWER);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(SiChannelId.SET_REACTIVE_POWER);
 		setControlMode.setNextWriteValue(SetControlMode.START);
@@ -88,7 +100,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		ManagedSinglePhaseEss.super.applyPower(activePowerL1, reactivePowerL1, activePowerL2, reactivePowerL2,
 				activePowerL3, reactivePowerL3);
 	}

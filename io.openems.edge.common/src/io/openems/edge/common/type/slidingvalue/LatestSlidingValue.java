@@ -1,15 +1,15 @@
 package io.openems.edge.common.type.slidingvalue;
 
+import java.util.Optional;
+
 import io.openems.common.types.OpenemsType;
 
 public class LatestSlidingValue extends SlidingValue<Object> {
 
 	private Object value = null;
 
-	private OpenemsType type;
-
 	public LatestSlidingValue(OpenemsType type) {
-		this.type = type;
+		super(type);
 	}
 
 	@Override
@@ -18,8 +18,8 @@ public class LatestSlidingValue extends SlidingValue<Object> {
 	}
 
 	@Override
-	protected synchronized Object getSlidingValue() {
-		return this.value;
+	protected Optional<Object> getSlidingValue() {
+		return Optional.ofNullable(this.value);
 	}
 
 	@Override
@@ -28,8 +28,7 @@ public class LatestSlidingValue extends SlidingValue<Object> {
 	}
 
 	@Override
-	protected OpenemsType getType() {
-		return this.type;
+	public String toString() {
+		return String.valueOf(this.value);
 	}
-
 }

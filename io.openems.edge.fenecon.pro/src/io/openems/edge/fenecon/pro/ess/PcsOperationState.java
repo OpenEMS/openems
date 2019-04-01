@@ -1,6 +1,6 @@
 package io.openems.edge.fenecon.pro.ess;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum PcsOperationState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

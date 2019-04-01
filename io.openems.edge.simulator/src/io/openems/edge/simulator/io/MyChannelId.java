@@ -1,14 +1,16 @@
 package io.openems.edge.simulator.io;
 
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 
-public class MyChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+public class MyChannelId implements io.openems.edge.common.channel.ChannelId {
 
 	private final String name;
-	private final Doc doc = new Doc();
+	private final OpenemsTypeDoc<Boolean> doc;
 
-	public MyChannelId(String name) {
+	public MyChannelId(String name, OpenemsTypeDoc<Boolean> doc) {
 		this.name = name;
+		this.doc = doc;
 	}
 
 	@Override

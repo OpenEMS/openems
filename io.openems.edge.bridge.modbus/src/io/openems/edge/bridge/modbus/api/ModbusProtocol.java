@@ -37,6 +37,22 @@ public class ModbusProtocol {
 		}
 	}
 
+	/**
+	 * Adds Tasks to the Protocol.
+	 * 
+	 * @param tasks the tasks
+	 */
+	public synchronized void addTasks(Task... tasks) {
+		for (Task task : tasks) {
+			addTask(task);
+		}
+	}
+
+	/**
+	 * Adds a Task to the Protocol
+	 * 
+	 * @param task the task
+	 */
 	public synchronized void addTask(Task task) {
 		// add the the parent to the Task
 		task.setParent(this.parent);

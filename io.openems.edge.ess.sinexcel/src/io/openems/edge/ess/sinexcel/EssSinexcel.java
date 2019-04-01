@@ -19,7 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -107,7 +107,13 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	}
 
 	public EssSinexcel() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				SinexcelChannelId.values() //
+		);
+		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssSinexcel.MAX_APPARENT_POWER);
 	}
 
 	/**
@@ -155,7 +161,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			setChaMaxV.setNextWriteValue(chaMaxV * 10);
 
 			this.channel(SinexcelChannelId.STATE_UNABLE_TO_SET_BATTERY_RANGES).setNextValue(false);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Unable to set battery ranges: " + e.getMessage());
 			this.channel(SinexcelChannelId.STATE_UNABLE_TO_SET_BATTERY_RANGES).setNextValue(false);
 		}
@@ -168,7 +174,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setdataModOnCmd = this.channel(SinexcelChannelId.SETDATA_MOD_ON_CMD);
 		try {
 			setdataModOnCmd.setNextWriteValue(1); // Here: START = 1
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occurred while trying to start inverter" + e.getMessage());
 		}
 	}
@@ -180,7 +186,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setdataModOffCmd = this.channel(SinexcelChannelId.SETDATA_MOD_OFF_CMD);
 		try {
 			setdataModOffCmd.setNextWriteValue(1); // Here: STOP = 1
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occurred while trying to stop system" + e.getMessage());
 		}
 	}
@@ -195,7 +201,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			dischargeDcEnergy.setNextWriteValue(0);
 			chargeEnergy.setNextWriteValue(0);
 			dischargeEnergy.setNextWriteValue(0);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occurred while trying to reset the AC DC energy" + e.getMessage());
 		}
 	}
@@ -207,7 +213,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setDcRelay = this.channel(SinexcelChannelId.SET_INTERN_DC_RELAY);
 		try {
 			setDcRelay.setNextWriteValue(1);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occured while trying to set the intern DC relay");
 		}
 	}
@@ -222,7 +228,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		try {
 			setAntiIslanding.setNextWriteValue(DISABLED_ANTI_ISLANDING);
 			setdataGridOffCmd.setNextWriteValue(1); // Stop
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occurred while trying to activate" + e.getMessage());
 		}
 	}
@@ -237,7 +243,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		try {
 			setAntiIslanding.setNextWriteValue(ENABLED_ANTI_ISLANDING);
 			setdataGridOnCmd.setNextWriteValue(1); // Start
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occurred while trying to deactivate islanding" + e.getMessage());
 		}
 	}
@@ -248,7 +254,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 		try {
 			setSlowChargeVoltage.setNextWriteValue(SLOW_CHARGE_VOLTAGE);
 			setFloatChargeVoltage.setNextWriteValue(FLOAT_CHARGE_VOLTAGE);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "problem occurred while trying to write the voltage limits" + e.getMessage());
 		}
 	}
@@ -538,7 +544,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		switch (this.inverterState) {
 		case ON:
 			/*

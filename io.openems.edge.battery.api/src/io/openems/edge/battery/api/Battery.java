@@ -4,8 +4,8 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -13,7 +13,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Indicates that the battery has started and is ready for charging/discharging.
 		 * 
@@ -23,7 +23,7 @@ public interface Battery extends OpenemsComponent {
 		 * </ul>
 		 */
 		// TODO: why can this not be handled using 'STATE'?
-		READY_FOR_WORKING(new Doc().type(OpenemsType.BOOLEAN)),
+		READY_FOR_WORKING(Doc.of(OpenemsType.BOOLEAN)),
 
 		/**
 		 * State of Charge.
@@ -35,7 +35,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		SOC(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 
 		/**
 		 * State of Health.
@@ -47,7 +47,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOH(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		SOH(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 
 		/**
 		 * Voltage of battery.
@@ -57,7 +57,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
 
 		/**
 		 * Current of battery.
@@ -68,7 +68,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
+		CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),
 
 		/**
 		 * Capacity of battery.
@@ -78,7 +78,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		CAPACITY(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
+		CAPACITY(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)),
 
 		/**
 		 * Maximal voltage for charging.
@@ -89,7 +89,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		CHARGE_MAX_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
 
 		/**
 		 * Maximum current for charging.
@@ -100,7 +100,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: A
 		 * </ul>
 		 */
-		CHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
 
 		/**
 		 * Minimal voltage for discharging.
@@ -111,7 +111,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		DISCHARGE_MIN_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
 
 		/**
 		 * Maximum current for discharging.
@@ -122,7 +122,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Unit: A
 		 * </ul>
 		 */
-		DISCHARGE_MAX_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.AMPERE)),
+		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
 
 		/**
 		 * Minimal Cell Temperature.
@@ -134,7 +134,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Range: (-50)..100
 		 * </ul>
 		 */
-		MIN_CELL_TEMPERATURE(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
 
 		/**
 		 * Maximum Cell Temperature.
@@ -146,7 +146,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Range: (-50)..100
 		 * </ul>
 		 */
-		MAX_CELL_TEMPERATURE(new Doc().type(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
 
 		/**
 		 * Minimal cell voltage.
@@ -156,7 +156,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		MIN_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
+		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
 
 		/**
 		 * Maximum cell voltage.
@@ -166,18 +166,7 @@ public interface Battery extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		MAX_CELL_VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),
-
-		/**
-		 * Maximum power.
-		 * 
-		 * <ul>
-		 * <li>Interface: Battery
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		// TODO: how is max_power defined?
-		MAX_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT));
+		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
 
 		private final Doc doc;
 
@@ -206,7 +195,6 @@ public interface Battery extends OpenemsComponent {
 				.channel(18, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
 				.channel(20, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
 				.channel(22, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
-				.channel(24, ChannelId.MAX_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -334,14 +322,5 @@ public interface Battery extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMaxCellVoltage() {
 		return this.channel(ChannelId.MAX_CELL_VOLTAGE);
-	}
-
-	/**
-	 * Gets the maximum power.
-	 * 
-	 * @return the Channel
-	 */
-	default Channel<Integer> getMaxPower() {
-		return this.channel(ChannelId.MAX_POWER);
 	}
 }
