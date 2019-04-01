@@ -52,13 +52,13 @@ public abstract class SubscribedChannelsWorker {
 
 	/**
 	 * Applies a SubscribeChannelsRequest.
-	 * 
-	 * @param role    the Role - no specific level required
+	 *  @param role    the Role - no specific level required
 	 * @param request the SubscribeChannelsRequest
+	 * @param permittedChannels
 	 */
-	public synchronized void handleSubscribeChannelsRequest(Role role, SubscribeChannelsRequest request) {
+	public synchronized void handleSubscribeChannelsRequest(Role role, SubscribeChannelsRequest request, TreeSet<ChannelAddress> permittedChannels) {
 		if (this.lastRequestCount < request.getCount()) {
-			this.setChannels(request.getChannels());
+			this.setChannels(permittedChannels);
 			this.lastRequestCount = request.getCount();
 		}
 	}

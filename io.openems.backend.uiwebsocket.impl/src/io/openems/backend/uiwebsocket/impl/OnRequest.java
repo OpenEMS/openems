@@ -3,9 +3,12 @@ package io.openems.backend.uiwebsocket.impl;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.backend.metadata.api.IntersectChannels;
+import io.openems.common.exceptions.OpenemsException;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,10 +177,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, String edgeId,
 			User user, SubscribeChannelsRequest request) throws OpenemsNamedException {
+
+		TreeSet<ChannelAddress> permittedChannels = new TreeSet<>();
+		if (this.parent.metadata instanceof IntersectChannels) {
+			wsData.getUserId().ifPresent(backendUser ->
+            {
+                try {
+					permittedChannels.addAll(((IntersectChannels) this.parent.metadata).checkChannels(backendUser, edgeId, request.getChannels()));
+				} catch (OpenemsException e) {
+                    e.printStackTrace();
+                }
+            });
+		} else {
+			permittedChannels.addAll(request.getChannels());
+		}
+
 		// activate SubscribedChannelsWorker
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
 		worker.setEdgeId(edgeId);
-		worker.handleSubscribeChannelsRequest(user.getRole(), request);
+		worker.handleSubscribeChannelsRequest(user.getRole(), request, permittedChannels);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
