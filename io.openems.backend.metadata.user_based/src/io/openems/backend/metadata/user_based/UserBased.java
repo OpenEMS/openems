@@ -3,6 +3,7 @@ package io.openems.backend.metadata.user_based;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.helper.FileHelper;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
@@ -23,9 +24,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -56,9 +54,7 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         this.path = config.path();
 
         // Read the data async
-        CompletableFuture.runAsync(() -> {
-            this.refreshData();
-        });
+        CompletableFuture.runAsync(this::refreshData);
     }
 
     @Deactivate
@@ -74,7 +70,8 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
 
     @Override
     public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-        Optional<Entry<BackendUser, String>> entryOpt = this.userPasswordMapping.entrySet().stream().filter(entry -> entry.getKey().getId().equals(username)).findFirst();
+        Optional<Entry<BackendUser, String>> entryOpt = this.userPasswordMapping.entrySet().stream().filter(
+                entry -> entry.getKey().getId().equals(username)).findFirst();
         final BackendUser[] user = {null};
         entryOpt.ifPresent(entry -> {
             if (entry.getValue().equals("Password")) {
@@ -99,14 +96,13 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
 
     @Override
     public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
-        this.refreshData();
-        for (Entry<String, Edge> entry : this.edges.entrySet()) {
-            Edge edge = entry.getValue();
-            if (edge.getApikey().equals(apikey)) {
-                return Optional.of(edge.getId());
-            }
+        Optional<Optional<Entry<String, Edge>>> edgeId = Optional.of(this.edges.entrySet().stream().filter(
+                e -> e.getValue().getApikey().equals(apikey)).findFirst());
+        if (edgeId.isPresent() && edgeId.get().isPresent()) {
+            return Optional.of(edgeId.get().get().getValue().getId());
+        } else {
+            return Optional.empty();
         }
-        return Optional.empty();
     }
 
     @Override
@@ -123,20 +119,23 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
 
     @Override
     public synchronized Collection<Edge> getAllEdges() {
-        this.refreshData();
         return Collections.unmodifiableCollection(this.edges.values());
     }
 
+    /**
+     * This method checks whether the requested channels are available for the user with the given user id
+     * @param userId the requesting user
+     * @param edgeId the id of the edge of the channels
+     * @param requestedChannels the requested channels
+     * @return all permitted channels
+     * @throws OpenemsException gets thrown in case the user is not permitted of accessing the edge
+     */
     @Override
     public TreeSet<ChannelAddress> checkChannels(String userId, String edgeId, TreeSet<ChannelAddress> requestedChannels) throws OpenemsException {
         if (!this.getUser(userId).isPresent()) {
             throw new OpenemsException("There is no user with id (" + userId + ")");
         }
-        // there is a user configrued for the given userId
-        BackendUser user = this.getUser(userId).get();
-        if (user.getEdgeRoles().get(edgeId) != null && !user.getEdgeRoles().get(edgeId).isAtLeast(Role.GUEST)) {
-            throw new OpenemsException("User (" + userId + ") does not have the permission to access the edge (" + edgeId + ")");
-        }
+        BackendUser user = checkPermissionAndThrow(userId, edgeId);
 
         // the user also has the permission to access the edge
         List<ChannelAddress> permittedChannels = user.getChannels(edgeId);
@@ -150,21 +149,36 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         return retVal;
     }
 
+    /**
+     * Checks whether the user is permitted to access the given edge
+     * @param userId id of user
+     * @param edgeId if of edge
+     * @return the requested user
+     * @throws OpenemsException gets thrown if the permission is missing
+     */
+    private BackendUser checkPermissionAndThrow(String userId, String edgeId) throws OpenemsException {
+        // there is a user configured for the given userId
+        BackendUser user = this.getUser(userId).get();
+        if (user.getEdgeRoles().get(edgeId) != null && !user.getEdgeRoles().get(edgeId).isAtLeast(Role.GUEST)) {
+            throw new OpenemsException("User (" + userId + ") does not have the permission to access the edge (" + edgeId + ")");
+        }
+        return user;
+    }
 
+
+    /**
+     * In case there is a path for a configuration file configured, this method extracts the JSON-encoded information
+     * and fills the fields of the class.<br>
+     * See also: {@link UserBased#userMap}, {@link UserBased#edges}
+     */
     private synchronized void refreshData() {
         if (!this.edges.isEmpty()) {
             return;
         }
-        // read file
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        try (BufferedReader br = new BufferedReader(new FileReader(this.path))) {
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            this.logWarn(this.log, "Unable to read file [" + this.path + "]: " + e.getMessage());
-            e.printStackTrace();
+
+        StringBuilder sb = FileHelper.checkAndGetFileContent(this.path);
+        if (sb == null) {
+            // exception occurred. File could not be read
             return;
         }
 
@@ -173,22 +187,23 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         // parse to JSON
         try {
             JsonElement config = JsonUtils.parse(sb.toString());
-            JsonArray jUsers = JsonUtils.getAsJsonArray(config, "users");
+            JsonArray jUsers = JsonUtils.getAsJsonArray(config, JsonKeys.USERS.getValue());
             for (JsonElement jUser : jUsers) {
                 // handle the user
-                String userId = JsonUtils.getAsString(jUser, "userId");
-                String name = JsonUtils.getAsString(jUser, "name");
+                String userId = JsonUtils.getAsString(jUser, JsonKeys.USER_ID.getValue());
+                String name = JsonUtils.getAsString(jUser, JsonKeys.NAME.getValue());
                 BackendUser user = new BackendUser(userId, name);
                 this.userMap.put(userId, user);
                 // handle the connected edges
-                for (JsonElement jEdge : JsonUtils.getAsJsonArray(jUser, "edges")) {
-                    String edgeId = JsonUtils.getAsString(jEdge, "edgeId");
-                    JsonArray permittedChannels = JsonUtils.getAsJsonArray(jEdge, "permittedChannels");
+                for (JsonElement jEdge : JsonUtils.getAsJsonArray(jUser, JsonKeys.EDGES.getValue())) {
+                    String edgeId = JsonUtils.getAsString(jEdge, JsonKeys.EDGE_ID.getValue());
+                    JsonArray permittedChannels = JsonUtils.getAsJsonArray(jEdge, JsonKeys.PERMITTED_CHANNELS.getValue());
+                    // TODO handle the permissions of the user
                     user.addEdgeRole(edgeId, Role.ADMIN);
                     edges.add(new Edge(//
                             edgeId,
-                            JsonUtils.getAsString(jEdge, "apiKey"), //
-                            JsonUtils.getAsString(jEdge, "comment"), //
+                            JsonUtils.getAsString(jEdge, JsonKeys.API_KEY.getValue()), //
+                            JsonUtils.getAsString(jEdge, JsonKeys.COMMENT.getValue()), //
                             State.ACTIVE, // State
                             "", // Version
                             "", // Product-Type
@@ -196,19 +211,20 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
                             null, // State of Charge
                             null // IPv4
                     ));
+
+                    // handle the permitted channels for the current user's edge
                     List<ChannelAddress> addresses = new ArrayList<>();
                     for (JsonElement channel : permittedChannels) {
                         addresses.add(new ChannelAddress(
-                                JsonUtils.getAsString(channel, "componentId"),
-                                JsonUtils.getAsString(channel, "channelId")));
+                                JsonUtils.getAsString(channel, JsonKeys.COMPONENT_ID.getValue()),
+                                JsonUtils.getAsString(channel, JsonKeys.CHANNEL_ID.getValue())));
                     }
 
                     user.addEdgeChannel(edgeId, addresses);
                 }
-
             }
         } catch (OpenemsNamedException e) {
-            this.logWarn(this.log, "Unable to JSON-parse file [" + this.path + "]: " + e.getMessage());
+            this.logWarn(this.log, "Unable to parse JSON-file [" + this.path + "]: " + e.getMessage());
             e.printStackTrace();
             return;
         }

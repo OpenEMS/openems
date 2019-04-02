@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.backend.common.helper.FileHelper;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -133,18 +134,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	private synchronized void refreshData() {
 		if (this.edges.isEmpty()) {
 			// read file
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			try (BufferedReader br = new BufferedReader(new FileReader(this.path))) {
-				while ((line = br.readLine()) != null) {
-					sb.append(line);
-				}
-			} catch (IOException e) {
-				this.logWarn(this.log, "Unable to read file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
-				return;
-			}
-
+			StringBuilder sb = FileHelper.checkAndGetFileContent(this.path);
 			List<Edge> edges = new ArrayList<>();
 
 			// parse to JSON
