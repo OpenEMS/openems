@@ -41,6 +41,7 @@ public class IOAlarm extends AbstractOpenemsComponent implements Controller, Ope
 	public IOAlarm() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				Controller.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
