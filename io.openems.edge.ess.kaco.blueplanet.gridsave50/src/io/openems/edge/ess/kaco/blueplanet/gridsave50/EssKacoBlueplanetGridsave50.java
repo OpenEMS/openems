@@ -21,6 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -197,7 +198,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 
 			try {
 				wSetPctChannel.setNextWriteValue(WSetPct);
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				log.error("EssKacoBlueplanetGridsave50.applyPower(): Problem occurred while trying so set active power"
 						+ e.getMessage());
 			}
@@ -312,7 +313,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.getBatterySocChannel().setNextWriteValue(batSoC);
 			this.getBatterySohChannel().setNextWriteValue(batSoH);
 			this.getBatteryTempChannel().setNextWriteValue(batTemp);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
 	}
@@ -400,7 +401,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		EnumWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
 		try {
 			requestedState.setNextWriteValue(RequestedState.GRID_CONNECTED.getValue());
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("problem occurred while trying to start grid mode" + e.getMessage());
 		}
 	}
@@ -409,7 +410,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		EnumWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
 		try {
 			requestedState.setNextWriteValue(RequestedState.STANDBY.getValue());
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("problem occurred while trying to start inverter" + e.getMessage());
 		}
 	}
@@ -418,7 +419,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		EnumWriteChannel requestedState = this.channel(ChannelId.REQUESTED_STATE);
 		try {
 			requestedState.setNextWriteValue(RequestedState.OFF.getValue());
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("problem occurred while trying to stop system" + e.getMessage());
 		}
 	}
@@ -428,7 +429,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel watchdogChannel = this.channel(ChannelId.WATCHDOG);
 		try {
 			watchdogChannel.setNextWriteValue(watchdogInterval);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Watchdog timer could not be written!" + e.getMessage());
 		}
 	}
@@ -490,6 +491,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		 * SUNSPEC_64201
 		 */
 		REQUESTED_STATE(Doc.of(RequestedState.values()) //
+				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new EnumWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_REQUESTED_STATE))),
 		CURRENT_STATE(Doc.of(CurrentState.values())), //
 		WATCHDOG(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS) //

@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.multirack.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.versionb.VersionBEnums.AutoSetFunction;
@@ -42,6 +42,8 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -247,7 +249,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		try {
 			IntegerWriteChannel c = this.channel(VersionBChannelId.EMS_COMMUNICATION_TIMEOUT);
 			c.setNextWriteValue(time_seconds);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while setting ems timeout!\n" + e.getMessage());
 		}
 	}
@@ -426,7 +428,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 					try {
 						resetChannel.setNextWriteValue(SYSTEM_RESET);
 						configuringFinished = null;
-					} catch (OpenemsException e) {
+					} catch (OpenemsNamedException e) {
 						log.error("Error while trying to reset the system!");
 					}
 				}
@@ -485,7 +487,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			nextConfiguringProcess = ConfiguringProcess.CONFIGURING_FINISHED;
 			configuringFinished = LocalDateTime.now();
 
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting voltage ranges not successful!");
 		}
 
@@ -517,7 +519,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			autoSetSlavesTemperatureIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
 			timeAfterAutoId = LocalDateTime.now();
 			nextConfiguringProcess = ConfiguringProcess.CHECK_TEMPERATURE_ID_AUTO_CONFIGURING;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting temperature id auto set not successful"); // Set was not successful, it will be tried
 																			// until it succeeded
 		}
@@ -547,7 +549,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 			autoSetSlavesIdChannel.setNextWriteValue(AutoSetFunction.START_AUTO_SETTING.getValue());
 			timeAfterAutoId = LocalDateTime.now();
 			nextConfiguringProcess = ConfiguringProcess.CHECK_ID_AUTO_CONFIGURING;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting slave numbers not successful"); // Set was not successful, it will be tried until it
 																// succeeded
 		}
@@ -560,7 +562,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 		try {
 			numberOfSlavesChannel.setNextWriteValue(this.config.numberOfSlaves());
 			nextConfiguringProcess = ConfiguringProcess.SET_ID_AUTO_CONFIGURING;
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Setting slave numbers not successful"); // Set was not successful, it will be tried until it
 																// succeeded
 		}
@@ -577,13 +579,13 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 
 	private boolean isSystemIsRunning() {
-		IntegerReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
+		EnumReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 		return cc == ContactorControl.ON_GRID;
 	}
 
 	private boolean isSystemStopped() {
-		IntegerReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
+		EnumReadChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
 		ContactorControl cc = contactorControlChannel.value().asEnum();
 		return cc == ContactorControl.CUT_OFF;
 	}
@@ -653,40 +655,35 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 	}
 
 	private void startSystem() {
-		IntegerWriteChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
-
-		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		EnumWriteChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
+		ContactorControl cc = contactorControlChannel.value().asEnum();
 		// To avoid hardware damages do not send start command if system has already
 		// started
-		if (contactorControlOpt.isPresent()) {
-			int cc = contactorControlOpt.get();
-			if (cc == ContactorControl.ON_GRID.getValue() || cc == ContactorControl.CONNECTION_INITIATING.getValue()) {
-				return;
-			}
+		if (cc == ContactorControl.ON_GRID || cc == ContactorControl.CONNECTION_INITIATING) {
+			return;
 		}
 
 		try {
 			log.debug("write value to contactor control channel: value: " + SYSTEM_ON);
 			contactorControlChannel.setNextWriteValue(SYSTEM_ON);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to start system\n" + e.getMessage());
 		}
 	}
 
 	private void stopSystem() {
-		IntegerWriteChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
-
-		Optional<Integer> contactorControlOpt = contactorControlChannel.value().asOptional();
+		EnumWriteChannel contactorControlChannel = this.channel(VersionBChannelId.BMS_CONTACTOR_CONTROL);
+		ContactorControl cc = contactorControlChannel.value().asEnum();
 		// To avoid hardware damages do not send stop command if system has already
 		// stopped
-		if (contactorControlOpt.isPresent() && contactorControlOpt.get() == ContactorControl.CUT_OFF.getValue()) {
+		if (cc == ContactorControl.CUT_OFF) {
 			return;
 		}
 
 		try {
 			log.debug("write value to contactor control channel: value: " + SYSTEM_OFF);
 			contactorControlChannel.setNextWriteValue(SYSTEM_OFF);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while trying to stop system\n" + e.getMessage());
 		}
 	}
@@ -706,7 +703,7 @@ public class SoltaroRackVersionB extends AbstractOpenemsModbusComponent
 					.setNextWriteValue(soCLowAlarm);
 			((IntegerWriteChannel) this.channel(VersionBChannelId.STOP_PARAMETER_SOC_LOW_PROTECTION_RECOVER))
 					.setNextWriteValue(soCLowAlarm);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Error while setting parameter for soc low protection!" + e.getMessage());
 		}
 	}

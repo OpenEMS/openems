@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.EnumReadChannel;
@@ -87,7 +87,7 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 		try {
 			IntegerWriteChannel setActivePowerChannel = parent.channel(StrtsctrChannelId.INVERTER_SET_ACTIVE_POWER);
 			setActivePowerChannel.setNextWriteValue(activePower);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log, "Unable to set ActivePower: " + e.getMessage());
 		}
 	}

@@ -19,7 +19,7 @@ public interface OnRequest {
 	 * @throws OpenemsNamedException on error
 	 * @return the JSON-RPC Success Response Future
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException;
 
 }
