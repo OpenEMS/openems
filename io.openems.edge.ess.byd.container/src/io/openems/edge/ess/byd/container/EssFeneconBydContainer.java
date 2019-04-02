@@ -26,11 +26,12 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -40,7 +41,6 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.common.channel.Unit;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -67,7 +67,6 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				EssFeneconBydContainer.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
@@ -109,10 +108,6 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		this.modbusBridgeId = config.modbus_id1();
 		this.readonly = config.readonly();
 
-		if (config.readonly()) {
-			// Do not allow Power in read-only mode
-			this.getMaxApparentPower().setNextValue(0);
-		}
 		this.channel(ChannelId.READ_ONLY_MODE).setNextValue(config.readonly());
 	}
 
@@ -129,16 +124,14 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 		this.logInfo(this.log, "Would apply " + activePower + ", " + reactivePower);
 
-		IntegerWriteChannel systemWorkmodeChannel = this.channel(ChannelId.SYSTEM_WORKMODE);
-		SystemWorkmode systemWorkmode = systemWorkmodeChannel.value().asEnum();
+		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum();
 		if (systemWorkmode != SystemWorkmode.PQ_MODE) {
 			this.logWarn(this.log, "System Work-Mode is not P/Q");
 			// TODO systemWorkmodeChannel.setNextWriteValue(SystemWorkmode.PQ_MODE);
 			return;
 		}
 
-		IntegerReadChannel systemWorkstateChannel = this.channel(ChannelId.SYSTEM_WORKSTATE);
-		SystemWorkstate systemWorkstate = systemWorkstateChannel.value().asEnum();
+		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
 		if (systemWorkstate != SystemWorkstate.RUNNING) {
 			this.logWarn(this.log, "System Work-State is not RUNNING");
 			IntegerWriteChannel setSystemWorkstateChannel = this.channel(ChannelId.SET_SYSTEM_WORKSTATE);
@@ -175,10 +168,15 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() {
-		IntegerReadChannel systemWorkmodeChannel = this.channel(ChannelId.SYSTEM_WORKMODE);
-		IntegerReadChannel systemWorkstateChannel = this.channel(ChannelId.SYSTEM_WORKSTATE);
-		SystemWorkmode systemWorkmode = systemWorkmodeChannel.value().asEnum();
-		SystemWorkstate systemWorkstate = systemWorkstateChannel.value().asEnum();
+		if (this.readonly) {
+			return new Constraint[] { //
+					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+			};
+		}
+
+		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum(); //
+		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
 		if (systemWorkmode != SystemWorkmode.PQ_MODE || systemWorkstate != SystemWorkstate.RUNNING) {
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkMode+State invalid", //
@@ -190,6 +188,19 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		IntegerReadChannel limitInductiveReactivePower = this.channel(ChannelId.LIMIT_INDUCTIVE_REACTIVE_POWER);
 		IntegerReadChannel limitCapacitiveReactivePower = this.channel(ChannelId.LIMIT_CAPACITIVE_REACTIVE_POWER);
 
+		// TODO set the positive and negative power limit in Constraints
+		// IntegerReadChannel posReactivePowerLimit =
+		// this.channel(ChannelId.POSITIVE_REACTIVE_POWER_LIMIT);//
+		// int positiveReactivePowerLimit = TypeUtils.getAsType(OpenemsType.INTEGER,
+		// posReactivePowerLimit);
+		//
+		// return new Constraint[] { //
+		// this.createPowerConstraint("Positive Reactive Power Limit", Phase.ALL,
+		// Pwr.REACTIVE, Relationship.LESS_OR_EQUALS, positiveReactivePowerLimit), //
+		// this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE,
+		// Relationship.EQUALS, 0) //
+		// };
+
 		// TODO set reactive power limit from limitInductiveReactivePower +
 		// limitCapacitiveReactivePower
 		return Power.NO_CONSTRAINTS;
@@ -200,65 +211,84 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
-		
-		//READ_ONLY_MODE(new Doc().level(Level.INFO)),
 		READ_ONLY_MODE(Doc.of(Level.INFO)),
-		// RTU registers		
-		SYSTEM_WORKSTATE(Doc.of(SystemWorkstate.values())),		
-		SYSTEM_WORKMODE(Doc.of(SystemWorkmode.values())),	
-				
-		LIMIT_INDUCTIVE_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
-		LIMIT_CAPACITIVE_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
-		CONTAINER_RUN_NUMBER(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		SET_SYSTEM_WORKSTATE(Doc.of(SetSystemWorkstate.values())
+		// RTU registers
+		SYSTEM_WORKSTATE(Doc.of(SystemWorkstate.values())), //
+		SYSTEM_WORKMODE(Doc.of(SystemWorkmode.values())), //
+		LIMIT_INDUCTIVE_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
+		LIMIT_CAPACITIVE_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
+		CONTAINER_RUN_NUMBER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		SET_SYSTEM_WORKSTATE(Doc.of(SetSystemWorkstate.values())//
 				.accessMode(AccessMode.WRITE_ONLY)),
-		
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)
-				.unit(Unit.KILOWATT)
-				.accessMode(AccessMode.WRITE_ONLY)),
-		
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)
-				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)
-				.accessMode(AccessMode.WRITE_ONLY)),
-		// PCS registers	
-		PCS_SYSTEM_WORKSTATE(Doc.of(SystemWorkstate.values())),
-		PCS_SYSTEM_WORKMODE(Doc.of(SystemWorkmode.values())),
-		PHASE3_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)),
-		PHASE3_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
-		PHASE3_INSPECTING_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE)),
-		PCS_DISCHARGE_LIMIT_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)),
-		PCS_CHARGE_LIMIT_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)),
-		POSITIVE_REACTIVE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
-		NEGATIVE_REACTIVE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOVOLT_AMPERE_REACTIVE)),
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),//
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),//
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),//
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)), //
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)), //
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),//
-		VOLTAGE_L12(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)), //
-		VOLTAGE_L23(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),//
-		VOLTAGE_L31(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),//
-		SYSTEM_FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ)),
-		DC_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)), //
-		DC_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),//
-		DC_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)), //
-		IGBT_TEMPERATURE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		IGBT_TEMPERATURE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		IGBT_TEMPERATURE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-
-		// PCS_WARNING_0(new Doc().unit(Unit.NONE)),
+		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT)//
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)//
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		// PCS registers
+		PCS_SYSTEM_WORKSTATE(Doc.of(SystemWorkstate.values())), //
+		PCS_SYSTEM_WORKMODE(Doc.of(SystemWorkmode.values())), //
+		PHASE3_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT)), //
+		PHASE3_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)), //
+		PHASE3_INSPECTING_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE)), //
+		PCS_DISCHARGE_LIMIT_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT)), //
+		PCS_CHARGE_LIMIT_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT)), //
+		POSITIVE_REACTIVE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)), //
+		NEGATIVE_REACTIVE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOVOLT_AMPERE_REACTIVE)), //
+		CURRENT_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)), //
+		CURRENT_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)), //
+		CURRENT_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)), //
+		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		VOLTAGE_L12(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		VOLTAGE_L23(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		VOLTAGE_L31(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		SYSTEM_FREQUENCY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)),
+		DC_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		DC_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)), //
+		DC_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT)), //
+		IGBT_TEMPERATURE_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		IGBT_TEMPERATURE_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		IGBT_TEMPERATURE_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		// PCS_WARNING_0
 		STATE_0(Doc.of(Level.WARNING).text("DC pre-charging contactor checkback abnormal")),
 		STATE_1(Doc.of(Level.WARNING).text("AC pre-charging contactor checkback abnormal")),
 		STATE_2(Doc.of(Level.WARNING).text("AC main contactor checkback abnormal")),
 		STATE_3(Doc.of(Level.WARNING).text("AC circuit breaker checkback abnormal")),
-		STATE_4(Doc.of(Level.WARNING).text("Container door open")),
+		STATE_4(Doc.of(Level.WARNING).text("Container door open")), //
 		STATE_5(Doc.of(Level.WARNING).text("Reserved")),
 		STATE_6(Doc.of(Level.WARNING).text("AC circuit breaker is not closed")),
 		STATE_7(Doc.of(Level.WARNING).text("Reserved")),
-		// PCS_WARNING_1(new Doc().unit(Unit.NONE)),
-		STATE_8(Doc.of(Level.WARNING).text("General overload")),
+		// PCS_WARNING_1
+		STATE_8(Doc.of(Level.WARNING).text("General overload")), //
 		STATE_9(Doc.of(Level.WARNING).text("Severe overload")),
 		STATE_10(Doc.of(Level.WARNING).text("Over temperature drop power")),
 		STATE_11(Doc.of(Level.WARNING).text("AC three-phase current imbalance alarm")),
@@ -272,7 +302,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_19(Doc.of(Level.WARNING).text("Back up EEPROM data failure")),
 		STATE_20(Doc.of(Level.WARNING).text("DC circuit breaker checkback abnormal")),
 		STATE_21(Doc.of(Level.WARNING).text("DC main contactor checkback abnormal")),
-		// PCS_WARNING_2(new Doc().unit(Unit.NONE)),
+		// PCS_WARNING_2
 		STATE_22(Doc.of(Level.WARNING).text("Interruption of communication between PCS and Master")),
 		STATE_23(Doc.of(Level.WARNING).text("Interruption of communication between PCS and unit controller")),
 		STATE_24(Doc.of(Level.WARNING).text("Excessive temperature")),
@@ -284,19 +314,15 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_30(Doc.of(Level.WARNING).text("Reactor temperature sampling failure")),
 		STATE_31(Doc.of(Level.WARNING).text("PCS cabinet environmental temperature sampling failure")),
 		STATE_32(Doc.of(Level.WARNING).text("DC circuit breaker not engaged")),
-		STATE_33(Doc.of(Level.WARNING)
-				.text("Controller of receive system shutdown because of abnormal command")),
-		// PCS_WARNING_3(new Doc().unit(Unit.NONE)),
+		STATE_33(Doc.of(Level.WARNING).text("Controller of receive system shutdown because of abnormal command")),
+		// PCS_WARNING_3
 		STATE_34(Doc.of(Level.WARNING).text("Interruption of communication between PCS and RTU0 ")),
 		STATE_35(Doc.of(Level.WARNING).text("Interruption of communication between PCS and RTU1AN")),
 		STATE_36(Doc.of(Level.WARNING).text("Interruption of communication between PCS and MasterCAN")),
-		STATE_37(Doc.of(Level.WARNING)
-				.text("Short-term access too many times to hot standby status in a short term")),
-		STATE_38(Doc.of(Level.WARNING)
-				.text("entry and exit dynamic monitoring too many times in a short term")),
+		STATE_37(Doc.of(Level.WARNING).text("Short-term access too many times to hot standby status in a short term")),
+		STATE_38(Doc.of(Level.WARNING).text("entry and exit dynamic monitoring too many times in a short term")),
 		STATE_39(Doc.of(Level.WARNING).text("AC preload contactor delay closure ")),
-
-		// PCS_FAULTS_0(new Doc().unit(Unit.NONE)), //
+		// PCS_FAULTS_0
 		STATE_40(Doc.of(Level.FAULT).text("DC pre-charge contactor cannot pull in")),
 		STATE_41(Doc.of(Level.FAULT).text("AC pre-charge contactor cannot pull in")),
 		STATE_42(Doc.of(Level.FAULT).text("AC main contactor cannot pull in")),
@@ -306,14 +332,14 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_46(Doc.of(Level.FAULT).text("Hardware PDP failure")),
 		STATE_47(Doc.of(Level.FAULT).text("DC midpoint 1 high voltage protection")),
 		STATE_48(Doc.of(Level.FAULT).text("DC midpoint 2 high voltage protection")),
-		// PCS_FAULTS_1(new Doc().unit(Unit.NONE)), //
+		// PCS_FAULTS_1
 		STATE_49(Doc.of(Level.FAULT).text("Radiator A over-temperature protection")),
 		STATE_50(Doc.of(Level.FAULT).text("Radiator B over-temperature protection")),
 		STATE_51(Doc.of(Level.FAULT).text("Radiator C over-temperature protection")),
 		STATE_52(Doc.of(Level.FAULT).text("Electric reactor core over temperature protection")),
 		STATE_53(Doc.of(Level.FAULT).text("DC breaker disconnected abnormally in operation")),
 		STATE_54(Doc.of(Level.FAULT).text("DC main contactor disconnected abnormally in operation")),
-		// PCS_FAULTS_2(new Doc().unit(Unit.NONE)), //
+		// PCS_FAULTS_2
 		STATE_55(Doc.of(Level.FAULT).text("DC short-circuit protection")),
 		STATE_56(Doc.of(Level.FAULT).text("DC overvoltage protection")),
 		STATE_57(Doc.of(Level.FAULT).text("DC undervoltage protection")),
@@ -329,7 +355,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_67(Doc.of(Level.FAULT).text("A-phase voltage sampling Failure")),
 		STATE_68(Doc.of(Level.FAULT).text("B-phase voltage sampling Failure")),
 		STATE_69(Doc.of(Level.FAULT).text("C-phase voltage sampling Failure")),
-		// PCS_FAULTS_3(new Doc().unit(Unit.NONE)), //
+		// PCS_FAULTS_3
 		STATE_70(Doc.of(Level.FAULT).text("Inverted Phase A Voltage Sampling Failure")),
 		STATE_71(Doc.of(Level.FAULT).text("Inverted Phase B Voltage Sampling Failure")),
 		STATE_72(Doc.of(Level.FAULT).text("Inverted Phase C Voltage Sampling Failure")),
@@ -346,7 +372,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_83(Doc.of(Level.FAULT).text("AC Phase C not fully pre-charged under-protection")),
 		STATE_84(Doc.of(Level.FAULT).text("Non-adaptable phase sequence error protection")),
 		STATE_85(Doc.of(Level.FAULT).text("DSP protection")),
-		// PCS_FAULTS_4(new Doc().unit(Unit.NONE)), //
+		// PCS_FAULTS_4
 		STATE_86(Doc.of(Level.FAULT).text("A-phase grid voltage serious high protection")),
 		STATE_87(Doc.of(Level.FAULT).text("A-phase grid voltage general high protection")),
 		STATE_88(Doc.of(Level.FAULT).text("B-phase grid voltage serious high protection")),
@@ -363,7 +389,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_99(Doc.of(Level.FAULT).text("general high frequency")),
 		STATE_100(Doc.of(Level.FAULT).text("serious low frequency")),
 		STATE_101(Doc.of(Level.FAULT).text("general low frequency")),
-		// PCS_FAULTS_5(new Doc().unit(Unit.NONE)), //
+		// PCS_FAULTS_5
 		STATE_102(Doc.of(Level.FAULT).text("Grid A phase loss")),
 		STATE_103(Doc.of(Level.FAULT).text("Grid B phase loss")),
 		STATE_104(Doc.of(Level.FAULT).text("Grid C phase loss")),
@@ -378,29 +404,45 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_113(Doc.of(Level.FAULT).text("C phase inverter voltage serious high protection")),
 		STATE_114(Doc.of(Level.FAULT).text("C phase inverter voltage general high protection")),
 		STATE_115(Doc.of(Level.FAULT).text("Inverter peak voltage high protection cause by AC disconnection")),
-
-		// BECU registers 
+		// BECU registers
 		BATTERY_STRING_WORK_STATE(Doc.of(BatteryStringWorkState.values())),
-		BATTERY_STRING_TOTAL_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),//
-		BATTERY_STRING_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
-		BATTERY_STRING_SOC(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		BATTERY_STRING_AVERAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_NUMBER_MAX_STRING_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		BATTERY_STRING_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		BATTERY_STRING_MAX_VOLTAGE_TEMPARATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_NUMBER_MIN_STRING_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		BATTERY_STRING_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		BATTERY_STRING_MIN_VOLTAGE_TEMPARATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_NUMBER_MAX_STRING_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		BATTERY_STRING_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_STRING_MAX_TEMPARATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		BATTERY_NUMBER_MIN_STRING_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		BATTERY_STRING_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		BATTERY_STRING_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
-		BATTERY_STRING_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
-
-		// BATTERY_STRING_WARNING_0_0(new Doc().unit(Unit.NONE)), //
+		BATTERY_STRING_TOTAL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)), //
+		BATTERY_STRING_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)),
+		BATTERY_STRING_SOC(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		BATTERY_STRING_AVERAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		BATTERY_NUMBER_MAX_STRING_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		BATTERY_STRING_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)),
+		BATTERY_STRING_MAX_VOLTAGE_TEMPARATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		BATTERY_NUMBER_MIN_STRING_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		BATTERY_STRING_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)),
+		BATTERY_STRING_MIN_VOLTAGE_TEMPARATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		BATTERY_NUMBER_MAX_STRING_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		BATTERY_STRING_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		BATTERY_STRING_MAX_TEMPARATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)),
+		BATTERY_NUMBER_MIN_STRING_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		BATTERY_STRING_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)),
+		BATTERY_STRING_MIN_TEMPARATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)),
+		BATTERY_STRING_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)),
+		BATTERY_STRING_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)),
+		// BATTERY_STRING_WARNING_0_0
 		STATE_116(Doc.of(Level.WARNING).text("Charging overcurrent general alarm")), //
 		STATE_117(Doc.of(Level.WARNING).text("discharging overcurrent general alarm")), //
 		STATE_118(Doc.of(Level.WARNING).text("Charge current over-limit alarm")), //
@@ -417,8 +459,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_129(Doc.of(Level.WARNING).text("Charge current severe over-limit alarm")), //
 		STATE_130(Doc.of(Level.WARNING).text("Discharge current severe over-limit alarm")), //
 		STATE_131(Doc.of(Level.WARNING).text("Total voltage over limit alarm")), //
-
-		// BATTERY_STRING_WARNING_0_1(new Doc().unit(Unit.NONE)), //
+		// BATTERY_STRING_WARNING_0_1
 		STATE_132(Doc.of(Level.WARNING).text("Balanced sampling abnormal alarm")), //
 		STATE_133(Doc.of(Level.WARNING).text("Balanced control abnormal alarm")), //
 		STATE_134(Doc.of(Level.WARNING).text("Isolation switch is not closed")), //
@@ -435,8 +476,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_145(Doc.of(Level.WARNING).text("High voltage offset")), //
 		STATE_146(Doc.of(Level.WARNING).text("Low pressure offset")), //
 		STATE_147(Doc.of(Level.WARNING).text("High temperature offset")), //
-
-		// BATTERY_STRING_WARNING_1_0(new Doc().unit(Unit.NONE)), //
+		// BATTERY_STRING_WARNING_1_0
 		STATE_148(Doc.of(Level.FAULT).text("Start timeout")), //
 		STATE_149(Doc.of(Level.FAULT).text("Total operating voltage sampling abnormal")), //
 		STATE_150(Doc.of(Level.FAULT).text("BMU Sampling circuit abnormal")), //
@@ -445,8 +485,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_153(Doc.of(Level.FAULT).text("Temperature sample line open")), //
 		STATE_154(Doc.of(Level.FAULT).text("Main-auxiliary internal CAN open")), //
 		STATE_155(Doc.of(Level.FAULT).text("Interruption with system controller communication")), //
-
-		// BATTERY_STRING_WARNING_1_1(new Doc().unit(Unit.NONE)), //
+		// BATTERY_STRING_WARNING_1_1
 		STATE_156(Doc.of(Level.FAULT).text("Severe high temperature failure")), //
 		STATE_157(Doc.of(Level.FAULT).text("Smoke alarm")), //
 		STATE_158(Doc.of(Level.FAULT).text("Fuse failure")), //
@@ -454,43 +493,22 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_160(Doc.of(Level.FAULT).text("Severe leakage")), //
 		STATE_161(Doc.of(Level.FAULT).text("Repair switch disconnected")), //
 		STATE_162(Doc.of(Level.FAULT).text("Emergency stop pressed down")), //
-		// ADAS register addresses 		
-		CONTAINER_IMMERSION_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		CONTAINER_FIRE_STATUS(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),//
-		CONTROL_CABINET_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		CONTAINER_GROUNDING_FAULT(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		CONTAINER_DOOR_STATUS_0(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
-		CONTAINER_DOOR_STATUS_1(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)),
-		/*
-		 * CONTAINER_IMMERSION_STATE_1(new
-		 * Doc().level(Level.WARNING).text("Immersion happens")),
-		 * CONTAINER_IMMERSION_STATE_0(new
-		 * Doc().level(Level.WARNING).text("Immersion vanishes")),
-		 * CONTAINER_FIRE_STATUS_1(new Doc().level(Level.WARNING).text("Fire alarm")),
-		 * CONTAINER_FIRE_STATUS_0(new
-		 * Doc().level(Level.WARNING).text("Fire alarm vanishes")),
-		 * CONTROL_CABINET_STATE_1(new
-		 * Doc().level(Level.WARNING).text("Sudden stop press down")),
-		 * CONTROL_CABINET_STATE_0(new
-		 * Doc().level(Level.WARNING).text("Sudden stop spin up")),
-		 * CONTAINER_GROUNDING_FAULT_1(new
-		 * Doc().level(Level.WARNING).text("Grounding fault happens")),
-		 * CONTAINER_GROUNDING_FAULT_0(new
-		 * Doc().level(Level.WARNING).text("Grounding fault vanishes")),
-		 * CONTAINER_DOOR_STATUS_0_1(new Doc().level(Level.WARNING).text("Door opens")),
-		 * CONTAINER_DOOR_STATUS_0_0(new
-		 * Doc().level(Level.WARNING).text("Door closes")),
-		 * CONTAINER_DOOR_STATUS_1_1(new Doc().level(Level.WARNING).text("Door opens")),
-		 * CONTAINER_DOOR_STATUS_1_0(new
-		 * Doc().level(Level.WARNING).text("Door closes")),
-		 * CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_1( new
-		 * Doc().level(Level.WARNING).text("Air conditioning power supply")),
-		 * CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE_0(new
-		 * Doc().level(Level.WARNING).text("Air conditioning shuts down")),
-		 */
-
-		// ADAS_WARNING_0_0(new Doc().unit(Unit.NONE)), //
+		// ADAS register addresses
+		CONTAINER_IMMERSION_STATE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		CONTAINER_FIRE_STATUS(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		CONTROL_CABINET_STATE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		CONTAINER_GROUNDING_FAULT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		CONTAINER_DOOR_STATUS_0(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)), //
+		CONTAINER_DOOR_STATUS_1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)),
+		// ADAS_WARNING_0_0
 		STATE_163(Doc.of(Level.WARNING).text("ups1 Power down")), //
 		STATE_164(Doc.of(Level.WARNING).text("Immersion sensor abnormal")), //
 		STATE_165(Doc.of(Level.WARNING).text("switch 2 (battery room door) abnormal")), //
@@ -504,13 +522,11 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_173(Doc.of(Level.WARNING).text("Emergency stop signal")), //
 		STATE_174(Doc.of(Level.WARNING).text("Air conditioning fault contactor signal")), //
 		STATE_175(Doc.of(Level.WARNING).text("pcs1 Ground fault shutdown signal")), //
-
-		// ADAS_WARNING_0_1(new Doc().unit(Unit.NONE)), //
+		// ADAS_WARNING_0_1
 		STATE_176(Doc.of(Level.WARNING).text("PCS room ambient temperature sensor failure")), //
 		STATE_177(Doc.of(Level.WARNING).text("Battery room ambient temperature sensor failure")), //
 		STATE_178(Doc.of(Level.WARNING).text("container external ambient temperature sensor failure")), //
-		STATE_179(
-				Doc.of(Level.WARNING).text("The temperature sensor on the top of the control cabinet failed")), //
+		STATE_179(Doc.of(Level.WARNING).text("The temperature sensor on the top of the control cabinet failed")), //
 		STATE_180(Doc.of(Level.WARNING).text("PCS room ambient humidity sensor failure")), //
 		STATE_181(Doc.of(Level.WARNING).text("Battery room ambient humidity sensor failure")), //
 		STATE_182(Doc.of(Level.WARNING).text("container external humidity sensor failure")), //
@@ -518,25 +534,19 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		STATE_184(Doc.of(Level.WARNING).text("PCS room ambient humidity alarm")), //
 		STATE_185(Doc.of(Level.WARNING).text("battery room ambient humidity alarm")), //
 		STATE_186(Doc.of(Level.WARNING).text("container external humidity alarm")), //
-
-		// ADAS_WARNING_0_2(new Doc().unit(Unit.NONE)), //
-
+		// ADAS_WARNING_0_2
 		STATE_187(Doc.of(Level.WARNING).text("Master Firefighting fault")), //
 		STATE_188(Doc.of(Level.WARNING).text("Harmonic protection")), //
 		STATE_189(Doc.of(Level.WARNING).text("Battery emergency stop")), //
-
-		// ADAS_WARNING_1_0(new Doc().unit(Unit.NONE)), //
+		// ADAS_WARNING_1_0
 		STATE_190(Doc.of(Level.FAULT).text("Reserved")),
-
-		// ADAS_WARNING_1_1(new Doc().unit(Unit.NONE)), //
+		// ADAS_WARNING_1_1
 		STATE_191(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature in PCS room")), //
 		STATE_192(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature in Battery room")), //
 		STATE_193(Doc.of(Level.FAULT).text("Serious overheating of ambient temperature outside the container")), //
 		STATE_194(Doc.of(Level.FAULT).text("Serious overheating on the top of the electric control cabinet ")), //
 		STATE_195(Doc.of(Level.FAULT).text("Serious overheating of transformer")), //
-
-		// ADAS_WARNING_1_2(new Doc().unit(Unit.NONE))//
-
+		// ADAS_WARNING_1_2
 		STATE_196(Doc.of(Level.FAULT).text("DCAC module 1 Communication disconnected")), //
 		STATE_197(Doc.of(Level.FAULT).text("DCAC module 2 Communication disconnected")), //
 		STATE_198(Doc.of(Level.FAULT).text("DCAC module 3 Communication disconnected")), //
@@ -561,7 +571,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, new FC3ReadRegistersTask(0x1001, Priority.LOW,
-				
+				// TODO check each channels id's for scaling factor
 				m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKSTATE, new UnsignedWordElement(0x1001)),
 				m(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKMODE, new UnsignedWordElement(0x1002)),
 				m(EssFeneconBydContainer.ChannelId.PHASE3_ACTIVE_POWER, new SignedWordElement(0x1003)),
@@ -573,14 +583,22 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				m(EssFeneconBydContainer.ChannelId.NEGATIVE_REACTIVE_POWER_LIMIT, new SignedWordElement(0x1009)),
 				m(EssFeneconBydContainer.ChannelId.CURRENT_L1, new SignedWordElement(0x100A),
 						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.CURRENT_L2, new SignedWordElement(0x100B)),
-				m(EssFeneconBydContainer.ChannelId.CURRENT_L3, new SignedWordElement(0x100C)),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x100D)),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x100E)),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x100F)),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L12, new UnsignedWordElement(0x1010)),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L23, new UnsignedWordElement(0x1011)),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L31, new UnsignedWordElement(0x1012)),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L2, new SignedWordElement(0x100B),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L3, new SignedWordElement(0x100C),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x100D),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x100E),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x100F),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L12, new UnsignedWordElement(0x1010),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L23, new UnsignedWordElement(0x1011),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L31, new UnsignedWordElement(0x1012),
+						ElementToChannelConverter.SCALE_FACTOR_2),
 				m(EssFeneconBydContainer.ChannelId.SYSTEM_FREQUENCY, new UnsignedWordElement(0x1013)),
 				m(EssFeneconBydContainer.ChannelId.DC_VOLTAGE, new SignedWordElement(0x1014)),
 				m(EssFeneconBydContainer.ChannelId.DC_CURRENT, new SignedWordElement(0x1015)),
@@ -588,11 +606,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L1, new SignedWordElement(0x1017)),
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L2, new SignedWordElement(0x1018)),
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L3, new SignedWordElement(0x1019)),
-
-				// m(EssFeneconBydContainer.ChannelId.PCS_WARNING_0, new
-				// UnsignedWordElement(0x1040)),
-
-				bm(new  UnsignedWordElement(0x1040)) //
+				// PCS_WARNING_0
+				bm(new UnsignedWordElement(0x1040)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_0, 0) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_1, 3) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_2, 4) //
@@ -602,9 +617,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_6, 14)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_7, 15)//
 						.build(),
-
-				// (EssFeneconBydContainer.ChannelId.PCS_WARNING_1, new
-				// UnsignedWordElement(0x1041)),
+				// PCS_WARNING_1
 				bm(new UnsignedWordElement(0x1041))//
 						.m(EssFeneconBydContainer.ChannelId.STATE_8, 0)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_9, 1)//
@@ -621,10 +634,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_20, 14)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_21, 15)//
 						.build(),
-
-				// m(EssFeneconBydContainer.ChannelId.PCS_WARNING_2, new
-				// UnsignedWordElement(0x1042)),
-
+				// PCS_WARNING_2
 				bm(new UnsignedWordElement(0x1042)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_22, 1)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_23, 2)//
@@ -639,10 +649,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_32, 13)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_33, 14)//
 						.build(),
-
-				// m(EssFeneconBydContainer.ChannelId.PCS_WARNING_3, new
-				// UnsignedWordElement(0x1043)),
-
+				// PCS_WARNING_3
 				bm(new UnsignedWordElement(0x1043)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_34, 1)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_35, 2)//
@@ -651,10 +658,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_38, 5)//
 						.m(EssFeneconBydContainer.ChannelId.STATE_39, 6)//
 						.build(),
-
 				new DummyRegisterElement(0x1044, 0X104F), //
-				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_0, new
-				// UnsignedWordElement(0x1050)),
+				// PCS_FAULTS_0
 				bm(new UnsignedWordElement(0x1050)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_40, 0) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_41, 1) //
@@ -666,8 +671,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_47, 12) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_48, 13) //
 						.build(),
-				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_1, new
-				// UnsignedWordElement(0x1051)),
+				// PCS_FAULTS_1
 				bm(new UnsignedWordElement(0x1051)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_49, 1) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_50, 2) //
@@ -676,7 +680,6 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_53, 7) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_54, 8) //
 						.build(),
-
 				bm(new UnsignedWordElement(0x1052)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_55, 0) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_56, 1) //
@@ -694,9 +697,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_68, 14) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_69, 15) //
 						.build(),
-
-				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_3, new
-				// UnsignedWordElement(0x1053)),
+				// PCS_FAULTS_3
 				bm(new UnsignedWordElement(0x1053)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_70, 0) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_71, 1) //
@@ -715,10 +716,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_84, 14) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_85, 15) //
 						.build(),
-
-				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_4, new
-				// UnsignedWordElement(0x1054)),
-
+				// PCS_FAULTS_4
 				bm(new UnsignedWordElement(0x1054)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_86, 0) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_87, 1) //
@@ -737,10 +735,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_100, 14) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_101, 15) //
 						.build(),
-
-				// m(EssFeneconBydContainer.ChannelId.PCS_FAULTS_5, new
-				// UnsignedWordElement(0x1055))),
-
+				// PCS_FAULTS_5
 				bm(new UnsignedWordElement(0x1055)) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_102, 0) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_103, 1) //
@@ -757,7 +752,6 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.m(EssFeneconBydContainer.ChannelId.STATE_114, 12) //
 						.m(EssFeneconBydContainer.ChannelId.STATE_115, 13) //
 						.build()),
-
 				// BECU registers
 				new FC3ReadRegistersTask(0x6001, Priority.LOW,
 						m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WORK_STATE, new UnsignedWordElement(0x6001)),
@@ -799,8 +793,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
 								new UnsignedDoublewordElement(0x6017).wordOrder(WordOrder.LSWMSW)),
 						new DummyRegisterElement(0X6019, 0X603F),
-						// m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_0_0, new
-						// UnsignedWordElement(0x6040)),
+						// BATTERY_STRING_WARNING_0_0
 						bm(new UnsignedWordElement(0x6040))//
 								.m(EssFeneconBydContainer.ChannelId.STATE_116, 0) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_117, 1) //
@@ -819,8 +812,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.m(EssFeneconBydContainer.ChannelId.STATE_130, 14) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_131, 15) //
 								.build(),
-						// m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_0_1, new
-						// UnsignedWordElement(0x6041)),
+						// BATTERY_STRING_WARNING_0_1
 						bm(new UnsignedWordElement(0x6041))//
 								.m(EssFeneconBydContainer.ChannelId.STATE_132, 0) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_133, 1) //
@@ -839,9 +831,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.m(EssFeneconBydContainer.ChannelId.STATE_146, 14) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_147, 15) //
 								.build(),
-
-						// m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_1_0, new
-						// UnsignedWordElement(0x6042)),
+						// BATTERY_STRING_WARNING_1_0
 						bm(new UnsignedWordElement(0x6042)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_148, 0) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_149, 1) //
@@ -852,9 +842,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.m(EssFeneconBydContainer.ChannelId.STATE_154, 6) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_155, 7) //
 								.build(),
-
-						// m(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WARNING_1_1, new
-						// UnsignedWordElement(0x6043))
+						// BATTERY_STRING_WARNING_1_1
 						bm(new UnsignedWordElement(0x6043)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_156, 2) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_157, 7) //
@@ -878,8 +866,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						m(EssFeneconBydContainer.ChannelId.CONTAINER_AIRCONDITION_POWER_SUPPLY_STATE,
 								new UnsignedWordElement(0x3416)),
 						new DummyRegisterElement(0X3417, 0X343F),
-						// m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_0, new
-						// UnsignedWordElement(0x3440)),
+						// ADAS_WARNING_0_0
 						bm(new UnsignedWordElement(0x3440)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_163, 0) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_164, 2) //
@@ -895,9 +882,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.m(EssFeneconBydContainer.ChannelId.STATE_174, 13) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_175, 14) //
 								.build(),
-
-						// m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_1, new
-						// UnsignedWordElement(0x3441)),
+						// ADAS_WARNING_0_1
 						bm(new UnsignedWordElement(0x3441)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_176, 3) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_177, 4) //
@@ -911,25 +896,19 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.m(EssFeneconBydContainer.ChannelId.STATE_185, 14) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_186, 15) //
 								.build(),
-
-						// m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_0_2, new
-						// UnsignedWordElement(0x3442)),
+						// ADAS_WARNING_0_2
 						bm(new UnsignedWordElement(0x3442)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_187, 0) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_188, 2) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_189, 3) //
 								.build(),
 						new DummyRegisterElement(0X3443, 0X344F),
-
-						// m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_0, new
-						// UnsignedWordElement(0x3450)),
+						// ADAS_WARNING_1_0
 						bm(new UnsignedWordElement(0x3450)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_190, 0) //
 								.build(),
 						new DummyRegisterElement(0X3443, 0X344F),
-
-						// m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_1, new
-						// UnsignedWordElement(0x3451)),
+						// ADAS_WARNING_1_1
 						bm(new UnsignedWordElement(0x3451)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_190, 3) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_191, 4) //
@@ -937,9 +916,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.m(EssFeneconBydContainer.ChannelId.STATE_193, 6) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_194, 9) //
 								.build(),
-
-						// m(EssFeneconBydContainer.ChannelId.ADAS_WARNING_1_2, new
-						// UnsignedWordElement(0x3452))
+						// ADAS_WARNING_1_2
 						bm(new UnsignedWordElement(0x3452)) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_195, 0) //
 								.m(EssFeneconBydContainer.ChannelId.STATE_196, 1) //
