@@ -28,7 +28,8 @@ export const TRANSLATION = {
             Friday: "Vrijdag",
             Saturday: "Zaterdag",
             Sunday: "Zondag"
-        }
+        },
+        ReportValue: "Rapporteer beschadigde gegevens"
     },
     Menu: {
         Index: "Overzicht",
