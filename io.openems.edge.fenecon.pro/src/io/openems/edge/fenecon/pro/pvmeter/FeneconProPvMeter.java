@@ -123,12 +123,14 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
 								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2135, Priority.HIGH, // //
-						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L2, new UnsignedDoublewordElement(2135)), //
+						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L2, new UnsignedDoublewordElement(2135),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2137, 2165), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
 								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2235, Priority.HIGH, // //
-						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L3, new UnsignedDoublewordElement(2235)), //
+						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L3, new UnsignedDoublewordElement(2235),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2237, 2265), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
 								MINUS_10000_CONVERTER))//
