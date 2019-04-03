@@ -117,8 +117,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(ProChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
 						m(ProChannelId.WORK_MODE, new UnsignedWordElement(102)), //
 						new DummyRegisterElement(103), //
-						m(ProChannelId.TOTAL_BATTERY_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
-						m(ProChannelId.TOTAL_BATTERY_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
 						m(ProChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109)), //
 						m(ProChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
