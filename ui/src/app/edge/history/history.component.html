@@ -28,7 +28,7 @@
           </ion-row>
         </ion-grid>
       </ion-card>
-      <div *ngIf="edge && edge.id == 'fems7'">
+      <div *ngIf="edge && (edge.id == 'fems7' || edge.id == 'fems566')">
         <ion-col size="12">
           <kwh [fromDate]="fromDate" [toDate]="toDate"></kwh>
         </ion-col>
