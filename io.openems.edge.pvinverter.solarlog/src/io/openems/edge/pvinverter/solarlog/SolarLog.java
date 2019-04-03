@@ -223,7 +223,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 				.unit(Unit.PERCENT)),
 		P_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT)),
-		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER)), //
+		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		STATUS(Doc.of(Status.values()));
 
 		private final Doc doc;
