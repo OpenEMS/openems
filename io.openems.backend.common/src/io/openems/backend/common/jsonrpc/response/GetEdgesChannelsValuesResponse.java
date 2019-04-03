@@ -1,4 +1,4 @@
-package io.openems.backend.b2bwebsocket.jsonrpc.response;
+package io.openems.backend.common.jsonrpc.response;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,7 +9,7 @@ import com.google.common.collect.Table;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
+import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.ChannelAddress;
 

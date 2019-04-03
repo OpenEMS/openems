@@ -93,6 +93,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		this.getMaxApparentPower().setNextValue(config.maxApparentPower());
 		this.getAllowedCharge().setNextValue(this.maxApparentPower * -1);
 		this.getAllowedDischarge().setNextValue(this.maxApparentPower);
+		this.getGridMode().setNextValue(config.gridMode());
 	}
 
 	@Deactivate
