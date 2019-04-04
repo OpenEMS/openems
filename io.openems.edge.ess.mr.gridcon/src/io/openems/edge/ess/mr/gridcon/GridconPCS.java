@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -1165,21 +1166,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				 * CCU State
 				 */
 				new FC3ReadRegistersTask(32528, Priority.HIGH, //
-						bm(new UnsignedWordElement(32528)) //
-								.m(GridConChannelId.CCU_STATE_IDLE, 0) //
-								.m(GridConChannelId.CCU_STATE_PRECHARGE, 1) //
-								.m(GridConChannelId.CCU_STATE_STOP_PRECHARGE, 2) //
-								.m(GridConChannelId.CCU_STATE_READY, 3) //
-								.m(GridConChannelId.CCU_STATE_PAUSE, 4) //
-								.m(GridConChannelId.CCU_STATE_RUN, 5) //
-								.m(GridConChannelId.CCU_STATE_ERROR, 6) //
-								.m(GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP, 7) //
-								.m(GridConChannelId.CCU_STATE_OVERLOAD, 8) //
-								.m(GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED, 9) //
-								.m(GridConChannelId.CCU_STATE_DERATING_POWER, 10) //
-								.m(GridConChannelId.CCU_STATE_DERATING_HARMONICS, 11) //
-								.m(GridConChannelId.CCU_STATE_SIA_ACTIVE, 12) //
-								.build(), //
+						m(new BitsWordElement(32528, this) //
+								.bit(0, GridConChannelId.CCU_STATE_IDLE) //
+								.bit(1, GridConChannelId.CCU_STATE_PRECHARGE) //
+								.bit(2, GridConChannelId.CCU_STATE_STOP_PRECHARGE) //
+								.bit(3, GridConChannelId.CCU_STATE_READY) //
+								.bit(4, GridConChannelId.CCU_STATE_PAUSE) //
+								.bit(5, GridConChannelId.CCU_STATE_RUN) //
+								.bit(6, GridConChannelId.CCU_STATE_ERROR) //
+								.bit(7, GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP) //
+								.bit(8, GridConChannelId.CCU_STATE_OVERLOAD) //
+								.bit(9, GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED) //
+								.bit(10, GridConChannelId.CCU_STATE_DERATING_POWER) //
+								.bit(11, GridConChannelId.CCU_STATE_DERATING_HARMONICS) //
+								.bit(12, GridConChannelId.CCU_STATE_SIA_ACTIVE) //
+						), //
 						new DummyRegisterElement(32529),
 						m(GridConChannelId.CCU_ERROR_CODE,
 								new UnsignedDoublewordElement(32530).wordOrder(WordOrder.LSWMSW)), //
@@ -1203,28 +1204,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				 * Commands
 				 */
 				new FC16WriteRegistersTask(32560, //
-						bm(new UnsignedWordElement(32560)) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
-								.build().debug(), //
-						bm(new UnsignedWordElement(32561)) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, 0) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_READY, 1) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, 2) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_STOP, 3) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, 4) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, 5) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, 6) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, 7) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, 8) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION, 9) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, 10) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, 11) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, 12) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, 13) //
-								.build().debug(), //
+						m(new BitsWordElement(32560, this) //
+								.bit(12, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4) //
+								.bit(13, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3) //
+								.bit(14, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2) //
+								.bit(15, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1) //
+						).debug(), //
+						m(new BitsWordElement(32561, this) //
+								.bit(0, GridConChannelId.COMMAND_CONTROL_WORD_PLAY) //
+								.bit(1, GridConChannelId.COMMAND_CONTROL_WORD_READY) //
+								.bit(2, GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE) //
+								.bit(3, GridConChannelId.COMMAND_CONTROL_WORD_STOP) //
+								.bit(4, GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL) //
+								.bit(5, GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL) //
+								.bit(6, GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING) //
+								.bit(7, GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION) //
+								.bit(8, GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA) //
+								.bit(9, GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION) //
+								.bit(10, GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET) //
+								.bit(11, GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET) //
+								.bit(12, GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET) //
+								.bit(13, GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET) //
+						).debug(), //
 						m(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32562).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0,
@@ -1244,28 +1245,28 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				 * Commands Mirror
 				 */
 				new FC3ReadRegistersTask(32880, Priority.LOW, //
-						bm(new UnsignedWordElement(32880)) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, 12) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, 13) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, 14) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(32881)) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, 0) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_READY, 1) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, 2) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_STOP, 3) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, 4) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, 5) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, 6) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, 7) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, 8) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION, 9) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, 10) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, 11) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, 12) //
-								.m(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, 13) //
-								.build(), //
+						m(new BitsWordElement(32880, this) //
+								.bit(12, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4) //
+								.bit(13, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3) //
+								.bit(14, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2) //
+								.bit(16, GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1) //
+						), //
+						m(new BitsWordElement(32881, this) //
+								.bit(0, GridConChannelId.COMMAND_CONTROL_WORD_PLAY) //
+								.bit(1, GridConChannelId.COMMAND_CONTROL_WORD_READY) //
+								.bit(2, GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE) //
+								.bit(3, GridConChannelId.COMMAND_CONTROL_WORD_STOP) //
+								.bit(4, GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL) //
+								.bit(5, GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL) //
+								.bit(6, GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING) //
+								.bit(7, GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION) //
+								.bit(8, GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA) //
+								.bit(9, GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION) //
+								.bit(10, GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET) //
+								.bit(11, GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET) //
+								.bit(12, GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET) //
+								.bit(13, GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET) //
+						), //
 						m(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK,
 								new UnsignedDoublewordElement(32882).wordOrder(WordOrder.LSWMSW)), //
 						m(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0,
