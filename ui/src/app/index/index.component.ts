@@ -152,17 +152,8 @@ export class IndexComponent {
       return;
     }
 
-
-
-
-
-
   }
 
-
-  sendWPLogin(body: FormData) {
-    return this.http.post("https://www.energydepot.de/login/", body);
-  }
   doInfinite(infiniteScroll) {
     setTimeout(() => {
       this.slice += 5;
@@ -173,16 +164,6 @@ export class IndexComponent {
   validateWPLogin(username: string, password: string): Promise<any> {
 
     return this.http.get("https://www.energydepot.de/api/auth/generate_auth_cookie/?username=" + username + "&password=" + password).toPromise();
-    /*
-  .then((data) => {
-      if (data['status'] === "ok") {
-        return "ok";
-      }
-      if (data['status'] === "error") {
-        return data['error'];
-      }
-    });*/
-
 
   }
   retrievePwd() {
