@@ -11,13 +11,18 @@
                     </ion-label>
                 </ion-item>
                 <ion-card-content>
-                    <ul translate>
-                        About.Language
-                        <select #langSelect (change)="setLanguage(langSelect.value)">
-                            <option *ngFor="let language of languages" [value]="language" [selected]="language == currentLanguage">{{
-                                language }}</option>
-                        </select>
-                    </ul>
+                    <ion-list>
+                        <ion-item translate>
+                            About.Language
+                            <select #langSelect (change)="setLanguage(langSelect.value)">
+                                <option *ngFor="let language of languages" [value]="language" [selected]="language == currentLanguage">{{
+                                    language }}</option>
+                            </select>
+                        </ion-item>
+                        <ion-item>
+                            <ion-button (click)="clearLogin()" translate>Alerts.ClearLoginHeader</ion-button>
+                        </ion-item>
+                    </ion-list>
                 </ion-card-content>
             </ion-card>
         </ion-col>

@@ -60,7 +60,7 @@ export class Websocket {
     }
 
     this.socket = webSocket({
-      url: env.url + "?auth=" + this.service.getAuth(),
+      url: this.getUrl(),
       openObserver: {
         next: (value) => {
           if (env.debugMode) {
@@ -318,9 +318,18 @@ export class Websocket {
 
   getUrl(): string {
     if (env.backend === 'App') {
-      return "wss://" + this.service.getAuth() + "@www.energydepot.de/primus-ui-dev";
+      return env.url + "?auth=" + this.service.getAuth();
     }
     return env.url;
+  }
+
+  public logOut() {
+    this.router.navigate(['/']).then(() => {
+      this.socket = null;
+      this.status = "waiting for authentication";
+      this.service.removeToken();
+
+    });
   }
 
 }

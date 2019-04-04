@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
 import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
 import { Edge, Service } from '../../shared/shared';
+import { environment } from '../../../environments';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -24,6 +25,7 @@ export class HistoryComponent implements OnInit {
   public activePeriod: PeriodString = "today";
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
+  public env = environment;
 
   protected edge: Edge = null;
   protected dateRange: IMyDateRange;

@@ -124,13 +124,13 @@ export class IndexComponent {
     let password: string = this.wpForm.value['password'];
     let username: string = this.wpForm.value['username'];
 
-    this.service.setAuth(username, password);
+
 
 
     let valid = await this.validateWPLogin(username, password);
 
     if (valid['status'] === "ok") {
-
+      this.service.setAuth(username, password);
       this.websocket.wpconnect();
 
       if (this.wpForm.value['saveAccount']) {
@@ -191,5 +191,11 @@ export class IndexComponent {
   onDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  ngOnInit() {
+    if (localStorage.getItem("username") != null) {
+      this.wpForm.setValue({ username: localStorage.getItem("username"), password: localStorage.getItem("password"), saveAccount: false });
+    }
   }
 }

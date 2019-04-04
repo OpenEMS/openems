@@ -294,7 +294,8 @@ export class Service implements ErrorHandler {
   }
 
   public setAuth(username: string, password: string) {
-    this.auth = username + ":" + password;
+
+    this.auth = btoa(username + ":" + password);
   }
 
   public getAuth(): string {
