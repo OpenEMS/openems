@@ -288,7 +288,7 @@ public enum GridConChannelId implements ChannelId {
 					GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN_DEBUG))),
 
 	CONTROL_PARAMETER_F_P_DRROP_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
-	CONTROL_PARAMETER_F_P_DRROP_MAIN(new FloatDoc() //
+	CONTROL_PARAMETER_F_P_DROOP_MAIN(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN_DEBUG))),
