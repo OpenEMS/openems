@@ -32,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -550,15 +551,15 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
-						bm(new UnsignedWordElement(0x1081)) //
-								.m(ClusterChannelId.MASTER_ALARM_PCS_OUT_OF_CONTROL, 1) //
-								.m(ClusterChannelId.MASTER_ALARM_PCS_COMMUNICATION_FAULT, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1082)) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1, 0) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2, 1) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3, 2) //
-								.build() //
+						m(new BitsWordElement(0x1081, this) //
+								.bit(1, ClusterChannelId.MASTER_ALARM_PCS_OUT_OF_CONTROL) //
+								.bit(0, ClusterChannelId.MASTER_ALARM_PCS_COMMUNICATION_FAULT) //
+						), //
+						m(new BitsWordElement(0x1082, this) //
+								.bit(0, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1) //
+								.bit(1, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2) //
+								.bit(2, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3) //
+						) //
 				) //
 		}));
 
@@ -596,35 +597,35 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 						m(ClusterChannelId.RACK_1_MIN_CELL_TEMPERATURE,
 								new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x10C)) //
 				), new FC3ReadRegistersTask(BASE_ADDRESS_RACK_1 + 0x140, Priority.LOW, //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x140)) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH, 0) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CHA_CURRENT_HIGH, 2) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_LOW, 3) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW, 4) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH, 5) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, 6) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, 7) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x141)) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH, 0) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CHA_CURRENT_HIGH, 2) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_VOLTAGE_LOW, 3) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW, 4) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH, 5) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH, 6) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW, 7) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_SOC_LOW, 8) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH, 9) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH, 11) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_INSULATION_LOW, 12) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH, 13) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_1 + 0x140, this) //
+								.bit(0, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH) //
+								.bit(1, ClusterChannelId.RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CHA_CURRENT_HIGH) //
+								.bit(3, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_VOLTAGE_LOW) //
+								.bit(4, ClusterChannelId.RACK_1_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW) //
+								.bit(5, ClusterChannelId.RACK_1_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH) //
+								.bit(6, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH) //
+								.bit(7, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW) //
+								.bit(14, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, ClusterChannelId.RACK_1_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
+						), //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_1 + 0x141, this) //
+								.bit(0, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
+								.bit(1, ClusterChannelId.RACK_1_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
+								.bit(3, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_VOLTAGE_LOW) //
+								.bit(4, ClusterChannelId.RACK_1_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW) //
+								.bit(5, ClusterChannelId.RACK_1_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH) //
+								.bit(6, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH) //
+								.bit(7, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW) //
+								.bit(8, ClusterChannelId.RACK_1_ALARM_LEVEL_1_SOC_LOW) //
+								.bit(9, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH) //
+								.bit(11, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH) //
+								.bit(12, ClusterChannelId.RACK_1_ALARM_LEVEL_1_INSULATION_LOW) //
+								.bit(13, ClusterChannelId.RACK_1_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH) //
+								.bit(14, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, ClusterChannelId.RACK_1_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
+						), //
 						m(ClusterChannelId.RACK_1_RUN_STATE, new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x142)) //
 				), //
 				new FC3ReadRegistersTask(BASE_ADDRESS_RACK_1 + 0x160, Priority.HIGH, //
@@ -635,19 +636,19 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 								new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x161),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), new FC3ReadRegistersTask(BASE_ADDRESS_RACK_1 + 0x185, Priority.LOW, //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_1 + 0x185)) //
-								.m(ClusterChannelId.RACK_1_FAILURE_SAMPLING_WIRE, 0)//
-								.m(ClusterChannelId.RACK_1_FAILURE_CONNECTOR_WIRE, 1)//
-								.m(ClusterChannelId.RACK_1_FAILURE_LTC6803, 2)//
-								.m(ClusterChannelId.RACK_1_FAILURE_VOLTAGE_SAMPLING, 3)//
-								.m(ClusterChannelId.RACK_1_FAILURE_TEMP_SAMPLING, 4)//
-								.m(ClusterChannelId.RACK_1_FAILURE_TEMP_SENSOR, 5)//
-								.m(ClusterChannelId.RACK_1_FAILURE_BALANCING_MODULE, 8)//
-								.m(ClusterChannelId.RACK_1_FAILURE_TEMP_SAMPLING_LINE, 9)//
-								.m(ClusterChannelId.RACK_1_FAILURE_INTRANET_COMMUNICATION, 10)//
-								.m(ClusterChannelId.RACK_1_FAILURE_EEPROM, 11)//
-								.m(ClusterChannelId.RACK_1_FAILURE_INITIALIZATION, 12)//
-								.build() //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_1 + 0x185, this) //
+								.bit(0, ClusterChannelId.RACK_1_FAILURE_SAMPLING_WIRE)//
+								.bit(1, ClusterChannelId.RACK_1_FAILURE_CONNECTOR_WIRE)//
+								.bit(2, ClusterChannelId.RACK_1_FAILURE_LTC6803)//
+								.bit(3, ClusterChannelId.RACK_1_FAILURE_VOLTAGE_SAMPLING)//
+								.bit(4, ClusterChannelId.RACK_1_FAILURE_TEMP_SAMPLING)//
+								.bit(5, ClusterChannelId.RACK_1_FAILURE_TEMP_SENSOR)//
+								.bit(8, ClusterChannelId.RACK_1_FAILURE_BALANCING_MODULE)//
+								.bit(9, ClusterChannelId.RACK_1_FAILURE_TEMP_SAMPLING_LINE)//
+								.bit(10, ClusterChannelId.RACK_1_FAILURE_INTRANET_COMMUNICATION)//
+								.bit(11, ClusterChannelId.RACK_1_FAILURE_EEPROM)//
+								.bit(12, ClusterChannelId.RACK_1_FAILURE_INITIALIZATION)//
+						) //
 				), //
 				new FC3ReadRegistersTask(BASE_ADDRESS_RACK_1 + 0x800, Priority.LOW, //
 						m(ClusterChannelId.RACK_1_BATTERY_000_VOLTAGE,
@@ -1239,35 +1240,35 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 						m(ClusterChannelId.RACK_2_MIN_CELL_TEMPERATURE,
 								new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x10C)) //
 				), new FC3ReadRegistersTask(BASE_ADDRESS_RACK_2 + 0x140, Priority.LOW, //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x140)) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH, 0) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CHA_CURRENT_HIGH, 2) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_LOW, 3) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW, 4) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH, 5) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, 6) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, 7) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x141)) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH, 0) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CHA_CURRENT_HIGH, 2) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_VOLTAGE_LOW, 3) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW, 4) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH, 5) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH, 6) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW, 7) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_SOC_LOW, 8) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH, 9) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH, 11) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_INSULATION_LOW, 12) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH, 13) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_2 + 0x140, this) //
+								.bit(0, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH) //
+								.bit(1, ClusterChannelId.RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CHA_CURRENT_HIGH) //
+								.bit(3, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_VOLTAGE_LOW) //
+								.bit(4, ClusterChannelId.RACK_2_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW) //
+								.bit(5, ClusterChannelId.RACK_2_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH) //
+								.bit(6, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH) //
+								.bit(7, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW) //
+								.bit(14, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, ClusterChannelId.RACK_2_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
+						), //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_2 + 0x141, this) //
+								.bit(0, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
+								.bit(1, ClusterChannelId.RACK_2_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
+								.bit(3, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_VOLTAGE_LOW) //
+								.bit(4, ClusterChannelId.RACK_2_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW) //
+								.bit(5, ClusterChannelId.RACK_2_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH) //
+								.bit(6, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH) //
+								.bit(7, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW) //
+								.bit(8, ClusterChannelId.RACK_2_ALARM_LEVEL_1_SOC_LOW) //
+								.bit(9, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH) //
+								.bit(11, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH) //
+								.bit(12, ClusterChannelId.RACK_2_ALARM_LEVEL_1_INSULATION_LOW) //
+								.bit(13, ClusterChannelId.RACK_2_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH) //
+								.bit(14, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, ClusterChannelId.RACK_2_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
+						), //
 						m(ClusterChannelId.RACK_2_RUN_STATE, new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x142)) //
 				), //
 				new FC3ReadRegistersTask(BASE_ADDRESS_RACK_2 + 0x160, Priority.HIGH, //
@@ -1278,19 +1279,19 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 								new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x161),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), new FC3ReadRegistersTask(BASE_ADDRESS_RACK_2 + 0x185, Priority.LOW, //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_2 + 0x185)) //
-								.m(ClusterChannelId.RACK_2_FAILURE_SAMPLING_WIRE, 0)//
-								.m(ClusterChannelId.RACK_2_FAILURE_CONNECTOR_WIRE, 1)//
-								.m(ClusterChannelId.RACK_2_FAILURE_LTC6803, 2)//
-								.m(ClusterChannelId.RACK_2_FAILURE_VOLTAGE_SAMPLING, 3)//
-								.m(ClusterChannelId.RACK_2_FAILURE_TEMP_SAMPLING, 4)//
-								.m(ClusterChannelId.RACK_2_FAILURE_TEMP_SENSOR, 5)//
-								.m(ClusterChannelId.RACK_2_FAILURE_BALANCING_MODULE, 8)//
-								.m(ClusterChannelId.RACK_2_FAILURE_TEMP_SAMPLING_LINE, 9)//
-								.m(ClusterChannelId.RACK_2_FAILURE_INTRANET_COMMUNICATION, 10)//
-								.m(ClusterChannelId.RACK_2_FAILURE_EEPROM, 11)//
-								.m(ClusterChannelId.RACK_2_FAILURE_INITIALIZATION, 12)//
-								.build() //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_2 + 0x185, this) //
+								.bit(0, ClusterChannelId.RACK_2_FAILURE_SAMPLING_WIRE)//
+								.bit(1, ClusterChannelId.RACK_2_FAILURE_CONNECTOR_WIRE)//
+								.bit(2, ClusterChannelId.RACK_2_FAILURE_LTC6803)//
+								.bit(3, ClusterChannelId.RACK_2_FAILURE_VOLTAGE_SAMPLING)//
+								.bit(4, ClusterChannelId.RACK_2_FAILURE_TEMP_SAMPLING)//
+								.bit(5, ClusterChannelId.RACK_2_FAILURE_TEMP_SENSOR)//
+								.bit(8, ClusterChannelId.RACK_2_FAILURE_BALANCING_MODULE)//
+								.bit(9, ClusterChannelId.RACK_2_FAILURE_TEMP_SAMPLING_LINE)//
+								.bit(10, ClusterChannelId.RACK_2_FAILURE_INTRANET_COMMUNICATION)//
+								.bit(11, ClusterChannelId.RACK_2_FAILURE_EEPROM)//
+								.bit(12, ClusterChannelId.RACK_2_FAILURE_INITIALIZATION)//
+						) //
 				), //
 				new FC3ReadRegistersTask(BASE_ADDRESS_RACK_2 + 0x800, Priority.LOW, //
 						m(ClusterChannelId.RACK_2_BATTERY_000_VOLTAGE,
@@ -1882,35 +1883,35 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 						m(ClusterChannelId.RACK_3_MIN_CELL_TEMPERATURE,
 								new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x10C)) //
 				), new FC3ReadRegistersTask(BASE_ADDRESS_RACK_3 + 0x140, Priority.LOW, //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x140)) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH, 0) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CHA_CURRENT_HIGH, 2) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_LOW, 3) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW, 4) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH, 5) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, 6) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, 7) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x141)) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH, 0) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CHA_CURRENT_HIGH, 2) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_VOLTAGE_LOW, 3) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW, 4) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH, 5) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH, 6) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW, 7) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_SOC_LOW, 8) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH, 9) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH, 11) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_INSULATION_LOW, 12) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH, 13) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_3 + 0x140, this) //
+								.bit(0, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH) //
+								.bit(1, ClusterChannelId.RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CHA_CURRENT_HIGH) //
+								.bit(3, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_VOLTAGE_LOW) //
+								.bit(4, ClusterChannelId.RACK_3_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW) //
+								.bit(5, ClusterChannelId.RACK_3_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH) //
+								.bit(6, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH) //
+								.bit(7, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW) //
+								.bit(14, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, ClusterChannelId.RACK_3_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
+						), //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_3 + 0x141, this) //
+								.bit(0, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
+								.bit(1, ClusterChannelId.RACK_3_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
+								.bit(3, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_VOLTAGE_LOW) //
+								.bit(4, ClusterChannelId.RACK_3_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW) //
+								.bit(5, ClusterChannelId.RACK_3_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH) //
+								.bit(6, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH) //
+								.bit(7, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW) //
+								.bit(8, ClusterChannelId.RACK_3_ALARM_LEVEL_1_SOC_LOW) //
+								.bit(9, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH) //
+								.bit(11, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH) //
+								.bit(12, ClusterChannelId.RACK_3_ALARM_LEVEL_1_INSULATION_LOW) //
+								.bit(13, ClusterChannelId.RACK_3_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH) //
+								.bit(14, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, ClusterChannelId.RACK_3_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
+						), //
 						m(ClusterChannelId.RACK_3_RUN_STATE, new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x142)) //
 				), //
 				new FC3ReadRegistersTask(BASE_ADDRESS_RACK_3 + 0x160, Priority.HIGH, //
@@ -1921,19 +1922,19 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 								new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x161),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), new FC3ReadRegistersTask(BASE_ADDRESS_RACK_3 + 0x185, Priority.LOW, //
-						bm(new UnsignedWordElement(BASE_ADDRESS_RACK_3 + 0x185)) //
-								.m(ClusterChannelId.RACK_3_FAILURE_SAMPLING_WIRE, 0)//
-								.m(ClusterChannelId.RACK_3_FAILURE_CONNECTOR_WIRE, 1)//
-								.m(ClusterChannelId.RACK_3_FAILURE_LTC6803, 2)//
-								.m(ClusterChannelId.RACK_3_FAILURE_VOLTAGE_SAMPLING, 3)//
-								.m(ClusterChannelId.RACK_3_FAILURE_TEMP_SAMPLING, 4)//
-								.m(ClusterChannelId.RACK_3_FAILURE_TEMP_SENSOR, 5)//
-								.m(ClusterChannelId.RACK_3_FAILURE_BALANCING_MODULE, 8)//
-								.m(ClusterChannelId.RACK_3_FAILURE_TEMP_SAMPLING_LINE, 9)//
-								.m(ClusterChannelId.RACK_3_FAILURE_INTRANET_COMMUNICATION, 10)//
-								.m(ClusterChannelId.RACK_3_FAILURE_EEPROM, 11)//
-								.m(ClusterChannelId.RACK_3_FAILURE_INITIALIZATION, 12)//
-								.build() //
+						m(new BitsWordElement(BASE_ADDRESS_RACK_3 + 0x185, this) //
+								.bit(0, ClusterChannelId.RACK_3_FAILURE_SAMPLING_WIRE)//
+								.bit(1, ClusterChannelId.RACK_3_FAILURE_CONNECTOR_WIRE)//
+								.bit(2, ClusterChannelId.RACK_3_FAILURE_LTC6803)//
+								.bit(3, ClusterChannelId.RACK_3_FAILURE_VOLTAGE_SAMPLING)//
+								.bit(4, ClusterChannelId.RACK_3_FAILURE_TEMP_SAMPLING)//
+								.bit(5, ClusterChannelId.RACK_3_FAILURE_TEMP_SENSOR)//
+								.bit(8, ClusterChannelId.RACK_3_FAILURE_BALANCING_MODULE)//
+								.bit(9, ClusterChannelId.RACK_3_FAILURE_TEMP_SAMPLING_LINE)//
+								.bit(10, ClusterChannelId.RACK_3_FAILURE_INTRANET_COMMUNICATION)//
+								.bit(11, ClusterChannelId.RACK_3_FAILURE_EEPROM)//
+								.bit(12, ClusterChannelId.RACK_3_FAILURE_INITIALIZATION)//
+						) //
 				), //
 				new FC3ReadRegistersTask(BASE_ADDRESS_RACK_3 + 0x800, Priority.LOW, //
 						m(ClusterChannelId.RACK_3_BATTERY_000_VOLTAGE,

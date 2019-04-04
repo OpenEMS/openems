@@ -28,6 +28,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -1011,52 +1012,52 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
-						bm(new UnsignedWordElement(0x2140)) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH, 0) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH, 2) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW, 3) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW, 4) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH, 5) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, 6) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, 7) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_INSULATION_LOW, 12) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(0x2141)) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH, 0) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH, 1) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CHA_CURRENT_HIGH, 2) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW, 3) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW, 4) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_DISCHA_CURRENT_HIGH, 5) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH, 6) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_LOW, 7) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_SOC_LOW, 8) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH, 9) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH, 11) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_INSULATION_LOW, 12) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH, 13) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, 14) //
-								.m(SingleRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, 15) //
-								.build(), //
+						m(new BitsWordElement(0x2140, this) //
+								.bit(0, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH) //
+								.bit(1, SingleRack.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, SingleRack.ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH) //
+								.bit(3, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW) //
+								.bit(4, SingleRack.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW) //
+								.bit(5, SingleRack.ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH) //
+								.bit(6, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH) //
+								.bit(7, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW) //
+								.bit(12,SingleRack.ChannelId.ALARM_LEVEL_2_INSULATION_LOW) //
+								.bit(14, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
+						), //
+						m(new BitsWordElement(0x214, this) //
+								.bit(0, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
+								.bit(1, SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
+								.bit(2, SingleRack.ChannelId.ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
+								.bit(3, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW) //
+								.bit(4, SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW) //
+								.bit(5, SingleRack.ChannelId.ALARM_LEVEL_1_DISCHA_CURRENT_HIGH) //
+								.bit(6, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH) //
+								.bit(7, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_CHA_TEMP_LOW) //
+								.bit(8, SingleRack.ChannelId.ALARM_LEVEL_1_SOC_LOW) //
+								.bit(9, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH) //
+								.bit(11, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH) //
+								.bit(12, SingleRack.ChannelId.ALARM_LEVEL_1_INSULATION_LOW) //
+								.bit(13, SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH) //
+								.bit(14, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
+								.bit(15, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
+						), //
 						m(SingleRack.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2142)) //
 				), //
 				new FC3ReadRegistersTask(0x2185, Priority.LOW, //
-						bm(new UnsignedWordElement(0x2185)) //
-								.m(SingleRack.ChannelId.FAILURE_SAMPLING_WIRE, 0)//
-								.m(SingleRack.ChannelId.FAILURE_CONNECTOR_WIRE, 1)//
-								.m(SingleRack.ChannelId.FAILURE_LTC6803, 2)//
-								.m(SingleRack.ChannelId.FAILURE_VOLTAGE_SAMPLING, 3)//
-								.m(SingleRack.ChannelId.FAILURE_TEMP_SAMPLING, 4)//
-								.m(SingleRack.ChannelId.FAILURE_TEMP_SENSOR, 5)//
-								.m(SingleRack.ChannelId.FAILURE_BALANCING_MODULE, 8)//
-								.m(SingleRack.ChannelId.FAILURE_TEMP_SAMPLING_LINE, 9)//
-								.m(SingleRack.ChannelId.FAILURE_INTRANET_COMMUNICATION, 10)//
-								.m(SingleRack.ChannelId.FAILURE_EEPROM, 11)//
-								.m(SingleRack.ChannelId.FAILURE_INITIALIZATION, 12)//
-								.build() //
+						m(new BitsWordElement(0x2185, this) //
+								.bit(0, SingleRack.ChannelId.FAILURE_SAMPLING_WIRE)//
+								.bit(1, SingleRack.ChannelId.FAILURE_CONNECTOR_WIRE)//
+								.bit(2, SingleRack.ChannelId.FAILURE_LTC6803)//
+								.bit(3, SingleRack.ChannelId.FAILURE_VOLTAGE_SAMPLING)//
+								.bit(4, SingleRack.ChannelId.FAILURE_TEMP_SAMPLING)//
+								.bit(5, SingleRack.ChannelId.FAILURE_TEMP_SENSOR)//
+								.bit(8, SingleRack.ChannelId.FAILURE_BALANCING_MODULE)//
+								.bit(9, SingleRack.ChannelId.FAILURE_TEMP_SAMPLING_LINE)//
+								.bit(10, SingleRack.ChannelId.FAILURE_INTRANET_COMMUNICATION)//
+								.bit(11, SingleRack.ChannelId.FAILURE_EEPROM)//
+								.bit(12, SingleRack.ChannelId.FAILURE_INITIALIZATION)//
+						) //
 				), //
 				new FC3ReadRegistersTask(0x2800, Priority.LOW, //
 						m(SingleRack.ChannelId.CLUSTER_1_BATTERY_000_VOLTAGE, new UnsignedWordElement(0x2800)), //

@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -354,7 +355,8 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
-				new FC16WriteRegistersTask(0x1017, m(ClusterChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
+				new FC16WriteRegistersTask(0x1017, //
+						m(ClusterChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
 						m(ClusterChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
 						m(ClusterChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
 						m(ClusterChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
@@ -453,60 +455,60 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 				), //
 
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
-						bm(new UnsignedWordElement(0x1081)) //
-								.m(ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION, 4) //
-								.m(ClusterChannelId.MASTER_ALARM_LEVEL_1_INSULATION, 3) //
-								.m(ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL, 2) //
-								.m(ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE, 1) //
-								.m(ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1082)) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5, 4) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4, 3) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3, 2) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2, 1) //
-								.m(ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1083)) //
-								.m(ClusterChannelId.RACK_1_LEVEL_2_ALARM, 5) //
-								.m(ClusterChannelId.RACK_1_PCS_CONTROL_FAULT, 4) //
-								.m(ClusterChannelId.RACK_1_COMMUNICATION_WITH_MASTER_ERROR, 3) //
-								.m(ClusterChannelId.RACK_1_DEVICE_ERROR, 2) //
-								.m(ClusterChannelId.RACK_1_CYCLE_OVER_CURRENT, 1) //
-								.m(ClusterChannelId.RACK_1_VOLTAGE_DIFFERENCE, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1084)) //
-								.m(ClusterChannelId.RACK_2_LEVEL_2_ALARM, 5) //
-								.m(ClusterChannelId.RACK_2_PCS_CONTROL_FAULT, 4) //
-								.m(ClusterChannelId.RACK_2_COMMUNICATION_WITH_MASTER_ERROR, 3) //
-								.m(ClusterChannelId.RACK_2_DEVICE_ERROR, 2) //
-								.m(ClusterChannelId.RACK_2_CYCLE_OVER_CURRENT, 1) //
-								.m(ClusterChannelId.RACK_2_VOLTAGE_DIFFERENCE, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1085)) //
-								.m(ClusterChannelId.RACK_3_LEVEL_2_ALARM, 5) //
-								.m(ClusterChannelId.RACK_3_PCS_CONTROL_FAULT, 4) //
-								.m(ClusterChannelId.RACK_3_COMMUNICATION_WITH_MASTER_ERROR, 3) //
-								.m(ClusterChannelId.RACK_3_DEVICE_ERROR, 2) //
-								.m(ClusterChannelId.RACK_3_CYCLE_OVER_CURRENT, 1) //
-								.m(ClusterChannelId.RACK_3_VOLTAGE_DIFFERENCE, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1086)) //
-								.m(ClusterChannelId.RACK_4_LEVEL_2_ALARM, 5) //
-								.m(ClusterChannelId.RACK_4_PCS_CONTROL_FAULT, 4) //
-								.m(ClusterChannelId.RACK_4_COMMUNICATION_WITH_MASTER_ERROR, 3) //
-								.m(ClusterChannelId.RACK_4_DEVICE_ERROR, 2) //
-								.m(ClusterChannelId.RACK_4_CYCLE_OVER_CURRENT, 1) //
-								.m(ClusterChannelId.RACK_4_VOLTAGE_DIFFERENCE, 0) //
-								.build(), //
-						bm(new UnsignedWordElement(0x1087)) //
-								.m(ClusterChannelId.RACK_5_LEVEL_2_ALARM, 5) //
-								.m(ClusterChannelId.RACK_5_PCS_CONTROL_FAULT, 4) //
-								.m(ClusterChannelId.RACK_5_COMMUNICATION_WITH_MASTER_ERROR, 3) //
-								.m(ClusterChannelId.RACK_5_DEVICE_ERROR, 2) //
-								.m(ClusterChannelId.RACK_5_CYCLE_OVER_CURRENT, 1) //
-								.m(ClusterChannelId.RACK_5_VOLTAGE_DIFFERENCE, 0) //
-								.build() //
+						m(new BitsWordElement(0x1081, this) //
+								.bit(4, ClusterChannelId.MASTER_ALARM_LEVEL_2_INSULATION) //
+								.bit(3, ClusterChannelId.MASTER_ALARM_LEVEL_1_INSULATION) //
+								.bit(2, ClusterChannelId.MASTER_ALARM_PCS_EMS_CONTROL_FAIL) //
+								.bit(1, ClusterChannelId.MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE) //
+								.bit(0, ClusterChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER) //
+						), //
+						m(new BitsWordElement(0x1082, this) //
+								.bit(4, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5) //
+								.bit(3, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4) //
+								.bit(2, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3) //
+								.bit(1, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2) //
+								.bit(0, ClusterChannelId.SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1) //
+						), //
+						m(new BitsWordElement(0x1083, this) //
+								.bit(5, ClusterChannelId.RACK_1_LEVEL_2_ALARM) //
+								.bit(4, ClusterChannelId.RACK_1_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterChannelId.RACK_1_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterChannelId.RACK_1_DEVICE_ERROR) //
+								.bit(1, ClusterChannelId.RACK_1_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterChannelId.RACK_1_VOLTAGE_DIFFERENCE) //
+						), //
+						m(new BitsWordElement(0x1084, this) //
+								.bit(5, ClusterChannelId.RACK_2_LEVEL_2_ALARM) //
+								.bit(4, ClusterChannelId.RACK_2_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterChannelId.RACK_2_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterChannelId.RACK_2_DEVICE_ERROR) //
+								.bit(1, ClusterChannelId.RACK_2_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterChannelId.RACK_2_VOLTAGE_DIFFERENCE) //
+						), //
+						m(new BitsWordElement(0x1085, this) //
+								.bit(5, ClusterChannelId.RACK_3_LEVEL_2_ALARM) //
+								.bit(4, ClusterChannelId.RACK_3_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterChannelId.RACK_3_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterChannelId.RACK_3_DEVICE_ERROR) //
+								.bit(1, ClusterChannelId.RACK_3_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterChannelId.RACK_3_VOLTAGE_DIFFERENCE) //
+						), //
+						m(new BitsWordElement(0x1086, this) //
+								.bit(5, ClusterChannelId.RACK_4_LEVEL_2_ALARM) //
+								.bit(4, ClusterChannelId.RACK_4_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterChannelId.RACK_4_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterChannelId.RACK_4_DEVICE_ERROR) //
+								.bit(1, ClusterChannelId.RACK_4_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterChannelId.RACK_4_VOLTAGE_DIFFERENCE) //
+						), //
+						m(new BitsWordElement(0x1087, this) //
+								.bit(5, ClusterChannelId.RACK_5_LEVEL_2_ALARM) //
+								.bit(4, ClusterChannelId.RACK_5_PCS_CONTROL_FAULT) //
+								.bit(3, ClusterChannelId.RACK_5_COMMUNICATION_WITH_MASTER_ERROR) //
+								.bit(2, ClusterChannelId.RACK_5_DEVICE_ERROR) //
+								.bit(1, ClusterChannelId.RACK_5_CYCLE_OVER_CURRENT) //
+								.bit(0, ClusterChannelId.RACK_5_VOLTAGE_DIFFERENCE) //
+						) //
 				) //
 		});
 
@@ -520,15 +522,15 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			AbstractModbusElement<?> element) {
 		return this.m(channelId, element);
 	}
-
+	
 	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,
 			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
 		return this.m(channelId, element, converter);
 	}
-
-	protected final BitChannelMapper map(UnsignedWordElement element) {
-		return this.bm(element);
-	}
+	
+	protected final AbstractModbusElement<?> map(BitsWordElement bitsWordElement) {
+		return super.m(bitsWordElement);
+	}	
 
 	private static Map<Integer, RackInfo> createRackInfo() {
 		Map<Integer, RackInfo> map = new HashMap<Integer, RackInfo>();

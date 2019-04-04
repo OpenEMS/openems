@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -367,57 +369,57 @@ public class SingleRack {
 
 		// Alarm levels
 		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x140, Priority.LOW, //
-				parent.map(getUWE(0x140)) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH), 0) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH), 1) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH), 2) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW), 3) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW), 4) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH), 5) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH), 6) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW), 7) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH), 10) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH), 14) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW), 15) //
-						.build(), //
-				parent.map(getUWE(0x141)) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH), 0) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH), 1) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH), 2) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW), 3) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW), 4) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH), 5) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH), 6) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW), 7) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_SOC_LOW), 8) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH), 9) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH), 10) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH), 11) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH), 13) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH), 14) //
-						.m(channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW), 15) //
-						.build(), //
+				parent.map(getBWE(0x140, parent) //
+						.bit(0, channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)) //
+						.bit(1, channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)) //
+						.bit(2, channelIds.get(KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH)) //
+						.bit(3, channelIds.get(KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW)) //
+						.bit(4, channelIds.get(KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)) //
+						.bit(5, channelIds.get(KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)) //
+						.bit(6, channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)) //
+						.bit(7, channelIds.get(KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)) //
+						.bit(10, channelIds.get(KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH)) //
+						.bit(14, channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)) //
+						.bit(15, channelIds.get(KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)) //
+				), //
+				parent.map(getBWE(0x141, parent) //
+						.bit(0, channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH)) //
+						.bit(1, channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH)) //
+						.bit(2, channelIds.get(KEY_ALARM_LEVEL_1_CHA_CURRENT_HIGH)) //
+						.bit(3, channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW)) //
+						.bit(4, channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_LOW)) //
+						.bit(5, channelIds.get(KEY_ALARM_LEVEL_1_DISCHA_CURRENT_HIGH)) //
+						.bit(6, channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_HIGH)) //
+						.bit(7, channelIds.get(KEY_ALARM_LEVEL_1_CELL_CHA_TEMP_LOW)) //
+						.bit(8, channelIds.get(KEY_ALARM_LEVEL_1_SOC_LOW)) //
+						.bit(9, channelIds.get(KEY_ALARM_LEVEL_1_CELL_TEMP_DIFF_HIGH)) //
+						.bit(10, channelIds.get(KEY_ALARM_LEVEL_1_GR_TEMPERATURE_HIGH)) //
+						.bit(11, channelIds.get(KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH)) //
+						.bit(13, channelIds.get(KEY_ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH)) //
+						.bit(14, channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH)) //
+						.bit(15, channelIds.get(KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW)) //
+				), //
 				parent.map(channelIds.get(KEY_RUN_STATE), getUWE(0x142)) //
 		) //
 		);
 
 		// Error Codes
 		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x185, Priority.LOW, //
-				parent.map(getUWE(0x185)) //
-						.m(channelIds.get(KEY_FAILURE_SAMPLING_WIRE), 0)//
-						.m(channelIds.get(KEY_FAILURE_CONNECTOR_WIRE), 1)//
-						.m(channelIds.get(KEY_FAILURE_LTC6803), 2)//
-						.m(channelIds.get(KEY_FAILURE_VOLTAGE_SAMPLING), 3)//
-						.m(channelIds.get(KEY_FAILURE_TEMP_SAMPLING), 4)//
-						.m(channelIds.get(KEY_FAILURE_TEMP_SENSOR), 5)//
-						.m(channelIds.get(KEY_FAILURE_GR_TEMPERATURE), 6)//
-						.m(channelIds.get(KEY_FAILURE_TEMPERATURE_PCB), 7)//
-						.m(channelIds.get(KEY_FAILURE_BALANCING_MODULE), 8)//
-						.m(channelIds.get(KEY_FAILURE_TEMPERATURE_SENSOR_CABLE), 9)//
-						.m(channelIds.get(KEY_FAILURE_INTRANET_COMMUNICATION), 10)//
-						.m(channelIds.get(KEY_FAILURE_EEPROM), 11)//
-						.m(channelIds.get(KEY_FAILURE_INITIALIZATION), 12)//
-						.build() //
+				parent.map(getBWE(0x185, parent) //
+						.bit(0, channelIds.get(KEY_FAILURE_SAMPLING_WIRE))//
+						.bit(1, channelIds.get(KEY_FAILURE_CONNECTOR_WIRE))//
+						.bit(2, channelIds.get(KEY_FAILURE_LTC6803))//
+						.bit(3, channelIds.get(KEY_FAILURE_VOLTAGE_SAMPLING))//
+						.bit(4, channelIds.get(KEY_FAILURE_TEMP_SAMPLING))//
+						.bit(5, channelIds.get(KEY_FAILURE_TEMP_SENSOR))//
+						.bit(6, channelIds.get(KEY_FAILURE_GR_TEMPERATURE))//
+						.bit(7, channelIds.get(KEY_FAILURE_TEMPERATURE_PCB))//
+						.bit(8, channelIds.get(KEY_FAILURE_BALANCING_MODULE))//
+						.bit(9, channelIds.get(KEY_FAILURE_TEMPERATURE_SENSOR_CABLE))//
+						.bit(10, channelIds.get(KEY_FAILURE_INTRANET_COMMUNICATION))//
+						.bit(11, channelIds.get(KEY_FAILURE_EEPROM))//
+						.bit(12, channelIds.get(KEY_FAILURE_INITIALIZATION))//
+				) //
 		));
 
 		// Cell voltages
@@ -471,7 +473,11 @@ public class SingleRack {
 		return RACK + "_" + this.rackNumber + "_" + BATTERY + "_" + String.format(NUMBER_FORMAT, num);
 	}
 
-	private UnsignedWordElement getUWE(int address) {
-		return new UnsignedWordElement(this.addressOffset + address);
+	private BitsWordElement getBWE(int addressWithoutOffset, AbstractOpenemsModbusComponent component) {
+		return new BitsWordElement(this.addressOffset + addressWithoutOffset, component);
+	}
+	
+	private UnsignedWordElement getUWE(int addressWithoutOffset) {
+		return new UnsignedWordElement(this.addressOffset + addressWithoutOffset);
 	}
 }
