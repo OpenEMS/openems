@@ -8,8 +8,6 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link AbstractModbusElement} which have register addresses in the same
  * range.
- * 
- * @author stefan.feilmeier
  */
 public abstract class AbstractTask implements Task {
 
@@ -50,6 +48,21 @@ public abstract class AbstractTask implements Task {
 
 	public AbstractOpenemsModbusComponent getParent() {
 		return parent;
+	}
+
+	/*
+	 * Enable Debug mode for this Element. Activates verbose logging.
+	 * TODO: implement debug write in all implementations (FC16 is already done)
+	 */
+	private boolean isDebug = false;
+
+	public AbstractTask debug() {
+		this.isDebug = true;
+		return this;
+	}
+
+	public boolean isDebug() {
+		return isDebug;
 	}
 
 	@Override
