@@ -38,60 +38,61 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	public void run(WebSocket ws, JsonObject handshake) throws OpenemsException {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
+		if (ws.getResourceDescriptor().startsWith("/?auth=")) {
+			this.parent.logInfo(this.log, "Auth: " + ws.getResourceDescriptor().substring(7));
+		}
+
 		this.parent.logInfo(this.log, "Handshake: " + handshake.toString());
 		// declare user
 		BackendUser user;
 		String authorization;
 
-		try {
-			authorization = JsonUtils.getAsString(handshake, "Authorization");
-		} catch (OpenemsNamedException e1) {
-			// TODO Auto-generated catch block
-			authorization = null;
+		authorization = ws.getResourceDescriptor();
+		if (authorization.startsWith("/?auth=")) {
+			authorization = authorization.substring(7);
 		}
-		try {
-			if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 
-				// login using session_id from the handshake
-				Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen
-						.getFieldFromHandshakeCookie(handshake, "wordpress_logged_in_c92c39b1a6e355483164923c7de6f7b7");
-				try {
-					if (sessionIdOpt.isPresent()) {
-						// authenticate with Session-ID
-						user = this.parent.metadata.authenticate(sessionIdOpt.get());
-					} else {
-						// authenticate without Session-ID
-						user = this.parent.metadata.authenticate();
-					}
-				} catch (OpenemsNamedException e) {
-					// login using session_id failed. Still keeping the WebSocket opened to give the
-					// user the chance to authenticate manually.
-					wsData.send(new AuthenticateWithSessionIdFailedNotification());
-					return;
-				}
-
-			} else {
-
-				String base64Credentials = authorization.substring("Basic".length()).trim();
-				byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
-				String credentials = new String(credDecoded, StandardCharsets.UTF_8);
-				// credentials = username:password
-				final String[] values = credentials.split(":", 2);
-				if (values.length != 2) {
-					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-				}
-				String username = values[0];
-				String password = values[1];
-
-				user = this.parent.metadata.authenticate(username, password);
-
+		if (authorization != null && !authorization.isEmpty() && !authorization.equals("undefined")) {
+			String base64Credentials = authorization;
+			byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+			String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+			// credentials = username:password
+			final String[] values = credentials.split(":", 2);
+			if (values.length != 2) {
+				wsData.send(new AuthenticateWithSessionIdFailedNotification());
+				return;
 			}
-		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
-			this.parent.logWarn(this.log, e.toString());
-			e.printStackTrace();
-			return;
+			String username = values[0];
+			String password = values[1];
+			try {
+				user = this.parent.metadata.authenticate(username, password);
+			} catch (OpenemsNamedException e) {
+				// login using session_id failed. Still keeping the WebSocket opened to give the
+				// user the chance to authenticate manually.
+				wsData.send(new AuthenticateWithSessionIdFailedNotification());
+				return;
+			}
+		} else {
+			// login using session_id from the handshake
+			Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
+					"wordpress_logged_in_c92c39b1a6e355483164923c7de6f7b7");
+			try {
+				if (sessionIdOpt.isPresent()) {
+					// authenticate with Session-ID
+					user = this.parent.metadata.authenticate(sessionIdOpt.get());
+				} else {
+					// authenticate without Session-ID
+					user = this.parent.metadata.authenticate();
+				}
+			} catch (OpenemsNamedException e) {
+				// login using session_id failed. Still keeping the WebSocket opened to give the
+				// user the chance to authenticate manually.
+				wsData.send(new AuthenticateWithSessionIdFailedNotification());
+				return;
+			}
+
 		}
+
 		// store userId together with the WebSocket
 		wsData.setUserId(user.getId());
 
