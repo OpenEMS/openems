@@ -12,7 +12,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.")
-	String ip();
+	String ip() default "192.168.25.11";
 
 	String webconsole_configurationFactory_nameHint() default "EVCS KEBA KeContact [{id}]";
 }
