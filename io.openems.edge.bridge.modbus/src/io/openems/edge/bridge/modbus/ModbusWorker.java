@@ -232,6 +232,9 @@ class ModbusWorker extends AbstractCycleWorker {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		this.protocols.removeAll(sourceId);
+		Collection<ModbusProtocol> protocols = this.protocols.removeAll(sourceId);
+		for (ModbusProtocol protocol : protocols) {
+			protocol.deactivate();
+		}
 	}
 }
