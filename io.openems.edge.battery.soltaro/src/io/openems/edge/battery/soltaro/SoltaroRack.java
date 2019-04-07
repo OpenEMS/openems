@@ -1355,9 +1355,9 @@ public class SoltaroRack extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				Battery.getModbusSlaveNatureTable());
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Battery.getModbusSlaveNatureTable(accessMode));
 	}
 }

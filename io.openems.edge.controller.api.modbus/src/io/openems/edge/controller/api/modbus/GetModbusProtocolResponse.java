@@ -55,6 +55,7 @@ public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 					.addProperty("value", record.getValueDescription()) //
 					.addProperty("unit", record.getUnit() == Unit.NONE ? "" : record.getUnit().toString()) //
 					.addProperty("type", record.getType().toString()) //
+					.addProperty("access", record.getAccessMode().getAbbreviation()) //
 					.build());
 		}
 		JsonObject j = new JsonObject();
