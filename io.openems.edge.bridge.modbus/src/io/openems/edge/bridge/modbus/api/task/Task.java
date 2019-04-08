@@ -27,4 +27,9 @@ public interface Task extends ManagedTask {
 	 */
 	void setParent(AbstractOpenemsModbusComponent parent);
 
+	/**
+	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
+	 * any references like listeners.
+	 */
+	public abstract void deactivate();
 }

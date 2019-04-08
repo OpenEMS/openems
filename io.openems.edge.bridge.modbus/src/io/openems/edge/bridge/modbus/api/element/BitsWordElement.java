@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
@@ -25,6 +28,8 @@ import io.openems.edge.common.channel.WriteChannel;
  * represents a Boolean value.
  */
 public class BitsWordElement extends UnsignedWordElement {
+
+	private final Logger log = LoggerFactory.getLogger(BitsWordElement.class);
 
 	private final AbstractOpenemsModbusComponent component;
 
@@ -196,12 +201,23 @@ public class BitsWordElement extends UnsignedWordElement {
 			}
 		}
 
-		if(this.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-			return Optional.of(new Register[] { new SimpleRegister(b1, b0) });
+		// create Register
+		Register result;
+		if (this.getByteOrder() == ByteOrder.BIG_ENDIAN) {
+			result = new SimpleRegister(b1, b0);
 		} else {
-			return Optional.of(new Register[] { new SimpleRegister(b0, b1) });
+			result = new SimpleRegister(b0, b1);
 		}
-		
+
+		// Log Debug
+		if (this.isDebug()) {
+			log.info("BitsWordElement [" + this + "]: next write value is to [" //
+					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') + //
+					"/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
+		}
+
+		return Optional.of(new Register[] { result });
+
 	}
 
 	protected Integer fromByteBuffer(ByteBuffer buff) {

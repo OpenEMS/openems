@@ -36,6 +36,7 @@
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.dischargelimitconsideringcellvoltage',\
+	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
@@ -166,4 +167,5 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	com.fazecast.jSerialComm;version='[2.2.2,2.2.3)',\
 	com.ghgande.j2mod;version='[2.5.2,2.5.3)',\
-	com.google.guava;version='[27.1.0,27.1.1)'
+	com.google.guava;version='[27.1.0,27.1.1)',\
+	io.openems.edge.controller.ess.acisland;version=snapshot

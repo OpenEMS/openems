@@ -197,8 +197,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, 100) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
@@ -310,9 +310,9 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * 
 	 * @param activePower   the active power
 	 * @param reactivePower the reactive power
-	 * @throws OpenemsException on error; causes activation of APPLY_POWER_FAILED
-	 *                          StateChannel
-	 * @throws OpenemsNamedException 
+	 * @throws OpenemsException      on error; causes activation of
+	 *                               APPLY_POWER_FAILED StateChannel
+	 * @throws OpenemsNamedException
 	 */
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException;
 

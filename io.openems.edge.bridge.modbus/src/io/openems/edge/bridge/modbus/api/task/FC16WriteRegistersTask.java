@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,16 +56,12 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 		@Override
 		public String toString() {
-			StringBuilder b = new StringBuilder(
-					"address [" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "] values [");
-			for (int i = 0; i < this.registers.size(); i++) {
-				b.append(this.registers.get(i).getValue());
-				if (i < this.registers.size() - 1) {
-					b.append(",");
-				}
-			}
-			b.append("]");
-			return b.toString();
+			return "FC16WriteRegistersTask [" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress)
+					+ "]: " + //
+					this.registers.stream().map(r -> {
+						int value = r.getValue();
+						return String.format("%4s", Integer.toHexString(value)).replace(' ', '0');
+					}).collect(Collectors.joining(" "));
 		}
 	}
 
@@ -73,6 +70,10 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
 		// Execute combined writes
 		for (CombinedWriteRegisters write : writes) {
+			if (this.isDebug()) {
+				log.info(write.toString());
+			}
+
 			try {
 				/*
 				 * First try
