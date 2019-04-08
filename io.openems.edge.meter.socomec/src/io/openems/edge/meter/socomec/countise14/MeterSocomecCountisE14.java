@@ -96,13 +96,13 @@ public class MeterSocomecCountisE14 extends AbstractOpenemsModbusComponent
 				// TODO read "Extended Name" from 0xC38A and verify that this is really a
 				// Countis E24. Implement the same for all the other SOCOMEC meter.
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
-						cm(new UnsignedDoublewordElement(0xc558)) //
+						m(new UnsignedDoublewordElement(0xc558)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.build(), //
 						new DummyRegisterElement(0xc55A, 0xc55D), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
-						cm(new UnsignedDoublewordElement(0xc560)) //
+						m(new UnsignedDoublewordElement(0xc560)) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //

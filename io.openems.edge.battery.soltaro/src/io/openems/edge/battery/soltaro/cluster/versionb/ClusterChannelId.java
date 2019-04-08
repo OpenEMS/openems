@@ -71,15 +71,15 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 			.text("System insulation alarm level 1")),
 	MASTER_ALARM_LEVEL_2_INSULATION(Doc.of(Level.FAULT) //
 			.text("System insulation alarm level 2")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(Doc.of(Level.INFO) //
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_1(Doc.of(Level.OK) //
 			.text("Communication to sub master 1 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(Doc.of(Level.INFO) //
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_2(Doc.of(Level.OK) //
 			.text("Communication to sub master 2 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(Doc.of(Level.INFO) //
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_3(Doc.of(Level.OK) //
 			.text("Communication to sub master 3 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4(Doc.of(Level.INFO) //
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_4(Doc.of(Level.OK) //
 			.text("Communication to sub master 4 fault")),
-	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5(Doc.of(Level.INFO) //
+	SUB_MASTER_COMMUNICATION_FAULT_ALARM_MASTER_5(Doc.of(Level.OK) //
 			.text("Communication to sub master 5 fault")),
 	RACK_1_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
 			.text("Rack 1 Level 2 Alarm")),
