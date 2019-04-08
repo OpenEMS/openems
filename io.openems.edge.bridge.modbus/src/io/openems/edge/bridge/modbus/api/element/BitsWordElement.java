@@ -214,7 +214,6 @@ public class BitsWordElement extends UnsignedWordElement {
 			log.info("BitsWordElement [" + this + "]: next write value is to [" //
 					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') + //
 					"/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
-			int dummy = 0;
 		}
 
 		return Optional.of(new Register[] { result });

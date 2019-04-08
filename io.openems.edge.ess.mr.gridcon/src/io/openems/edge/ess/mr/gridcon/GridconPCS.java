@@ -2,7 +2,6 @@ package io.openems.edge.ess.mr.gridcon;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -46,9 +44,9 @@ import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -73,7 +71,6 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -258,19 +255,66 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getSoc().setNextValue(soc);
 	}
 
+	/**
+	 * Handles the main State-Machine.
+	 * 
+	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException
+	 */
 	private void handleStateMachine() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.getStateMachine()) {
-		case IDLE:
-			// TODO
+		case ONGRID_IDLE:
+			this.handleOnGrid();
+			this.handleOnGridIdle();
 			break;
 
 		case ONGRID_NORMAL_OPERATION:
+			this.handleOnGrid();
 			this.handleOnGridNormalOperation();
 			break;
 
 		case UNDEFINED:
 			break;
 		}
+	}
+
+	/**
+	 * Handles generic On-Grid.
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	private void handleOnGrid() throws IllegalArgumentException, OpenemsNamedException {
+		// Always set OutputSyncDeviceBridge OFF in On-Grid state
+		this.setOutputSyncDeviceBridge(false);
+	}
+
+	/**
+	 * Handles idle operation in On-Grid -> tries to start the inverter.
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	private void handleOnGridIdle() throws IllegalArgumentException, OpenemsNamedException {
+		InverterCount inverterCount = this.config.inverterCount();
+		new CommandControlRegisters() //
+				// Start system
+				.play(true) //
+
+				.syncApproval(true) //
+				.shortCircuitHandling(true) //
+				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+				.parameterSet1(true) //
+				.parameterU0(0.97f) //
+				.parameterF0(1.035f) //
+				.enableIpus(inverterCount) //
+				.writeToChannels(this);
+		new CcuControlParameters() //
+				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
+				.qLimit(1f) //
+				.writeToChannels(this);
+		this.setIpuControl();
+
 	}
 
 	/**
@@ -294,6 +338,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
 				.qLimit(1f) //
 				.writeToChannels(this);
+		this.setIpuControl();
+	}
+
+	/**
+	 * Sets the IPU-settings for Inverter-Control and DCDC-Control.
+	 * 
+	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException
+	 */
+	private void setIpuControl() throws IllegalArgumentException, OpenemsNamedException {
+		InverterCount inverterCount = this.config.inverterCount();
 		switch (inverterCount) {
 		case ONE:
 			new IpuInverterControl() //
@@ -332,18 +387,47 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 */
 	private StateMachine getStateMachine() {
 		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
+		CCUState ccuState = this.getCurrentState();
 		StateChannel errorChannel = this.getErrorChannel();
 
-		// TODO IDLE
+		if (gridMode == GridMode.ON_GRID) {
+			if (ccuState == CCUState.ERROR || errorChannel != null) {
+				// TODO Fehler-State
 
-		if (gridMode == GridMode.ON_GRID && errorChannel == null) {
-			return StateMachine.ONGRID_NORMAL_OPERATION;
+			} else if (ccuState == CCUState.RUN) {
+				return StateMachine.ONGRID_NORMAL_OPERATION;
+
+			} else {
+				return StateMachine.ONGRID_IDLE;
+			}
 		}
 
 		// TODO weitere States, z. B. Going_ON_GRID, OFF_GRID,...
 
-		return StateMachine.ONGRID_NORMAL_OPERATION;
-//	TODO 	return StateMachine.UNDEFINED;
+//		return StateMachine.ONGRID_NORMAL_OPERATION;
+
+		this.log.warn("State-Machine UNDEFINED. Grid-Mode [" + gridMode + "] CCU-State [" + ccuState.toString()
+				+ "] Error [" + errorChannel + "]");
+
+		return StateMachine.UNDEFINED;
+
+//		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+//		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
+//		if (!linkVoltageOpt.isPresent()) {
+//			return;
+//		}
+//
+//		float linkVoltage = linkVoltageOpt.get();
+//		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+//
+//		if (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT) {
+//			doHardRestart();
+//			return;
+//		}
+//		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
+//		// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
+//		// aber ein fehler in der queue und das system nicht angelaufen ist....
+//
 	}
 
 //	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
@@ -356,9 +440,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //				System.out.println(this.channel(id).address().getChannelId() + " is present");
 //			}
 //		}
-//		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-//		this.setOutputSyncDeviceBridge(false);
-//
 //		// TODO check
 //		// Just temporarily, because sometime gridcon reduces the link voltage, i.e.
 //		// there is no function any longer but also no errors
@@ -443,277 +524,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //		}
 //	}
 //
-//	private void doRunHandling() throws OpenemsNamedException {
-//		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-//		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
-//		if (!linkVoltageOpt.isPresent()) {
-//			return;
-//		}
-//
-//		float linkVoltage = linkVoltageOpt.get();
-//		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
-//
-//		if (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT) {
-//			doHardRestart();
-//			return;
-//		}
-//		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
-//		// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
-//		// aber ein fehler in der queue und das system nicht angelaufen ist....
-//
-//		boolean disableIpu1 = false;
-//		boolean disableIpu2 = true;
-//		boolean disableIpu3 = true;
-//		boolean disableIpu4 = true;
-//
-//		switch (this.config.inverterCount()) {
-//		case ONE:
-//			disableIpu2 = false;
-//			break;
-//		case TWO:
-//			disableIpu2 = false;
-//			disableIpu3 = false;
-//			break;
-//		case THREE:
-//			disableIpu2 = false;
-//			disableIpu3 = false;
-//			disableIpu4 = false;
-//			break;
-//		}
-//
-//		// send play command
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true); // TODO just for
-//																										// testing
-//																										// purposes,
-//																										// because play
-//																										// is only
-//																										// necessary at
-//																										// startup
-//
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, disableIpu1);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, disableIpu2);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, disableIpu3);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);
-//	}
-//
-//	private void setNextWriteValueToBooleanWriteChannel(GridConChannelId id, boolean b) throws OpenemsNamedException {
-//		((BooleanWriteChannel) this.channel(id)).setNextWriteValue(true);
-//
-//	}
-//
-//	private void writeCCUControlParameters(PControlMode mode) {
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_MAIN, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_MAIN, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_F_P_DROOP_T1_MAIN, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DROOP_MAIN, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_U_DEAD_BAND, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_Q_LIMIT, 1f); // 0 -> limits Q to zero, 1 -> to max Q
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DROOP_MAIN, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_F_DEAD_BAND, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DROOP, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_DEAD_BAND, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_CHARGE, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_U_MAX_DISCHARGE, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_TWO, 0f);
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_LIM_ONE, 0f);
-//		// the only relevant parameter is 'P Control Mode' which should be set to
-//		// 'Active power control' in case of on grid usage
-//		writeValueToChannel(GridConChannelId.CONTROL_PARAMETER_P_CONTROL_MODE, mode.getFloatValue()); //
-//	}
-//
-//	/**
-//	 * This turns on the system by enabling ALL IPUs.
-//	 * 
-//	 * @throws OpenemsException
-//	 */
-//	private void startSystem() throws OpenemsNamedException {
-//		log.info("Try to start system");
-//		/*
-//		 * Coming from state idle first write 800V to IPU4 voltage setpoint, set "73" to
-//		 * DCDC String Control Mode of IPU4 and "1" to Weight String A, B, C ==> i.e.
-//		 * all 3 IPUs are weighted equally write -86000 to Pmax discharge Iref String A,
-//		 * B, C, write 86000 to Pmax Charge DCDC Str Mode of IPU 1, 2, 3 set P Control
-//		 * mode to "Act Pow Ctrl" (hex 4000 = mode power limiter, 0 = disabled, hex 3F80
-//		 * = active power control) and Mode Sel to "Current Control" s--> ee pic
-//		 * start0.png in doc folder
-//		 * 
-//		 * enable "Sync Approval" and "Ena IPU 4" and PLAY command -> system should
-//		 * change state to "RUN" --> see pic start1.png
-//		 * 
-//		 * after that enable IPU 1, 2, 3, if they have reached state "RUN" (=14) power
-//		 * can be set (from 0..1 (1 = max system power = 125 kW) , i.e. 0,05 is equal to
-//		 * 6.250 W same for reactive power see pic start2.png
-//		 * 
-//		 * "Normal mode" is reached now
-//		 */
-//
-//		// enable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and PLAY command -> system
-//		// should change state to "RUN"
-//
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, false);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, true);
-//		this.setNextWriteValueToBooleanWriteChannel(
-//				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true);
-//
-//		switch (this.config.inverterCount()) {
-//		case ONE:
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false);
-//			break;
-//		case TWO:
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, false);
-//			break;
-//		case THREE:
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, false);
-//			break;
-//		}
-//	}
-//
 //	// TODO Shutdown system
-////	private void stopSystem() {
-////		log.info("Try to stop system");
-////
-////		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
-////		// system should change state to "IDLE"
-////		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
-////		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
-////		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
-////		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-////
-////		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
-////		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
-////		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-////		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
-////	}
+//	private void stopSystem() {
+//		log.info("Try to stop system");
 //
-//	/**
-//	 * This converts a Bitset to its decimal value. Only works as long as the value
-//	 * of the Bitset does not exceed the range of an Integer.
-//	 * 
-//	 * @param bitSet The Bitset which should be converted
-//	 * @return The converted Integer
-//	 */
-//	private Integer convertToInteger(BitSet bitSet) {
-//		long[] l = bitSet.toLongArray();
+//		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
+//		// system should change state to "IDLE"
+//		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
+//		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
+//		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
+//		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
 //
-//		if (l.length == 0) {
-//			return 0;
-//		}
-//		return (int) l[0];
-//	}
-//
-//	/**
-//	 * Writes parameters to all 4 IPUs !! Max charge/discharge power for IPUs always
-//	 * in absolute values !!
-//	 * 
-//	 * @param stringControlMode
-//	 */
-//	private void writeIPUParameters(float weightA, float weightB, float weightC, float pMaxDischargeIPU1,
-//			float pMaxDischargeIPU2, float pMaxDischargeIPU3, float pMaxChargeIPU1, float pMaxChargeIPU2,
-//			float pMaxChargeIPU3, float stringControlMode) {
-//
-//		switch (this.config.inverterCount()) {
-//		case ONE:
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_F0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, 0f);
-//
-//			// Gridcon needs negative values for discharge values, positive values for
-//			// charge values
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, pMaxChargeIPU1);
-//			break;
-//
-//		case TWO:
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_F0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, 0f);
-//
-//			// Gridcon needs negative values for discharge values, positive values for
-//			// charge values
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, pMaxChargeIPU1);
-//
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_U0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_F0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, 0f);
-//
-//			// Gridcon needs negative values for discharge values, positive values for
-//			// charge values
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_DISCHARGE, -pMaxDischargeIPU2);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE, pMaxChargeIPU2);
-//			break;
-//
-//		case THREE:
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_DC_CURRENT_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_U0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_F0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, 0f);
-//
-//			// Gridcon needs negative values for discharge values, positive values for
-//			// charge values
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_DISCHARGE, -pMaxDischargeIPU1);
-//			writeValueToChannel(GridConChannelId.INVERTER_1_CONTROL_P_MAX_CHARGE, pMaxChargeIPU1);
-//
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_DC_CURRENT_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_U0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_F0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, 0f);
-//
-//			// Gridcon needs negative values for discharge values, positive values for
-//			// charge values
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_DISCHARGE, -pMaxDischargeIPU2);
-//			writeValueToChannel(GridConChannelId.INVERTER_2_CONTROL_P_MAX_CHARGE, pMaxChargeIPU2);
-//
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_DC_CURRENT_SETPOINT, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_U0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_F0_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_Q_REF_OFFSET_TO_CCU_VALUE, 0f);
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_REF_OFFSET_TO_CCU_VALUE, 0f);
-//
-//			// Gridcon needs negative values for discharge values, positive values for
-//			// charge values
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_DISCHARGE, -pMaxDischargeIPU3);
-//			writeValueToChannel(GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE, pMaxChargeIPU3);
-//			break;
-//		}
-//
-////		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, 0f);
-////		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, 0f);
-////		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, 0f);
-////		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, 0f);
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_A, 0f);
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_B, 0f);
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_I_REF_STRING_C, 0f);
-////		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, 0f); //
-//
-//		// The value of 800 Volt is given by MR as a good reference value
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_DC_VOLTAGE_SETPOINT, DC_LINK_VOLTAGE_SETPOINT);
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, weightA);
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, weightB);
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, weightC);
-//		// The value '73' implies that all 3 strings are in weighting mode
-//		writeValueToChannel(GridConChannelId.DCDC_CONTROL_STRING_CONTROL_MODE, stringControlMode); //
+//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
+//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
+//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
+//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
 //	}
 //
 //	private void doErrorHandling() throws OpenemsNamedException {
@@ -750,6 +575,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		return null;
 	}
+
 //
 //	private void doHardRestart() {
 //		try {
@@ -784,242 +610,226 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
 //		}
 //	}
-//
-//	@Override
-//	public String debugLog() {
-//		return "State:" + this.getCurrentState().toString() + "," + "L:"
-//				+ this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
-//				+ "," + this.getGridMode().value().asEnum().getName();
-//	}
-//
-//	private CCUState getCurrentState() {
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_IDLE)).value().asOptional().orElse(false)) {
-//			return CCUState.IDLE;
-//		}
-//
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_PRECHARGE)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.PRECHARGE;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_STOP_PRECHARGE)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.STOP_PRECHARGE;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_READY)).value().asOptional().orElse(false)) {
-//			return CCUState.READY;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_PAUSE)).value().asOptional().orElse(false)) {
-//			return CCUState.PAUSE;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_RUN)).value().asOptional().orElse(false)) {
-//			return CCUState.RUN;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_ERROR)).value().asOptional().orElse(false)) {
-//			return CCUState.ERROR;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.VOLTAGE_RAMPING_UP;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_OVERLOAD)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.OVERLOAD;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.SHORT_CIRCUIT_DETECTED;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_DERATING_POWER)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.DERATING_POWER;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_DERATING_HARMONICS)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.DERATING_HARMONICS;
-//		}
-//		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_SIA_ACTIVE)).value().asOptional()
-//				.orElse(false)) {
-//			return CCUState.SIA_ACTIVE;
-//		}
-//
-//		return CCUState.UNDEFINED;
-//	}
+
+	@Override
+	public String debugLog() {
+		return "State:" + this.getCurrentState().toString() + "," + "L:"
+				+ this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
+				+ "," + this.getGridMode().value().asEnum().getName();
+	}
+
+	/**
+	 * Gets the CCUState of the MR internal State-Machine.
+	 * 
+	 * @return the CCUState
+	 */
+	private CCUState getCurrentState() {
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_ERROR)).value().asOptional().orElse(false)) {
+			return CCUState.ERROR;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_IDLE)).value().asOptional().orElse(false)) {
+			return CCUState.IDLE;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_PRECHARGE)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.PRECHARGE;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_STOP_PRECHARGE)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.STOP_PRECHARGE;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_READY)).value().asOptional().orElse(false)) {
+			return CCUState.READY;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_PAUSE)).value().asOptional().orElse(false)) {
+			return CCUState.PAUSE;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_RUN)).value().asOptional().orElse(false)) {
+			return CCUState.RUN;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.VOLTAGE_RAMPING_UP;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_OVERLOAD)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.OVERLOAD;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.SHORT_CIRCUIT_DETECTED;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_DERATING_POWER)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.DERATING_POWER;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_DERATING_HARMONICS)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.DERATING_HARMONICS;
+		}
+		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_SIA_ACTIVE)).value().asOptional()
+				.orElse(false)) {
+			return CCUState.SIA_ACTIVE;
+		}
+
+		return CCUState.UNDEFINED;
+	}
 
 	@Override
 	public Power getPower() {
 		return this.power;
 	}
 
-//	@Override
-//	public Constraint[] getStaticConstraints() {
-//		GridMode gridMode = this.getGridMode().value().asEnum();
-//		if (getCurrentState() != CCUState.RUN || gridMode != GridMode.ON_GRID) {
-//			return new Constraint[] {
-//					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
-//					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
-//		} else {
-//			return Power.NO_CONSTRAINTS;
-//		}
-//	}
-//
+	@Override
+	public Constraint[] getStaticConstraints() {
+		GridMode gridMode = this.getGridMode().value().asEnum();
+		if (this.getCurrentState() == CCUState.RUN && gridMode == GridMode.ON_GRID) {
+			return Power.NO_CONSTRAINTS;
+		} else {
+			return new Constraint[] {
+					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
+					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
+		}
+	}
+
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		switch (this.getStateMachine()) {
-		case IDLE:
+		case ONGRID_IDLE:
 		case UNDEFINED:
+			// stop if not ONGRID_NORMAL -> Pref and Qref = 0 by CommandControlRegisters
 			return;
 
 		case ONGRID_NORMAL_OPERATION:
 			break;
 		}
 
-//		// TODO Schreibe Pref, Qref und weights
-//
-//		
-//		
-//		
-//		
-//		doStringWeighting(activePower, reactivePower);
-//
-//		Optional<Integer> maxApparentPower = this.getMaxApparentPower().value().asOptional();
-//		float activePowerFactor = 0f;
-//		float reactivePowerFactor = 0f;
-//		if (maxApparentPower.isPresent()) {
-//			/*
-//			 * !! signum, MR calculates negative values as discharge, positive as charge.
-//			 * Gridcon sets the (dis)charge according to a percentage of the
-//			 * MAX_APPARENT_POWER. So 0.1 => 10% of max power. Values should never take
-//			 * values lower than -1 or higher than 1.
-//			 */
-//			activePowerFactor = -activePower / maxApparentPower.get();
-//			reactivePowerFactor = -reactivePower / maxApparentPower.get();
-//		}
-//		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF, activePowerFactor);
-//		writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF, reactivePowerFactor);
+		// calculate and set the weights for battery strings A, B and C.
+		this.weightBatteryStrings(activePower);
+
+		float maxApparentPower = this.config.inverterCount().getMaxApparentPower();
+		/*
+		 * !! signum, MR calculates negative values as discharge, positive as charge.
+		 * Gridcon sets the (dis)charge according to a percentage of the
+		 * MAX_APPARENT_POWER. So 0.1 => 10% of max power. Values should never take
+		 * values lower than -1 or higher than 1.
+		 */
+		float activePowerFactor = -activePower / maxApparentPower;
+		float reactivePowerFactor = -reactivePower / maxApparentPower;
+
+		FloatWriteChannel pRefChannel = this.channel(GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF);
+		FloatWriteChannel qRefChannel = this.channel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF);
+		pRefChannel.setNextWriteValue(activePowerFactor);
+		qRefChannel.setNextWriteValue(reactivePowerFactor);
 	}
 
-//	private void doStringWeighting(int activePower, int reactivePower) throws OpenemsNamedException {
-//		int weightA = 0;
-//		int weightB = 0;
-//		int weightC = 0;
-//
-//		Battery batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
-//		Battery batteryStringB = this.componentManager.getComponent(this.config.batteryStringB_id());
-//		Battery batteryStringC = this.componentManager.getComponent(this.config.batteryStringC_id());
-//
-//		// weight strings according to max allowed current
-//		// use values for discharging
-//		// weight zero power as discharging
-//		if (activePower > 0) {
-//
-//			if (batteryStringA != null) {
-//				weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
-//				// if minSoc is reached, do not allow further discharging
-//				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryA()) {
-//					weightA = 0;
-//				}
-//			}
-//
-//			if (batteryStringB != null) {
-//				weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
-//				// if minSoc is reached, do not allow further discharging
-//				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryB()) {
-//					weightB = 0;
-//				}
-//			}
-//
-//			if (batteryStringC != null) {
-//				weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
-//				// if minSoc is reached, do not allow further discharging
-//				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryC()) {
-//					weightC = 0;
-//				}
-//			}
-//		} else if (activePower < 0) { // use values for charging
-//			if (batteryStringA != null) {
-//				weightA = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0);
-//			}
-//			if (batteryStringB != null) {
-//				weightB = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0);
-//			}
-//			if (batteryStringC != null) {
-//				weightC = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0);
-//			}
-//		} else { // active power is zero
-//
-//			if (batteryStringA != null && batteryStringB != null && batteryStringC != null) { // ABC
-//				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-//				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
-//				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
-//				if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
-//					int min = Math.min(vAopt.get(), Math.min(vBopt.get(), vCopt.get()));
-//					weightA = vAopt.get() - min;
-//					weightB = vBopt.get() - min;
-//					weightC = vCopt.get() - min;
-//				}
-//			} else if (batteryStringA != null && batteryStringB != null && batteryStringC == null) { // AB
-//				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-//				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
-//				if (vAopt.isPresent() && vBopt.isPresent()) {
-//					int min = Math.min(vAopt.get(), vBopt.get());
-//					weightA = vAopt.get() - min;
-//					weightB = vBopt.get() - min;
-//				}
-//			} else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { // AC
-//				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
-//				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
-//				if (vAopt.isPresent() && vCopt.isPresent()) {
-//					int min = Math.min(vAopt.get(), vCopt.get());
-//					weightA = vAopt.get() - min;
-//					weightC = vCopt.get() - min;
-//				}
-//			} else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { // BC
-//				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
-//				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
-//				if (vBopt.isPresent() && vCopt.isPresent()) {
-//					int min = Math.min(vBopt.get(), vCopt.get());
-//					weightB = vBopt.get() - min;
-//					weightC = vCopt.get() - min;
-//				}
-//			}
-//		}
-//
-//		// TODO discuss if this is correct!
-//		int maxChargePower1 = 0;
-//		int maxChargePower2 = 0;
-//		int maxChargePower3 = 0;
-//		int maxDischargePower1 = 0;
-//		int maxDischargePower2 = 0;
-//		int maxDischargePower3 = 0;
-//		if (batteryStringA != null) {
-//			maxChargePower1 = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0)
-//					* batteryStringA.getChargeMaxVoltage().value().asOptional().orElse(0);
-//			maxDischargePower1 = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0)
-//					* batteryStringA.getDischargeMinVoltage().value().asOptional().orElse(0);
-//		}
-//
-//		if (batteryStringB != null) {
-//			maxChargePower2 = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0)
-//					* batteryStringB.getChargeMaxVoltage().value().asOptional().orElse(0);
-//			maxDischargePower2 = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0)
-//					* batteryStringB.getDischargeMinVoltage().value().asOptional().orElse(0);
-//		}
-//		if (batteryStringC != null) {
-//			maxChargePower3 = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0)
-//					* batteryStringC.getChargeMaxVoltage().value().asOptional().orElse(0);
-//
-//			maxDischargePower3 = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0)
-//					* batteryStringC.getDischargeMinVoltage().value().asOptional().orElse(0);
-//
-//		}
-//
-//		log.info("doStringweighting(); active Power: " + activePower + "; weightA: " + weightA + "; weightB: " + weightB
-//				+ "; weightC: " + weightC);
-//
-//		writeIPUParameters(weightA, weightB, weightC, maxDischargePower1, maxDischargePower2, maxDischargePower3,
-//				maxChargePower1, maxChargePower2, maxChargePower3, getWeightingMode());
-//	}
-//
+	/**
+	 * Sets the weights for battery strings A, B and C according to max allowed
+	 * current.
+	 * 
+	 * @param activePower
+	 * @throws OpenemsNamedException
+	 */
+	private void weightBatteryStrings(int activePower) throws OpenemsNamedException {
+		int weightA = 0;
+		int weightB = 0;
+		int weightC = 0;
+
+		Battery batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
+		Battery batteryStringB = this.componentManager.getComponent(this.config.batteryStringB_id());
+		Battery batteryStringC = this.componentManager.getComponent(this.config.batteryStringC_id());
+
+		if (activePower > 0) {
+			/*
+			 * Discharge
+			 */
+			if (batteryStringA != null) {
+				weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
+				// if minSoc is reached, do not allow further discharging
+				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryA()) {
+					weightA = 0;
+				}
+			}
+
+			if (batteryStringB != null) {
+				weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
+				// if minSoc is reached, do not allow further discharging
+				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryB()) {
+					weightB = 0;
+				}
+			}
+
+			if (batteryStringC != null) {
+				weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
+				// if minSoc is reached, do not allow further discharging
+				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryC()) {
+					weightC = 0;
+				}
+			}
+
+		} else if (activePower < 0) {
+			/*
+			 * Charge
+			 */
+			if (batteryStringA != null) {
+				weightA = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0);
+			}
+			if (batteryStringB != null) {
+				weightB = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0);
+			}
+			if (batteryStringC != null) {
+				weightC = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0);
+			}
+
+		} else {
+			/*
+			 * active power is zero
+			 */
+			if (batteryStringA != null && batteryStringB != null && batteryStringC != null) { // ABC
+				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
+				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
+				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
+					int min = Math.min(vAopt.get(), Math.min(vBopt.get(), vCopt.get()));
+					weightA = vAopt.get() - min;
+					weightB = vBopt.get() - min;
+					weightC = vCopt.get() - min;
+				}
+			} else if (batteryStringA != null && batteryStringB != null && batteryStringC == null) { // AB
+				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
+				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
+				if (vAopt.isPresent() && vBopt.isPresent()) {
+					int min = Math.min(vAopt.get(), vBopt.get());
+					weightA = vAopt.get() - min;
+					weightB = vBopt.get() - min;
+				}
+			} else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { // AC
+				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
+				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				if (vAopt.isPresent() && vCopt.isPresent()) {
+					int min = Math.min(vAopt.get(), vCopt.get());
+					weightA = vAopt.get() - min;
+					weightC = vCopt.get() - min;
+				}
+			} else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { // BC
+				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
+				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				if (vBopt.isPresent() && vCopt.isPresent()) {
+					int min = Math.min(vBopt.get(), vCopt.get());
+					weightB = vBopt.get() - min;
+					weightC = vCopt.get() - min;
+				}
+			}
+		}
+
+		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
+		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
+		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
+		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
+		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
+		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
+	}
+
 //	/** Writes the given value into the channel */
 //	// TODO should throws OpenemsException
 //	void writeValueToChannel(GridConChannelId channelId, Object value) {

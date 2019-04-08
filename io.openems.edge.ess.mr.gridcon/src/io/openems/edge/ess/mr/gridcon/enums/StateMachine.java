@@ -4,7 +4,7 @@ import io.openems.edge.common.channel.OptionsEnum;
 
 public enum StateMachine implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	IDLE(0, "System is not started"), //
+	ONGRID_IDLE(0, "On-Grid System is not started"), //
 	ONGRID_NORMAL_OPERATION(1, "On-Grid Normal Operation");
 
 	private final int value;
