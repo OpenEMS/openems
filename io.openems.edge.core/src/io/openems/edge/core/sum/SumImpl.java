@@ -17,6 +17,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
@@ -46,10 +47,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave, EventHandler {
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				Sum.getModbusSlaveNatureTable());
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Sum.getModbusSlaveNatureTable(accessMode));
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //

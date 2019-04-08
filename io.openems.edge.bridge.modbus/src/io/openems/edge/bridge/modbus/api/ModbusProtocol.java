@@ -134,4 +134,16 @@ public class ModbusProtocol {
 			// TODO: check BitElements
 		}
 	}
+
+	public void deactivate() {
+		List<ReadTask> readTasks = this.readTaskManager.getAllTasks();
+		for (ReadTask readTask : readTasks) {
+			readTask.deactivate();
+		}
+
+		List<WriteTask> writeTasks = this.writeTaskManager.getAllTasks();
+		for (WriteTask writeTask : writeTasks) {
+			writeTask.deactivate();
+		}
+	}
 }

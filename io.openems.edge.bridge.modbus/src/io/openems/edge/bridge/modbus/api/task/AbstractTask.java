@@ -53,6 +53,13 @@ public abstract class AbstractTask implements Task {
 	}
 
 	@Override
+	public void deactivate() {
+		for (ModbusElement<?> element : this.elements) {
+			element.deactivate();
+		}
+	}
+
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(getActiondescription());
