@@ -108,4 +108,9 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	public String toString() {
 		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);
 	}
+
+	@Override
+	public void deactivate() {
+		this.onUpdateCallbacks.clear();
+	}
 }
