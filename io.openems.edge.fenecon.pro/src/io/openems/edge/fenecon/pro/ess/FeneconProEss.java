@@ -28,6 +28,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -117,8 +118,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(ProChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
 						m(ProChannelId.WORK_MODE, new UnsignedWordElement(102)), //
 						new DummyRegisterElement(103), //
-						m(ProChannelId.TOTAL_BATTERY_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
-						m(ProChannelId.TOTAL_BATTERY_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
 						m(ProChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109)), //
 						m(ProChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
@@ -534,14 +535,14 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				AsymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
-				ModbusSlaveNatureTable.of(FeneconProEss.class, 300) //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(FeneconProEss.class, accessMode, 300) //
 						.build());
 	}
 

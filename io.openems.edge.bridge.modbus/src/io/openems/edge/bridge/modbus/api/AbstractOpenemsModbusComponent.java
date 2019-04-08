@@ -122,6 +122,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	@Override
 	protected void deactivate() {
 		super.deactivate();
+		BridgeModbus modbus = this.modbus.getAndSet(null);
+		if (modbus != null) {
+			modbus.removeProtocol(this.id());
+		}
 	}
 
 	public Integer getUnitId() {

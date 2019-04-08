@@ -386,8 +386,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(ManagedAsymmetricEss.class, 100) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ManagedAsymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.SET_ACTIVE_POWER_L1_EQUALS, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.SET_ACTIVE_POWER_L2_EQUALS, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_L3_EQUALS, ModbusType.FLOAT32) //

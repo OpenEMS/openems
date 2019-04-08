@@ -5,13 +5,10 @@ import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
@@ -72,19 +69,10 @@ public class BackendApi extends AbstractOpenemsComponent
 	private boolean isSystemLogSubscribed = false;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timedata timedata = null;
+	private volatile Timedata timedata = null;
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	@Reference
-	private ConfigurationAdmin configAdmin;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(service.factoryPid=" + COMPONENT_NAME + ")))")
-	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -162,10 +150,6 @@ public class BackendApi extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
-	}
-
-	public ComponentManager getComponentManager() {
-		return this.componentManager;
 	}
 
 	@Override
