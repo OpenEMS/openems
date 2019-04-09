@@ -3,7 +3,9 @@ package io.openems.edge.battery.soltaro.cluster.versionb;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -113,6 +115,16 @@ public class SingleRack {
 
 	public Collection<Channel<?>> getChannels() {
 		return channelMap.values();
+	}
+	
+	public int getSoC() {
+		@SuppressWarnings("unchecked")
+		Optional<Integer> socOpt = (Optional<Integer>) this.channelMap.get(KEY_SOC).value().asOptional();
+		int soc = 0;
+		if (socOpt.isPresent()) {
+			soc = socOpt.get();
+		}
+		return soc;
 	}
 
 	private Map<String, Channel<?>> createChannelMap() {
@@ -355,7 +367,8 @@ public class SingleRack {
 				parent.map(channelIds.get(KEY_VOLTAGE), getUWE(0x100), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 				parent.map(channelIds.get(KEY_CURRENT), getUWE(0x101), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 				parent.map(channelIds.get(KEY_CHARGE_INDICATION), getUWE(0x102)), //
-				parent.map(channelIds.get(KEY_SOC), getUWE(0x103)), //
+				parent.map(channelIds.get(KEY_SOC), getUWE(0x103)). //
+					onUpdateCallback( val -> { parent.recalculateSoc(); } ), //
 				parent.map(channelIds.get(KEY_SOH), getUWE(0x104)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE_ID), getUWE(0x105)), //
 				parent.map(channelIds.get(KEY_MAX_CELL_VOLTAGE), getUWE(0x106)), //
@@ -422,15 +435,31 @@ public class SingleRack {
 				) //
 		));
 
+		int MAX_ELEMENTS_PER_TASK = 100;
+
 		// Cell voltages
 		for (int i = 0; i < this.numberOfSlaves; i++) {
-			Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
+			List<AbstractModbusElement<?>> elements = new ArrayList<>();
 			for (int j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_" + VOLTAGE;
 				UnsignedWordElement uwe = getUWE(VOLTAGE_ADDRESS_OFFSET + j);
 				AbstractModbusElement<?> ame = parent.map(channelIds.get(key), uwe);
 				elements.add(ame);
 			}
+			
+			//not more than 100 elements per task, because it can cause problems..
+			int taskCount = (elements.size() / MAX_ELEMENTS_PER_TASK) + 1;
+			
+			
+			
+			for (int x = 0; x < taskCount; x++) {
+				List<AbstractModbusElement<?>> subElements = elements.subList( x * MAX_ELEMENTS_PER_TASK , (x + 1) * MAX_ELEMENTS_PER_TASK - 1);
+				
+				
+//				for (int elemCnt = )
+				
+			}
+			
 			tasks.add(new FC3ReadRegistersTask(
 					this.addressOffset + VOLTAGE_ADDRESS_OFFSET + i * VOLTAGE_SENSORS_PER_MODULE, Priority.LOW,
 					elements.toArray(new AbstractModbusElement<?>[0])));
@@ -438,10 +467,11 @@ public class SingleRack {
 
 		// Cell temperatures
 		for (int i = 0; i < this.numberOfSlaves; i++) {
-			Collection<AbstractModbusElement<?>> elements = new ArrayList<>();
+			List<AbstractModbusElement<?>> elements = new ArrayList<>();
 			for (int j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				String key = getSingleCellPrefix(j) + "_" + TEMPERATURE;
-				SignedWordElement swe = new SignedWordElement(this.addressOffset + TEMPERATURE_ADDRESS_OFFSET + j);
+				
+				SignedWordElement swe = getSWE(TEMPERATURE_ADDRESS_OFFSET + j);
 				AbstractModbusElement<?> ame = parent.map(channelIds.get(key), swe);
 				elements.add(ame);
 			}
@@ -479,5 +509,9 @@ public class SingleRack {
 	
 	private UnsignedWordElement getUWE(int addressWithoutOffset) {
 		return new UnsignedWordElement(this.addressOffset + addressWithoutOffset);
+	}
+	
+	private SignedWordElement getSWE(int addressWithoutOffset) {
+		return new SignedWordElement(this.addressOffset + addressWithoutOffset);
 	}
 }

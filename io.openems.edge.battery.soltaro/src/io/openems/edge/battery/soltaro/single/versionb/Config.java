@@ -46,7 +46,7 @@ import io.openems.edge.battery.soltaro.BatteryState;
 	@AttributeDefinition(name = "SoC Low Alarm", description = "Sets the value for BMS SoC protection (0..100)", min="0", max="100")
 	int SoCLowAlarm() default 0;
 	
-	@AttributeDefinition(name = "Minimal Cell Voltage Millivolot", description = "Minimal cell voltage in milli volt when system does not allow further discharging")
+	@AttributeDefinition(name = "Minimal Cell Voltage Millivolt", description = "Minimal cell voltage in milli volt when system does not allow further discharging")
 	int minimalCellVoltage() default 2800;
 	
 	@AttributeDefinition(name = "Reduce tasks", description = "Reduces read and write tasks to avoid errors")

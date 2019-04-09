@@ -26,6 +26,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
 import io.openems.edge.battery.soltaro.State;
+import io.openems.edge.battery.soltaro.cluster.versionb.ClusterChannelId;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.StartStop;
@@ -67,7 +68,8 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
 
-	// Helper that holds general information about single racks, independent if they are used or not
+	// Helper that holds general information about single racks, independent if they
+	// are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
 	private final Logger log = LoggerFactory.getLogger(Cluster.class);
 
@@ -100,6 +102,11 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		// Create racks dynamically, do this before super() call because super() uses getModbusProtocol, and it is using racks... 
+		for (int i : config.racks()) {
+			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
+		}
+		
 		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
@@ -107,10 +114,6 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();
 
-		// Create racks dynamically
-		for (int i : config.racks()) {
-			this.racks.put(i, new SingleRack(i, config.numberOfSlaves(), RACK_INFO.get(i).addressOffset, this));
-		}
 
 		this.channel(Battery.ChannelId.CHARGE_MAX_CURRENT).setNextValue(Cluster.CHARGE_MAX_A);
 		this.channel(Battery.ChannelId.DISCHARGE_MAX_CURRENT).setNextValue(Cluster.DISCHARGE_MAX_A);
@@ -197,10 +200,14 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			startAttemptTime = LocalDateTime.now();
 			break;
 		case RUNNING:
-			if (this.isError()) {
-				this.setStateMachineState(State.ERROR);
+			if (this.isSystemRunning()) {
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else {
+					readyForWorking = true;
+				}
 			} else {
-				readyForWorking = true;
+				this.setStateMachineState(State.UNDEFINED);
 			}
 			break;
 		case STOPPING:
@@ -277,7 +284,8 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
 		boolean b = true;
 		for (SingleRack r : racks.values()) {
-			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value().asEnum();
+			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value()
+					.asEnum();
 		}
 		return b;
 	}
@@ -311,7 +319,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 		try {
 			startStopChannel.setNextWriteValue(StartStop.START);
 			// Only set the racks that are used, but set the others to unused
-			for (int i : RACK_INFO.keySet() ) {
+			for (int i : RACK_INFO.keySet()) {
 				EnumWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(i).usageChannelId);
 				if (racks.containsKey(i)) {
 					rackUsageChannel.setNextWriteValue(RackUsage.USED);
@@ -353,7 +361,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, new Task[] {
+		ModbusProtocol protocol =new  ModbusProtocol(this, new Task[] {
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1017, //
 						m(ClusterChannelId.START_STOP, new UnsignedWordElement(0x1017)), //
@@ -439,7 +447,8 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 						m(ClusterChannelId.SYSTEM_CURRENT, new UnsignedWordElement(0x1045), //
 								ElementToChannelConverter.SCALE_FACTOR_2), // TODO Check if scale factor is correct
 						new DummyRegisterElement(0x1046), //
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)), //
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
+							.onUpdateCallback( val -> { recalculateSoc(); } ), //
 						m(ClusterChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(ClusterChannelId.SYSTEM_VOLTAGE, new UnsignedWordElement(0x1049), //
 								ElementToChannelConverter.SCALE_FACTOR_2) // TODO Check if scale factor is correct
@@ -447,7 +456,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(ClusterChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
-						new DummyRegisterElement(0x104B, 0x104C), //
+						new DummyRegisterElement(0x104B, 0x104D), //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(0x104E),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(0x104F),
@@ -510,8 +519,15 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 								.bit(0, ClusterChannelId.RACK_5_VOLTAGE_DIFFERENCE) //
 						) //
 				) //
+				
+				
 		});
+		
+		for (SingleRack rack : racks.values()) {			
+			protocol.addTasks(rack.getTasks().toArray(new Task[] {}));
+		}		
 
+		return protocol;
 	}
 
 	private int getAddressContactorControl(int addressOffsetRack) {
@@ -522,15 +538,34 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			AbstractModbusElement<?> element) {
 		return this.m(channelId, element);
 	}
-	
+
 	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,
 			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
 		return this.m(channelId, element, converter);
 	}
-	
+
 	protected final AbstractModbusElement<?> map(BitsWordElement bitsWordElement) {
 		return super.m(bitsWordElement);
-	}	
+	}
+	
+	public void recalculateSoc() {		
+		int i = 0;
+		int soc = 0;
+
+		for (SingleRack rack : this.racks.values()) {
+			this.log.info("Rack " + rack.getRackNumber() + " has a SoC of " + rack.getSoC() + " %!");
+			soc = soc + rack.getSoC();
+			i++;
+		}
+
+		if (i > 0) {
+			soc = soc / i;
+		}
+		
+		this.log.info("Calculated SoC: " + soc);
+
+		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
+	}
 
 	private static Map<Integer, RackInfo> createRackInfo() {
 		Map<Integer, RackInfo> map = new HashMap<Integer, RackInfo>();

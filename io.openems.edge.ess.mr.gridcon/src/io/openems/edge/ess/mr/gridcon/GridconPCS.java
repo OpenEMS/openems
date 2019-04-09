@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.http.runtime.dto.ErrorPageDTO;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +107,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	private StateMachine state = StateMachine.UNDEFINED;
 
 	private LocalDateTime lastTimeAcknowledgeCommandoWasSent;
 	private long ACKNOWLEDGE_TIME_SECONDS = 5;
@@ -262,18 +265,33 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsNamedException
 	 */
 	private void handleStateMachine() throws IllegalArgumentException, OpenemsNamedException {
-		switch (this.getStateMachine()) {
-		case ONGRID_IDLE:
+		// Grid-Mode handling
+		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
+		switch(gridMode) {
+		case ON_GRID:
 			this.handleOnGrid();
+			break;
+		case OFF_GRID:
+		case UNDEFINED:
+			break;
+		}
+		
+		// Handle State-Machine
+		switch (this.state) {
+		case ONGRID_IDLE:
 			this.handleOnGridIdle();
 			break;
 
 		case ONGRID_NORMAL_OPERATION:
-			this.handleOnGrid();
 			this.handleOnGridNormalOperation();
 			break;
 
 		case UNDEFINED:
+			this.handleUndefined();
+			break;
+
+		case ONGRID_ERROR:
+			this.handleOnGridError();
 			break;
 		}
 	}
@@ -296,6 +314,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void handleOnGridIdle() throws IllegalArgumentException, OpenemsNamedException {
+		// Verify State-Machine
+		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
+		CCUState ccuState = this.getCurrentState();
+		if (gridMode != GridMode.ON_GRID || ccuState != CCUState.IDLE) {
+			this.state = StateMachine.UNDEFINED;
+			return;
+		}
+
 		InverterCount inverterCount = this.config.inverterCount();
 		new CommandControlRegisters() //
 				// Start system
@@ -324,6 +350,14 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void handleOnGridNormalOperation() throws IllegalArgumentException, OpenemsNamedException {
+		// Verify State-Machine
+		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
+		CCUState ccuState = this.getCurrentState();
+		if (gridMode != GridMode.ON_GRID || ccuState != CCUState.RUN) {
+			this.state = StateMachine.UNDEFINED;
+			return;
+		}
+
 		InverterCount inverterCount = this.config.inverterCount();
 		new CommandControlRegisters() //
 				.syncApproval(true) //
@@ -339,6 +373,103 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				.qLimit(1f) //
 				.writeToChannels(this);
 		this.setIpuControl();
+	}
+
+	/**
+	 * Handles normal operation in On-Grid.
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	private void handleUndefined() throws IllegalArgumentException, OpenemsNamedException {
+		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
+		CCUState ccuState = this.getCurrentState();
+		StateChannel errorChannel = this.getErrorChannel();
+
+		if (gridMode == GridMode.ON_GRID) {
+			if (ccuState == CCUState.ERROR || errorChannel != null) {
+				this.state = StateMachine.ONGRID_ERROR;
+
+			} else if (ccuState == CCUState.RUN) {
+				this.state = StateMachine.ONGRID_NORMAL_OPERATION;
+
+			} else if (ccuState == CCUState.IDLE) {
+				this.state = StateMachine.ONGRID_IDLE;
+
+			} else {
+				this.state = StateMachine.UNDEFINED;
+			}
+
+		} else {
+			this.log.warn("State-Machine UNDEFINED. Grid-Mode [" + gridMode + "] CCU-State [" + ccuState.toString()
+					+ "] Error [" + errorChannel + "]");
+
+			this.state = StateMachine.UNDEFINED;
+		}
+
+		// TODO weitere States, z. B. Going_ON_GRID, OFF_GRID,...
+
+//		return StateMachine.ONGRID_NORMAL_OPERATION;
+
+//		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+//		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
+//		if (!linkVoltageOpt.isPresent()) {
+//			return;
+//		}
+//
+//		float linkVoltage = linkVoltageOpt.get();
+//		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+//
+//		if (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT) {
+//			doHardRestart();
+//			return;
+//		}
+//		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
+//		// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
+//		// aber ein fehler in der queue und das system nicht angelaufen ist....
+//
+	}
+
+	
+	private LocalDateTime lastHardReset = null;
+	
+	/**
+	 * Handles On-Grid Error.
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	private void handleOnGridError() throws IllegalArgumentException, OpenemsNamedException {
+		CCUState ccuState = this.getCurrentState();
+		StateChannel errorChannel = this.getErrorChannel();
+		if(errorChannel == null && (ccuState != CCUState.UNDEFINED && ccuState != CCUState.ERROR)) {
+			// No error -> there is really no error or MR is turned off
+			// If CCUState != UNDEFINED -> MR is not turned off
+			// If CCUState == ERROR -> MR is not turned off, but still reports error
+			this.state = StateMachine.UNDEFINED;
+			return;
+		}
+		
+		
+		
+		
+		//
+//		private void doErrorHandling() throws OpenemsNamedException {
+//			StateChannel c = getErrorChannel();
+//			if (c == null) {
+//				System.out.println("Channel is null......");
+//				return;
+//			}
+//			c.setNextValue(true);
+//			if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
+//				doHardRestart();
+//			} else {
+//				log.info("try to acknowledge errors");
+//				acknowledgeErrors();
+//			}
+//		}
+		
+		
 	}
 
 	/**
@@ -378,56 +509,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				.dcVoltageSetpoint(GridconPCS.DC_LINK_VOLTAGE_SETPOINT) //
 				.stringControlMode(this.componentManager, this.config) //
 				.writeToChannels(this);
-	}
-
-	/**
-	 * Evaluates the current StateMachine-State.
-	 * 
-	 * @return the StateMachine
-	 */
-	private StateMachine getStateMachine() {
-		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
-		CCUState ccuState = this.getCurrentState();
-		StateChannel errorChannel = this.getErrorChannel();
-
-		if (gridMode == GridMode.ON_GRID) {
-			if (ccuState == CCUState.ERROR || errorChannel != null) {
-				// TODO Fehler-State
-
-			} else if (ccuState == CCUState.RUN) {
-				return StateMachine.ONGRID_NORMAL_OPERATION;
-
-			} else {
-				return StateMachine.ONGRID_IDLE;
-			}
-		}
-
-		// TODO weitere States, z. B. Going_ON_GRID, OFF_GRID,...
-
-//		return StateMachine.ONGRID_NORMAL_OPERATION;
-
-		this.log.warn("State-Machine UNDEFINED. Grid-Mode [" + gridMode + "] CCU-State [" + ccuState.toString()
-				+ "] Error [" + errorChannel + "]");
-
-		return StateMachine.UNDEFINED;
-
-//		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-//		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
-//		if (!linkVoltageOpt.isPresent()) {
-//			return;
-//		}
-//
-//		float linkVoltage = linkVoltageOpt.get();
-//		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
-//
-//		if (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT) {
-//			doHardRestart();
-//			return;
-//		}
-//		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
-//		// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
-//		// aber ein fehler in der queue und das system nicht angelaufen ist....
-//
 	}
 
 //	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
@@ -540,21 +621,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
 //		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
 //	}
-//
-//	private void doErrorHandling() throws OpenemsNamedException {
-//		StateChannel c = getErrorChannel();
-//		if (c == null) {
-//			System.out.println("Channel is null......");
-//			return;
-//		}
-//		c.setNextValue(true);
-//		if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
-//			doHardRestart();
-//		} else {
-//			log.info("try to acknowledge errors");
-//			acknowledgeErrors();
-//		}
-//	}
+
 
 	/**
 	 * Gets the (first) active Error-Channel; or null if no Error is present.
