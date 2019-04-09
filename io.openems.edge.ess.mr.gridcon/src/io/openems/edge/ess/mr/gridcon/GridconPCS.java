@@ -440,34 +440,33 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void handleOnGridError() throws IllegalArgumentException, OpenemsNamedException {
-		CCUState ccuState = this.getCurrentState();
-		StateChannel errorChannel = this.getErrorChannel();
-		if(errorChannel == null && (ccuState != CCUState.UNDEFINED && ccuState != CCUState.ERROR)) {
-			// No error -> there is really no error or MR is turned off
-			// If CCUState != UNDEFINED -> MR is not turned off
-			// If CCUState == ERROR -> MR is not turned off, but still reports error
-			this.state = StateMachine.UNDEFINED;
-			return;
-		}
+//		CCUState ccuState = this.getCurrentState();
+//		StateChannel errorChannel = this.getErrorChannel();
+//		if(errorChannel == null && (ccuState != CCUState.UNDEFINED && ccuState != CCUState.ERROR)) {
+//			// No error -> there is really no error or MR is turned off
+//			// If CCUState != UNDEFINED -> MR is not turned off
+//			// If CCUState == ERROR -> MR is not turned off, but still reports error
+//			this.state = StateMachine.UNDEFINED;
+//			return;
+//		}
+		
 		
 		
 		
 		
 		//
-//		private void doErrorHandling() throws OpenemsNamedException {
-//			StateChannel c = getErrorChannel();
-//			if (c == null) {
-//				System.out.println("Channel is null......");
-//				return;
-//			}
-//			c.setNextValue(true);
-//			if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
-//				doHardRestart();
-//			} else {
-//				log.info("try to acknowledge errors");
-//				acknowledgeErrors();
-//			}
-//		}
+			StateChannel c = getErrorChannel();
+			if (c == null) {
+				System.out.println("Channel is null......");
+				return;
+			}
+			c.setNextValue(true);
+			if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
+				doHardRestart();
+			} else {
+				log.info("try to acknowledge errors");
+				acknowledgeErrors();
+			}
 		
 		
 	}
