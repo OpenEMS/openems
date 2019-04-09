@@ -51,6 +51,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		if (authorization.startsWith("/?auth=")) {
 			authorization = authorization.substring(7);
 		}
+		else {
+			authorization = null;
+		}
 
 		if (authorization != null && !authorization.isEmpty() && !authorization.equals("undefined")) {
 			String base64Credentials = authorization;
