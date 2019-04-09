@@ -455,18 +455,18 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		
 		
 		//
-			StateChannel c = getErrorChannel();
-			if (c == null) {
-				System.out.println("Channel is null......");
-				return;
-			}
-			c.setNextValue(true);
-			if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
-				doHardRestart();
-			} else {
-				log.info("try to acknowledge errors");
-				acknowledgeErrors();
-			}
+//			StateChannel c = getErrorChannel();
+//			if (c == null) {
+//				System.out.println("Channel is null......");
+//				return;
+//			}
+//			c.setNextValue(true);
+//			if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
+//				doHardRestart();
+//			} else {
+//				log.info("try to acknowledge errors");
+//				acknowledgeErrors();
+//			}
 		
 		
 	}
@@ -760,16 +760,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		switch (this.getStateMachine()) {
-		case ONGRID_IDLE:
-		case UNDEFINED:
+		if(this.state != StateMachine.ONGRID_NORMAL_OPERATION) {
 			// stop if not ONGRID_NORMAL -> Pref and Qref = 0 by CommandControlRegisters
 			return;
-
-		case ONGRID_NORMAL_OPERATION:
-			break;
 		}
-
+		
 		// calculate and set the weights for battery strings A, B and C.
 		this.weightBatteryStrings(activePower);
 
