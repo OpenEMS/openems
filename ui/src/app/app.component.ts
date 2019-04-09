@@ -32,12 +32,25 @@ export class AppComponent {
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
+    this.platform.backButton.subscribe(() => {
+      console.log("BackUrl: " + this.backUrl);
+      if (this.backUrl) {
+        this.router.navigate([this.backUrl]);
+
+      } else {
+        navigator['app'].exitApp();
+
+      }
+
+    });
+
   }
 
   initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+
     });
   }
 
