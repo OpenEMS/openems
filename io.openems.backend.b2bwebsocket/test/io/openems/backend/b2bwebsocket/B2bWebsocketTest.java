@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
-import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
+import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
+import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;

@@ -63,4 +63,10 @@ public interface ModbusElement<T> {
 	 * i.e. sets the value to 'UNDEFINED'/null.
 	 */
 	public void invalidate();
+
+	/**
+	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
+	 * any references like listeners.
+	 */
+	public void deactivate();
 }

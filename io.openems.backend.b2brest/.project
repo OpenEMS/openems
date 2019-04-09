@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.openems.edge.meter.simulated</name>
+	<name>io.openems.backend.b2brest</name>
 	<comment></comment>
 	<projects>
 	</projects>
