@@ -449,20 +449,14 @@ public class SingleRack {
 			
 			//not more than 100 elements per task, because it can cause problems..
 			int taskCount = (elements.size() / MAX_ELEMENTS_PER_TASK) + 1;
-			
-			
-			
+
 			for (int x = 0; x < taskCount; x++) {
-				List<AbstractModbusElement<?>> subElements = elements.subList( x * MAX_ELEMENTS_PER_TASK , (x + 1) * MAX_ELEMENTS_PER_TASK - 1);
-				
-				
-//				for (int elemCnt = )
-				
+				List<AbstractModbusElement<?>> subElements = elements.subList( x * MAX_ELEMENTS_PER_TASK ,  Math.min( ((x + 1) * MAX_ELEMENTS_PER_TASK ), elements.size()  )  );
+				AbstractModbusElement<?>[] taskElements = subElements.toArray(new AbstractModbusElement<?>[0]);
+				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW,	taskElements));				
 			}
 			
-			tasks.add(new FC3ReadRegistersTask(
-					this.addressOffset + VOLTAGE_ADDRESS_OFFSET + i * VOLTAGE_SENSORS_PER_MODULE, Priority.LOW,
-					elements.toArray(new AbstractModbusElement<?>[0])));
+			
 		}
 
 		// Cell temperatures
@@ -475,9 +469,15 @@ public class SingleRack {
 				AbstractModbusElement<?> ame = parent.map(channelIds.get(key), swe);
 				elements.add(ame);
 			}
-			tasks.add(new FC3ReadRegistersTask(
-					this.addressOffset + TEMPERATURE_ADDRESS_OFFSET + i * TEMPERATURE_SENSORS_PER_MODULE, Priority.LOW,
-					elements.toArray(new AbstractModbusElement<?>[0])));
+			
+			//not more than 100 elements per task, because it can cause problems..
+			int taskCount = (elements.size() / MAX_ELEMENTS_PER_TASK) + 1;
+
+			for (int x = 0; x < taskCount; x++) {
+				List<AbstractModbusElement<?>> subElements = elements.subList( x * MAX_ELEMENTS_PER_TASK ,  Math.min( ((x + 1) * MAX_ELEMENTS_PER_TASK ), elements.size()  )  );
+				AbstractModbusElement<?>[] taskElements = subElements.toArray(new AbstractModbusElement<?>[0]);
+				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW,	taskElements));				
+			}
 		}
 
 		return tasks;
