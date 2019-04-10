@@ -32,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -172,7 +173,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		}
 
 		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
-		IntegerWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
+		EnumWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
 
 		try {
 			pLimitPercCh.setNextWriteValue(pLimitPerc);
@@ -181,7 +182,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		}
 
 		try {
-			pLimitTypeCh.setNextWriteValue(2);
+			pLimitTypeCh.setNextWriteValue(PLimitType.FIXED_LIMIT);
 		} catch (OpenemsNamedException e) {
 			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
 		}
