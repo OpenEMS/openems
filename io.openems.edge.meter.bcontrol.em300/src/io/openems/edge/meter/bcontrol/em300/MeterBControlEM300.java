@@ -164,12 +164,12 @@ public class MeterBControlEM300 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(48, 55), //
 						new DummyRegisterElement(56, 59), // Apparent Power L1
 
-						cm(new UnsignedDoublewordElement(60)) //
+						m(new UnsignedDoublewordElement(60)) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //
 
-						cm(new UnsignedDoublewordElement(62)) //
+						m(new UnsignedDoublewordElement(62)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //
