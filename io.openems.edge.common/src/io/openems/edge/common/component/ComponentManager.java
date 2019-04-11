@@ -7,11 +7,28 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Level;
 
 /**
  * A Service that provides access to OpenEMS-Components.
  */
 public interface ComponentManager {
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
+				.text("A configured OpenEMS Component was not activated"));
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
@@ -25,6 +42,7 @@ public interface ComponentManager {
 	 * Gets a OpenEMS-Component by its Component-ID.
 	 * 
 	 * @param componentId the Component-ID (e.g. "_sum")
+	 * @param             <T> the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
@@ -43,11 +61,13 @@ public interface ComponentManager {
 	 * Gets a Channel by its Channel-Address.
 	 * 
 	 * @param channelAddress the Channel-Address
-	 * @throws IllegalArgumentException if the Channel is not available
+	 * @param                <T> the typed Channel
 	 * @return the Channel
-	 * @throws OpenemsNamedException 
+	 * @throws IllegalArgumentException if the Channel is not available
+	 * @throws OpenemsNamedException    on error
 	 */
-	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress) throws IllegalArgumentException, OpenemsNamedException {
+	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
+			throws IllegalArgumentException, OpenemsNamedException {
 		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
 		return component.channel(channelAddress.getChannelId());
 	}

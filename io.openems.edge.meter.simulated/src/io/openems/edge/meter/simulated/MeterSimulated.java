@@ -17,11 +17,14 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
+
 
 @Designate(ocd = Config.class, factory = true) 
 @Component( 
@@ -37,7 +40,17 @@ public class MeterSimulated extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm; 
 
 	public MeterSimulated() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel)); 
+		
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				SinglePhaseMeter.ChannelId.values(), //
+				ChannelId.values() //
+		);
+		
+		
+//		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel)); 
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -58,7 +71,7 @@ public class MeterSimulated extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId { 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId { 
 		;
 		private final Doc doc;
 

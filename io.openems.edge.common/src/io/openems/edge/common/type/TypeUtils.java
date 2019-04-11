@@ -7,7 +7,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 
 /**

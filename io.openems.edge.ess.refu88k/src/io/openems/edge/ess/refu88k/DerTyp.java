@@ -1,6 +1,6 @@
 package io.openems.edge.ess.refu88k;
 
-import io.openems.edge.common.channel.doc.OptionsEnum;
+import io.openems.edge.common.channel.OptionsEnum;
 
 public enum DerTyp implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"),

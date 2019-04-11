@@ -1,5 +1,4 @@
 * xref:introduction.adoc[Introduction]
-* xref:openems_as.adoc[OpenEMS Association]
 * xref:gettingstarted.adoc[Getting Started]
 * xref:coreconcepts.adoc[Core concepts & terminology]
 * OpenEMS Edge
@@ -9,6 +8,12 @@
 ** xref:edge/scheduler.adoc[Scheduler]
 ** xref:edge/controller.adoc[Controller]
 ** xref:edge/implement.adoc[Implementing a Device]
+** Apps
+*** xref:edge/apps/controllers.adoc[Implemented Controllers]
+*** xref:edge/apps/devices.adoc[Implemented Devices]
+*** xref:edge/apps/schedulers.adoc[Implemented Schedulers]
+*** xref:edge/apps/timedata.adoc[Timedata services]
+*** xref:edge/apps/utils.adoc[Helpful utilities]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
 * OpenEMS UI
@@ -23,4 +28,4 @@
 * xref:simulation.adoc[Simulation]
 * xref:documentation.adoc[Documentation]
 * xref:randd.adoc[Research and Development]
-* http://openems.io/javadoc[Javadoc]
+* https://openems.github.io/openems.io/javadoc/[Javadoc]

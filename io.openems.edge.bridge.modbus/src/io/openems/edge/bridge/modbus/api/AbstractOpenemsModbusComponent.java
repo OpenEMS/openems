@@ -18,9 +18,9 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -36,6 +36,47 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * The protocol. Consume via 'getModbusProtocol()'
 	 */
 	private ModbusProtocol protocol = null;
+
+	/**
+	 * Default constructor for AbstractOpenemsModbusComponent.
+	 * 
+	 * <p>
+	 * Automatically initializes (i.e. creates {@link Channel} instances for each
+	 * given {@link ChannelId} using the Channel-{@link Doc}.
+	 * 
+	 * <p>
+	 * It is important to list all Channel-ID enums of all inherited
+	 * OpenEMS-Natures, i.e. for every OpenEMS Java interface you are implementing,
+	 * you need to list the interface' ChannelID-enum here like
+	 * Interface.ChannelId.values().
+	 * 
+	 * <p>
+	 * Use as follows:
+	 * 
+	 * <pre>
+	 * public YourPhantasticOpenemsComponent() {
+	 * 	super(//
+	 * 			OpenemsComponent.ChannelId.values(), //
+	 * 			YourPhantasticOpenemsComponent.ChannelId.values());
+	 * }
+	 * </pre>
+	 * 
+	 * Note: the separation in firstInitialChannelIds and furtherInitialChannelIds
+	 * is only there to enforce that calling the constructor cannot be forgotten.
+	 * This way it needs to be called with at least one parameter - which is always
+	 * at least "OpenemsComponent.ChannelId.values()". Just use it as if it was:
+	 * 
+	 * <pre>
+	 * AbstractOpenemsComponent(ChannelId[]... channelIds)
+	 * </pre>
+	 * 
+	 * @param firstInitialChannelIds   the Channel-IDs to initialize.
+	 * @param furtherInitialChannelIds the Channel-IDs to initialize.
+	 */
+	protected AbstractOpenemsModbusComponent(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
 
 	protected void activate(String id) {
 		throw new IllegalArgumentException("Use the other activate() method.");
@@ -153,7 +194,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			});
 		}
 
-		public ChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
+		public ChannelMapper m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
 			Channel<?> channel = channel(channelId);
 			this.channelMaps.put(channel, converter);
@@ -187,7 +228,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			return this;
 		}
 
-		public ChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
+		public ChannelMapper m(io.openems.edge.common.channel.ChannelId channelId,
 				Function<Object, Object> elementToChannel, Function<Object, Object> channelToElement) {
 			ElementToChannelConverter converter = new ElementToChannelConverter(elementToChannel, channelToElement);
 			return this.m(channelId, converter);
@@ -216,7 +257,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element   the ModbusElement
 	 * @return the element parameter
 	 */
-	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
+	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.ChannelId channelId,
 			AbstractModbusElement<?> element) {
 		return new ChannelMapper(element) //
 				.m(channelId, ElementToChannelConverter.DIRECT_1_TO_1) //
@@ -232,7 +273,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param converter the ElementToChannelConverter
 	 * @return the element parameter
 	 */
-	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
+	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.ChannelId channelId,
 			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
 		return new ChannelMapper(element) //
 				.m(channelId, converter) //
@@ -299,7 +340,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			});
 		}
 
-		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex,
+		public BitChannelMapper m(io.openems.edge.common.channel.ChannelId channelId, int bitIndex,
 				BitConverter converter) {
 			Channel<?> channel = channel(channelId);
 			if (channel.getType() != OpenemsType.BOOLEAN) {
@@ -310,7 +351,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			return this;
 		}
 
-		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
+		public BitChannelMapper m(io.openems.edge.common.channel.ChannelId channelId, int bitIndex) {
 			return m(channelId, bitIndex, BitConverter.DIRECT_1_TO_1);
 		}
 
@@ -328,106 +369,6 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final BitChannelMapper bm(UnsignedWordElement element) {
 		return new BitChannelMapper(element);
-	}
-
-	/**
-	 * Handles channels that are mapping to one bit of a modbus unsigned double word
-	 * element.
-	 */
-	public class DoubleWordBitChannelMapper {
-		private final UnsignedDoublewordElement element;
-		private final Map<Integer, Channel<?>> channels = new HashMap<>();
-
-		public DoubleWordBitChannelMapper(UnsignedDoublewordElement element) {
-			this.element = element;
-			this.element.onUpdateCallback((value) -> {
-				this.channels.forEach((bitIndex, channel) -> {
-					channel.setNextValue(value << ~bitIndex < 0);
-				});
-			});
-		}
-
-		public DoubleWordBitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
-			Channel<?> channel = channel(channelId);
-			if (channel.getType() != OpenemsType.BOOLEAN) {
-				throw new IllegalArgumentException(
-						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
-			}
-			this.channels.put(bitIndex, channel);
-			return this;
-		}
-
-		public UnsignedDoublewordElement build() {
-			return this.element;
-		}
-	}
-
-	/**
-	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern
-	 * inside the protocol definition..
-	 * 
-	 * @param element the ModbusElement
-	 * @return the CoubleWordBitChannelMapper
-	 */
-	protected final DoubleWordBitChannelMapper bm(UnsignedDoublewordElement element) {
-		return new DoubleWordBitChannelMapper(element);
-	}
-
-	/**
-	 * Handles channels that are mapping two bytes of a Modbus unsigned double word
-	 * element.
-	 */
-	public class DoubleWordByteChannelMapper {
-		private final UnsignedDoublewordElement element;
-		private final Map<Integer, Channel<?>> channels = new HashMap<>();
-
-		public DoubleWordByteChannelMapper(UnsignedDoublewordElement element) {
-			this.element = element;
-			this.element.onUpdateCallback((value) -> {
-				this.channels.forEach((index, channel) -> {
-
-					Integer val = value.intValue();
-
-					Short valueToSet = convert(val, index);
-
-					channel.setNextValue(valueToSet);
-				});
-			});
-		}
-
-		/**
-		 * Maps two Bytes of a DoubleWord.
-		 * 
-		 * @param channelId  the Channel-ID
-		 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
-		 * @return the DoubleWordByteChannelMapper
-		 */
-		public DoubleWordByteChannelMapper mapByte(io.openems.edge.common.channel.doc.ChannelId channelId,
-				int upperBytes) {
-			Channel<?> channel = channel(channelId);
-			if (channel.getType() != OpenemsType.SHORT) {
-				throw new IllegalArgumentException(
-						"Channel [" + channelId + "] must be of type [SHORT] for byte-mapping.");
-			}
-			this.channels.put(upperBytes, channel);
-			return this;
-		}
-
-		public UnsignedDoublewordElement build() {
-			return this.element;
-		}
-
-	}
-
-	/**
-	 * Creates a DoubleWordBitChannelMapper that can be used with builder pattern
-	 * inside the protocol definition.
-	 * 
-	 * @param element the MdobusElement
-	 * @return the DoubleWordByteChannelMapper
-	 */
-	protected final DoubleWordByteChannelMapper byteMap(UnsignedDoublewordElement element) {
-		return new DoubleWordByteChannelMapper(element);
 	}
 
 	/**

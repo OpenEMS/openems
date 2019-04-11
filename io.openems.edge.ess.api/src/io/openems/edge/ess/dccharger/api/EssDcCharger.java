@@ -1,20 +1,19 @@
 package io.openems.edge.ess.dccharger.api;
 
 import org.osgi.annotation.versioning.ProviderType;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Maximum Ever Actual Power
 		 * 
@@ -26,7 +25,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Implementation Note: value is automatically derived from ACTUAL_POWER
 		 * </ul>
 		 */
-		MAX_ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		MAX_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Actual Power
 		 * 
@@ -37,7 +36,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).onInit(channel -> {
+		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).onInit(channel -> {
 			channel.onSetNextValue(value -> {
 				/*
 				 * Fill Max Actual Power channel
@@ -64,8 +63,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTUAL_ENERGY(new Doc() //
-				.type(OpenemsType.LONG) //
+		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
@@ -80,11 +78,11 @@ public interface EssDcCharger extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Actual Power
+	 * Gets the Actual Power.
 	 * 
 	 * @see EssDcCharger.ChannelId#ACTUAL_POWER
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getActualPower() {
 		return this.channel(ChannelId.ACTUAL_POWER);
@@ -93,7 +91,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	/**
 	 * Gets the Maximum Ever Actual Power.
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
 	default Channel<Integer> getMaxActualPower() {
 		return this.channel(ChannelId.MAX_ACTUAL_POWER);
@@ -102,30 +100,10 @@ public interface EssDcCharger extends OpenemsComponent {
 	/**
 	 * Gets the Actual Energy in [Wh].
 	 * 
-	 * @return
+	 * @return the Channel
 	 */
-	default Channel<Integer> getActualEnergy() {
+	default Channel<Long> getActualEnergy() {
 		return this.channel(ChannelId.ACTUAL_ENERGY);
 	}
 
-	/**
-	 * Internal helper method to handle storing MaxActualPower in config property
-	 * 'maxActualPower'
-	 * 
-	 * @param cm
-	 * @param servicePid
-	 * @param maxActualPowerConfig
-	 */
-	default void _initializMaxActualPower(ConfigurationAdmin cm, String servicePid, int maxActualPowerConfig) {
-		/*
-		 * Update min/max active power channels
-		 */
-		this.getMaxActualPower().setNextValue(maxActualPowerConfig);
-
-		this.getMaxActualPower().onChange(value -> {
-			if (value.get() != maxActualPowerConfig) {
-				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActualPower", value.get());
-			}
-		});
-	}
 }

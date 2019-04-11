@@ -1,7 +1,6 @@
 [![Build Status](https://www.travis-ci.com/OpenEMS/openems.svg?branch=develop)](https://www.travis-ci.com/OpenEMS/openems)
-
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/OpenEMS/openems/develop/doc/img/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
+  <img src="./doc/modules/ROOT/assets/images/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
   <br/>Open Source Energy Management System
 </h1>
 
@@ -26,27 +25,21 @@ The OpenEMS software architecture was designed to leverage some features that ar
  * Modern web-based real-time user interface
 
 ## OpenEMS UI Screenshots
-
-<img src="./doc/img/ui-overview.png" width="100" align="left"/>
-<img src="./doc/img/ui-device-energymonitor.png" width="100" align="left"/>
-<img src="./doc/img/ui-device-energytable.png" width="100" align="left"/>
-<img src="./doc/img/ui-device-soc+evcs.png" width="100" align="left"/>
-<img src="./doc/img/ui-device-history.png" width="100" align="left"/>
-<img src="./doc/img/ui-device-history2.png" width="100"/>
+![alt text](./doc/modules/ROOT/assets/images/ui-screenshots.png "OpenEMS UI Screenshots 1")
+![alt text](./doc/modules/ROOT/assets/images/ui-screenshots2.png "OpenEMS UI Screenshots 2")
 
 ## System architecture
 
 OpenEMS is generally used in combination with external hardware and software components
-(the exception is a simulated development environment - see [Getting Started](/doc/OpenEMS_EN.adoc#getting-started)). As a brief overview, this is how OpenEMS is used in production setups:
-
-<img src="./doc/img/system-architecture.png" />
+(the exception is a simulated development environment - see [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html)). As a brief overview, this is how OpenEMS is used in production setups:
+![alt text](./doc/modules/ROOT/assets/images/system-architecture.png "OpenEMS System Architecture")
 
 ## Documentation
 
 Indepth documentation is currently in progress. Please find the latest documents here:
 
- * [Latest version of documentation](http://openems.io/openems/latest/introduction.html)
- * [Previous version readme](https://github.com/OpenEMS/openems/blob/old_master/README.md)
+ * [Latest version of documentation](https://openems.github.io/openems.io/openems/latest/introduction.html)
+ * [Javadoc](https://openems.github.io/openems.io/javadoc/)
 
 ## Open Source philosophy
 

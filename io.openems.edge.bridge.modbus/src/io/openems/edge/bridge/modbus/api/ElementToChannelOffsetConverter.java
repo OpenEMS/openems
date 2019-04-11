@@ -29,8 +29,8 @@ public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
 		}
 		for (OpenemsType openemsType : OpenemsType.values()) {
 			// this 'for' + 'switch' is only utilized to get an alert by Eclipse IDE if a
-			// new OpenemsType was added. ("The enum constant [...] needs a corresponding case
-			// label in this enum switch on OpenemsType")
+			// new OpenemsType was added. ("The enum constant [...] needs a corresponding
+			// case label in this enum switch on OpenemsType")
 			switch (openemsType) {
 			case BOOLEAN:
 			case SHORT:

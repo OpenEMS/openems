@@ -10,10 +10,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateCollectorChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.StateCollectorChannel;
+import io.openems.edge.common.channel.internal.StateCollectorChannelDoc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
@@ -21,6 +20,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
  * This is the base interface for and should be implemented by every service
  * component in OpenEMS Edge.
  * 
+ * <p>
  * Every OpenEMS service has:
  * <ul>
  * <li>a unique ID (see {@link #id()})
@@ -28,35 +28,36 @@ import io.openems.edge.common.modbusslave.ModbusType;
  * <li>an OSGi service PID (see {@link #servicePid()}
  * <li>Channels (see {@link Channel}), identified by {@link ChannelId} or
  * String-ID and provided via {@link #channel(String)},
- * {@link #channel(io.openems.edge.common.channel.doc.ChannelId)} and
+ * {@link #channel(io.openems.edge.common.channel.ChannelId)} and
  * {@link #channels()}
  * <li>a kind of 'toString' method which provides the most important info about
  * the component. (see {@link #debugLog()})
  * </ul>
  * 
+ * <p>
  * The recommended implementation of an OpenEMS component is via
  * {@link AbstractOpenemsComponent}.
  */
 public interface OpenemsComponent {
 
 	/**
-	 * Returns a unique ID for this OpenEMS component
+	 * Returns a unique ID for this OpenEMS component.
 	 * 
-	 * @return
+	 * @return the unique ID
 	 */
-	String id();
+	public String id();
 
 	/**
-	 * Returns whether this component is enabled
+	 * Returns whether this component is enabled.
 	 * 
-	 * @return
+	 * @return true if the component is enabled
 	 */
-	boolean isEnabled();
+	public boolean isEnabled();
 
 	/**
 	 * Returns the Service PID.
 	 * 
-	 * @return
+	 * @return the OSGi Service PID
 	 */
 	default String servicePid() {
 		ComponentContext context = this.getComponentContext();
@@ -71,18 +72,21 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Returns the ComponentContext
+	 * Returns the ComponentContext.
+	 * 
+	 * @return the OSGi ComponentContext
 	 */
-	ComponentContext getComponentContext();
+	public ComponentContext getComponentContext();
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.
 	 * 
+	 * <p>
 	 * Note: It is preferred to use the typed channel()-method, that's why it is
 	 * marked as @Deprecated.
 	 * 
-	 * @param channelName
-	 * @return channel or null
+	 * @param channelName the Channel-ID as a string
+	 * @return the Channel or null
 	 */
 	@Deprecated
 	public Channel<?> _channel(String channelName);
@@ -90,9 +94,10 @@ public interface OpenemsComponent {
 	/**
 	 * Returns a Channel defined by its ChannelId string representation.
 	 * 
-	 * @param channelName
+	 * @param channelName the Channel-ID as a string
+	 * @param             <T> the expected typed Channel
 	 * @throws IllegalArgumentException on error
-	 * @return
+	 * @return the Channel or throw Exception
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
@@ -120,21 +125,21 @@ public interface OpenemsComponent {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
-	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) {
 		T channel = this.<T>channel(channelId.id());
 		return channel;
 	}
 
 	/**
-	 * Returns all Channels
+	 * Returns all Channels.
 	 * 
-	 * @return
+	 * @return a Collection of Channels
 	 */
-	Collection<Channel<?>> channels();
+	public Collection<Channel<?>> channels();
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
-		STATE(new Doc().unit(Unit.NONE).options(Level.values()));
+		STATE(new StateCollectorChannelDoc());
 
 		private final Doc doc;
 
@@ -154,11 +159,23 @@ public interface OpenemsComponent {
 				.build();
 	}
 
+	/**
+	 * Gets the Component State-Channel.
+	 * 
+	 * @return the StateCollectorChannel
+	 */
 	default StateCollectorChannel getState() {
 		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
 	}
 
 	@SuppressWarnings("unchecked")
+	/**
+	 * Gets the Channel as the given Type.
+	 * 
+	 * @param channelId the Channel-ID
+	 * @param type      the expected Type
+	 * @return the Channel
+	 */
 	default <T extends Channel<?>> T _getChannelAs(ChannelId channelId, Class<T> type) {
 		Channel<?> channel = this.channel(channelId);
 		if (channel == null) {
@@ -175,7 +192,7 @@ public interface OpenemsComponent {
 	 * Gets some output that is suitable for a continuous Debug log. Returns 'null'
 	 * by default which causes no output.
 	 * 
-	 * @return
+	 * @return the debug log output
 	 */
 	public default String debugLog() {
 		return null;
@@ -184,12 +201,14 @@ public interface OpenemsComponent {
 	/**
 	 * Sets a target filter for a Declarative Service @Reference member.
 	 * 
+	 * <p>
 	 * Usage:
 	 * 
 	 * <pre>
 	 * updateReferenceFilter(config.service_pid(), "Controllers", controllersIds);
 	 * </pre>
 	 * 
+	 * <p>
 	 * Generates a 'target' filter on the 'Controllers' member so, that the target
 	 * component 'id' is in 'controllerIds'.
 	 * 
@@ -250,11 +269,14 @@ public interface OpenemsComponent {
 	/**
 	 * Update a configuration property.
 	 * 
+	 * <p>
 	 * Usage:
 	 * 
 	 * <pre>
 	 * updateConfigurationProperty(cm, servicePid, "propertyName", "propertyValue");
 	 * </pre>
+	 * 
+	 * <p>
 	 * 
 	 * @param cm       a ConfigurationAdmin instance. Get one using
 	 * 

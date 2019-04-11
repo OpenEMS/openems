@@ -3,8 +3,8 @@ package io.openems.edge.common.sum;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -14,9 +14,9 @@ import io.openems.edge.common.modbusslave.ModbusType;
  */
 public interface Sum extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Ess: Average State of Charge
+		 * Ess: Average State of Charge.
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum (origin: Ess)
@@ -25,26 +25,26 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		ESS_SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		ESS_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)),
 		/**
-		 * Ess: Active Power
+		 * Ess: Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricEss})
+		 * <li>Interface: Sum (origin: SymmetricEss)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ESS_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		ESS_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
-		 * Grid: Active Power
+		 * Grid: Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -52,116 +52,107 @@ public interface Sum extends OpenemsComponent {
 		 * the system')
 		 * </ul>
 		 */
-		GRID_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(OpenemsConstants.POWER_DOC_TEXT)),
 		/**
-		 * Grid: Minimum Ever Active Power
+		 * Grid: Minimum Ever Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values or '0'
 		 * </ul>
 		 */
-		GRID_MIN_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		GRID_MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Grid: Maximum Ever Active Power
+		 * Grid: Maximum Ever Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		GRID_MAX_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		GRID_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Production: Active Power
+		 * Production: Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Meter Symmetric and ESS DC Charger)
+		 * <li>Interface: Sum (origin: SymmetricMeter and ESS DC Charger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
-		PRODUCTION_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Production: AC Active Power
+		 * Production: AC Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Meter Symmetric)
+		 * <li>Interface: Sum (origin: SymmetricMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
-		PRODUCTION_AC_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Production: DC Actual Power
+		 * Production: DC Actual Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: ESS DC Charger)
+		 * <li>Interface: Sum (origin: EssDcCharger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
-		PRODUCTION_DC_ACTUAL_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Production: Maximum Ever Active Power
+		 * Production: Maximum Ever Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		PRODUCTION_MAX_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Production: Maximum Ever AC Active Power
+		 * Production: Maximum Ever AC Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		PRODUCTION_MAX_AC_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_MAX_AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Production: Maximum Ever DC Actual Power
+		 * Production: Maximum Ever DC Actual Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link EssDcCharger}))
+		 * <li>Interface: Sum (origin: EssDcCharger}))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		PRODUCTION_MAX_DC_ACTUAL_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		PRODUCTION_MAX_DC_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Consumption: Active Power
+		 * Consumption: Active Power.
 		 * 
 		 * <ul>
 		 * <li>Interface: Sum
@@ -172,47 +163,129 @@ public interface Sum extends OpenemsComponent {
 		 * Production-Meter and charge/discharge of battery.
 		 * </ul>
 		 */
-		CONSUMPTION_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		CONSUMPTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
-		 * Consumption: Maximum Ever Active Power
+		 * Consumption: Maximum Ever Active Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Interface: Sum (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
 		 * </ul>
 		 */
-		CONSUMPTION_MAX_ACTIVE_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
+		CONSUMPTION_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
-
 		/**
-		 * Gridmode
+		 * Grid-Mode.
 		 * 
 		 * <ul>
-		 * <li>Interface: Gridmode (origin: @see {@link SymmetricEss}))
+		 * <li>Interface: Sum (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Values: '0' = UNDEFINED, '1' = ON GRID, '2' = OFF GRID
 		 * </ul>
 		 */
-		GRID_MODE(new Doc() //
-				.type(OpenemsType.INTEGER).options(GridMode.values())),
+		GRID_MODE(Doc.of(GridMode.values())),
 
 		/**
-		 * Max Apparent Power
+		 * Ess: Max Apparent Power.
 		 * 
 		 * <ul>
-		 * <li>Interface: Max Apparent Power (origin: @see {@link SymmetricEss}))
+		 * <li>Interface: Max Apparent Power (origin: SymmetricEss))
 		 * <li>Type: Integer
 		 * <li>Unit: VA
 		 * </ul>
 		 */
-		ESS_MAX_APPARENT_POWER(new Doc() //
-				.type(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE));
+		ESS_MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE)),
+		/**
+		 * Ess: Active Charge Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ESS_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Ess: Active Discharge Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricEss)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Grid: Buy-from-grid Energy ("Production").
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		GRID_BUY_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Grid: Sell-to-grid Energy ("Consumption").
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		GRID_SELL_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Production: Energy.
+		 * 
+		 * <ul>
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Production: AC Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		PRODUCTION_AC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Production: DC Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: EssDcCharger)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		PRODUCTION_DC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		/**
+		 * Consumption: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS));
 
 		private final Doc doc;
 
@@ -252,6 +325,14 @@ public interface Sum extends OpenemsComponent {
 				.channel(43, ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.float32Reserved(45) // ChannelId.CONSUMPTION_REACTIVE_POWER
 				.float32Reserved(47) // ChannelId.CONSUMPTION_MAX_REACTIVE_POWER
+				.channel(49, ChannelId.ESS_ACTIVE_CHARGE_ENERGY, ModbusType.FLOAT64) //
+				.channel(53, ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, ModbusType.FLOAT64) //
+				.channel(57, ChannelId.GRID_BUY_ACTIVE_ENERGY, ModbusType.FLOAT64) //
+				.channel(61, ChannelId.GRID_SELL_ACTIVE_ENERGY, ModbusType.FLOAT64) //
+				.channel(65, ChannelId.PRODUCTION_ACTIVE_ENERGY, ModbusType.FLOAT64) //
+				.channel(69, ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, ModbusType.FLOAT64) //
+				.channel(73, ChannelId.PRODUCTION_DC_ACTIVE_ENERGY, ModbusType.FLOAT64) //
+				.channel(77, ChannelId.CONSUMPTION_ACTIVE_ENERGY, ModbusType.FLOAT64) //
 				.build();
 	}
 
@@ -315,4 +396,35 @@ public interface Sum extends OpenemsComponent {
 		return this.channel(ChannelId.GRID_MODE);
 	}
 
+	public default Channel<Long> getEssActiveChargeEnergy() {
+		return this.channel(ChannelId.ESS_ACTIVE_CHARGE_ENERGY);
+	}
+
+	public default Channel<Long> getEssActiveDischargeEnergy() {
+		return this.channel(ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY);
+	}
+
+	public default Channel<Long> getGridBuyActiveEnergy() {
+		return this.channel(ChannelId.GRID_BUY_ACTIVE_ENERGY);
+	}
+
+	public default Channel<Long> getGridSellActiveEnergy() {
+		return this.channel(ChannelId.GRID_SELL_ACTIVE_ENERGY);
+	}
+
+	public default Channel<Long> getProductionActiveEnergy() {
+		return this.channel(ChannelId.PRODUCTION_ACTIVE_ENERGY);
+	}
+
+	public default Channel<Long> getProductionAcActiveEnergy() {
+		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_ENERGY);
+	}
+
+	public default Channel<Long> getProductionDcActiveEnergy() {
+		return this.channel(ChannelId.PRODUCTION_DC_ACTIVE_ENERGY);
+	}
+
+	public default Channel<Long> getConsumptionActiveEnergy() {
+		return this.channel(ChannelId.CONSUMPTION_ACTIVE_ENERGY);
+	}
 }

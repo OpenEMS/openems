@@ -1,6 +1,6 @@
 package io.openems.edge.kostal.piko.core.impl;
 
-import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.ManagedTask;
 import io.openems.edge.common.taskmanager.Priority;

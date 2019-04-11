@@ -21,7 +21,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config0.class, factory = true)
-@Component(name = "Ess0.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
+@Component(name = "Ess.Streetscooter.0", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class Ess0Streetscooter extends AbstractEssStreetscooter
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusSlave {

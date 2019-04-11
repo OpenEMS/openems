@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
@@ -26,13 +27,16 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
+import io.openems.common.session.User;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Edge.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
 
-	// private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
+	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 
 	private WebsocketServer server = null;
 
@@ -92,14 +96,29 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WebSocket ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws != null) {
 			WsData wsData = ws.getAttachment();
-			return wsData.send(request);
+			// Wrap Request in AuthenticatedRpc
+			AuthenticatedRpcRequest authenticatedRpc = new AuthenticatedRpcRequest(user, request);
+			CompletableFuture<JsonrpcResponseSuccess> responseFuture = wsData.send(authenticatedRpc);
+
+			// Unwrap Response
+			CompletableFuture<JsonrpcResponseSuccess> result = new CompletableFuture<JsonrpcResponseSuccess>();
+			responseFuture.thenAccept(r -> {
+				try {
+					AuthenticatedRpcResponse response = AuthenticatedRpcResponse.from(r);
+					result.complete(response.getPayload());
+				} catch (OpenemsNamedException e) {
+					this.logError(this.log, e.getMessage());
+					throw new RuntimeException(e.getMessage());
+				}
+			});
+			return result;
 		} else {
-			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(request.getId().toString(), edgeId);
+			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId);
 		}
 	}
 
@@ -141,9 +160,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, UUID token,
-			SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, token, request);
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
+			UUID token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
 	}
 
 	/**
@@ -154,6 +173,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param notification the SystemLogNotification
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
-		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
+		this.systemLogHandler.handleSystemLogNotification(edgeId, null, notification);
 	}
 }

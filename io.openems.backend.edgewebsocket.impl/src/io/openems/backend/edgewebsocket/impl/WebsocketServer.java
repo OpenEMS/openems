@@ -25,7 +25,6 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SystemLog;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
-import io.openems.common.websocket.OnInternalError;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
@@ -37,7 +36,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
-	private final OnInternalError onInternalError;
 
 	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port) {
 		super(name, port);
@@ -47,10 +45,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = new OnClose(parent);
-		this.onInternalError = (ex, wsDataString) -> {
-			log.info("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
-		};
 	}
 
 	@Override
@@ -63,11 +57,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		final Optional<String> edgeIdOpt = Optional.of(edgeId);
 		return this.getConnections().parallelStream().anyMatch(
 				ws -> ws.getAttachment() != null && ((WsData) ws.getAttachment()).getEdgeId().equals(edgeIdOpt));
-	}
-
-	@Override
-	protected OnInternalError getOnInternalError() {
-		return this.onInternalError;
 	}
 
 	@Override

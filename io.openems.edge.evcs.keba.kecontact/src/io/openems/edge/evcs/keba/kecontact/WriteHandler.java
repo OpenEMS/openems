@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.evcs.api.Evcs;
 
@@ -76,7 +78,7 @@ public class WriteHandler implements Runnable {
 	 * Sets the enabled state from SET_ENABLED channel
 	 */
 	private void setEnabled() {
-		WriteChannel<Boolean> channel = this.parent.channel(KebaKeContact.ChannelId.SET_ENABLED);
+		WriteChannel<Boolean> channel = this.parent.channel(KebaChannelId.SET_ENABLED);
 		Optional<Boolean> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			Boolean enabled = valueOpt.get();
@@ -106,14 +108,26 @@ public class WriteHandler implements Runnable {
 		WriteChannel<Integer> channel = this.parent.channel(Evcs.ChannelId.SET_CHARGE_POWER);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
+
 			Integer power = valueOpt.get();
-			// calculate current based on phases and voltage. FIXME: this will have to be
-			// adjusted if the EVCS is connected single phase
-			Integer current = power / 3 /* 3 phases */ / 230 /* voltage */;
+			Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
+			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
+
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log,
-						"Setting KEBA KeContact current to [" + current + " mA] - calculated from [" + power + " W]");
-				boolean sentSuccessfully = parent.send("curr " + current);
+
+				this.parent.logInfo(this.log, "Setting KEBA KeContact current to [" + current
+						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
+
+				try {
+					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
+					this.parent.setDisplayText()
+							.setNextWriteValue("Charging " + (currPower.value().orElse(0) / 1000) + "W");
+				} catch (OpenemsNamedException e) {
+					e.printStackTrace();
+				}
+
+				this.parent.logInfo(this.log, "currtime " + current);
+				boolean sentSuccessfully = parent.send("currtime " + current + " 1");
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 					this.lastCurrent = current;

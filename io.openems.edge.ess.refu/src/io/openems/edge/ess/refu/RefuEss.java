@@ -15,9 +15,9 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -30,15 +30,17 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import io.openems.edge.common.channel.AccessMode;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Level;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.Level;
+import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -60,8 +62,6 @@ import io.openems.edge.ess.power.api.Relationship;
 public class RefuEss extends AbstractOpenemsModbusComponent implements SymmetricEss, AsymmetricEss,
 		ManagedAsymmetricEss, ManagedSymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(RefuEss.class);
-
 	protected final static int MAX_APPARENT_POWER = 100_000;
 	private final static int UNIT_ID = 1;
 
@@ -74,13 +74,22 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	private final ErrorHandler errorHandler;
 
 	public RefuEss() {
-		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				ChannelId.values() //
+		);
+		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
+		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(RefuEss.MAX_APPARENT_POWER);
 		this.errorHandler = new ErrorHandler(this);
 	}
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		int allowedCharge = this.getAllowedCharge().value().orElse(0);
 		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
@@ -100,20 +109,12 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 			reactivePowerL2 = 0;
 			reactivePowerL3 = 0;
 		}
-		try {
-			this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
-			this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
-			this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
-		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to set ActivePower: " + e.getMessage());
-		}
-		try {
-			this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
-			this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
-			this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
-		} catch (OpenemsException e) {
-			this.logError(this.log, "Unable to set ReactivePower: " + e.getMessage());
-		}
+		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
+		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
+		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
+		this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
+		this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
+		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -123,8 +124,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
 	}
 
 	@Deactivate
@@ -457,241 +457,435 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 //				+ (state.isEmpty() ? "" : ";" + this.getState().listStates());
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		ERROR_HANDLER_STATE(new Doc()), //
-		SYSTEM_STATE(new Doc().options(SystemState.values())), //
-		INVERTER_ERROR_CODE(new Doc()), //
-		DCDC_ERROR_CODE(new Doc()), //
-		SET_WORK_STATE(new Doc().options(StopStart.values())), //
-		DCDC_STATUS(new Doc().options(DcdcStatus.values())), //
-		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
-		BATTERY_VOLTAGE_PCS(new Doc().unit(Unit.MILLIVOLT)), //
-		BATTERY_CURRENT_PCS(new Doc().unit(Unit.MILLIAMPERE)), //
-		PCS_ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
-		PCS_ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
-		ALLOWED_CHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		ALLOWED_DISCHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		// IntegerWriteChannel
+		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.WATT)), //
+		SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.WATT)), //
+		SET_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.WATT)), //
+		SET_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.WATT)), //
+		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.WATT)), //
+		SET_REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.VOLT_AMPERE)), //
+		SET_REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.VOLT_AMPERE)), //
+		SET_REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.VOLT_AMPERE)), //
 
-		BATTERY_CHARGE_ENERGY(new Doc().unit(Unit.KILOWATT_HOURS)), //
-		BATTERY_DISCHARGE_ENERGY(new Doc().unit(Unit.KILOWATT_HOURS)), //
-		BATTERY_HIGHEST_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		BATTERY_LOWEST_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
-		BATTERY_HIGHEST_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BATTERY_LOWEST_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		BATTERY_STOP_REQUEST(new Doc()), //
-		CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
-		CURRENT_L1(new Doc().unit(Unit.MILLIAMPERE)), //
-		CURRENT_L2(new Doc().unit(Unit.MILLIAMPERE)), //
-		CURRENT_L3(new Doc().unit(Unit.MILLIAMPERE)), //
-		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
-		SET_ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
-		SET_ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
-		SET_ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
-		SET_REACTIVE_POWER(new Doc().unit(Unit.WATT)), //
-		SET_REACTIVE_POWER_L1(new Doc().unit(Unit.VOLT_AMPERE)), //
-		SET_REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE)), //
-		SET_REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE)), //
+		// EnumWriteChannel
+		SET_SYSTEM_ERROR_RESET(Doc.of(StopStart.values()) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		SET_OPERATION_MODE(Doc.of(SetOperationMode.values()) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		SET_WORK_STATE(Doc.of(StopStart.values()) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
 
-		COS_PHI_3P(new Doc()), //
-		COS_PHI_L1(new Doc()), //
-		COS_PHI_L2(new Doc()), //
-		COS_PHI_L3(new Doc()), //
+		// EnumReadChannel
+		BATTERY_STATE(Doc.of(BatteryState.values())), //
+		BATTERY_MODE(Doc.of(BatteryMode.values())), //
+		SYSTEM_STATE(Doc.of(SystemState.values())), //
+		DCDC_STATUS(Doc.of(DcdcStatus.values())), //
 
-		BATTERY_STATE(new Doc().options(BatteryState.values())), //
-		BATTERY_MODE(new Doc().options(BatteryMode.values())), //
-		SET_SYSTEM_ERROR_RESET(new Doc().options(StopStart.values())), //
-		SET_OPERATION_MODE(new Doc().options(SetOperationMode.values())), //
+		// IntegerReadChannel
+		ERROR_HANDLER_STATE(Doc.of(OpenemsType.INTEGER)), //
+		INVERTER_ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
+		DCDC_ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
+		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		BATTERY_VOLTAGE_PCS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_CURRENT_PCS(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		PCS_ALLOWED_CHARGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		PCS_ALLOWED_DISCHARGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		ALLOWED_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		ALLOWED_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
 
-		STATE_0(new Doc().level(Level.FAULT).text("BMS In Error")), //
-		STATE_1(new Doc().level(Level.FAULT).text("BMS Overvoltage")), //
-		STATE_2(new Doc().level(Level.FAULT).text("BMS Undervoltage")), //
-		STATE_3(new Doc().level(Level.FAULT).text("BMS Overcurrent")), //
-		STATE_4(new Doc().level(Level.FAULT).text("Error BMS Limits Not Initialized")), //
-		STATE_5(new Doc().level(Level.FAULT).text("Connect Error")), //
-		STATE_6(new Doc().level(Level.FAULT).text("Overvoltage Warning")), //
-		STATE_7(new Doc().level(Level.FAULT).text("Undervoltage Warning")), //
-		STATE_8(new Doc().level(Level.FAULT).text("Overcurrent Warning")), //
-		STATE_9(new Doc().level(Level.FAULT).text("BMS Ready")), //
-		STATE_10(new Doc().level(Level.FAULT).text("TREX Ready")), //
+		BATTERY_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS)), //
+		BATTERY_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.KILOWATT_HOURS)), //
+		BATTERY_HIGHEST_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_LOWEST_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_HIGHEST_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_LOWEST_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STOP_REQUEST(Doc.of(OpenemsType.INTEGER)), //
+		CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
 
-		STATE_11(new Doc().level(Level.FAULT).text("Gateway Initialized")), //
-		STATE_12(new Doc().level(Level.FAULT).text("Modbus Slave Status")), //
-		STATE_13(new Doc().level(Level.FAULT).text("Modbus Master Status")), //
-		STATE_14(new Doc().level(Level.FAULT).text("CAN Timeout")), //
-		STATE_15(new Doc().level(Level.FAULT).text("First Communication Ok")), //
+		COS_PHI_3P(Doc.of(OpenemsType.INTEGER)), //
+		COS_PHI_L1(Doc.of(OpenemsType.INTEGER)), //
+		COS_PHI_L2(Doc.of(OpenemsType.INTEGER)), //
+		COS_PHI_L3(Doc.of(OpenemsType.INTEGER)), //
 
-		INVERTER_STATE_0(new Doc().level(Level.INFO).text("Ready to Power on")), //
-		INVERTER_STATE_1(new Doc().level(Level.INFO).text("Ready for Operating")), //
-		INVERTER_STATE_2(new Doc().level(Level.INFO).text("Enabled")), //
-		INVERTER_STATE_3(new Doc().level(Level.FAULT).text("Inverter Fault")), //
-		INVERTER_STATE_7(new Doc().level(Level.WARNING).text("Inverter Warning")), //
-		INVERTER_STATE_8(new Doc().level(Level.INFO).text("Voltage/Current mode")), //
-		INVERTER_STATE_9(new Doc().level(Level.INFO).text("Power mode")), //
-		INVERTER_STATE_10(new Doc().level(Level.INFO).text("Status AC relays (1:Close, 0:Open)")), //
-		INVERTER_STATE_11(new Doc().level(Level.INFO).text("Status DC relay 1 (1:Close, 0:Open)")), //
-		INVERTER_STATE_12(new Doc().level(Level.INFO).text("Status DC relay 2 (1:Close, 0:Open)")), //
-		INVERTER_STATE_13(new Doc().level(Level.INFO).text("Mains OK")), //
+		STATE_0(Doc.of(Level.FAULT) //
+				.text("BMS In Error")), //
+		STATE_1(Doc.of(Level.FAULT) //
+				.text("BMS Overvoltage")), //
+		STATE_2(Doc.of(Level.FAULT) //
+				.text("BMS Undervoltage")), //
+		STATE_3(Doc.of(Level.FAULT) //
+				.text("BMS Overcurrent")), //
+		STATE_4(Doc.of(Level.FAULT) //
+				.text("Error BMS Limits Not Initialized")), //
+		STATE_5(Doc.of(Level.FAULT) //
+				.text("Connect Error")), //
+		STATE_6(Doc.of(Level.FAULT) //
+				.text("Overvoltage Warning")), //
+		STATE_7(Doc.of(Level.FAULT) //
+				.text("Undervoltage Warning")), //
+		STATE_8(Doc.of(Level.FAULT) //
+				.text("Overcurrent Warning")), //
+		STATE_9(Doc.of(Level.FAULT) //
+				.text("BMS Ready")), //
+		STATE_10(Doc.of(Level.FAULT) //
+				.text("TREX Ready")), //
 
-		DCDC_STATE_0(new Doc().level(Level.INFO).text("Ready to Power on")), //
-		DCDC_STATE_1(new Doc().level(Level.INFO).text("Ready for Operating")), //
-		DCDC_STATE_2(new Doc().level(Level.INFO).text("Enabled")), //
-		DCDC_STATE_3(new Doc().level(Level.FAULT).text("DCDC Fault")), //
-		DCDC_STATE_7(new Doc().level(Level.WARNING).text("DCDC Warning")), //
-		DCDC_STATE_8(new Doc().level(Level.INFO).text("Voltage/Current mode")), //
-		DCDC_STATE_9(new Doc().level(Level.INFO).text("Power mode")), //
+		STATE_11(Doc.of(Level.FAULT) //
+				.text("Gateway Initialized")), //
+		STATE_12(Doc.of(Level.FAULT) //
+				.text("Modbus Slave Status")), //
+		STATE_13(Doc.of(Level.FAULT) //
+				.text("Modbus Master Status")), //
+		STATE_14(Doc.of(Level.FAULT) //
+				.text("CAN Timeout")), //
+		STATE_15(Doc.of(Level.FAULT) //
+				.text("First Communication Ok")), //
 
-		BATTERY_ON_GRID_STATE_0(new Doc().level(Level.INFO).text("On-grid status of battery group 0")), //
-		BATTERY_ON_GRID_STATE_1(new Doc().level(Level.INFO).text("On-grid status of battery group 1")), //
-		BATTERY_ON_GRID_STATE_2(new Doc().level(Level.INFO).text("On-grid status of battery group 2")), //
-		BATTERY_ON_GRID_STATE_3(new Doc().level(Level.INFO).text("On-grid status of battery group 3")), //
-		BATTERY_ON_GRID_STATE_4(new Doc().level(Level.INFO).text("On-grid status of battery group 4")), //
-		BATTERY_ON_GRID_STATE_5(new Doc().level(Level.INFO).text("On-grid status of battery group 5")), //
-		BATTERY_ON_GRID_STATE_6(new Doc().level(Level.INFO).text("On-grid status of battery group 6")), //
-		BATTERY_ON_GRID_STATE_7(new Doc().level(Level.INFO).text("On-grid status of battery group 7")), //
-		BATTERY_ON_GRID_STATE_8(new Doc().level(Level.INFO).text("On-grid status of battery group 8")), //
-		BATTERY_ON_GRID_STATE_9(new Doc().level(Level.INFO).text("On-grid status of battery group 9")), //
-		BATTERY_ON_GRID_STATE_10(new Doc().level(Level.INFO).text("On-grid status of battery group 10")), //
-		BATTERY_ON_GRID_STATE_11(new Doc().level(Level.INFO).text("On-grid status of battery group 11")), //
-		BATTERY_ON_GRID_STATE_12(new Doc().level(Level.INFO).text("On-grid status of battery group 12")), //
-		BATTERY_ON_GRID_STATE_13(new Doc().level(Level.INFO).text("On-grid status of battery group 13")), //
-		BATTERY_ON_GRID_STATE_14(new Doc().level(Level.INFO).text("On-grid status of battery group 14")), //
-		BATTERY_ON_GRID_STATE_15(new Doc().level(Level.INFO).text("On-grid status of battery group 15")), //
+		INVERTER_STATE_0(Doc.of(Level.INFO) //
+				.text("Ready to Power on")), //
+		INVERTER_STATE_1(Doc.of(Level.INFO) //
+				.text("Ready for Operating")), //
+		INVERTER_STATE_2(Doc.of(Level.INFO) //
+				.text("Enabled")), //
+		INVERTER_STATE_3(Doc.of(Level.FAULT) //
+				.text("Inverter Fault")), //
+		INVERTER_STATE_7(Doc.of(Level.WARNING) //
+				.text("Inverter Warning")), //
+		INVERTER_STATE_8(Doc.of(Level.INFO) //
+				.text("Voltage/Current mode")), //
+		INVERTER_STATE_9(Doc.of(Level.INFO) //
+				.text("Power mode")), //
+		INVERTER_STATE_10(Doc.of(Level.INFO) //
+				.text("Status AC relays (1:Close, 0:Open)")), //
+		INVERTER_STATE_11(Doc.of(Level.INFO) //
+				.text("Status DC relay 1 (1:Close, 0:Open)")), //
+		INVERTER_STATE_12(Doc.of(Level.INFO) //
+				.text("Status DC relay 2 (1:Close, 0:Open)")), //
+		INVERTER_STATE_13(Doc.of(Level.INFO) //
+				.text("Mains OK")), //
 
-		STATE_16(new Doc().level(Level.WARNING).text("Normal Charging Over Current")), //
-		STATE_17(new Doc().level(Level.WARNING).text("Charging Current Over Limit")), //
-		STATE_18(new Doc().level(Level.WARNING).text("Discharging Current Over Limit")), //
-		STATE_19(new Doc().level(Level.WARNING).text("Normal High Voltage")), //
-		STATE_20(new Doc().level(Level.WARNING).text("Normal Low Voltage")), //
-		STATE_21(new Doc().level(Level.WARNING).text("Abnormal Voltage Variation")), //
-		STATE_22(new Doc().level(Level.WARNING).text("Normal High Temperature")), //
-		STATE_23(new Doc().level(Level.WARNING).text("Normal Low Temperature")), //
-		STATE_24(new Doc().level(Level.WARNING).text("Abnormal Temperature Variation")), //
-		STATE_25(new Doc().level(Level.WARNING).text("Serious High Voltage")), //
-		STATE_26(new Doc().level(Level.WARNING).text("Serious Low Voltage")), //
-		STATE_27(new Doc().level(Level.WARNING).text("Serious Low Temperature")), //
-		STATE_28(new Doc().level(Level.WARNING).text("Charging Serious Over Current")), //
-		STATE_29(new Doc().level(Level.WARNING).text("Discharging Serious Over Current")), //
-		STATE_30(new Doc().level(Level.WARNING).text("Abnormal Capacity Alarm")), //
+		DCDC_STATE_0(Doc.of(Level.INFO) //
+				.text("Ready to Power on")), //
+		DCDC_STATE_1(Doc.of(Level.INFO) //
+				.text("Ready for Operating")), //
+		DCDC_STATE_2(Doc.of(Level.INFO) //
+				.text("Enabled")), //
+		DCDC_STATE_3(Doc.of(Level.FAULT) //
+				.text("DCDC Fault")), //
+		DCDC_STATE_7(Doc.of(Level.WARNING) //
+				.text("DCDC Warning")), //
+		DCDC_STATE_8(Doc.of(Level.INFO) //
+				.text("Voltage/Current mode")), //
+		DCDC_STATE_9(Doc.of(Level.INFO) //
+				.text("Power mode")), //
 
-		STATE_31(new Doc().level(Level.WARNING).text("EEPROM Parameter Failure")), //
-		STATE_32(new Doc().level(Level.WARNING).text("Switch Of Inside Combined Cabinet")), //
-		STATE_33(new Doc().level(Level.WARNING).text("Should Not Be Connected To Grid Due To The DC Side Condition")), //
-		STATE_34(new Doc().level(Level.WARNING).text("Emergency Stop Require From System Controller")), //
+		BATTERY_ON_GRID_STATE_0(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 0")), //
+		BATTERY_ON_GRID_STATE_1(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 1")), //
+		BATTERY_ON_GRID_STATE_2(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 2")), //
+		BATTERY_ON_GRID_STATE_3(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 3")), //
+		BATTERY_ON_GRID_STATE_4(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 4")), //
+		BATTERY_ON_GRID_STATE_5(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 5")), //
+		BATTERY_ON_GRID_STATE_6(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 6")), //
+		BATTERY_ON_GRID_STATE_7(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 7")), //
+		BATTERY_ON_GRID_STATE_8(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 8")), //
+		BATTERY_ON_GRID_STATE_9(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 9")), //
+		BATTERY_ON_GRID_STATE_10(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 10")), //
+		BATTERY_ON_GRID_STATE_11(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 11")), //
+		BATTERY_ON_GRID_STATE_12(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 12")), //
+		BATTERY_ON_GRID_STATE_13(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 13")), //
+		BATTERY_ON_GRID_STATE_14(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 14")), //
+		BATTERY_ON_GRID_STATE_15(Doc.of(Level.INFO) //
+				.text("On-grid status of battery group 15")), //
 
-		STATE_35(new Doc().level(Level.WARNING).text("Battery Group 1 Enable And Not Connected To Grid")), //
-		STATE_36(new Doc().level(Level.WARNING).text("Battery Group 2 Enable And Not Connected To Grid")), //
-		STATE_37(new Doc().level(Level.WARNING).text("Battery Group 3 Enable And Not Connected To Grid")), //
-		STATE_38(new Doc().level(Level.WARNING).text("Battery Group 4 Enable And Not Connected To Grid")), //
+		STATE_16(Doc.of(Level.WARNING) //
+				.text("Normal Charging Over Current")), //
+		STATE_17(Doc.of(Level.WARNING) //
+				.text("Charging Current Over Limit")), //
+		STATE_18(Doc.of(Level.WARNING) //
+				.text("Discharging Current Over Limit")), //
+		STATE_19(Doc.of(Level.WARNING) //
+				.text("Normal High Voltage")), //
+		STATE_20(Doc.of(Level.WARNING) //
+				.text("Normal Low Voltage")), //
+		STATE_21(Doc.of(Level.WARNING) //
+				.text("Abnormal Voltage Variation")), //
+		STATE_22(Doc.of(Level.WARNING) //
+				.text("Normal High Temperature")), //
+		STATE_23(Doc.of(Level.WARNING) //
+				.text("Normal Low Temperature")), //
+		STATE_24(Doc.of(Level.WARNING) //
+				.text("Abnormal Temperature Variation")), //
+		STATE_25(Doc.of(Level.WARNING) //
+				.text("Serious High Voltage")), //
+		STATE_26(Doc.of(Level.WARNING) //
+				.text("Serious Low Voltage")), //
+		STATE_27(Doc.of(Level.WARNING) //
+				.text("Serious Low Temperature")), //
+		STATE_28(Doc.of(Level.WARNING) //
+				.text("Charging Serious Over Current")), //
+		STATE_29(Doc.of(Level.WARNING) //
+				.text("Discharging Serious Over Current")), //
+		STATE_30(Doc.of(Level.WARNING) //
+				.text("Abnormal Capacity Alarm")), //
 
-		STATE_39(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup1Open")), //
-		STATE_40(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup2Open")), //
-		STATE_41(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup3Open")), //
-		STATE_42(new Doc().level(Level.WARNING).text("TheIsolationSwitchOfBatteryGroup4Open")), //
+		STATE_31(Doc.of(Level.WARNING) //
+				.text("EEPROM Parameter Failure")), //
+		STATE_32(Doc.of(Level.WARNING) //
+				.text("Switch Of Inside Combined Cabinet")), //
+		STATE_33(Doc.of(Level.WARNING) //
+				.text("Should Not Be Connected To Grid Due To The DC Side Condition")), //
+		STATE_34(Doc.of(Level.WARNING) //
+				.text("Emergency Stop Require From System Controller")), //
 
-		STATE_43(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup1")), //
-		STATE_44(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup2")), //
-		STATE_45(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup3")), //
-		STATE_46(new Doc().level(Level.WARNING).text("BalancingSamplingFailureOfBatteryGroup4")), //
+		STATE_35(Doc.of(Level.WARNING) //
+				.text("Battery Group 1 Enable And Not Connected To Grid")), //
+		STATE_36(Doc.of(Level.WARNING) //
+				.text("Battery Group 2 Enable And Not Connected To Grid")), //
+		STATE_37(Doc.of(Level.WARNING) //
+				.text("Battery Group 3 Enable And Not Connected To Grid")), //
+		STATE_38(Doc.of(Level.WARNING) //
+				.text("Battery Group 4 Enable And Not Connected To Grid")), //
 
-		STATE_47(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup1")), //
-		STATE_48(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup2")), //
-		STATE_49(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup3")), //
-		STATE_50(new Doc().level(Level.WARNING).text("BalancingControlFailureOfBatteryGroup4")), //
+		STATE_39(Doc.of(Level.WARNING) //
+				.text("TheIsolationSwitchOfBatteryGroup1Open")), //
+		STATE_40(Doc.of(Level.WARNING) //
+				.text("TheIsolationSwitchOfBatteryGroup2Open")), //
+		STATE_41(Doc.of(Level.WARNING) //
+				.text("TheIsolationSwitchOfBatteryGroup3Open")), //
+		STATE_42(Doc.of(Level.WARNING) //
+				.text("TheIsolationSwitchOfBatteryGroup4Open")), //
 
-		STATE_51(new Doc().level(Level.FAULT).text("NoEnableBateryGroupOrUsableBatteryGroup")), //
-		STATE_52(new Doc().level(Level.FAULT).text("NormalLeakageOfBatteryGroup")), //
-		STATE_53(new Doc().level(Level.FAULT).text("SeriousLeakageOfBatteryGroup")), //
-		STATE_54(new Doc().level(Level.FAULT).text("BatteryStartFailure")), //
-		STATE_55(new Doc().level(Level.FAULT).text("BatteryStopFailure")), //
-		STATE_56(new Doc().level(Level.FAULT).text("InterruptionOfCANCommunicationBetweenBatteryGroupAndController")), //
-		STATE_57(new Doc().level(Level.FAULT).text("EmergencyStopAbnormalOfAuxiliaryCollector")), //
-		STATE_58(new Doc().level(Level.FAULT).text("LeakageSelfDetectionOnNegative")), //
-		STATE_59(new Doc().level(Level.FAULT).text("LeakageSelfDetectionOnPositive")), //
-		STATE_60(new Doc().level(Level.FAULT).text("SelfDetectionFailureOnBattery")), //
+		STATE_43(Doc.of(Level.WARNING) //
+				.text("BalancingSamplingFailureOfBatteryGroup1")), //
+		STATE_44(Doc.of(Level.WARNING) //
+				.text("BalancingSamplingFailureOfBatteryGroup2")), //
+		STATE_45(Doc.of(Level.WARNING) //
+				.text("BalancingSamplingFailureOfBatteryGroup3")), //
+		STATE_46(Doc.of(Level.WARNING) //
+				.text("BalancingSamplingFailureOfBatteryGroup4")), //
 
-		STATE_61(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup1")), //
-		STATE_62(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup2")), //
-		STATE_63(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup3")), //
-		STATE_64(new Doc().level(Level.FAULT).text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup4")), //
+		STATE_47(Doc.of(Level.WARNING) //
+				.text("BalancingControlFailureOfBatteryGroup1")), //
+		STATE_48(Doc.of(Level.WARNING) //
+				.text("BalancingControlFailureOfBatteryGroup2")), //
+		STATE_49(Doc.of(Level.WARNING) //
+				.text("BalancingControlFailureOfBatteryGroup3")), //
+		STATE_50(Doc.of(Level.WARNING) //
+				.text("BalancingControlFailureOfBatteryGroup4")), //
 
-		STATE_65(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup1")), //
-		STATE_66(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup2")), //
-		STATE_67(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup3")), //
-		STATE_68(new Doc().level(Level.FAULT).text("MainContractorAbnormalInBatterySelfDetectGroup4")), //
+		STATE_51(Doc.of(Level.FAULT) //
+				.text("NoEnableBateryGroupOrUsableBatteryGroup")), //
+		STATE_52(Doc.of(Level.FAULT) //
+				.text("NormalLeakageOfBatteryGroup")), //
+		STATE_53(Doc.of(Level.FAULT) //
+				.text("SeriousLeakageOfBatteryGroup")), //
+		STATE_54(Doc.of(Level.FAULT) //
+				.text("BatteryStartFailure")), //
+		STATE_55(Doc.of(Level.FAULT) //
+				.text("BatteryStopFailure")), //
+		STATE_56(Doc.of(Level.FAULT) //
+				.text("InterruptionOfCANCommunicationBetweenBatteryGroupAndController")), //
+		STATE_57(Doc.of(Level.FAULT) //
+				.text("EmergencyStopAbnormalOfAuxiliaryCollector")), //
+		STATE_58(Doc.of(Level.FAULT) //
+				.text("LeakageSelfDetectionOnNegative")), //
+		STATE_59(Doc.of(Level.FAULT) //
+				.text("LeakageSelfDetectionOnPositive")), //
+		STATE_60(Doc.of(Level.FAULT) //
+				.text("SelfDetectionFailureOnBattery")), //
 
-		STATE_69(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup1")), //
-		STATE_70(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup2")), //
-		STATE_71(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup3")), //
-		STATE_72(new Doc().level(Level.FAULT).text("PreChargeContractorAbnormalOnBatterySelfDetectGroup4")), //
+		STATE_61(Doc.of(Level.FAULT) //
+				.text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup1")), //
+		STATE_62(Doc.of(Level.FAULT) //
+				.text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup2")), //
+		STATE_63(Doc.of(Level.FAULT) //
+				.text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup3")), //
+		STATE_64(Doc.of(Level.FAULT) //
+				.text("CANCommunicationInterruptionBetweenBatteryGroupAndGroup4")), //
 
-		STATE_73(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup1")), //
-		STATE_74(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup2")), //
-		STATE_75(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup3")), //
-		STATE_76(new Doc().level(Level.FAULT).text("MainContactFailureOnBatteryControlGroup4")), //
+		STATE_65(Doc.of(Level.FAULT) //
+				.text("MainContractorAbnormalInBatterySelfDetectGroup1")), //
+		STATE_66(Doc.of(Level.FAULT) //
+				.text("MainContractorAbnormalInBatterySelfDetectGroup2")), //
+		STATE_67(Doc.of(Level.FAULT) //
+				.text("MainContractorAbnormalInBatterySelfDetectGroup3")), //
+		STATE_68(Doc.of(Level.FAULT) //
+				.text("MainContractorAbnormalInBatterySelfDetectGroup4")), //
 
-		STATE_77(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup1")), //
-		STATE_78(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup2")), //
-		STATE_79(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup3")), //
-		STATE_80(new Doc().level(Level.FAULT).text("PreChargeFailureOnBatteryControlGroup4")), //
+		STATE_69(Doc.of(Level.FAULT) //
+				.text("PreChargeContractorAbnormalOnBatterySelfDetectGroup1")), //
+		STATE_70(Doc.of(Level.FAULT) //
+				.text("PreChargeContractorAbnormalOnBatterySelfDetectGroup2")), //
+		STATE_71(Doc.of(Level.FAULT) //
+				.text("PreChargeContractorAbnormalOnBatterySelfDetectGroup3")), //
+		STATE_72(Doc.of(Level.FAULT) //
+				.text("PreChargeContractorAbnormalOnBatterySelfDetectGroup4")), //
 
-		STATE_81(new Doc().level(Level.FAULT).text("SamplingCircuitAbnormalForBMU")), //
-		STATE_82(new Doc().level(Level.FAULT).text("PowerCableDisconnectFailure")), //
-		STATE_83(new Doc().level(Level.FAULT).text("SamplingCircuitDisconnectFailure")), //
-		STATE_84(new Doc().level(Level.FAULT).text("CANDisconnectForMasterAndSlave")), //
-		STATE_85(new Doc().level(Level.FAULT).text("SammplingCircuitFailure")), //
-		STATE_86(new Doc().level(Level.FAULT).text("SingleBatteryFailure")), //
-		STATE_87(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForMainContactor")), //
-		STATE_88(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForMainContactorSecond")), //
-		STATE_89(new Doc().level(Level.FAULT).text("CircuitDetectionAbnormalForFancontactor")), //
-		STATE_90(new Doc().level(Level.FAULT).text("BMUPowerContactorCircuitDetectionAbnormal")), //
-		STATE_91(new Doc().level(Level.FAULT).text("CentralContactorCircuitDetectionAbnormal")), // 3
+		STATE_73(Doc.of(Level.FAULT) //
+				.text("MainContactFailureOnBatteryControlGroup1")), //
+		STATE_74(Doc.of(Level.FAULT) //
+				.text("MainContactFailureOnBatteryControlGroup2")), //
+		STATE_75(Doc.of(Level.FAULT) //
+				.text("MainContactFailureOnBatteryControlGroup3")), //
+		STATE_76(Doc.of(Level.FAULT) //
+				.text("MainContactFailureOnBatteryControlGroup4")), //
 
-		STATE_92(new Doc().level(Level.FAULT).text("SeriousTemperatureFault")), //
-		STATE_93(new Doc().level(Level.FAULT).text("CommunicationFaultForSystemController")), //
-		STATE_94(new Doc().level(Level.FAULT).text("FrogAlarm")), //
-		STATE_95(new Doc().level(Level.FAULT).text("FuseFault")), //
-		STATE_96(new Doc().level(Level.FAULT).text("NormalLeakage")), //
-		STATE_97(new Doc().level(Level.FAULT).text("SeriousLeakage")), //
-		STATE_98(new Doc().level(Level.FAULT).text("CANDisconnectionBetweenBatteryGroupAndBatteryStack")), //
-		STATE_99(new Doc().level(Level.FAULT).text("CentralContactorCircuitOpen")), //
-		STATE_100(new Doc().level(Level.FAULT).text("BMUPowerContactorOpen")), //
+		STATE_77(Doc.of(Level.FAULT) //
+				.text("PreChargeFailureOnBatteryControlGroup1")), //
+		STATE_78(Doc.of(Level.FAULT) //
+				.text("PreChargeFailureOnBatteryControlGroup2")), //
+		STATE_79(Doc.of(Level.FAULT) //
+				.text("PreChargeFailureOnBatteryControlGroup3")), //
+		STATE_80(Doc.of(Level.FAULT) //
+				.text("PreChargeFailureOnBatteryControlGroup4")), //
 
-		BATTERY_CONTROL_STATE_0(new Doc().level(Level.INFO).text("Control Status Battery Group 0")), //
-		BATTERY_CONTROL_STATE_1(new Doc().level(Level.INFO).text("Control Status Battery Group 1")), //
-		BATTERY_CONTROL_STATE_2(new Doc().level(Level.INFO).text("Control Status Battery Group 2")), //
-		BATTERY_CONTROL_STATE_3(new Doc().level(Level.INFO).text("Control Status Battery Group 3")), //
-		BATTERY_CONTROL_STATE_4(new Doc().level(Level.INFO).text("Control Status Battery Group 4")), //
-		BATTERY_CONTROL_STATE_5(new Doc().level(Level.INFO).text("Control Status Battery Group 5")), //
-		BATTERY_CONTROL_STATE_6(new Doc().level(Level.INFO).text("Control Status Battery Group 6")), //
-		BATTERY_CONTROL_STATE_7(new Doc().level(Level.INFO).text("Control Status Battery Group 7")), //
-		BATTERY_CONTROL_STATE_8(new Doc().level(Level.INFO).text("Control Status Battery Group 8")), //
-		BATTERY_CONTROL_STATE_9(new Doc().level(Level.INFO).text("Control Status Battery Group 9")), //
-		BATTERY_CONTROL_STATE_10(new Doc().level(Level.INFO).text("Control Status Battery Group 10")), //
-		BATTERY_CONTROL_STATE_11(new Doc().level(Level.INFO).text("Control Status Battery Group 11")), //
-		BATTERY_CONTROL_STATE_12(new Doc().level(Level.INFO).text("Control Status Battery Group 12")), //
-		BATTERY_CONTROL_STATE_13(new Doc().level(Level.INFO).text("Control Status Battery Group 13")), //
-		BATTERY_CONTROL_STATE_14(new Doc().level(Level.INFO).text("Control Status Battery Group 14")), //
-		BATTERY_CONTROL_STATE_15(new Doc().level(Level.INFO).text("Control Status Battery Group 15")), //
+		STATE_81(Doc.of(Level.FAULT) //
+				.text("SamplingCircuitAbnormalForBMU")), //
+		STATE_82(Doc.of(Level.FAULT) //
+				.text("PowerCableDisconnectFailure")), //
+		STATE_83(Doc.of(Level.FAULT) //
+				.text("SamplingCircuitDisconnectFailure")), //
+		STATE_84(Doc.of(Level.FAULT) //
+				.text("CANDisconnectForMasterAndSlave")), //
+		STATE_85(Doc.of(Level.FAULT) //
+				.text("SammplingCircuitFailure")), //
+		STATE_86(Doc.of(Level.FAULT) //
+				.text("SingleBatteryFailure")), //
+		STATE_87(Doc.of(Level.FAULT) //
+				.text("CircuitDetectionAbnormalForMainContactor")), //
+		STATE_88(Doc.of(Level.FAULT) //
+				.text("CircuitDetectionAbnormalForMainContactorSecond")), //
+		STATE_89(Doc.of(Level.FAULT) //
+				.text("CircuitDetectionAbnormalForFancontactor")), //
+		STATE_90(Doc.of(Level.FAULT) //
+				.text("BMUPowerContactorCircuitDetectionAbnormal")), //
+		STATE_91(Doc.of(Level.FAULT) //
+				.text("CentralContactorCircuitDetectionAbnormal")), // 3
 
-		ERROR_LOG_0(new Doc()), //
-		ERROR_LOG_1(new Doc()), //
-		ERROR_LOG_2(new Doc()), //
-		ERROR_LOG_3(new Doc()), //
-		ERROR_LOG_4(new Doc()), //
-		ERROR_LOG_5(new Doc()), //
-		ERROR_LOG_6(new Doc()), //
-		ERROR_LOG_7(new Doc()), //
-		ERROR_LOG_8(new Doc()), //
-		ERROR_LOG_9(new Doc()), //
-		ERROR_LOG_10(new Doc()), //
-		ERROR_LOG_11(new Doc()), //
-		ERROR_LOG_12(new Doc()), //
-		ERROR_LOG_13(new Doc()), //
-		ERROR_LOG_14(new Doc()), //
-		ERROR_LOG_15(new Doc()), //
-		; //
+		STATE_92(Doc.of(Level.FAULT) //
+				.text("SeriousTemperatureFault")), //
+		STATE_93(Doc.of(Level.FAULT) //
+				.text("CommunicationFaultForSystemController")), //
+		STATE_94(Doc.of(Level.FAULT) //
+				.text("FrogAlarm")), //
+		STATE_95(Doc.of(Level.FAULT) //
+				.text("FuseFault")), //
+		STATE_96(Doc.of(Level.FAULT) //
+				.text("NormalLeakage")), //
+		STATE_97(Doc.of(Level.FAULT) //
+				.text("SeriousLeakage")), //
+		STATE_98(Doc.of(Level.FAULT) //
+				.text("CANDisconnectionBetweenBatteryGroupAndBatteryStack")), //
+		STATE_99(Doc.of(Level.FAULT) //
+				.text("CentralContactorCircuitOpen")), //
+		STATE_100(Doc.of(Level.FAULT) //
+				.text("BMUPowerContactorOpen")), //
+
+		BATTERY_CONTROL_STATE_0(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 0")), //
+		BATTERY_CONTROL_STATE_1(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 1")), //
+		BATTERY_CONTROL_STATE_2(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 2")), //
+		BATTERY_CONTROL_STATE_3(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 3")), //
+		BATTERY_CONTROL_STATE_4(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 4")), //
+		BATTERY_CONTROL_STATE_5(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 5")), //
+		BATTERY_CONTROL_STATE_6(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 6")), //
+		BATTERY_CONTROL_STATE_7(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 7")), //
+		BATTERY_CONTROL_STATE_8(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 8")), //
+		BATTERY_CONTROL_STATE_9(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 9")), //
+		BATTERY_CONTROL_STATE_10(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 10")), //
+		BATTERY_CONTROL_STATE_11(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 11")), //
+		BATTERY_CONTROL_STATE_12(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 12")), //
+		BATTERY_CONTROL_STATE_13(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 13")), //
+		BATTERY_CONTROL_STATE_14(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 14")), //
+		BATTERY_CONTROL_STATE_15(Doc.of(Level.INFO) //
+				.text("Control Status Battery Group 15")), //
+
+		ERROR_LOG_0(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_1(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_2(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_3(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_4(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_5(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_6(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_7(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_8(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_9(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_10(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_11(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_12(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_13(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_14(Doc.of(OpenemsType.INTEGER)), //
+		ERROR_LOG_15(Doc.of(OpenemsType.INTEGER));
 
 		private final Doc doc;
 

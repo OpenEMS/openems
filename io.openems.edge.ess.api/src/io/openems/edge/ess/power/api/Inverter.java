@@ -1,22 +1,30 @@
 package io.openems.edge.ess.power.api;
 
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+
 public abstract class Inverter {
 
 	/*
 	 * Factory
 	 */
-	public static Inverter[] of(String essId, EssType essType, boolean symmetricMode) {
+	public static Inverter[] of(ManagedSymmetricEss ess, EssType essType) {
+		String essId = ess.id();
 		switch (essType) {
+		case SINGLE_PHASE:
+			Phase phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
+			return new Inverter[] { //
+					phase == Phase.L1 ? new SinglePhaseInverter(essId, Phase.L1) : new DummyInverter(essId, Phase.L1),
+					phase == Phase.L2 ? new SinglePhaseInverter(essId, Phase.L2) : new DummyInverter(essId, Phase.L2),
+					phase == Phase.L3 ? new SinglePhaseInverter(essId, Phase.L3) : new DummyInverter(essId, Phase.L3), //
+			};
+
 		case ASYMMETRIC:
-			if (symmetricMode) {
-				return new Inverter[] { new ThreePhaseInverter(essId) };
-			} else {
-				return new Inverter[] { //
-						new SinglePhaseInverter(essId, Phase.L1), //
-						new SinglePhaseInverter(essId, Phase.L2), //
-						new SinglePhaseInverter(essId, Phase.L3) //
-				};
-			}
+			return new Inverter[] { //
+					new SinglePhaseInverter(essId, Phase.L1), //
+					new SinglePhaseInverter(essId, Phase.L2), //
+					new SinglePhaseInverter(essId, Phase.L3) //
+			};
 
 		case META:
 			return new Inverter[0];
