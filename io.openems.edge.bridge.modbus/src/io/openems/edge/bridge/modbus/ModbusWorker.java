@@ -56,6 +56,13 @@ class ModbusWorker extends AbstractCycleWorker {
 
 	private final AtomicBoolean isCurrentlyRunning = new AtomicBoolean(false);
 
+	private final AtomicInteger cycleTimeIsTooShortCounter = new AtomicInteger(0);
+
+	/**
+	 * How many Cycle times exceeded till CycleTimeIsTooShort-Channel is set?.
+	 */
+	private final static int CYCLE_TIME_IS_TOO_SHORT_THRESHOLD = 10;
+
 	/**
 	 * Counts the failed communications in a row. It is used so that
 	 * SLAVE_COMMUNICATION_FAILED is not set on each single error.
@@ -71,10 +78,24 @@ class ModbusWorker extends AbstractCycleWorker {
 
 	@Override
 	public void triggerNextRun() {
-		this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT).setNextValue(this.isCurrentlyRunning.get());
-
+		this.handleCycleTimeIsTooShortChannel();
 		this.forceWrite.set(true);
 		super.triggerNextRun();
+	}
+
+	/**
+	 * Set CycleTimeIsToShort-Channel
+	 */
+	private void handleCycleTimeIsTooShortChannel() {
+		boolean cycleTimeIsTooShort;
+		if (this.isCurrentlyRunning.get()) {
+			cycleTimeIsTooShort = this.cycleTimeIsTooShortCounter
+					.incrementAndGet() >= CYCLE_TIME_IS_TOO_SHORT_THRESHOLD;
+		} else {
+			this.cycleTimeIsTooShortCounter.set(0);
+			cycleTimeIsTooShort = false;
+		}
+		this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT).setNextValue(cycleTimeIsTooShort);
 	}
 
 	@Override
