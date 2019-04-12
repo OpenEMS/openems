@@ -75,7 +75,8 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 	public void run() throws OpenemsNamedException {
 		SymmetricPvInverter pvInverter = this.componentManager.getComponent(this.pvInverterId);
 		pvInverter.getActivePowerLimit().setNextWriteValue(this.powerLimit);
-		System.out.println(pvInverter.getActivePower().value());
+		System.out.println("Power Limit from config: " + this.powerLimit);
+		System.out.println("Active power limit from pv inverter: " + pvInverter.getActivePowerLimit().value());
 	}
 
 }
