@@ -25,6 +25,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
@@ -394,131 +395,119 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 						// Line136, Magnification = 0
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x024E))),
 				new FC3ReadRegistersTask(0x0262, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0262)) //
-								.m(SinexcelChannelId.STATE_0, 0) //
-								.m(SinexcelChannelId.STATE_1, 1) //
-								.m(SinexcelChannelId.STATE_2, 2) //
-								.m(SinexcelChannelId.STATE_3, 3) //
-								.m(SinexcelChannelId.STATE_4, 4) // Grid shutdown
-								.m(SinexcelChannelId.STATE_5, 5) //
-								.m(SinexcelChannelId.STATE_6, 6) //
-								.m(SinexcelChannelId.STATE_7, 7) //
-								.m(SinexcelChannelId.STATE_8, 8) //
-								.m(SinexcelChannelId.STATE_9, 9) //
-								.m(SinexcelChannelId.STATE_10, 10) //
-								.m(SinexcelChannelId.STATE_11, 11) //
-								.m(SinexcelChannelId.STATE_12, 12) //
-								.m(SinexcelChannelId.STATE_13, 13) //
-								.m(SinexcelChannelId.STATE_14, 14) //
-								.m(SinexcelChannelId.STATE_15, 15) //
-								.build()), //
+						m(new BitsWordElement(0x0262, this) //
+								.bit(0, SinexcelChannelId.STATE_0) //
+								.bit(1, SinexcelChannelId.STATE_1) //
+								.bit(2, SinexcelChannelId.STATE_2) //
+								.bit(3, SinexcelChannelId.STATE_3) //
+								.bit(4, SinexcelChannelId.STATE_4) //
+								.bit(5, SinexcelChannelId.STATE_5) //
+								.bit(6, SinexcelChannelId.STATE_6) //
+								.bit(7, SinexcelChannelId.STATE_7) //
+								.bit(8, SinexcelChannelId.STATE_8) //
+								.bit(9, SinexcelChannelId.STATE_9) //
+								.bit(10, SinexcelChannelId.STATE_10) //
+								.bit(11, SinexcelChannelId.STATE_11) //
+								.bit(12, SinexcelChannelId.STATE_12) //
+								.bit(13, SinexcelChannelId.STATE_13) //
+								.bit(14, SinexcelChannelId.STATE_14) //
+								.bit(15, SinexcelChannelId.STATE_15))),
 
 				new FC3ReadRegistersTask(0x0260, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0260)) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_1, 1) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_2, 2) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_3, 3) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_4, 4) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_5, 5) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_6, 6) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_7, 7) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_8, 8) //
-								.m(SinexcelChannelId.SINEXCEL_STATE_9, 9) //
-								.build()), //
+						m(new BitsWordElement(0x0260, this) //
+								.bit(1, SinexcelChannelId.SINEXCEL_STATE_1) //
+								.bit(2, SinexcelChannelId.SINEXCEL_STATE_2) //
+								.bit(3, SinexcelChannelId.SINEXCEL_STATE_3) //
+								.bit(4, SinexcelChannelId.SINEXCEL_STATE_4) //
+								.bit(5, SinexcelChannelId.SINEXCEL_STATE_5) //
+								.bit(6, SinexcelChannelId.SINEXCEL_STATE_6) //
+								.bit(7, SinexcelChannelId.SINEXCEL_STATE_7) //
+								.bit(8, SinexcelChannelId.SINEXCEL_STATE_8) //
+								.bit(9, SinexcelChannelId.SINEXCEL_STATE_9))),
 
 				new FC3ReadRegistersTask(0x0020, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0020)) //
-								.m(SinexcelChannelId.STATE_16, 0) //
-								.m(SinexcelChannelId.STATE_17, 1) //
-								.m(SinexcelChannelId.STATE_18, 2) //
-								.m(SinexcelChannelId.STATE_19, 3) //
-								.m(SinexcelChannelId.STATE_20, 4) //
-								.build()), //
+						m(new BitsWordElement(0x0020, this) //
+								.bit(0, SinexcelChannelId.STATE_16) //
+								.bit(1, SinexcelChannelId.STATE_17) //
+								.bit(2, SinexcelChannelId.STATE_18) //
+								.bit(3, SinexcelChannelId.STATE_19) //
+								.bit(4, SinexcelChannelId.STATE_20))),
 
 				new FC3ReadRegistersTask(0x0024, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0024)) //
-								.m(SinexcelChannelId.STATE_21, 0) //
-								.m(SinexcelChannelId.STATE_22, 1) //
-								.m(SinexcelChannelId.STATE_23, 2) //
-								.m(SinexcelChannelId.STATE_24, 3) //
-								.m(SinexcelChannelId.STATE_25, 4) //
-								.m(SinexcelChannelId.STATE_26, 5) //
-								.m(SinexcelChannelId.STATE_27, 6) //
-								.m(SinexcelChannelId.STATE_28, 7) //
-								.m(SinexcelChannelId.STATE_29, 8) //
-								.m(SinexcelChannelId.STATE_30, 9) //
-								.m(SinexcelChannelId.STATE_31, 10) //
-								.m(SinexcelChannelId.STATE_32, 11) //
-								.m(SinexcelChannelId.STATE_33, 12) //
-								.build()), //
+						m(new BitsWordElement(0x0024, this) //
+								.bit(0, SinexcelChannelId.STATE_21) //
+								.bit(1, SinexcelChannelId.STATE_22) //
+								.bit(2, SinexcelChannelId.STATE_23) //
+								.bit(3, SinexcelChannelId.STATE_24) //
+								.bit(4, SinexcelChannelId.STATE_25) //
+								.bit(5, SinexcelChannelId.STATE_26) //
+								.bit(6, SinexcelChannelId.STATE_27) //
+								.bit(7, SinexcelChannelId.STATE_28) //
+								.bit(8, SinexcelChannelId.STATE_29) //
+								.bit(9, SinexcelChannelId.STATE_30) //
+								.bit(10, SinexcelChannelId.STATE_31) //
+								.bit(11, SinexcelChannelId.STATE_32) //
+								.bit(12, SinexcelChannelId.STATE_33))),
 
 				new FC3ReadRegistersTask(0x0025, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0025)) //
-								.m(SinexcelChannelId.STATE_34, 0) //
-								.m(SinexcelChannelId.STATE_35, 1) //
-								.m(SinexcelChannelId.STATE_36, 2) //
-								.m(SinexcelChannelId.STATE_37, 3) //
-								.m(SinexcelChannelId.STATE_38, 4) //
-								.m(SinexcelChannelId.STATE_39, 5) //
-								.m(SinexcelChannelId.STATE_40, 6) //
-								.m(SinexcelChannelId.STATE_41, 7) //
-								.m(SinexcelChannelId.STATE_42, 8) //
-								.m(SinexcelChannelId.STATE_43, 9) //
-								.m(SinexcelChannelId.STATE_44, 10) //
-								.m(SinexcelChannelId.STATE_45, 11) //
-								.m(SinexcelChannelId.STATE_47, 13) //
-								.m(SinexcelChannelId.STATE_48, 14) //
-								.m(SinexcelChannelId.STATE_49, 15) //
-								.build()), //
+						m(new BitsWordElement(0x0025, this) //
+								.bit(0, SinexcelChannelId.STATE_34) //
+								.bit(1, SinexcelChannelId.STATE_35) //
+								.bit(2, SinexcelChannelId.STATE_36) //
+								.bit(3, SinexcelChannelId.STATE_37) //
+								.bit(4, SinexcelChannelId.STATE_38) //
+								.bit(5, SinexcelChannelId.STATE_39) //
+								.bit(6, SinexcelChannelId.STATE_40) //
+								.bit(7, SinexcelChannelId.STATE_41) //
+								.bit(8, SinexcelChannelId.STATE_42) //
+								.bit(9, SinexcelChannelId.STATE_43) //
+								.bit(10, SinexcelChannelId.STATE_44) //
+								.bit(11, SinexcelChannelId.STATE_45) //
+								.bit(13, SinexcelChannelId.STATE_47) //
+								.bit(14, SinexcelChannelId.STATE_48) //
+								.bit(15, SinexcelChannelId.STATE_49))),
 
 				new FC3ReadRegistersTask(0x0026, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0026)) //
-								.m(SinexcelChannelId.STATE_50, 0) //
-								.m(SinexcelChannelId.STATE_52, 2) //
-								.m(SinexcelChannelId.STATE_53, 3) //
-								.m(SinexcelChannelId.STATE_54, 4) //
-								.build()), //
+						m(new BitsWordElement(0x0026, this) //
+								.bit(0, SinexcelChannelId.STATE_50) //
+								.bit(2, SinexcelChannelId.STATE_52) //
+								.bit(3, SinexcelChannelId.STATE_53) //
+								.bit(4, SinexcelChannelId.STATE_54))),
 
 				new FC3ReadRegistersTask(0x0027, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0027)) //
-								.m(SinexcelChannelId.STATE_55, 0) //
-								.m(SinexcelChannelId.STATE_56, 1) //
-								.m(SinexcelChannelId.STATE_57, 2) //
-								.m(SinexcelChannelId.STATE_58, 3) //
-								.build()), //
+						m(new BitsWordElement(0x0027, this) //
+								.bit(0, SinexcelChannelId.STATE_55) //
+								.bit(1, SinexcelChannelId.STATE_56) //
+								.bit(2, SinexcelChannelId.STATE_57) //
+								.bit(3, SinexcelChannelId.STATE_58))),
 
 				new FC3ReadRegistersTask(0x0028, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0028)) //
-								.m(SinexcelChannelId.STATE_59, 0) //
-								.m(SinexcelChannelId.STATE_60, 1) //
-								.m(SinexcelChannelId.STATE_61, 2) //
-								.m(SinexcelChannelId.STATE_62, 3) //
-								.m(SinexcelChannelId.STATE_63, 4) //
-								.m(SinexcelChannelId.STATE_64, 5) //
-								.build()), //
+						m(new BitsWordElement(0x0028, this) //
+								.bit(0, SinexcelChannelId.STATE_59) //
+								.bit(1, SinexcelChannelId.STATE_60) //
+								.bit(2, SinexcelChannelId.STATE_61) //
+								.bit(3, SinexcelChannelId.STATE_62) //
+								.bit(4, SinexcelChannelId.STATE_63) //
+								.bit(5, SinexcelChannelId.STATE_64))),
 
 				new FC3ReadRegistersTask(0x002B, Priority.LOW, //
-						bm(new UnsignedWordElement(0x002B)) //
-								.m(SinexcelChannelId.STATE_65, 0) //
-								.m(SinexcelChannelId.STATE_66, 1) //
-								.m(SinexcelChannelId.STATE_67, 2) //
-								.m(SinexcelChannelId.STATE_68, 3) //
-								.build()), //
+						m(new BitsWordElement(0x002B, this) //
+								.bit(0, SinexcelChannelId.STATE_65) //
+								.bit(1, SinexcelChannelId.STATE_66) //
+								.bit(2, SinexcelChannelId.STATE_67) //
+								.bit(3, SinexcelChannelId.STATE_68))),
 
 				new FC3ReadRegistersTask(0x002C, Priority.LOW, //
-						bm(new UnsignedWordElement(0x002C)) //
-								.m(SinexcelChannelId.STATE_69, 0) //
-								.m(SinexcelChannelId.STATE_70, 1) //
-								.m(SinexcelChannelId.STATE_71, 2) //
-								.m(SinexcelChannelId.STATE_72, 3) //
-								.m(SinexcelChannelId.STATE_73, 4) //
-								.build()), //
+						m(new BitsWordElement(0x002C, this) //
+								.bit(0, SinexcelChannelId.STATE_69) //
+								.bit(1, SinexcelChannelId.STATE_70) //
+								.bit(2, SinexcelChannelId.STATE_71) //
+								.bit(3, SinexcelChannelId.STATE_72) //
+								.bit(4, SinexcelChannelId.STATE_73))),
 
 				new FC3ReadRegistersTask(0x002F, Priority.LOW, //
-						bm(new UnsignedWordElement(0x002F)) //
-								.m(SinexcelChannelId.STATE_74, 0) //
-								.build()) //
-		);
+						m(new BitsWordElement(0x002F, this) //
+								.bit(0, SinexcelChannelId.STATE_74))));
 	}
 
 	@Override

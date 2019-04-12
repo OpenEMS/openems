@@ -21,7 +21,7 @@ public class DummyCoilElement extends AbstractModbusElement<Boolean> implements 
 	@Override
 	public void _setNextWriteValue(Optional<Boolean> valueOpt) {
 		// ignore write
-		return;
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	/**
