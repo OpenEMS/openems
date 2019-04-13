@@ -26,8 +26,10 @@ public enum StrtsctrChannelId implements ChannelId {
 
 	// BooleanWriteChannel
 	ICU_RUN(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(StrtsctrChannelId.DEBUG_ICU_RUN))), //
 	ICU_ENABLED(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(StrtsctrChannelId.DEBUG_ICU_ENABLED))), //
 
 	// IntegerReadChannel
@@ -121,6 +123,7 @@ public enum StrtsctrChannelId implements ChannelId {
 
 	// IntegerWriteChannel
 	INVERTER_SET_ACTIVE_POWER(new IntegerDoc() //
+			.accessMode(AccessMode.WRITE_ONLY) //
 			.unit(Unit.WATT) //
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(StrtsctrChannelId.DEBUG_INVERTER_SET_ACTIVE_POWER))), //
 

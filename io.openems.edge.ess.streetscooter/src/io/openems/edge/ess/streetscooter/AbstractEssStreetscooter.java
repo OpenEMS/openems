@@ -22,6 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -58,6 +59,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
 				.setNextValue(AbstractEssStreetscooter.MAX_APPARENT_POWER);
+		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
 
 		this.powerHandler = new PowerHandler(this);
 	}
