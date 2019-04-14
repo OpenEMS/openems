@@ -2,10 +2,10 @@ import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse
 
 export class EdgeConfig {
 
-    constructor(source?: GetEdgeConfigResponse) {
+    constructor(source?: EdgeConfig) {
         if (source) {
-            this.components = source.result.components;
-            this.factories = source.result.factories;
+            this.components = source.components;
+            this.factories = source.factories;
         }
 
         // initialize Components
@@ -202,6 +202,7 @@ export module EdgeConfig {
 
         constructor(
             public readonly name: string,
+            public readonly description: string,
             public readonly natureIds: string[] = [],
             public readonly properties: FactoryProperty[] = []
         ) { }

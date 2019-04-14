@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -23,6 +24,9 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeConfig {
 
+	/**
+	 * Represents an instance of an OpenEMS Component.
+	 */
 	public static class Component {
 
 		private final String factoryId;
@@ -84,6 +88,9 @@ public class EdgeConfig {
 		}
 	}
 
+	/**
+	 * Represents an OpenEMS Component Factory.
+	 */
 	public static class Factory {
 
 		public static Factory create(ObjectClassDefinition ocd, String[] natureIds) {
@@ -120,6 +127,9 @@ public class EdgeConfig {
 			return properties;
 		}
 
+		/**
+		 * Represents a configuration option of an OpenEMS Component Factory.
+		 */
 		public static class Property {
 
 			private final String id;
@@ -171,56 +181,62 @@ public class EdgeConfig {
 				JsonObject schema = new JsonObject();
 				if (ad.getOptionLabels() != null && ad.getOptionValues() != null) {
 					// use given options for schema
-					schema.addProperty("type", "select");
-					JsonArray titleMap = new JsonArray();
+					JsonArray options = new JsonArray();
 					for (int i = 0; i < ad.getOptionLabels().length; i++) {
-						titleMap.add(JsonUtils.buildJsonObject() //
+						String label = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+								ad.getOptionLabels()[i].replaceAll("_", " _"));
+						options.add(JsonUtils.buildJsonObject() //
 								.addProperty("value", ad.getOptionValues()[i]) //
-								.addProperty("name", ad.getOptionLabels()[i]) //
+								.addProperty("label", label) //
 								.build());
 					}
-					schema.add("titleMap", titleMap);
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "select") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.add("options", options) //
+									.build()) //
+							.build();
 
 				} else {
 					// generate schema from AttributeDefinition Type
 					switch (ad.getType()) {
 					case AttributeDefinition.STRING:
 					case AttributeDefinition.CHARACTER:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "input") //
 								.add("templateOptions", JsonUtils.buildJsonObject() //
 										.addProperty("type", "text") //
 										.build()) //
 								.build();
-						break;
+
 					case AttributeDefinition.LONG:
 					case AttributeDefinition.INTEGER:
 					case AttributeDefinition.SHORT:
 					case AttributeDefinition.DOUBLE:
 					case AttributeDefinition.FLOAT:
 					case AttributeDefinition.BYTE:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "input") //
 								.add("templateOptions", JsonUtils.buildJsonObject() //
 										.addProperty("type", "number") //
 										.build()) //
 								.build();
-						break;
+
 					case AttributeDefinition.PASSWORD:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "input") //
 								.add("templateOptions", JsonUtils.buildJsonObject() //
 										.addProperty("type", "password") //
 										.build()) //
 								.build();
-						break;
+
 					case AttributeDefinition.BOOLEAN:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "toggle") //
 								.build();
-						break;
 					}
 				}
+
 				return schema;
 			}
 
@@ -236,7 +252,8 @@ public class EdgeConfig {
 				String name = JsonUtils.getAsString(json, "name");
 				String description = JsonUtils.getAsString(json, "description");
 				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
-				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
+				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue")
+						.orElse(JsonNull.INSTANCE);
 				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
 				return new Property(id, name, description, isRequired, defaultValue, schema);
 			}

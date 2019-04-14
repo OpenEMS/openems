@@ -314,7 +314,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 
 		// Make sure we only have one config
-		if (configs.length == 0) {
+		if (configs == null || configs.length == 0) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
 		} else if (configs.length > 1) {
 			throw OpenemsError.EDGE_MULTIPLE_COMPONENTS_WITH_ID.exception(componentId);
