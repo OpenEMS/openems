@@ -18,6 +18,7 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 
 export class Edge {
 
@@ -71,7 +72,8 @@ export class Edge {
   public refreshConfig(websocket: Websocket): void {
     let request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
-      this.config.next(new EdgeConfig(response as GetEdgeConfigResponse));
+      let edgeConfigResponse = response as GetEdgeConfigResponse;
+      this.config.next(new EdgeConfig(edgeConfigResponse.result));
     }).catch(reason => {
       console.warn("refreshConfig got error", reason)
       // TODO error
@@ -133,6 +135,13 @@ export class Edge {
     }
     let request = new SubscribeChannelsRequest(channels);
     return this.sendRequest(websocket, request);
+  }
+
+  /**
+   * Handles a EdgeConfigNotification
+   */
+  public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
+    this.config.next(new EdgeConfig(message.params));
   }
 
   /**

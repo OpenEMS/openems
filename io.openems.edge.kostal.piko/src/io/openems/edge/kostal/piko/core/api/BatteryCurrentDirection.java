@@ -1,6 +1,6 @@
 package io.openems.edge.kostal.piko.core.api;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum BatteryCurrentDirection implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

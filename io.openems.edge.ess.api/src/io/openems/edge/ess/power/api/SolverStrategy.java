@@ -1,6 +1,6 @@
 package io.openems.edge.ess.power.api;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum SolverStrategy implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

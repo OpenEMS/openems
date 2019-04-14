@@ -1,6 +1,7 @@
 package io.openems.common.types;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,16 +10,19 @@ import java.util.TreeMap;
 
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.ChannelCategory;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.EdgeConfig.Factory.Property;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -26,16 +30,189 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeConfig {
 
-	private final static Logger log = LoggerFactory.getLogger(EdgeConfig.class);
-
+	/**
+	 * Represents an instance of an OpenEMS Component.
+	 */
 	public static class Component {
+
+		/**
+		 * Represents a Channel of an OpenEMS Component.
+		 */
+		public static class Channel {
+
+			public static interface ChannelDetail {
+				ChannelCategory getCategory();
+
+				JsonObject toJson();
+			}
+
+			/**
+			 * Channel-Details for OpenemsType-Channel.
+			 */
+			public static class ChannelDetailOpenemsType implements ChannelDetail {
+
+				public ChannelDetailOpenemsType() {
+				}
+
+				@Override
+				public ChannelCategory getCategory() {
+					return ChannelCategory.OPENEMS_TYPE;
+				}
+
+				@Override
+				public JsonObject toJson() {
+					return new JsonObject();
+				}
+			}
+
+			/**
+			 * Channel-Details for EnumChannel.
+			 */
+			public static class ChannelDetailEnum implements ChannelDetail {
+
+				private final Map<String, JsonElement> options;
+
+				public ChannelDetailEnum(Map<String, JsonElement> options) {
+					this.options = options;
+				}
+
+				@Override
+				public ChannelCategory getCategory() {
+					return ChannelCategory.ENUM;
+				}
+
+				public Map<String, JsonElement> getOptions() {
+					return options;
+				}
+
+				@Override
+				public JsonObject toJson() {
+					JsonObject options = new JsonObject();
+					for (Entry<String, JsonElement> entry : this.options.entrySet()) {
+						options.add(entry.getKey(), entry.getValue());
+					}
+					return JsonUtils.buildJsonObject() //
+							.add("options", options) //
+							.build();
+				}
+			}
+
+			/**
+			 * Channel-Details for StateChannel.
+			 */
+			public static class ChannelDetailState implements ChannelDetail {
+
+				private final Level level;
+
+				public ChannelDetailState(Level level) {
+					this.level = level;
+				}
+
+				@Override
+				public ChannelCategory getCategory() {
+					return ChannelCategory.STATE;
+				}
+
+				@Override
+				public JsonObject toJson() {
+					return JsonUtils.buildJsonObject() //
+							.addProperty("level", this.level.name()) //
+							.build();
+				}
+			}
+
+			/**
+			 * Creates a Channel from JSON.
+			 * 
+			 * @param json the JSON
+			 * @return the Channel
+			 * @throws OpenemsNamedException on error
+			 */
+			public static Channel fromJson(JsonElement json) throws OpenemsNamedException {
+				OpenemsType type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
+				AccessMode accessMode = JsonUtils.getAsEnum(AccessMode.class, json, "accessMode");
+				Unit unit = JsonUtils.getAsEnum(Unit.class, json, "unit");
+				ChannelCategory categoryKey = JsonUtils.getAsEnum(ChannelCategory.class, json, "categoryKey");
+				JsonObject categoryDetails = JsonUtils.getAsJsonObject(json, "categoryDetails");
+				ChannelDetail detail = null;
+				switch (categoryKey) {
+				case OPENEMS_TYPE: {
+					detail = new ChannelDetailOpenemsType();
+					break;
+				}
+
+				case ENUM: {
+					Map<String, JsonElement> values = new HashMap<>();
+					for (Entry<String, JsonElement> entry : categoryDetails.entrySet()) {
+						values.put(entry.getKey(), entry.getValue());
+					}
+					detail = new ChannelDetailEnum(values);
+					break;
+				}
+
+				case STATE: {
+					Level level = JsonUtils.getAsEnum(Level.class, categoryDetails, "level");
+					detail = new ChannelDetailState(level);
+					break;
+				}
+
+				default:
+					throw new OpenemsException("Unknown Category-Key [" + categoryKey + "]");
+				}
+				return new Channel(type, accessMode, unit, detail);
+			}
+
+			private final OpenemsType type;
+			private final AccessMode accessMode;
+			private final Unit unit;
+			private final ChannelDetail detail;
+
+			public Channel(OpenemsType type, AccessMode accessMode, Unit unit, ChannelDetail detail) {
+				this.type = type;
+				this.accessMode = accessMode;
+				this.unit = unit;
+				this.detail = detail;
+			}
+
+			public OpenemsType getType() {
+				return type;
+			}
+
+			public AccessMode getAccessMode() {
+				return accessMode;
+			}
+
+			public Unit getUnit() {
+				return unit;
+			}
+
+			public ChannelDetail getDetail() {
+				return detail;
+			}
+
+			/**
+			 * Gets the JSON representation of this Channel.
+			 * 
+			 * @return a JsonObject
+			 */
+			public JsonObject toJson() {
+				return JsonUtils.buildJsonObject(this.detail.toJson()) //
+						.addProperty("type", this.type.name()) //
+						.addProperty("accessMode", this.accessMode.getAbbreviation()) //
+						.addProperty("unit", this.unit.getSymbol()) //
+						.addProperty("category", this.detail.getCategory().name()) //
+						.build();
+			}
+		}
 
 		private final String factoryId;
 		private final TreeMap<String, JsonElement> properties;
+		private final TreeMap<String, Channel> channels;
 
-		public Component(String factoryId, TreeMap<String, JsonElement> properties) {
+		public Component(String factoryId, TreeMap<String, JsonElement> properties, TreeMap<String, Channel> channels) {
 			this.factoryId = factoryId;
 			this.properties = properties;
+			this.channels = channels;
 		}
 
 		public String getFactoryId() {
@@ -46,6 +223,10 @@ public class EdgeConfig {
 			return properties;
 		}
 
+		public Map<String, Channel> getChannels() {
+			return channels;
+		}
+
 		/**
 		 * Returns the Component configuration as a JSON Object.
 		 * 
@@ -54,6 +235,9 @@ public class EdgeConfig {
 		 *   factoryId: string,
 		 *	 properties: {
 		 *     [key: string]: value
+		 *   },
+		 *   channels: {
+		 *     [channelId: string]: {}
 		 *   }
 		 * }
 		 * </pre>
@@ -65,9 +249,14 @@ public class EdgeConfig {
 			for (Entry<String, JsonElement> property : this.getProperties().entrySet()) {
 				properties.add(property.getKey(), property.getValue());
 			}
+			JsonObject channels = new JsonObject();
+			for (Entry<String, Channel> channel : this.getChannels().entrySet()) {
+				channels.add(channel.getKey(), channel.getValue().toJson());
+			}
 			return JsonUtils.buildJsonObject() //
 					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties) //
+					.add("channels", channels) //
 					.build();
 		}
 
@@ -79,22 +268,31 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Component fromJson(JsonElement json) throws OpenemsNamedException {
+			String factoryId = JsonUtils.getAsOptionalString(json, "factoryId").orElse("NO_FACTORY_ID");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
-			for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "properties").entrySet()) {
-				properties.put(entry.getKey(), entry.getValue());
+			Optional<JsonObject> jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
+			if (jPropertiesOpt.isPresent()) {
+				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
+					properties.put(entry.getKey(), entry.getValue());
+				}
 			}
-			Optional<String> factoryIdOpt = JsonUtils.getAsOptionalString(json, "factoryId");
-			if (!factoryIdOpt.isPresent()) {
-				factoryIdOpt = Optional.of("Update to latest OpenEMS Edge!");
-				log.warn(factoryIdOpt.get());
+			TreeMap<String, Channel> channels = new TreeMap<>();
+			Optional<JsonObject> jChannelsOpt = JsonUtils.getAsOptionalJsonObject(json, "channels");
+			if (jChannelsOpt.isPresent()) {
+				for (Entry<String, JsonElement> entry : jChannelsOpt.get().entrySet()) {
+					channels.put(entry.getKey(), Channel.fromJson(entry.getValue()));
+				}
 			}
 			return new Component(//
-					// TODO: Remove, once FEMS are updated to latest OpenEMS Edge
-					factoryIdOpt.get(), //
-					properties);
+					factoryId, //
+					properties, //
+					channels);
 		}
 	}
 
+	/**
+	 * Represents an OpenEMS Component Factory.
+	 */
 	public static class Factory {
 
 		public static Factory create(ObjectClassDefinition ocd, String[] natureIds) {
@@ -131,6 +329,9 @@ public class EdgeConfig {
 			return properties;
 		}
 
+		/**
+		 * Represents a configuration option of an OpenEMS Component Factory.
+		 */
 		public static class Property {
 
 			private final String id;
@@ -182,56 +383,62 @@ public class EdgeConfig {
 				JsonObject schema = new JsonObject();
 				if (ad.getOptionLabels() != null && ad.getOptionValues() != null) {
 					// use given options for schema
-					schema.addProperty("type", "select");
-					JsonArray titleMap = new JsonArray();
+					JsonArray options = new JsonArray();
 					for (int i = 0; i < ad.getOptionLabels().length; i++) {
-						titleMap.add(JsonUtils.buildJsonObject() //
+						String label = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+								ad.getOptionLabels()[i].replaceAll("_", " _"));
+						options.add(JsonUtils.buildJsonObject() //
 								.addProperty("value", ad.getOptionValues()[i]) //
-								.addProperty("name", ad.getOptionLabels()[i]) //
+								.addProperty("label", label) //
 								.build());
 					}
-					schema.add("titleMap", titleMap);
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "select") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.add("options", options) //
+									.build()) //
+							.build();
 
 				} else {
 					// generate schema from AttributeDefinition Type
 					switch (ad.getType()) {
 					case AttributeDefinition.STRING:
 					case AttributeDefinition.CHARACTER:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "input") //
 								.add("templateOptions", JsonUtils.buildJsonObject() //
 										.addProperty("type", "text") //
 										.build()) //
 								.build();
-						break;
+
 					case AttributeDefinition.LONG:
 					case AttributeDefinition.INTEGER:
 					case AttributeDefinition.SHORT:
 					case AttributeDefinition.DOUBLE:
 					case AttributeDefinition.FLOAT:
 					case AttributeDefinition.BYTE:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "input") //
 								.add("templateOptions", JsonUtils.buildJsonObject() //
 										.addProperty("type", "number") //
 										.build()) //
 								.build();
-						break;
+
 					case AttributeDefinition.PASSWORD:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "input") //
 								.add("templateOptions", JsonUtils.buildJsonObject() //
 										.addProperty("type", "password") //
 										.build()) //
 								.build();
-						break;
+
 					case AttributeDefinition.BOOLEAN:
-						schema = JsonUtils.buildJsonObject() //
+						return JsonUtils.buildJsonObject() //
 								.addProperty("type", "toggle") //
 								.build();
-						break;
 					}
 				}
+
 				return schema;
 			}
 
@@ -561,7 +768,8 @@ public class EdgeConfig {
 					}
 				}
 			}
-			result.addComponent(id, new EdgeConfig.Component(clazz, properties));
+			TreeMap<String, Component.Channel> channels = new TreeMap<>();
+			result.addComponent(id, new EdgeConfig.Component(clazz, properties, channels));
 		}
 
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");
@@ -569,7 +777,7 @@ public class EdgeConfig {
 			JsonObject meta = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(meta, "class");
 			String[] implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
-			Property[] properties = new Property[0];
+			Factory.Property[] properties = new Factory.Property[0];
 			result.addFactory(id, new EdgeConfig.Factory(id, "", properties, implement));
 		}
 

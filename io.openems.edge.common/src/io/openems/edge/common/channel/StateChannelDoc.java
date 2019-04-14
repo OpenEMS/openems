@@ -1,5 +1,7 @@
 package io.openems.edge.common.channel;
 
+import io.openems.common.channel.ChannelCategory;
+import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -14,8 +16,17 @@ public class StateChannelDoc extends AbstractDoc<Boolean> {
 	}
 
 	@Override
+	public ChannelCategory getChannelCategory() {
+		return ChannelCategory.STATE;
+	}
+
+	@Override
 	protected StateChannelDoc self() {
 		return this;
+	}
+
+	public Level getLevel() {
+		return level;
 	}
 
 	/**
