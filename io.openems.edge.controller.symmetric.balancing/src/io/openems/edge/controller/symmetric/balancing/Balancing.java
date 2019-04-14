@@ -101,8 +101,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 */
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
 
-		if (this.lastSetActivePower != 0 && Math.abs(calculatedPower) > 100 && Math.abs(this.lastSetActivePower
-				- calculatedPower) > (Math.abs(this.lastSetActivePower) * MAX_ADJUSTMENT_RATE)) {
+		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
+				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
+						* MAX_ADJUSTMENT_RATE)) {
 			if (this.lastSetActivePower > calculatedPower) {
 				int newPower = this.lastSetActivePower - (int) Math.abs(this.lastSetActivePower * MAX_ADJUSTMENT_RATE);
 				this.logInfo(log, "Adjust [-] Last [" + this.lastSetActivePower + "] Wanted [" + calculatedPower
