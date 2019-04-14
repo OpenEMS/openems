@@ -2,12 +2,12 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;

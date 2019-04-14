@@ -1,6 +1,6 @@
 package io.openems.edge.ess.kaco.blueplanet.gridsave50;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum ErrorCode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

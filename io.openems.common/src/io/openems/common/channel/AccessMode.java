@@ -1,4 +1,4 @@
-package io.openems.edge.common.channel;
+package io.openems.common.channel;
 
 public enum AccessMode {
 

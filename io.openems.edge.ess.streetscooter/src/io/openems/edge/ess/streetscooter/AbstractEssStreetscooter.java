@@ -4,6 +4,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -16,7 +17,6 @@ import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC2ReadInputsTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;

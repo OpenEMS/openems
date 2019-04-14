@@ -1,10 +1,10 @@
 package io.openems.edge.sma;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.sma.enums.AbsorptionPhaseActive;
 import io.openems.edge.sma.enums.AcknowledgeGeneratorErrors;
 import io.openems.edge.sma.enums.ActiveBatteryChargingMode;

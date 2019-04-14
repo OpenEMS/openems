@@ -11,12 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.type.slidingvalue.DoubleSlidingValue;
 import io.openems.edge.common.type.slidingvalue.FloatSlidingValue;

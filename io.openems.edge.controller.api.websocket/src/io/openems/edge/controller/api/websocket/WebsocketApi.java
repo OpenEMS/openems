@@ -28,7 +28,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
-import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Doc;

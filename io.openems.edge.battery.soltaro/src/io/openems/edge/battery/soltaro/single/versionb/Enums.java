@@ -1,6 +1,6 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public class Enums {
 

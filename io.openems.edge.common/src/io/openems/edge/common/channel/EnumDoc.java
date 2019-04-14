@@ -2,9 +2,11 @@ package io.openems.edge.common.channel;
 
 import java.util.Arrays;
 
+import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -19,8 +21,17 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	}
 
 	@Override
+	public ChannelCategory getChannelCategory() {
+		return ChannelCategory.ENUM;
+	}
+
+	@Override
 	protected EnumDoc self() {
 		return this;
+	}
+
+	public OptionsEnum[] getOptions() {
+		return options;
 	}
 
 	/**
@@ -62,7 +73,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	 * 
 	 * @return the Undefined-Option
 	 */
-	private OptionsEnum getUndefinedOption() {
+	public OptionsEnum getUndefinedOption() {
 		if (this.options.length == 0) {
 			return null;
 		}

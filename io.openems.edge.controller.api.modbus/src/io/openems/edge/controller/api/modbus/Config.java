@@ -3,7 +3,7 @@ package io.openems.edge.controller.api.modbus;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.common.channel.AccessMode;
+import io.openems.common.channel.AccessMode;
 
 @ObjectClassDefinition( //
 		name = "Controller Api Modbus/TCP", //

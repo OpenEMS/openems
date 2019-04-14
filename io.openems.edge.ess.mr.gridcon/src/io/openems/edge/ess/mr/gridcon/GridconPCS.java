@@ -26,6 +26,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
@@ -41,7 +42,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;

@@ -177,13 +177,20 @@ export class EdgeConfig {
 }
 
 export module EdgeConfig {
+    export class ComponentChannel {
+        public readonly type: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
+        public readonly accessMode: "RO" | "RW" | "WO";
+        public readonly unit: string;
+        public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+    }
 
     export class Component {
         public id: string = "";
 
         constructor(
             public readonly factoryId: string = "",
-            public readonly properties: { [key: string]: any } = {}
+            public readonly properties: { [key: string]: any } = {},
+            public readonly channels: { [channelId: string]: ComponentChannel } = {}
         ) { }
     }
 
