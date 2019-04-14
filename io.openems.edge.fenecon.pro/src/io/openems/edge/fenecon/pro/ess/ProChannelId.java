@@ -1,12 +1,12 @@
 package io.openems.edge.fenecon.pro.ess;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.SymmetricEss;
 

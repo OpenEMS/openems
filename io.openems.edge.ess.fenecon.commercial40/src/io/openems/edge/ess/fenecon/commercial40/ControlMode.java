@@ -1,6 +1,6 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum ControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

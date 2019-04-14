@@ -2,8 +2,8 @@ package io.openems.edge.bridge.modbus.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
