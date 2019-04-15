@@ -45,11 +45,13 @@
             <form [formGroup]="wpForm" (ngSubmit)="doWPLogin()" (keyup.enter)="doWPLogin()">
               <ion-item>
                 <ion-label position="stacked" translate>Index.Username</ion-label>
-                <ion-input formControlName="username" required placeholder="{{ 'Index.Username' | translate }}"></ion-input>
+                <ion-input formControlName="username" required placeholder="{{ 'Index.Username' | translate }}">
+                </ion-input>
               </ion-item>
               <ion-item>
                 <ion-label position="stacked" translate>Index.Password</ion-label>
-                <ion-input formControlName="password" required type="password" placeholder="{{ 'Index.Password' | translate }}"></ion-input>
+                <ion-input formControlName="password" required type="password"
+                  placeholder="{{ 'Index.Password' | translate }}"></ion-input>
               </ion-item>
               <ion-item>
                 <ion-label translate>Index.SaveLogin
@@ -81,8 +83,8 @@
       <ion-col size="12" size-sm="6" size-md="4">
         <ion-list lines="full">
 
-          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset" [routerLink]="edge.isOnline ? ['/device', edge.id] : null"
-            [color]="edge.isOnline ? null : 'light'">
+          <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
+            [routerLink]="edge.isOnline ? ['/device', edge.id] : null" [color]="edge.isOnline ? null : 'light'">
             <ion-label>
               <h2 text-wrap>{{ edge.comment }}</h2>
               <p *ngIf="!edge.isOnline" text-wrap>Das Gerät ist nicht verbunden!</p>
@@ -92,7 +94,7 @@
                 <p>ID: {{ edge.id }}</p>
                 <p text-wrap>Typ: {{ edge.producttype }}</p>
               </ng-container>
-              <p text-wrap>Angemeldet als: {{ edge.role }}.</p>
+              <p text-wrap>Angemeldet als: {{ edge.rolestring }}.</p>
             </ion-label>
             <ion-icon *ngIf="edge.isOnline" slot="end" name="play" color="primary"></ion-icon>
             <ion-icon *ngIf="!edge.isOnline" slot="end" name="square" color="primary"></ion-icon>

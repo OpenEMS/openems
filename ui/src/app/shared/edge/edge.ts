@@ -28,7 +28,8 @@ export class Edge {
     public readonly producttype: string,
     public readonly version: string,
     public readonly role: Role,
-    public isOnline: boolean
+    public isOnline: boolean,
+    public readonly rolestring: string
   ) { }
 
   // holds currently subscribed channels, identified by source id

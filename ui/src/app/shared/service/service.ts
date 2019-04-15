@@ -163,7 +163,8 @@ export class Service implements ErrorHandler {
         edge.producttype,
         ("version" in edge) ? edge["version"] : "0.0.0",
         Role.getRole(edge.role),
-        edge.isOnline
+        edge.isOnline,
+        edge.role
       );
       newEdges[newEdge.id] = newEdge;
     }
