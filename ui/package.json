@@ -98,7 +98,7 @@
     "karma-jasmine": "~1.1.2",
     "karma-jasmine-html-reporter": "^0.2.2",
     "protractor": "~6.0.0",
-    "ts-node": "~8.0.3",
+    "ts-node": "~8.1.0",
     "tslint": "~5.15.0",
     "typescript": "~3.1.6"
   },
