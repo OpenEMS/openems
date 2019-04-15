@@ -9,7 +9,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
-import io.openems.edge.common.channel.AccessMode;
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
@@ -126,7 +126,7 @@ public interface OpenemsComponent {
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
-	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) {
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) throws IllegalArgumentException {
 		T channel = this.<T>channel(channelId.id());
 		return channel;
 	}

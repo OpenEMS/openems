@@ -17,8 +17,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.edge.common.channel.AccessMode;
-import io.openems.edge.common.channel.Level;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;

@@ -69,6 +69,7 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 		} else {
 			this.setNextWriteValueRegisters(Optional.empty());
 		}
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	protected String fromByteBuffer(ByteBuffer buff) {

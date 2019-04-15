@@ -10,8 +10,6 @@ import io.openems.edge.common.taskmanager.ManagedTask;
  * {@link AbstractModbusElement} which have register addresses in the same
  * range. The ReadTask handles the execution (query) on this range. @{link
  * WriteTask} inherits from ReadTask.
- * 
- * @author stefan.feilmeier
  */
 public interface ReadTask extends Task, ManagedTask {
 
@@ -19,7 +17,7 @@ public interface ReadTask extends Task, ManagedTask {
 	 * Sends a query for this AbstractTask to the Modbus device.
 	 * 
 	 * @param bridge the Modbus-Bridge
-	 * @param        <T> the Modbus-Element
+	 * @param <T>    the Modbus-Element
 	 * @throws OpenemsException on error
 	 */
 	public abstract <T> void executeQuery(AbstractModbusBridge bridge) throws OpenemsException;

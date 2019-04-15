@@ -1,6 +1,6 @@
 package io.openems.edge.pvinverter.solarlog;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum PLimitType implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
