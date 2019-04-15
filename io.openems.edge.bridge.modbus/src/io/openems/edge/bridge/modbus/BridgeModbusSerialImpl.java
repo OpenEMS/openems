@@ -66,6 +66,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -88,7 +89,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Activate
 	void activate(ComponentContext context, ConfigSerial config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.enabled(), config.logVerbosity());
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();

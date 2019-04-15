@@ -41,7 +41,7 @@ public class DummyRegisterElement extends AbstractModbusElement<Void> implements
 	@Deprecated
 	public void _setNextWriteValue(Optional<Void> valueOpt) {
 		// ignore write
-		return;
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc.Acknowledge;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc.ReactionLevel;
 
@@ -73,7 +73,7 @@ public enum ErrorCodeChannelId1 implements ChannelId {
 	STATE_INPUT_SLOT_Blackfin_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.UNDEFINED) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
-			.needsHardReset(false) //
+			.needsHardReset(true) // after this error it was even not possible to acknowledge it with MR-Tool, so a hard reset has been necessary
 			.code(0x06000A) //
 			.text("InputSlot Timeout")),
 	STATE_COM_SLOT_Sharc_1(new ErrorDoc(Level.WARNING) //

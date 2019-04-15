@@ -7,9 +7,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -48,8 +50,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -65,8 +69,16 @@ import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
+import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
+import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
+import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -314,7 +326,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 
 		// Make sure we only have one config
-		if (configs.length == 0) {
+		if (configs == null || configs.length == 0) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
 		} else if (configs.length > 1) {
 			throw OpenemsError.EDGE_MULTIPLE_COMPONENTS_WITH_ID.exception(componentId);
@@ -347,7 +359,47 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 						propertyMap.put(key, JsonUtils.getAsJsonElement(properties.get(key)));
 					}
 				}
-				result.addComponent(componentId, new EdgeConfig.Component(factoryPid.toString(), propertyMap));
+				// get Channels
+				TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
+				try {
+					OpenemsComponent component = this.getComponent(componentId);
+					for (Channel<?> channel : component.channels()) {
+						io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
+						Doc doc = channelId.doc();
+						ChannelDetail detail = null;
+						switch (doc.getChannelCategory()) {
+						case ENUM: {
+							Map<String, JsonElement> values = new HashMap<>();
+							EnumDoc d = (EnumDoc) doc;
+							for (OptionsEnum option : d.getOptions()) {
+								values.put(option.getName(), new JsonPrimitive(option.getValue()));
+							}
+							detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
+							break;
+						}
+						case OPENEMS_TYPE:
+							detail = new ChannelDetailOpenemsType();
+							break;
+						case STATE:
+							StateChannelDoc d = (StateChannelDoc) doc;
+							Level level = d.getLevel();
+							detail = new ChannelDetailState(level);
+							break;
+						}
+						channelMap.put(channelId.id(), new EdgeConfig.Component.Channel(//
+								doc.getType(), //
+								doc.getAccessMode(), //
+								doc.getUnit(), //
+								detail //
+						));
+					}
+				} catch (OpenemsNamedException e) {
+					// Component not found. Ignore and return empty Channel-Map
+					this.logWarn(this.log, e.getMessage());
+				}
+
+				result.addComponent(componentId,
+						new EdgeConfig.Component(factoryPid.toString(), propertyMap, channelMap));
 			}
 		} catch (IOException | InvalidSyntaxException e) {
 			this.logWarn(this.log,

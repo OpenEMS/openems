@@ -28,7 +28,7 @@ export class IndexComponent implements OnInit {
     this.service.setCurrentEdge(this.route);
     this.service.getConfig().then(config => {
       for (let natureId in config.natures) {
-        if (natureId in IGNORE_NATURES) {
+        if (IGNORE_NATURES.includes(natureId)) {
           continue;
         }
 

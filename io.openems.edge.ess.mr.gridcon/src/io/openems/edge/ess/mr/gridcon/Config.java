@@ -32,13 +32,14 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	InverterCount inverterCount() default InverterCount.ONE;
 
 	@AttributeDefinition(name = "MinSoCA", description = "Minimal SoC of Battery String A, if reached no further discharging is allowed")
-	int minSocA() default 25;
+	int minSocBatteryA() default 25;
 
 	@AttributeDefinition(name = "MinSoCB", description = "Minimal SoC of Battery String B, if reached no further discharging is allowed")
-	int minSocB() default 25;
+	int minSocBatteryB() default 25;
 
+	//TODO Component was not able to start because key 'minSocC' exists already... renaming to 'minSocBatteryC' works
 	@AttributeDefinition(name = "MinSoCC", description = "Minimal SoC of Battery String C, if reached no further discharging is allowed")
-	int minSocC() default 25;
+	int minSocBatteryC() default 25;
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of Grid-Meter")
 	String meter() default "meter0";
