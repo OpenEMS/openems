@@ -147,6 +147,102 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected void deactivate() {
 		super.deactivate();
 	}
+	
+	enum ErrorStateMachine {
+		NO_ERROR_PRESENT,
+		READ_ERRORS,
+		ACKNOWLEDGE_ERRRORS,
+		HANDLE_ERRORS,
+		HARD_RESET		
+	}
+	private ErrorStateMachine errorStateMachine = ErrorStateMachine.NO_ERROR_PRESENT;
+	private void handleErrorStateMachine() {
+		switch (errorStateMachine) {
+		case ACKNOWLEDGE_ERRRORS:
+			doAcknowledgeErrors();
+			break;
+		case HANDLE_ERRORS:
+			handleErrors();
+			break;
+		case HARD_RESET:
+			doHardReset();
+			break;
+		case NO_ERROR_PRESENT:
+			doNoError();
+			break;
+		case READ_ERRORS:
+			doReadErrors();
+			break;
+		}
+	}
+	
+	Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> readErrors;
+	private static final int DELAY_TO_WAIT_FOR_NEW_ERROR = 30;
+	
+	private void doReadErrors() {
+		if (readErrors == null) {
+			readErrors = new HashMap<>();
+		}
+		
+		io.openems.edge.common.channel.ChannelId errorId = readCurrentError();
+		if (errorId != null) {
+			if (!readErrors.containsKey(errorId)) {
+				readErrors.put(errorId, LocalDateTime.now());
+			}				
+		}
+		if (noNewErrorPresent(readErrors, DELAY_TO_WAIT_FOR_NEW_ERROR)) {
+			errorStateMachine = ErrorStateMachine.HANDLE_ERRORS;
+		}
+	}
+
+	private boolean noNewErrorPresent(Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> map, int delay) {
+		for (LocalDateTime time : map.values()) {
+			if (time.plusSeconds(delay).isAfter(LocalDateTime.now())) { // TODO Check
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private io.openems.edge.common.channel.ChannelId readCurrentError() {
+		// TODO read error channel and give error back
+		return null;
+	}
+
+	private void doNoError() {
+		// do nothing ?
+	}
+
+	private void doHardReset() {
+		// TODO do hard reset and wait a defined time then set state to normal operation
+//		if (!isExecuted) {
+//			doSetHardResetChannel();
+//			isExecuted = true; //or time variable
+//		}
+//		if (timeIsPassed()) {
+//			errorStateMachine = ErrorStateMachine.NO_ERROR_PRESENT;
+//		} else {
+//			//wait
+//		}
+	}
+
+	private void doAcknowledgeErrors() {
+		readErrors = null;
+		//TODO send acknowledge bit
+		errorStateMachine = ErrorStateMachine.NO_ERROR_PRESENT;
+	}
+
+	
+	private void handleErrors() {		
+//		if (isAcknowledgeAble() && tryToAcknowledgeErrorsCounter < xyz) {
+//			errorStateMachine = ErrorStateMachine.ACKNOWLEDGE_ERRRORS;
+//		}
+//		if (isHardResetCounter < asd) {
+//			errorStateMachine = ErrorStateMachine.HARD_RESET;
+//		} else {
+//			// TODO send permanent error signal 
+//		}	
+	}
 
 	private void fillErrorChannelMap() {
 		// TODO move to static map in Enum
@@ -168,7 +264,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
 				// prepare calculated Channels
-				this.calculateGridMode();
+//				this.calculateGridMode();
+				this.getGridMode().setNextValue(GridMode.ON_GRID);
 				this.calculateBatteryData();
 				this.calculateSoc();
 
@@ -214,7 +311,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 
 		} finally {
-			this.getGridMode().setNextValue(gridMode);
+//			this.getGridMode().setNextValue(gridMode);
+			//TODO just temporarily for testing
+			this.getGridMode().setNextValue(GridMode.ON_GRID);
 		}
 	}
 
@@ -304,7 +403,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 */
 	private void handleOnGrid() throws IllegalArgumentException, OpenemsNamedException {
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-		this.setOutputSyncDeviceBridge(false);
+//		this.setOutputSyncDeviceBridge(false); // TODO temp commented for testing purposes
 	}
 
 	/**
@@ -468,7 +567,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //				acknowledgeErrors();
 //			}
 		
-		
+		this.state = StateMachine.UNDEFINED;
 	}
 
 	/**
@@ -796,10 +895,29 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		int weightB = 0;
 		int weightC = 0;
 
-		Battery batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
-		Battery batteryStringB = this.componentManager.getComponent(this.config.batteryStringB_id());
-		Battery batteryStringC = this.componentManager.getComponent(this.config.batteryStringC_id());
+		Battery batteryStringA = null;
+		Battery batteryStringB = null;
+		Battery batteryStringC = null;
+try {
+	batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
+	
+} catch (Exception e) {
+	// TODO: handle exception
+}
+try {
+	batteryStringB = this.componentManager.getComponent(this.config.batteryStringB_id());
+	
+} catch (Exception e) {
+	// TODO: handle exception
+}
+try {
+	batteryStringC = this.componentManager.getComponent(this.config.batteryStringC_id());
+	
+} catch (Exception e) {
+	// TODO: handle exception
+}
 
+		
 		if (activePower > 0) {
 			/*
 			 * Discharge
