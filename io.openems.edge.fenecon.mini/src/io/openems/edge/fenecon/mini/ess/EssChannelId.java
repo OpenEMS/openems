@@ -48,29 +48,32 @@ public enum EssChannelId implements io.openems.edge.common.channel.ChannelId {
 	BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT)), //
 
-	BECU1_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	BECU1_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE)), //
-	BECU1_VOLT(Doc.of(OpenemsType.INTEGER) //
+	BECU1_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE)), //
+	BECU1_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE)), //
+	BECU1_TOTAL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT)), //
-	BECU1_CURRENT(Doc.of(OpenemsType.INTEGER) //
+	BECU1_TOTAL_CURRENT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.AMPERE)), //
 	BECU1_SOC(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.PERCENT)), //
-
 	BECU1_VERSION(Doc.of(OpenemsType.INTEGER)), //
-	BECU1_MIN_VOLT_NO(Doc.of(OpenemsType.INTEGER)), //
-	BECU1_MIN_VOLT(Doc.of(OpenemsType.INTEGER) //
+	BECU1_NOMINAL_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE_HOURS)), //
+	BECU1_CURRENT_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE_HOURS)), //
+	BECU1_MINIMUM_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
+	BECU1_MINIMUM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT)), //
-	BECU1_MAX_VOLT_NO(Doc.of(OpenemsType.INTEGER)), //
-	BECU1_MAX_VOLT(Doc.of(OpenemsType.INTEGER) //
+	BECU1_MAXIMUM_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
+	BECU1_MAXIMUM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT)), //
-	BECU1_MIN_TEMP_NO(Doc.of(OpenemsType.INTEGER)), //
-	BECU1_MIN_TEMP(Doc.of(OpenemsType.INTEGER) //
+	BECU1_MINIMUM_TEMPERATURE_NO(Doc.of(OpenemsType.INTEGER)), //
+	BECU1_MINIMUM_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.DEGREE_CELSIUS)), //
-	BECU1_MAX_TEMP_NO(Doc.of(OpenemsType.INTEGER)), //
-	BECU1_MAX_TEMP(Doc.of(OpenemsType.INTEGER) //
+	BECU1_MAXIMUM_TEMPERATURE_NO(Doc.of(OpenemsType.INTEGER)), //
+	BECU1_MAXIMUM_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.DEGREE_CELSIUS)), //
 
 	BECU2_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
