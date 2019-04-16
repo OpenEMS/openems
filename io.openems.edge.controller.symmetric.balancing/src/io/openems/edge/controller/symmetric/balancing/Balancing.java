@@ -26,7 +26,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Balancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final static double MAX_ADJUSTMENT_RATE = 0.2;
+	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
@@ -103,15 +103,17 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
 				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
-						* MAX_ADJUSTMENT_RATE)) {
+						* this.config.maxPowerAdjustmentRate())) {
 			if (this.lastSetActivePower > calculatedPower) {
-				int newPower = this.lastSetActivePower - (int) Math.abs(this.lastSetActivePower * MAX_ADJUSTMENT_RATE);
-				this.logInfo(log, "Adjust [-] Last [" + this.lastSetActivePower + "] Wanted [" + calculatedPower
+				int newPower = this.lastSetActivePower
+						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
+				this.logInfo(log, "Adjust [-] Last [" + this.lastSetActivePower + "] Calculated [" + calculatedPower
 						+ "] Corrected to [" + newPower + "]");
 				calculatedPower = newPower;
 			} else {
-				int newPower = this.lastSetActivePower + (int) Math.abs(this.lastSetActivePower * MAX_ADJUSTMENT_RATE);
-				this.logInfo(log, "Adjust [+] Last [" + this.lastSetActivePower + "] Wanted [" + calculatedPower
+				int newPower = this.lastSetActivePower
+						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
+				this.logInfo(log, "Adjust [+] Last [" + this.lastSetActivePower + "] Calculated [" + calculatedPower
 						+ "] Corrected to [" + newPower + "]");
 				calculatedPower = newPower;
 			}
