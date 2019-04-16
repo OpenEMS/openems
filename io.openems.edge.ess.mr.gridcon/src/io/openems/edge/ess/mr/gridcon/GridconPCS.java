@@ -87,12 +87,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	public static final int MAX_POWER_PER_INVERTER = 40000; // experimentally measured
 
 	private static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
-	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
-	private static final float MAX_CHARGE_W = 86 * 1000;
-	private static final float MAX_DISCHARGE_W = 86 * 1000;
 	private static final long SWITCH_OFF_TIME = 10;
 	private static final long RELOAD_TIME = 45;
 	private static final int DELAY_TO_WAIT_FOR_NEW_ERROR = 30;
+//	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
+//	private static final float MAX_CHARGE_W = 86 * 1000;
+//	private static final float MAX_DISCHARGE_W = 86 * 1000;
 	
 
 	private ErrorStateMachine errorStateMachine = ErrorStateMachine.READ_ERRORS;
@@ -119,8 +119,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private StateMachine state = StateMachine.UNDEFINED;
 
-	private LocalDateTime offGridDetected = null;
-	private int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
+//	private int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
+//	private LocalDateTime offGridDetected = null;
 
 	public GridconPCS() {
 		super(//
@@ -170,6 +170,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			doReadErrors();
 			break;
 		case ERROR_HANDLING_NOT_POSSIBLE:
+			this.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 			break;
 		}
 	}
