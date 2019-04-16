@@ -1,12 +1,16 @@
 <ion-card *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-    <ion-item (click)="presentModal()">
-      <ion-img style="width:40px" src="assets/img/evcs.png"></ion-img>
+    <ion-item>
+      <ion-img (click)="presentModal()" style="width:40px; cursor: pointer;" src="assets/img/evcs.png"></ion-img>
       <!-- TODO Fix formatting -->
-      <ion-label>
+      <ion-label (click)="presentModal()" style="cursor: pointer;">
         <ion-card-title translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-card-title>
       </ion-label>
+      <!--Modal should not open if the toggle is changing-->
+      <ion-toggle style="margin: 2px; align-content: right;" (click)="enableOrDisableCharging($event)"
+        [checked]="controller.properties.enabledCharging">
+      </ion-toggle>
     </ion-item>
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
       <ion-card-content>
@@ -29,7 +33,28 @@
           </tr>
         </table>
       </ion-card-content>
-      <ng-container *ngIf="controller">
+
+    </ion-label>
+    <ion-card-content *ngIf="currentData[componentId + '/State'] == 3">
+      <ion-label translate>
+        Edge.Index.Widgets.EVCS.NoConnection.Description
+        <ul>
+          <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
+          <ul>
+            <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1</li>
+          </ul>
+        </ul>
+      </ion-label>
+    </ion-card-content>
+  </ng-container>
+</ion-card>
+
+
+<!-- Eventueally this code whith an ngIf andvanced settings
+     Attention: onchange can cause unexpected Errors
+                use click event
+
+  <ng-container *ngIf="controller">
         <ion-item color="light" (click)="showBelademodus = !showBelademodus">
           <ion-icon style="width: 40px" name="options"></ion-icon>
           <ion-label translate>Edge.Index.Widgets.EVCS.ChargeMode</ion-label>
@@ -61,6 +86,7 @@
               <td>
                 <ion-label translate> Edge.Index.Widgets.EVCS.OptimizedChargeMode.Info </ion-label> <br>
                 <ion-label translate> Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinInfo </ion-label>
+                <br>
                 <table>
                   <tr>
                     <td width="90%" translate> Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging </td>
@@ -84,6 +110,32 @@
                     {{ formatNumber(currentData[componentId + '/MaximumPower']) | number:'1.0-0'}}&nbsp;W
                   </ion-label>
                 </ion-range>
+
+                <table class="ion-justify-content-center">
+                  <tr>
+                    <td width="50%">Priorisierung: <ion-icon width="30px" name="information-circle-outline"
+                        (mouseenter)="showPriorityInfo = !showPriorityInfo"
+                        (mouseleave)="showPriorityInfo = !showPriorityInfo"></ion-icon>
+                    </td>
+                    <td width="50%">
+                      <ion-segment ion-width="50%" (ionChange)="priorityChanged($event)"
+                        value="{{controller.properties.priority}}">
+                        <ion-segment-button ion-margin="0px" ion-padding="0px" value="CAR">
+                          
+                          Todo: Mehrsprachenfähig
+                          <ion-label lines="none">Auto</ion-label>
+                        </ion-segment-button>
+                        <ion-segment-button ion-margin="0px" ion-padding="0px" value="STORAGE">
+                          <ion-label lines="none">Speicher</ion-label>
+                        </ion-segment-button>
+                      </ion-segment>
+                    </td>
+                  </tr>
+                </table>
+                <br>
+                <ion-label *ngIf="showPriorityInfo" style="color:steelblue; border-radius: 5px;" translate>
+                  Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Info
+                </ion-label>
               </td>
             </tr>
             <tr *ngIf="controller.properties.chargeMode == 'FORCE_CHARGE'">
@@ -110,17 +162,4 @@
           </table>
         </ion-card-content>
       </ng-container>
-    </ion-label>
-    <ion-card-content *ngIf="currentData[componentId + '/State'] == 3">
-      <ion-label translate>
-        Edge.Index.Widgets.EVCS.NoConnection.Description
-        <ul>
-          <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
-          <ul>
-            <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1</li>
-          </ul>
-        </ul>
-      </ion-label>
-    </ion-card-content>
-  </ng-container>
-</ion-card>
+-->

@@ -3,8 +3,6 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.controller.api
-Private-Package:  \
-	io.openems.edge.controller.evcs
 
 -includeresource: {readme.md}
 
@@ -20,3 +18,4 @@ Private-Package:  \
 
 javac.source: 1.8
 javac.target: 1.8
+-privatepackage: io.openems.edge.controller.evcs

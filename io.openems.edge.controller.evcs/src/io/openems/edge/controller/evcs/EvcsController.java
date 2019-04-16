@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -26,7 +27,6 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evcs.api.Evcs;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Evcs", //
@@ -35,14 +35,16 @@ import io.openems.edge.evcs.api.Evcs;
 )
 public class EvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
 
-	private static final int RUN_EVERY_MINUTES = 1;
+	private static final int RUN_EVERY_SECONDS = 5;
 
-	//private final Logger log = LoggerFactory.getLogger(EvcsController.class);
+	// private final Logger log = LoggerFactory.getLogger(EvcsController.class);
 	private final Clock clock;
 
+	private boolean enabledCharging;
 	private int forceChargeMinPower = 0;
 	private int defaultChargeMinPower = 0;
 	private ChargeMode chargeMode;
+	private Priority priority;
 	private String evcsId;
 	private LocalDateTime lastRun = LocalDateTime.MIN;
 
@@ -51,6 +53,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	Evcs evcs;
 
 	@Reference
 	private Sum sum;
@@ -63,7 +67,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				.unit(Unit.WATT).text("Minimum value for the force charge")),
 		DEFAULT_CHARGE_MINPOWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text("Minimum value for a default charge")); //
+				.text("Minimum value for a default charge")),
+		PRIORITY(Doc.of(Priority.values()).initialValue(Priority.CAR).text("Which component getting preferred")), //
+		ENABLED_CHARGING(Doc.of(OpenemsType.BOOLEAN).text("Aktivates or deaktivates the Charging"));//
 
 		private final Doc doc;
 
@@ -91,28 +97,36 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException{
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.enabled());
 
+		this.enabledCharging = config.enabledCharging();
 		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
 		this.defaultChargeMinPower = Math.max(0, config.defaultChargeMinPower());
 		this.chargeMode = config.chargeMode();
+		this.priority = config.priority();
+		this.evcsId = config.evcs_id();
 
-		switch (config.chargeMode()) {
+		switch (chargeMode) {
 		case EXCESS_POWER:
 			this.channel(ChannelId.DEFAULT_CHARGE_MINPOWER).setNextValue(defaultChargeMinPower);
 			break;
 		case FORCE_CHARGE:
 			this.channel(ChannelId.FORCE_CHARGE_MINPOWER).setNextValue(forceChargeMinPower);
-			
 			break;
-
 		}
-		this.channel(ChannelId.CHARGE_MODE).setNextValue(config.chargeMode());
-		this.evcsId = config.evcs_id();
-
+		this.channel(ChannelId.CHARGE_MODE).setNextValue(chargeMode);
+		this.channel(ChannelId.PRIORITY).setNextValue(priority);
+		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(enabledCharging);
+		
+		evcs = this.componentManager.getComponent(this.evcsId);
+		if(!enabledCharging) {
+			evcs.setChargePower().setNextWriteValue(0);
+		}
+		//evcs.setEnabled().setNextWriteValue(enabledCharging);
+		
 		// update filter for 'evcs'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", config.evcs_id())) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", evcsId)) {
 			return;
 		}
 	}
@@ -124,25 +138,41 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// Execute only every ... minutes
-		if (this.lastRun.plusMinutes(RUN_EVERY_MINUTES).isAfter(LocalDateTime.now(this.clock))) {
+
+		// Executes only if charging is enabled
+		if (!this.enabledCharging) {
 			return;
 		}
 
-		Evcs evcs = this.componentManager.getComponent(this.evcsId);
-		//Channel<Integer> phases = evcs.channel("Phases");
+		// Execute only every ... minutes
+		if (this.lastRun.plusSeconds(RUN_EVERY_SECONDS).isAfter(LocalDateTime.now(this.clock))) {
+			return;
+		}
+
 		
-		
+		// Channel<Integer> phases = evcs.channel("Phases");
+
 		int nextChargePower = 0;
 		int nextMinPower = 0;
 		switch (this.chargeMode) {
 		case EXCESS_POWER:
-			int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
-			int essDischarge = this.sum.getEssActivePower().value().orElse(0);
-			int evcsCharge = evcs.getChargePower().value().orElse(0);
-			nextChargePower = evcsCharge - buyFromGrid - essDischarge;
-			if (nextChargePower < 1380 /* min 6A */ ) {
-				nextChargePower = 0;
+
+			switch (priority) {
+			case CAR:
+
+				nextChargePower = nextChargePower_PvMinusConsumtion();
+				break;
+
+			case STORAGE:
+
+				int storageSoc = this.sum.getEssSoc().value().orElse(0);
+
+				if (storageSoc > 97) {
+					nextChargePower = nextChargePower_PvMinusConsumtion();
+				} else {
+					nextChargePower = 0;
+				}
+				break;
 			}
 			nextMinPower = defaultChargeMinPower;
 			break;
@@ -156,9 +186,52 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (nextChargePower < nextMinPower) {
 			nextChargePower = nextMinPower;
 		}
-		
+
 		// set charge power
 		evcs.setChargePower().setNextWriteValue(nextChargePower);
+		lastRun = LocalDateTime.now();
+	}
+
+	
+	/* Only for testing
+	 int[] exampleDataPV = { 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000,
+			19000, 20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000 };
+	int consumption = 5000;
+	int counter = 0;
+	*/
+
+	/**
+	 * Calculates the next charging power, depending on the current PV production
+	 * and house consumption
+	 * 
+	 * @return
+	 * @throws OpenemsNamedException
+	 */
+	private int nextChargePower_PvMinusConsumtion() throws OpenemsNamedException {
+		int nextChargePower;
+
+		Evcs evcs = this.componentManager.getComponent(this.evcsId);
+
+		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
+		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
+		int evcsCharge = evcs.getChargePower().value().orElse(0);
+		
+
+		/* Only for testing
+		 
+		 if (counter > exampleDataPV.length - 1) { counter = 0; } 
+		 buyFromGrid = 0;
+		 essDischarge = (consumption + evcsCharge) - exampleDataPV[counter]; 
+		 counter++;
+		 */
+		
+		nextChargePower = evcsCharge - buyFromGrid - essDischarge;
+
+		Channel<Integer> minChannel = evcs.channel(Evcs.ChannelId.MINIMUM_POWER);
+		if (nextChargePower < minChannel.value().orElse(0)) { /* charging under 6A isn't possible */
+			nextChargePower = 0;
+		}
+		return nextChargePower;
 	}
 
 	@Override
@@ -173,8 +246,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable() {
-		return new ModbusSlaveTable(
-				OpenemsComponent.getModbusSlaveNatureTable()
-		);
+		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable());
 	}
 }

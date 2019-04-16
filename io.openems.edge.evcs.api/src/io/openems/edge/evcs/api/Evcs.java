@@ -99,7 +99,14 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		SET_DISPLAY_TEXT(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_WRITE));
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		SET_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.ON_OFF)
+				.text("Disabled is indicated with a blue flashing LED. "
+						+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
+						+ "and disabling can lead to an error in the charging station.")); //
 
 		private final Doc doc;
 
@@ -122,6 +129,7 @@ public interface Evcs extends OpenemsComponent {
 				.channel(3, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16)
 				.channel(19,ChannelId.MINIMUM_POWER, ModbusType.UINT16)
 				.channel(20, ChannelId.MAXIMUM_POWER, ModbusType.UINT16)
+				.channel(21, ChannelId.SET_ENABLED, ModbusType.UINT16)
 				.build();
 	}
 
@@ -162,4 +170,16 @@ public interface Evcs extends OpenemsComponent {
 	public default WriteChannel<String> setDisplayText() {
 		return this.channel(ChannelId.SET_DISPLAY_TEXT);
 	}
+	
+	/**
+	 * Aktivates or deaktivates the Charging Station.
+	 * ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements 
+	 * and disabling can lead to an error in the charging station.
+	 * 
+	 * @return the WriteChannel
+	 */
+	public default WriteChannel<Boolean> setEnabled() {
+		return this.channel(ChannelId.SET_ENABLED);
+	}
+	
 }

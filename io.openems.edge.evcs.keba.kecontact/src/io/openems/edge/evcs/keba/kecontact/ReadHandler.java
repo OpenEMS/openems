@@ -122,7 +122,7 @@ public class ReadHandler implements Consumer<String> {
 					Channel<Integer> currentL2 = parent.channel(KebaChannelId.CURRENT_L2);
 					Channel<Integer> currentL3 = parent.channel(KebaChannelId.CURRENT_L3);
 
-					if (currentL1.value().orElse(0) > 0){
+					if (currentL1.value().orElse(0) > 10){
 
 						if (currentL3.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
@@ -140,7 +140,17 @@ public class ReadHandler implements Consumer<String> {
 						Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
 						this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * phases.value().orElse(3));
 						this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * phases.value().orElse(3));
-					}//TODO: Min und Max sinnfoll einbauen
+					}else {
+
+						// set Min & Max Power to Default values that allows the User a power setting between those values
+						Channel<Integer> min = this.parent.channel(Evcs.ChannelId.MINIMUM_POWER);
+						Channel<Integer> max = this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER);
+						if(min.value().orElse(null)==null || max.value().orElse(null) == null) {
+							this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * 3);
+							this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * 3);
+						}
+					}
+					
 
 					// Set CHARGE_POWER
 					Optional<Integer> power_mw = JsonUtils.getAsOptionalInt(jMessage, "P"); // in [mW]

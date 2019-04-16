@@ -82,6 +82,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 		// start queryWorker
 		this.readWorker.activate(this.id() + "query");
+		
 	}
 
 	@Deactivate
@@ -227,8 +228,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		.channel(87, KebaChannelId.ENERGY_SESSION, ModbusType.UINT16)
 		.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
 		.channel(89, KebaChannelId.PHASES, ModbusType.UINT16)
-		.channel(90, KebaChannelId.SET_ENABLED, ModbusType.UINT16)
-		.channel(91, KebaChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
+		.channel(90, KebaChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
 		.build();
 	}
 }
