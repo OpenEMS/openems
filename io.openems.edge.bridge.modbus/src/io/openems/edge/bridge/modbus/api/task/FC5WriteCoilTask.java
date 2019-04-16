@@ -23,7 +23,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC5WriteCoilTask.class);
-	
+
 	public FC5WriteCoilTask(int startAddress, AbstractModbusElement<?> element) {
 		super(startAddress, element);
 	}
@@ -35,18 +35,19 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 			Optional<Boolean> valueOpt = ((ModbusCoilElement) element).getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 				// found value -> write
+				boolean value = valueOpt.get();
 				try {
 					/*
 					 * First try
 					 */
-					this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), valueOpt.get());
+					this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), value);
 				} catch (OpenemsException | ModbusException e) {
 					/*
 					 * Second try: with new connection
 					 */
 					bridge.closeModbusConnection();
 					try {
-						this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), valueOpt.get());
+						this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), value);
 					} catch (ModbusException e2) {
 						throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 					}
@@ -59,9 +60,20 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
-
 		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+
+		// debug output
+		switch (this.getLogVerbosity(bridge)) {
+		case READS_AND_WRITES:
+			bridge.logInfo(this.log, "FC5WriteCoil " //
+					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
+					+ value);
+			break;
+		case WRITES:
+		case NONE:
+			break;
+		}
 
 		if (!(response instanceof WriteCoilResponse)) {
 			throw new OpenemsException("Unexpected Modbus response. Expected [WriteCoilResponse], got ["
@@ -71,6 +83,6 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	@Override
 	protected String getActiondescription() {
-		return "FC5 Write Coil ";
+		return "FC5 WriteCoil";
 	}
 }

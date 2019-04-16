@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -46,13 +48,14 @@ public abstract class AbstractTask implements Task {
 		this.parent = parent;
 	}
 
+	@Override
 	public AbstractOpenemsModbusComponent getParent() {
 		return parent;
 	}
 
 	/*
-	 * Enable Debug mode for this Element. Activates verbose logging.
-	 * TODO: implement debug write in all implementations (FC16 is already done)
+	 * Enable Debug mode for this Element. Activates verbose logging. TODO:
+	 * implement debug write in all implementations (FC16 is already done)
 	 */
 	private boolean isDebug = false;
 
@@ -65,6 +68,19 @@ public abstract class AbstractTask implements Task {
 		return isDebug;
 	}
 
+	/**
+	 * Combines the global and local (via {@link #isDebug} log verbosity.
+	 * 
+	 * @param bridge the parent Bridge
+	 * @return the combined LogVerbosity
+	 */
+	protected LogVerbosity getLogVerbosity(AbstractModbusBridge bridge) {
+		if (this.isDebug) {
+			return LogVerbosity.READS_AND_WRITES;
+		}
+		return bridge.getLogVerbosity();
+	}
+
 	@Override
 	public void deactivate() {
 		for (ModbusElement<?> element : this.elements) {
@@ -75,7 +91,7 @@ public abstract class AbstractTask implements Task {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(getActiondescription());
+		sb.append(this.getActiondescription());
 		sb.append(" [");
 		sb.append(this.parent.id());
 		sb.append(";unitid=");

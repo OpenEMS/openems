@@ -18,6 +18,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -53,6 +55,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	private Config config;
 
+	private int lastSetActivePower = 0;
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
@@ -72,8 +76,12 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @return the required power
 	 */
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) {
-		return meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
+		return
+		// current buy-from/sell-to grid
+		meter.getActivePower().value().orElse(0)
+				// current charge/discharge Ess: average of last-SetActivePower and current
+				// ActivePower
+				+ (lastSetActivePower + ess.getActivePower().value().orElse(0)) / 2;
 	}
 
 	@Override
@@ -95,6 +103,12 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * Calculates required charge/discharge power
 		 */
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
+
+		// adjust value so that it fits into Min/MaxActivePower
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+
+		// store lastSetActivePower
+		this.lastSetActivePower = calculatedPower;
 
 		/*
 		 * set result

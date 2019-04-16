@@ -1,7 +1,7 @@
 package io.openems.edge.common.modbusslave;
 
-import io.openems.edge.common.channel.AccessMode;
-import io.openems.edge.common.channel.Unit;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class ModbusRecord {

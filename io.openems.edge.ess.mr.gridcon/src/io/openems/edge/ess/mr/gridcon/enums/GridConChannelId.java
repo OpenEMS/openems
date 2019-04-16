@@ -1,7 +1,9 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.ChannelId;
@@ -10,8 +12,6 @@ import io.openems.edge.common.channel.FloatDoc;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 
 /**
  * This enum holds every possible channel id for a gridcon.

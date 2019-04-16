@@ -1,6 +1,6 @@
 package io.openems.edge.fenecon.dess.ess;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum BsmuWorkState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
