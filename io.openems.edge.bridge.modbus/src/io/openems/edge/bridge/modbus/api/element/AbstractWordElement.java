@@ -33,7 +33,7 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	}
 
 	@Override
-	protected final void _setInputRegisters(InputRegister... registers) {
+	protected void _setInputRegisters(InputRegister... registers) {
 		// convert registers
 		ByteBuffer buff = ByteBuffer.allocate(2).order(getByteOrder());
 		buff.put(registers[0].toBytes());
@@ -51,7 +51,7 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	protected abstract T fromByteBuffer(ByteBuffer buff);
 
 	@Override
-	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
+	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
 		if (this.isDebug()) {
 			log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
 		}
@@ -64,6 +64,7 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 		} else {
 			this.setNextWriteValueRegisters(Optional.empty());
 		}
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	/**

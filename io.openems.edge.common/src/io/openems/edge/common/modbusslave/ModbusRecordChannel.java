@@ -6,10 +6,11 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class ModbusRecordChannel extends ModbusRecord {
@@ -17,6 +18,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 	private final Logger log = LoggerFactory.getLogger(ModbusRecordChannel.class);
 
 	private final ChannelId channelId;
+	private final AccessMode accessMode;
 
 	protected Consumer<Object> onWriteValueCallback = null;
 
@@ -26,9 +28,10 @@ public class ModbusRecordChannel extends ModbusRecord {
 	 */
 	private final Byte[] writeValueBuffer;
 
-	public ModbusRecordChannel(int offset, ModbusType type, ChannelId channelId) {
+	public ModbusRecordChannel(int offset, ModbusType type, ChannelId channelId, AccessMode accessMode) {
 		super(offset, type);
 		this.channelId = channelId;
+		this.accessMode = accessMode;
 
 		// initialize buffer
 		int byteLength = 0;
@@ -65,13 +68,37 @@ public class ModbusRecordChannel extends ModbusRecord {
 		Object value = channel.value().get();
 		switch (this.getType()) {
 		case FLOAT32:
-			return ModbusRecordFloat32.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordFloat32.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordFloat32Reserved.UNDEFINED_VALUE;
+			}
 		case FLOAT64:
-			return ModbusRecordFloat64.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordFloat64.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordFloat64Reserved.UNDEFINED_VALUE;
+			}
 		case STRING16:
-			return ModbusRecordString16.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordString16.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordString16Reserved.UNDEFINED_VALUE;
+			}
 		case UINT16:
-			return ModbusRecordUint16.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordUint16.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordUint16Reserved.UNDEFINED_VALUE;
+			}
 		}
 		assert true;
 		return new byte[0];
@@ -83,6 +110,16 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	@Override
 	public void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2) {
+		switch (this.accessMode) {
+		case READ_ONLY:
+			// Read-Only Access enabled. Do not write value.
+			return;
+
+		case READ_WRITE:
+		case WRITE_ONLY:
+			break;
+		}
+
 		this.writeValueBuffer[index * 2] = byte1;
 		this.writeValueBuffer[index * 2 + 1] = byte2;
 		// is the buffer full?
@@ -142,6 +179,11 @@ public class ModbusRecordChannel extends ModbusRecord {
 	@Override
 	public String getValueDescription() {
 		return ""; // TODO get some meaningful text from Doc(), like 'between 0 and 100 %'
+	}
+
+	@Override
+	public AccessMode getAccessMode() {
+		return this.accessMode;
 	}
 
 }

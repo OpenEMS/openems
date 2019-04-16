@@ -15,6 +15,7 @@ import { Service } from './service';
 import { WsData } from './wsdata';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 
 @Injectable()
 export class Websocket {
@@ -268,6 +269,10 @@ export class Websocket {
     let message = edgeRpcNotification.params.payload;
 
     switch (message.method) {
+      case EdgeConfigNotification.METHOD:
+        this.handleEdgeConfigNotification(edgeId, message as EdgeConfigNotification);
+        break;
+
       case CurrentDataNotification.METHOD:
         this.handleCurrentDataNotification(edgeId, message as CurrentDataNotification);
         break;
@@ -275,6 +280,20 @@ export class Websocket {
       case SystemLogNotification.METHOD:
         this.handleSystemLogNotification(edgeId, message as SystemLogNotification);
         break;
+    }
+  }
+
+  /**
+   * Handles a EdgeConfigNotification.
+   * 
+   * @param message 
+   */
+  private handleEdgeConfigNotification(edgeId: string, message: EdgeConfigNotification): void {
+    let edges = this.service.edges.getValue();
+
+    if (edgeId in edges) {
+      let edge = edges[edgeId];
+      edge.handleEdgeConfigNotification(message);
     }
   }
 

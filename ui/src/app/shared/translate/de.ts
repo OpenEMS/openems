@@ -29,7 +29,8 @@ export const TRANSLATION = {
             Friday: "Freitag",
             Saturday: "Samstag",
             Sunday: "Sonntag"
-        }
+        },
+        ReportValue: "Fehlerhafte Daten melden"
     },
     Menu: {
         Index: "Übersicht",

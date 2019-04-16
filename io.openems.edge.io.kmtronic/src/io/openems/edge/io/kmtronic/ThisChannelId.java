@@ -1,7 +1,7 @@
 package io.openems.edge.io.kmtronic;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;

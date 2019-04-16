@@ -81,8 +81,8 @@ public interface Power {
 		// fit into max possible discharge power
 		int maxDischargePower = this.getMaxPower(ess, phase, pwr);
 		if (value > maxDischargePower) {
-			Power.log.info("Reducing power from [" + value + "] to [" + maxDischargePower + "] for ["
-					+ ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
+			Power.log.info("Reducing power from [" + value + "] to [" + maxDischargePower + "] for [" + ess.id()
+					+ pwr.getSymbol() + phase.getSymbol() + "]");
 			value = maxDischargePower;
 		}
 
@@ -92,7 +92,7 @@ public interface Power {
 		// fit into max possible discharge power
 		int maxChargePower = this.getMinPower(ess, phase, pwr);
 		if (value < maxChargePower) {
-			Power.log.info("Reducing power from [" + value + "] to [-" + maxChargePower + "] for [" + ess.id()
+			Power.log.info("Reducing power from [" + value + "] to [" + (maxChargePower * -1) + "] for [" + ess.id()
 					+ pwr.getSymbol() + phase.getSymbol() + "]");
 			value = maxChargePower;
 		}

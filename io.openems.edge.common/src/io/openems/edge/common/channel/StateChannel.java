@@ -1,5 +1,6 @@
 package io.openems.edge.common.channel;
 
+import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;

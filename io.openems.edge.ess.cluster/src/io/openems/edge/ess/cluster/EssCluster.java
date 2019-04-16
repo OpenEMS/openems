@@ -19,6 +19,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
@@ -251,14 +252,14 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
-				AsymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
-				ModbusSlaveNatureTable.of(EssCluster.class, 300) //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(EssCluster.class, accessMode, 300) //
 						.build());
 	}
 }
