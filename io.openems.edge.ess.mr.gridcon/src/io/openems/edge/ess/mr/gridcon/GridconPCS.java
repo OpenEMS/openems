@@ -169,6 +169,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			case READ_ERRORS:
 			doReadErrors();
 			break;
+		case ERROR_HANDLING_NOT_POSSIBLE:
+			break;
 		}
 	}
 
@@ -221,8 +223,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			lastHardReset = null;
 			errorStateMachine = ErrorStateMachine.READ_ERRORS;
 		}		
+		this.state = StateMachine.UNDEFINED;
 	}
 
+	LocalDateTime delay = null;
 	private void doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
 		readErrorMap = null;
 		tryToAcknowledgeErrorsCounter = tryToAcknowledgeErrorsCounter + 1;
@@ -239,13 +243,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		.parameterF0(1.035f) //
 		.enableIpus(this.config.inverterCount()) //
 		.writeToChannels(this);
+		
+		delay = LocalDateTime.now();
+		this.state = StateMachine.UNDEFINED;
 	}
 	
 	private void doHandleErrors() {
 		if (isAcknowledgeAble() && tryToAcknowledgeErrorsCounter < MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS) {
 			errorStateMachine = ErrorStateMachine.ACKNOWLEDGE_ERRRORS;
-		}
-		if (isHardResetCounter < MAX_TIMES_FOR_TRYING_TO_HARD_RESET) {
+		} else if (isHardResetCounter < MAX_TIMES_FOR_TRYING_TO_HARD_RESET) {
 			errorStateMachine = ErrorStateMachine.HARD_RESET;
 		} else {
 			errorStateMachine = ErrorStateMachine.ERROR_HANDLING_NOT_POSSIBLE; 
@@ -293,7 +299,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			try {
 				// prepare calculated Channels
 				this.calculateGridMode();
-				this.getGridMode().setNextValue(GridMode.ON_GRID);
 				this.calculateBatteryData();
 				this.calculateSoc();
 
@@ -507,12 +512,19 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void handleUndefined() throws IllegalArgumentException, OpenemsNamedException {
+		
+		if (delay != null && delay.plusSeconds(15).isAfter(LocalDateTime.now())) {
+			return;
+		} else {
+			delay = null;
+		}
+		
 		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
 		CCUState ccuState = this.getCurrentState();
 		StateChannel errorChannel = this.getErrorChannel();
 
 		if (gridMode == GridMode.ON_GRID) {
-			if (ccuState == CCUState.ERROR || errorChannel != null) {
+			if (ccuState == CCUState.ERROR && errorChannel != null) { //TODO Check && condition, without it (|| instead), gridcon remains always in error 
 				this.state = StateMachine.ONGRID_ERROR;
 
 			} else if (ccuState == CCUState.RUN) {
@@ -589,7 +601,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //				acknowledgeErrors();
 //			}
 
-		this.state = StateMachine.UNDEFINED;
+		
 	}
 
 	/**
