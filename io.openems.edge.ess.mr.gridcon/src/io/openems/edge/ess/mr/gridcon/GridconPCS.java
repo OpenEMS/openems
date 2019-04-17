@@ -83,17 +83,18 @@ import io.openems.edge.ess.power.api.Relationship;
 public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-//	public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
+	// public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally
+	// measured
 	public static final int MAX_POWER_PER_INVERTER = 40000; // experimentally measured
 
 	private static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
-	private static final long SWITCH_OFF_TIME = 10;
-	private static final long RELOAD_TIME = 45;
-	private static final int DELAY_TO_WAIT_FOR_NEW_ERROR = 30;
+	private static final long SWITCH_OFF_TIME_SECONDS = 10;
+	private static final long RELOAD_TIME_SECONDS = 45;
+	private static final int DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS = 30;
+	private static final int TIME_UNTIL_ERRORS_SHOULD_BE_ACKNOWLEDGED_SECONDS = 15;
 //	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
 //	private static final float MAX_CHARGE_W = 86 * 1000;
 //	private static final float MAX_DISCHARGE_W = 86 * 1000;
-	
 
 	private ErrorStateMachine errorStateMachine = ErrorStateMachine.READ_ERRORS;
 	Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> readErrorMap;
@@ -102,7 +103,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	int MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS = 5;
 	int isHardResetCounter = 0;
 	int MAX_TIMES_FOR_TRYING_TO_HARD_RESET = 5;
-	
+
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	private Config config;
@@ -166,7 +167,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case HARD_RESET:
 			doHardReset();
 			break;
-			case READ_ERRORS:
+		case READ_ERRORS:
 			doReadErrors();
 			break;
 		case ERROR_HANDLING_NOT_POSSIBLE:
@@ -186,7 +187,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				readErrorMap.put(errorId, LocalDateTime.now());
 			}
 		}
-		if (noNewErrorPresent(readErrorMap, DELAY_TO_WAIT_FOR_NEW_ERROR)) {
+		if (noNewErrorPresent(readErrorMap, DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS)) {
 			errorStateMachine = ErrorStateMachine.HANDLE_ERRORS;
 		}
 	}
@@ -207,55 +208,83 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		return null;
 	}
-	
+
 	private void doHardReset() throws IllegalArgumentException, OpenemsNamedException {
 		if (lastHardReset == null) {
 			lastHardReset = LocalDateTime.now();
-			
-			BooleanWriteChannel channelHardReset = this.componentManager.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
+
+			BooleanWriteChannel channelHardReset = this.componentManager
+					.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
 			channelHardReset.setNextWriteValue(true);
-			
-		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME).isBefore(LocalDateTime.now())) {
+
+		} else if (lastHardReset != null
+				&& lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isBefore(LocalDateTime.now())) {
 			// just wait
-		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME + RELOAD_TIME).isBefore(LocalDateTime.now())) {
-			BooleanWriteChannel channelHardReset = this.componentManager.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
+		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS)
+				.isBefore(LocalDateTime.now())) {
+			BooleanWriteChannel channelHardReset = this.componentManager
+					.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
 			channelHardReset.setNextWriteValue(false);
-		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME + RELOAD_TIME).isAfter(LocalDateTime.now())) {
+		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS)
+				.isAfter(LocalDateTime.now())) {
 			lastHardReset = null;
 			errorStateMachine = ErrorStateMachine.READ_ERRORS;
-		}		
+		}
 		this.state = StateMachine.UNDEFINED;
 	}
 
-	LocalDateTime delay = null;
+	LocalDateTime timeWhenErrorsHasBeenAcknowledged = null;
+
+	/**
+	 * Acknowledges errors and writes read errors to error code feedback
+	 * If all errors are written to error code feedback continue normal operation
+	 * 
+	 * @throws IllegalArgumentException
+	 * @throws OpenemsNamedException
+	 */
 	private void doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
-		readErrorMap = null;
 		tryToAcknowledgeErrorsCounter = tryToAcknowledgeErrorsCounter + 1;
-		errorStateMachine = ErrorStateMachine.READ_ERRORS;
+
+		int currentErrorCodeFeedBack = 0;
+
+		if (!readErrorMap.isEmpty()) {
+			io.openems.edge.common.channel.ChannelId currentId = null;
+			for (io.openems.edge.common.channel.ChannelId id : readErrorMap.keySet()) {
+				currentId = id;
+				break;
+			}
+			currentErrorCodeFeedBack = ((ErrorDoc) currentId.doc()).getCode();
+			readErrorMap.remove(currentId);
+		}
 
 		new CommandControlRegisters() //
-		// Start system
-		.acknowledge(true) //
-		.syncApproval(true) //
-		.shortCircuitHandling(true) //
-		.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-		.parameterSet1(true) //
-		.parameterU0(0.97f) //
-		.parameterF0(1.035f) //
-		.enableIpus(this.config.inverterCount()) //
-		.writeToChannels(this);
-		
-		delay = LocalDateTime.now();
-		this.state = StateMachine.UNDEFINED;
+				// Acknowledge error
+				.acknowledge(true) //
+				.syncApproval(true) //
+				.errorCodeFeedback(currentErrorCodeFeedBack) //
+				.shortCircuitHandling(true) //
+				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+				.parameterSet1(true) //
+				.parameterU0(0.97f) //
+				.parameterF0(1.035f) //
+				.enableIpus(this.config.inverterCount()) //
+				.writeToChannels(this);
+
+		if (readErrorMap.isEmpty()) {
+			timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
+			this.state = StateMachine.UNDEFINED;
+			errorStateMachine = ErrorStateMachine.READ_ERRORS;
+			readErrorMap = null;
+		}
 	}
-	
+
 	private void doHandleErrors() {
 		if (isAcknowledgeAble() && tryToAcknowledgeErrorsCounter < MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS) {
 			errorStateMachine = ErrorStateMachine.ACKNOWLEDGE_ERRRORS;
 		} else if (isHardResetCounter < MAX_TIMES_FOR_TRYING_TO_HARD_RESET) {
 			errorStateMachine = ErrorStateMachine.HARD_RESET;
 		} else {
-			errorStateMachine = ErrorStateMachine.ERROR_HANDLING_NOT_POSSIBLE; 
+			errorStateMachine = ErrorStateMachine.ERROR_HANDLING_NOT_POSSIBLE;
 		}
 		tryToAcknowledgeErrorsCounter = 0;
 	}
@@ -264,12 +293,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		for (io.openems.edge.common.channel.ChannelId id : readErrorMap.keySet()) {
 			for (io.openems.edge.common.channel.ChannelId id2 : errorChannelIds.values()) {
 				if (id.equals(id2)) {
-					if ( id instanceof ErrorCodeChannelId ) {
-						if ( ((ErrorDoc) ((ErrorCodeChannelId) id).doc()).isNeedsHardReset()  ) {
+					if (id instanceof ErrorCodeChannelId) {
+						if (((ErrorDoc) ((ErrorCodeChannelId) id).doc()).isNeedsHardReset()) {
 							return false;
 						}
 					} else if (id instanceof ErrorCodeChannelId1) {
-						if ( ((ErrorDoc) ((ErrorCodeChannelId1) id).doc()).isNeedsHardReset()  ) {
+						if (((ErrorDoc) ((ErrorCodeChannelId1) id).doc()).isNeedsHardReset()) {
 							return false;
 						}
 					}
@@ -513,19 +542,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void handleUndefined() throws IllegalArgumentException, OpenemsNamedException {
-		
-		if (delay != null && delay.plusSeconds(15).isAfter(LocalDateTime.now())) {
+
+		if (timeWhenErrorsHasBeenAcknowledged != null && timeWhenErrorsHasBeenAcknowledged
+				.plusSeconds(TIME_UNTIL_ERRORS_SHOULD_BE_ACKNOWLEDGED_SECONDS).isAfter(LocalDateTime.now())) {
 			return;
 		} else {
-			delay = null;
+			timeWhenErrorsHasBeenAcknowledged = null;
 		}
-		
+
 		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
 		CCUState ccuState = this.getCurrentState();
 		StateChannel errorChannel = this.getErrorChannel();
 
 		if (gridMode == GridMode.ON_GRID) {
-			if (ccuState == CCUState.ERROR && errorChannel != null) { //TODO Check && condition, without it (|| instead), gridcon remains always in error 
+			if (ccuState == CCUState.ERROR && errorChannel != null) { // TODO Check && condition, without it (||
+																		// instead), gridcon remains always in error
 				this.state = StateMachine.ONGRID_ERROR;
 
 			} else if (ccuState == CCUState.RUN) {
@@ -568,8 +599,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //
 	}
 
-
-
 	/**
 	 * Handles On-Grid Error.
 	 * 
@@ -602,7 +631,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 //				acknowledgeErrors();
 //			}
 
-		
 	}
 
 	/**
@@ -933,7 +961,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		Battery batteryStringA = null;
 		Battery batteryStringB = null;
 		Battery batteryStringC = null;
-		
+
 		try {
 			batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
 		} catch (Exception e) {
