@@ -137,9 +137,11 @@ public class EdgeConfig {
 						break;
 					}
 				}
-				Unit unit = JsonUtils.getAsEnum(Unit.class, json, "unit");
-				ChannelCategory categoryKey = JsonUtils.getAsEnum(ChannelCategory.class, json, "categoryKey");
-				JsonObject categoryDetails = JsonUtils.getAsJsonObject(json, "categoryDetails");
+				Unit unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
+				JsonObject categoryDetails = JsonUtils.getAsOptionalJsonObject(json, "categoryDetails")
+						.orElse(new JsonObject());
+				ChannelCategory categoryKey = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "categoryKey")
+						.orElse(ChannelCategory.OPENEMS_TYPE);
 				ChannelDetail detail = null;
 				switch (categoryKey) {
 				case OPENEMS_TYPE: {
