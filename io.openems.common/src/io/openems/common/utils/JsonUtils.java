@@ -54,7 +54,7 @@ public class JsonUtils {
 		try {
 			return (E) Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
-			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, jElement.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
 		}
 	}
 
