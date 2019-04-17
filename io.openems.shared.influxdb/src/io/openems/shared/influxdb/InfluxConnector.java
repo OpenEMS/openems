@@ -72,6 +72,7 @@ public class InfluxConnector {
 		if (this._influxDB == null) {
 			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
 					this.password);
+			influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
 			influxDB.setDatabase(this.database);
 			influxDB.enableBatch(BatchOptions.DEFAULTS);
 			this._influxDB = influxDB;
