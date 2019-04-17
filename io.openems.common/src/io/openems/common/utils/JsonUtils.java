@@ -59,13 +59,13 @@ public class JsonUtils {
 	}
 
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
-			String memberName) throws OpenemsNamedException {
-		String element = getAsString(jElement, memberName);
-		if (element.isEmpty()) {
+			String memberName) {
+		Optional<String> elementOpt = getAsOptionalString(jElement, memberName);
+		if (!elementOpt.isPresent()) {
 			return Optional.empty();
 		}
 		try {
-			return Optional.ofNullable((E) Enum.valueOf(enumType, element));
+			return Optional.ofNullable((E) Enum.valueOf(enumType, elementOpt.get()));
 		} catch (IllegalArgumentException e) {
 			return Optional.empty();
 		}
