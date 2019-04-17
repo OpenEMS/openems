@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
@@ -124,6 +125,17 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
+			}
+			if (data.has("_sum/State") && data.get("_sum/State").isJsonPrimitive()) {
+				int value = JsonUtils.getAsPrimitive(data, "_sum/State").getAsInt();
+				Level result = null;
+				for (Level level : Level.values()) {
+					if (value == level.getValue()) {
+						result = level;
+						break;
+					}
+				}
+				edge.setSumState(result);
 			}
 		}
 	}

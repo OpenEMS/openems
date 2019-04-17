@@ -177,7 +177,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 				// Create instance of Edge and register listeners
 				MyEdge edge = new MyEdge(//
 						odooId, //
-						edgeId, apikey, comment, state, version, productType, config, initialSoc, initialIpv4);
+						edgeId, apikey, comment, state, version, productType, config, initialSoc, initialIpv4, null);
 				this.addListeners(edge);
 
 				// store in cache
@@ -247,6 +247,16 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		edge.onSetIpv4(ipv4 -> {
 			// Set IPv4 in Odoo
 			this.write(edge, new FieldValue(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
+		});
+		edge.onSetSumState(sumState -> {
+			// Set "_sum/State" in Odoo
+			String string;
+			if (sumState != null) {
+				string = sumState.getName().toLowerCase();
+			} else {
+				string = "";
+			}
+			this.write(edge, new FieldValue(Field.EdgeDevice.OPENEMS_SUM_STATE, string));
 		});
 	}
 
