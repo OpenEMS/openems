@@ -51,6 +51,9 @@ public class JsonUtils {
 	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement, String memberName)
 			throws OpenemsNamedException {
 		String element = getAsString(jElement, memberName);
+		if (element.isEmpty()) {
+			return null;
+		}
 		try {
 			return (E) Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
