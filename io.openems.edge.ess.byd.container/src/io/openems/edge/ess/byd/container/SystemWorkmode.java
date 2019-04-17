@@ -1,6 +1,6 @@
 package io.openems.edge.ess.byd.container;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum SystemWorkmode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), 
