@@ -57,7 +57,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public void executeWrite(AbstractModbusBridge bridge) throws OpenemsException {
+	public void execute(AbstractModbusBridge bridge) throws OpenemsException {
 		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
 		// Execute combined writes
 		for (CombinedWriteRegisters write : writes) {

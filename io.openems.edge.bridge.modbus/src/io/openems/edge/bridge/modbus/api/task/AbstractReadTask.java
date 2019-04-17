@@ -35,7 +35,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		this.priority = priority;
 	}
 
-	public void executeQuery(AbstractModbusBridge bridge) throws OpenemsException {
+	public void execute(AbstractModbusBridge bridge) throws OpenemsException {
 		T[] response;
 		try {
 			/*

@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;
@@ -38,5 +40,15 @@ public interface Task extends ManagedTask {
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
 	 * any references like listeners.
 	 */
-	public abstract void deactivate();
+	void deactivate();
+
+	/**
+	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
+	 * WriteTask.
+	 * 
+	 * @param bridge the Modbus-Bridge
+	 * @param <T>    the Modbus-Element
+	 * @throws OpenemsException on error
+	 */
+	<T> void execute(AbstractModbusBridge bridge) throws OpenemsException;
 }
