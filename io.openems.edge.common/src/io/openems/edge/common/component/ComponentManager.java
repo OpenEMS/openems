@@ -17,7 +17,9 @@ public interface ComponentManager {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
-				.text("A configured OpenEMS Component was not activated"));
+				.text("A configured OpenEMS Component was not activated")), //
+		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
+				.text("OutOfMemory had happened. Found heap dump files."));
 
 		private final Doc doc;
 
@@ -42,7 +44,7 @@ public interface ComponentManager {
 	 * Gets a OpenEMS-Component by its Component-ID.
 	 * 
 	 * @param componentId the Component-ID (e.g. "_sum")
-	 * @param             <T> the typed Component
+	 * @param <T>         the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
@@ -61,7 +63,7 @@ public interface ComponentManager {
 	 * Gets a Channel by its Channel-Address.
 	 * 
 	 * @param channelAddress the Channel-Address
-	 * @param                <T> the typed Channel
+	 * @param <T>            the typed Channel
 	 * @return the Channel
 	 * @throws IllegalArgumentException if the Channel is not available
 	 * @throws OpenemsNamedException    on error
