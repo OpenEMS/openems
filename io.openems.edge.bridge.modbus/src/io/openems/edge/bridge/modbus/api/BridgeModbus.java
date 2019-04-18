@@ -40,4 +40,5 @@ public interface BridgeModbus extends OpenemsComponent {
 	 */
 	public void removeProtocol(String sourceId);
 
+	public void update();
 }

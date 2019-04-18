@@ -297,4 +297,8 @@ class ModbusWorker extends AbstractCycleWorker {
 			this.readTaskManager.addTasks(protocol.getReadTasksManager().getAllTasks());
 		}
 	}
+	
+	public void update() {
+		this.updateReadTasksManager();
+	}
 }
