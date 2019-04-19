@@ -254,7 +254,6 @@ public class Edge {
 
 	public synchronized void setSumState(Level sumState) {
 		if (this.sumState == null || !this.sumState.equals(sumState)) { // on change
-			System.out.println("Set state: " + sumState);
 			this.onSetSumState.forEach(listener -> listener.accept(sumState));
 			this.sumState = sumState;
 		}
