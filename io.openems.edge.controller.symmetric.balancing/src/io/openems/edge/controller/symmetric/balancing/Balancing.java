@@ -93,9 +93,14 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
-		if (gridMode != GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
+		case UNDEFINED:
+			break;
+		case OFF_GRID:
 			return;
 		}
+
 		/*
 		 * Calculates required charge/discharge power
 		 */
