@@ -43,7 +43,8 @@ public class MarkerTask implements Task {
 	}
 
 	@Override
-	public <T> void execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
+		return 0;
 	}
 
 	@Override
