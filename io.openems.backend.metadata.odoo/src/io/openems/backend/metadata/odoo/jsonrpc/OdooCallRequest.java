@@ -18,7 +18,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
  */
 public abstract class OdooCallRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "call";
+	public static final String METHOD = "call";
 
 	public OdooCallRequest(UUID id) {
 		super(id, METHOD);

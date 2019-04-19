@@ -16,8 +16,9 @@ public interface Field {
 		LAST_MESSAGE("lastmessage"), //
 		LAST_UPDATE("lastupdate"), //
 		SOC("soc"), //
-		IPV4("ipv4"), // ;
-		OPENEMS_SUM_STATE("openems_sum_state");
+		IPV4("ipv4"), //
+		OPENEMS_SUM_STATE("openems_sum_state"), //
+		OPENEMS_IS_CONNECTED("openems_is_connected");
 
 		private final String n;
 

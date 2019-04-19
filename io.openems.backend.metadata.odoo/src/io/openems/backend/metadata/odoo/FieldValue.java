@@ -1,10 +1,10 @@
 package io.openems.backend.metadata.odoo;
 
-public class FieldValue {
+public class FieldValue<T> {
 	private final Field field;
-	private final String value;
+	private final T value;
 
-	public FieldValue(Field field, String value) {
+	public FieldValue(Field field, T value) {
 		this.field = field;
 		this.value = value;
 	}
@@ -13,7 +13,7 @@ public class FieldValue {
 		return field;
 	}
 
-	public String getValue() {
+	public T getValue() {
 		return value;
 	}
 

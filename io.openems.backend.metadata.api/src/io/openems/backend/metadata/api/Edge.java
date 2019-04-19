@@ -36,7 +36,7 @@ public class Edge {
 	private Integer soc = null;
 	private String ipv4 = null;
 	private Level sumState = null;
-	private boolean isOnline;
+	private boolean isOnline = false;
 
 	public Edge(String id, String apikey, String comment, State state, String version, String producttype,
 			EdgeConfig config, Integer soc, String ipv4, Level sumState) {
@@ -253,7 +253,8 @@ public class Edge {
 	}
 
 	public synchronized void setSumState(Level sumState) {
-		if (this.sumState == null || !sumState.equals(this.sumState)) { // on change
+		if (this.sumState == null || !this.sumState.equals(sumState)) { // on change
+			System.out.println("Set state: " + sumState);
 			this.onSetSumState.forEach(listener -> listener.accept(sumState));
 			this.sumState = sumState;
 		}
