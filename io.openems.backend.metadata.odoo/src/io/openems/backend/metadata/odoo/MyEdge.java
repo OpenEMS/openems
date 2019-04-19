@@ -15,7 +15,7 @@ public class MyEdge extends Edge {
 	}
 
 	public int getOdooId() {
-		return odooId;
+		return this.odooId;
 	}
 
 }
