@@ -78,7 +78,9 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @return the required power
 	 */
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) {
-		return meter.getActivePower().value().orElse(0) + ess.getActivePower().value().orElse(0);
+		return meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
+				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */
+				- config.targetGridSetpoint(); /* the configured target setpoint */
 	}
 
 	@Override
