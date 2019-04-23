@@ -85,9 +85,15 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
-
 	private static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
+	private static final float OFF_GRID_FREQUENCY_FACTOR = 1.0f;
+	private static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
+
+	private static final float GOING_ON_GRID_FREQUENCY_FACTOR = 1.035f;
+	private static final float GOING_ON_GRID_VOLTAGE_FACTOR = 0.97f;
+
+	
 	// public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally
 	// measured
 	public static final int MAX_POWER_PER_INVERTER = 40000; // experimentally measured
@@ -276,7 +282,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsNamedException
 	 */
 	private void doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
+		
 		tryToAcknowledgeErrorsCounter = tryToAcknowledgeErrorsCounter + 1;
+		
+		System.out.println("try to acknowledge error for x times: " + tryToAcknowledgeErrorsCounter);
 
 		int currentErrorCodeFeedBack = 0;
 
@@ -825,9 +834,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			int code = errorCodeOpt.get();
 			System.out.println("Code read: " + code + " ==> hex: " + Integer.toHexString(code));
 			code = code >> 8;
-			System.out.println("Code >> 8 read: " + code + " ==> hex: " + Integer.toHexString(code));
-			log.info("Error code is present --> " + code);
-			io.openems.edge.common.channel.ChannelId id = errorChannelIds.get(code);
+		io.openems.edge.common.channel.ChannelId id = errorChannelIds.get(code);
+
+		System.out.println("Code >> 8 read: " + code + " ==> hex: " + Integer.toHexString(code));
+			log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
+			
 			return this.channel(id);
 		}
 		return null;
@@ -1186,13 +1197,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, false); //
 			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, false); //
 			
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //
-
-			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, 1.0f);
+			if (this.config.inverterCount() == InverterCount.ONE) {
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //	
+			} else if (this.config.inverterCount() == InverterCount.TWO) {
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //
+			} else if (this.config.inverterCount() == InverterCount.THREE) {
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true); //
+			}
+			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, OFF_GRID_VOLTAGE_FACTOR);
+			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, OFF_GRID_FREQUENCY_FACTOR);
 			
 //			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false);
 //			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false);
@@ -1251,10 +1273,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, false); //
 			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, false); //
 			
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //
+			//
+			if (this.config.inverterCount() == InverterCount.ONE) {
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //	
+			} else if (this.config.inverterCount() == InverterCount.TWO) {
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //
+			} else if (this.config.inverterCount() == InverterCount.THREE) {
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
+				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true); //
+			}
+			
 
 			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, invSetVoltNormalized);
 			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, invSetFreqNormalized);
