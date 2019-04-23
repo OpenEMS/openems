@@ -1,8 +1,8 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc.Acknowledge;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc.ReactionLevel;
 

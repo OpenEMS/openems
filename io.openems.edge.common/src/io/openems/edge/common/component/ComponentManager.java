@@ -2,13 +2,13 @@ package io.openems.edge.common.component;
 
 import java.util.List;
 
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
 
 /**
  * A Service that provides access to OpenEMS-Components.

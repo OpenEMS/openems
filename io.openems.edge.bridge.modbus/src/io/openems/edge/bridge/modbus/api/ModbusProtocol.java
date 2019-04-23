@@ -9,6 +9,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
 
 public class ModbusProtocol {
@@ -82,6 +83,15 @@ public class ModbusProtocol {
 	}
 
 	/**
+	 * Gets the Read-Tasks Manager.
+	 * 
+	 * @return a the TaskManager
+	 */
+	public TasksManager<ReadTask> getReadTasksManager() {
+		return this.readTaskManager;
+	}
+
+	/**
 	 * Returns the next list of WriteTasks that should be executed within one cycle.
 	 * 
 	 * @return a list of WriteTasks
@@ -115,6 +125,15 @@ public class ModbusProtocol {
 	 */
 	public ReadTask getOneReadTask() {
 		return this.readTaskManager.getOneTask();
+	}
+
+	/**
+	 * Returns one ReadTask with the given Priority sequentially.
+	 * 
+	 * @return a ReadTasks
+	 */
+	public ReadTask getOneReadTask(Priority priority) {
+		return this.readTaskManager.getOneTask(priority);
 	}
 
 	/**

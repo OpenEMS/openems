@@ -14,6 +14,7 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.SemanticVersion;
@@ -72,8 +73,13 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData)
 			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
+
+		// save config in metadata
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getConfig());
+
+		// forward
+		this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
 	}
 
 	/**

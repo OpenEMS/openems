@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.Test;
+
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
@@ -26,9 +28,9 @@ import io.openems.common.types.ChannelAddress;
  */
 public class B2bWebsocketTest {
 
-	private static final String URI = "ws://localhost:" + B2bWebsocket.DEFAULT_PORT;
-	private static final String USERNAME = "demo@fenecon.de";
-	private static final String PASSWORD = "femsdemo";
+    private static final String URI = "wss://www1.fenecon.de/fems-backend-to-backend";
+    private static final String USERNAME = "info@beegy.com";
+    private static final String PASSWORD = "iMQdWXvW1JMoFZnr3OHM";
 
 	private static TestClient prepareTestClient() throws URISyntaxException, InterruptedException {
 		Map<String, String> httpHeaders = new HashMap<>();
@@ -37,6 +39,9 @@ public class B2bWebsocketTest {
 		httpHeaders.put("Authorization", "Basic " + auth);
 		TestClient client = new TestClient(new URI(URI), httpHeaders);
 		client.startBlocking();
+		
+		Thread.sleep(1000);
+		
 		return client;
 	}
 
@@ -54,14 +59,13 @@ public class B2bWebsocketTest {
 		}
 		client.stop();
 	}
-
-	// @Test
+//
+//	 @Test
 	public void testGetEdgesChannelsValuesRequest() throws URISyntaxException, InterruptedException {
 		TestClient client = prepareTestClient();
 
 		GetEdgesChannelsValuesRequest request = new GetEdgesChannelsValuesRequest();
-		request.addEdgeId("edge0");
-		request.addEdgeId("edge5");
+		request.addEdgeId("fems1095");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try {
@@ -73,7 +77,7 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	// @Test
+	 @Test
 	public void testSubscribeEdgesChannelsRequest()
 			throws URISyntaxException, InterruptedException, ExecutionException, OpenemsNamedException {
 		TestClient client = prepareTestClient();
@@ -82,8 +86,7 @@ public class B2bWebsocketTest {
 		});
 
 		SubscribeEdgesChannelsRequest request = new SubscribeEdgesChannelsRequest(0);
-		request.addEdgeId("edge0");
-		request.addEdgeId("edge5");
+		request.addEdgeId("fems1095");
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try {
@@ -97,14 +100,14 @@ public class B2bWebsocketTest {
 		client.stop();
 	}
 
-	// @Test
+	 @Test
 	public void testSetGridConnSchedule() throws URISyntaxException, InterruptedException {
 		TestClient client = prepareTestClient();
 
-		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("edge0");
+		SetGridConnScheduleRequest request = new SetGridConnScheduleRequest("fems1095");
 		long now = System.currentTimeMillis() / 1000;
-		request.addScheduleEntry(new GridConnSchedule(now, 60, -3000));
-		request.addScheduleEntry(new GridConnSchedule(now + 60, 60, -5000));
+		request.addScheduleEntry(new GridConnSchedule(now, 60, 0));
+//		request.addScheduleEntry(new GridConnSchedule(now + 60, 60, -5000));
 		try {
 			CompletableFuture<JsonrpcResponseSuccess> responseFuture = client.sendRequest(request);
 			System.out.println(responseFuture.get().toString());
