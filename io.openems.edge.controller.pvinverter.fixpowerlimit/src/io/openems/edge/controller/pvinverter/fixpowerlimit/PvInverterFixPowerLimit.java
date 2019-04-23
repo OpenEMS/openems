@@ -9,10 +9,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
