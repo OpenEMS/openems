@@ -130,7 +130,7 @@ public class SubscribedEdgesChannelsWorker {
 	 */
 	private EdgesCurrentDataNotification getCurrentDataNotification() throws OpenemsNamedException {
 		EdgesCurrentDataNotification result = new EdgesCurrentDataNotification();
-		BackendUser user = this.wsData.assertUser();
+		BackendUser user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		for (String edgeId : this.edgeIds) {
 			// assure read permissions of this User for this Edge.

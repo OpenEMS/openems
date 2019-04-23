@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		BackendUser user = wsData.assertUser();
+		BackendUser user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		switch (request.getMethod()) {
 
