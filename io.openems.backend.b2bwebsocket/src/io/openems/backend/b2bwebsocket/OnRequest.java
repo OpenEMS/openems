@@ -143,7 +143,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);
-			request.removeEdgeId(edgeId);
 		}
 
 		// activate SubscribedChannelsWorker
