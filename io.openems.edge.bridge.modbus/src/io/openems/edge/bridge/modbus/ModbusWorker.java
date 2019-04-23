@@ -53,11 +53,6 @@ class ModbusWorker extends AbstractImmediateWorker {
 			.synchronizedListMultimap(ArrayListMultimap.create());
 
 	/**
-	 * TaskManager for ReadTasks from all Protocols.
-	 */
-	private final TasksManager<ReadTask> readTaskManager = new TasksManager<>();
-
-	/**
 	 * Holds source Component-IDs that are known to have errors.
 	 */
 	private final Set<String> defectiveComponents = new HashSet<>();
@@ -289,7 +284,6 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.protocols.put(sourceId, protocol);
-		this.updateReadTasksManager();
 	}
 
 	/**
@@ -310,9 +304,6 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	private synchronized void updateReadTasksManager() {
 		this.readTaskManager.clearAll();
-		for (ModbusProtocol protocol : this.protocols.values()) {
-			this.readTaskManager.addTasks(protocol.getReadTasksManager().getAllTasks());
-		}
 	}
 
 }
