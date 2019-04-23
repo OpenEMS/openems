@@ -49,63 +49,93 @@ public class ErrorHandler {
 
 	protected void handleStateMachine() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.state) {
-		case ACKNOWLEDGE_ERRRORS:
-			this.doAcknowledgeErrors();
+		case READ_ERRORS:
+			this.doReadErrors();
 			break;
 		case HANDLE_ERRORS:
 			this.doHandleErrors();
 			break;
-		case HARD_RESET:
-			this.parent.state = StateMachine.ONGRID_HARD_RESTART;
+		case ACKNOWLEDGE_ERRORS:
+			this.doAcknowledgeErrors();
 			break;
-		case READ_ERRORS:
-			this.doReadErrors();
+		case HARD_RESET:
+			this.doHardReset();
 			break;
 		case ERROR_HANDLING_NOT_POSSIBLE:
-			// switch off system
-			// TODO switch off
-			this.parent.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
+			this.doErrorHandlingNotPossible();
 			break;
+		case FINISH_ERROR_HANDLING:
+			this.doFinishErrorHandling();
 		}
 	}
 
+	/**
+	 * Reads all active Errors into 'readErrorMap'.
+	 */
+	private void doReadErrors() {
+		if (this.readErrorMap == null) {
+			this.readErrorMap = new HashMap<>();
+		}
+
+		io.openems.edge.common.channel.ChannelId errorId = this.readCurrentError();
+		if (errorId != null) {
+			if (!this.readErrorMap.containsKey(errorId)) {
+				this.readErrorMap.put(errorId, LocalDateTime.now());
+			}
+		}
+		if (!this.isNewErrorPresent()) {
+			// If no new error appeared within the last DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS
+			// -> switch to HANDLE_ERRORS state
+			this.state = ErrorStateMachine.HANDLE_ERRORS;
+		}
+	}
+
+	/**
+	 * Is any new error present?.
+	 * 
+	 * @return true if a a new error was found recently; otherwise false
+	 */
+	private boolean isNewErrorPresent() {
+		for (LocalDateTime time : this.readErrorMap.values()) {
+			if (time.plusSeconds(DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS).isAfter(LocalDateTime.now())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Handle Errors.
+	 * 
+	 * <ul>
+	 * <li>Errors are acknowledgeable and we did not try too often -> switch to
+	 * ACKNOWLEDGE_ERRORS state
+	 * <li>Otherwise -> switch to HARD_RESET state
+	 * <li>If Hard-Reset did not work for MAX_TIMES_FOR_TRYING_TO_HARD_RESET times
+	 * -> switch to ERROR_HANDLING_NOT_POSSIBLE
+	 * </ul>
+	 */
 	private void doHandleErrors() {
-		if (this.isAcknowledgeable() && tryToAcknowledgeErrorsCounter < MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS) {
-			this.state = ErrorStateMachine.ACKNOWLEDGE_ERRRORS;
-		} else if (hardResetCounter < MAX_TIMES_FOR_TRYING_TO_HARD_RESET) {
+		if (this.isAcknowledgeable()
+				&& this.tryToAcknowledgeErrorsCounter < MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS) {
+			// All errors are acknowledgeable and we did not try too often to acknowledge
+			// them -> switch to ACKNOWLEDGE_ERRORS state
+			this.state = ErrorStateMachine.ACKNOWLEDGE_ERRORS;
+
+		} else if (this.hardResetCounter < MAX_TIMES_FOR_TRYING_TO_HARD_RESET) {
 			this.state = ErrorStateMachine.HARD_RESET;
-			tryToAcknowledgeErrorsCounter = 0;
+			this.tryToAcknowledgeErrorsCounter = 0;
 
 		} else {
 			this.state = ErrorStateMachine.ERROR_HANDLING_NOT_POSSIBLE;
 		}
 	}
 
-	private void doReadErrors() {
-		if (readErrorMap == null) {
-			readErrorMap = new HashMap<>();
-		}
-
-		io.openems.edge.common.channel.ChannelId errorId = this.readCurrentError();
-		if (errorId != null) {
-			if (!readErrorMap.containsKey(errorId)) {
-				readErrorMap.put(errorId, LocalDateTime.now());
-			}
-		}
-		if (noNewErrorPresent(readErrorMap, DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS)) {
-			this.state = ErrorStateMachine.HANDLE_ERRORS;
-		}
-	}
-
-	private boolean noNewErrorPresent(Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> map, int delay) {
-		for (LocalDateTime time : map.values()) {
-			if (time.plusSeconds(delay).isAfter(LocalDateTime.now())) {
-				return false;
-			}
-		}
-		return true;
-	}
-
+	/**
+	 * Are all errors acknowledgeable, i.e. none of them requires a Hard-Reset.
+	 * 
+	 * @return true if all errors are acknowledgeable; false otherwise
+	 */
 	private boolean isAcknowledgeable() {
 		for (io.openems.edge.common.channel.ChannelId id : readErrorMap.keySet()) {
 			for (io.openems.edge.common.channel.ChannelId id2 : this.errorChannelIds.values()) {
@@ -126,15 +156,14 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * 
-	 * 
+	 * Execute a Hard-Reset, i.e. switch the Gridcon PCS off and on.
+	 *
 	 * @throws IllegalArgumentException
 	 * @throws OpenemsNamedException
 	 */
-	// TODO should be private
-	protected void handleHardRestart() throws IllegalArgumentException, OpenemsNamedException {
+	private void doHardReset() throws IllegalArgumentException, OpenemsNamedException {
 		if (this.lastHardReset == null) {
-			this.hardResetCounter = hardResetCounter + 1;
+			this.hardResetCounter = this.hardResetCounter + 1;
 			this.lastHardReset = LocalDateTime.now();
 			this.parent.setHardResetContactor(true);
 
@@ -155,35 +184,36 @@ public class ErrorHandler {
 				this.parent.setHardResetContactor(false); // Keep contactor open
 				// Mr Gridcon should be back, so reset everything to start conditions
 				this.lastHardReset = null;
-				this.state = ErrorStateMachine.READ_ERRORS;
-				readErrorMap.clear();
-				this.parent.state = StateMachine.UNDEFINED;
-				tryToAcknowledgeErrorsCounter = 0;
+				this.tryToAcknowledgeErrorsCounter = 0;
+				this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
 			}
 
 		}
 	}
 
 	/**
-	 * Acknowledges errors and writes read errors to error code feedback If all
-	 * errors are written to error code feedback continue normal operation
+	 * Acknowledges errors.
+	 * 
+	 * <p>
+	 * Writes read errors to error code feedback. If all errors are written to error
+	 * code feedback continue normal operation.
 	 * 
 	 * @throws IllegalArgumentException
 	 * @throws OpenemsNamedException
 	 */
 	private void doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
-		tryToAcknowledgeErrorsCounter = tryToAcknowledgeErrorsCounter + 1;
+		this.tryToAcknowledgeErrorsCounter = this.tryToAcknowledgeErrorsCounter + 1;
 
 		int currentErrorCodeFeedBack = 0;
 
 		if (!readErrorMap.isEmpty()) {
 			io.openems.edge.common.channel.ChannelId currentId = null;
-			for (io.openems.edge.common.channel.ChannelId id : readErrorMap.keySet()) {
+			for (io.openems.edge.common.channel.ChannelId id : this.readErrorMap.keySet()) {
 				currentId = id;
 				break;
 			}
 			currentErrorCodeFeedBack = ((ErrorDoc) currentId.doc()).getCode();
-			readErrorMap.remove(currentId);
+			this.readErrorMap.remove(currentId);
 		}
 
 		new CommandControlRegisters() //
@@ -199,12 +229,16 @@ public class ErrorHandler {
 				.enableIpus(this.parent.config.inverterCount()) //
 				.writeToChannels(this.parent);
 
-		if (readErrorMap.isEmpty()) {
+		if (this.readErrorMap.isEmpty()) {
 			this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
-			this.parent.state = StateMachine.UNDEFINED;
-			this.state = ErrorStateMachine.READ_ERRORS;
-			readErrorMap = null;
+			this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
 		}
+	}
+
+	private void doErrorHandlingNotPossible() {
+		// switch off system
+		// TODO switch off
+		this.parent.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 	}
 
 	private io.openems.edge.common.channel.ChannelId readCurrentError() {
@@ -243,5 +277,21 @@ public class ErrorHandler {
 			return this.parent.channel(id);
 		}
 		return null;
+	}
+
+	/**
+	 * Finishes the error handling. This is always the last state of the
+	 * ErrorHandler.
+	 * 
+	 * <ul>
+	 * <li>initializes the read-errors
+	 * <li>sets the state to READ_ERRORS
+	 * <li>sets the parent state to UNDEFINED
+	 * </ul>
+	 */
+	private void doFinishErrorHandling() {
+		this.parent.state = StateMachine.UNDEFINED;
+		this.state = ErrorStateMachine.READ_ERRORS;
+		this.readErrorMap = null;
 	}
 }

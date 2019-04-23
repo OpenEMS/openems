@@ -301,10 +301,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case ONGRID_ERROR:
 			this.handleOnGridError();
 			break;
-
-		case ONGRID_HARD_RESTART:
-			this.errorHandler.handleHardRestart();
-			break;
 		}
 
 	}
