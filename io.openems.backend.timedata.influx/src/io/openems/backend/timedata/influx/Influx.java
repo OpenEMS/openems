@@ -279,13 +279,13 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			return;
 		}
 
-		BatchPoints batchPoints = BatchPoints.database(this.influxConnector.getDatabase()) //
-				.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
-				.build();
-
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : data.rowMap().entrySet()) {
 			Long timestamp = entry.getKey();
-			Builder builder = Point.measurement(TMP_MINI_MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
+			// this builds an InfluxDB record ("point") for a given timestamp
+			Point.Builder builder = Point //
+					.measurement(TMP_MINI_MEASUREMENT) //
+					.tag(InfluxConstants.TAG, String.valueOf(influxId)) //
+					.time(timestamp, TimeUnit.MILLISECONDS);
 
 			Map<String, Object> fields = new HashMap<>();
 
@@ -331,13 +331,10 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 
 			if (fields.size() > 0) {
-				builder.fields(fields);
-				batchPoints.point(builder.build());
+				// write to DB
+				this.influxConnector.write(builder.build());
 			}
 		}
-
-		// write to DB
-		this.influxConnector.write(batchPoints);
 	}
 
 	@Override
