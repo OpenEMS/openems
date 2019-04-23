@@ -7,7 +7,6 @@ public enum StateMachine implements OptionsEnum {
 	ONGRID_IDLE(11, "On-Grid System is not started"), //
 	ONGRID_NORMAL_OPERATION(12, "On-Grid Normal Operation"), //
 	ONGRID_ERROR(13, "On-Grid + Error"), //
-	ONGRID_HARD_RESTART(19, "On-Grid Hard restart")
 	;
 	
 
