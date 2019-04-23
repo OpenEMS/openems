@@ -58,6 +58,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorStateMachine;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
@@ -112,8 +113,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	// TODO should be private
 	protected StateMachine state = StateMachine.UNDEFINED;
 
-//	private int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
-//	private LocalDateTime offGridDetected = null;
 
 	public GridconPCS() {
 		super(//
@@ -282,7 +281,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			this.handleOnGrid();
 			break;
 		case OFF_GRID:
-			this.handleOffGridState();
+			this.handleOffGrid();
+			break;
 		case UNDEFINED:
 			break;
 		}
@@ -304,6 +304,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		case ONGRID_ERROR:
 			this.handleOnGridError();
 			break;
+		case OFFGRID:
+			this.handleOffGridState();
+			break;
+
 		}
 
 	}
@@ -315,10 +319,23 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws IllegalArgumentException
 	 */
 	private void handleOnGrid() throws IllegalArgumentException, OpenemsNamedException {
+		log.info("Set K1 OFF");
 		// Always set OutputSyncDeviceBridge OFF in On-Grid state
 		this.setOutputSyncDeviceBridge(false);
 	}
-
+	
+	/**
+	 * Handles generic Off-Grid.
+	 * 
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	private void handleOffGrid() throws IllegalArgumentException, OpenemsNamedException {
+		log.info("Set K1 ON");
+		// Always set OutputSyncDeviceBridge ON in Off-Grid state
+		this.setOutputSyncDeviceBridge(true);
+	}
+	
 	/**
 	 * Handles idle operation in On-Grid -> tries to start the inverter.
 	 * 
@@ -361,6 +378,9 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
+	LocalDateTime lastTimeInSwitchedToOnGridNormal = null;
+	private int DELAY_TIME_NORMAL_OPERATION = 30;
+
 	private void handleOnGridNormalOperation() throws IllegalArgumentException, OpenemsNamedException {
 		// Verify State-Machine
 		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
@@ -372,8 +392,20 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		if (isLinkVoltageTooLow()) {
 			System.out.println("Link voltage too low!!");
-			// this.state = StateMachine.ONGRID_HARD_RESTART;
-//			return;
+
+			if (this.lastTimeInSwitchedToOnGridNormal == null) {
+				this.lastTimeInSwitchedToOnGridNormal = LocalDateTime.now();
+			}
+			if (this.lastTimeInSwitchedToOnGridNormal.plusSeconds(DELAY_TIME_NORMAL_OPERATION)
+					.isBefore(LocalDateTime.now())) {
+
+				System.out.println("delay time passed, setting it to error");
+				
+				this.state = StateMachine.ONGRID_ERROR;
+				this.errorHandler.setState(ErrorStateMachine.HARD_RESET);
+				this.lastTimeInSwitchedToOnGridNormal = null;
+				return;
+			}
 		}
 
 		InverterCount inverterCount = this.config.inverterCount();
@@ -420,6 +452,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		} else {
 			this.errorHandler.timeWhenErrorsHasBeenAcknowledged = null;
 		}
+		
+		lastTimeInSwitchedToOnGridNormal = null;
 
 		BooleanReadChannel channelHardReset = this.componentManager
 				.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
@@ -431,9 +465,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		CCUState ccuState = this.getCurrentState();
 		StateChannel errorChannel = this.errorHandler.getErrorChannel();
 
-		if (gridMode == GridMode.ON_GRID) {
+		switch (gridMode) {
+		case ON_GRID:
 			if (ccuState == CCUState.ERROR && errorChannel != null) { // TODO Check && condition, without it (||
-																		// instead), gridcon remains always in error
+				// instead), gridcon remains always in error
 				this.state = StateMachine.ONGRID_ERROR;
 
 			} else if (ccuState == CCUState.RUN) {
@@ -442,9 +477,23 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			} else if (ccuState == CCUState.IDLE) {
 				this.state = StateMachine.ONGRID_IDLE;
 
+			} else if (this.state == StateMachine.OFFGRID) {
+				// stay in OFFGRID state -> going On-Grid
+
 			} else {
 				this.state = StateMachine.UNDEFINED;
 			}
+			break;
+
+		case OFF_GRID:
+			this.state = StateMachine.OFFGRID;
+			break;
+
+		case UNDEFINED:
+			break;
+		}
+
+		if (gridMode == GridMode.ON_GRID || gridMode == GridMode.OFF_GRID) {
 
 		} else {
 			this.log.warn("State-Machine UNDEFINED. Grid-Mode [" + gridMode + "] CCU-State [" + ccuState.toString()
@@ -457,10 +506,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 //		return StateMachine.ONGRID_NORMAL_OPERATION;
 
-//		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
-//		// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
-//		// aber ein fehler in der queue und das system nicht angelaufen ist....
-//
 	}
 
 	/**
@@ -512,151 +557,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				.writeToChannels(this);
 	}
 
-//	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
-//		offGridDetected = null;
-//		System.out.println(" ------ Currently set error channels ------- ");
-//		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
-//			@SuppressWarnings("unchecked")
-//			Optional<Boolean> val = (Optional<Boolean>) this.channel(id).value().asOptional();
-//			if (val.isPresent() && val.get()) {
-//				System.out.println(this.channel(id).address().getChannelId() + " is present");
-//			}
-//		}
-//		// TODO check
-//		// Just temporarily, because sometime gridcon reduces the link voltage, i.e.
-//		// there is no function any longer but also no errors
-//
-//		// a hardware restart has been executed,
-//		if (timestampMrGridconWasSwitchedOff != null) {
-//			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
-//			if ( //
-//			LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS))
-//					&& //
-//					LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff
-//							.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS)) //
-//			) {
-//				try {
-//					log.info("try to write to channel hardware reset, set it to 'false'");
-//					// after 15 seconds switch Mr. Gridcon on again!
-//					BooleanWriteChannel channelHardReset = this.componentManager
-//							.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-//					channelHardReset.setNextWriteValue(false);
-//					resetErrorChannels();
-//				} catch (IllegalArgumentException | OpenemsNamedException e) {
-//					log.error("Problem occurred while deactivating hardware switch!");
-//					e.printStackTrace();
-//				}
-//
-//			} else if (LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff
-//					.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS))) {
-//				timestampMrGridconWasSwitchedOff = null;
-//			}
-//			return;
-//		}
-//
-//		switch (getCurrentState()) {
-//		case DERATING_HARMONICS:
-//			break;
-//		case DERATING_POWER:
-//			break;
-//		case ERROR:
-//			doErrorHandling();
-//			break;
-//		case IDLE:
-//			startSystem();
-//			break;
-//		case OVERLOAD:
-//			break;
-//		case PAUSE:
-//			break;
-//		case PRECHARGE:
-//			break;
-//		case READY:
-//			break;
-//		case RUN:
-//			doRunHandling();
-//			break;
-//		case SHORT_CIRCUIT_DETECTED:
-//			break;
-//		case SIA_ACTIVE:
-//			break;
-//		case STOP_PRECHARGE:
-//			break;
-//		case UNDEFINED:
-//			break;
-//		case VOLTAGE_RAMPING_UP:
-//			break;
-//		}
-//
-//		resetErrorCodes();
-//	}
-//
-//	private void resetErrorChannels() {
-//		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
-//			this.channel(id).setNextValue(false);
-//		}
-//	}
-//
-//	private void resetErrorCodes() {
-//		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
-//		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-//		log.debug("in resetErrorCodes: => Errorcode: " + errorCodeOpt);
-//		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
-//			writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, errorCodeOpt.get());
-//		}
-//	}
-//
-//	// TODO Shutdown system
-//	private void stopSystem() {
-//		log.info("Try to stop system");
-//
-//		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
-//		// system should change state to "IDLE"
-//		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
-//		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
-//		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-//
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
-//	}
-
-//	private void doHardRestart() {
-//	private LocalDateTime lastHardReset = null;
-//		try {
-//			log.info("in doHardRestart");
-//			if (timestampMrGridconWasSwitchedOff == null) {
-//				log.info("timestampMrGridconWasSwitchedOff was not set yet! try to write 'true' to channelHardReset!");
-//				BooleanWriteChannel channelHardReset = this.componentManager
-//						.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-//				channelHardReset.setNextWriteValue(true);
-//				timestampMrGridconWasSwitchedOff = LocalDateTime.now();
-//			}
-//		} catch (IllegalArgumentException | OpenemsNamedException e) {
-//			log.error("Problem occurred while activating hardware switch to restart Mr. Gridcon!");
-//			e.printStackTrace();
-//		}
-//
-//	}
-//
-//	/**
-//	 * This sends an ACKNOWLEDGE message. This does not fix the error. If the error
-//	 * was fixed previously the system should continue operating normally. If not a
-//	 * manual restart may be necessary.
-//	 * 
-//	 * @throws OpenemsException
-//	 */
-//	private void acknowledgeErrors() throws OpenemsNamedException {
-//		if ( //
-//		lastTimeAcknowledgeCommandoWasSent == null || //
-//				LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS)) //
-//		) {
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, true);
-//			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
-//		}
-//	}
 
 	@Override
 	public String debugLog() {
@@ -911,31 +811,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 		System.out.println("do normal off grid handling");
 
-		// sending command for black start
-//		InverterCount inverterCount = this.config.inverterCount();
-//		new CommandControlRegisters() //
-//				.play(true) //
-//				.syncApproval(false) //
-//				.blackstartApproval(true)
-//				.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-////				.enableIpus(inverterCount) //
-//				.writeToChannels(this);
-//		new CcuControlParameters() //
-////				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-//				.qLimit(1f) //
-//				.writeToChannels(this);
-//		this.setIpuControl();
-
-		// send play command
-//		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-
-		// Always set OutputSyncDeviceBridge ON in Off-Grid state
-		log.info("Set K1 ON");
-		this.setOutputSyncDeviceBridge(true);
-
-		// TODO check if OutputSyncDeviceBridge was actually set to ON via
-		// inputSyncDeviceBridgeComponent. On Error switch off the MR.
-
 		// Measured by Grid-Meter, grid Values
 		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter());
 
@@ -951,259 +826,70 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			/*
 			 * Off-Grid
 			 */
-//			System.out.println("setting parameters u0 -> 1 and f0 -> 1 and all others for blackstart");
-
-			System.out.println("Write channels for blackstart mode");
-			// TODO check new command word structure, old-style works, new one not
-			// probably some values has to be set (or not?!)
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP, false); //
-
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL,
-					true); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false); //
-			this.setNextWriteValueToBooleanWriteChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false); //
-
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, false); //
-			
-			if (this.config.inverterCount() == InverterCount.ONE) {
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //	
-			} else if (this.config.inverterCount() == InverterCount.TWO) {
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //
-			} else if (this.config.inverterCount() == InverterCount.THREE) {
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true); //
-			}
-			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, OFF_GRID_VOLTAGE_FACTOR);
-			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, OFF_GRID_FREQUENCY_FACTOR);
-			
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false);
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false);
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true);
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true);
-//			// Always set Voltage Control Mode + Blackstart Approval
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, true);
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false);
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false);
-//			this.setNextWriteValueToBooleanWriteChannel(
-//					GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false);
-//	
-
-//			InverterCount inverterCount = this.config.inverterCount();
-//			new CommandControlRegisters() //
-//					.play(true) //
-//					.syncApproval(false) //
-//					.blackstartApproval(true)
-//					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-//					.enableIpus(inverterCount) //
-//					.writeToChannels(this);
-//			new CcuControlParameters() //
-//					.pControlMode(PControlMode.DISABLED) //
-//					.qLimit(0f) //
-//					.writeToChannels(this);
-//			this.setIpuControl();
+			doNormalBlackStartMode();
 
 		} else {
 			/*
 			 * Going On-Grid
 			 */
-			System.out.println("going on grid -->  ");
-			int invSetFreq = gridFreq + 20; // add 20 mHz
-			int invSetVolt = gridVolt + 5_000; // add 5 V
-			float invSetFreqNormalized = invSetFreq / 50_000f;
-			float invSetVoltNormalized = invSetVolt / 230_000f;
-			log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
-					+ invSetVoltNormalized);
-
-			System.out.println("Write parameters for off grid and adapted parameters for u0 and f0");
-			// TODO does not work, system remains in off grid state
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP, false); //
-
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL,
-					true); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false); //
-			this.setNextWriteValueToBooleanWriteChannel(
-					GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false); //
-
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET, false); //
-			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET, false); //
-			
-			//
-			if (this.config.inverterCount() == InverterCount.ONE) {
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, false); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //	
-			} else if (this.config.inverterCount() == InverterCount.TWO) {
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, false); //
-			} else if (this.config.inverterCount() == InverterCount.THREE) {
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, true); //
-				this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, true); //
-			}
-
-			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0,
-					invSetVoltNormalized);
-			this.setNextWriteValueToFloatWriteChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0,
-					invSetFreqNormalized);
-
-//			InverterCount inverterCount = this.config.inverterCount();
-//			new CommandControlRegisters() //
-//					.play(true) //
-//					.ready(false) //
-//					.acknowledge(false) //
-//					.stop(false) //
-//					
-//					.syncApproval(false) //
-//					.blackstartApproval(true) //
-//					.shortCircuitHandling(false) //
-//					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-//					.enableIpus(inverterCount) //
-//					
-//					.parameterU0(invSetVoltNormalized) //
-//					.parameterF0(invSetFreqNormalized) //
-//					
-//					.writeToChannels(this);
-//			new CcuControlParameters() //
-////					.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-//					.qLimit(1f) //
-//					.writeToChannels(this);
-//			this.setIpuControl();
-
-//			new CommandControlRegisters() //
-//			.parameterU0(invSetVoltNormalized) //
-//			.parameterF0(invSetFreqNormalized) //
-//			.writeToChannels(this);
+			doBlackStartGoingOnGrid(gridFreq, gridVolt);
 		}
 
-		//
-//		boolean disableIpu1 = false;
-//		boolean disableIpu2 = true;
-//		boolean disableIpu3 = true;
-//		boolean disableIpu4 = true;
-//
-//		switch (this.config.inverterCount()) {
-//		case ONE:
-//			disableIpu2 = false;
-//			break;
-//		case TWO:
-//			disableIpu2 = false;
-//			disableIpu3 = false;
-//			break;
-//		case THREE:
-//			disableIpu2 = false;
-//			disableIpu3 = false;
-//			disableIpu4 = false;
-//			break;
-//		}
-//
-//		// send play command
-////		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-//
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, disableIpu1);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, disableIpu2);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, disableIpu3);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);
-//		// Always set Voltage Control Mode + Blackstart Approval
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false);
-//		this.setNextWriteValueToBooleanWriteChannel(
-//				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false);
-//
-//		// Always set OutputSyncDeviceBridge ON in Off-Grid state
-//		log.info("Set K1 ON");
-//		this.setOutputSyncDeviceBridge(true);
-//		// TODO check if OutputSyncDeviceBridge was actually set to ON via
-//		// inputSyncDeviceBridgeComponent. On Error switch off the MR.
-//
-//		if (offGridDetected == null) {
-//			offGridDetected = LocalDateTime.now();
-//			return;
-//		}
-//		if (offGridDetected.plusSeconds(DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS).isAfter(LocalDateTime.now())) {
-//			return;
-//		}
-//
-//		// Measured by Grid-Meter, grid Values
-//		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter());
-//
-//		int gridFreq = gridMeter.getFrequency().value().orElse(-1);
-//		int gridVolt = gridMeter.getVoltage().value().orElse(-1);
-//
-//		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
-//
-//		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
-//				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
-//			log.info("Off-Grid -> F/U 1");
-//			/*
-//			 * Off-Grid
-//			 */
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, 1.0f);
-//
-//		} else {
-//			/*
-//			 * Going On-Grid
-//			 */
-//			int invSetFreq = gridFreq + 20; // add 20 mHz
-//			int invSetVolt = gridVolt + 5_000; // add 5 V
-//			float invSetFreqNormalized = invSetFreq / 50_000f;
-//			float invSetVoltNormalized = invSetVolt / 230_000f;
-//			log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
-//					+ invSetVoltNormalized);
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, invSetVoltNormalized);
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, invSetFreqNormalized);
-//		}
 	}
 
-	private void setNextWriteValueToBooleanWriteChannel(GridConChannelId channelId, boolean b) {
-		BooleanWriteChannel channel = this.channel(channelId);
-		try {
-			channel.setNextWriteValue(b);
-		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
+		System.out.println("going on grid -->  ");
+		int invSetFreq = gridFreq +( 200); // add 200 mHz
+		int invSetVolt = gridVolt + 5_000; // add 5 V
+		float invSetFreqNormalized = invSetFreq / 50_000f;
+		float invSetVoltNormalized = invSetVolt / 230_000f;
+		log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
+				+ invSetVoltNormalized);
+
+		System.out.println("Write parameters for off grid and adapted parameters for u0 and f0");
+
+			InverterCount inverterCount = this.config.inverterCount();
+			new CommandControlRegisters() //
+					.play(true) //
+					.ready(false) //
+					.acknowledge(false) //
+					.stop(false) //
+					
+					.syncApproval(false) //
+					.blackstartApproval(true) //
+					.shortCircuitHandling(false) //
+					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
+					.enableIpus(inverterCount) //
+					
+					.parameterU0(invSetVoltNormalized) //
+					.parameterF0(invSetFreqNormalized) //
+					
+					.writeToChannels(this);
+			new CcuControlParameters() //
+					.pControlMode(PControlMode.DISABLED) //
+					.qLimit(1f) //
+					.writeToChannels(this);
+			this.setIpuControl();
 	}
 
-	private void setNextWriteValueToFloatWriteChannel(GridConChannelId channelId, float b) {
-		FloatWriteChannel channel = this.channel(channelId);
-		try {
-			channel.setNextWriteValue(b);
-		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void doNormalBlackStartMode() throws IllegalArgumentException, OpenemsNamedException {
+		System.out.println("Write channels for blackstart mode");
+
+			InverterCount inverterCount = this.config.inverterCount();
+			new CommandControlRegisters() //
+					.play(true) //
+					.syncApproval(false) //
+					.blackstartApproval(true)
+					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
+					.enableIpus(inverterCount) //
+					.parameterF0(OFF_GRID_FREQUENCY_FACTOR) //
+					.parameterU0(OFF_GRID_VOLTAGE_FACTOR) //
+					.writeToChannels(this);
+			new CcuControlParameters() //
+					.pControlMode(PControlMode.DISABLED) //
+					.qLimit(1f) //
+					.writeToChannels(this);
+			this.setIpuControl();
 	}
 
 	/**

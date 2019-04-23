@@ -169,25 +169,27 @@ public class ErrorHandler {
 
 		} else {
 
-			if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isBefore(LocalDateTime.now())) {
+			if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isAfter(LocalDateTime.now())) {
 				// just wait and keep the contactor closed
 				this.parent.setHardResetContactor(true);
 			}
 
-			if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS)
-					.isBefore(LocalDateTime.now())) {
+			if ( //
+					this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS).isAfter(LocalDateTime.now()) //
+					&& this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isBefore(LocalDateTime.now()) //					
+			) {
 				this.parent.setHardResetContactor(false); // Open the contactor
 			}
 
-			if (this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS)
-					.isAfter(LocalDateTime.now())) {
+			if ( //
+					this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS).isBefore(LocalDateTime.now()) //					
+					) {
 				this.parent.setHardResetContactor(false); // Keep contactor open
 				// Mr Gridcon should be back, so reset everything to start conditions
 				this.lastHardReset = null;
 				this.tryToAcknowledgeErrorsCounter = 0;
 				this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
 			}
-
 		}
 	}
 
@@ -272,8 +274,8 @@ public class ErrorHandler {
 			System.out.println("Code read: " + code + " ==> hex: " + Integer.toHexString(code));
 			code = code >> 8;
 			System.out.println("Code >> 8 read: " + code + " ==> hex: " + Integer.toHexString(code));
-			log.info("Error code is present --> " + code);
 			io.openems.edge.common.channel.ChannelId id = errorChannelIds.get(code);
+			log.info("Error code is present --> " + code + " --> " + ((ErrorDoc) id.doc()).getText());
 			return this.parent.channel(id);
 		}
 		return null;
@@ -293,5 +295,9 @@ public class ErrorHandler {
 		this.parent.state = StateMachine.UNDEFINED;
 		this.state = ErrorStateMachine.READ_ERRORS;
 		this.readErrorMap = null;
+	}
+
+	protected void setState(ErrorStateMachine state) {
+		this.state = state;		
 	}
 }
