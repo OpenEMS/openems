@@ -40,6 +40,12 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	//TODO Component was not able to start because key 'minSocC' exists already... renaming to 'minSocBatteryC' works
 	@AttributeDefinition(name = "MinSoCC", description = "Minimal SoC of Battery String C, if reached no further discharging is allowed")
 	int minSocBatteryC() default 25;
+	
+	@AttributeDefinition(name = "OverFrequency", description = "Frequency in millihertz that is added to grid frequency when going on grid")
+	int overFrequency() default 200;
+	
+	@AttributeDefinition(name = "OverVoltage", description = "Voltage in millivolt that is added to grid voltage when going on grid")
+	int overVoltage() default 2000;
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of Grid-Meter")
 	String meter() default "meter0";

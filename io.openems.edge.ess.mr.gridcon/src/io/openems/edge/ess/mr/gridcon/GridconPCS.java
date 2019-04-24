@@ -839,8 +839,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
 		System.out.println("going on grid -->  ");
-		int invSetFreq = gridFreq +( 200); // add 200 mHz
-		int invSetVolt = gridVolt + 5_000; // add 5 V
+		int invSetFreq = gridFreq + this.config.overFrequency(); // add default 200 mHz  
+		int invSetVolt = gridVolt + this.config.overVoltage(); // add default 2 V 
 		float invSetFreqNormalized = invSetFreq / 50_000f;
 		float invSetVoltNormalized = invSetVolt / 230_000f;
 		log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
