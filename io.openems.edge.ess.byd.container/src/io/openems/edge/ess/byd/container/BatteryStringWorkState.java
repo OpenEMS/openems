@@ -3,13 +3,13 @@ package io.openems.edge.ess.byd.container;
 import io.openems.common.types.OptionsEnum;
 
 public enum BatteryStringWorkState implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), 
-	INITIAL(0, "Initial"),
-	FAULT(2,"Fault"),
-	STARTING(4, "Starting"),
-	RUNNING(8, "Running"),
-	FAULTS(16, "Faults"),	;
-	
+	UNDEFINED(-1, "Undefined"), //
+	INITIAL(0, "Initial"), //
+	FAULT(2, "Fault"), //
+	STARTING(4, "Starting"), //
+	RUNNING(8, "Running"), //
+	FAULTS(16, "Faults"),;
+
 	private final int value;
 	private final String name;
 
@@ -27,7 +27,7 @@ public enum BatteryStringWorkState implements OptionsEnum {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;

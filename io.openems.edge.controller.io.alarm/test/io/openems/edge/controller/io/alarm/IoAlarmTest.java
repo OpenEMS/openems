@@ -11,7 +11,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
 
-public class IOAlarmTest {
+public class IoAlarmTest {
 
 	@SuppressWarnings("all")
 	private static class MyConfig extends AbstractComponentConfig implements Config {
@@ -42,14 +42,13 @@ public class IOAlarmTest {
 	@Test
 	public void test() throws Exception {
 		// initialize the controller
-		IOAlarm controller = new IOAlarm();
+		IoAlarm controller = new IoAlarm();
 		// Add referenced services
 		DummyComponentManager componentManager = new DummyComponentManager();
 		controller.componentManager = componentManager;
 
 		ArrayList<ChannelAddress> channelAddress = new ArrayList<ChannelAddress>();		
 		
-		DummyComponent ess0 = new DummyComponent("ess0");
 		ChannelAddress ess0State0 = new ChannelAddress("ess0", "State0");		
 		ChannelAddress ess0State1 = new ChannelAddress("ess0", "State1");			
 		
@@ -69,6 +68,7 @@ public class IOAlarmTest {
 		controller.activate(null, myconfig);
 		controller.activate(null, myconfig);		
 		
+		DummyComponent ess0 = new DummyComponent("ess0");
 		DummyInputOutput io = new DummyInputOutput("io0");
 
 		new ControllerTest(controller, componentManager, ess0, io)//
