@@ -175,15 +175,15 @@ public class ErrorHandler {
 			}
 
 			if ( //
-					this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS).isAfter(LocalDateTime.now()) //
-					&& this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isBefore(LocalDateTime.now()) //					
+			this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS).isAfter(LocalDateTime.now()) //
+					&& this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS).isBefore(LocalDateTime.now()) //
 			) {
 				this.parent.setHardResetContactor(false); // Open the contactor
 			}
 
 			if ( //
-					this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS).isBefore(LocalDateTime.now()) //					
-					) {
+			this.lastHardReset.plusSeconds(SWITCH_OFF_TIME_SECONDS + RELOAD_TIME_SECONDS).isBefore(LocalDateTime.now()) //
+			) {
 				this.parent.setHardResetContactor(false); // Keep contactor open
 				// Mr Gridcon should be back, so reset everything to start conditions
 				this.lastHardReset = null;
@@ -237,6 +237,10 @@ public class ErrorHandler {
 		}
 	}
 
+	/**
+	 * It is impossible to handle the error. Just set an error state and wait for
+	 * human help.
+	 */
 	private void doErrorHandlingNotPossible() {
 		// switch off system
 		// TODO switch off
@@ -298,6 +302,6 @@ public class ErrorHandler {
 	}
 
 	protected void setState(ErrorStateMachine state) {
-		this.state = state;		
+		this.state = state;
 	}
 }
