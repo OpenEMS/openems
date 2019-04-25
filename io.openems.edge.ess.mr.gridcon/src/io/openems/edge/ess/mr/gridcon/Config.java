@@ -8,7 +8,7 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 @ObjectClassDefinition( //
 		name = "ESS MR Gridcon PCS", //
 		description = "Implements the FENECON MR Gridcon PCS system")
-@interface Config {
+public @interface Config {
 	String id() default "ess0";
 
 	boolean enabled() default true;
@@ -37,13 +37,14 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	@AttributeDefinition(name = "MinSoCB", description = "Minimal SoC of Battery String B, if reached no further discharging is allowed")
 	int minSocBatteryB() default 25;
 
-	//TODO Component was not able to start because key 'minSocC' exists already... renaming to 'minSocBatteryC' works
+	// TODO Component was not able to start because key 'minSocC' exists already...
+	// renaming to 'minSocBatteryC' works
 	@AttributeDefinition(name = "MinSoCC", description = "Minimal SoC of Battery String C, if reached no further discharging is allowed")
 	int minSocBatteryC() default 25;
-	
+
 	@AttributeDefinition(name = "OverFrequency", description = "Frequency in millihertz that is added to grid frequency when going on grid")
 	int overFrequency() default 200;
-	
+
 	@AttributeDefinition(name = "OverVoltage", description = "Voltage in millivolt that is added to grid voltage when going on grid")
 	int overVoltage() default 2000;
 

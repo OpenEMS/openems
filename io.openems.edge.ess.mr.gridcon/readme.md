@@ -1,8 +1,40 @@
-# io.openems.edge.ess.mr.gridcon
+# MR Gridcon
 
-${Bundle-Description}
+## Main state machine
 
-## Example
+~~~~
+          +-----------------------------------------------------------------------------+
+          |                                                                             |
+          v                                                                             |
++---------+---------+       +-------------+      +--------------------+         +-------+------+
+|                   |       |             |      |                    |         |              |
+|   Going On-Grid   +------>+   On-Grid   +----->+   Going Off-Grid   +-------->+   Off-Grid   |
+|                   |       |             |      |                    |         |              |
++-------------------+       +-------------+      +--------------------+         +--------------+
 
-## References
 
+                          from all             to all
+                          +-----------+        +---------------+
+                          |           |        |               |
+                          |   Error   |        |   Undefined   |
+                          |           |        |               |
+                          +-----------+        +---------------+
+~~~~
+
+## Error state machine
+
+// TODO
+
+## Going On-Grid state machine
+
+// TODO
+
+## On-Grid state machine
+
+// TODO
+
+## Going Off-Grid state machine
+
+// TODO
+
+## Off-Grid state machine
