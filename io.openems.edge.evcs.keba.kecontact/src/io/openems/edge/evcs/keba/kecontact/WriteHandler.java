@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.evcs.api.Evcs;
@@ -135,7 +135,7 @@ public class WriteHandler implements Runnable {
 					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
 					this.parent.setDisplayText()
 							.setNextWriteValue("Charging " + (currPower.value().orElse(0) / 1000) + "W");
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					e.printStackTrace();
 				}
 

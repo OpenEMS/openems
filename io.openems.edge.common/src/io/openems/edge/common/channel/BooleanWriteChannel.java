@@ -4,11 +4,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class BooleanWriteChannel extends BooleanReadChannel implements WriteChannel<Boolean> {
 
 	public static class MirrorToDebugChannel implements Consumer<Channel<Boolean>> {
+
+		private final Logger log = LoggerFactory.getLogger(MirrorToDebugChannel.class);
 
 		private final ChannelId targetChannelId;
 
@@ -18,6 +24,12 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 
 		@Override
 		public void accept(Channel<Boolean> channel) {
+			if (!(channel instanceof BooleanWriteChannel)) {
+				this.log.error("Channel [" + channel.address()
+						+ "] is not an BooleanWriteChannel! Unable to register \"onSetNextWrite\"-Listener!");
+				return;
+			}
+			
 			// on each setNextWrite to the channel -> store the value in the DEBUG-channel
 			((BooleanWriteChannel) channel).onSetNextWrite(value -> {
 				channel.getComponent().channel(this.targetChannelId).setNextValue(value);
@@ -53,12 +65,12 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 	 * @return
 	 */
 	@Override
-	public List<Consumer<Boolean>> getOnSetNextWrites() {
+	public List<CheckedConsumer<Boolean>> getOnSetNextWrites() {
 		return super.getOnSetNextWrites();
 	}
 
 	@Override
-	public void onSetNextWrite(Consumer<Boolean> callback) {
+	public void onSetNextWrite(CheckedConsumer<Boolean> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
 

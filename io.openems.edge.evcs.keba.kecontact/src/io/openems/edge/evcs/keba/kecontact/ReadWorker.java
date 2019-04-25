@@ -3,16 +3,10 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.channel.Channel;
 
 public class ReadWorker extends AbstractWorker {
 
-	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
-	
 	private final KebaKeContact parent;
 
 	private LocalDateTime lastReport1 = LocalDateTime.MIN;
@@ -65,7 +59,7 @@ public class ReadWorker extends AbstractWorker {
 		}
 		
 		// RESULTS
-		// Proof if the charging station answered within a few seconds or not
+		// Sets the state of the component if the report doesn't answer in a few seconds
 		if (this.validateReport1 && this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(2))) {
 			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT1));
 			this.validateReport1 = false;
@@ -74,6 +68,7 @@ public class ReadWorker extends AbstractWorker {
 			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT2));
 			this.validateReport2 = false;
 		}
+		
 		if (this.validateReport3 && this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(2))) {
 			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT3));
 			this.validateReport3 = false;
@@ -109,22 +104,17 @@ public class ReadWorker extends AbstractWorker {
 		this.lastReport1 = LocalDateTime.MIN;
 		this.lastReport2 = LocalDateTime.MIN;
 		this.lastReport3 = LocalDateTime.MIN;
-		
+
 		super.triggerNextRun();
 	}
 
 	/**
 	 * Set the current fail state of the EVCS to true or false
-	 * if the communication had changed
 	 * 
 	 * @param receivedAMessage return value from the ReadHandler   
 	 */
-	protected void currentCommunication(boolean receivedAMessage) {
-		Channel<Boolean> currChargingCommunicationFailedState = this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED);
-		if(currChargingCommunicationFailedState.value().orElse(true) == receivedAMessage) {
-			this.parent.logInfo(log, "Existing charging communication: "+receivedAMessage);
-			this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
-		}
+	private void currentCommunication(boolean receivedAMessage) {
+		this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
 	}
 	
 }

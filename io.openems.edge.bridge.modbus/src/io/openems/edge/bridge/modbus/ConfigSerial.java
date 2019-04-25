@@ -29,5 +29,8 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 	@AttributeDefinition(name = "Parity", description = "The parity - 'none', 'even', 'odd', 'mark' or 'space'")
 	Parity parity() default Parity.NONE;
 
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
+
 	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/RTU Serial [{id}]";
 }

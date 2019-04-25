@@ -1,6 +1,7 @@
 package io.openems.edge.common.modbusslave;
 
-import io.openems.edge.common.channel.Unit;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class ModbusRecord {
@@ -32,15 +33,16 @@ public abstract class ModbusRecord {
 	}
 
 	public abstract String getName();
-	
+
 	public abstract String getValueDescription();
-	
+
 	public Unit getUnit() {
 		return Unit.NONE;
 	}
-	
+
 	public abstract byte[] getValue(OpenemsComponent component);
 
 	public abstract void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2);
 
+	public abstract AccessMode getAccessMode();
 }

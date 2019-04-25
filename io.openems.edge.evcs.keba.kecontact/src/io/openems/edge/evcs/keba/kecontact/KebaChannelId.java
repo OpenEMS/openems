@@ -1,12 +1,12 @@
 package io.openems.edge.evcs.keba.kecontact;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
-	
 	/*
 	 * Report 1
 	 */
@@ -23,6 +23,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	PLUG(Doc.of(Plug.values())),
 	ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN).text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 	ENABLE_USER(Doc.of(OpenemsType.BOOLEAN).text("Enable condition via UDP")), //
+	MAX_CURR(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current preset value via Control pilot")), //
 	MAX_CURR_PERCENT(
 			Doc.of(OpenemsType.INTEGER).text("Current preset value via Control pilot in 0,1% of the PWM value")), //
 	CURR_USER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)
@@ -58,8 +59,16 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
 
 	PHASES(Doc.of(OpenemsType.INTEGER).text("Count of ladders, the car is louding with")), //
-	RESERVED(Doc.of(OpenemsType.INTEGER)),
 
+	/*
+	 * Write Channels
+	 */
+	SET_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+			.accessMode(AccessMode.WRITE_ONLY) //
+			.unit(Unit.ON_OFF)
+			.text("Disabled is indicated with a blue flashing LED. "
+					+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
+					+ "and disabling can lead to an error in the charging station.")), //
 
 	/*
 	 * Fail State Channels

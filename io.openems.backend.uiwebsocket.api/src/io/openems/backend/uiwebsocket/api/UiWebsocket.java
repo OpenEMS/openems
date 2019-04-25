@@ -34,4 +34,14 @@ public interface UiWebsocket {
 	 */
 	public void send(UUID token, JsonrpcNotification notification) throws OpenemsNamedException;
 
+	/**
+	 * Send a JSON-RPC Notification broadcast to all UI sessions with a given
+	 * Edge-ID.
+	 * 
+	 * @param edgeId       the Edge-ID
+	 * @param notification the JsonrpcNotification
+	 * @throws OpenemsNamedException on error
+	 */
+	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;
+
 }

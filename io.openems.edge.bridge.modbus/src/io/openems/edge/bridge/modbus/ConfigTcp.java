@@ -14,5 +14,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Modbus/TCP device.")
 	String ip();
 
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
+
 	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/TCP [{id}]";
 }

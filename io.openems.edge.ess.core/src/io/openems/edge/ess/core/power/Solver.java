@@ -152,7 +152,7 @@ public class Solver {
 
 		// No Inverters -> nothing to do
 		if (this.data.getInverters().isEmpty()) {
-			this.onSolvedCallback.accept(false, 0, SolverStrategy.NONE);
+			this.onSolvedCallback.accept(true, 0, SolverStrategy.NONE);
 			return;
 		}
 		List<Inverter> allInverters = data.getInverters();

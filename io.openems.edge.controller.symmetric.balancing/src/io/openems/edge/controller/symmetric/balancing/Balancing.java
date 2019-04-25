@@ -26,6 +26,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Balancing extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
+	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
+
 	private final Logger log = LoggerFactory.getLogger(Balancing.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -55,6 +57,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	private Config config;
 
+	private int lastSetActivePower = 0;
+
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
@@ -74,8 +78,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @return the required power
 	 */
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) {
-		return meter.getActivePower().value().orElse(0) /* current buy-from/sell-to grid */
-				+ ess.getActivePower().value().orElse(0) /* current charge/discharge Ess */;
+		return meter.getActivePower().value().orElse(0) + ess.getActivePower().value().orElse(0);
 	}
 
 	@Override
@@ -98,10 +101,29 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 */
 		int calculatedPower = this.calculateRequiredPower(ess, meter);
 
+		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
+				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
+						* this.config.maxPowerAdjustmentRate())) {
+			if (this.lastSetActivePower > calculatedPower) {
+				int newPower = this.lastSetActivePower
+						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
+				this.logInfo(log, "Adjust [-] Last [" + this.lastSetActivePower + "] Calculated [" + calculatedPower
+						+ "] Corrected to [" + newPower + "]");
+				calculatedPower = newPower;
+			} else {
+				int newPower = this.lastSetActivePower
+						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
+				this.logInfo(log, "Adjust [+] Last [" + this.lastSetActivePower + "] Calculated [" + calculatedPower
+						+ "] Corrected to [" + newPower + "]");
+				calculatedPower = newPower;
+			}
+		}
+
 		// adjust value so that it fits into Min/MaxActivePower
 		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
-		// TODO this should not be anymore required, as it is done within
-		// ManagedSymmetricEss.SET_ACTIVE_POWER_EQUALS Channel
+
+		// store lastSetActivePower
+		this.lastSetActivePower = calculatedPower;
 
 		/*
 		 * set result
