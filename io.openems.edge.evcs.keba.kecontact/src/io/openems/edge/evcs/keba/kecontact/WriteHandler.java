@@ -23,7 +23,7 @@ public class WriteHandler implements Runnable {
 	/**
 	 * Minimum pause between two consecutive writes
 	 */
-	private final static int WRITE_INTERVAL_SECONDS = 2; // before change the interval was 60 seconds
+	private final static int WRITE_INTERVAL_SECONDS = 5; // before change the interval was 60 seconds
 	private final static int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
 
 	public WriteHandler(KebaKeContact parent) {

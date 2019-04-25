@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Websocket, ChannelAddress, Service, EdgeConfig, Edge } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { EvcsComponent } from '../evcs.component';
+import { InfoPopoverComponent } from './info-popover/info-popover.component';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -28,7 +29,8 @@ export class EvcsModalPage implements OnInit {
     public websocket: Websocket,
     public router: Router,
     protected translate: TranslateService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
@@ -224,6 +226,23 @@ export class EvcsModalPage implements OnInit {
     }
     return power + " W";
 
+  }
+
+  async presentPopover(ev: any, mode: ChargeMode) {
+    console.log("öffne das Popup");
+    const popover = await this.popoverController.create({
+      component: InfoPopoverComponent,
+      event: ev,
+      componentProps: {
+        chargeMode: mode
+      }
+    });
+    return await popover.present();
+  }
+
+  dismissPopover(ev: any) {
+    console.log("mouse leaveeed ")
+    this.popoverController.dismiss();
   }
 
   /**

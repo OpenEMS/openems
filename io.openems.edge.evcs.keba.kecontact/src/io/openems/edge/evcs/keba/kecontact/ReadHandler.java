@@ -206,7 +206,8 @@ public class ReadHandler implements Consumer<String> {
 	}
 
 	/**
-	 * returns true or false, if the requested report answered or not
+	 * returns true or false, if the requested report answered or not 
+	 * and set that value to false
 	 * 
 	 * @param report
 	 * @return

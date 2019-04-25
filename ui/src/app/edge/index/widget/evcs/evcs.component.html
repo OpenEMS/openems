@@ -7,10 +7,6 @@
       <ion-label (click)="presentModal()" style="cursor: pointer;">
         <ion-card-title translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-card-title>
       </ion-label>
-      <!--Modal should not open if the toggle is changing-->
-      <ion-toggle style="margin: 2px; align-content: right;" (click)="enableOrDisableCharging($event)"
-        [checked]="controller.properties.enabledCharging">
-      </ion-toggle>
     </ion-item>
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
       <ion-card-content>

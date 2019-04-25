@@ -77,6 +77,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		this.kebaKeContactCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
 				this.readHandler.accept(message);
+				this.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(false);
 			}
 		});
 
@@ -228,7 +229,8 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		.channel(87, KebaChannelId.ENERGY_SESSION, ModbusType.UINT16)
 		.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16)
 		.channel(89, KebaChannelId.PHASES, ModbusType.UINT16)
-		.channel(90, KebaChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
+		.uint16Reserved(90)
+		.channel(91, KebaChannelId.ChargingStation_COMMUNICATION_FAILED, ModbusType.UINT16)
 		.build();
 	}
 }

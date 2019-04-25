@@ -58,6 +58,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
 
 	PHASES(Doc.of(OpenemsType.INTEGER).text("Count of ladders, the car is louding with")), //
+	RESERVED(Doc.of(OpenemsType.INTEGER)),
 
 
 	/*

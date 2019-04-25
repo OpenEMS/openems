@@ -7,6 +7,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 
 import { EvcsModalPage } from './evcs-modal.page';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { InfoPopoverComponent } from './info-popover/info-popover.component';
 
 const routes: Routes = [
   {
@@ -23,7 +24,8 @@ const routes: Routes = [
     SharedModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [EvcsModalPage]
+  entryComponents: [InfoPopoverComponent],
+  declarations: [EvcsModalPage, InfoPopoverComponent]
 })
 export class EvcsModalPageModule {
 
