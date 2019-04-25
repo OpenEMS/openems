@@ -11,12 +11,11 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -31,11 +30,9 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
@@ -52,10 +49,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
-
-	private final static int UNIT_ID = 100;
-	private String modbusBridgeId;
+	private static final int UNIT_ID = 100;
 	private boolean readonly = false;
 
 	@Reference
@@ -75,7 +69,6 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
-		// log.info("Received via Reference Modbus: " + modbus.id());
 		super.setModbus(modbus);
 	}
 
@@ -93,69 +86,44 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus1", config.modbus_id1())) {
 			return;
 		}
+		if (this.isEnabled() && this.modbus1 != null) {
+			this.modbus1.addProtocol(this.id(), this.defineModbus1Protocol());
+		}
 
 		// Configure Modbus 2
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus2", config.modbus_id2())) {
 			return;
 		}
-
-		if (this.isEnabled() && this.modbus1 != null) {
-			this.modbus1.addProtocol(this.id(), this.defineModbus1Protocol());
-		}
-
 		if (this.isEnabled() && this.modbus2 != null) {
-			this.modbus2.addProtocol(this.getModbusBridgeId(), this.defineModbus2Protocol());
+			this.modbus2.addProtocol(this.id(), this.defineModbus2Protocol());
 		}
 
-		this.modbusBridgeId = config.modbus_id1();
+		// Handle Read-Only mode
 		this.readonly = config.readonly();
-
 		this.channel(ChannelId.READ_ONLY_MODE).setNextValue(config.readonly());
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		if (this.modbus1 != null) {
+			this.modbus1.removeProtocol(this.id());
+		}
+		if (this.modbus2 != null) {
+			this.modbus2.removeProtocol(this.id());
+		}
 		super.deactivate();
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		if (this.readonly) {
 			return;
 		}
 
-		this.logInfo(this.log, "Would apply " + activePower + ", " + reactivePower);
-
-		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum();
-		if (systemWorkmode != SystemWorkmode.PQ_MODE) {
-			this.logWarn(this.log, "System Work-Mode is not P/Q");
-			// TODO systemWorkmodeChannel.setNextWriteValue(SystemWorkmode.PQ_MODE);
-			return;
-		}
-
-		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
-		if (systemWorkstate != SystemWorkstate.RUNNING) {
-			this.logWarn(this.log, "System Work-State is not RUNNING");
-			IntegerWriteChannel setSystemWorkstateChannel = this.channel(ChannelId.SET_SYSTEM_WORKSTATE);
-			// TODO setSystemWorkstateChannel.setNextWriteValue(SetSystemWorkstate.RUN);
-			return;
-		}
-
-		// TODO
-		// IntegerWriteChannel setActivePowerChannel =
-		// this.channel(ChannelId.SET_ACTIVE_POWER);
-		// IntegerWriteChannel setReactivePowerChannel =
-		// this.channel(ChannelId.SET_REACTIVE_POWER);
-		// try {
-		// setActivePowerChannel.setNextWriteValue(activePower);
-		// } catch (OpenemsException e) {
-		// log.error("Unable to set ActivePower: " + e.getMessage());
-		// }
-		// try {
-		// setReactivePowerChannel.setNextWriteValue(reactivePower);
-		// } catch (OpenemsException e) {
-		// log.error("Unable to set ReactivePower: " + e.getMessage());
-		// }
+		IntegerWriteChannel setActivePowerChannel = this.channel(ChannelId.SET_ACTIVE_POWER);
+		IntegerWriteChannel setReactivePowerChannel = this.channel(ChannelId.SET_REACTIVE_POWER);
+		setActivePowerChannel.setNextWriteValue(activePower / 1000);
+		setReactivePowerChannel.setNextWriteValue(reactivePower / 1000);
 	}
 
 	@Override
@@ -170,6 +138,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	@Override
 	public Constraint[] getStaticConstraints() {
+		// Handle Read-Only mode -> no charge/discharge
 		if (this.readonly) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
@@ -177,38 +146,40 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 			};
 		}
 
+		// System is not running -> no charge/discharge
 		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum(); //
 		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
 		if (systemWorkmode != SystemWorkmode.PQ_MODE || systemWorkstate != SystemWorkstate.RUNNING) {
 			return new Constraint[] { //
 					this.createPowerConstraint("WorkMode+State invalid", //
-							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0),
+							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("WorkMode+State invalid", //
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
 		// TODO set the positive and negative power limit in Constraints
-//		IntegerReadChannel posReactivePowerLimit = this.channel(ChannelId.POSITIVE_REACTIVE_POWER_LIMIT);//
-//		int positiveReactivePowerLimit = TypeUtils.getAsType(OpenemsType.INTEGER, posReactivePowerLimit);
-//		IntegerReadChannel negReactivePowerLimit = this.channel(ChannelId.NEGATIVE_REACTIVE_POWER_LIMIT);//
-//		int negativeReactivePowerLimit = TypeUtils.getAsType(OpenemsType.INTEGER, posReactivePowerLimit);
-//		
-//		return new Constraint[] { //
-//				this.createPowerConstraint("Positive Reactive Power Limit", Phase.ALL, Pwr.REACTIVE,//
-//						Relationship.LESS_OR_EQUALS, positiveReactivePowerLimit), //
-//				this.createPowerConstraint("Negative Reactive Power Limit", Phase.ALL, Pwr.REACTIVE, //
-//						Relationship.GREATER_OR_EQUALS, negativeReactivePowerLimit) //
-//		};
-
+		// IntegerReadChannel posReactivePowerLimit =
+		// this.channel(ChannelId.POSITIVE_REACTIVE_POWER_LIMIT);//
+		// int positiveReactivePowerLimit = TypeUtils.getAsType(OpenemsType.INTEGER,
+		// posReactivePowerLimit);
+		// IntegerReadChannel negReactivePowerLimit =
+		// this.channel(ChannelId.NEGATIVE_REACTIVE_POWER_LIMIT);//
+		// int negativeReactivePowerLimit = TypeUtils.getAsType(OpenemsType.INTEGER,
+		// posReactivePowerLimit);
+		// return new Constraint[] { //
+		// this.createPowerConstraint("Positive Reactive Power Limit", Phase.ALL,
+		// Pwr.REACTIVE,//
+		// Relationship.LESS_OR_EQUALS, positiveReactivePowerLimit), //
+		// this.createPowerConstraint("Negative Reactive Power Limit", Phase.ALL,
+		// Pwr.REACTIVE, //
+		// Relationship.GREATER_OR_EQUALS, negativeReactivePowerLimit) //
+		// };
 		// TODO set reactive power limit from limitInductiveReactivePower +
 		// limitCapacitiveReactivePower
-		
-		IntegerReadChannel limitInductiveReactivePower = this.channel(ChannelId.LIMIT_INDUCTIVE_REACTIVE_POWER);
-		IntegerReadChannel limitCapacitiveReactivePower = this.channel(ChannelId.LIMIT_CAPACITIVE_REACTIVE_POWER);
+		// IntegerReadChannel limitInductiveReactivePower =
+		// this.channel(ChannelId.LIMIT_INDUCTIVE_REACTIVE_POWER);
+		// IntegerReadChannel limitCapacitiveReactivePower =
+		// this.channel(ChannelId.LIMIT_CAPACITIVE_REACTIVE_POWER);
 		return Power.NO_CONSTRAINTS;
-	}
-
-	public String getModbusBridgeId() {
-		return modbusBridgeId;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -607,6 +578,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L1, new SignedWordElement(0x1017)),
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L2, new SignedWordElement(0x1018)),
 				m(EssFeneconBydContainer.ChannelId.IGBT_TEMPERATURE_L3, new SignedWordElement(0x1019)),
+				new DummyRegisterElement(0x101A, 0x103F), //
 				// PCS_WARNING_0
 				m(new BitsWordElement(0x1040, this) //
 						.bit(0, EssFeneconBydContainer.ChannelId.STATE_0) //
@@ -658,7 +630,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						.bit(4, EssFeneconBydContainer.ChannelId.STATE_37) //
 						.bit(5, EssFeneconBydContainer.ChannelId.STATE_38) //
 						.bit(6, EssFeneconBydContainer.ChannelId.STATE_39) //
-				), new DummyRegisterElement(0x1044, 0X104F), //
+				), //
+				new DummyRegisterElement(0x1044, 0X104F), //
 				// PCS_FAULTS_0
 				m(new BitsWordElement(0x1050, this) //
 						.bit(0, EssFeneconBydContainer.ChannelId.STATE_40) //
@@ -900,12 +873,13 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 								.bit(0, EssFeneconBydContainer.ChannelId.STATE_187) //
 								.bit(2, EssFeneconBydContainer.ChannelId.STATE_188) //
 								.bit(3, EssFeneconBydContainer.ChannelId.STATE_189) //
-						), new DummyRegisterElement(0X3443, 0X344F),
+						), //
+						new DummyRegisterElement(0X3443, 0X344F),
 						// ADAS_WARNING_1_0
 						m(new BitsWordElement(0x3450, this) //
 								.bit(0, EssFeneconBydContainer.ChannelId.STATE_190) //
-						), new DummyRegisterElement(0X3443, 0X344F),
-						// ADAS_WARNING_1_1
+						), //
+							// ADAS_WARNING_1_1
 						m(new BitsWordElement(0x3451, this) //
 								.bit(3, EssFeneconBydContainer.ChannelId.STATE_190) //
 								.bit(4, EssFeneconBydContainer.ChannelId.STATE_191) //
@@ -952,16 +926,6 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(0x0601, //
 						m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x0601))));
 	}
-
-//	@Override
-//	public String debugLog() {
-//		return "SoC:" + this.getSoc().value().asString() //
-//				+ "|RTU_WS" + this.channel(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE).value().asString()
-//				+ "|PCS_WS" + this.channel(EssFeneconBydContainer.ChannelId.PCS_SYSTEM_WORKSTATE).value().asString()
-//				+ "|BECU_WS"
-//				+ this.channel(EssFeneconBydContainer.ChannelId.BATTERY_STRING_WORK_STATE).value().asString();
-//
-//	}
 
 	@Override
 	public String debugLog() {

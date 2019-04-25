@@ -20,6 +20,7 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -31,7 +32,6 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Artemes.AM2", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-
 public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
 
@@ -44,9 +44,9 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //				
+				SymmetricMeter.ChannelId.values(), //
 				ChannelId.values() //
-		);		
+		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -92,7 +92,8 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
-						new DummyRegisterElement(0x0006, 0x000D),
+						new DummyRegisterElement(0x0006, 0x000B),
+						m(SymmetricMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(0x000C)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x000E)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x0010)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x0012)),
@@ -114,7 +115,15 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)));
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+						new DummyRegisterElement(0x0048, 0x0071),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
+
+				new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(0x0041C),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 	}
 
 	@Override

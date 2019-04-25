@@ -12,7 +12,7 @@ public class DummyComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Dummy state channels for testing
+		 * Dummy state channels for testing.
 		 */
 		STATE_0(Doc.of(Level.WARNING).text("State 0")),
 		STATE_1(Doc.of(Level.WARNING).text("State 1")),

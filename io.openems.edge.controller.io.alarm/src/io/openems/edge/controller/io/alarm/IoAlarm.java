@@ -29,16 +29,16 @@ import io.openems.edge.controller.api.Controller;
 		name = "Controller.IO.Alarm", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class IOAlarm extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public class IoAlarm extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(IOAlarm.class);
+	private final Logger log = LoggerFactory.getLogger(IoAlarm.class);
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	private Config config;
 
-	public IOAlarm() {
+	public IoAlarm() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
