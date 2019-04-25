@@ -1,10 +1,10 @@
 package io.openems.edge.evcs.keba.kecontact;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
-import io.openems.edge.common.channel.AccessMode;
 
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	/*

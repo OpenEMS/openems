@@ -119,7 +119,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * @param value the next value
 	 */
 	@Deprecated
-	public final void _setNextValue(T value) {
+	public void _setNextValue(T value) {
 		this.nextValue = new Value<T>(this, value);
 		if (this.channelDoc.isDebug()) {
 			log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());

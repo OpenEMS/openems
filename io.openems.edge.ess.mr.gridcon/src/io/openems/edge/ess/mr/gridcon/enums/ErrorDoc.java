@@ -3,7 +3,7 @@ package io.openems.edge.ess.mr.gridcon.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.openems.edge.common.channel.Level;
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.StateChannelDoc;
 
 public class ErrorDoc extends StateChannelDoc {

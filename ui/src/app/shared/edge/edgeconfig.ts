@@ -2,10 +2,10 @@ import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse
 
 export class EdgeConfig {
 
-    constructor(source?: GetEdgeConfigResponse) {
+    constructor(source?: EdgeConfig) {
         if (source) {
-            this.components = source.result.components;
-            this.factories = source.result.factories;
+            this.components = source.components;
+            this.factories = source.factories;
         }
 
         // initialize Components
@@ -177,13 +177,20 @@ export class EdgeConfig {
 }
 
 export module EdgeConfig {
+    export class ComponentChannel {
+        public readonly type: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
+        public readonly accessMode: "RO" | "RW" | "WO";
+        public readonly unit: string;
+        public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+    }
 
     export class Component {
         public id: string = "";
 
         constructor(
             public readonly factoryId: string = "",
-            public readonly properties: { [key: string]: any } = {}
+            public readonly properties: { [key: string]: any } = {},
+            public readonly channels: { [channelId: string]: ComponentChannel } = {}
         ) { }
     }
 
@@ -202,6 +209,7 @@ export module EdgeConfig {
 
         constructor(
             public readonly name: string,
+            public readonly description: string,
             public readonly natureIds: string[] = [],
             public readonly properties: FactoryProperty[] = []
         ) { }

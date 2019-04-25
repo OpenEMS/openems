@@ -1,5 +1,7 @@
 package io.openems.edge.common.channel;
 
+import io.openems.common.types.OptionsEnum;
+
 public enum TestOptions implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	OPTION_1(1, "Option 1"), //

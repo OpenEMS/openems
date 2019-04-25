@@ -5,9 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.battery.api,\
 	io.openems.edge.battery.soltaro,\
-	io.openems.edge.battery.soltaro.master,\
-	io.openems.edge.battery.soltaro.versionb,\
-	io.openems.edge.battery.soltaro.multirack
+	io.openems.edge.battery.soltaro.cluster.versiona,\
+	io.openems.edge.battery.soltaro.single.versionb,\
+	io.openems.edge.battery.soltaro.single.versiona,\
+	io.openems.edge.battery.soltaro.cluster.versionb
 	
 -includeresource: {readme.md}
 

@@ -103,7 +103,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(802, 807), //
-						cm(new FloatDoublewordElement(808)) //
+						m(new FloatDoublewordElement(808)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build(), //
