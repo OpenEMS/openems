@@ -215,6 +215,13 @@ Implemented Natures::
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.weidmueller[Source Code icon:github[]]
 
+== Virtual Symmetric Add
+
+Implemented Natures::
+- SymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.virtual[Source Code icon:github[]]
+
 == Solar-Log
 
 Implemented Natures::

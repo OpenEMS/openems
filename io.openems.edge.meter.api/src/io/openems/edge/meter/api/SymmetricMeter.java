@@ -263,4 +263,13 @@ public interface SymmetricMeter extends OpenemsComponent {
 	default Channel<Integer> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
+	
+	/**
+	 * Gets the Current in [mA].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getCurrent(){
+		return this.channel(ChannelId.CURRENT);
+	}
 }
