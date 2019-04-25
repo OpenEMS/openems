@@ -1,4 +1,4 @@
-package io.openems.edge.meter.virtual.add;
+package io.openems.edge.meter.virtual.symmetric.add;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
+import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -42,7 +41,7 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 
 	private final Logger log = LoggerFactory.getLogger(VirtualAdd.class);
 
-	private MeterType meterType = MeterType.GRID;
+	private MeterType meterType = MeterType.PRODUCTION;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -61,7 +60,6 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		// super.activate(context, OpenemsConstants.SUM_ID, true);
 		super.activate(context, config.id(), config.enabled());
 		this.config = config;
 	}
@@ -83,11 +81,11 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 	}
 
 	private void calculateChannelValues() {
+		// Find all configured SymmetricMeters
 		List<SymmetricMeter> meters = new ArrayList<SymmetricMeter>();
-
 		try {
-			for (String meter : this.config.meterIDs()) {
-				SymmetricMeter mts = this.componentManager.getComponent(meter);
+			for (String meterId : this.config.meterIds()) {
+				SymmetricMeter mts = this.componentManager.getComponent(meterId);
 				meters.add(mts);
 			}
 		} catch (Exception e) {
@@ -95,28 +93,25 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 		}
 
 		final CalculateAverage meterFrequency = new CalculateAverage();
-		final CalculateAverage meterMinActivePower = new CalculateAverage();
-		final CalculateAverage meterMaxActivePower = new CalculateAverage();
-		final CalculateAverage meterActivePower = new CalculateAverage();
-		final CalculateAverage meterReactivePower = new CalculateAverage();
+		final CalculateIntegerSum meterMinActivePower = new CalculateIntegerSum();
+		final CalculateIntegerSum meterMaxActivePower = new CalculateIntegerSum();
+		final CalculateIntegerSum meterActivePower = new CalculateIntegerSum();
+		final CalculateIntegerSum meterReactivePower = new CalculateIntegerSum();
 		final CalculateLongSum meterActiveProductionEnergy = new CalculateLongSum();
 		final CalculateLongSum meterActiveConsumptionEnergy = new CalculateLongSum();
 		final CalculateAverage meterVoltage = new CalculateAverage();
-		final CalculateAverage meterCurrent = new CalculateAverage();
-		
-		for (SymmetricMeter component : meters) {
-			if (component instanceof SymmetricMeter) {
-				SymmetricMeter meter = (SymmetricMeter) component;
-				meterFrequency.addValue(meter.getFrequency());
-				meterMinActivePower.addValue(meter.getMinActivePower());
-				meterMaxActivePower.addValue(meter.getMaxActivePower());
-				meterActivePower.addValue(meter.getActivePower());
-				meterReactivePower.addValue(meter.getReactivePower());
-				meterActiveConsumptionEnergy.addValue(getActiveConsumptionEnergy());
-				meterActiveProductionEnergy.addValue(meter.getActiveProductionEnergy());
-				meterVoltage.addValue(meter.getVoltage());
-				meterCurrent.addValue(meter.getCurrent());
-			}
+		final CalculateIntegerSum meterCurrent = new CalculateIntegerSum();
+
+		for (SymmetricMeter meter : meters) {
+			meterFrequency.addValue(meter.getFrequency());
+			meterMinActivePower.addValue(meter.getMinActivePower());
+			meterMaxActivePower.addValue(meter.getMaxActivePower());
+			meterActivePower.addValue(meter.getActivePower());
+			meterReactivePower.addValue(meter.getReactivePower());
+			meterActiveConsumptionEnergy.addValue(getActiveConsumptionEnergy());
+			meterActiveProductionEnergy.addValue(meter.getActiveProductionEnergy());
+			meterVoltage.addValue(meter.getVoltage());
+			meterCurrent.addValue(meter.getCurrent());
 		}
 
 		this.getFrequency().setNextValue(meterFrequency.calculate());
@@ -137,26 +132,7 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 
 	@Override
 	public String debugLog() {
-		StringBuilder result = new StringBuilder();
-		// State
-		Level state = this.getState().value().asEnum();
-		result.append("State:" + state.getName() + " ");
-		// Meter
-		Value<Integer> meterCurrent = this.getCurrent().value();
-		Value<Integer> meterActivePower = this.getActivePower().value();
-		if (meterCurrent.isDefined() || meterActivePower.isDefined()) {
-			result.append("Meter ");
-			if (meterCurrent.isDefined() && meterActivePower.isDefined()) {
-				result.append("A:" + meterCurrent.asString() + "|L:" + meterActivePower.asString());
-			} else if (meterCurrent.isDefined()) {
-				result.append("A:" + meterCurrent.asString());
-			} else {
-				result.append("L:" + meterActivePower.asString());
-			}
-			result.append(" ");
-		}
-		String resultString = result.toString();
-		return resultString.substring(0, resultString.length() - 1);
+		return "L:" + this.getActivePower().value().asString();
 	}
 
 }

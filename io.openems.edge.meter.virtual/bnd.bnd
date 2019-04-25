@@ -10,8 +10,7 @@ Export-Package:  \
 	io.openems.edge.meter.asymmetric.api,\
 	io.openems.edge.meter.symmetric.api
 
-Private-Package:  \
-	io.openems.edge.meter.virtual.add
+Private-Package: io.openems.edge.meter.virtual.symmetric.add
 
 -includeresource: {readme.md}
 
