@@ -23,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -182,19 +183,19 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		
 		return new ModbusSlaveTable(
-				OpenemsComponent.getModbusSlaveNatureTable(), 
-				Evcs.getModbusSlaveNatureTable(),
-				this.getModbusSlaveNatureTable()
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), 
+				Evcs.getModbusSlaveNatureTable(accessMode),
+				this.getModbusSlaveNatureTable(accessMode)
 				
 		);
 	}
 	
-	private ModbusSlaveNatureTable getModbusSlaveNatureTable() {
+	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		
-		return ModbusSlaveNatureTable.of(KebaKeContact.class, 300) //
+		return ModbusSlaveNatureTable.of(KebaKeContact.class, accessMode, 300) //
 		
 				
 		.channel(0, KebaChannelId.PRODUCT, ModbusType.STRING16)

@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -245,7 +246,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
-		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable());
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode));
 	}
 }
