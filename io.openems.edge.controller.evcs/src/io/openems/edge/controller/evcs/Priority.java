@@ -1,6 +1,6 @@
 package io.openems.edge.controller.evcs;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 /**
  * The Priorities for charging.
@@ -8,7 +8,7 @@ import io.openems.edge.common.channel.OptionsEnum;
  * 
  * Todo: If more than 2 Apps are installed, the Priority of the Apps should be handled in an extra controller.
  */
-public enum Priority implements OptionsEnum{
+public enum Priority implements io.openems.common.types.OptionsEnum{
 	
 	CAR(0, "Car"),
 	STORAGE(1, "Storage");

@@ -1,6 +1,5 @@
 package io.openems.edge.evcs.keba.kecontact;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -59,16 +58,6 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			"Total power consumption (persistent) without current loading session. Is summed up after each completed charging session")), //
 
 	PHASES(Doc.of(OpenemsType.INTEGER).text("Count of ladders, the car is louding with")), //
-
-	/*
-	 * Write Channels
-	 */
-	SET_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)
-			.text("Disabled is indicated with a blue flashing LED. "
-					+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
-					+ "and disabling can lead to an error in the charging station.")), //
 
 	/*
 	 * Fail State Channels

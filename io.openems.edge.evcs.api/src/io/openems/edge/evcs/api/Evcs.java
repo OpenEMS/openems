@@ -121,8 +121,8 @@ public interface Evcs extends OpenemsComponent {
 	}
 	
 	
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(Evcs.class, 100) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(Evcs.class, accessMode, 100) //
 				.channel(0, ChannelId.CHARGE_POWER, ModbusType.UINT16) //
 				.channel(1, ChannelId.HARDWARE_POWER_LIMIT, ModbusType.UINT16) //
 				.channel(2, ChannelId.SET_CHARGE_POWER, ModbusType.UINT16)
