@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon.statemachine;
+package io.openems.edge.ess.mr.gridcon;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -13,12 +13,11 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.ess.mr.gridcon.CommandControlRegisters;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
+import io.openems.edge.ess.mr.gridcon.writeutils.CommandControlRegisters;
 
 public class ErrorHandler {
 
@@ -53,6 +52,8 @@ public class ErrorHandler {
 
 	public void initialize() {
 		this.state = State.UNDEFINED;
+		this.tryToAcknowledgeErrorsCounter = 0;
+		this.readErrorMap = null;
 	}
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
@@ -82,8 +83,7 @@ public class ErrorHandler {
 			break;
 
 		case FINISH_ERROR_HANDLING:
-			this.state = this.doFinishErrorHandling();
-			// Return to Main-StateMachine
+			this.initialize();
 			return StateMachine.State.UNDEFINED;
 		}
 
@@ -183,7 +183,7 @@ public class ErrorHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.parent.getConfig().inverterCount()) //
+				.enableIpus(this.parent.parent.config.inverterCount()) //
 				.writeToChannels(this.parent.parent);
 
 		if (this.readErrorMap.isEmpty()) {
@@ -228,25 +228,6 @@ public class ErrorHandler {
 		// Mr Gridcon should be back, so reset everything to start conditions
 		this.lastHardReset = null;
 		return State.FINISH_ERROR_HANDLING;
-	}
-
-	/**
-	 * Finishes the error handling. This is always the last state of the
-	 * ErrorHandler.
-	 * 
-	 * <ul>
-	 * <li>initializes the read-errors
-	 * <li>sets the state to READ_ERRORS
-	 * <li>sets the parent state to UNDEFINED
-	 * </ul>
-	 * 
-	 * @return the next state
-	 */
-	private State doFinishErrorHandling() {
-		this.state = State.UNDEFINED;
-		this.tryToAcknowledgeErrorsCounter = 0;
-		this.readErrorMap = null;
-		return State.UNDEFINED;
 	}
 
 	/**

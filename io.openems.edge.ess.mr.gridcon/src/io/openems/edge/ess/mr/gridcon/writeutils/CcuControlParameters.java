@@ -1,8 +1,9 @@
-package io.openems.edge.ess.mr.gridcon;
+package io.openems.edge.ess.mr.gridcon.writeutils;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 

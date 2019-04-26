@@ -1,10 +1,11 @@
-package io.openems.edge.ess.mr.gridcon;
+package io.openems.edge.ess.mr.gridcon.writeutils;
 
 import java.time.LocalDateTime;
 import java.util.BitSet;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 

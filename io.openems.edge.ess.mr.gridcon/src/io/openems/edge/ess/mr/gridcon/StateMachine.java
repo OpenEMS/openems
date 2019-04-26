@@ -1,10 +1,15 @@
-package io.openems.edge.ess.mr.gridcon.statemachine;
+package io.openems.edge.ess.mr.gridcon;
+
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 
@@ -12,6 +17,7 @@ public class StateMachine {
 
 	protected final GridconPCS parent;
 
+	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
 	private final GoingOngridHandler goingOngridHandler = new GoingOngridHandler(this);
 	private final GoingOffgridHandler goingOffgridHandler = new GoingOffgridHandler(this);
 	private final OngridHandler ongridHandler = new OngridHandler(this);
@@ -19,7 +25,6 @@ public class StateMachine {
 	private final ErrorHandler errorHandler = new ErrorHandler(this);
 
 	private State state = State.UNDEFINED;
-	private GridMode lastGridMode = GridMode.UNDEFINED;
 	private CCUState lastCcuState = CCUState.UNDEFINED;
 
 	public StateMachine(GridconPCS parent) {
@@ -28,32 +33,10 @@ public class StateMachine {
 
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		/*
-		 * Check if we just went On-/Off-Grid
-		 */
-		GridMode gridMode = this.parent.getGridMode().getNextValue().asEnum();
-		if (this.lastGridMode != gridMode) {
-			// Grid-Mode changed
-			switch (gridMode) {
-			case ON_GRID:
-				this.switchState(State.GOING_ONGRID);
-				break;
-			case OFF_GRID:
-				this.switchState(State.GOING_OFFGRID);
-				break;
-			case UNDEFINED:
-				break;
-			}
-		}
-		this.lastGridMode = gridMode;
-
-		/*
 		 * Check if we have an Error
 		 */
-		CCUState ccuState = this.getCcuState();
-		if (this.lastCcuState != ccuState) {
-			if (ccuState == CCUState.ERROR) {
-				this.switchState(State.ERROR);
-			}
+		if (this.isError()) {
+			this.switchState(State.ERROR);
 		}
 
 		/*
@@ -113,9 +96,30 @@ public class StateMachine {
 			return State.OFFGRID;
 
 		case UNDEFINED:
+			this.log.info("StateMachine.handleUndefined() -> staying UNDEFINED, Grid-Mode is [" + gridMode + "]");
 			return State.UNDEFINED;
 		}
+		// should never come here
+		assert (true);
 		return State.UNDEFINED;
+	}
+
+	private boolean isError() {
+		boolean result = false;
+		CCUState ccuState = this.getCcuState();
+		// CCU State Error
+		if (this.lastCcuState != ccuState && ccuState == CCUState.ERROR) {
+			result = true;
+		}
+		this.lastCcuState = ccuState;
+
+		// Link Voltage is too low
+		// TODO check Link-Voltage here?
+		if (this.isLinkVoltageTooLow()) {
+			result = true;
+		}
+
+		return result;
 	}
 
 	/**
@@ -179,6 +183,19 @@ public class StateMachine {
 		return CCUState.UNDEFINED;
 	}
 
+	private boolean isLinkVoltageTooLow() {
+		FloatReadChannel frc = this.parent.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+		Optional<Float> linkVoltageOpt = frc.value().asOptional();
+		if (!linkVoltageOpt.isPresent()) {
+			return false;
+		}
+
+		float linkVoltage = linkVoltageOpt.get();
+		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+
+		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
+	}
+
 	/**
 	 * Switches to the next state.
 	 * 
@@ -192,6 +209,10 @@ public class StateMachine {
 
 	public State getState() {
 		return state;
+	}
+
+	public OngridHandler getOngridHandler() {
+		return ongridHandler;
 	}
 
 	public enum State implements OptionsEnum {
