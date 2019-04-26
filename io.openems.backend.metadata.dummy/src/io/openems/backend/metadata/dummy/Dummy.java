@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -110,6 +111,20 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 		edge.onSetIpv4(ipv4 -> {
 			this.logInfo(this.log, "Edge [" + edgeId + "]. Set IPv4: " + ipv4);
+		});
+		edge.onSetSumState((sumState, activeStateChannels) -> {
+			String sumStateString;
+			if (sumState != null) {
+				sumStateString = sumState.getName().toLowerCase();
+			} else {
+				sumStateString = "";
+			}
+			String activeStateChannelsString = activeStateChannels.stream().map(tuple -> {
+				return tuple.x + "/" + tuple.y.getId();
+			}).collect(Collectors.joining(","));
+
+			this.logInfo(this.log, "Edge [" + edgeId + "]. Set State \"" + sumStateString + "\" for Channels "
+					+ activeStateChannelsString);
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);

@@ -387,8 +387,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 							break;
 						}
 						channelMap.put(channelId.id(), new EdgeConfig.Component.Channel(//
+								channelId.id(), //
 								doc.getType(), //
 								doc.getAccessMode(), //
+								doc.getText(), //
 								doc.getUnit(), //
 								detail //
 						));
@@ -399,7 +401,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				}
 
 				result.addComponent(componentId,
-						new EdgeConfig.Component(factoryPid.toString(), propertyMap, channelMap));
+						new EdgeConfig.Component(componentId, factoryPid.toString(), propertyMap, channelMap));
 			}
 		} catch (IOException | InvalidSyntaxException e) {
 			this.logWarn(this.log,
@@ -433,7 +435,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					// Get Natures implemented by this Factory-PID
 					String[] natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
-					result.addFactory(factoryPid, EdgeConfig.Factory.create(objectClassDefinition, natures));
+					result.addFactory(factoryPid,
+							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
 				}
 			}
 		}

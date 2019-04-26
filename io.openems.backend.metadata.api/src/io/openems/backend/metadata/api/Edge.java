@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -12,8 +13,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.channel.Level;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.types.SemanticVersion;
+import io.openems.common.types.Tuple;
 import io.openems.common.utils.JsonUtils;
 
 public class Edge {
@@ -246,15 +250,15 @@ public class Edge {
 	/*
 	 * _sum/State
 	 */
-	private final List<Consumer<Level>> onSetSumState = new CopyOnWriteArrayList<>();
+	private final List<BiConsumer<Level, List<ChannelAddress>>> onSetSumState = new CopyOnWriteArrayList<>();
 
-	public void onSetSumState(Consumer<Level> listener) {
+	public void onSetSumState(BiConsumer<Level, List<ChannelAddress>> listener) {
 		this.onSetSumState.add(listener);
 	}
 
-	public synchronized void setSumState(Level sumState) {
+	public synchronized void setSumState(Level sumState, List<ChannelAddress> activeStateChannels) {
 		if (this.sumState == null || !this.sumState.equals(sumState)) { // on change
-			this.onSetSumState.forEach(listener -> listener.accept(sumState));
+			this.onSetSumState.forEach(listener -> listener.accept(sumState, activeStateChannels));
 			this.sumState = sumState;
 		}
 	}

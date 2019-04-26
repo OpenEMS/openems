@@ -176,7 +176,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 				String productType = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.PRODUCT_TYPE.n()));
 				String initialIpv4 = OdooUtils.getAsString(edgeMap.get(Field.EdgeDevice.IPV4.n()));
 				Integer initialSoc = OdooUtils.getAsInteger(edgeMap.get(Field.EdgeDevice.SOC.n()));
-				
+
 				// Create instance of Edge and register listeners
 				MyEdge edge = new MyEdge(//
 						odooId, //
@@ -260,7 +260,7 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			// Set IPv4 in Odoo
 			this.write(edge, new FieldValue<String>(Field.EdgeDevice.IPV4, String.valueOf(ipv4)));
 		});
-		edge.onSetSumState(sumState -> {
+		edge.onSetSumState((sumState, activeStateChannels) -> {
 			// Set "_sum/State" in Odoo
 			String string;
 			if (sumState != null) {
@@ -270,6 +270,8 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			}
 
 			this.write(edge, new FieldValue<String>(Field.EdgeDevice.OPENEMS_SUM_STATE, string));
+
+			System.out.println(activeStateChannels);
 		});
 	}
 
