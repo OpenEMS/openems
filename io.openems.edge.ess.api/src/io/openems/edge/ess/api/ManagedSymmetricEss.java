@@ -5,15 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -197,8 +197,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, 100) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
@@ -308,11 +308,11 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * the calculated power to the ESS. If you need to constrain the allowed power,
 	 * add Constraints using the {@link #getStaticConstraints()} method.
 	 * 
-	 * @param activePower   the active power
-	 * @param reactivePower the reactive power
-	 * @throws OpenemsException on error; causes activation of APPLY_POWER_FAILED
-	 *                          StateChannel
-	 * @throws OpenemsNamedException 
+	 * @param activePower   the active power in [W]
+	 * @param reactivePower the reactive power in [var]
+	 * @throws OpenemsException      on error; causes activation of
+	 *                               APPLY_POWER_FAILED StateChannel
+	 * @throws OpenemsNamedException
 	 */
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException;
 

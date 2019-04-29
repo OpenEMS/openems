@@ -28,7 +28,8 @@ export const TRANSLATION = {
             Friday: "Pátek",
             Saturday: "Sobota",
             Sunday: "Neděle"
-        }
+        },
+        ReportValue: "Nahlášení poškozených dat"
     },
     Menu: {
         Index: "Přehled",

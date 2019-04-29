@@ -20,12 +20,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -33,14 +37,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -1036,162 +1037,150 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_MANUFACTURER, new UnsignedWordElement(0x0109)),
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_TYPE, new UnsignedWordElement(0x010A)),
 						new DummyRegisterElement(0x010B, 0x010F), //
-						bm(new UnsignedWordElement(0x0110)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_0, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_1, 6) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0111)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_2, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_3, 12) //
-								.build(), //
+						m(new BitsWordElement(0x0110, this) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_0) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_1)),
+						m(new BitsWordElement(0x0111, this) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_2) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_3)),
 						new DummyRegisterElement(0x0112, 0x0124), //
-						bm(new UnsignedWordElement(0x0125)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_4, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_5, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_6, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_7, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_8, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_9, 9) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0126)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_10, 3) //
-								.build(), //
+						m(new BitsWordElement(0x0125, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_4) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_5) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_6) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_7) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_8) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_9)),
+						m(new BitsWordElement(0x0126, this) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_10)), //
 						new DummyRegisterElement(0x0127, 0x014F), //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_SWITCH_STATE,
 								new UnsignedWordElement(0x0150))), //
 				new FC3ReadRegistersTask(0x0180, Priority.LOW, //
-						bm(new UnsignedWordElement(0x0180)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_11, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_12, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_13, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_14, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_15, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_16, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_17, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_18, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_19, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_20, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_21, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_22, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_23, 12) //
-								.build(), //
+						m(new BitsWordElement(0x0180, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_11) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_12) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_13) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_14) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_15) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_16) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_17) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_18) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_19) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_20) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_21) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_22) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_23)),
 						new DummyRegisterElement(0x0181), //
-						bm(new UnsignedWordElement(0x0182)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_24, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_25, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_26, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_27, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_28, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_29, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_30, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_31, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_32, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_33, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_34, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_35, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_36, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_37, 13) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_38, 14) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_39, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0183)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_40, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_41, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_42, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_43, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_44, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_45, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_46, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_47, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_48, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_49, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_50, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_51, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_52, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_53, 13) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_54, 14) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_55, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0184)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_56, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_57, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_58, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_59, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_60, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_61, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_62, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_63, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_64, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_65, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_66, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_67, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_68, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_69, 13) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_70, 14) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_71, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0185)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_72, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_73, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_74, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_75, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_76, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_77, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_78, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_79, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_80, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_81, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_82, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_83, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_84, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_85, 13) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0186)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_86, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_87, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_88, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_89, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_90, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_91, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_92, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_93, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_94, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_95, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_96, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_97, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_98, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_99, 13) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_100, 14) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_101, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0187)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_102, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_103, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_104, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_105, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_106, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_107, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_108, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_109, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_110, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_111, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_112, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_113, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_114, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_115, 13) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_116, 14) //
-								.build(), //
-						bm(new UnsignedWordElement(0x0188)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_117, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_118, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_119, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_120, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_121, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_122, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_123, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_124, 14) //
-								.build() //
-				), new FC3ReadRegistersTask(0x0200, Priority.HIGH, //
+						m(new BitsWordElement(0x0182, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_24) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_25) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_26) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_27) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_28) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_29) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_30) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_31) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_32) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_33) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_34) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_35) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_36) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_37) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_38) //
+								.bit(15, EssFeneconCommercial40.ChannelId.STATE_39)),
+						m(new BitsWordElement(0x0183, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_40) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_41) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_42) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_43) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_44) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_45) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_46) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_47) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_48) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_49) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_50) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_51) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_52) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_53) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_54) //
+								.bit(15, EssFeneconCommercial40.ChannelId.STATE_55)),
+						m(new BitsWordElement(0x0184, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_56) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_57) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_58) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_59) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_60) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_61) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_62) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_63) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_64) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_65) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_66) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_67) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_68) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_69) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_70) //
+								.bit(15, EssFeneconCommercial40.ChannelId.STATE_71)),
+						m(new BitsWordElement(0x0185, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_72) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_73) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_74) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_75) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_76) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_77) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_78) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_79) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_80) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_81) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_82) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_83) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_84) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_85)),
+						m(new BitsWordElement(0x0186, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_86) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_87) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_88) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_89) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_90) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_91) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_92) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_93) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_94) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_95) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_96) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_97) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_98) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_99) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_100) //
+								.bit(15, EssFeneconCommercial40.ChannelId.STATE_101)),
+						m(new BitsWordElement(0x0187, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_102) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_103) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_104) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_105) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_106) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_107) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_108) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_109) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_110) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_111) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_112) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_113) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_114) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_115) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_116)),
+						m(new BitsWordElement(0x0188, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_117) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_118) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_119) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_120) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_121) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_122) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_123) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_124))),
+				new FC3ReadRegistersTask(0x0200, Priority.HIGH, //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_VOLTAGE, new SignedWordElement(0x0200),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_CURRENT, new SignedWordElement(0x0201),
@@ -1267,37 +1256,34 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.BMS_DCDC_WORK_STATE, new UnsignedWordElement(0xA000)), //
 						m(EssFeneconCommercial40.ChannelId.BMS_DCDC_WORK_MODE, new UnsignedWordElement(0xA001))), //
 				new FC3ReadRegistersTask(0xA100, Priority.LOW, //
-						bm(new UnsignedWordElement(0xA100)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_125, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_126, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_127, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_128, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_129, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_130, 9) //
-								.build(), //
-						bm(new UnsignedWordElement(0xA101)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_131, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_132, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_133, 2) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_134, 3) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_135, 4) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_136, 5) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_137, 6) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_138, 7) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_139, 8) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_140, 9) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_141, 10) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_142, 11) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_143, 12) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_144, 13) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_145, 14) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_146, 15) //
-								.build(), //
-						bm(new UnsignedWordElement(0xA102)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_147, 0) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_148, 1) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_149, 2) //
-								.build()), //
+						m(new BitsWordElement(0xA100, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_125) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_126) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_127) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_128) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_129) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_130)),
+						m(new BitsWordElement(0xA101, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_131) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_132) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_133) //
+								.bit(3, EssFeneconCommercial40.ChannelId.STATE_134) //
+								.bit(4, EssFeneconCommercial40.ChannelId.STATE_135) //
+								.bit(5, EssFeneconCommercial40.ChannelId.STATE_136) //
+								.bit(6, EssFeneconCommercial40.ChannelId.STATE_137) //
+								.bit(7, EssFeneconCommercial40.ChannelId.STATE_138) //
+								.bit(8, EssFeneconCommercial40.ChannelId.STATE_139) //
+								.bit(9, EssFeneconCommercial40.ChannelId.STATE_140) //
+								.bit(10, EssFeneconCommercial40.ChannelId.STATE_141) //
+								.bit(11, EssFeneconCommercial40.ChannelId.STATE_142) //
+								.bit(12, EssFeneconCommercial40.ChannelId.STATE_143) //
+								.bit(13, EssFeneconCommercial40.ChannelId.STATE_144) //
+								.bit(14, EssFeneconCommercial40.ChannelId.STATE_145) //
+								.bit(15, EssFeneconCommercial40.ChannelId.STATE_146)),
+						m(new BitsWordElement(0xA102, this) //
+								.bit(0, EssFeneconCommercial40.ChannelId.STATE_147) //
+								.bit(1, EssFeneconCommercial40.ChannelId.STATE_148) //
+								.bit(2, EssFeneconCommercial40.ChannelId.STATE_149))),
 				new FC3ReadRegistersTask(0x1500, Priority.LOW,
 						m(EssFeneconCommercial40.ChannelId.CELL_1_VOLTAGE, new UnsignedWordElement(0x1500)),
 						m(EssFeneconCommercial40.ChannelId.CELL_2_VOLTAGE, new UnsignedWordElement(0x1501)),
@@ -1443,8 +1429,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.CELL_141_VOLTAGE, new UnsignedWordElement(0x158C)),
 						m(EssFeneconCommercial40.ChannelId.CELL_142_VOLTAGE, new UnsignedWordElement(0x158D)),
 						m(EssFeneconCommercial40.ChannelId.CELL_143_VOLTAGE, new UnsignedWordElement(0x158E)),
-						m(EssFeneconCommercial40.ChannelId.CELL_144_VOLTAGE, new UnsignedWordElement(0x158F),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(EssFeneconCommercial40.ChannelId.CELL_144_VOLTAGE, new UnsignedWordElement(0x158F)),								
 						m(EssFeneconCommercial40.ChannelId.CELL_145_VOLTAGE, new UnsignedWordElement(0x1590)),
 						m(EssFeneconCommercial40.ChannelId.CELL_146_VOLTAGE, new UnsignedWordElement(0x1591)),
 						m(EssFeneconCommercial40.ChannelId.CELL_147_VOLTAGE, new UnsignedWordElement(0x1592)),
@@ -1600,11 +1585,11 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable() //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 

@@ -7,9 +7,9 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 
 /**
@@ -55,6 +55,7 @@ public class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 					.addProperty("value", record.getValueDescription()) //
 					.addProperty("unit", record.getUnit() == Unit.NONE ? "" : record.getUnit().toString()) //
 					.addProperty("type", record.getType().toString()) //
+					.addProperty("access", record.getAccessMode().getAbbreviation()) //
 					.build());
 		}
 		JsonObject j = new JsonObject();

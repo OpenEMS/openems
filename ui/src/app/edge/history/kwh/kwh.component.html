@@ -16,10 +16,38 @@
         <table class="full_width">
             <tr>
                 <td>
-                    <ion-label padding-left translate>General.ChargePower</ion-label>
+                    <ion-label padding-left translate>General.Production</ion-label>
                 </td>
                 <td class="align_right" *ngIf="data">
                     {{data["_sum/ProductionActiveEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                </td>
+            </tr>
+        </table>
+    </ion-item>
+
+    <ion-item lines="inset">
+        <ion-img slot="start" style="width: 38px" src="assets/img/storage.png"></ion-img>
+        <ion-label>
+            <ion-card-title translate>General.StorageSystem</ion-card-title>
+        </ion-label>
+    </ion-item>
+
+    <ion-item lines="none">
+        <table class="full_width">
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.ChargePower</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["_sum/EssActiveChargeEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <ion-label padding-left translate>General.DischargePower</ion-label>
+                </td>
+                <td class="align_right" *ngIf="data">
+                    {{data["_sum/EssActiveDischargeEnergy"] / 1000 | number:'1.0-2'}}&nbsp;kWh
                 </td>
             </tr>
         </table>
@@ -71,5 +99,12 @@
                 </td>
             </tr>
         </table>
+    </ion-item>
+
+    <ion-item>
+        <ion-button *ngIf="edge" size="small" expand="block" fill="clear"
+            href="mailto:fems@fenecon.de?subject=corrupted-value-report (fems {{edge.id}})&body=%0A%0APlease attach your notes above. The following section is provides detailed information to the service-team.%0A%0ADo not delete it. There is corrupted data in the cumulated-value section on fems {{edge.id}} in the period from {{startOfDay(fromDate)}} to {{endOfDay(toDate)}}. See more at https://fenecon.de/grafana/d/EbKcy6qmk/rewrite-_sum-including-energy-values%3ForgId=1%26var-fems={{edge.id}}%26from={{toUnix(startOfDay(fromDate))}}%26to={{toUnix(endOfDay(toDate))}}">
+            <span translate>General.ReportValue</span>
+        </ion-button>
     </ion-item>
 </ion-card>
