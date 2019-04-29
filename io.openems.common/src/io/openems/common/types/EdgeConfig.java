@@ -129,10 +129,19 @@ public class EdgeConfig {
 			 */
 			public static Channel fromJson(JsonElement json) throws OpenemsNamedException {
 				OpenemsType type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
-				AccessMode accessMode = JsonUtils.getAsEnum(AccessMode.class, json, "accessMode");
-				Unit unit = JsonUtils.getAsEnum(Unit.class, json, "unit");
-				ChannelCategory categoryKey = JsonUtils.getAsEnum(ChannelCategory.class, json, "categoryKey");
-				JsonObject categoryDetails = JsonUtils.getAsJsonObject(json, "categoryDetails");
+				String accessModeAbbr = JsonUtils.getAsString(json, "accessMode");
+				AccessMode accessMode = AccessMode.READ_ONLY;
+				for (AccessMode thisAccessMode : AccessMode.values()) {
+					if (accessModeAbbr.equals(thisAccessMode.getAbbreviation())) {
+						accessMode = thisAccessMode;
+						break;
+					}
+				}
+				Unit unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
+				JsonObject categoryDetails = JsonUtils.getAsOptionalJsonObject(json, "categoryDetails")
+						.orElse(new JsonObject());
+				ChannelCategory categoryKey = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "categoryKey")
+						.orElse(ChannelCategory.OPENEMS_TYPE);
 				ChannelDetail detail = null;
 				switch (categoryKey) {
 				case OPENEMS_TYPE: {

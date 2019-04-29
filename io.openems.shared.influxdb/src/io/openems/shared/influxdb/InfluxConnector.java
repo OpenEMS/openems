@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBException;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.InfluxDBIOException;
 import org.influxdb.dto.BatchPoints;
@@ -72,6 +73,11 @@ public class InfluxConnector {
 		if (this._influxDB == null) {
 			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
 					this.password);
+			try {
+				influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
+			} catch (InfluxDBException e) {
+				log.warn("InfluxDB-Exception: " + e.getMessage());
+			}
 			influxDB.setDatabase(this.database);
 			influxDB.enableBatch(BatchOptions.DEFAULTS);
 			this._influxDB = influxDB;
