@@ -2,8 +2,12 @@ package io.openems.backend.metadata.api;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -11,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.channel.Level;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
@@ -34,10 +40,11 @@ public class Edge {
 	private ZonedDateTime lastUpdate = null;
 	private Integer soc = null;
 	private String ipv4 = null;
-	private boolean isOnline;
+	private Level sumState = null;
+	private boolean isOnline = false;
 
 	public Edge(String id, String apikey, String comment, State state, String version, String producttype,
-			EdgeConfig config, Integer soc, String ipv4) {
+			EdgeConfig config, Integer soc, String ipv4, Level sumState) {
 		this.id = id;
 		this.apikey = apikey;
 		this.comment = comment;
@@ -47,6 +54,7 @@ public class Edge {
 		this.config = config;
 		this.soc = soc;
 		this.ipv4 = ipv4;
+		this.sumState = sumState;
 	}
 
 	public String getApikey() {
@@ -199,7 +207,8 @@ public class Edge {
 
 	public synchronized void setVersion(SemanticVersion version) {
 		if (this.version == null || !version.equals(this.version)) { // on change
-			this.log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
+			this.log.info(
+					"Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
 			this.onSetVersion.forEach(listener -> listener.accept(version));
 			this.version = version;
 		}
@@ -236,6 +245,27 @@ public class Edge {
 			this.log.debug("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
 			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
 			this.ipv4 = ipv4;
+		}
+	}
+
+	/*
+	 * _sum/State
+	 */
+	private final List<BiConsumer<Level, Map<ChannelAddress, EdgeConfig.Component.Channel>>> onSetSumState = new CopyOnWriteArrayList<>();
+
+	public void onSetSumState(BiConsumer<Level, Map<ChannelAddress, EdgeConfig.Component.Channel>> listener) {
+		this.onSetSumState.add(listener);
+	}
+
+	private Set<ChannelAddress> lastActiveStateChannelsKeys = new HashSet<>();
+
+	public synchronized void setSumState(Level sumState,
+			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
+		if (this.sumState == null || !this.sumState.equals(sumState)
+				|| !this.lastActiveStateChannelsKeys.equals(activeStateChannels.keySet())) { // on change
+			this.lastActiveStateChannelsKeys = activeStateChannels.keySet();
+			this.onSetSumState.forEach(listener -> listener.accept(sumState, activeStateChannels));
+			this.sumState = sumState;
 		}
 	}
 
