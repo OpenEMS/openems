@@ -68,6 +68,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				"url=" + config.url() + //
 				";port=" + config.port() + //
 				";database=" + config.database() + //
+				";retentionPolicy=" + config.retentionPolicy() + //
 				";username=" + config.username() + //
 				";password=" + (config.password() != null ? "ok" : "NOT_SET") + //
 				";measurement=" + config.measurement() + //
@@ -75,7 +76,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				"]");
 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
-				config.database(), config.isReadOnly(), //
+				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {
 					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
 							.map(Point::lineProtocol).collect(Collectors.joining(","));

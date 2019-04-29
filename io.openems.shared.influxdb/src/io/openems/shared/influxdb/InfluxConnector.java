@@ -46,6 +46,7 @@ public class InfluxConnector {
 	private final String username;
 	private final String password;
 	private final String database;
+	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
 
@@ -63,7 +64,7 @@ public class InfluxConnector {
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
 	 *                     throwable) -> {}'
 	 */
-	public InfluxConnector(String ip, int port, String username, String password, String database, boolean isReadOnly,
+	public InfluxConnector(String ip, int port, String username, String password, String database, String retentionPolicy, boolean isReadOnly,
 			BiConsumer<Iterable<Point>, Throwable> onWriteError) {
 		super();
 		this.ip = ip;
@@ -71,6 +72,7 @@ public class InfluxConnector {
 		this.username = username;
 		this.password = password;
 		this.database = database;
+		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
 	}
@@ -96,6 +98,7 @@ public class InfluxConnector {
 				log.warn("InfluxDB-Exception: " + e.getMessage());
 			}
 			influxDB.setDatabase(this.database);
+			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS //
 					.jitterDuration(500) //
 					.exceptionHandler(this.onWriteError));
