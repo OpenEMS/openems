@@ -9,6 +9,7 @@ Export-Package: io.openems.shared.influxdb
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.wrapper.influxdb-java;version=latest,\
+	org.influxdb:influxdb-java;version=2.15,\
 	com.google.gson,\
 	com.google.guava
 

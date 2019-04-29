@@ -16,6 +16,7 @@ Private-Package: \
 	io.openems.common;version=latest,\
 	io.openems.shared.influxdb;version=latest,\
 	io.openems.wrapper.influxdb-java;version=latest,\
+	org.influxdb:influxdb-java;version=2.15,\
 	com.google.gson,\
 	com.google.guava,\
 	slf4j.api
