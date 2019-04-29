@@ -2,12 +2,12 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -386,8 +386,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(ManagedAsymmetricEss.class, 100) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ManagedAsymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.SET_ACTIVE_POWER_L1_EQUALS, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.SET_ACTIVE_POWER_L2_EQUALS, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_L3_EQUALS, ModbusType.FLOAT32) //

@@ -89,6 +89,7 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 		} else {
 			this.setNextWriteValueRegisters(Optional.empty());
 		}
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	/**

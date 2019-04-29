@@ -26,7 +26,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public void executeWrite(AbstractModbusBridge bridge) throws OpenemsException {
+	public void execute(AbstractModbusBridge bridge) throws OpenemsException {
 		ModbusElement<?> element = this.getElements()[0];
 
 		if (element instanceof AbstractWordElement<?, ?>) {
@@ -37,13 +37,14 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
 				if (registers.length == 1 && registers[0] != null) {
 					// found value -> write
+					Register register = registers[0];
 					try {
 						/*
 						 * First try
 						 */
 
 						this.writeSingleRegister(bridge, this.getParent().getUnitId(), this.getStartAddress(),
-								registers[0]);
+								register);
 					} catch (OpenemsException | ModbusException e) {
 						/*
 						 * Second try: with new connection
@@ -51,7 +52,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 						bridge.closeModbusConnection();
 						try {
 							this.writeSingleRegister(bridge, this.getParent().getUnitId(), this.getStartAddress(),
-									registers[0]);
+									register);
 						} catch (ModbusException e2) {
 							throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 						}
@@ -67,14 +68,25 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
 	@Override
 	protected String getActiondescription() {
-		return "FC6 Write Register";
+		return "FC6 WriteRegister";
 	}
 
 	private void writeSingleRegister(AbstractModbusBridge bridge, int unitId, int startAddress, Register register)
 			throws ModbusException, OpenemsException {
-
 		WriteSingleRegisterRequest request = new WriteSingleRegisterRequest(startAddress, register);
 		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+
+		// debug output
+		switch (this.getLogVerbosity(bridge)) {
+		case READS_AND_WRITES:
+		case WRITES:
+			bridge.logInfo(this.log, "FC6WriteRegister " //
+					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
+					+ String.format("%4s", Integer.toHexString(register.getValue())).replace(' ', '0'));
+			break;
+		case NONE:
+			break;
+		}
 
 		if (!(response instanceof WriteSingleRegisterResponse)) {
 			throw new OpenemsException("Unexpected Modbus response. Expected [WriteSingleRegisterResponse], got ["
