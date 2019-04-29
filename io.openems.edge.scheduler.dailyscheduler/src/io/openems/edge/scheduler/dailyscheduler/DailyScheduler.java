@@ -109,33 +109,39 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 				this.sortedControllers.add(controller);
 			}
 		}
+		if (this.controllersIdsJson != null && !(this.controllersIdsJson.isEmpty())) {
+			try {
 
-		try {
-			JsonArray controllerTime = JsonUtils.getAsJsonArray(JsonUtils.parse(this.controllersIdsJson));
-			for (JsonElement element : controllerTime) {
+				JsonArray controllerTime = JsonUtils.getAsJsonArray(JsonUtils.parse(this.controllersIdsJson));
+				if (controllerTime != null) {
+					for (JsonElement element : controllerTime) {
 
-				LocalTime Time = LocalTime.parse(JsonUtils.getAsString(element, "time"));
-				JsonArray JsonControllers = JsonUtils.getAsJsonArray(element, "controller");
-				List<Controller> listOfControllers = new ArrayList<>();
+						LocalTime Time = LocalTime.parse(JsonUtils.getAsString(element, "time"));
+						JsonArray JsonControllers = JsonUtils.getAsJsonArray(element, "controller");
+						List<Controller> listOfControllers = new ArrayList<>();
 
-				for (JsonElement id : JsonControllers) {
+						for (JsonElement id : JsonControllers) {
 
-					Controller controller = this._controllers.get(JsonUtils.getAsString(id).replaceAll("\"", ""));
+							Controller controller = this._controllers
+									.get(JsonUtils.getAsString(id));
 
-					if (controller == null) {
-						log.warn("Required Controller [" + id + "] is not available.");
-					} else {
-						listOfControllers.add(controller);
-						this.contollersList.put(Time, listOfControllers);
+							if (controller == null) {
+								log.warn("Required Controller [" + id + "] is not available.");
+							} else {
+								listOfControllers.add(controller);
+								this.contollersList.put(Time, listOfControllers);
+							}
+
+						}
+
 					}
-
 				}
 
+			} catch (NullPointerException e) {
+				throw new OpenemsException("Unable to set values [" + controllersIds + "] " + e.getMessage());
 			}
-
-		} catch (NullPointerException e) {
-			throw new OpenemsException("Unable to set values [" + controllersIds + "] " + e.getMessage());
 		}
+		
 
 	}
 
@@ -150,8 +156,10 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 		LocalTime currentTime = LocalTime.now();
 
-		if(this.contollersList.lowerEntry(currentTime).getValue() != null) {
-			this.sortedControllers.addAll(this.contollersList.lowerEntry(currentTime).getValue());
+		if (!(this.contollersList.isEmpty())) {
+			if (!this.contollersList.lowerEntry(currentTime).getValue().isEmpty()) {
+				this.sortedControllers.addAll(this.contollersList.lowerEntry(currentTime).getValue());
+			}
 		}
 		return this.sortedControllers;
 
