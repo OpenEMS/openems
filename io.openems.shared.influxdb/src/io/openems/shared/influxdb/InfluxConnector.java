@@ -64,8 +64,8 @@ public class InfluxConnector {
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
 	 *                     throwable) -> {}'
 	 */
-	public InfluxConnector(String ip, int port, String username, String password, String database, String retentionPolicy, boolean isReadOnly,
-			BiConsumer<Iterable<Point>, Throwable> onWriteError) {
+	public InfluxConnector(String ip, int port, String username, String password, String database,
+			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {
 		super();
 		this.ip = ip;
 		this.port = port;

@@ -1,6 +1,8 @@
 package io.openems.edge.bridge.modbus;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -29,8 +31,8 @@ import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.taskmanager.MetaTasksManager;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.taskmanager.TasksManager;
 
 /**
  * The ModbusWorker schedules the execution of all Modbus-Tasks, like reading
@@ -46,6 +48,8 @@ class ModbusWorker extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(ModbusWorker.class);
 
+	private final MetaTasksManager<ReadTask> readTasksManager = new MetaTasksManager<>();
+
 	/**
 	 * Holds the added protocols per source Component-ID.
 	 */
@@ -53,17 +57,12 @@ class ModbusWorker extends AbstractImmediateWorker {
 			.synchronizedListMultimap(ArrayListMultimap.create());
 
 	/**
-	 * TaskManager for ReadTasks from all Protocols.
-	 */
-	private final TasksManager<ReadTask> readTaskManager = new TasksManager<>();
-
-	/**
 	 * Holds source Component-IDs that are known to have errors.
 	 */
 	private final Set<String> defectiveComponents = new HashSet<>();
 
-	private final static long WAIT_TILL_NEXT_READ_DELTA_MILLIS = 10;
-	private long waitTillReadHighPriorityTasks = 300;
+	private static final long WAIT_TILL_NEXT_READ_DELTA_MILLIS = 10;
+	private long waitTillReadHighPriorityTasks = 100;
 
 	/*
 	 * The central Deque for queuing tasks.
@@ -96,21 +95,20 @@ class ModbusWorker extends AbstractImmediateWorker {
 		/*
 		 * Increase, decrease or keep "waitTillReadHighPriorityTasks"
 		 */
-		if (delta >= 0) {
-			// sufficient
-			if (delta > 2 * WAIT_TILL_NEXT_READ_DELTA_MILLIS) {
-				// more than sufficient -> increase waitTillReadHighPriorityTasks
-				this.waitTillReadHighPriorityTasks += WAIT_TILL_NEXT_READ_DELTA_MILLIS;
-			} else {
-				// wait time is exactly sufficient
-			}
-
-		} else {
+		if (delta < 0) {
 			// not sufficient -> decrease waitTillReadHighPriorityTasks
 			if (this.waitTillReadHighPriorityTasks < WAIT_TILL_NEXT_READ_DELTA_MILLIS) {
 				this.waitTillReadHighPriorityTasks = WAIT_TILL_NEXT_READ_DELTA_MILLIS * -1;
 			} else {
 				this.waitTillReadHighPriorityTasks -= WAIT_TILL_NEXT_READ_DELTA_MILLIS;
+			}
+		} else {
+			// sufficient
+			if (delta > 3 * WAIT_TILL_NEXT_READ_DELTA_MILLIS) {
+				// more than sufficient -> increase waitTillReadHighPriorityTasks
+				this.waitTillReadHighPriorityTasks += WAIT_TILL_NEXT_READ_DELTA_MILLIS;
+			} else {
+				// wait time is exactly sufficient
 			}
 		}
 
@@ -130,24 +128,25 @@ class ModbusWorker extends AbstractImmediateWorker {
 			this.addReadTasksFuture.cancel(false);
 		}
 		this.addReadTasksFuture = this.executorService.schedule(() -> { //
+			// reset the lastFinishedQueue timestamp
 			this.lastFinishedQueue.set(Long.MAX_VALUE);
 
-			// Add one Low-Priority Task
-			this.nextTasks.addFirst(this.getOneLowPriorityReadTask());
+			// make sure to not overfill the queue
+			this.nextTasks.clear();
 
-			// Add all High-Priority Tasks to the tail of the Deque in order to execute them
+			// Create temporary list...
+			List<ReadTask> theseNextTasks = new ArrayList<>();
+			// add one Once-/Low-Priority Task
+			theseNextTasks.add(this.getOneLowPriorityReadTask());
+			// add all High-Priority Tasks
+			theseNextTasks.addAll(this.readTasksManager.getAllTasks(Priority.HIGH));
+			// shuffle the list to make sure each Tasks gets executed from time to time even
+			// if cycle-time is too short
+			Collections.shuffle(theseNextTasks);
+			// and add all Tasks to the tail of the Deque in order to execute them
 			// as fast as possible.
-			if (cycleTimeIsTooShortChannel.value().orElse(false) == true) {
-				// Cycle-Time is too short: add only one
-				ReadTask task = this.readTaskManager.getOneTask(Priority.HIGH);
-				if (task != null) {
-					this.nextTasks.addFirst(task);
-				}
-			} else {
-				// add all
-				for (ReadTask task : this.readTaskManager.getTasks(Priority.HIGH)) {
-					this.nextTasks.addFirst(task);
-				}
+			for (ReadTask task : theseNextTasks) {
+				this.nextTasks.addFirst(task);
 			}
 
 			// Add a WaitTask as marker
@@ -222,13 +221,13 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	private ReadTask getOneLowPriorityReadTask() {
 		// Get next Priority ONCE task
-		ReadTask oncePriorityTask = this.readTaskManager.getOneTask(Priority.ONCE);
-		if (oncePriorityTask != null) {
+		ReadTask oncePriorityTask = this.readTasksManager.getOneTask(Priority.ONCE);
+		if (oncePriorityTask != null && !oncePriorityTask.hasBeenExecuted()) {
 			return oncePriorityTask;
 
 		} else {
 			// No more Priority ONCE tasks available -> add Priority LOW task
-			ReadTask lowPriorityTask = this.readTaskManager.getOneTask(Priority.LOW);
+			ReadTask lowPriorityTask = this.readTasksManager.getOneTask(Priority.LOW);
 			if (lowPriorityTask != null) {
 				return lowPriorityTask;
 			}
@@ -269,14 +268,14 @@ class ModbusWorker extends AbstractImmediateWorker {
 			for (ModbusProtocol protocol : entry.getValue()) {
 				if (this.defectiveComponents.contains(componentId)) {
 					// Component is known to be erroneous -> add only one Task
-					WriteTask t = protocol.getOneWriteTask();
+					WriteTask t = protocol.getWriteTasksManager().getOneTask();
 					if (t != null) {
 						result.put(componentId, t);
 					}
 
 				} else {
-					// get the next read tasks from the protocol
-					List<WriteTask> nextWriteTasks = protocol.getNextWriteTasks();
+					// get the next write tasks from the protocol
+					List<WriteTask> nextWriteTasks = protocol.getWriteTasksManager().getAllTasks();
 					result.putAll(entry.getKey(), nextWriteTasks);
 				}
 			}
@@ -292,7 +291,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.protocols.put(sourceId, protocol);
-		this.updateReadTasksManager();
+		this.readTasksManager.addTasksManager(protocol.getReadTasksManager());
 	}
 
 	/**
@@ -302,19 +301,8 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void removeProtocol(String sourceId) {
 		Collection<ModbusProtocol> protocols = this.protocols.removeAll(sourceId);
-		this.updateReadTasksManager();
 		for (ModbusProtocol protocol : protocols) {
-			protocol.deactivate();
-		}
-	}
-
-	/**
-	 * Updates the global Read-Tasks Manager from ModbusProtocols.
-	 */
-	private synchronized void updateReadTasksManager() {
-		this.readTaskManager.clearAll();
-		for (ModbusProtocol protocol : this.protocols.values()) {
-			this.readTaskManager.addTasks(protocol.getReadTasksManager().getAllTasks());
+			this.readTasksManager.removeTasksManager(protocol.getReadTasksManager());
 		}
 	}
 

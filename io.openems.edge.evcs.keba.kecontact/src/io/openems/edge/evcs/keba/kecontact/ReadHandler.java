@@ -122,11 +122,12 @@ public class ReadHandler implements Consumer<String> {
 					Channel<Integer> currentL2 = parent.channel(KebaChannelId.CURRENT_L2);
 					Channel<Integer> currentL3 = parent.channel(KebaChannelId.CURRENT_L3);
 
-					if (currentL1.value().orElse(0) > 0){
+					if (currentL1.value().orElse(0) > 10){
 
 						if (currentL3.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on three ladder"); 
 							set(KebaChannelId.PHASES, 3);
+							
 							
 						} else if (currentL2.value().orElse(0) > 100) {
 							this.parent.logInfo(this.log, "KEBA is loading on two ladder"); 
@@ -136,7 +137,20 @@ public class ReadHandler implements Consumer<String> {
 							this.parent.logInfo(this.log, "KEBA is loading on one ladder"); 
 							set(KebaChannelId.PHASES, 1);
 						}
+						Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
+						this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * phases.value().orElse(3));
+						this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * phases.value().orElse(3));
+					}else {
+
+						// set Min & Max Power to Default values that allows the User a power setting between those values
+						Channel<Integer> min = this.parent.channel(Evcs.ChannelId.MINIMUM_POWER);
+						Channel<Integer> max = this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER);
+						if(min.value().orElse(null)==null || max.value().orElse(null) == null) {
+							this.parent.channel(Evcs.ChannelId.MINIMUM_POWER).setNextValue(230 /*Spannung*/ * 6 /*min Strom*/ * 3);
+							this.parent.channel(Evcs.ChannelId.MAXIMUM_POWER).setNextValue(230 /*Spannung*/ * 32 /*max Strom*/ * 3);
+						}
 					}
+					
 
 					// Set CHARGE_POWER
 					Optional<Integer> power_mw = JsonUtils.getAsOptionalInt(jMessage, "P"); // in [mW]
@@ -162,9 +176,6 @@ public class ReadHandler implements Consumer<String> {
 				}
 				if (jMessage.has("Enable sys")) {
 					setBoolean(KebaChannelId.ENABLE_SYS, jMessage, "Enable sys");
-				}
-				if (jMessage.has("Max curr")) {
-					setInt(KebaChannelId.MAX_CURR, jMessage, "Max curr");
 				}
 				if (jMessage.has("E pres")) {
 					setInt(KebaChannelId.ENERGY_SESSION, jMessage, "E pres");
@@ -194,17 +205,17 @@ public class ReadHandler implements Consumer<String> {
 		}
 	}
 
-
 	/**
-	 * returns true or false, if the requested report answered or not
+	 * returns true or false, if the requested report answered or not 
+	 * and set that value to false
 	 * 
 	 * @param report
 	 * @return
 	 */
 	public boolean hasResultandReset(Report report) {
-	
+
 		boolean result = false;
-		switch(report) {
+		switch (report) {
 		case REPORT1:
 			result = receiveReport1;
 			receiveReport1 = false;

@@ -11,4 +11,17 @@ import io.openems.edge.common.taskmanager.ManagedTask;
  */
 public interface ReadTask extends Task, ManagedTask {
 
+	/**
+	 * Marks this ReadTask as being executed at least once.
+	 */
+	void markAsExecuted();
+
+	/**
+	 * Gets whether this ReadTask has been executed before - i.e. markAsExecuted()
+	 * has been called.
+	 * 
+	 * @return true if this Task has been executed at least once
+	 */
+	boolean hasBeenExecuted();
+
 }

@@ -24,8 +24,8 @@ public class ElementToChannelConverter {
 	 * 
 	 * @see ElementToChannelScaleFactorConverter
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
-	
+	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
+
 	/**
 	 * Applies a scale factor of -2. Converts value [1] to [0.01].
 	 * 

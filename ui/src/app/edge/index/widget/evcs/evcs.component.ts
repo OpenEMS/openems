@@ -4,9 +4,10 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../.
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
 import { EvcsModalPage } from './evcs-modal/evcs-modal.page';
-
+import { componentFactoryName } from '@angular/compiler';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
+type Priority = 'CAR' | 'STORAGE';
 
 @Component({
   selector: 'evcs',
@@ -35,8 +36,6 @@ export class EvcsComponent {
 
   ngOnInit() {
 
-    this.getScreenSize();
-
     // Subscribe to CurrentData
     this.service.setCurrentEdge(this.route).then(edge => {
       this.edge = edge;
@@ -48,7 +47,9 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'Plug'),
         new ChannelAddress(this.componentId, 'Status'),
         new ChannelAddress(this.componentId, 'State'),
-        new ChannelAddress(this.componentId, 'EnergySession')
+        new ChannelAddress(this.componentId, 'EnergySession'),
+        new ChannelAddress(this.componentId, 'MinimumPower'),
+        new ChannelAddress(this.componentId, 'MaximumPower')
       ]);
 
     });
@@ -77,109 +78,32 @@ export class EvcsComponent {
   async presentModal() {
     const modal = await this.modalController.create({
       component: EvcsModalPage,
-      componentProps: { value: 123 }
+      componentProps: {
+        controller: this.controller,
+        edge: this.edge,
+        componentId: this.componentId
+      }
     });
     return await modal.present();
   }
 
-  /**  
-  * Updates the Charge-Mode of the EVCS-Controller.
+  /**
+  * Aktivates or deaktivates the Charging
   * 
   * @param event 
   */
-  updateChargeMode(event: CustomEvent) {
-    let oldChargeMode = this.controller.properties.chargeMode;
-    let newChargeMode: ChargeMode;
+  protected enableOrDisableCharging(event: CustomEvent) {
 
-    switch (event.detail.value) {
-      case 'FORCE_CHARGE':
-        newChargeMode = 'FORCE_CHARGE';
-        break;
-      case 'EXCESS_POWER':
-        newChargeMode = 'EXCESS_POWER';
-        break;
-    }
-
+    let oldChargingState = this.controller.properties.enabledCharging;
+    let newChargingState = !oldChargingState;
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'chargeMode', value: newChargeMode }
+        { name: 'enabledCharging', value: newChargingState }
       ]).then(response => {
         console.log("HIER", response);
-        this.controller.properties.chargeMode = newChargeMode;
+        this.controller.properties.enabledCharging = newChargingState;
       }).catch(reason => {
-        this.controller.properties.chargeMode = oldChargeMode;
-        console.warn(reason);
-      });
-    }
-
-  }
-
-  /**
-   * Updates the Min-Power of force charging
-   *
-   * @param event
-   */
-  updateForceMinPower(event: CustomEvent) {
-    let oldMinChargePower = this.controller.properties.forceChargeMinPower;
-    let newMinChargePower = event.detail.value;
-
-    if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'forceChargeMinPower', value: newMinChargePower }
-      ]).then(response => {
-        console.log("HIER", response);
-        this.controller.properties.forceChargeMinPower = newMinChargePower;
-      }).catch(reason => {
-        this.controller.properties.forceChargeMinPower = oldMinChargePower;
-        console.warn(reason);
-      });
-    }
-  }
-
-  /**
-   * Updates the Min-Power of default charging
-   *
-   * @param event
-   */
-  updateDefaultMinPower(event: CustomEvent) {
-    let oldMinChargePower = this.controller.properties.defaultChargeMinPower;
-    let newMinChargePower = event.detail.value;
-
-    if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'defaultChargeMinPower', value: newMinChargePower }
-      ]).then(response => {
-        console.log("HIER", response);
-        this.controller.properties.defaultChargeMinPower = newMinChargePower;
-      }).catch(reason => {
-        this.controller.properties.defaultChargeMinPower = oldMinChargePower;
-        console.warn(reason);
-      });
-    }
-  }
-
-  /**
-   * uptdate the state of the toggle whitch renders the minimum charge power
-   * 
-   * @param event 
-   * @param phases 
-   */
-  allowMinimumChargePower(event: CustomEvent, phases: number) {
-
-    let oldMinChargePower = this.controller.properties.defaultChargeMinPower;
-
-    let newMinChargePower = 0;
-    if (oldMinChargePower == null || oldMinChargePower == 0) {
-      newMinChargePower = phases != undefined ? 4000 * phases : 4000;
-    }
-    if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-        { name: 'defaultChargeMinPower', value: newMinChargePower }
-      ]).then(response => {
-        console.log("HIER", response);
-        this.controller.properties.defaultChargeMinPower = newMinChargePower;
-      }).catch(reason => {
-        this.controller.properties.defaultChargeMinPower = oldMinChargePower;
+        this.controller.properties.enabledCharging = oldChargingState;
         console.warn(reason);
       });
     }
@@ -221,12 +145,14 @@ export class EvcsComponent {
   }
 
   /**
-   * Round to 100
-   * 
-   * @param i 
-   */
+     * Round to 100 and 
+     * Round up (ceil)
+     * 
+     * @param i 
+     */
   formatNumber(i: number) {
-    return Math.round(i / 100) * 100;
+    let round = Math.ceil(i / 100) * 100;
+    return round;
   }
 
   /**
@@ -264,5 +190,4 @@ enum ChargePlug {
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
   PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7  //Plugged on EVCS and on EV and locked
-
 }
