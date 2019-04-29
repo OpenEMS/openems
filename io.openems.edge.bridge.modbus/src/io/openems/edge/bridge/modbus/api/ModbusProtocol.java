@@ -9,7 +9,6 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
 
 public class ModbusProtocol {
@@ -50,7 +49,7 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Adds a Task to the Protocol
+	 * Adds a Task to the Protocol.
 	 * 
 	 * @param task the task
 	 */
@@ -92,48 +91,12 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Returns the next list of WriteTasks that should be executed within one cycle.
+	 * Gets the Write-Tasks Manager.
 	 * 
-	 * @return a list of WriteTasks
+	 * @return a the TaskManager
 	 */
-	public List<WriteTask> getNextWriteTasks() {
-		return this.writeTaskManager.getNextTasks();
-	}
-
-	/**
-	 * Returns one WriteTask sequentially.
-	 * 
-	 * @return a WriteTasks
-	 */
-	public WriteTask getOneWriteTask() {
-		return this.writeTaskManager.getOneTask();
-	}
-
-	/**
-	 * Returns the next list of ReadTasks that should be executed within one cycle.
-	 * 
-	 * @return a list of ReadTasks
-	 */
-	public List<ReadTask> getNextReadTasks() {
-		return this.readTaskManager.getNextTasks();
-	}
-
-	/**
-	 * Returns one ReadTask sequentially.
-	 * 
-	 * @return a ReadTasks
-	 */
-	public ReadTask getOneReadTask() {
-		return this.readTaskManager.getOneTask();
-	}
-
-	/**
-	 * Returns one ReadTask with the given Priority sequentially.
-	 * 
-	 * @return a ReadTasks
-	 */
-	public ReadTask getOneReadTask(Priority priority) {
-		return this.readTaskManager.getOneTask(priority);
+	public TasksManager<WriteTask> getWriteTasksManager() {
+		return this.writeTaskManager;
 	}
 
 	/**

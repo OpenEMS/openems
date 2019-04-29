@@ -95,6 +95,8 @@ public class BitsWordElement extends UnsignedWordElement {
 
 	/**
 	 * Sets the individual BooleanChannel-Values from an InputRegister.
+	 * 
+	 * @param registers the InputRegisters
 	 */
 	protected void _setInputRegisters(InputRegister... registers) {
 		if (registers.length != 1) {
