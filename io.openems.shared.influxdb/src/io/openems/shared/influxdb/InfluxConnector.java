@@ -46,15 +46,18 @@ public class InfluxConnector {
 	private final String username;
 	private final String password;
 	private final String database;
+	private final String retentionPolicy;
 	private final boolean isReadOnly;
 
-	public InfluxConnector(String ip, int port, String username, String password, String database, boolean isReadOnly) {
+	public InfluxConnector(String ip, int port, String username, String password, String database,
+			String retentionPolicy, boolean isReadOnly) {
 		super();
 		this.ip = ip;
 		this.port = port;
 		this.username = username;
 		this.password = password;
 		this.database = database;
+		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 	}
 
@@ -79,6 +82,7 @@ public class InfluxConnector {
 				log.warn("InfluxDB-Exception: " + e.getMessage());
 			}
 			influxDB.setDatabase(this.database);
+			influxDB.setRetentionPolicy(this.retentionPolicy);
 			influxDB.enableBatch(BatchOptions.DEFAULTS);
 			this._influxDB = influxDB;
 		}
