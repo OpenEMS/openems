@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBException;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.InfluxDBIOException;
-import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -48,9 +48,24 @@ public class InfluxConnector {
 	private final String database;
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
+	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
 
+	/**
+	 * The Constructor.
+	 * 
+	 * @param ip           IP-Address of the InfluxDB-Server
+	 * @param port         Port of the InfluxDB-Server
+	 * @param username     The username
+	 * @param password     The password
+	 * @param database     The database name. If it does not exist, it will be
+	 *                     created
+	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
+	 *                     is actually written to the database
+	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
+	 *                     throwable) -> {}'
+	 */
 	public InfluxConnector(String ip, int port, String username, String password, String database,
-			String retentionPolicy, boolean isReadOnly) {
+			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {
 		super();
 		this.ip = ip;
 		this.port = port;
@@ -59,6 +74,7 @@ public class InfluxConnector {
 		this.database = database;
 		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
+		this.onWriteError = onWriteError;
 	}
 
 	private InfluxDB _influxDB = null;
@@ -83,7 +99,9 @@ public class InfluxConnector {
 			}
 			influxDB.setDatabase(this.database);
 			influxDB.setRetentionPolicy(this.retentionPolicy);
-			influxDB.enableBatch(BatchOptions.DEFAULTS);
+			influxDB.enableBatch(BatchOptions.DEFAULTS //
+					.jitterDuration(500) //
+					.exceptionHandler(this.onWriteError));
 			this._influxDB = influxDB;
 		}
 		return this._influxDB;
@@ -337,31 +355,17 @@ public class InfluxConnector {
 	}
 
 	/**
-	 * Actually write the BatchPoints to InfluxDB.
-	 * 
-	 * @param batchPoints the InfluxDB BatchPoints
-	 * @throws OpenemsException on error
-	 */
-	public void write(BatchPoints batchPoints) throws OpenemsException {
-		if (this.isReadOnly) {
-			log.info("Read-Only-Mode is activated. Not writing points: "
-					+ StringUtils.toShortString(batchPoints.lineProtocol(), 100));
-			return;
-		}
-		try {
-			this.getConnection().write(batchPoints);
-		} catch (InfluxDBIOException e) {
-			throw new OpenemsException("Unable to write points: " + e.getMessage());
-		}
-	}
-
-	/**
 	 * Actually write the Point to InfluxDB.
 	 * 
 	 * @param point the InfluxDB Point
 	 * @throws OpenemsException on error
 	 */
 	public void write(Point point) throws OpenemsException {
+		if (this.isReadOnly) {
+			log.info("Read-Only-Mode is activated. Not writing points: "
+					+ StringUtils.toShortString(point.lineProtocol(), 100));
+			return;
+		}
 		try {
 			this.getConnection().write(point);
 		} catch (InfluxDBIOException e) {
