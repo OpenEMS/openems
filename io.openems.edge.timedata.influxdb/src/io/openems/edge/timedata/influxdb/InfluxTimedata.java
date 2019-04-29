@@ -89,7 +89,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database(), config.isReadOnly(), //
+				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {
 					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
 							.map(Point::lineProtocol).collect(Collectors.joining(","));
