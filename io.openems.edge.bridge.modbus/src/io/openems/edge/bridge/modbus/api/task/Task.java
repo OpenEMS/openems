@@ -49,6 +49,7 @@ public interface Task extends ManagedTask {
 	 * @param bridge the Modbus-Bridge
 	 * @param <T>    the Modbus-Element
 	 * @throws OpenemsException on error
+	 * @return the number of executed Sub-Tasks
 	 */
-	<T> void execute(AbstractModbusBridge bridge) throws OpenemsException;
+	<T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
 }

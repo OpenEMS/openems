@@ -125,6 +125,14 @@ Implemented Natures::
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fenecon.pro[Source Code icon:github[]]
 
+== FENECON BYD Container
+
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.byd.container[Source Code icon:github[]]
+
 == KMtronic Modbus Relay Board
 
 Implemented Natures::
@@ -148,6 +156,14 @@ Implemented Natures::
 - EssDcCharger (for PV)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kostal.piko[Source Code icon:github[]]
+
+== Artemes AM-2
+
+Implemented Natures::
+- SymmetricMeter
+- AsymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.artemes.am2[Source Code icon:github[]]
 
 == B-Control EM300 Meter
 
@@ -198,6 +214,13 @@ Implemented Natures::
 - AsymmetricMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.weidmueller[Source Code icon:github[]]
+
+== Virtual Symmetric Add
+
+Implemented Natures::
+- SymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.virtual[Source Code icon:github[]]
 
 == Solar-Log
 

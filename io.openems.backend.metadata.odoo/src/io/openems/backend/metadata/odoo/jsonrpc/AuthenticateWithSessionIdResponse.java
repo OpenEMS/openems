@@ -42,7 +42,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithSessionIdResponse extends JsonrpcResponseSuccess {
 
-	private final static Logger log = LoggerFactory.getLogger(AuthenticateWithSessionIdResponse.class);
+	private static final Logger log = LoggerFactory.getLogger(AuthenticateWithSessionIdResponse.class);
 
 	public static AuthenticateWithSessionIdResponse from(JsonrpcResponseSuccess response, String sessionId,
 			EdgeCache edges) throws OpenemsNamedException {

@@ -88,6 +88,7 @@ export const TRANSLATION = {
                     CarFull: "Auto ist voll",
                     EnergieSinceBeginning: "Energie seit Beginn der Ladung",
                     ChargeMode: "Belademodus",
+                    ActivateCharging: "Aktivieren der Ladesäule",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
@@ -97,8 +98,13 @@ export const TRANSLATION = {
                         Name: "Optimierte Beladung",
                         ShortName: "Optimiert",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
-                        MinInfo: "Falls verhindert werden soll, dass das Auto bei leerem Speicher, in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren?"
+                        MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
+                        MinCharging: "Minimale Aufladung garantieren?",
+                        ChargingPriority: {
+                            Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
+                            Car: "Auto",
+                            Storage: "Speicher"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Erzwungene Beladung",

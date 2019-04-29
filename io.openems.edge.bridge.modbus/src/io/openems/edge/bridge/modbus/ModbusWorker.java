@@ -176,14 +176,17 @@ class ModbusWorker extends AbstractImmediateWorker {
 
 		try {
 			// execute the task
-			task.execute(this.parent);
+			int noOfExecutedSubTasks = task.execute(this.parent);
 
-			// no exception -> remove this component from erroneous list and set the
-			// CommunicationFailedChannel to false
-			if (task.getParent() != null) {
-				this.defectiveComponents.remove(task.getParent().id());
+			if (noOfExecutedSubTasks > 0) {
+				// no exception & at least one sub-task executed -> remove this component from
+				// erroneous list and set the CommunicationFailedChannel to false
+				if (task.getParent() != null) {
+					this.defectiveComponents.remove(task.getParent().id());
+				}
+
+				this.parent.getSlaveCommunicationFailedChannel().setNextValue(false);
 			}
-			this.parent.getSlaveCommunicationFailedChannel().setNextValue(false);
 
 		} catch (OpenemsException e) {
 			this.parent.logWarn(this.log, task.toString() + " execution failed: " + e.getMessage());
