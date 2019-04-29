@@ -361,7 +361,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		// Add all remaining components, like singletons without ConfigurationAdmin
 		// configuration (=null)
 		for (OpenemsComponent component : this.components) {
-			componentsMap.put(component.id(), null);
+			String componentId = component.id();
+			if (!componentsMap.containsKey(componentId)) {
+				componentsMap.put(component.id(), null);
+			}
 		}
 		// Add myself
 		componentsMap.put(this.id(), null);
@@ -435,7 +438,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 			// Create EdgeConfig.Component and add it to Result
 			result.addComponent(componentId,
-					new EdgeConfig.Component(componentId, factoryPid.toString(), propertyMap, channelMap));
+					new EdgeConfig.Component(componentId, factoryPid, propertyMap, channelMap));
 		}
 
 		final Bundle[] bundles = this.bundleContext.getBundles();
