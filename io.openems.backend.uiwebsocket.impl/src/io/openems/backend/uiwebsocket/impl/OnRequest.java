@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 import io.openems.backend.metadata.api.IntersectChannels;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.websocket.SubscribedChannelsWorker;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,10 +174,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param user    the User - no specific level required
 	 * @param request the SubscribeChannelsRequest
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, String edgeId,
-			User user, SubscribeChannelsRequest request) throws OpenemsNamedException {
+			User user, SubscribeChannelsRequest request) {
 
 		TreeSet<ChannelAddress> permittedChannels = new TreeSet<>();
 		if (this.parent.metadata instanceof IntersectChannels) {
@@ -194,8 +194,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// activate SubscribedChannelsWorker
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
-		worker.setEdgeId(edgeId);
-		worker.handleSubscribeChannelsRequest(user.getRole(), request, permittedChannels);
+		worker.clearAll();
+		worker.handleSubscribeChannelsRequest(user.getRole(), request.getCount(), permittedChannels, edgeId);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

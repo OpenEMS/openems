@@ -135,4 +135,21 @@ public class BackendUser {
         }
         return new io.openems.common.session.User(this.id, this.name, thisRole);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BackendUser that = (BackendUser) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

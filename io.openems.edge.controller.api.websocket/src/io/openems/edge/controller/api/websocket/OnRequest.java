@@ -79,7 +79,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles an EdgeRpcRequest.
-	 * 
+	 *
 	 * @param wsData         the WebSocket attachment
 	 * @param edgeRpcRequest the EdgeRpcRequest
 	 * @param user           the User
@@ -145,7 +145,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a AuthenticateWithPasswordRequest.
-	 * 
+	 *
 	 * @param wsData  the WebSocket attachment
 	 * @param request the AuthenticateWithPasswordRequest
 	 * @return the JSON-RPC Success Response Future
@@ -170,7 +170,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a SubscribeChannelsRequest.
-	 * 
+	 *
 	 * @param wsData  the WebSocket attachment
 	 * @param user    the User
 	 * @param request the SubscribeChannelsRequest
@@ -181,7 +181,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// activate SubscribedChannelsWorker
 		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
-		worker.handleSubscribeChannelsRequest(user.getRole(), request, request.getChannels());
+		worker.clearAll();
+		worker.handleSubscribeChannelsRequest(user.getRole(), request.getCount(), request.getChannels(), WebsocketApi.EDGE_ID);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
@@ -189,7 +190,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a QueryHistoricDataRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the QueryHistoricDataRequest
 	 * @return the Future JSON-RPC Response
@@ -209,7 +210,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a QueryHistoricEnergyRequest.
-	 * 
+	 *
 	 * @param request the QueryHistoricEnergyRequest
 	 * @return the Future JSPN-RPC Response
 	 * @throws OpenemsNamedException on error
@@ -226,7 +227,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a CreateComponentConfigRequest.
-	 * 
+	 *
 	 * @param user                         the User
 	 * @param createComponentConfigRequest the CreateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -243,7 +244,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a UpdateComponentConfigRequest.
-	 * 
+	 *
 	 * @param user                         the User
 	 * @param updateComponentConfigRequest the UpdateComponentConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -260,7 +261,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a DeleteComponentConfigRequest.
-	 * 
+	 *
 	 * @param user                         the User
 	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -277,7 +278,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a GetEdgeConfigRequest.
-	 * 
+	 *
 	 * @param user                 the User
 	 * @param getEdgeConfigRequest the GetEdgeConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -294,7 +295,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a ComponentJsonApiRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the ComponentJsonApiRequest
 	 * @return the Future JSON-RPC Response

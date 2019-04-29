@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
@@ -16,8 +15,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.jsonrpc.notification.CurrentDataNotification;
-import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
@@ -33,18 +30,15 @@ public abstract class SubscribedChannelsWorker {
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
 	/**
-	 * Holds subscribed channels
-	 */
-	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
-
-	/**
 	 * Holds the scheduled task for currentData
 	 */
-	private Optional<ScheduledFuture<?>> futureOpt = Optional.empty();
+	private ScheduledFuture<?> future;
 
 	protected final WsData wsData;
 
 	private int lastRequestCount = Integer.MIN_VALUE;
+
+	private String lastSetEdgeId;
 
 	public SubscribedChannelsWorker(WsData wsData) {
 		this.wsData = wsData;
@@ -53,79 +47,77 @@ public abstract class SubscribedChannelsWorker {
 	/**
 	 * Applies a SubscribeChannelsRequest.
 	 *  @param role    the Role - no specific level required
-	 * @param request the SubscribeChannelsRequest
-	 * @param permittedChannels
+	 * @param requestCount the count of the request
+	 * @param permittedChannels the permitted channels
 	 */
-	public synchronized void handleSubscribeChannelsRequest(Role role, SubscribeChannelsRequest request, TreeSet<ChannelAddress> permittedChannels) {
-		if (this.lastRequestCount < request.getCount()) {
-			this.setChannels(permittedChannels);
-			this.lastRequestCount = request.getCount();
+	public synchronized void handleSubscribeChannelsRequest(Role role, int requestCount, TreeSet<ChannelAddress> permittedChannels, String edgeId) {
+		if (this.lastRequestCount < requestCount) {
+			this.setChannels(permittedChannels, edgeId);
+			this.lastRequestCount = requestCount;
 		}
 	}
 
 	/**
-	 * Sets the subscribed Channels.
-	 * 
+	 * This method sets the given channel and maps those to the edge.
+	 *
 	 * @param channels Set of ChannelAddresses
 	 */
-	private synchronized void setChannels(Set<ChannelAddress> channels) {
+	protected synchronized void setChannels(Set<ChannelAddress> channels, String edgeId) {
+
+		// there is an edge id given -> add the given channels to the edge
 		// stop current thread
-		if (this.futureOpt.isPresent()) {
-			this.futureOpt.get().cancel(true);
-			this.futureOpt = Optional.empty();
+		if (this.future != null) {
+			this.future.cancel(true);
+			this.future = null;
 		}
 
-		// clear existing channels
-		this.channels.clear();
+		if (channels == null || channels.isEmpty()) {
+			// no channels given -> nothing to do
+			return;
+		}
 
-		// set new channels
-		this.channels.addAll(channels);
+		this.putEdgeIdAndChannelAddress(edgeId, channels);
 
-		if (!channels.isEmpty()) {
-			// registered channels -> create new thread
-			this.futureOpt = Optional.of(this.executor.scheduleWithFixedDelay(() -> {
-				/*
-				 * This task is executed regularly. Sends data to Websocket.
-				 */
-				WebSocket ws = this.wsData.getWebsocket();
-				if (ws == null || !ws.isOpen()) {
-					// disconnected; stop worker
-					this.dispose();
-					return;
-				}
+		// registered channels -> create new thread
+		this.future = this.executor.scheduleWithFixedDelay(this::doCyclicWork, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 
-				try {
-					this.wsData.send(this.getJsonRpcNotification(this.getCurrentData()));
-				} catch (OpenemsException e) {
-					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
-				}
+		// reset the edge id for making sure that a new assignment does not get mixed with an old one
+		lastSetEdgeId = null;
+	}
 
-			}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
+	public abstract void clearAll();
+
+	/**
+	 * This method gets called cyclic from the executor and fetches the current information of the channels and sends
+	 * the result to the UI via {@link OnNotification}
+	 */
+	private void doCyclicWork() {
+		/*
+		 * This task is executed regularly. Sends data to Websocket.
+		 */
+		WebSocket ws = this.wsData.getWebsocket();
+		if (ws == null || !ws.isOpen()) {
+			// disconnected; stop worker
+			this.dispose();
+			return;
+		}
+
+		try {
+			this.wsData.send(this.getJsonRpcNotification());
+		} catch (OpenemsException e) {
+			this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
 		}
 	}
 
 	public void dispose() {
 		// unsubscribe regular task
-		if (this.futureOpt.isPresent()) {
-			futureOpt.get().cancel(true);
+		if (this.future != null) {
+			future.cancel(true);
 		}
 	}
 
-	/**
-	 * Gets a JSON-RPC Notification with all subscribed channels data
-	 *
-	 * @return
-	 */
-	private CurrentDataNotification getCurrentData() {
-		CurrentDataNotification result = new CurrentDataNotification();
-		for (ChannelAddress channel : this.channels) {
-			JsonElement value = this.getChannelValue(channel);
-			result.add(channel, value);
-		}
-		return result;
-	}
+	protected abstract JsonrpcNotification getJsonRpcNotification();
 
-	protected abstract JsonElement getChannelValue(ChannelAddress channelAddress);
+	protected abstract void putEdgeIdAndChannelAddress(String edgeId, Set<ChannelAddress> channels);
 
-	protected abstract JsonrpcNotification getJsonRpcNotification(CurrentDataNotification currentData);
 }

@@ -7,6 +7,7 @@ import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.websocket.SubscribedChannelsWorker;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
@@ -15,7 +16,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private Optional<UUID> token = Optional.empty();
 
 	public WsData(UiWebsocketImpl parent) {
-		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
+		this.subscribedChannelsWorker = new SubscribedChannelsWorkerMultipleEdges(parent, this);
 	}
 
 	@Override
