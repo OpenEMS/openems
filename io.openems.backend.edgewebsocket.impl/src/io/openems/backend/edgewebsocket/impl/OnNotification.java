@@ -1,7 +1,7 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -20,11 +20,11 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfig.Component.Channel;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SemanticVersion;
-import io.openems.common.types.Tuple;
 import io.openems.common.utils.JsonUtils;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
@@ -135,7 +135,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (data.has("_sum/State")) {
 				// Read global State
 				Optional<Level> levelOpt = Level.fromJson(data, "_sum/State");
-				List<ChannelAddress> activeStateChannels = new ArrayList<>();
+				Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
 				// Get active Info/Warning/Error Channels
 				if (levelOpt.isPresent() && levelOpt.get() != Level.OK) {
 					for (Entry<String, Component> componentEntry : edge.getConfig().getComponents().entrySet()) {
@@ -150,8 +150,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 										componentId + "/" + channelId);
 								if (valueOpt.isPresent()
 										&& valueOpt.get() == 1 /* Booleans are transferred as '0' or '1' */) {
-									activeStateChannels
-											.add(new Tuple<String, Channel>(componentId, channelEntry.getValue()));
+									activeStateChannels.put(//
+											new ChannelAddress(componentId, channelId), //
+											channelEntry.getValue());
 								}
 							}
 						}

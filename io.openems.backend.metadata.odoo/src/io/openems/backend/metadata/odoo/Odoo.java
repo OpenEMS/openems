@@ -33,6 +33,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
+import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
@@ -224,7 +225,8 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 			this.logDebug(this.log,
 					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(diff.toString(), 100));
 			String conf = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
-			String components = new GsonBuilder().setPrettyPrinting().create().toJson(config.componentsToJson());
+			String components = new GsonBuilder().setPrettyPrinting().create()
+					.toJson(config.componentsToJson(JsonFormat.WITHOUT_CHANNELS));
 			this.write(edge, //
 					new FieldValue<String>(Field.EdgeDevice.OPENEMS_CONFIG, conf),
 					new FieldValue<String>(Field.EdgeDevice.OPENEMS_CONFIG_COMPONENTS, components));
@@ -262,16 +264,17 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 		edge.onSetSumState((sumState, activeStateChannels) -> {
 			// Set "_sum/State" in Odoo
-			String string;
+			String sumStateString;
 			if (sumState != null) {
-				string = sumState.getName().toLowerCase();
+				sumStateString = sumState.getName().toLowerCase();
 			} else {
-				string = "";
+				sumStateString = "";
 			}
+			String states = Metadata.activeStateChannelsToString(activeStateChannels);
+			this.write(edge, //
+					new FieldValue<String>(Field.EdgeDevice.OPENEMS_SUM_STATE, sumStateString), //
+					new FieldValue<String>(Field.EdgeDevice.OPENEMS_SUM_STATE_TEXT, states));
 
-			this.write(edge, new FieldValue<String>(Field.EdgeDevice.OPENEMS_SUM_STATE, string));
-
-			System.out.println(activeStateChannels);
 		});
 	}
 

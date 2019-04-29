@@ -21,8 +21,10 @@ import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Holds the configuration of an Edge.
@@ -105,6 +107,10 @@ public class EdgeConfig {
 
 				public ChannelDetailState(Level level) {
 					this.level = level;
+				}
+
+				public Level getLevel() {
+					return level;
 				}
 
 				@Override
@@ -252,20 +258,31 @@ public class EdgeConfig {
 		 * 
 		 * @return configuration as a JSON Object
 		 */
-		public JsonObject toJson() {
+		public JsonObject toJson(JsonFormat jsonFormat) {
 			JsonObject properties = new JsonObject();
 			for (Entry<String, JsonElement> property : this.getProperties().entrySet()) {
 				properties.add(property.getKey(), property.getValue());
 			}
-			JsonObject channels = new JsonObject();
-			for (Entry<String, Channel> channel : this.getChannels().entrySet()) {
-				channels.add(channel.getKey(), channel.getValue().toJson());
-			}
-			return JsonUtils.buildJsonObject() //
+			JsonObjectBuilder result = JsonUtils.buildJsonObject() //
 					.addProperty("factoryId", this.getFactoryId()) //
-					.add("properties", properties) //
-					.add("channels", channels) //
-					.build();
+					.add("properties", properties); //
+			switch (jsonFormat) {
+			case WITHOUT_CHANNELS:
+				break;
+
+			case COMPLETE:
+				JsonObject channels = new JsonObject();
+				for (Entry<String, Channel> channel : this.getChannels().entrySet()) {
+					channels.add(channel.getKey(), channel.getValue().toJson());
+				}
+				result.add("channels", channels); //
+				break;
+			}
+			return result.build();
+		}
+
+		public enum JsonFormat {
+			COMPLETE, WITHOUT_CHANNELS;
 		}
 
 		/**
@@ -665,7 +682,7 @@ public class EdgeConfig {
 	 */
 	public JsonObject toJson() {
 		return JsonUtils.buildJsonObject() //
-				.add("components", this.componentsToJson()) //
+				.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
 				.add("factories", this.factoriesToJson()) //
 				.build();
 	}
@@ -681,10 +698,10 @@ public class EdgeConfig {
 	 * 
 	 * @return Components as a JSON Object
 	 */
-	public JsonObject componentsToJson() {
+	public JsonObject componentsToJson(JsonFormat jsonFormat) {
 		JsonObject components = new JsonObject();
 		for (Entry<String, Component> entry : this.getComponents().entrySet()) {
-			components.add(entry.getKey(), entry.getValue().toJson());
+			components.add(entry.getKey(), entry.getValue().toJson(jsonFormat));
 		}
 		return components;
 	}
@@ -728,7 +745,7 @@ public class EdgeConfig {
 		}
 
 		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "factories").entrySet()) {
-			result.addFactory(entry.getKey(), Factory.fromJson(entry.getValue()));
+			result.addFactory(entry.getKey(), Factory.fromJson(entry.getKey(), entry.getValue()));
 		}
 
 		return result;

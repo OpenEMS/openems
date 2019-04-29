@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -119,15 +118,13 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 			} else {
 				sumStateString = "";
 			}
-			String activeStateChannelsString = activeStateChannels.stream().map(tuple -> {
-				return tuple.x + "/" + tuple.y.getId();
-			}).collect(Collectors.joining(","));
-
-			this.logInfo(this.log, "Edge [" + edgeId + "]. Set State \"" + sumStateString + "\" for Channels "
-					+ activeStateChannelsString);
+			String states = Metadata.activeStateChannelsToString(activeStateChannels);
+			this.logInfo(this.log,
+					"Edge [" + edgeId + "]. Set State \"" + sumStateString + "\". Long-Text: " + states);
 		});
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
+
 	}
 
 	@Override
