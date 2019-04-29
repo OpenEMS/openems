@@ -153,7 +153,7 @@ public interface Metadata {
 									return channel.getId();
 								}
 							}) //
-							.collect(Collectors.joining(",")));
+							.collect(Collectors.joining(", ")));
 				}
 				result.append(subResult);
 			}
