@@ -48,6 +48,14 @@ public class JsonUtils {
 		return jPrimitive.getAsBoolean();
 	}
 
+	public static Optional<Boolean> getAsOptionalBoolean(JsonElement element, String memberName) {
+		try {
+			return Optional.of(getAsBoolean(element, memberName));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
 	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement, String memberName)
 			throws OpenemsNamedException {
 		String element = getAsString(jElement, memberName);

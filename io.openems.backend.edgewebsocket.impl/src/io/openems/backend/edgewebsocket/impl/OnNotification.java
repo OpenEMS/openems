@@ -1,5 +1,7 @@
 package io.openems.backend.edgewebsocket.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -18,6 +20,10 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -126,16 +132,33 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
 			}
-			if (data.has("_sum/State") && data.get("_sum/State").isJsonPrimitive()) {
-				int value = JsonUtils.getAsPrimitive(data, "_sum/State").getAsInt();
-				Level result = null;
-				for (Level level : Level.values()) {
-					if (value == level.getValue()) {
-						result = level;
-						break;
+			if (data.has("_sum/State")) {
+				// Read global State
+				Optional<Level> levelOpt = Level.fromJson(data, "_sum/State");
+				Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
+				// Get active Info/Warning/Error Channels
+				if (levelOpt.isPresent() && levelOpt.get() != Level.OK) {
+					for (Entry<String, Component> componentEntry : edge.getConfig().getComponents().entrySet()) {
+						String componentId = componentEntry.getKey();
+						Optional<Level> componentLevelOpt = Level.fromJson(data, componentId + "/State");
+						if (componentLevelOpt.isPresent() && componentLevelOpt.get() != Level.OK) {
+							// This Components state is not OK -> search for active State-Channels
+							for (Entry<String, Channel> channelEntry : componentEntry.getValue().getStateChannels()
+									.entrySet()) {
+								String channelId = channelEntry.getKey();
+								Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(data,
+										componentId + "/" + channelId);
+								if (valueOpt.isPresent()
+										&& valueOpt.get() == 1 /* Booleans are transferred as '0' or '1' */) {
+									activeStateChannels.put(//
+											new ChannelAddress(componentId, channelId), //
+											channelEntry.getValue());
+								}
+							}
+						}
 					}
 				}
-				edge.setSumState(result);
+				edge.setSumState(levelOpt.orElse(null), activeStateChannels);
 			}
 		}
 	}

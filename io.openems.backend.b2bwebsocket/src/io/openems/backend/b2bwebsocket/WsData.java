@@ -28,6 +28,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.user.complete(user);
 	}
 
+	// TODO verwende überall Future für User
 	public CompletableFuture<BackendUser> getUser() {
 		return this.user;
 	}
