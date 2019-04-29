@@ -332,6 +332,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 			if (fields.size() > 0) {
 				// write to DB
+				builder.fields(fields);
 				this.influxConnector.write(builder.build());
 			}
 		}
