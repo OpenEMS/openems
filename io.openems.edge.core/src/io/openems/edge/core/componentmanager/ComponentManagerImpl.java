@@ -123,7 +123,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
-		super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, true);
+		super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, "Component-Manager", true);
 
 		this.bundleContext = bundleContext;
 
@@ -374,6 +374,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		 */
 		for (Entry<String, Configuration> componentEntry : componentsMap.entrySet()) {
 			String componentId = componentEntry.getKey();
+			String alias = componentId;
 			TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
 			String factoryPid = "";
 
@@ -383,6 +384,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				// get Factory-PID
 				if (config.getFactoryPid() != null) {
 					factoryPid = config.getFactoryPid().toString();
+				}
+
+				// get Alias
+				if (properties.get("alias") != null) {
+					alias = properties.get("alias").toString();
 				}
 
 				// get configuration properties
@@ -395,10 +401,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				}
 			}
 
-			// get Channels
+			// get Alias and Channels
 			TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
 			try {
 				OpenemsComponent component = this.getComponent(componentId);
+				alias = component.alias();
 				for (Channel<?> channel : component.channels()) {
 					io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
 					Doc doc = channelId.doc();
@@ -438,7 +445,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 			// Create EdgeConfig.Component and add it to Result
 			result.addComponent(componentId,
-					new EdgeConfig.Component(componentId, factoryPid, propertyMap, channelMap));
+					new EdgeConfig.Component(componentId, alias, factoryPid, propertyMap, channelMap));
 		}
 
 		final Bundle[] bundles = this.bundleContext.getBundles();

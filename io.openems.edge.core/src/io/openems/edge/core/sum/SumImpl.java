@@ -68,7 +68,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, OpenemsConstants.SUM_ID, true);
+		super.activate(context, OpenemsConstants.SUM_ID, "Core.Sum", true);
 	}
 
 	@Deactivate

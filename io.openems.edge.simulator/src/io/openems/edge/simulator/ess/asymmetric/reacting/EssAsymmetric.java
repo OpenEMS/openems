@@ -80,7 +80,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {

@@ -90,7 +90,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	void activate(ComponentContext context, Config config) {
 		log.info("Cluster.activate()");
 		this.config = config;
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
 		this.modbusBridgeId = config.modbus_id();

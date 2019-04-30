@@ -39,6 +39,11 @@ public class AllAlphabeticallyTest {
 			}
 
 			@Override
+			public String alias() {
+				return "";
+			}
+
+			@Override
 			public boolean enabled() {
 				return true;
 			}

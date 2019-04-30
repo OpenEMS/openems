@@ -112,7 +112,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.readOnlyMode = config.readOnlyMode();
 	}

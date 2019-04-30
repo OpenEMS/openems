@@ -125,7 +125,8 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate

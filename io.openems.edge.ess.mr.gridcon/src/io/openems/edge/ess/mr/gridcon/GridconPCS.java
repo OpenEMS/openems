@@ -147,7 +147,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
 
 		// Call parent activate()
-		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate

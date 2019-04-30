@@ -38,8 +38,8 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger implements E
 
 	@Activate
 	void activate(ComponentContext context, Config1 config) {
-		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID,
-				this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm,
+				"Modbus", config.modbus_id());
 	}
 
 	@Deactivate

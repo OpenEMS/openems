@@ -68,7 +68,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.ip = Inet4Address.getByName(config.ip());
 

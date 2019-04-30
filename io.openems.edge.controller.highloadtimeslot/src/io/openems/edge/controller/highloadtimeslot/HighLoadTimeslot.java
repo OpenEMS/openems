@@ -98,7 +98,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		this.hysteresisSoc = config.hysteresisSoc();
 		this.weekdayDayFilter = config.weekdayFilter();
 
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Deactivate

@@ -65,7 +65,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		this.meterType = config.type();
 		this.invert = config.invert();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
 

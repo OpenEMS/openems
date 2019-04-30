@@ -6,10 +6,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition( //
 		name = "Controller CHP SOC", //
 		description = "This is a Controller for CHP (Combined Heat and Power Unit, German: BHKW - Blockheizkraftwerk). The Controller is used to signal CHP turn ON or turn OFF when the battery is empty or battery is full respectively, based on the SoC percentage")
-
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlChpSoc0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel")

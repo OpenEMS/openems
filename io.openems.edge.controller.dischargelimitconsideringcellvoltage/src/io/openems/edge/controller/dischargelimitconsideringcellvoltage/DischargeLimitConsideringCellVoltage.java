@@ -282,7 +282,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		debug("DischargeLimitConsideringCellVoltage.activate()");
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.batteryId = config.battery_id();

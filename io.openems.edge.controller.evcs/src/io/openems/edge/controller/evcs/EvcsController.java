@@ -97,7 +97,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.enabledCharging = config.enabledCharging();
 		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
@@ -139,7 +139,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			return;
 		}
 
-		
 		// Channel<Integer> phases = evcs.channel("Phases");
 
 		int nextChargePower = 0;

@@ -99,7 +99,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (!this.isEnabled()) {
 			// abort if disabled
 			return;
