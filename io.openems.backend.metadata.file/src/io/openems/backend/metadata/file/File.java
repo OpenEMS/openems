@@ -1,8 +1,5 @@
 package io.openems.backend.metadata.file;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.backend.common.helper.FileHelper;
+import io.openems.common.utils.FileUtils;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -134,7 +131,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	private synchronized void refreshData() {
 		if (this.edges.isEmpty()) {
 			// read file
-			StringBuilder sb = FileHelper.checkAndGetFileContent(this.path);
+			StringBuilder sb = FileUtils.checkAndGetFileContent(this.path);
 			List<Edge> edges = new ArrayList<>();
 
 			// parse to JSON

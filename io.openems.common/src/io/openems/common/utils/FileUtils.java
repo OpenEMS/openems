@@ -1,4 +1,4 @@
-package io.openems.backend.common.helper;
+package io.openems.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,9 +7,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class FileHelper {
+public class FileUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(FileHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
     public static StringBuilder checkAndGetFileContent(String path) {
         if (path == null || path.isEmpty()) {

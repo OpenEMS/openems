@@ -1,10 +1,19 @@
-package io.openems.backend.metadata.user_based;
+package io.openems.common.utils;
 
 public enum JsonKeys {
 
+    ID("id"),
     USERS("users"),
+    GROUPS("groups"),
+    ROLES("roles"),
     USER_ID("userId"),
     NAME("name"),
+    PASSWORD("password"),
+    EMAIL("email"),
+    DESCRIPTION("description"),
+    PERMISSION("permission"),
+    PERMISSIONS("permissions"),
+    ASSIGNED_TO_GROUPS("assignedToGroups"),
     EDGES("edges"),
     EDGE_ID("edgeId"),
     PERMITTED_CHANNELS("permittedChannels"),

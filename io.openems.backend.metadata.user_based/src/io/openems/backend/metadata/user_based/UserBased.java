@@ -3,7 +3,7 @@ package io.openems.backend.metadata.user_based;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.helper.FileHelper;
+import io.openems.common.utils.FileUtils;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
@@ -15,6 +15,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -176,7 +177,7 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
             return;
         }
 
-        StringBuilder sb = FileHelper.checkAndGetFileContent(this.path);
+        StringBuilder sb = FileUtils.checkAndGetFileContent(this.path);
         if (sb == null) {
             // exception occurred. File could not be read
             return;
