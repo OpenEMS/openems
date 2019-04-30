@@ -2,25 +2,21 @@ package io.openems.edge.bridge.modbus;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractImmediateWorker;
@@ -29,7 +25,9 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.taskmanager.MetaTasksManager;
 import io.openems.edge.common.taskmanager.Priority;
@@ -46,138 +44,134 @@ import io.openems.edge.common.taskmanager.Priority;
  */
 class ModbusWorker extends AbstractImmediateWorker {
 
+	private static final long TASK_DURATION_BUFFER = 50;
+
 	private final Logger log = LoggerFactory.getLogger(ModbusWorker.class);
-
+	// Measures the Cycle-Length between two consecutive BeforeProcessImage events
+	private final Stopwatch cycleStopwatch = Stopwatch.createUnstarted();
+	private final LinkedBlockingDeque<Task> tasksQueue = new LinkedBlockingDeque<>();
 	private final MetaTasksManager<ReadTask> readTasksManager = new MetaTasksManager<>();
-
-	/**
-	 * Holds the added protocols per source Component-ID.
-	 */
-	private final Multimap<String, ModbusProtocol> protocols = Multimaps
-			.synchronizedListMultimap(ArrayListMultimap.create());
-
-	/**
-	 * Holds source Component-IDs that are known to have errors.
-	 */
+	private final MetaTasksManager<WriteTask> writeTasksManager = new MetaTasksManager<>();
+	// Holds source Component-IDs that are known to have errors.
 	private final Set<String> defectiveComponents = new HashSet<>();
-
-	private static final long WAIT_TILL_NEXT_READ_DELTA_MILLIS = 10;
-	private long waitTillReadHighPriorityTasks = 100;
-
-	/*
-	 * The central Deque for queuing tasks.
-	 */
-	private final LinkedBlockingDeque<Task> nextTasks = new LinkedBlockingDeque<>();
-	private final AtomicLong lastFinishedQueue = new AtomicLong(0);
-	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-
 	private final AbstractModbusBridge parent;
+
+	// The measured duration between BeforeProcessImage event and ExecuteWrite event
+	private long durationBetweenBeforeProcessImageTillExecuteWrite = 0;
 
 	protected ModbusWorker(AbstractModbusBridge parent) {
 		this.parent = parent;
 	}
 
-	private ScheduledFuture<?> addReadTasksFuture = null;
-
 	/**
 	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
 	 */
 	protected void onBeforeProcessImage() {
-		StateChannel cycleTimeIsTooShortChannel = this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT);
+		// Measure the actual cycle-time; and starts the next measure cycle
+		long cycleTime = 1000; // default to 1000 [ms] for the first run
+		if (this.cycleStopwatch.isRunning()) {
+			cycleTime = this.cycleStopwatch.elapsed(TimeUnit.MILLISECONDS);
+		}
+		this.cycleStopwatch.reset();
+		this.cycleStopwatch.start();
 
-		/*
-		 * Was Cycle-Time sufficient to empty the Queue? 'Learn' the optimal waiting
-		 * time.
-		 */
-		long lastFinishedQueue = this.lastFinishedQueue.getAndSet(Long.MAX_VALUE);
-		long delta = System.currentTimeMillis() - lastFinishedQueue;
-
-		/*
-		 * Increase, decrease or keep "waitTillReadHighPriorityTasks"
-		 */
-		if (delta < 0) {
-			// not sufficient -> decrease waitTillReadHighPriorityTasks
-			if (this.waitTillReadHighPriorityTasks < WAIT_TILL_NEXT_READ_DELTA_MILLIS) {
-				this.waitTillReadHighPriorityTasks = WAIT_TILL_NEXT_READ_DELTA_MILLIS * -1;
-			} else {
-				this.waitTillReadHighPriorityTasks -= WAIT_TILL_NEXT_READ_DELTA_MILLIS;
-			}
-		} else {
-			// sufficient
-			if (delta > 3 * WAIT_TILL_NEXT_READ_DELTA_MILLIS) {
-				// more than sufficient -> increase waitTillReadHighPriorityTasks
-				this.waitTillReadHighPriorityTasks += WAIT_TILL_NEXT_READ_DELTA_MILLIS;
-			} else {
-				// wait time is exactly sufficient
-			}
+		// If the current tasks queue spans multiple cycles and we are in-between ->
+		// stop here
+		if (!this.tasksQueue.isEmpty()) {
+			return;
 		}
 
-		/*
-		 * waiting time should never be lower than 0.
-		 */
-		if (this.waitTillReadHighPriorityTasks < 0) {
-			// Cycle-Time is too short
-			cycleTimeIsTooShortChannel.setNextValue(true);
+		// Collect the next read-tasks
+		List<ReadTask> nextReadTasks = new ArrayList<>();
+		ReadTask lowPriorityTask = this.getOneLowPriorityReadTask();
+		if (lowPriorityTask != null) {
+			nextReadTasks.add(lowPriorityTask);
+		}
+		nextReadTasks.addAll(this.getAllHighPriorityReadTasks());
+		long readTasksDuration = 0;
+		for (ReadTask task : nextReadTasks) {
+			readTasksDuration += task.getExecuteDuration();
+		}
 
+		// collect the next write-tasks
+		long writeTasksDuration = 0;
+		List<WriteTask> nextWriteTasks = this.getAllWriteTasks();
+		for (WriteTask task : nextWriteTasks) {
+			writeTasksDuration += task.getExecuteDuration();
+		}
+
+		// plan the execution for the next cycles
+		long totalDuration = readTasksDuration + writeTasksDuration;
+		long totalDurationWithBuffer = totalDuration + TASK_DURATION_BUFFER;
+		long noOfRequiredCycles = ceilDiv(totalDurationWithBuffer, cycleTime);
+
+		// Set EXECUTION_DURATION channel
+		LongReadChannel executionDurationChannel = this.parent.channel(BridgeModbus.ChannelId.EXECUTION_DURATION);
+		executionDurationChannel.setNextValue(totalDuration);
+
+		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
+		StateChannel cycleTimeIsTooShortChannel = this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT);
+		if (noOfRequiredCycles > 1) {
+			cycleTimeIsTooShortChannel.setNextValue(true);
 		} else {
 			cycleTimeIsTooShortChannel.setNextValue(false);
 		}
 
-		// Cycle-Time is higher than required -> schedule execution of Read-Tasks.
-		if (this.addReadTasksFuture != null && !this.addReadTasksFuture.isDone()) {
-			this.addReadTasksFuture.cancel(false);
-		}
-		this.addReadTasksFuture = this.executorService.schedule(() -> { //
-			// reset the lastFinishedQueue timestamp
-			this.lastFinishedQueue.set(Long.MAX_VALUE);
-
-			// make sure to not overfill the queue
-			this.nextTasks.clear();
-
-			// Create temporary list...
-			List<ReadTask> theseNextTasks = new ArrayList<>();
-			// add one Once-/Low-Priority Task
-			theseNextTasks.add(this.getOneLowPriorityReadTask());
-			// add all High-Priority Tasks
-			theseNextTasks.addAll(this.readTasksManager.getAllTasks(Priority.HIGH));
-			// shuffle the list to make sure each Tasks gets executed from time to time even
-			// if cycle-time is too short
-			Collections.shuffle(theseNextTasks);
-			// and add all Tasks to the tail of the Deque in order to execute them
-			// as fast as possible.
-			for (ReadTask task : theseNextTasks) {
-				this.nextTasks.addFirst(task);
+		long durationOfTasksBeforeExecuteWriteEvent = 0;
+		int noOfTasksBeforeExecuteWriteEvent = 0;
+		for (ReadTask task : nextReadTasks) {
+			if (durationOfTasksBeforeExecuteWriteEvent > this.durationBetweenBeforeProcessImageTillExecuteWrite) {
+				break;
 			}
+			noOfTasksBeforeExecuteWriteEvent++;
+			durationOfTasksBeforeExecuteWriteEvent += task.getExecuteDuration();
+		}
 
-			// Add a WaitTask as marker
-			this.nextTasks.addFirst(new MarkerTask());
+		// Build Queue
+		Deque<Task> tasksQueue = new LinkedList<>();
 
-		}, this.waitTillReadHighPriorityTasks, TimeUnit.MILLISECONDS);
+		// Add all write-tasks to the queue
+		tasksQueue.addAll(nextWriteTasks);
+
+		// Add all read-tasks to the queue
+		for (int i = 0; i < nextReadTasks.size(); i++) {
+			ReadTask task = nextReadTasks.get(i);
+			if (i < noOfTasksBeforeExecuteWriteEvent) {
+				// this Task will be executed before ExecuteWrite event -> add it to the end of
+				// the queue
+				tasksQueue.addLast(task);
+			} else {
+				// this Task will be executed after ExecuteWrite event -> add it to the
+				// beginning of the queue
+				tasksQueue.addFirst(task);
+			}
+		}
+
+		// Add a waiting-task to the end of the queue
+		long waitTillStart = noOfRequiredCycles * cycleTime - totalDurationWithBuffer;
+		tasksQueue.addLast(new WaitTask(waitTillStart));
+
+		// Copy all Tasks to the global tasks-queue
+		this.tasksQueue.clear();
+		this.tasksQueue.addAll(tasksQueue);
 	}
 
 	/**
 	 * This is called on TOPIC_CYCLE_EXECUTE_WRITE cycle event.
 	 */
 	public void onExecuteWrite() {
-		// Add all Write-Tasks to the tail of the Deque in order to execute them as fast
-		// as possible.
-		Multimap<String, WriteTask> tasks = this.getNextWriteTasks();
-		for (WriteTask task : tasks.values()) {
-			this.nextTasks.addLast(task);
+		// calculate the duration between BeforeProcessImage event and ExecuteWrite
+		// event. This duration is used for planning the queue in onBeforeProcessImage()
+		if (this.cycleStopwatch.isRunning()) {
+			this.durationBetweenBeforeProcessImageTillExecuteWrite = this.cycleStopwatch.elapsed(TimeUnit.MILLISECONDS);
+		} else {
+			this.durationBetweenBeforeProcessImageTillExecuteWrite = 0;
 		}
 	}
 
 	@Override
 	protected void forever() throws InterruptedException {
-		// get the next task or wait for a new task
-		Task task = this.nextTasks.takeLast();
-
-		// Reached the "Marker-Task" and it is the last element of the Queue?
-		if (task instanceof MarkerTask && this.nextTasks.peekLast() == null) {
-			this.lastFinishedQueue.set(System.currentTimeMillis());
-			return;
-		}
-
+		Task task = this.tasksQueue.takeLast();
 		try {
 			// execute the task
 			int noOfExecutedSubTasks = task.execute(this.parent);
@@ -211,11 +205,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 	}
 
 	/**
-	 * Gets the Read-Tasks by Source-ID.
-	 * 
-	 * <p>
-	 * This checks if a device is listed as defective and - if it is - adds only one
-	 * ReadTask of this Source-Component to the queue
+	 * Gets one Read-Tasks with priority Low or Once.
 	 * 
 	 * @return a list of ReadTasks by Source-ID
 	 */
@@ -233,22 +223,20 @@ class ModbusWorker extends AbstractImmediateWorker {
 			}
 		}
 		return null;
+	}
 
-		// TODO Handle defective components
-		// // Remove all but one tasks from defective components
-		// Set<String> alreadyHandledComponents = new HashSet<>();
-		// for (Iterator<ReadTask> iterTasks = result.iterator(); iterTasks.hasNext();)
-		// {
-		// ReadTask task = iterTasks.next();
-		// String componentId = task.getParent().id();
-		// if (this.defectiveComponents.contains(componentId)) {
-		// if (alreadyHandledComponents.contains(componentId)) {
-		// iterTasks.remove();
-		// } else {
-		// alreadyHandledComponents.add(componentId);
-		// }
-		// }
-		// }
+	/**
+	 * Gets all the High-Priority Read-Tasks.
+	 * 
+	 * <p>
+	 * This checks if a device is listed as defective and - if it is - adds only one
+	 * ReadTask of this Source-Component to the queue
+	 * 
+	 * @return a list of ReadTasks
+	 */
+	private List<ReadTask> getAllHighPriorityReadTasks() {
+		Multimap<String, ReadTask> tasks = this.readTasksManager.getAllTasksBySourceId(Priority.HIGH);
+		return this.filterDefectiveComponents(tasks);
 	}
 
 	/**
@@ -260,24 +248,35 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 * 
 	 * @return a list of WriteTasks by Source-ID
 	 */
-	private Multimap<String, WriteTask> getNextWriteTasks() {
-		Multimap<String, WriteTask> result = HashMultimap.create();
-		for (Entry<String, Collection<ModbusProtocol>> entry : this.protocols.asMap().entrySet()) {
+	private List<WriteTask> getAllWriteTasks() {
+		Multimap<String, WriteTask> tasks = this.writeTasksManager.getAllTasksBySourceId();
+		return this.filterDefectiveComponents(tasks);
+	}
+
+	/**
+	 * Filters a Multimap with Tasks by Component-ID. For Components that are known
+	 * to be defective, only one task is added; otherwise all tasks are added to the
+	 * result. The idea is to not execute tasks that are known to fail.
+	 * 
+	 * @param <T>   the Task type
+	 * @param tasks Tasks by Componen-ID
+	 * @return a list of filtered tasks
+	 */
+	private <T extends Task> List<T> filterDefectiveComponents(Multimap<String, T> tasks) {
+		List<T> result = new ArrayList<>();
+		for (Entry<String, Collection<T>> entry : tasks.asMap().entrySet()) {
 			String componentId = entry.getKey();
 
-			for (ModbusProtocol protocol : entry.getValue()) {
-				if (this.defectiveComponents.contains(componentId)) {
-					// Component is known to be erroneous -> add only one Task
-					WriteTask t = protocol.getWriteTasksManager().getOneTask();
-					if (t != null) {
-						result.put(componentId, t);
-					}
-
-				} else {
-					// get the next write tasks from the protocol
-					List<WriteTask> nextWriteTasks = protocol.getWriteTasksManager().getAllTasks();
-					result.putAll(entry.getKey(), nextWriteTasks);
+			if (this.defectiveComponents.contains(componentId)) {
+				// Component is known to be erroneous -> add only one Task
+				Iterator<T> iterator = entry.getValue().iterator();
+				if (iterator.hasNext()) {
+					result.add(iterator.next());
 				}
+
+			} else {
+				// Component is ok. All all tasks.
+				result.addAll(entry.getValue());
 			}
 		}
 		return result;
@@ -290,8 +289,8 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 * @param protocol the ModbusProtocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.protocols.put(sourceId, protocol);
-		this.readTasksManager.addTasksManager(protocol.getReadTasksManager());
+		this.readTasksManager.addTasksManager(sourceId, protocol.getReadTasksManager());
+		this.writeTasksManager.addTasksManager(sourceId, protocol.getWriteTasksManager());
 	}
 
 	/**
@@ -300,10 +299,22 @@ class ModbusWorker extends AbstractImmediateWorker {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		Collection<ModbusProtocol> protocols = this.protocols.removeAll(sourceId);
-		for (ModbusProtocol protocol : protocols) {
-			this.readTasksManager.removeTasksManager(protocol.getReadTasksManager());
-		}
+		this.readTasksManager.removeTasksManager(sourceId);
+		this.writeTasksManager.removeTasksManager(sourceId);
 	}
 
+	/**
+	 * This is a helper function. It calculates the opposite of Math.floorDiv().
+	 * 
+	 * <p>
+	 * Source:
+	 * https://stackoverflow.com/questions/27643616/ceil-conterpart-for-math-floordiv-in-java
+	 * 
+	 * @param x the dividend
+	 * @param y the divisor
+	 * @return the result of the division, rounded up
+	 */
+	private static long ceilDiv(long x, long y) {
+		return -Math.floorDiv(-x, y);
+	}
 }

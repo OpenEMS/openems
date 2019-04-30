@@ -21,8 +21,6 @@ import io.openems.edge.common.taskmanager.Priority;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link AbstractModbusElement} which have register addresses in the same
  * range.
- * 
- * @author stefan.feilmeier
  */
 public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTask {
 
@@ -35,14 +33,13 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		this.priority = priority;
 	}
 
-	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		T[] response;
 		try {
 			/*
 			 * First try
 			 */
 			response = this.readElements(bridge);
-			this.markAsExecuted();
 
 		} catch (OpenemsException | ModbusException e) {
 			/*
@@ -51,7 +48,6 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 			bridge.closeModbusConnection();
 			try {
 				response = this.readElements(bridge);
-				this.markAsExecuted();
 
 			} catch (ModbusException e2) {
 				for (ModbusElement<?> elem : this.getElements()) {
@@ -153,15 +149,4 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 				+ modbusElement + "]");
 	}
 
-	private boolean hasBeenExecuted = false;
-
-	@Override
-	public void markAsExecuted() {
-		this.hasBeenExecuted = true;
-	}
-
-	@Override
-	public boolean hasBeenExecuted() {
-		return this.hasBeenExecuted;
-	}
 }

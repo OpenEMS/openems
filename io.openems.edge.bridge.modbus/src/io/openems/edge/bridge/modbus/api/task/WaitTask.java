@@ -1,26 +1,33 @@
-package io.openems.edge.bridge.modbus;
+package io.openems.edge.bridge.modbus.api.task;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class MarkerTask implements Task {
+public class WaitTask implements Task {
+
+	private final Logger log = LoggerFactory.getLogger(WaitTask.class);
+	private final long delay;
 
 	private AbstractOpenemsModbusComponent parent = null;
 
-	public MarkerTask() {
+	public WaitTask(long delay) {
+		this.delay = delay;
 	}
 
 	@Override
 	public Priority getPriority() {
-		return Priority.ONCE;
+		return Priority.LOW;
 	}
 
 	@Override
 	public ModbusElement<?>[] getElements() {
-		return new ModbusElement<?>[0];
+		return new ModbusElement[0];
 	}
 
 	@Override
@@ -44,12 +51,22 @@ public class MarkerTask implements Task {
 
 	@Override
 	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
+		try {
+			Thread.sleep(delay);
+		} catch (InterruptedException e) {
+			this.log.warn(e.getMessage());
+		}
 		return 0;
 	}
 
 	@Override
-	public String toString() {
-		return "MarkerTask";
+	public boolean hasBeenExecuted() {
+		return true;
+	}
+
+	@Override
+	public long getExecuteDuration() {
+		return this.delay;
 	}
 
 }
