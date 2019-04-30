@@ -1,11 +1,14 @@
 package io.openems.edge.common.taskmanager;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 /**
  * Manages a number of {@link TasksManager}s.
@@ -18,7 +21,8 @@ import java.util.Queue;
  */
 public class MetaTasksManager<T extends ManagedTask> {
 
-	private final List<TasksManager<T>> tasksManagers = new ArrayList<>();
+	private final Multimap<String, TasksManager<T>> tasksManagers = Multimaps
+			.synchronizedListMultimap(ArrayListMultimap.create());
 	private Map<Priority, Queue<T>> nextTasks;
 
 	public MetaTasksManager() {
@@ -31,44 +35,32 @@ public class MetaTasksManager<T extends ManagedTask> {
 	}
 
 	/**
-	 * Adds multiple TasksManagers.
-	 * 
-	 * @param tasks an array of TasksManagers
-	 */
-	@SafeVarargs
-	public final synchronized void addTasksManagers(TasksManager<T>... tasksManagers) {
-		for (TasksManager<T> tasksManager : tasksManagers) {
-			this.addTasksManager(tasksManager);
-		}
-	}
-
-	/**
-	 * Adds multiple TasksManagers.
-	 * 
-	 * @param tasks a list of TasksManagers
-	 */
-	public void addTasksManagers(List<TasksManager<T>> tasksManagers) {
-		for (TasksManager<T> tasksManager : tasksManagers) {
-			this.addTasksManager(tasksManager);
-		}
-	}
-
-	/**
 	 * Adds a TasksManager.
 	 * 
-	 * @param task the TasksManager
+	 * @param sourceId a source identifier
+	 * @param task     the TasksManager
 	 */
-	public synchronized void addTasksManager(TasksManager<T> tasksManager) {
-		this.tasksManagers.add(tasksManager);
+	public synchronized void addTasksManager(String sourceId, TasksManager<T> tasksManager) {
+		this.tasksManagers.put(sourceId, tasksManager);
 	}
 
 	/**
 	 * Removes a TasksManager.
 	 * 
-	 * @param task the TasksManager
+	 * @param sourceId a source identifier
+	 * @param task     the TasksManager
 	 */
-	public synchronized void removeTasksManager(TasksManager<T> tasksManager) {
-		this.tasksManagers.remove(tasksManager);
+	public synchronized void removeTasksManager(String sourceId, TasksManager<T> tasksManager) {
+		this.tasksManagers.remove(sourceId, tasksManager);
+	}
+
+	/**
+	 * Removes all TasksManagers with the given Source-ID.
+	 * 
+	 * @param sourceId a source identifier
+	 */
+	public synchronized void removeTasksManager(String sourceId) {
+		this.tasksManagers.removeAll(sourceId);
 	}
 
 	/**
@@ -80,7 +72,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 		Queue<T> tasks = this.nextTasks.get(priority);
 		if (tasks.isEmpty()) {
 			// refill the queue
-			for (TasksManager<T> tasksManager : this.tasksManagers) {
+			for (TasksManager<T> tasksManager : this.tasksManagers.values()) {
 				tasks.addAll(tasksManager.getAllTasks(priority));
 			}
 		}
@@ -90,17 +82,31 @@ public class MetaTasksManager<T extends ManagedTask> {
 	}
 
 	/**
-	 * Gets all Tasks with the given Priority.
+	 * Gets all Tasks with the given Priority by their Source-ID.
 	 * 
 	 * @param priority the priority
 	 * @return a list of tasks
 	 */
-	public List<T> getAllTasks(Priority priority) {
-		List<T> tasks = new ArrayList<>();
-		for (TasksManager<T> tasksManager : this.tasksManagers) {
-			tasks.addAll(tasksManager.getAllTasks(priority));
+	public Multimap<String, T> getAllTasksBySourceId(Priority priority) {
+		Multimap<String, T> result = ArrayListMultimap.create();
+		for (Entry<String, TasksManager<T>> entry : this.tasksManagers.entries()) {
+			result.putAll(entry.getKey(), entry.getValue().getAllTasks(priority));
 		}
-		return tasks;
+		return result;
+	}
+
+	/**
+	 * Gets all Tasks with by their Source-ID.
+	 * 
+	 * @param priority the priority
+	 * @return a list of tasks
+	 */
+	public Multimap<String, T> getAllTasksBySourceId() {
+		Multimap<String, T> result = ArrayListMultimap.create();
+		for (Entry<String, TasksManager<T>> entry : this.tasksManagers.entries()) {
+			result.putAll(entry.getKey(), entry.getValue().getAllTasks());
+		}
+		return result;
 	}
 
 }

@@ -26,7 +26,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		int noOfWrittenRegisters = 0;
 		ModbusElement<?> element = this.getElements()[0];
 
