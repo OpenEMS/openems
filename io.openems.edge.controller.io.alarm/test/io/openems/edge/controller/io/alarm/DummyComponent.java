@@ -34,7 +34,7 @@ public class DummyComponent extends AbstractOpenemsComponent implements OpenemsC
 				OpenemsComponent.ChannelId.values(),//
 				ChannelId.values() //
 		);
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 }

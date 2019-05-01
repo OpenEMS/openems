@@ -7,8 +7,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Simulator GridMeter Reacting", //
 		description = "This simulates an 'reacting' Grid meter.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "meter0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Minimum Ever Active Power", description = "This is automatically updated.")

@@ -242,13 +242,15 @@ public class EdgeConfig {
 		}
 
 		private final String id;
+		private final String alias;
 		private final String factoryId;
 		private final TreeMap<String, JsonElement> properties;
 		private final TreeMap<String, Channel> channels;
 
-		public Component(String id, String factoryId, TreeMap<String, JsonElement> properties,
+		public Component(String id, String alias, String factoryId, TreeMap<String, JsonElement> properties,
 				TreeMap<String, Channel> channels) {
 			this.id = id;
+			this.alias = alias;
 			this.factoryId = factoryId;
 			this.properties = properties;
 			this.channels = channels;
@@ -256,6 +258,10 @@ public class EdgeConfig {
 
 		public String getId() {
 			return id;
+		}
+
+		public String getAlias() {
+			return alias;
 		}
 
 		public String getFactoryId() {
@@ -285,6 +291,7 @@ public class EdgeConfig {
 		 * 
 		 * <pre>
 		 * {
+		 *   alias: string,
 		 *   factoryId: string,
 		 *	 properties: {
 		 *     [key: string]: value
@@ -303,6 +310,7 @@ public class EdgeConfig {
 				properties.add(property.getKey(), property.getValue());
 			}
 			JsonObjectBuilder result = JsonUtils.buildJsonObject() //
+					.addProperty("alias", this.getAlias()) //
 					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties); //
 			switch (jsonFormat) {
@@ -332,6 +340,7 @@ public class EdgeConfig {
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Component fromJson(String componentId, JsonElement json) throws OpenemsNamedException {
+			String alias = JsonUtils.getAsOptionalString(json, "alias").orElse(componentId);
 			String factoryId = JsonUtils.getAsOptionalString(json, "factoryId").orElse("NO_FACTORY_ID");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			Optional<JsonObject> jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
@@ -349,6 +358,7 @@ public class EdgeConfig {
 			}
 			return new Component(//
 					componentId, //
+					alias, //
 					factoryId, //
 					properties, //
 					channels);
@@ -824,6 +834,7 @@ public class EdgeConfig {
 		for (Entry<String, JsonElement> entry : things.entrySet()) {
 			JsonObject config = JsonUtils.getAsJsonObject(entry.getValue());
 			String id = JsonUtils.getAsString(config, "id");
+			String alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
 			String clazz = JsonUtils.getAsString(config, "class");
 			TreeMap<String, JsonElement> properties = new TreeMap<>();
 			for (Entry<String, JsonElement> property : config.entrySet()) {
@@ -841,7 +852,7 @@ public class EdgeConfig {
 				}
 			}
 			TreeMap<String, Component.Channel> channels = new TreeMap<>();
-			result.addComponent(id, new EdgeConfig.Component(id, clazz, properties, channels));
+			result.addComponent(id, new EdgeConfig.Component(id, alias, clazz, properties, channels));
 		}
 
 		JsonObject metas = JsonUtils.getAsJsonObject(json, "meta");

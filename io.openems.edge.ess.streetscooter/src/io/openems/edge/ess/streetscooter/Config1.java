@@ -7,8 +7,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "ESS Streetscooter 1", //
 		description = "Implements the streetscooter energy storage system.")
 @interface Config1 {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess1";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")

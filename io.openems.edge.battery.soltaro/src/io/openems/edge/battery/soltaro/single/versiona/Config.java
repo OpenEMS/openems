@@ -9,8 +9,14 @@ import io.openems.edge.battery.soltaro.BatteryState;
 		name = "BMS Soltaro Single Rack Version A", //
 		description = "Implements the Soltaro battery rack system.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "bms0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")

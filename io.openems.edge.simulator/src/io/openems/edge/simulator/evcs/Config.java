@@ -8,8 +8,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "This simulates a Electric Vehicle Charging Station using data provided by a data source.")
 @interface Config {
 
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "evcs0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Datasource-ID", description = "ID of Simulator Datasource.")

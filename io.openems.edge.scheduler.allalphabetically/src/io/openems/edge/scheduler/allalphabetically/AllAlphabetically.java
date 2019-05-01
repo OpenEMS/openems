@@ -58,7 +58,7 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler, O
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
 
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();

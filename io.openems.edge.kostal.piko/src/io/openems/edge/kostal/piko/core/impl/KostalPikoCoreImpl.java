@@ -295,7 +295,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.socketConnection = new SocketConnection(config.ip(), config.port(), (byte) config.unitID());
 		Protocol protocol = new Protocol(this, socketConnection);
 		this.worker = new Worker(protocol, this.readTasksManager);

@@ -116,7 +116,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		// when modbus tasks are created
 		channelMap = createDynamicChannels();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		initializeCallbacks();

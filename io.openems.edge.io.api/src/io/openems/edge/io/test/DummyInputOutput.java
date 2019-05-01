@@ -64,7 +64,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 				this.channel(ChannelId.INPUT_OUTPUT_8), //
 				this.channel(ChannelId.INPUT_OUTPUT_9) //
 		};
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 	@Override

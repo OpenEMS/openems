@@ -80,7 +80,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id0());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id0());
 
 		// Configure Modbus 1
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus1", config.modbus_id1())) {

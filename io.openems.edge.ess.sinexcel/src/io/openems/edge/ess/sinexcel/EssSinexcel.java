@@ -89,12 +89,13 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
-		this.initializeBattery(config.service_pid(), config.battery_id());
+		this.initializeBattery(config.battery_id());
 
 		this.softStart();
 		this.resetDcAcEnergy();
@@ -123,8 +124,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	 * @param servicePid this components' Service-PID
 	 * @param batteryId  the Component-ID of the Battery component
 	 */
-	private void initializeBattery(String servicePid, String batteryId) {
-		if (OpenemsComponent.updateReferenceFilter(this.cm, servicePid, "Battery", batteryId)) {
+	private void initializeBattery(String batteryId) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", batteryId)) {
 			return;
 		}
 
