@@ -1,0 +1,47 @@
+<ion-list *ngIf="edge && edge.currentData | async as currentData">
+
+  <ion-item-divider *ngIf="subscribedChannels.length > 0">
+    <ion-label>
+      Subscribed Channels
+    </ion-label>
+  </ion-item-divider>
+
+  <ion-item *ngFor="let address of subscribedChannels">
+    <ion-label>{{ address.toString() }}</ion-label>
+    <ion-note slot="end">{{ currentData.channel[address.toString()] }}</ion-note>
+  </ion-item>
+
+  <ng-container *ngIf="edge.config | async as config">
+
+    <ion-item-divider>
+      <ion-label>
+        Add new Channel
+      </ion-label>
+    </ion-item-divider>
+
+    <ion-item>
+      <ion-label>Component</ion-label>
+      <ion-select #selectedComponentId>
+        <ion-select-option *ngFor="let entry of (config.components | keys)" [value]="entry.key">
+          {{ entry.value.id }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item [hidden]="!(selectedComponentId && selectedComponentId.value)">
+      <!-- <ion-label>{{ config.components[selectedComponentId.value].channels | json }}</ion-label> -->
+      <ion-label>Channel</ion-label>
+      <ion-select #selectedChannelId>
+        <ng-container *ngIf="selectedComponentId && selectedComponentId.value">
+          <ion-select-option *ngFor="let entry of (config.components[selectedComponentId.value].channels | keys)"
+            [value]="entry.key">
+            {{ entry.key }}</ion-select-option>
+        </ng-container>
+      </ion-select>
+    </ion-item>
+
+    <ion-button *ngIf="selectedComponentId && selectedComponentId.value && selectedChannelId && selectedChannelId.value"
+      expand="block" (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value)">Add
+      {{ selectedComponentId.value }}/{{ selectedChannelId.value }}</ion-button>
+
+  </ng-container>
+</ion-list>
