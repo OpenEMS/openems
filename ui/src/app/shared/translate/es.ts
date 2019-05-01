@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
         History: "Historia",
+        Live: 'Live',
         NoValue: "Sin valor",
         Soc: "Cargo",
         Percentage: "Por ciento",
@@ -36,6 +37,9 @@ export const TRANSLATION = {
         Index: "Visión general",
         AboutUI: "Sobre OpenEMS-UI",
         Settings: 'Configuración general',
+        FEMSSettings: 'Configuración FEMS',
+        Menu: 'Menú',
+        Overview: 'estudio FEMS',
         Logout: 'Desuscribirse'
     },
     Index: {

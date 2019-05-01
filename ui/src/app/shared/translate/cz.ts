@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Žádná hodnota",
         Soc: "Stav nabití",
         Percentage: "Procentuální vyjádření",
@@ -35,6 +36,9 @@ export const TRANSLATION = {
         Index: "Přehled",
         AboutUI: "About OpenEMS UI",
         Settings: 'Obecné Nastavení',
+        FEMSSettings: 'FEMS Obecné Nastavení',
+        Menu: 'Menu',
+        Overview: 'FEMS Overvire',
         Logout: 'Odhlásit'
     },
     Index: {

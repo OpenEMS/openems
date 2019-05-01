@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Leistung",
         StorageSystem: "Speichersystem",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Kein Wert",
         Soc: "Ladezustand",
         Percentage: "Prozent",
@@ -36,6 +37,9 @@ export const TRANSLATION = {
         Index: "Übersicht",
         AboutUI: "Über OpenEMS UI",
         Settings: 'Allgemeine Einstellungen',
+        FEMSSettings: 'FEMS Einstellungen',
+        Menu: 'Menü',
+        Overview: 'FEMS Übersicht',
         Logout: 'Abmelden'
     },
     Index: {

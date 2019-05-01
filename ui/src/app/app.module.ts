@@ -23,8 +23,6 @@ import { Language } from './shared/translate/language';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localDE from '@angular/common/locales/de';
-import { PopoverPage } from './shared/popover/popover.component';
-import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
@@ -40,7 +38,7 @@ import { EvcsModalPageModule } from './edge/index/widget/evcs/evcs-modal/evcs-mo
     AppComponent,
     RepeatTypeComponent
   ],
-  entryComponents: [PopoverPage],
+  entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -60,7 +58,6 @@ import { EvcsModalPageModule } from './edge/index/widget/evcs/evcs-modal/evcs-mo
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
-    PopoverPageModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
   ],
   providers: [
