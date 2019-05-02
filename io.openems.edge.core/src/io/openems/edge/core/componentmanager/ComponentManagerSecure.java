@@ -1,56 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.jar.Manifest;
-import java.util.stream.Collectors;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.FileUtils;
-import io.openems.common.utils.JsonKeys;
-import io.openems.edge.common.access_control.AccessControl;
-import io.openems.edge.common.access_control.Group;
-import io.openems.edge.common.access_control.Permission;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
-import org.osgi.service.component.ComponentConstants;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.MetaTypeInformation;
-import org.osgi.service.metatype.MetaTypeService;
-import org.osgi.service.metatype.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -66,36 +17,68 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.utils.FileUtils;
+import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumDoc;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.StateChannelDoc;
+import io.openems.edge.common.access_control.AccessControl;
+import io.openems.edge.common.access_control.Group;
+import io.openems.edge.common.access_control.Permission;
+import io.openems.edge.common.channel.*;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.component.ComponentConstants;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 @Designate(
         ocd = Config.class, factory = false
 )
 @Component( //
-        name = "Core.ComponentManager", //
-        immediate = true, //
-        property = { //
-                "id=" + OpenemsConstants.COMPONENT_MANAGER_ID, //
-                "enabled=true" //
-        })
-public class ComponentManagerImpl extends AbstractOpenemsComponent
+        name = "Core.ComponentManagerSecure", //
+        configurationPolicy = ConfigurationPolicy.REQUIRE)
+public class ComponentManagerSecure extends AbstractOpenemsComponent
         implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
-    private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(ComponentManagerSecure.class);
 
     private final OsgiValidateWorker osgiValidateWorker;
 
@@ -116,7 +99,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
             target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
     protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
-    public ComponentManagerImpl() {
+    public ComponentManagerSecure() {
         super(//
                 OpenemsComponent.ChannelId.values(), //
                 ComponentManager.ChannelId.values() //
@@ -234,13 +217,33 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
     }
 
     @Override
-    protected void logWarn(Logger log, String message) {
+    public void logWarn(Logger log, String message) {
         super.logWarn(log, message);
     }
 
     @Override
-    protected void logError(Logger log, String message) {
+    public void logError(Logger log, String message) {
         super.logError(log, message);
+    }
+
+    @Override
+    public List<String> checkForNotActivatedComponents() {
+        // TODO use as default in interface
+        List<String> retVal = new ArrayList<>();
+        try {
+            Configuration[] configs = cm.listConfigurations("(enabled=true)");
+            if (configs != null) {
+                Arrays.stream(configs).forEach(config -> {
+                    String componentId = (String) config.getProperties().get("id");
+                    if (!this.isComponentActivated(componentId, config.getPid())) {
+                        retVal.add(componentId);
+                    }
+                });
+            }
+        } catch (IOException | InvalidSyntaxException e) {
+            this.logError(this.log, e.getMessage());
+        }
+        return retVal;
     }
 
     @Override
@@ -624,5 +627,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
             default:
                 return false;
         }
+    }
+
+    @Override
+    public boolean isComponentActivated(String componentId, String pid) {
+        return components.stream().anyMatch(
+                com -> (componentId.equals(com.id()) && pid.equals(com.servicePid())));
     }
 }

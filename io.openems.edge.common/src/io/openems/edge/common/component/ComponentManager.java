@@ -9,13 +9,16 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import org.slf4j.Logger;
 
 /**
  * A Service that provides access to OpenEMS-Components.
  */
 public interface ComponentManager {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+    // TODO extend interface with roles and stuff
+
+	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
 				.text("A configured OpenEMS Component was not activated"));
 
@@ -36,7 +39,7 @@ public interface ComponentManager {
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
-	public List<OpenemsComponent> getComponents();
+    List<OpenemsComponent> getComponents();
 
 	/**
 	 * Gets a OpenEMS-Component by its Component-ID.
@@ -47,7 +50,7 @@ public interface ComponentManager {
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
 	@SuppressWarnings("unchecked")
-	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+    default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
 		List<OpenemsComponent> components = this.getComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {
@@ -66,7 +69,7 @@ public interface ComponentManager {
 	 * @throws IllegalArgumentException if the Channel is not available
 	 * @throws OpenemsNamedException    on error
 	 */
-	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
+	default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
 			throws IllegalArgumentException, OpenemsNamedException {
 		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
 		return component.channel(channelAddress.getChannelId());
@@ -77,6 +80,19 @@ public interface ComponentManager {
 	 * 
 	 * @return the EdgeConfig object
 	 */
-	public EdgeConfig getEdgeConfig();
+    EdgeConfig getEdgeConfig();
 
+	/**
+	 * Checks whether the corresponding component to the given information is activated
+	 * @param componentId
+	 * @param pid
+	 * @return
+	 */
+	boolean isComponentActivated(String componentId, String pid);
+
+	void logWarn(Logger log, String s);
+
+	void logError(Logger log, String message);
+
+	List<String> checkForNotActivatedComponents();
 }
