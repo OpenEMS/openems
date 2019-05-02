@@ -79,6 +79,17 @@ public class JsonUtils {
 		}
 	}
 
+	public static int getAsInt(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsInt();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Integer.parseInt(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
 	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {
@@ -237,6 +248,14 @@ public class JsonUtils {
 			return Long.parseLong(string);
 		}
 		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static Optional<Integer> getAsOptionalInt(JsonElement jElement) {
+		try {
+			return Optional.of(getAsInt(jElement));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
 	}
 
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {
