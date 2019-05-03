@@ -20,11 +20,12 @@ export class ConsumptionComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentEdge(this.route).then(edge => {
+        this.service.setCurrentPage('', this.route).then(edge => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, [
                 // Consumption
-                new ChannelAddress('_sum', 'ConsumptionActivePower'), new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
+                new ChannelAddress('_sum', 'ConsumptionActivePower'),
+                new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
             ]);
         });
     }

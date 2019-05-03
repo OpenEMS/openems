@@ -21,6 +21,11 @@ export class Service implements ErrorHandler {
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
   /**
+   * Holds the currenty selected Page Title.
+   */
+  public currentPageTitle: string;
+
+  /**
    * Holds the currently selected Edge.
    */
   public readonly currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
@@ -106,27 +111,37 @@ export class Service implements ErrorHandler {
   /**
    * Parses the route params and sets the current edge
    */
-  public setCurrentEdge(activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentPage(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
       let route = activatedRoute.snapshot;
       let edgeId = route.params["edgeId"];
+      this.currentPageTitle = currentPageTitle;
 
-      let timeout = setTimeout(() => {
-        if (edgeId != null) {
-          // Timeout: redirect to index
-          this.router.navigate(['/index']);
-        }
+      if (currentPageTitle == null || currentPageTitle.trim() === '') {
+        this.currentPageTitle = 'OpenEMS UI';
+      }
+
+      if (edgeId == null) {
+        return;
+      }
+
+      let onError = () => {
         subscription.unsubscribe();
         setCurrentEdge.apply(null);
+        // redirect to index
+        this.router.navigate(['/index']);
+      };
+
+      let timeout = setTimeout(() => {
+        console.error("Timeout while setting current edge");
+        onError();
       }, Service.TIMEOUT);
 
       let setCurrentEdge = (edge: Edge) => {
-        if (edge != null) {
-          if (edge != this.currentEdge.value) {
+        if (edge != this.currentEdge.value) {
+          if (edge != null) {
             edge.markAsCurrentEdge(this.websocket);
           }
-        }
-        if (edge != this.currentEdge.value) {
           this.currentEdge.next(edge);
         }
         resolve(edge);
@@ -141,11 +156,9 @@ export class Service implements ErrorHandler {
         .subscribe(edge => {
           clearTimeout(timeout);
           setCurrentEdge(edge);
-
         }, error => {
-          clearTimeout(timeout);
           console.error("Error while setting current edge: ", error);
-          setCurrentEdge(null);
+          onError();
         })
     });
   }

@@ -20,8 +20,8 @@ const routes: Routes = [
   { path: 'about', component: AboutComponent },
   { path: 'settings', component: SettingsComponent },
 
-  { path: 'device/:edgeId', redirectTo: 'device/:edgeId/index', pathMatch: 'full' },
-  { path: 'device/:edgeId/index', component: EdgeIndexComponent },
+  { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
+  { path: 'device/:edgeId/live', component: EdgeIndexComponent },
   { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },

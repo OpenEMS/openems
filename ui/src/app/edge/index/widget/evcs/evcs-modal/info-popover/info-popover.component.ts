@@ -16,7 +16,6 @@ export class InfoPopoverComponent implements OnInit {
   }
 
   cancel() {
-    console.log("verlassen des popups!!!");
     this.popoverController.dismiss();
   }
 }

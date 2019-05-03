@@ -36,8 +36,8 @@ export const TRANSLATION = {
     Menu: {
         Index: "Index",
         AboutUI: "About OpenEMS UI",
-        Settings: 'General Settings',
-        FEMSSettings: 'FEMS Settings',
+        GeneralSettings: 'General Settings',
+        EdgeSettings: 'FEMS Settings',
         Menu: 'Menu',
         Overview: 'FEMS Overview',
         Logout: 'Sign Out'
@@ -140,6 +140,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Execute simulations",
                 Log: "Log",
                 LiveLog: "Live system log",
+                AddComponents: "Install components",
+                AdjustComponents: "Configure components",
                 ManualControl: "Manual control",
                 DataStorage: "Data Storage"
             },

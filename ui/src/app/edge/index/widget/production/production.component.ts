@@ -20,12 +20,14 @@ export class ProductionComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentEdge(this.route).then(edge => {
+        this.service.setCurrentPage('', this.route).then(edge => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, ProductionComponent.SELECTOR, [
                 // Production
-                new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                new ChannelAddress('_sum', 'ProductionAcActivePower'), new ChannelAddress('_sum', 'ProductionMaxActivePower'),
+                new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'),
+                new ChannelAddress('_sum', 'ProductionAcActivePower'),
+                new ChannelAddress('_sum', 'ProductionMaxActivePower'),
             ]);
         });
     }

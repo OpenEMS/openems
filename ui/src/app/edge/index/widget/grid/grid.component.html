@@ -2,11 +2,11 @@
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card>
             <ion-item color="light">
-                <ion-img style="width:40px;" src="assets/img/grid.png">
-                </ion-img>
+                <ion-avatar slot="start">
+                    <img src="assets/img/grid.png">
+                </ion-avatar>
                 <ion-label translate>General.Grid</ion-label>
             </ion-item>
-
             <ion-card-content *ngIf="currentData.summary.grid as sum">
                 <ion-grid no-padding>
                     <table class="full_width">

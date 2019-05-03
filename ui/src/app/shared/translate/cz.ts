@@ -35,8 +35,8 @@ export const TRANSLATION = {
     Menu: {
         Index: "Přehled",
         AboutUI: "About OpenEMS UI",
-        Settings: 'Obecné Nastavení',
-        FEMSSettings: 'FEMS Obecné Nastavení',
+        GeneralSettings: 'Obecné Nastavení',
+        EdgeSettings: 'FEMS Obecné Nastavení',
         Menu: 'Menu',
         Overview: 'FEMS Overvire',
         Logout: 'Odhlásit'
@@ -137,6 +137,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Zahájit simulaci",
                 Log: "Log",
                 LiveLog: "Live log systému",
+                AddComponents: "Komponenten installieren",
+                AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuální ovládání",
                 DataStorage: "Ukládání dat"
             },

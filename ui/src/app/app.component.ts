@@ -74,8 +74,7 @@ export class AppComponent {
 
     if (file == 'settings' || file == 'about' || urlArray.length > 3) {
       this.sideMenu = false;
-    }
-    else {
+    } else {
       this.sideMenu = true;
     }
   }
@@ -93,23 +92,22 @@ export class AppComponent {
     let file = urlArray.pop();
 
     // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
-    if ((file == 'history' || file == 'index') && urlArray.length == 3) {
+    if ((file == 'history' || file == 'live') && urlArray.length == 3) {
       this.backUrl = false;
       this.navigation = true;
       return;
-    }
-    else {
+    } else {
       this.navigation = false;
     }
 
     // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-    if (file === 'index' && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
+    if (file === 'live' && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
       this.backUrl = false;
       return;
     }
 
     // remove one part of the url for 'index'
-    if (file === 'index') {
+    if (file === 'live') {
       urlArray.pop();
     }
     // re-join the url

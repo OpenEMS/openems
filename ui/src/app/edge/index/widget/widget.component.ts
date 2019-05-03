@@ -18,7 +18,7 @@ export class WidgetComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentPage('', this.route);
     this.service.getWidgets().then(widgets => this.widgets = widgets);
   }
 

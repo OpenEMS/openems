@@ -6,7 +6,7 @@
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>FENECON Monitoring</ion-title>
+      <ion-title>{{ service.currentPageTitle }}</ion-title>
       <ion-buttons slot="start" *ngIf="sideMenu">
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
@@ -16,7 +16,7 @@
       <ng-container *ngIf="!backUrl && service.currentEdge | async as edge">
         <ion-toolbar color="primary">
           <ion-segment>
-            <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/index">
+            <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/live">
               <ion-label translate>General.Live</ion-label>
             </ion-segment-button>
             <ion-segment-button value="History" routerLink="/device/{{ edge.id }}/history">
@@ -76,12 +76,12 @@
             <ion-label translate>Menu.AboutUI</ion-label>
           </ion-item>
           <ion-item lines="inset" routerLinkActive="active" routerLink="/settings" (click)="close()">
-            <ion-label translate>Menu.Settings</ion-label>
+            <ion-label translate>Menu.GeneralSettings</ion-label>
           </ion-item>
           <nav *ngIf="(service.currentEdge | async) as edge">
             <ion-item lines="inset" *ngIf="edge.roleIsAtLeast('owner')" routerLink="/device/{{ edge.id }}/settings"
               (click)="close()">
-              <ion-label translate>Menu.FEMSSettings</ion-label>
+              <ion-label translate>Menu.EdgeSettings</ion-label>
             </ion-item>
           </nav>
         </ion-list>

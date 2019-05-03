@@ -1,3 +1,5 @@
+import { Service } from '../service/service';
+
 export const TRANSLATION = {
     General: {
         Cumulative: "Kumulierte Werte",
@@ -36,8 +38,8 @@ export const TRANSLATION = {
     Menu: {
         Index: "Übersicht",
         AboutUI: "Über OpenEMS UI",
-        Settings: 'Allgemeine Einstellungen',
-        FEMSSettings: 'FEMS Einstellungen',
+        GeneralSettings: 'Allgemeine Einstellungen',
+        EdgeSettings: 'FEMS Einstellungen',
         Menu: 'Menü',
         Overview: 'FEMS Übersicht',
         Logout: 'Abmelden'
@@ -140,6 +142,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulationen ausführen",
                 Log: "Log",
                 LiveLog: "Live Systemprotokoll",
+                AddComponents: "Komponenten installieren",
+                AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuelle Steuerung",
                 DataStorage: "Datenspeicher"
             },

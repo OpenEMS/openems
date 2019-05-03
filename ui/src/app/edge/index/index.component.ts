@@ -18,7 +18,7 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentPage('', this.route).then(edge => {
       this.edge = edge
     });
   }

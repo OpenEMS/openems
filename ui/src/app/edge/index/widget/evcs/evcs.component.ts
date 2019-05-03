@@ -37,7 +37,7 @@ export class EvcsComponent {
   ngOnInit() {
 
     // Subscribe to CurrentData
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentPage('', this.route).then(edge => {
       this.edge = edge;
       edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
         // Evcs
@@ -100,7 +100,6 @@ export class EvcsComponent {
       this.edge.updateComponentConfig(this.websocket, this.controller.id, [
         { name: 'enabledCharging', value: newChargingState }
       ]).then(response => {
-        console.log("HIER", response);
         this.controller.properties.enabledCharging = newChargingState;
       }).catch(reason => {
         this.controller.properties.enabledCharging = oldChargingState;

@@ -19,7 +19,7 @@
     </ion-col>
 
 
-    <!-- FEMS Dependend Widgets -->
+    <!-- Widgets depending on the configuration of the OpenEMS Edge -->
     <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
 
       <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
