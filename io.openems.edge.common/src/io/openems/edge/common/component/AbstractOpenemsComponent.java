@@ -62,6 +62,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * }
 	 * </pre>
 	 * 
+	 * <p>
 	 * Note: the separation in firstInitialChannelIds and furtherInitialChannelIds
 	 * is only there to enforce that calling the constructor cannot be forgotten.
 	 * This way it needs to be called with at least one parameter - which is always

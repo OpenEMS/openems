@@ -8,18 +8,18 @@ import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "method": "getModbusProtocol",
+ *   "method": "getModbusProtocolXlsx",
  *   "params": {}
  * }
  * </pre>
  */
-export class GetModbusProtocolRequest extends JsonrpcRequest {
+export class GetModbusProtocolExportXlsxRequest extends JsonrpcRequest {
 
-    static METHOD: string = "getModbusProtocol";
+    static METHOD: string = "getModbusProtocolExportXlsx";
 
     public constructor(
     ) {
-        super(GetModbusProtocolRequest.METHOD, {});
+        super(GetModbusProtocolExportXlsxRequest.METHOD, {});
     }
 
 }

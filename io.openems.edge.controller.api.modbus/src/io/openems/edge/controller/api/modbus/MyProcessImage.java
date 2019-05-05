@@ -92,10 +92,10 @@ public class MyProcessImage implements ProcessImage {
 	}
 
 	/**
-	 * Get value as byte-array and convert it to InputRegisters
+	 * Get value as byte-array and convert it to InputRegisters.
 	 * 
-	 * @param record
-	 * @return
+	 * @param record the record
+	 * @return the Register
 	 */
 	private Register[] getRecordValueRegisters(ModbusRecord record) {
 		MyRegister[] result = new MyRegister[record.getType().getWords()];
@@ -114,9 +114,7 @@ public class MyProcessImage implements ProcessImage {
 	}
 
 	/**********************************************
-	 *
-	 * From here, the methods are not implemented!
-	 * 
+	 * From here, the methods are not implemented!.
 	 **********************************************
 	 */
 

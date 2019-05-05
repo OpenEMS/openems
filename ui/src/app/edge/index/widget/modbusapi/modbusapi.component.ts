@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
 import { ComponentJsonApiRequest } from '../../../../shared/jsonrpc/request/componentJsonApiRequest';
 import { EdgeConfig, Service, Websocket } from '../../../../shared/shared';
-import { GetModbusProtocolRequest } from './getModbusProtocolRequest';
-import { GetModbusProtocolResponse } from './getModbusProtocolResponse';
+import { GetModbusProtocolExportXlsxRequest } from './getModbusProtocolExportXlsxRequest';
+import { Base64PayloadResponse } from '../../../../shared/jsonrpc/response/base64PayloadResponse';
 
 @Component({
   selector: ModbusApiComponent.SELECTOR,
@@ -33,15 +32,23 @@ export class ModbusApiComponent {
 
   getModbusProtocol() {
     this.service.getCurrentEdge().then(edge => {
-      let request = new ComponentJsonApiRequest({ componentId: this.componentId, payload: new GetModbusProtocolRequest() });
+      let request = new ComponentJsonApiRequest({ componentId: this.componentId, payload: new GetModbusProtocolExportXlsxRequest() });
       edge.sendRequest(this.websocket, request).then(response => {
-        let r = response as GetModbusProtocolResponse;
-        const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(r.result.table);
-        const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-        const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        const data: Blob = new Blob([excelBuffer], {
+        let r = response as Base64PayloadResponse;
+
+        // decode base64 string, remove space for IE compatibility
+        // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
+        var binary = atob(r.result.payload.replace(/\s/g, ''));
+        var len = binary.length;
+        var buffer = new ArrayBuffer(len);
+        var view = new Uint8Array(buffer);
+        for (var i = 0; i < len; i++) {
+          view[i] = binary.charCodeAt(i);
+        }
+        const data: Blob = new Blob([view], {
           type: ModbusApiComponent.EXCEL_TYPE
         });
+
         const fileName = "Modbus-TCP-" + edge.id;
         FileSaver.saveAs(data, fileName + ModbusApiComponent.EXCEL_EXTENSION);
 

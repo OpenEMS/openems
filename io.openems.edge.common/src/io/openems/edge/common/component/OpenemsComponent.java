@@ -132,6 +132,7 @@ public interface OpenemsComponent {
 	 * @param <T>       the Type of the Channel. See {@link Doc#getType()}
 	 * @param channelId the Channel-ID
 	 * @return the Channel
+	 * @throws IllegalArgumentException on error
 	 */
 	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId)
 			throws IllegalArgumentException {
