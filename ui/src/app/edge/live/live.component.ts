@@ -3,10 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { Edge, Service, Utils } from '../../shared/shared';
 
 @Component({
-  selector: 'index',
-  templateUrl: './index.component.html'
+  selector: 'live',
+  templateUrl: './live.component.html'
 })
-export class IndexComponent implements OnInit {
+export class LiveComponent implements OnInit {
 
   public edge: Edge = null
 

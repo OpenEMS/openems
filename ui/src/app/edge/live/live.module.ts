@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { WidgetModule } from './widget/widget.module';
-import { IndexComponent } from './index.component';
+import { LiveComponent } from './live.component';
 
 @NgModule({
   imports: [
@@ -11,7 +11,7 @@ import { IndexComponent } from './index.component';
     WidgetModule
   ],
   declarations: [
-    IndexComponent,
+    LiveComponent,
   ]
 })
-export class IndexModule { }
+export class LiveModule { }
