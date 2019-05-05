@@ -120,12 +120,6 @@ export class AppComponent {
     this.backUrl = backUrl;
   }
 
-
-  //closes SideMenu
-  close() {
-    this.menu.close();
-  }
-
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
