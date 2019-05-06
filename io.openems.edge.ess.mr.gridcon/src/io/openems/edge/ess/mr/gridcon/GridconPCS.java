@@ -742,43 +742,55 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			/*
 			 * active power is zero
 			 */
+			
+			int factor = 100;
 			if (batteryStringA != null && batteryStringB != null && batteryStringC != null) { // ABC
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
-					int min = Math.min(vAopt.get(), Math.min(vBopt.get(), vCopt.get()));
-					weightA = vAopt.get() - min;
-					weightB = vBopt.get() - min;
-					weightC = vCopt.get() - min;
+					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
+					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
+					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
+					
+					double min = Math.min(averageVoltageA, Math.min(averageVoltageB, averageVoltageC));
+					weightA = (int) ((averageVoltageA - min) * factor);
+					weightB = (int) ((averageVoltageB - min) * factor);
+					weightC = (int) ((averageVoltageC - min) * factor);
 				}
 			} else if (batteryStringA != null && batteryStringB != null && batteryStringC == null) { // AB
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vBopt.isPresent()) {
-					int min = Math.min(vAopt.get(), vBopt.get());
-					weightA = vAopt.get() - min;
-					weightB = vBopt.get() - min;
+					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
+					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
+					double min = Math.min(averageVoltageA, averageVoltageB);
+					weightA = (int) ((averageVoltageA - min) * factor);
+					weightB = (int) ((averageVoltageB - min) * factor);
 				}
 			} else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { // AC
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vCopt.isPresent()) {
-					int min = Math.min(vAopt.get(), vCopt.get());
-					weightA = vAopt.get() - min;
-					weightC = vCopt.get() - min;
+					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
+					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
+					double min = Math.min(averageVoltageA, averageVoltageC);
+					weightA = (int) ((averageVoltageA - min) * factor);
+					weightC = (int) ((averageVoltageC - min) * factor);
 				}
 			} else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { // BC
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vBopt.isPresent() && vCopt.isPresent()) {
-					int min = Math.min(vBopt.get(), vCopt.get());
-					weightB = vBopt.get() - min;
-					weightC = vCopt.get() - min;
+					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
+					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
+					double min = Math.min(averageVoltageB, averageVoltageC);
+					weightB = (int) ((averageVoltageB - min) * factor);
+					weightC = (int) ((averageVoltageC - min) * factor);
 				}
 			}
 		}
-
+		
 		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
 		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
 		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);

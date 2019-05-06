@@ -222,7 +222,8 @@ public class ErrorHandler {
 				// Acknowledge error
 				.acknowledge(true) //
 				.syncApproval(true) //
-				.blackstartApproval(false).errorCodeFeedback(currentErrorCodeFeedBack) //
+				.blackstartApproval(false) //
+				.errorCodeFeedback(currentErrorCodeFeedBack) //
 				.shortCircuitHandling(true) //
 				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
 				.parameterSet1(true) //

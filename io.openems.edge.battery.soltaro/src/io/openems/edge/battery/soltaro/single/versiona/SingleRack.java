@@ -58,8 +58,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
-	public static final int DISCHARGE_MAX_A = 20;
-	public static final int CHARGE_MAX_A = 20;
+	public static final int DISCHARGE_MAX_A = 0;
+	public static final int CHARGE_MAX_A = 0;
 
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
