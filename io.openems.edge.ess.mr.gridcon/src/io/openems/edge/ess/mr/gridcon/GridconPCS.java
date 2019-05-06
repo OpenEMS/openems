@@ -83,7 +83,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	protected static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	protected static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
-	private static final float OFF_GRID_FREQUENCY_FACTOR = 1.0f;
+	private static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
 	private static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
 
 	// public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally
@@ -844,11 +844,40 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			/*
 			 * Going On-Grid
 			 */
-			doBlackStartGoingOnGrid(gridFreq, gridVolt);
+			
+			BooleanReadChannel inputNAProtection1 = this.componentManager
+					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
+			BooleanReadChannel inputNAProtection2 = this.componentManager
+					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
+			
+			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+			
+			if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
+				
+				if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
+					// We are on grid MR has to be switched off and restarted
+					System.out.println("!!!! Grid is back --> set state to undefined!!");
+					this.state = StateMachine.UNDEFINED;
+					
+				} else {
+					// going on grid
+					System.out.println("Grid is back, M1C1 is set, going on grid!");
+					doBlackStartGoingOnGrid(gridFreq, gridVolt);					
+				}
+				
+			} else {
+				System.out.println("Grid is back, M1C1 is not set, do normal mode!");
+				doNormalBlackStartMode();
+			}
 		}
 
 	}
 
+	//Die pruefung auf "wann kome ich in going on grid" ist nicht richtig.... muss M1C1 abchecken..
+	//Die SW checkt den Zustandsübergang noch nicht... 
+	// Wenn M2C1 gekommen ist, ausschalten und dann wieder einschalten
+	
 	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
 		System.out.println("going on grid -->  ");
 		int invSetFreq = gridFreq + this.config.overFrequency(); // add default 200 mHz  
