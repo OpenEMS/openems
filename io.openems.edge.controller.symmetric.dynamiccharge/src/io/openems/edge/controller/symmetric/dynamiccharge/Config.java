@@ -14,11 +14,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
 	
-	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
+	@AttributeDefinition(name = "Morning-Hour", description = "values after this hour will be ignored.")
+	int Max_Morning_hour() default 7;
+	
+	@AttributeDefinition(name = "Evening-Hour", description = "values after this hour will be calculated.")
+	int Max_Evening_hour() default 4;
+	
+	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Charge/Discharge power [W]", description = "Negative values for Charge; positive for Discharge")
-	int power();
+//	@AttributeDefinition(name = "Charge/Discharge power [W]", description = "Negative values for Charge; positive for Discharge")
+//	int power();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Dynamic Charge Symmetric [{id}]";
 }

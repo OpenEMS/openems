@@ -30,6 +30,17 @@ public interface SymmetricEss extends OpenemsComponent {
 		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)),
 		/**
+		 * Net capacity.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		NET_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		/**
 		 * Grid-Mode.
 		 * 
 		 * <ul>
@@ -132,6 +143,15 @@ public interface SymmetricEss extends OpenemsComponent {
 		return this.channel(ChannelId.SOC);
 	}
 
+	/**
+	 * Gets the net capacity in [Wh].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getNetCapacity() {
+		return this.channel(ChannelId.NET_CAPACITY);
+	}
+	
 	/**
 	 * Is the Ess On-Grid?.
 	 * 

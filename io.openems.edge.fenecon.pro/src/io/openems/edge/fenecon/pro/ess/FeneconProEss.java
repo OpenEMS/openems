@@ -54,7 +54,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
 
-	protected final static int MAX_APPARENT_POWER = 9000;
+	protected final static int MAX_APPARENT_POWER = 9_000;
+	protected final static int NET_CAPACITY = 12_000;
 	private final static int UNIT_ID = 4;
 
 	private String modbusBridgeId;
@@ -75,6 +76,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 				ProChannelId.values() //
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(FeneconProEss.MAX_APPARENT_POWER);
+		this.channel(SymmetricEss.ChannelId.NET_CAPACITY).setNextValue(FeneconProEss.NET_CAPACITY);
 		AsymmetricEss.initializePowerSumChannels(this);
 	}
 

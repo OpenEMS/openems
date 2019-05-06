@@ -140,7 +140,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
@@ -151,7 +151,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 * 
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
-		 * <li>Type: Integer
+		 * <li>Type: Long
 		 * <li>Unit: mV
 		 * </ul>
 		 */

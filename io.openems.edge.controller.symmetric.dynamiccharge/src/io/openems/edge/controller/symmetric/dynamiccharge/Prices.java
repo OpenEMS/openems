@@ -27,7 +27,7 @@ public class Prices {
 
 			OkHttpClient client = new OkHttpClient();
 			Request request = new Request.Builder()
-					.url("https://api.awattar.com/v1/marketdata?start=1526302800000&end=1526457600000")
+					.url("https://api.awattar.com/v1/marketdata?")
 					.header("Authorization", Credentials.basic("ak_7YTR42jBwtnk5kXuMZRYEju8hvj918H0", "")).build();
 			Response response = null;
 

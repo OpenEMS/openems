@@ -1,6 +1,8 @@
 package io.openems.edge.controller.symmetric.dynamiccharge;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,19 +19,23 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.SymmetricMeter;
-
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.DynamicCharge", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class DynamicCharge extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
-	
+
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
-	
+	private static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
+	boolean executed = false;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -73,32 +79,53 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 	public void run() {
 		LocalDateTime now = LocalDateTime.now();
 		int hourOfDay = now.getHour();
-		
-		
-		
+
 		try {
 			ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-			
 			SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter_id());
-			
-			Integer essActivePower = ess.getActivePower().value().orElse(0);
-			Integer gridActivePower = gridMeter.getActivePower().value().orElse(0);
-			Integer production = essActivePower + gridActivePower;
-			Integer consumption = 0;
-			
-			
+			Sum sum = this.componentManager.getComponent(this.config.id());
+
 			log.info("Calculating the required consumption to charge ");
-			this.calculateTotalConsumption.run();
-			
-			
-			
-			
+			this.calculateTotalConsumption.run(ess, gridMeter, config, sum);
+
+			// Hours and Amount of energy to charge in the form of TreeMap
+			if (CalculateConsumption.t0 != null) {
+				if (!executed && hourOfDay == 17 && !CalculateConsumption.chargeSchedule.isEmpty()) {
+					chargeSchedule = CalculateConsumption.chargeSchedule;
+					executed = true;
+				}
+			}
+			if (CalculateConsumption.t1 != null) {
+				if (executed && hourOfDay == 9) {
+					chargeSchedule = null;
+					executed = false;
+				}
+			}
+
+			// Charge Condition
+			if (!chargeSchedule.isEmpty()) {
+				for (Map.Entry<LocalDateTime, Long> entry : chargeSchedule.entrySet()) {
+					if (now.getHour() == entry.getKey().getHour()) {
+
+						/*
+						 * TODO Actual condition to charge the ESS
+						 */
+
+						/*int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
+								entry.getValue());
+
+						ess.addPowerConstraintAndValidate("SymmetricFixActivePower", Phase.ALL, Pwr.ACTIVE,
+								Relationship.EQUALS, calculatedPower);*/
+					}
+
+				}
+			}
+
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+
 	}
+
 }
