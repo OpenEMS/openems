@@ -1,11 +1,8 @@
 package io.openems.edge.common.access_control;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.Channel;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Model object that represents a security role.
@@ -18,9 +15,9 @@ public class Role {
 
     private String description;
 
-    private Map<ChannelAddress, Set<Permission>> channelToPermissionsMapping;
+    private Map<ChannelAddress, Set<Permission>> channelToPermissionsMapping = new HashMap<>();
 
-    private Set<Group> groups;
+    private Set<Group> groups = new HashSet<>();
 
     public Role() {
     }

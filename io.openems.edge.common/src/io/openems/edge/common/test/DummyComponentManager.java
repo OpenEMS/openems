@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.openems.common.types.EdgeConfig;
+import io.openems.edge.common.access_control.Role;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.slf4j.Logger;
@@ -20,8 +21,13 @@ public class DummyComponentManager implements ComponentManager {
     }
 
     @Override
-    public List<OpenemsComponent> getComponents() {
+    public List<OpenemsComponent> getComponents(Role role) {
         return Collections.unmodifiableList(this.components);
+    }
+
+    @Override
+    public List<OpenemsComponent> getComponents() {
+        return this.getComponents(null);
     }
 
     /**
@@ -33,6 +39,11 @@ public class DummyComponentManager implements ComponentManager {
         if (component != this) {
             this.components.add(component);
         }
+    }
+
+    @Override
+    public EdgeConfig getEdgeConfig(Role role) {
+        return new EdgeConfig();
     }
 
     @Override

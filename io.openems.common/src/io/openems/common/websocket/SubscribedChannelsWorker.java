@@ -11,8 +11,6 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.session.Role;
@@ -50,11 +48,12 @@ public abstract class SubscribedChannelsWorker {
 	 * @param requestCount the count of the request
 	 * @param permittedChannels the permitted channels
 	 */
-	public synchronized void handleSubscribeChannelsRequest(Role role, int requestCount, TreeSet<ChannelAddress> permittedChannels, String edgeId) {
-		if (this.lastRequestCount < requestCount) {
+	public synchronized void handleSubscribeChannelsRequest(Role role, int requestCount, Set<ChannelAddress> permittedChannels, String edgeId) {
+		// TODO comment in again
+		// if (this.lastRequestCount < requestCount) {
 			this.setChannels(permittedChannels, edgeId);
 			this.lastRequestCount = requestCount;
-		}
+		//}
 	}
 
 	/**

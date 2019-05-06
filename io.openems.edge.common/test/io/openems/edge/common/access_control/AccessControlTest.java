@@ -5,7 +5,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.naming.AuthenticationException;
 import java.util.*;
 
 import static org.junit.Assert.fail;
@@ -22,7 +21,7 @@ public class AccessControlTest {
 
     @Before
     public void setUp() {
-        this.accessControl = new AccessControl();
+        this.accessControl = AccessControl.getInstance();
         Set<Permission> dummyPermissions = createDummyPermissions();
         Map<ChannelAddress, Set<Permission>> dummyChannelToPermissionMapping = createDummyChannelToPermissionMapping(dummyPermissions);
         Set<Role> roles = createDummyRoles(dummyChannelToPermissionMapping);

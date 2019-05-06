@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.access_control.Role;
 import io.openems.edge.common.user.EdgeUser;
 
 public class WsData extends io.openems.common.websocket.WsData {
@@ -19,6 +20,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private Optional<EdgeUser> user = Optional.empty();
 
+	private Role role;
+
 	public WsData(WebsocketApi parent) {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
 	}
@@ -29,6 +32,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	public UUID getSessionToken() {
 		return sessionToken;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public Role getRole() {
+		return role;
 	}
 
 	public void setUser(EdgeUser user) {

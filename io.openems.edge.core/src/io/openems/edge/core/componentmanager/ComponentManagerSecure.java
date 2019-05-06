@@ -15,7 +15,6 @@ import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
-import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
@@ -29,6 +28,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.access_control.AccessControl;
 import io.openems.edge.common.access_control.Group;
 import io.openems.edge.common.access_control.Permission;
+import io.openems.edge.common.access_control.Role;
 import io.openems.edge.common.channel.*;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -85,7 +85,8 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     private BundleContext bundleContext;
 
     private String path = "";
-    private AccessControl accessControl = new AccessControl();
+
+    private final AccessControl accessControl = AccessControl.getInstance();
 
     @Reference
     private MetaTypeService metaTypeService;
@@ -198,8 +199,19 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     }
 
     @Override
+    public List<OpenemsComponent> getComponents(io.openems.edge.common.access_control.Role role) {
+        //try {
+        return this.components;
+        // return this.accessControl.getComponents(role);
+        // } catch (AuthenticationException e) {
+        //  this.log.info("getComponents did not succeed", e);
+        // }
+        //return null;
+    }
+
+    @Override
     public List<OpenemsComponent> getComponents() {
-        return Collections.unmodifiableList(this.components);
+        return this.getComponents(null);
     }
 
     /**
@@ -249,7 +261,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     @Override
     public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
             throws OpenemsNamedException {
-        user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+        user.assertRoleIsAtLeast("handleJsonrpcRequest", io.openems.common.session.Role.GUEST);
 
         switch (request.getMethod()) {
 
@@ -273,13 +285,12 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     /**
      * Handles a GetEdgeConfigRequest.
      *
-     * @param user    the User
+     * @param user
      * @param request the GetEdgeConfigRequest
      * @return the Future JSON-RPC Response
-     * @throws OpenemsNamedException on error
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
-                                                                                 GetEdgeConfigRequest request) throws OpenemsNamedException {
+                                                                                 GetEdgeConfigRequest request) {
         EdgeConfig config = this.getEdgeConfig();
         GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
         return CompletableFuture.completedFuture(response);
@@ -424,7 +435,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     }
 
     @Override
-    public EdgeConfig getEdgeConfig() {
+    public EdgeConfig getEdgeConfig(Role role) {
         EdgeConfig result = new EdgeConfig();
 
         // get configurations that have an 'id' property -> OpenEMS Components
@@ -451,7 +462,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
                 // get Channels
                 TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
                 try {
-                    OpenemsComponent component = this.getComponent(componentId);
+                    OpenemsComponent component = this.getComponent(componentId, role);
                     for (Channel<?> channel : component.channels()) {
                         io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
                         Doc doc = channelId.doc();
@@ -527,6 +538,11 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
             }
         }
         return result;
+    }
+
+    @Override
+    public EdgeConfig getEdgeConfig() {
+        return this.getEdgeConfig(null);
     }
 
     /**

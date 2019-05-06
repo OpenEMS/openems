@@ -1,18 +1,17 @@
 package io.openems.edge.common.access_control;
 
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
-import javax.naming.AuthenticationException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class AccessControl {
+
+    private static AccessControl instance;
 
     private final Set<User> users = new HashSet<>();
 
@@ -22,7 +21,15 @@ public class AccessControl {
 
     protected volatile List<OpenemsComponent> components = new ArrayList<>();
 
-    public AccessControl() {
+    public static AccessControl getInstance() {
+        if (instance == null) {
+            instance = new AccessControl();
+        }
+
+        return instance;
+    }
+
+    private AccessControl() {
     }
 
     public void tempSetupAccessControl(Set<Role> roles, List<OpenemsComponent> components, Set<User> users) {
@@ -34,8 +41,22 @@ public class AccessControl {
     }
 
     public Role login(String username, String password, Long roleId) throws AuthenticationException {
-        User matchingUser = users.stream().filter(userNew -> (userNew.getUsername().equals(username) && userNew.getPassword() == password)).findFirst().orElseThrow(AuthenticationException::new);
-        return matchingUser.getRoles().stream().filter(r -> (r.getId().equals(roleId))).findFirst().orElseThrow(AuthenticationException::new);
+        User matchingUser = users.stream().filter(
+                userNew -> (userNew.getUsername().equals(username) && userNew.getPassword().equals(password)))
+                .findFirst()
+                .orElseThrow(AuthenticationException::new);
+        return matchingUser.getRoles().stream().filter(
+                r -> (r.getId().equals(roleId)))
+                .findFirst()
+                .orElseThrow(AuthenticationException::new);
+    }
+
+    public List<OpenemsComponent> getComponents(Role role) throws AuthenticationException {
+        // fetch our own role in case someone made it to fake one!
+        return this.components;
+        // Role roleInternal = roles.stream().filter(ro -> ro.equals(role)).findFirst().orElseThrow(AuthenticationException::new);
+        // final List<? extends Value<?>>[] values = new List[]{null};
+
     }
 
     public List<? extends Value<?>> getChannelValues(Role role) throws AuthenticationException {
@@ -69,5 +90,12 @@ public class AccessControl {
 
     public void addUser(User user) {
         this.users.add(user);
+    }
+
+    public Map<ChannelAddress, Set<Permission>> getChannelsForRole(Role role) throws AuthenticationException {
+        Role roleInternal = roles.stream().filter(ro -> ro.equals(role)).findFirst().orElseThrow(AuthenticationException::new);
+        Map<ChannelAddress, Set<Permission>> retVal = new HashMap<>(roleInternal.getChannelToPermissionsMapping());
+        roleInternal.getGroups().forEach(group -> retVal.putAll(group.getChannelToPermissionsMapping()));
+        return retVal;
     }
 }
