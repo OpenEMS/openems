@@ -1,12 +1,12 @@
 package io.openems.edge.project.controller.enbag.emergencymode;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 enum Battery implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	ESS1(0, "Ess1"), //
 	ESS2(1, "Ess2");
-	
+
 	private final int value;
 	private final String name;
 
