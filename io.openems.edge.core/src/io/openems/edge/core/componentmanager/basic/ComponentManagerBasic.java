@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import io.openems.common.access_control.Role;
 import io.openems.common.session.User;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.core.componentmanager.OsgiValidateWorker;
@@ -124,7 +125,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     }
 
     @Override
-    public List<OpenemsComponent> getComponents(io.openems.edge.common.access_control.Role role) {
+    public List<OpenemsComponent> getComponents(Role role) {
         return Collections.unmodifiableList(this.components);
     }
 
@@ -321,7 +322,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     }
 
     @Override
-    public EdgeConfig getEdgeConfig(io.openems.edge.common.access_control.Role role) {
+    public EdgeConfig getEdgeConfig(Role role) {
         EdgeConfig result = new EdgeConfig();
 
         // get configurations that have an 'id' property -> OpenEMS Components

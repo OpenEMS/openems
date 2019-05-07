@@ -3,10 +3,9 @@ package io.openems.edge.controller.api.websocket;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-import io.openems.edge.common.access_control.Permission;
-import io.openems.edge.common.access_control.RoleId;
+import io.openems.common.access_control.Permission;
+import io.openems.common.access_control.RoleId;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.EdgeUser;
-import io.openems.edge.common.access_control.AccessControl;
+import io.openems.common.access_control.AccessControl;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 

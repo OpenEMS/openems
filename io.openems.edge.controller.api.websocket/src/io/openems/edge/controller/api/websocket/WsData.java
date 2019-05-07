@@ -5,8 +5,7 @@ import java.util.UUID;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.access_control.Role;
-import io.openems.edge.common.access_control.RoleId;
+import io.openems.common.access_control.RoleId;
 import io.openems.edge.common.user.EdgeUser;
 
 public class WsData extends io.openems.common.websocket.WsData {

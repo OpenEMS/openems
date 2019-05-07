@@ -22,7 +22,6 @@ Export-Package: \
 	io.openems.edge.common.jsonapi,\
 	io.openems.edge.common.test,\
 	io.openems.edge.common.sum,\
-	io.openems.edge.common.access_control
 
 -includeresource: {readme.md}
 

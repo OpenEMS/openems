@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.openems.common.types.EdgeConfig;
-import io.openems.edge.common.access_control.Role;
+import io.openems.common.access_control.Role;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.slf4j.Logger;

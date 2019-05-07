@@ -19,7 +19,8 @@ Export-Package: \
 	io.openems.common.types,\
 	io.openems.common.utils,\
 	io.openems.common.websocket,\
-	io.openems.common.worker
+	io.openems.common.worker,\
+	io.openems.common.access_control
 
 -includeresource: {readme.md}
 

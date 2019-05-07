@@ -3,6 +3,7 @@ package io.openems.edge.core.componentmanager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.openems.common.OpenemsConstants;
+import io.openems.common.access_control.*;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -25,7 +26,6 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.FileUtils;
 import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.access_control.*;
 import io.openems.edge.common.channel.*;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -145,7 +145,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
 
     private void handleUsers(JsonElement config) throws OpenemsNamedException {
         for (JsonElement userJson : JsonUtils.getAsJsonArray(config, JsonKeys.USERS.getValue())) {
-            io.openems.edge.common.access_control.User newUser = new io.openems.edge.common.access_control.User();
+            io.openems.common.access_control.User newUser = new io.openems.common.access_control.User();
             newUser.setId(JsonUtils.getAsLong(userJson, JsonKeys.ID.getValue()));
             newUser.setUsername(JsonUtils.getAsString(userJson, JsonKeys.NAME.getValue()));
             newUser.setDescription(JsonUtils.getAsString(userJson, JsonKeys.DESCRIPTION.getValue()));
@@ -158,7 +158,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
 
     private void handleRoles(JsonElement config) throws OpenemsNamedException {
         for (JsonElement roleJson : JsonUtils.getAsJsonArray(config, JsonKeys.ROLES.getValue())) {
-            io.openems.edge.common.access_control.Role newRole = new io.openems.edge.common.access_control.Role();
+            Role newRole = new Role();
             newRole.setId(new RoleId(Long.toString(JsonUtils.getAsLong(roleJson, JsonKeys.ID.getValue()))));
             newRole.setDescription(JsonUtils.getAsString(roleJson, JsonKeys.DESCRIPTION.getValue()));
             newRole.setName(JsonUtils.getAsString(roleJson, JsonKeys.NAME.getValue()));
@@ -196,7 +196,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     }
 
     @Override
-    public List<OpenemsComponent> getComponents(io.openems.edge.common.access_control.Role role) {
+    public List<OpenemsComponent> getComponents(Role role) {
         //try {
         return this.components;
         // return this.accessControl.getComponents(role);

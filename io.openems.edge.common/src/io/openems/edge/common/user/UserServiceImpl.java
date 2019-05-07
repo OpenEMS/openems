@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import io.openems.edge.common.access_control.AccessControl;
-import io.openems.edge.common.access_control.AuthenticationException;
-import io.openems.edge.common.access_control.RoleId;
+import io.openems.common.access_control.AccessControl;
+import io.openems.common.access_control.AuthenticationException;
+import io.openems.common.access_control.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;

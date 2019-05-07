@@ -1,4 +1,4 @@
-package io.openems.edge.common.access_control;
+package io.openems.common.access_control;
 
 import java.util.HashSet;
 import java.util.Set;

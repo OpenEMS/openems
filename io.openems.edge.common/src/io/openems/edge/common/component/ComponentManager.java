@@ -7,7 +7,7 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
-import io.openems.edge.common.access_control.Role;
+import io.openems.common.access_control.Role;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import org.slf4j.Logger;
