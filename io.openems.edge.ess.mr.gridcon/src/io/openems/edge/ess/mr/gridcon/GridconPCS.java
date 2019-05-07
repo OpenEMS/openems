@@ -873,15 +873,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 
 	}
-
-	//Die pruefung auf "wann kome ich in going on grid" ist nicht richtig.... muss M1C1 abchecken..
-	//Die SW checkt den Zustandsübergang noch nicht... 
-	// Wenn M2C1 gekommen ist, ausschalten und dann wieder einschalten
 	
 	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
 		System.out.println("going on grid -->  ");
-		int invSetFreq = gridFreq + this.config.overFrequency(); // add default 200 mHz  
-		int invSetVolt = gridVolt + this.config.overVoltage(); // add default 2 V 
+		int invSetFreq = gridFreq + this.config.overFrequency();   
+		int invSetVolt = gridVolt + this.config.overVoltage();  
 		float invSetFreqNormalized = invSetFreq / 50_000f;
 		float invSetVoltNormalized = invSetVolt / 230_000f;
 		log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "

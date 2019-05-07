@@ -33,6 +33,8 @@ public class ErrorHandler {
 	private final Map<Integer, io.openems.edge.common.channel.ChannelId> errorChannelIds = new HashMap<>();
 
 	protected LocalDateTime timeWhenErrorsHasBeenAcknowledged = null;
+	private boolean sendSecondAcknowledge = false;
+	
 
 	private Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> readErrorMap = new HashMap<>();
 	private ErrorStateMachine state = ErrorStateMachine.READ_ERRORS;
@@ -233,8 +235,44 @@ public class ErrorHandler {
 				.writeToChannels(this.parent);
 
 		if (this.readErrorMap.isEmpty()) {
-			this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
-			this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
+			
+			if (!this.sendSecondAcknowledge) {
+				new CommandControlRegisters() //
+				// Set acknowledge error bit to false and then to true again, because gridcon acts on rising edge of signal
+				.acknowledge(false) //
+				.syncApproval(true) //
+				.blackstartApproval(false) //
+				.errorCodeFeedback(currentErrorCodeFeedBack) //
+				.shortCircuitHandling(true) //
+				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+				.parameterSet1(true) //
+				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+				.enableIpus(this.parent.config.inverterCount()) //
+				.writeToChannels(this.parent);
+				
+				this.sendSecondAcknowledge = true;
+				
+			} else {
+			
+				new CommandControlRegisters() //
+				// Acknowledge error for a 2nd time (in tests gridcon needs sometime two times)
+				.acknowledge(true) //
+				.syncApproval(true) //
+				.blackstartApproval(false) //
+				.errorCodeFeedback(currentErrorCodeFeedBack) //
+				.shortCircuitHandling(true) //
+				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+				.parameterSet1(true) //
+				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+				.enableIpus(this.parent.config.inverterCount()) //
+				.writeToChannels(this.parent);
+				
+				this.sendSecondAcknowledge = false;
+				this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
+				this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
+			}
 		}
 	}
 
