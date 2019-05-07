@@ -78,8 +78,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
-	private static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
-	private static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
+	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
+	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
 
 	// public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally
 	// measured
@@ -488,130 +488,130 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return 100; // TODO estimated value
 	}
 
-	LocalDateTime offGridDetected;
-	long DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
+//	LocalDateTime offGridDetected;
+//	long DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
+//
+//private void handleOffGridState() throws OpenemsNamedException {
+//		System.out.println("in handling off grid!");
+//
+//		if (offGridDetected == null) {
+//			System.out.println("setting time variable");
+//			offGridDetected = LocalDateTime.now();
+//			return;
+//		}
+//
+//		if (offGridDetected.plusSeconds(DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS).isAfter(LocalDateTime.now())) {
+//			System.out.println("waiting the first seconds if off grid is detected");
+//			return;
+//		}
+//
+//		System.out.println("do normal off grid handling");
+//
+//		// Measured by Grid-Meter, grid Values
+//		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter());
+//
+//		int gridFreq = gridMeter.getFrequency().value().orElse(-1);
+//		int gridVolt = gridMeter.getVoltage().value().orElse(-1);
+//
+//		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
+//
+//		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
+//				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
+//			log.info("Off-Grid -> F/U 1");
+//			System.out.println("off grid --> setting ");
+//			/*
+//			 * Off-Grid
+//			 */
+//			doNormalBlackStartMode();
+//
+//		} else {
+//			/*
+//			 * Going On-Grid
+//			 */
+//			
+//			BooleanReadChannel inputNAProtection1 = this.componentManager
+//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
+//			BooleanReadChannel inputNAProtection2 = this.componentManager
+//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
+//			
+//			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+//			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+//			
+//			if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
+//				
+//				if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
+//					// We are on grid MR has to be switched off and restarted
+//					System.out.println("!!!! Grid is back --> set state to undefined!!");
+//					this.state = StateMachine.UNDEFINED;
+//					
+//				} else {
+//					// going on grid
+//					System.out.println("Grid is back, M1C1 is set, going on grid!");
+//					doBlackStartGoingOnGrid(gridFreq, gridVolt);					
+//				}
+//				
+//			} else {
+//				System.out.println("Grid is back, M1C1 is not set, do normal mode!");
+//				doNormalBlackStartMode();
+//			}
+//		}
+//
+//	}
 
-private void handleOffGridState() throws OpenemsNamedException {
-		System.out.println("in handling off grid!");
-
-		if (offGridDetected == null) {
-			System.out.println("setting time variable");
-			offGridDetected = LocalDateTime.now();
-			return;
-		}
-
-		if (offGridDetected.plusSeconds(DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS).isAfter(LocalDateTime.now())) {
-			System.out.println("waiting the first seconds if off grid is detected");
-			return;
-		}
-
-		System.out.println("do normal off grid handling");
-
-		// Measured by Grid-Meter, grid Values
-		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter());
-
-		int gridFreq = gridMeter.getFrequency().value().orElse(-1);
-		int gridVolt = gridMeter.getVoltage().value().orElse(-1);
-
-		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
-
-		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
-				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
-			log.info("Off-Grid -> F/U 1");
-			System.out.println("off grid --> setting ");
-			/*
-			 * Off-Grid
-			 */
-			doNormalBlackStartMode();
-
-		} else {
-			/*
-			 * Going On-Grid
-			 */
-			
-			BooleanReadChannel inputNAProtection1 = this.componentManager
-					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
-			BooleanReadChannel inputNAProtection2 = this.componentManager
-					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
-			
-			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-			
-			if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
-				
-				if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
-					// We are on grid MR has to be switched off and restarted
-					System.out.println("!!!! Grid is back --> set state to undefined!!");
-					this.state = StateMachine.UNDEFINED;
-					
-				} else {
-					// going on grid
-					System.out.println("Grid is back, M1C1 is set, going on grid!");
-					doBlackStartGoingOnGrid(gridFreq, gridVolt);					
-				}
-				
-			} else {
-				System.out.println("Grid is back, M1C1 is not set, do normal mode!");
-				doNormalBlackStartMode();
-			}
-		}
-
-	}
-
-	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
-		System.out.println("going on grid -->  ");
-		int invSetFreq = gridFreq + this.config.overFrequency(); // add default 200 mHz  
-		int invSetVolt = gridVolt + this.config.overVoltage(); // add default 2 V 
-		float invSetFreqNormalized = invSetFreq / 50_000f;
-		float invSetVoltNormalized = invSetVolt / 230_000f;
-		log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
-				+ invSetVoltNormalized);
-
-		System.out.println("Write parameters for off grid and adapted parameters for u0 and f0");
-
-			InverterCount inverterCount = this.config.inverterCount();
-			new CommandControlRegisters() //
-					.play(true) //
-					.ready(false) //
-					.acknowledge(false) //
-					.stop(false) //
-					
-					.syncApproval(false) //
-					.blackstartApproval(true) //
-					.shortCircuitHandling(false) //
-					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-					.enableIpus(inverterCount) //
-					
-					.parameterU0(invSetVoltNormalized) //
-					.parameterF0(invSetFreqNormalized) //
-					
-					.writeToChannels(this);
-			new CcuControlParameters() //
-					.pControlMode(PControlMode.DISABLED) //
-					.qLimit(1f) //
-					.writeToChannels(this);
-			this.setIpuControl();
-	}
-
-	private void doNormalBlackStartMode() throws IllegalArgumentException, OpenemsNamedException {
-		System.out.println("Write channels for blackstart mode");
-
-			InverterCount inverterCount = this.config.inverterCount();
-			new CommandControlRegisters() //
-					.play(true) //
-					.syncApproval(false) //
-					.blackstartApproval(true)
-					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-					.enableIpus(inverterCount) //
-					.parameterF0(OFF_GRID_FREQUENCY_FACTOR) //
-					.parameterU0(OFF_GRID_VOLTAGE_FACTOR) //
-					.writeToChannels(this);
-			new CcuControlParameters() //
-					.pControlMode(PControlMode.DISABLED) //
-					.qLimit(1f) //
-					.writeToChannels(this);
-			this.setIpuControl();
-	}
+//	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
+//		System.out.println("going on grid -->  ");
+//		int invSetFreq = gridFreq + this.config.overFrequency(); // add default 200 mHz  
+//		int invSetVolt = gridVolt + this.config.overVoltage(); // add default 2 V 
+//		float invSetFreqNormalized = invSetFreq / 50_000f;
+//		float invSetVoltNormalized = invSetVolt / 230_000f;
+//		log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
+//				+ invSetVoltNormalized);
+//
+//		System.out.println("Write parameters for off grid and adapted parameters for u0 and f0");
+//
+//			InverterCount inverterCount = this.config.inverterCount();
+//			new CommandControlRegisters() //
+//					.play(true) //
+//					.ready(false) //
+//					.acknowledge(false) //
+//					.stop(false) //
+//					
+//					.syncApproval(false) //
+//					.blackstartApproval(true) //
+//					.shortCircuitHandling(false) //
+//					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
+//					.enableIpus(inverterCount) //
+//					
+//					.parameterU0(invSetVoltNormalized) //
+//					.parameterF0(invSetFreqNormalized) //
+//					
+//					.writeToChannels(this);
+//			new CcuControlParameters() //
+//					.pControlMode(PControlMode.DISABLED) //
+//					.qLimit(1f) //
+//					.writeToChannels(this);
+//			this.setIpuControl();
+//	}
+//
+//	private void doNormalBlackStartMode() throws IllegalArgumentException, OpenemsNamedException {
+//		System.out.println("Write channels for blackstart mode");
+//
+//			InverterCount inverterCount = this.config.inverterCount();
+//			new CommandControlRegisters() //
+//					.play(true) //
+//					.syncApproval(false) //
+//					.blackstartApproval(true)
+//					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
+//					.enableIpus(inverterCount) //
+//					.parameterF0(OFF_GRID_FREQUENCY_FACTOR) //
+//					.parameterU0(OFF_GRID_VOLTAGE_FACTOR) //
+//					.writeToChannels(this);
+//			new CcuControlParameters() //
+//					.pControlMode(PControlMode.DISABLED) //
+//					.qLimit(1f) //
+//					.writeToChannels(this);
+//			this.setIpuControl();
+//	}
 
 	/**
 	 * Gets all Batteries.

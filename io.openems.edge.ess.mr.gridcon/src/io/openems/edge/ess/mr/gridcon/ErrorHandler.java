@@ -43,6 +43,7 @@ public class ErrorHandler {
 	private static final long RELOAD_TIME_SECONDS = 45; // Time for Mr Gridcon to boot and come back
 	private static final int MAX_TIMES_FOR_TRYING_TO_HARD_RESET = 5;
 	private int hardResetCounter = 0;
+	private boolean sendSecondAcknowledge = false;
 
 	public ErrorHandler(StateMachine parent) {
 		this.parent = parent;
@@ -156,7 +157,7 @@ public class ErrorHandler {
 	 * @throws IllegalArgumentException
 	 * @throws OpenemsNamedException
 	 */
-	private void doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
+	private State doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
 		this.tryToAcknowledgeErrorsCounter = this.tryToAcknowledgeErrorsCounter + 1;
 
 		int currentErrorCodeFeedBack = 0;
@@ -182,12 +183,12 @@ public class ErrorHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.config.inverterCount()) //
-				.writeToChannels(this.parent);
+				.enableIpus(this.parent.parent.config.inverterCount()) //
+				.writeToChannels(this.parent.parent);
 
 		if (this.readErrorMap.isEmpty()) {
 			
-			if (!this.sendSecondAcknowledge) {
+			if (!this.sendSecondAcknowledge ) {
 				new CommandControlRegisters() //
 				// Set acknowledge error bit to false and then to true again, because gridcon acts on rising edge of signal
 				.acknowledge(false) //
@@ -199,8 +200,8 @@ public class ErrorHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.config.inverterCount()) //
-				.writeToChannels(this.parent);
+				.enableIpus(this.parent.parent.config.inverterCount()) //
+				.writeToChannels(this.parent.parent);
 				
 				this.sendSecondAcknowledge = true;
 				
@@ -217,14 +218,15 @@ public class ErrorHandler {
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
 				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.config.inverterCount()) //
-				.writeToChannels(this.parent);
+				.enableIpus(this.parent.parent.config.inverterCount()) //
+				.writeToChannels(this.parent.parent);
 				
 				this.sendSecondAcknowledge = false;
 				this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
-				this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
+				return State.FINISH_ERROR_HANDLING;
 			}
 		}
+		return State.ACKNOWLEDGE_ERRORS;
 	}
 
 	/**
@@ -272,17 +274,6 @@ public class ErrorHandler {
 		// TODO switch off system
 		this.parent.parent.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 		return State.ERROR_HANDLING_NOT_POSSIBLE;
-	}
-
-			this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
-			this.state = ErrorStateMachine.FINISH_ERROR_HANDLING;
-		}
-	}
-
-	private void doErrorHandlingNotPossible() {
-		// switch off system
-		// TODO switch off
-		this.parent.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
 	}
 
 	private io.openems.edge.common.channel.ChannelId readCurrentError() {
@@ -352,10 +343,10 @@ public class ErrorHandler {
 	private Map<Integer, ChannelId> fillErrorChannelMap() {
 		Map<Integer, ChannelId> result = new HashMap<>();
 		for (ChannelId id : ErrorCodeChannelId0.values()) {
-			this.errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
+			result.put(((ErrorDoc) id.doc()).getCode(), id);
 		}
 		for (ChannelId id : ErrorCodeChannelId1.values()) {
-			this.errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
+			result.put(((ErrorDoc) id.doc()).getCode(), id);
 		}
 		return result;
 	}

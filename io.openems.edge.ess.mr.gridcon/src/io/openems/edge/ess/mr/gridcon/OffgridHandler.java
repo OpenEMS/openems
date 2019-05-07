@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
@@ -67,7 +69,31 @@ public class OffgridHandler {
 			/*
 			 * Going On-Grid
 			 */
-			this.doBlackStartGoingOnGrid(gridFreq, gridVolt);
+			BooleanReadChannel inputNAProtection1 = parent.parent.componentManager
+					.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection1()));
+			BooleanReadChannel inputNAProtection2 = parent.parent.componentManager
+					.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection2()));
+			
+			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+			
+			if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
+				
+				if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
+					// We are on grid MR has to be switched off and restarted
+					System.out.println("!!!! Grid is back --> set state to undefined!!");
+//					this.state = StateMachine.UNDEFINED;
+					
+				} else {
+					// going on grid
+					System.out.println("Grid is back, M1C1 is set, going on grid!");
+					doBlackStartGoingOnGrid(gridFreq, gridVolt);					
+				}
+				
+			} else {
+				System.out.println("Grid is back, M1C1 is not set, do normal mode!");
+				doNormalBlackStartMode();
+			}
 		}
 
 		return StateMachine.State.OFFGRID;
