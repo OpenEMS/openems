@@ -1,4 +1,4 @@
-package io.openems.edge.ess.mr.gridcon;
+package io.openems.edge.ess.mr.gridcon.writeutils;
 
 import io.openems.common.exceptions.OpenemsException;
 
@@ -8,6 +8,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.ess.mr.gridcon.Config;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 
 public class DcdcControl {
