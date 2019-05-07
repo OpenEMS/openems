@@ -51,6 +51,7 @@ public enum OpenemsError {
 	 * JSON Errors. 5000-5999
 	 */
 	JSON_HAS_NO_MEMBER(5000, "JSON [%s] has no member [%s]"), //
+	JSON_NO_INTEGER(5019, "JSON [%s] is not an Integer"), //
 	JSON_NO_INTEGER_MEMBER(5001, "JSON [%s:%s] is not an Integer"), //
 	JSON_NO_OBJECT(5002, "JSON [%s] is not a JSON-Object"), //
 	JSON_NO_OBJECT_MEMBER(5003, "JSON [%s] is not a JSON-Object"), //
@@ -68,6 +69,7 @@ public enum OpenemsError {
 	JSON_PARSE_ELEMENT_FAILED(5015, "JSON failed to parse [%s]. %s: %s"), //
 	JSON_PARSE_FAILED(5016, "JSON failed to parse [%s]: %s"), //
 	JSON_NO_FLOAT_MEMBER(5017, "JSON [%s:%s] is not a Float"), //
+	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum"), //
 	;
 
 	/**

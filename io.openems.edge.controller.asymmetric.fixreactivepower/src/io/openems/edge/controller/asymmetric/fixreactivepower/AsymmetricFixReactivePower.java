@@ -57,7 +57,7 @@ public class AsymmetricFixReactivePower extends AbstractOpenemsComponent impleme
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
 

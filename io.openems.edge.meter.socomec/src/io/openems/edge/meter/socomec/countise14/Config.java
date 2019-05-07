@@ -10,8 +10,14 @@ import io.openems.edge.meter.api.SinglePhase;
 		name = "Meter SOCOMEC Countis E14", //
 		description = "Implements the SOCOMEC Countis E14 meter.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "meter0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Phase", description = "Which Phase is measured by this Meter?")

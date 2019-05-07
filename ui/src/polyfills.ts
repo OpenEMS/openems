@@ -55,6 +55,7 @@ import 'classlist.js';  // Run `npm install --save classlist.js`.
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
+import './zone-flags.ts';
 import 'zone.js/dist/zone';  // Included with Angular CLI.
 
 

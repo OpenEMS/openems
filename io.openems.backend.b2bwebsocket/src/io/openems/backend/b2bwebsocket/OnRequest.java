@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -14,12 +15,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesChannelsValuesRequest;
-import io.openems.backend.b2bwebsocket.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.b2bwebsocket.jsonrpc.response.GetEdgesChannelsValuesResponse;
-import io.openems.backend.b2bwebsocket.jsonrpc.response.GetEdgesStatusResponse;
-import io.openems.backend.b2bwebsocket.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
+import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
+import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
+import io.openems.backend.common.jsonrpc.response.GetEdgesChannelsValuesResponse;
+import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse;
+import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsError;
@@ -47,7 +48,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		BackendUser user = wsData.assertUser();
+		BackendUser user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		switch (request.getMethod()) {
 
@@ -143,7 +144,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);
-			request.removeEdgeId(edgeId);
 		}
 
 		// activate SubscribedChannelsWorker

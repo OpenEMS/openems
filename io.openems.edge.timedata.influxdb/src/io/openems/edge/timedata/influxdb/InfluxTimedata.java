@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -33,6 +35,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -84,9 +87,15 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database(), config.isReadOnly());
+				config.database(), config.retentionPolicy(), config.isReadOnly(), //
+				(failedPoints, throwable) -> {
+					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
+							.map(Point::lineProtocol).collect(Collectors.joining(","));
+					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
+							+ StringUtils.toShortString(pointsString, 100));
+				});
 	}
 
 	@Deactivate

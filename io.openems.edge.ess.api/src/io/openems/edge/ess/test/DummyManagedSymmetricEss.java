@@ -28,7 +28,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 	@Override

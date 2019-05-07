@@ -4,6 +4,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -21,6 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -57,11 +59,12 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER)
 				.setNextValue(AbstractEssStreetscooter.MAX_APPARENT_POWER);
+		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
 
 		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String id, boolean enabled, boolean readonly, int unitId,
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, boolean readonly, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		this.readonly = readonly;
 
@@ -70,7 +73,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			this.getMaxApparentPower().setNextValue(0);
 		}
 
-		super.activate(context, id, enabled, unitId, cm, modbusReference, modbusId);
+		super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
@@ -282,12 +285,12 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
-				ModbusSlaveNatureTable.of(AbstractEssStreetscooter.class, 300) //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(AbstractEssStreetscooter.class, accessMode, 300) //
 						.build());
 	}
 }

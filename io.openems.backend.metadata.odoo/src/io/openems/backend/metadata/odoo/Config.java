@@ -3,7 +3,7 @@ package io.openems.backend.metadata.odoo;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Metadata.Odoo", //
 		description = "Configures the Odoo Metadata provider")
 @interface Config {

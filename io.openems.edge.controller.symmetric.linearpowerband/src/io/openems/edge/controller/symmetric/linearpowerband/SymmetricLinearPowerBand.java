@@ -32,7 +32,7 @@ public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implement
 	private Config config;
 	private int currentPower = 0;
 	private State state = State.DOWNWARDS;
-	
+
 	private enum State {
 		DOWNWARDS, UPWARDS
 	}
@@ -61,7 +61,7 @@ public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implement
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
 

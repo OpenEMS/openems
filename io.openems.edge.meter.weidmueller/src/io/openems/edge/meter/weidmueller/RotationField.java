@@ -1,6 +1,6 @@
 package io.openems.edge.meter.weidmueller;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum RotationField implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

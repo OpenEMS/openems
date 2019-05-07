@@ -2,13 +2,15 @@ package io.openems.edge.evcs.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 @ProviderType
 public interface Evcs extends OpenemsComponent {
@@ -28,6 +30,37 @@ public interface Evcs extends OpenemsComponent {
 		CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)), //
+		
+		
+		/**
+		 * Minimum Power .
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		 MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		
+		/**
+		 * Maximum Power .
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Writable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		 MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
+					.unit(Unit.WATT) //
+					.accessMode(AccessMode.READ_WRITE)),
+		
 		/**
 		 * Maximum Power valid by the Hardware.
 		 * 
@@ -66,7 +99,14 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		SET_DISPLAY_TEXT(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_WRITE));
+				.accessMode(AccessMode.READ_WRITE)),
+		
+		SET_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.unit(Unit.ON_OFF)
+				.text("Disabled is indicated with a blue flashing LED. "
+						+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
+						+ "and disabling can lead to an error in the charging station.")); //
 
 		private final Doc doc;
 
@@ -79,6 +119,20 @@ public interface Evcs extends OpenemsComponent {
 			return this.doc;
 		}
 	}
+	
+	
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(Evcs.class, accessMode, 100) //
+				.channel(0, ChannelId.CHARGE_POWER, ModbusType.UINT16) //
+				.channel(1, ChannelId.HARDWARE_POWER_LIMIT, ModbusType.UINT16) //
+				.channel(2, ChannelId.SET_CHARGE_POWER, ModbusType.UINT16)
+				.channel(3, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16)
+				.channel(19,ChannelId.MINIMUM_POWER, ModbusType.UINT16)
+				.channel(20, ChannelId.MAXIMUM_POWER, ModbusType.UINT16)
+				.channel(21, ChannelId.SET_ENABLED, ModbusType.UINT16)
+				.build();
+	}
+
 
 	/**
 	 * Gets the Charge Power in [W].
@@ -116,4 +170,16 @@ public interface Evcs extends OpenemsComponent {
 	public default WriteChannel<String> setDisplayText() {
 		return this.channel(ChannelId.SET_DISPLAY_TEXT);
 	}
+	
+	/**
+	 * Aktivates or deaktivates the Charging Station.
+	 * ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements 
+	 * and disabling can lead to an error in the charging station.
+	 * 
+	 * @return the WriteChannel
+	 */
+	public default WriteChannel<Boolean> setEnabled() {
+		return this.channel(ChannelId.SET_ENABLED);
+	}
+	
 }

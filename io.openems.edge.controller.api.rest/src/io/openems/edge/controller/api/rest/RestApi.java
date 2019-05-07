@@ -64,7 +64,7 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!this.isEnabled()) {
 			// abort if disabled

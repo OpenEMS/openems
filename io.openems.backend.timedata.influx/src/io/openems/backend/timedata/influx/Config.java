@@ -25,6 +25,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Measurement", description = "The InfluxDB measurement")
 	String measurement() default "data";
+	
+	@AttributeDefinition(name = "Retention-Policy", description = "The InfluxDB retention policy")
+	String retentionPolicy() default "autogen";
 
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
 	boolean isReadOnly() default false;

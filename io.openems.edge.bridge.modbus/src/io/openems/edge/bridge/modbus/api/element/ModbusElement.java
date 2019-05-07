@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.element;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
@@ -59,8 +60,22 @@ public interface ModbusElement<T> {
 	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException;
 
 	/**
+	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
+	 * set.
+	 * 
+	 * @param callback the callback
+	 */
+	public void onSetNextWrite(Consumer<Optional<T>> callback);
+
+	/**
 	 * Invalidates the Channel in case it could not be read from the Modbus device,
 	 * i.e. sets the value to 'UNDEFINED'/null.
 	 */
 	public void invalidate();
+
+	/**
+	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
+	 * any references like listeners.
+	 */
+	public void deactivate();
 }

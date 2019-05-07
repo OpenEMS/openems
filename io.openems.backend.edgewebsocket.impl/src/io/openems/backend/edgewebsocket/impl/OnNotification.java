@@ -1,5 +1,7 @@
 package io.openems.backend.edgewebsocket.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -11,11 +13,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -72,8 +80,13 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData)
 			throws OpenemsNamedException {
 		String edgeId = wsData.assertEdgeId(message);
+
+		// save config in metadata
 		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getConfig());
+
+		// forward
+		this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
 	}
 
 	/**
@@ -118,6 +131,47 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
 				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
+			}
+			if (data.has("_sum/State")) {
+				// Read global State
+				Optional<Level> levelOpt = Level.fromJson(data, "_sum/State");
+				Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
+				if (levelOpt.isPresent() && levelOpt.get() != Level.OK) {
+					// Global State is not "OK" -> Some State-Channel has to be active:
+					for (Entry<String, Component> componentEntry : edge.getConfig().getComponents().entrySet()) {
+						String componentId = componentEntry.getKey();
+						// Get State-Level of this Component
+						Optional<JsonElement> componentStateOpt = this.parent.timedata.getChannelValue(edgeId,
+								new ChannelAddress(componentId, "State"));
+						if (!componentStateOpt.isPresent()) {
+							continue;
+						}
+						Optional<Level> componentLevelOpt = Level.fromJson(componentStateOpt.get());
+						if (!componentLevelOpt.isPresent() || componentLevelOpt.get() == Level.OK) {
+							continue;
+						}
+						// This Components state is not OK -> search for active State-Channels
+						for (Entry<String, Channel> channelEntry : componentEntry.getValue().getStateChannels()
+								.entrySet()) {
+							String channelId = channelEntry.getKey();
+							Optional<JsonElement> valueOptJ = this.parent.timedata.getChannelValue(edgeId,
+									new ChannelAddress(componentId, channelId));
+							if (!valueOptJ.isPresent()) {
+								continue;
+							}
+							Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(valueOptJ.get());
+							if (!valueOpt.isPresent()) {
+								continue;
+							}
+							if (valueOpt.get() == 1 /* Booleans are transferred as '0' or '1' */) {
+								activeStateChannels.put(//
+										new ChannelAddress(componentId, channelId), //
+										channelEntry.getValue());
+							}
+						}
+					}
+				}
+				edge.setSumState(levelOpt.orElse(null), activeStateChannels);
 			}
 		}
 	}

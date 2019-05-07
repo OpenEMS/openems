@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -282,7 +282,7 @@ public class DischargeLimitConsideringCellVoltage extends AbstractOpenemsCompone
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		debug("DischargeLimitConsideringCellVoltage.activate()");
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.batteryId = config.battery_id();

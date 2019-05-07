@@ -55,7 +55,7 @@ public class SymmetricFixReactivePower extends AbstractOpenemsComponent implemen
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
 

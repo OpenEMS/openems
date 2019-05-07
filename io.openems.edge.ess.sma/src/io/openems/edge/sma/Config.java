@@ -10,8 +10,13 @@ import io.openems.edge.ess.api.SinglePhase;
 		description = "Implements the SMA SunnyIsland 6.0H energy storage system.")
 @interface Config {
 
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	SinglePhase phase() default SinglePhase.L1;

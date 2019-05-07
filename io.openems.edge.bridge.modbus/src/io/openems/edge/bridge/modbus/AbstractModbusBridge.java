@@ -35,6 +35,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	protected static final int DEFAULT_RETRIES = 1;
 
+	private LogVerbosity logVerbosity = LogVerbosity.NONE;
+
 	// private final Logger log =
 	// LoggerFactory.getLogger(AbstractModbusBridge.class);
 	private final ModbusWorker worker = new ModbusWorker(this);
@@ -44,8 +46,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	protected void activate(ComponentContext context, String id, boolean enabled) {
-		super.activate(context, id, enabled);
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
+			LogVerbosity logVerbosity) {
+		super.activate(context, id, alias, enabled);
+		this.logVerbosity = logVerbosity;
 		if (this.isEnabled()) {
 			this.worker.activate(id);
 		}
@@ -79,8 +83,11 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.worker.onBeforeProcessImage();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.worker.triggerNextRun();
+			this.worker.onExecuteWrite();
 			break;
 		}
 	}
@@ -105,6 +112,15 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	protected Channel<Boolean> getSlaveCommunicationFailedChannel() {
 		return this.channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED);
+	}
+
+	public LogVerbosity getLogVerbosity() {
+		return logVerbosity;
+	}
+
+	@Override
+	public void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	@Override

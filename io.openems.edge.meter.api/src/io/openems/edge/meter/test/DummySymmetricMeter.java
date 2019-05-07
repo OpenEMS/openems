@@ -22,7 +22,7 @@ public class DummySymmetricMeter extends AbstractOpenemsComponent implements Sym
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 	@Override

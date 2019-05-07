@@ -12,16 +12,20 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -63,8 +67,8 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm,
+				"Modbus", config.modbus_id());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 	}
@@ -103,82 +107,83 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(3000, Priority.LOW, //
-						m(EssChannelId.BECU1_CHARGE_CURRENT, new UnsignedWordElement(3000)), //
-						m(EssChannelId.BECU1_DISCHARGE_CURRENT, new UnsignedWordElement(3001)), //
-						m(EssChannelId.BECU1_VOLT, new UnsignedWordElement(3002)), //
-						m(EssChannelId.BECU1_CURRENT, new UnsignedWordElement(3003)), //
-						m(EssChannelId.BECU1_SOC, new UnsignedWordElement(3004))), //
-				new FC3ReadRegistersTask(3005, Priority.LOW, //
-						bm(new UnsignedWordElement(3005))//
-								.m(EssChannelId.STATE_1, 0)//
-								.m(EssChannelId.STATE_2, 1)//
-								.m(EssChannelId.STATE_3, 2)//
-								.m(EssChannelId.STATE_4, 3)//
-								.m(EssChannelId.STATE_5, 4)//
-								.m(EssChannelId.STATE_6, 5)//
-								.m(EssChannelId.STATE_7, 6)//
-								.m(EssChannelId.STATE_8, 7)//
-								.m(EssChannelId.STATE_9, 8)//
-								.m(EssChannelId.STATE_10, 9)//
-								.m(EssChannelId.STATE_11, 10)//
-								.m(EssChannelId.STATE_12, 11)//
-								.m(EssChannelId.STATE_13, 12)//
-								.m(EssChannelId.STATE_14, 13)//
-								.m(EssChannelId.STATE_15, 14)//
-								.m(EssChannelId.STATE_16, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3006))//
-								.m(EssChannelId.STATE_17, 0)//
-								.m(EssChannelId.STATE_18, 1)//
-								.m(EssChannelId.STATE_19, 2)//
-								.m(EssChannelId.STATE_20, 4)//
-								.m(EssChannelId.STATE_21, 5)//
-								.m(EssChannelId.STATE_22, 6)//
-								.m(EssChannelId.STATE_23, 7)//
-								.m(EssChannelId.STATE_24, 8)//
-								.m(EssChannelId.STATE_25, 9)//
-								.m(EssChannelId.STATE_26, 10)//
-								.m(EssChannelId.STATE_27, 11)//
-								.m(EssChannelId.STATE_28, 12)//
-								.m(EssChannelId.STATE_29, 13)//
-								.m(EssChannelId.STATE_30, 14)//
-								.m(EssChannelId.STATE_31, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3007))//
-								.m(EssChannelId.STATE_32, 0)//
-								.m(EssChannelId.STATE_33, 1)//
-								.m(EssChannelId.STATE_34, 2)//
-								.m(EssChannelId.STATE_35, 3)//
-								.m(EssChannelId.STATE_36, 4)//
-								.m(EssChannelId.STATE_37, 5)//
-								.m(EssChannelId.STATE_38, 6)//
-								.m(EssChannelId.STATE_39, 7)//
-								.m(EssChannelId.STATE_40, 8)//
-								.m(EssChannelId.STATE_41, 9)//
-								.m(EssChannelId.STATE_42, 10)//
-								.m(EssChannelId.STATE_43, 13)//
-								.m(EssChannelId.STATE_44, 14)//
-								.m(EssChannelId.STATE_45, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3008))//
-								.m(EssChannelId.STATE_46, 0)//
-								.m(EssChannelId.STATE_47, 1)//
-								.m(EssChannelId.STATE_48, 2)//
-								.m(EssChannelId.STATE_49, 9)//
-								.m(EssChannelId.STATE_50, 10)//
-								.m(EssChannelId.STATE_51, 12)//
-								.m(EssChannelId.STATE_52, 13)//
-								.build(), //
+						m(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(3000),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(3001), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssChannelId.BECU1_TOTAL_CURRENT, new UnsignedWordElement(3003)), //
+						m(EssChannelId.BECU1_SOC, new UnsignedWordElement(3004)), //
+						m(new BitsWordElement(3005, this) //
+								.bit(0, EssChannelId.STATE_1) //
+								.bit(1, EssChannelId.STATE_2) //
+								.bit(2, EssChannelId.STATE_3) //
+								.bit(3, EssChannelId.STATE_4) //
+								.bit(4, EssChannelId.STATE_5) //
+								.bit(5, EssChannelId.STATE_6) //
+								.bit(6, EssChannelId.STATE_7) //
+								.bit(7, EssChannelId.STATE_8) //
+								.bit(8, EssChannelId.STATE_9) //
+								.bit(9, EssChannelId.STATE_10) //
+								.bit(10, EssChannelId.STATE_11) //
+								.bit(11, EssChannelId.STATE_12) //
+								.bit(12, EssChannelId.STATE_13) //
+								.bit(13, EssChannelId.STATE_14) //
+								.bit(14, EssChannelId.STATE_15) //
+								.bit(15, EssChannelId.STATE_16)), //
+						m(new BitsWordElement(3006, this) //
+								.bit(0, EssChannelId.STATE_17) //
+								.bit(1, EssChannelId.STATE_18) //
+								.bit(2, EssChannelId.STATE_19) //
+								.bit(4, EssChannelId.STATE_20) //
+								.bit(5, EssChannelId.STATE_21) //
+								.bit(6, EssChannelId.STATE_22) //
+								.bit(7, EssChannelId.STATE_23) //
+								.bit(8, EssChannelId.STATE_24) //
+								.bit(9, EssChannelId.STATE_25) //
+								.bit(10, EssChannelId.STATE_26) //
+								.bit(11, EssChannelId.STATE_27) //
+								.bit(12, EssChannelId.STATE_28) //
+								.bit(13, EssChannelId.STATE_29) //
+								.bit(14, EssChannelId.STATE_30) //
+								.bit(15, EssChannelId.STATE_31)), //
+						m(new BitsWordElement(3007, this) //
+								.bit(0, EssChannelId.STATE_32) //
+								.bit(1, EssChannelId.STATE_33) //
+								.bit(2, EssChannelId.STATE_34) //
+								.bit(3, EssChannelId.STATE_35) //
+								.bit(4, EssChannelId.STATE_36) //
+								.bit(5, EssChannelId.STATE_37) //
+								.bit(6, EssChannelId.STATE_38) //
+								.bit(7, EssChannelId.STATE_39) //
+								.bit(8, EssChannelId.STATE_40) //
+								.bit(9, EssChannelId.STATE_41) //
+								.bit(10, EssChannelId.STATE_42) //
+								.bit(13, EssChannelId.STATE_43) //
+								.bit(14, EssChannelId.STATE_44) //
+								.bit(15, EssChannelId.STATE_45)), //
+						m(new BitsWordElement(3008, this) //
+								.bit(0, EssChannelId.STATE_46) //
+								.bit(1, EssChannelId.STATE_47) //
+								.bit(2, EssChannelId.STATE_48) //
+								.bit(9, EssChannelId.STATE_49) //
+								.bit(10, EssChannelId.STATE_50) //
+								.bit(12, EssChannelId.STATE_51) //
+								.bit(13, EssChannelId.STATE_52)), //
 						m(EssChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
-						new DummyRegisterElement(3010, 3011), //
-						m(EssChannelId.BECU1_MIN_VOLT_NO, new UnsignedWordElement(3012)), //
-						m(EssChannelId.BECU1_MIN_VOLT, new UnsignedWordElement(3013)), //
-						m(EssChannelId.BECU1_MAX_VOLT_NO, new UnsignedWordElement(3014)), //
-						m(EssChannelId.BECU1_MAX_VOLT, new UnsignedWordElement(3015)), // ^
-						m(EssChannelId.BECU1_MIN_TEMP_NO, new UnsignedWordElement(3016)), //
-						m(EssChannelId.BECU1_MIN_TEMP, new UnsignedWordElement(3017)), //
-						m(EssChannelId.BECU1_MAX_TEMP_NO, new UnsignedWordElement(3018)), //
-						m(EssChannelId.BECU1_MAX_TEMP, new UnsignedWordElement(3019))), //
+						m(EssChannelId.BECU1_NOMINAL_CAPACITY, new UnsignedWordElement(3010)), //
+						m(EssChannelId.BECU1_CURRENT_CAPACITY, new UnsignedWordElement(3011)), //
+						m(EssChannelId.BECU1_MINIMUM_VOLTAGE_NO, new UnsignedWordElement(3012)), //
+						m(EssChannelId.BECU1_MINIMUM_VOLTAGE, new UnsignedWordElement(3013)), //
+						m(EssChannelId.BECU1_MAXIMUM_VOLTAGE_NO, new UnsignedWordElement(3014)), //
+						m(EssChannelId.BECU1_MAXIMUM_VOLTAGE, new UnsignedWordElement(3015)), // ^
+						m(EssChannelId.BECU1_MINIMUM_TEMPERATURE_NO, new UnsignedWordElement(3016)), //
+						m(EssChannelId.BECU1_MINIMUM_TEMPERATURE, new UnsignedWordElement(3017),
+								new ElementToChannelOffsetConverter(-40)), //
+						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE_NO, new UnsignedWordElement(3018)), //
+						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE, new UnsignedWordElement(3019),
+								new ElementToChannelOffsetConverter(-40))),
 
 				new FC3ReadRegistersTask(3200, Priority.LOW, //
 						m(EssChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
@@ -187,66 +192,62 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(EssChannelId.BECU2_CURRENT, new UnsignedWordElement(3203)), //
 						m(EssChannelId.BECU2_SOC, new UnsignedWordElement(3204))), //
 				new FC3ReadRegistersTask(3205, Priority.LOW, //
-						bm(new UnsignedWordElement(3205))//
-								.m(EssChannelId.STATE_53, 0)//
-								.m(EssChannelId.STATE_54, 1)//
-								.m(EssChannelId.STATE_55, 2)//
-								.m(EssChannelId.STATE_56, 3)//
-								.m(EssChannelId.STATE_57, 4)//
-								.m(EssChannelId.STATE_58, 5)//
-								.m(EssChannelId.STATE_59, 6)//
-								.m(EssChannelId.STATE_60, 7)//
-								.m(EssChannelId.STATE_61, 8)//
-								.m(EssChannelId.STATE_62, 9)//
-								.m(EssChannelId.STATE_63, 10)//
-								.m(EssChannelId.STATE_64, 11)//
-								.m(EssChannelId.STATE_65, 12)//
-								.m(EssChannelId.STATE_66, 13)//
-								.m(EssChannelId.STATE_67, 14)//
-								.m(EssChannelId.STATE_68, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3206))//
-								.m(EssChannelId.STATE_69, 0)//
-								.m(EssChannelId.STATE_70, 1)//
-								.m(EssChannelId.STATE_71, 2)//
-								.m(EssChannelId.STATE_72, 4)//
-								.m(EssChannelId.STATE_73, 5)//
-								.m(EssChannelId.STATE_74, 6)//
-								.m(EssChannelId.STATE_75, 7)//
-								.m(EssChannelId.STATE_76, 8)//
-								.m(EssChannelId.STATE_77, 9)//
-								.m(EssChannelId.STATE_78, 10)//
-								.m(EssChannelId.STATE_79, 11)//
-								.m(EssChannelId.STATE_80, 12)//
-								.m(EssChannelId.STATE_81, 13)//
-								.m(EssChannelId.STATE_82, 14)//
-								.m(EssChannelId.STATE_83, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3207))//
-								.m(EssChannelId.STATE_84, 0)//
-								.m(EssChannelId.STATE_85, 1)//
-								.m(EssChannelId.STATE_86, 2)//
-								.m(EssChannelId.STATE_87, 3)//
-								.m(EssChannelId.STATE_88, 4)//
-								.m(EssChannelId.STATE_89, 5)//
-								.m(EssChannelId.STATE_90, 6)//
-								.m(EssChannelId.STATE_91, 7)//
-								.m(EssChannelId.STATE_92, 8)//
-								.m(EssChannelId.STATE_93, 9)//
-								.m(EssChannelId.STATE_94, 10)//
-								.m(EssChannelId.STATE_95, 13)//
-								.m(EssChannelId.STATE_96, 14)//
-								.m(EssChannelId.STATE_97, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(3208))//
-								.m(EssChannelId.STATE_98, 0)//
-								.m(EssChannelId.STATE_99, 1)//
-								.m(EssChannelId.STATE_100, 2)//
-								.m(EssChannelId.STATE_101, 9)//
-								.m(EssChannelId.STATE_102, 10)//
-								.m(EssChannelId.STATE_103, 12)//
-								.m(EssChannelId.STATE_104, 13)//
-								.build(), //
+						m(new BitsWordElement(3205, this) //
+								.bit(0, EssChannelId.STATE_53) //
+								.bit(1, EssChannelId.STATE_54) //
+								.bit(2, EssChannelId.STATE_55) //
+								.bit(3, EssChannelId.STATE_56) //
+								.bit(4, EssChannelId.STATE_57) //
+								.bit(5, EssChannelId.STATE_58) //
+								.bit(6, EssChannelId.STATE_59) //
+								.bit(7, EssChannelId.STATE_60) //
+								.bit(8, EssChannelId.STATE_61) //
+								.bit(9, EssChannelId.STATE_62) //
+								.bit(10, EssChannelId.STATE_63) //
+								.bit(11, EssChannelId.STATE_64) //
+								.bit(12, EssChannelId.STATE_65) //
+								.bit(13, EssChannelId.STATE_66) //
+								.bit(14, EssChannelId.STATE_67) //
+								.bit(15, EssChannelId.STATE_68)), //
+						m(new BitsWordElement(3206, this) //
+								.bit(0, EssChannelId.STATE_69) //
+								.bit(1, EssChannelId.STATE_70) //
+								.bit(2, EssChannelId.STATE_71) //
+								.bit(4, EssChannelId.STATE_72) //
+								.bit(5, EssChannelId.STATE_73) //
+								.bit(6, EssChannelId.STATE_74) //
+								.bit(7, EssChannelId.STATE_75) //
+								.bit(8, EssChannelId.STATE_76) //
+								.bit(9, EssChannelId.STATE_77) //
+								.bit(10, EssChannelId.STATE_78) //
+								.bit(11, EssChannelId.STATE_79) //
+								.bit(12, EssChannelId.STATE_80) //
+								.bit(13, EssChannelId.STATE_81) //
+								.bit(14, EssChannelId.STATE_82) //
+								.bit(15, EssChannelId.STATE_83)),
+						m(new BitsWordElement(3207, this) //
+								.bit(0, EssChannelId.STATE_84) //
+								.bit(1, EssChannelId.STATE_85) //
+								.bit(2, EssChannelId.STATE_86) //
+								.bit(3, EssChannelId.STATE_87) //
+								.bit(4, EssChannelId.STATE_88) //
+								.bit(5, EssChannelId.STATE_89) //
+								.bit(6, EssChannelId.STATE_90) //
+								.bit(7, EssChannelId.STATE_91) //
+								.bit(8, EssChannelId.STATE_92) //
+								.bit(9, EssChannelId.STATE_93) //
+								.bit(10, EssChannelId.STATE_94) //
+								.bit(13, EssChannelId.STATE_95) //
+								.bit(14, EssChannelId.STATE_96) //
+								.bit(15, EssChannelId.STATE_97)), //
+						m(new BitsWordElement(3208, this) //
+								.bit(0, EssChannelId.STATE_98) //
+								.bit(1, EssChannelId.STATE_99) //
+								.bit(2, EssChannelId.STATE_100) //
+								.bit(9, EssChannelId.STATE_101) //
+								.bit(10, EssChannelId.STATE_102) //
+								.bit(12, EssChannelId.STATE_103) //
+								.bit(13, EssChannelId.STATE_104)),
 						m(EssChannelId.BECU2_VERSION, new UnsignedWordElement(3209)), //
 						new DummyRegisterElement(3210, 3211), //
 						m(EssChannelId.BECU2_MIN_VOLT_NO, new UnsignedWordElement(3212)), //
@@ -269,56 +270,77 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(EssChannelId.BECU_DISCHARGE_CURRENT, new UnsignedWordElement(4804)), //
 						m(EssChannelId.BECU_VOLT, new UnsignedWordElement(4805)), //
 						m(EssChannelId.BECU_CURRENT, new UnsignedWordElement(4806))), //
+				new FC16WriteRegistersTask(4809, //
+						m(new BitsWordElement(4809, this) //
+								.bit(0, EssChannelId.STATE_111) //
+								.bit(1, EssChannelId.STATE_112))), //
 				new FC3ReadRegistersTask(4808, Priority.LOW, //
-						bm(new UnsignedWordElement(4808))//
-								.m(EssChannelId.STATE_105, 0)//
-								.m(EssChannelId.STATE_106, 1)//
-								.m(EssChannelId.STATE_107, 2)//
-								.m(EssChannelId.STATE_108, 3)//
-								.m(EssChannelId.STATE_109, 4)//
-								.m(EssChannelId.STATE_110, 9)//
-								.build(), //
-						bm(new UnsignedWordElement(4809))//
-								.m(EssChannelId.STATE_111, 0)//
-								.m(EssChannelId.STATE_112, 1)//
-								.build(), //
-						bm(new UnsignedWordElement(4810))//
-								.m(EssChannelId.STATE_113, 0)//
-								.m(EssChannelId.STATE_114, 1)//
-								.m(EssChannelId.STATE_115, 2)//
-								.m(EssChannelId.STATE_116, 3)//
-								.m(EssChannelId.STATE_117, 4)//
-								.m(EssChannelId.STATE_118, 5)//
-								.m(EssChannelId.STATE_119, 6)//
-								.m(EssChannelId.STATE_120, 7)//
-								.m(EssChannelId.STATE_121, 8)//
-								.m(EssChannelId.STATE_122, 9)//
-								.m(EssChannelId.STATE_123, 10)//
-								.m(EssChannelId.STATE_124, 11)//
-								.m(EssChannelId.STATE_125, 12)//
-								.m(EssChannelId.STATE_126, 13)//
-								.m(EssChannelId.STATE_127, 14)//
-								.m(EssChannelId.STATE_128, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(4811))//
-								.m(EssChannelId.STATE_129, 0)//
-								.m(EssChannelId.STATE_130, 1)//
-								.m(EssChannelId.STATE_131, 2)//
-								.m(EssChannelId.STATE_132, 3)//
-								.m(EssChannelId.STATE_133, 4)//
-								.m(EssChannelId.STATE_134, 5)//
-								.m(EssChannelId.STATE_135, 6)//
-								.m(EssChannelId.STATE_136, 7)//
-								.m(EssChannelId.STATE_137, 8)//
-								.m(EssChannelId.STATE_138, 9)//
-								.m(EssChannelId.STATE_139, 10)//
-								.m(EssChannelId.STATE_140, 11)//
-								.m(EssChannelId.STATE_141, 12)//
-								.m(EssChannelId.STATE_142, 13)//
-								.m(EssChannelId.STATE_143, 14)//
-								.build(),
-
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812))//
+						m(new BitsWordElement(4808, this) //
+								.bit(0, EssChannelId.STATE_105) //
+								.bit(1, EssChannelId.STATE_106) //
+								.bit(2, EssChannelId.STATE_107) //
+								.bit(3, EssChannelId.STATE_108) //
+								.bit(4, EssChannelId.STATE_109) //
+								.bit(9, EssChannelId.STATE_110)), //
+						m(new BitsWordElement(4809, this) //
+								.bit(0, EssChannelId.STATE_111) //
+								.bit(1, EssChannelId.STATE_112)), //
+						m(new BitsWordElement(4810, this) //
+								.bit(0, EssChannelId.STATE_113) //
+								.bit(1, EssChannelId.STATE_114) //
+								.bit(2, EssChannelId.STATE_115) //
+								.bit(3, EssChannelId.STATE_116) //
+								.bit(4, EssChannelId.STATE_117) //
+								.bit(5, EssChannelId.STATE_118) //
+								.bit(6, EssChannelId.STATE_119) //
+								.bit(7, EssChannelId.STATE_120) //
+								.bit(8, EssChannelId.STATE_121) //
+								.bit(9, EssChannelId.STATE_122) //
+								.bit(10, EssChannelId.STATE_123) //
+								.bit(11, EssChannelId.STATE_124) //
+								.bit(12, EssChannelId.STATE_125) //
+								.bit(13, EssChannelId.STATE_126) //
+								.bit(14, EssChannelId.STATE_127) //
+								.bit(15, EssChannelId.STATE_128)), //
+						m(new BitsWordElement(4811, this) //
+								.bit(0, EssChannelId.STATE_129) //
+								.bit(1, EssChannelId.STATE_130) //
+								.bit(2, EssChannelId.STATE_131) //
+								.bit(3, EssChannelId.STATE_132) //
+								.bit(4, EssChannelId.STATE_133) //
+								.bit(5, EssChannelId.STATE_134) //
+								.bit(6, EssChannelId.STATE_135) //
+								.bit(7, EssChannelId.STATE_136) //
+								.bit(8, EssChannelId.STATE_137) //
+								.bit(9, EssChannelId.STATE_138) //
+								.bit(10, EssChannelId.STATE_139) //
+								.bit(11, EssChannelId.STATE_140) //
+								.bit(12, EssChannelId.STATE_141) //
+								.bit(13, EssChannelId.STATE_142) //
+								.bit(14, EssChannelId.STATE_143)),
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812), new ElementToChannelConverter(
+								// element -> channel
+								value -> {
+									// Set SoC to 100 % if battery is full and AllowedCharge is zero
+									if (value == null) {
+										return null;
+									}
+									int soc = (Integer) value;
+									IntegerReadChannel allowedCharge = this
+											.channel(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT);
+									IntegerReadChannel allowedDischarge = this
+											.channel(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT);
+									System.out.println(allowedCharge.value().toString() + ", "
+											+ allowedDischarge.value().toString());
+									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
+											&& allowedDischarge.value().orElse(0) != 0) {
+										return 100;
+									} else {
+										return value;
+									}
+								}, //
+									// channel -> element
+								value -> value)) //
 				), //
 
 				new FC3ReadRegistersTask(30166, Priority.LOW, //
@@ -346,12 +368,12 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				AsymmetricEss.getModbusSlaveNatureTable(), //
-				ModbusSlaveNatureTable.of(FeneconMiniEss.class, 300) //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(FeneconMiniEss.class, accessMode, 300) //
 						.build());
 	}
 
