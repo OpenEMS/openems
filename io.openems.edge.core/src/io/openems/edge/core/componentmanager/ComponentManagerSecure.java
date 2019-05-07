@@ -25,10 +25,7 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.FileUtils;
 import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.access_control.AccessControl;
-import io.openems.edge.common.access_control.Group;
-import io.openems.edge.common.access_control.Permission;
-import io.openems.edge.common.access_control.Role;
+import io.openems.edge.common.access_control.*;
 import io.openems.edge.common.channel.*;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -162,7 +159,7 @@ public class ComponentManagerSecure extends AbstractOpenemsComponent
     private void handleRoles(JsonElement config) throws OpenemsNamedException {
         for (JsonElement roleJson : JsonUtils.getAsJsonArray(config, JsonKeys.ROLES.getValue())) {
             io.openems.edge.common.access_control.Role newRole = new io.openems.edge.common.access_control.Role();
-            newRole.setId(JsonUtils.getAsLong(roleJson, JsonKeys.ID.getValue()));
+            newRole.setId(new RoleId(Long.toString(JsonUtils.getAsLong(roleJson, JsonKeys.ID.getValue()))));
             newRole.setDescription(JsonUtils.getAsString(roleJson, JsonKeys.DESCRIPTION.getValue()));
             newRole.setName(JsonUtils.getAsString(roleJson, JsonKeys.NAME.getValue()));
             Set<Long> groupIds = new HashSet<>();

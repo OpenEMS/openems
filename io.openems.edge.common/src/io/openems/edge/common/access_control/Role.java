@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class Role {
 
-    private Long id;
+    private RoleId id;
 
     private String name;
 
@@ -27,7 +27,7 @@ public class Role {
         this.groups = groups;
     }
 
-    public Long getId() {
+    public RoleId getId() {
         return id;
     }
 
@@ -59,7 +59,7 @@ public class Role {
         this.groups = groups;
     }
 
-    public void setId(Long id) {
+    public void setId(RoleId id) {
         this.id = id;
     }
 

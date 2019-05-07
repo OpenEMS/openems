@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import io.openems.edge.common.access_control.AuthenticationException;
 import io.openems.edge.common.access_control.Permission;
+import io.openems.edge.common.access_control.RoleId;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      *
      * @param wsData         the WebSocket attachment
      * @param user           the User
-     * @param role
      * @param edgeRpcRequest the EdgeRpcRequest
      * @return the JSON-RPC Success Response Future
      * @throws OpenemsNamedException on error
@@ -155,7 +154,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
                                                                                             AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
         Optional<EdgeUser> userOpt = this.parent.userService.authenticate(request.getPassword());
-        io.openems.edge.common.access_control.Role role = this.parent.userService.authenticate2(request.getPassword());
+        RoleId roleId = this.parent.userService.authenticate2(request.getPassword());
         if (!userOpt.isPresent()) {
             wsData.unsetUser();
             throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -164,7 +163,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         // authentication successful
         EdgeUser user = userOpt.get();
         wsData.setUser(user);
-        wsData.setRole(role);
+        wsData.setRoleId(roleId);
         this.parent.sessionTokens.put(wsData.getSessionToken(), user);
         // TODO unset on logout!
         return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
@@ -176,7 +175,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      *
      * @param wsData  the WebSocket attachment
      * @param user    the User
-     * @param role
      * @param request the SubscribeChannelsRequest
      * @return the JSON-RPC Success Response Future
      * @throws OpenemsNamedException on error
@@ -186,10 +184,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
         worker.clearAll();
 
-        Set<ChannelAddress> permittedChannels = AccessControl.getInstance().getChannelsForRole(wsData.getRole()).entrySet().stream().filter(entry -> (
-                entry.getValue().contains(Permission.READ)
-        )).map(Map.Entry::getKey).collect(Collectors.toSet());
-
+        Set<ChannelAddress> permittedChannels = AccessControl.getInstance().intersectPermittedChannels(wsData.getRoleId(), request.getChannels(), Permission.READ);
         worker.handleSubscribeChannelsRequest(user.getRole(), request.getCount(), permittedChannels, WebsocketApi.EDGE_ID);
 
         // JSON-RPC response

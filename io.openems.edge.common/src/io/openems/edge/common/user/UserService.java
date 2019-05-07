@@ -1,7 +1,7 @@
 package io.openems.edge.common.user;
 
 
-import io.openems.edge.common.access_control.Role;
+import io.openems.edge.common.access_control.RoleId;
 
 import java.util.Optional;
 
@@ -30,7 +30,7 @@ public interface UserService {
 	 * @param password
 	 * @return the authenticated User or Empty if authentication failed
 	 */
-	Role authenticate2(String password);
+	RoleId authenticate2(String password);
 
 	/**
 	 * Authenticates a user with his username and password
@@ -38,5 +38,5 @@ public interface UserService {
 	 * @param password
 	 * @return the authenticated User or Empty if authentication failed
 	 */
-	Role authenticate2(String username, String password);
+	RoleId authenticate2(String username, String password);
 }

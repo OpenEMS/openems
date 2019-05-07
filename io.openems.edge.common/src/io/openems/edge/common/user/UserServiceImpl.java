@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import io.openems.edge.common.access_control.AccessControl;
 import io.openems.edge.common.access_control.AuthenticationException;
+import io.openems.edge.common.access_control.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -67,14 +68,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public io.openems.edge.common.access_control.Role authenticate2(String password) {
+    public RoleId authenticate2(String password) {
         return this.authenticate2("Kartoffelsalat3000", password);
     }
 
     @Override
-    public io.openems.edge.common.access_control.Role authenticate2(String username, String password) {
+    public RoleId authenticate2(String username, String password) {
         try {
-            return AccessControl.getInstance().login(username, password, 1L);
+            return AccessControl.getInstance().login(username, password, new RoleId(Long.toString(1L)));
         } catch (AuthenticationException e) {
             this.log.info("Authentication did not succeed", e);
         }

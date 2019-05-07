@@ -1,12 +1,8 @@
 package io.openems.edge.common.access_control;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.OpenemsComponent;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class AccessControl {
@@ -15,12 +11,18 @@ public class AccessControl {
 
     private final Set<User> users = new HashSet<>();
 
+    private final Map<RoleId, Role> rolesMapping = new HashMap<>();
+
     private final Set<Role> roles = new HashSet<>();
 
     private final Set<Group> groups = new HashSet<>();
 
-    protected volatile List<OpenemsComponent> components = new ArrayList<>();
 
+    /**
+     * Singleton pattern
+     *
+     * @return the only existing instance of {@link AccessControl}
+     */
     public static AccessControl getInstance() {
         if (instance == null) {
             instance = new AccessControl();
@@ -29,18 +31,13 @@ public class AccessControl {
         return instance;
     }
 
+    /**
+     * private constructor because of singleton
+     */
     private AccessControl() {
     }
 
-    public void tempSetupAccessControl(Set<Role> roles, List<OpenemsComponent> components, Set<User> users) {
-        this.components = components;
-        this.roles.clear();
-        this.roles.addAll(roles);
-        this.users.clear();
-        this.users.addAll(users);
-    }
-
-    public Role login(String username, String password, Long roleId) throws AuthenticationException {
+    public RoleId login(String username, String password, RoleId roleId) throws AuthenticationException {
         User matchingUser = users.stream().filter(
                 userNew -> (userNew.getUsername().equals(username) && userNew.getPassword().equals(password)))
                 .findFirst()
@@ -48,28 +45,38 @@ public class AccessControl {
         return matchingUser.getRoles().stream().filter(
                 r -> (r.getId().equals(roleId)))
                 .findFirst()
-                .orElseThrow(AuthenticationException::new);
+                .orElseThrow(AuthenticationException::new).getId();
     }
 
-    public List<OpenemsComponent> getComponents(Role role) throws AuthenticationException {
-        // fetch our own role in case someone made it to fake one!
-        return this.components;
-        // Role roleInternal = roles.stream().filter(ro -> ro.equals(role)).findFirst().orElseThrow(AuthenticationException::new);
-        // final List<? extends Value<?>>[] values = new List[]{null};
-
+    /**
+     * TODO replace *String* channelId with *ChannelId* channelId
+     *  @param roleId
+     * @param channelAddress
+     */
+    public void assertPermission(RoleId roleId, ChannelAddress channelAddress, Permission... permissions) throws AuthenticationException, AuthorizationException {
+        Role role = getRole(roleId);
+        Set<Permission> grantedPermissions = new HashSet<>();
+        Map<ChannelAddress, Set<Permission>> channelMapping = new HashMap<>(role.getChannelToPermissionsMapping());
+        role.getGroups().forEach(group -> channelMapping.putAll(group.getChannelToPermissionsMapping()));
+        channelMapping.entrySet().stream().filter(
+                entry -> Objects.equals(entry.getKey().toString(), channelAddress)).findFirst().ifPresent(
+                e -> grantedPermissions.addAll(e.getValue()));
+        if (!grantedPermissions.containsAll(Arrays.asList(permissions))) {
+            throw new AuthorizationException();
+        }
     }
 
-    public List<? extends Value<?>> getChannelValues(Role role) throws AuthenticationException {
-        // fetch our own role in case someone made it to fake one!
-        Role roleInternal = roles.stream().filter(ro -> ro.equals(role)).findFirst().orElseThrow(AuthenticationException::new);
-        final List<? extends Value<?>>[] values = new List[]{null};
-        components.forEach(openemsComponent -> values[0] = openemsComponent.channels().stream().filter(channel ->
-        {
-            AtomicBoolean allowed = new AtomicBoolean(false);
-            roleInternal.getPermissions(channel.address()).ifPresent(permissions -> allowed.set(permissions.contains(Permission.READ)));
-            return allowed.get();
-        }).map(Channel::value).collect(Collectors.toList()));
-        return values[0];
+    public Set<ChannelAddress> intersectPermittedChannels(RoleId roleId, Set<ChannelAddress> requestedChannels, Permission... permissions) throws AuthenticationException {
+        Role role = this.getRole(roleId);
+        Map<ChannelAddress, Set<Permission>> channelMapping = new HashMap<>(role.getChannelToPermissionsMapping());
+        role.getGroups().forEach(group -> channelMapping.putAll(group.getChannelToPermissionsMapping()));
+        return channelMapping.entrySet().stream().filter(entry -> entry.getValue().containsAll(Arrays.asList(permissions))).map(Map.Entry::getKey).collect(Collectors.toSet());
+    }
+
+    private Role getRole(RoleId roleId) throws AuthenticationException {
+        return this.rolesMapping.entrySet().stream().filter(
+                (entry) -> Objects.equals(entry.getKey(), roleId))
+                .findFirst().orElseThrow(AuthenticationException::new).getValue();
     }
 
     public void addGroup(Group newGroup) {
@@ -85,6 +92,7 @@ public class AccessControl {
     }
 
     public void addRole(Role role) {
+        this.rolesMapping.putIfAbsent(role.getId(), role);
         this.roles.add(role);
     }
 
@@ -92,10 +100,11 @@ public class AccessControl {
         this.users.add(user);
     }
 
-    public Map<ChannelAddress, Set<Permission>> getChannelsForRole(Role role) throws AuthenticationException {
-        Role roleInternal = roles.stream().filter(ro -> ro.equals(role)).findFirst().orElseThrow(AuthenticationException::new);
-        Map<ChannelAddress, Set<Permission>> retVal = new HashMap<>(roleInternal.getChannelToPermissionsMapping());
-        roleInternal.getGroups().forEach(group -> retVal.putAll(group.getChannelToPermissionsMapping()));
-        return retVal;
+    public void tempSetupAccessControl(Set<Role> roles, Set<User> users) {
+        this.roles.clear();
+        roles.forEach(this::addRole);
+        this.users.clear();
+        this.users.addAll(users);
     }
+
 }

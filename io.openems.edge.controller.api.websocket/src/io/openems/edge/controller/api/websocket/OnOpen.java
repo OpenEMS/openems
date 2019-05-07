@@ -66,7 +66,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		// TODO // send authentication notification
 		// AuthenticateWithSessionIdNotification notification = new
 		// AuthenticateWithSessionIdNotification(
-		// token, Utils.getEdgeMetadata(user.getRole()));
+		// token, Utils.getEdgeMetadata(user.getRoleId()));
 	}
 
 }

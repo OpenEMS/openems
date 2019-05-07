@@ -8,6 +8,9 @@ public class User {
     private Long id;
     private String username;
     private String description;
+    private String email;
+    private String password;
+    private Set<Role> roles = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -24,10 +27,6 @@ public class User {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    private String email;
-    private String password;
-    private Set<Role> roles = new HashSet<>();
 
     public String getUsername() {
         return username;
