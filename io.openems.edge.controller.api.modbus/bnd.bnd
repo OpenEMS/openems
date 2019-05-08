@@ -18,7 +18,7 @@ Private-Package: io.openems.edge.controller.api.modbus,\
 	com.ghgande.j2mod;version=2.5,\
 	com.google.gson;version=2.8,\
 	slf4j.api,\
-	org.apache.servicemix.bundles.poi
+	io.openems.wrapper.fastexcel;version=latest
 
 -testpath: ${testpath}
 

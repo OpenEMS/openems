@@ -177,7 +177,5 @@
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
 	io.openems.edge.ess.byd.container;version=snapshot,\
-	org.apache.commons.commons-collections4;version='[4.3.0,4.3.1)',\
-	org.apache.commons.commons-compress;version='[1.18.0,1.18.1)',\
-	org.apache.servicemix.bundles.poi;version='[4.0.1,4.0.2)',\
-	org.apache.servicemix.bundles.xmlbeans;version='[3.0.2,3.0.3)'
+	io.openems.wrapper.fastexcel;version=snapshot,\
+	io.openems.wrapper.opczip;version=snapshot
