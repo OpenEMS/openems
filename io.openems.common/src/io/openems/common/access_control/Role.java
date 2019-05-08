@@ -15,15 +15,12 @@ public class Role {
 
     private String description;
 
-    private Map<ChannelAddress, Set<Permission>> channelToPermissionsMapping = new HashMap<>();
-
     private Set<Group> groups = new HashSet<>();
 
     public Role() {
     }
 
-    public Role(Map<ChannelAddress, Set<Permission>> permissions, Set<Group> groups) {
-        this.channelToPermissionsMapping = permissions;
+    public Role(Set<Group> groups) {
         this.groups = groups;
     }
 
@@ -37,18 +34,6 @@ public class Role {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Optional<Set<Permission>> getPermissions(ChannelAddress address) {
-        return Optional.of(channelToPermissionsMapping.get(address));
-    }
-
-    public Map<ChannelAddress, Set<Permission>> getChannelToPermissionsMapping() {
-        return channelToPermissionsMapping;
-    }
-
-    public void setChannelToPermissionsMapping(Map<ChannelAddress, Set<Permission>> channelToPermissionsMapping) {
-        this.channelToPermissionsMapping = channelToPermissionsMapping;
     }
 
     public Set<Group> getGroups() {

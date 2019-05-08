@@ -17,7 +17,6 @@ public class AccessControl {
 
     private final Set<Group> groups = new HashSet<>();
 
-
     /**
      * Singleton pattern
      *
@@ -49,17 +48,16 @@ public class AccessControl {
     }
 
     /**
-     * TODO replace *String* channelId with *ChannelId* channelId
-     *  @param roleId
+     * @param roleId
      * @param channelAddress
      */
     public void assertPermission(RoleId roleId, ChannelAddress channelAddress, Permission... permissions) throws AuthenticationException, AuthorizationException {
         Role role = getRole(roleId);
         Set<Permission> grantedPermissions = new HashSet<>();
-        Map<ChannelAddress, Set<Permission>> channelMapping = new HashMap<>(role.getChannelToPermissionsMapping());
+        Map<ChannelAddress, Set<Permission>> channelMapping = new HashMap<>();
         role.getGroups().forEach(group -> channelMapping.putAll(group.getChannelToPermissionsMapping()));
         channelMapping.entrySet().stream().filter(
-                entry -> Objects.equals(entry.getKey().toString(), channelAddress)).findFirst().ifPresent(
+                entry -> Objects.equals(entry.getKey(), channelAddress)).findFirst().ifPresent(
                 e -> grantedPermissions.addAll(e.getValue()));
         if (!grantedPermissions.containsAll(Arrays.asList(permissions))) {
             throw new AuthorizationException();
@@ -68,7 +66,7 @@ public class AccessControl {
 
     public Set<ChannelAddress> intersectPermittedChannels(RoleId roleId, Set<ChannelAddress> requestedChannels, Permission... permissions) throws AuthenticationException {
         Role role = this.getRole(roleId);
-        Map<ChannelAddress, Set<Permission>> channelMapping = new HashMap<>(role.getChannelToPermissionsMapping());
+        Map<ChannelAddress, Set<Permission>> channelMapping = new HashMap<>();
         role.getGroups().forEach(group -> channelMapping.putAll(group.getChannelToPermissionsMapping()));
         return channelMapping.entrySet().stream().filter(entry -> entry.getValue().containsAll(Arrays.asList(permissions))).map(Map.Entry::getKey).collect(Collectors.toSet());
     }

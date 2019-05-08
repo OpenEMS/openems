@@ -1,13 +1,14 @@
-package io.openems.edge.common.access_control;
+package io.openems.common.access_control;
 
 import io.openems.common.access_control.*;
 import io.openems.common.types.ChannelAddress;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class AccessControlTest {
 
@@ -52,8 +53,16 @@ public class AccessControlTest {
         return users;
     }
 
+    private Group createDummyGroup(Map<ChannelAddress, Set<Permission>> dummyChannelToPermissionMapping) {
+        Group dummy = new Group();
+        dummy.setChannelToPermissionsMapping(dummyChannelToPermissionMapping);
+        return dummy;
+    }
+
     private Set<Role> createDummyRoles(Map<ChannelAddress, Set<Permission>> dummyChannelToPermissionMapping) {
-        Role roleDummy = new Role(dummyChannelToPermissionMapping, new HashSet<Group>());
+        HashSet<Group> dummyGroups = new HashSet<>();
+        dummyGroups.add(createDummyGroup(dummyChannelToPermissionMapping));
+        Role roleDummy = new Role(dummyGroups);
         roleDummy.setId(DUMMY_ROLE_ID);
         roleDummy.setName(DUMMY_ROLE_NAME);
         Set<Role> roles = new HashSet<>();
@@ -80,11 +89,30 @@ public class AccessControlTest {
     }
 
     @Test
-    public void getChannelValues() {
+    public void assertPermission() {
         RoleId roleId = login();
         try {
             this.accessControl.assertPermission(roleId, this.createDummyChannel(DUMMY_COMPONENT, STATE), Permission.READ);
         } catch (AuthenticationException | AuthorizationException e) {
+            fail("Valid role did not get roles");
+        }
+    }
+
+    @Test
+    public void intersectPermittedChannels() {
+        RoleId roleId = login();
+
+        Set<ChannelAddress> dummyChannels = new HashSet<>();
+        dummyChannels.add(createDummyChannel(DUMMY_COMPONENT, STATE));
+
+        try {
+            Set<ChannelAddress> channelAddresses = this.accessControl.intersectPermittedChannels(roleId, dummyChannels, Permission.READ);
+            Assert.assertArrayEquals(dummyChannels.toArray(), channelAddresses.toArray());
+
+            dummyChannels.add(createDummyChannel("notExisting", STATE));
+            channelAddresses = this.accessControl.intersectPermittedChannels(roleId, dummyChannels, Permission.READ);
+            assertNotEquals(dummyChannels, channelAddresses);
+        } catch (AuthenticationException e) {
             fail("Valid role did not get roles");
         }
     }
