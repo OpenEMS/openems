@@ -1,6 +1,7 @@
 package io.openems.edge.simulator.meter.grid.acting;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -43,7 +44,14 @@ public class GridMeter extends AbstractOpenemsComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
+				.unit(Unit.WATT)),
+
+		SIMULATED_PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+
+		SIMULATED_CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS));
+		
 
 		private final Doc doc;
 
@@ -129,6 +137,29 @@ public class GridMeter extends AbstractOpenemsComponent
 		this.getActivePowerL1().setNextValue(activePower / 3);
 		this.getActivePowerL2().setNextValue(activePower / 3);
 		this.getActivePowerL3().setNextValue(activePower / 3);
+		
+		
+		boolean counter = true;
+		ArrayList <Integer> listActivePower = new ArrayList<Integer>();
+		listActivePower.add(activePower);
+		
+		this.getActiveProductionEnergy().setNextValue(0);
+		this.getActiveConsumptionEnergy().setNextValue(0);
+		
+		if(listActivePower.size()%10 == 0 && counter) {
+			for (int i = 0; i < listActivePower.size(); i++) {
+				int total = 0; 
+				total+= listActivePower.get(i);
+				int avg = total / listActivePower.size();
+				this.getActiveProductionEnergy().setNextValue(avg);
+				this.getActiveConsumptionEnergy().setNextValue(avg);
+			}
+			
+		}
+				
+		
+		this.getActiveProductionEnergy().setNextValue(30);
+		this.getActiveConsumptionEnergy().setNextValue(30);
 	}
 
 	@Override

@@ -91,7 +91,7 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.enabled(), config.cycleTime());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
 		this.controllersIdsJson = config.controllers_ids_json();
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();

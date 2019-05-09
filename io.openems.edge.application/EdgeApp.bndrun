@@ -45,6 +45,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
+	bnd.identity;id='io.openems.edge.controller.symmetric.dynamiccharge',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.limitactivepower',\
@@ -176,4 +177,5 @@
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
-	io.openems.edge.ess.byd.container;version=snapshot
+	io.openems.edge.ess.byd.container;version=snapshot,\
+	io.openems.edge.controller.symmetric.dynamiccharge;version=snapshot

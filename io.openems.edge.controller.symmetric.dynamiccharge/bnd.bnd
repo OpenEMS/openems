@@ -1,15 +1,14 @@
 #
 # io.openems.edge.controller.symmetric.dynamiccharge PROVIDER BUNDLE
 #
-
+Bundle-Name: OpenEMS Edge Controller FENECON DynamicCharge
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version:					1.0.0.${tstamp}
 Bundle-Description: \
-	The provider bundle for io.openems.edge.controller.symmetric.dynamiccharge. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.controller.symmetric.dynamiccharge/api.bnd}
+	The provider bundle for io.openems.edge.controller.symmetric.dynamiccharge. This controller calculates the price dynamically.	
 
-Export-Package:  \
-	io.openems.edge.controller.symmetric.dynamiccharge.api;-provide=true
+Export-Package: io.openems.edge.controller.api
 
 Private-Package:  \
 	io.openems.edge.controller.symmetric.dynamiccharge
@@ -23,7 +22,9 @@ Private-Package:  \
 	io.openems.edge.controller.api,\
 	io.openems.edge.ess.api,\
 	com.google.gson,\
-	io.openems.edge.meter.api
+	io.openems.edge.meter.api,\
+	com.squareup.okhttp3:okhttp,\
+	com.squareup.okio:okio
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

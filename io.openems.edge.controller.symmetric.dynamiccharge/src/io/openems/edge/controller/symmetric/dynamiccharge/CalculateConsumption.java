@@ -28,16 +28,17 @@ public class CalculateConsumption {
 	public static LocalDateTime t0 = null;
 	public static LocalDateTime t1 = null;
 	private long totalConsumption = 0;
-	private static long capacity;
+	private static long availableCapacity;
+	private static long nettCapacity;
 	private static long totalDemand;
 	private static int soc;
-	
+
 	public CalculateConsumption(DynamicCharge dynamicCharge) {
 		this.dynamicCharge = dynamicCharge;
 	}
 
 	private State currentState = State.PRODUCTION_LOWER_THAN_CONSUMPTION;
-	
+
 	private enum State {
 
 		PRODUCTION_LOWER_THAN_CONSUMPTION, PRODUCTION_DROPPED_BELOW_CONSUMPTION, PRODUCTION_HIGHER_THAN_CONSUMPTION,
@@ -46,10 +47,12 @@ public class CalculateConsumption {
 
 	protected void run(ManagedSymmetricEss ess, SymmetricMeter meter, Config config, Sum sum) {
 
-		long production = sum.getProductionActiveEnergy().value().orElse(0L);
-		long consumption = sum.getConsumptionActiveEnergy().value().orElse(0L);
+		long production = meter.getActivePower().value().orElse(0);
+		long consumption = sum.getConsumptionActivePower().value().orElse(0) + sum.getEssActivePower().value().orElse(0);
 		
 		
+		
+
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
 		// int secondOfDay = now.getSecond() + now.getMinute() * 60 + now.getHour() *
@@ -76,8 +79,16 @@ public class CalculateConsumption {
 		case PRODUCTION_LOWER_THAN_CONSUMPTION:
 
 			if (t0 != null) {
-
+				
 				// First time of the day when production > consumption.
+				// Avoids the fluctuations and shifts to next state only the next day.
+				if ((production > consumption || now.getHour() >= config.Max_Morning_hour()) && dateOfT0.isBefore(nowDate)) {
+					log.info(production + " is greater than " + consumption
+							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
+					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
+				}
+
+				/*// First time of the day when production > consumption.
 				// Avoids the fluctuations and shifts to next state only the next day.
 				if (production > consumption && dateOfT0.isBefore(nowDate)) {
 					log.info(production + " is greater than " + consumption
@@ -86,12 +97,11 @@ public class CalculateConsumption {
 				}
 
 				// shifts to next state when there is no production available.
-				else if (now.getHour() >= config.Max_Morning_hour() && now.getHour() < 9
-						&& dateOfT0.isBefore(nowDate)) {
+				else if (now.getHour() >= config.Max_Morning_hour() && dateOfT0.isBefore(nowDate)) {
 					log.info(production + " is greater than " + consumption
 							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
 					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
-				}
+				}*/
 
 				// Detects the switching of hour
 				else if (now.getHour() == currentHour.plusHours(1).getHour() && dateOfT0.isBefore(nowDate)) {
@@ -101,6 +111,11 @@ public class CalculateConsumption {
 
 				this.totalConsumption += consumption - production;
 				log.info(" Total Consumption " + totalConsumption);
+
+				// condition for initial run.
+			} else if (production < consumption
+					|| (now.getHour() >= config.Max_Morning_hour() && now.getHour() <= config.Max_Evening_hour())) {
+				this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
 			}
 			break;
 
@@ -147,7 +162,7 @@ public class CalculateConsumption {
 			// avoids the initial run
 			if (dateOfLastRun != null) {
 				soc = ess.getSoc().value().orElse(0);
-				capacity = ess.getNetCapacity().value().orElse(0);
+				nettCapacity = ess.getNetCapacity().value().orElse(0);
 				Prices.houlryprices();
 				HourlyPrices = Prices.getHourlyPrices();
 				getCheapestHours(HourlyPrices.lastKey());
@@ -168,7 +183,7 @@ public class CalculateConsumption {
 
 		Long demand_Till_Cheapest_Hour;
 
-		capacity = (soc / 100) * capacity;
+		availableCapacity = (soc / 100) * nettCapacity;
 
 		// Calculates the cheapest price hour within certain Hours.
 		for (Map.Entry<LocalDateTime, Float> entry : HourlyPrices.subMap(HourlyPrices.firstKey(), end).entrySet()) {
@@ -177,12 +192,12 @@ public class CalculateConsumption {
 				minPrice = entry.getValue();
 			}
 		}
-		
+
 		/*
 		 * Calculates the amount of energy that needs to be charged during the cheapest
 		 * price hours.
 		 */
-		
+
 		for (Entry<LocalDateTime, Long> entry1 : hourlyConsumption.entrySet()) {
 
 			if (entry1.getKey().getHour() == cheapTimeStamp.getHour()) {
@@ -192,8 +207,8 @@ public class CalculateConsumption {
 				Long chargebleConsumption;
 
 				// if the battery has sufficient energy!
-				if (capacity >= demand_Till_Cheapest_Hour) {
-					chargebleConsumption = totalDemand - capacity;
+				if (availableCapacity >= demand_Till_Cheapest_Hour) {
+					chargebleConsumption = totalDemand - availableCapacity;
 					chargeSchedule.put(entry1.getKey(), chargebleConsumption);
 					minPrice = Float.MAX_VALUE;
 					return chargeSchedule;
