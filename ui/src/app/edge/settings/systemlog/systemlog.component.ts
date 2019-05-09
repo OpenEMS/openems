@@ -35,7 +35,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.service.setCurrentPage(this.translate.instant('Edge.Config.Index.LiveLog'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.LiveLog'), this.route);
     this.subscribe();
   }
 

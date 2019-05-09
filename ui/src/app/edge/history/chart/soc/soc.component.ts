@@ -49,7 +49,7 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
   }];
 
   ngOnInit() {
-    this.service.setCurrentPage('', this.route);
+    this.service.setCurrentComponent('', this.route);
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {

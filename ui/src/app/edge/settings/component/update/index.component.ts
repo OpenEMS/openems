@@ -30,7 +30,7 @@ export class IndexComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.service.setCurrentPage(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route);
     this.service.getConfig().then(config => {
       for (let natureId in config.natures) {
         if (IGNORE_NATURES.includes(natureId)) {

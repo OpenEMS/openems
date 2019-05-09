@@ -28,7 +28,7 @@ export class ModbusApiComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentPage('', this.route);
+    this.service.setCurrentComponent('', this.route);
   }
 
   getModbusProtocol() {

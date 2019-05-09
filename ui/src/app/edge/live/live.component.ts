@@ -18,7 +18,7 @@ export class LiveComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentPage('', this.route).then(edge => {
+    this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge
     });
   }

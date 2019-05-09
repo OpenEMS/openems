@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from './../../../shared/shared.module';
 import { EvcsComponent } from './evcs/evcs.component';
 import { ModbusApiComponent } from './modbusapi/modbusapi.component';
-import { WidgetComponent } from './widget.component';
+import { WidgetsComponent } from './widgets.component';
 import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 import { StorageComponent } from './storage/storage.component';
 import { GridComponent } from './grid/grid.component';
@@ -14,7 +14,7 @@ import { ConsumptionComponent } from './consumption/consumption.component';
     SharedModule
   ],
   declarations: [
-    WidgetComponent,
+    WidgetsComponent,
     ChannelthresholdComponent,
     EvcsComponent,
     ModbusApiComponent,
@@ -24,10 +24,10 @@ import { ConsumptionComponent } from './consumption/consumption.component';
     ProductionComponent
   ],
   exports: [
-    WidgetComponent
+    WidgetsComponent
   ]
 })
-export class WidgetModule { }
+export class WidgetsModule { }
 
 
 

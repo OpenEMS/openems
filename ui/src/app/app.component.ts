@@ -16,8 +16,8 @@ import { LanguageTag } from './shared/translate/language';
 export class AppComponent {
   public env = environment;
   public backUrl: string | boolean = '/';
-  public sideMenu: boolean;
-  public navigation: boolean = false;
+  public enableSideMenu: boolean;
+  public isEdgeIndexPage: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -53,29 +53,33 @@ export class AppComponent {
       });
       toast.present();
     });
-    // set inital Side Menu
-    this.updateMenu(window.location.pathname);
-    // set initial backUrl
-    this.updateBackUrl(window.location.pathname);
+    // set inital URL
+    this.updateUrl(window.location.pathname);
     // update backUrl on navigation events
     this.router.events.pipe(
       takeUntil(this.ngUnsubscribe),
       filter(event => event instanceof NavigationEnd)
     ).subscribe(event => {
-      let url = (<NavigationEnd>event).urlAfterRedirects;
-      this.updateBackUrl(url);
-      this.updateMenu(url);
+      this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
     })
   }
 
-  updateMenu(url: string) {
+  updateUrl(url: string) {
+    this.updateBackUrl(url);
+    this.updateEnableSideMenu(url);
+    this.updateIsEdgeIndexPage(url);
+  }
+
+  updateEnableSideMenu(url: string) {
     let urlArray = url.split('/');
     let file = urlArray.pop();
 
     if (file == 'settings' || file == 'about' || urlArray.length > 3) {
-      this.sideMenu = false;
+      // disable side-menu; show back-button instead
+      this.enableSideMenu = false;
     } else {
-      this.sideMenu = true;
+      // enable side-menu if back-button is not needed 
+      this.enableSideMenu = true;
     }
   }
 
@@ -83,7 +87,6 @@ export class AppComponent {
     // disable backUrl & Segment Navigation on initial 'index' page
     if (url === '/index') {
       this.backUrl = false;
-      this.navigation = false;
       return;
     }
 
@@ -94,10 +97,8 @@ export class AppComponent {
     // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
       this.backUrl = false;
-      this.navigation = true;
       return;
     } else {
-      this.navigation = false;
     }
 
     // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
@@ -118,6 +119,18 @@ export class AppComponent {
       backUrl = '/';
     }
     this.backUrl = backUrl;
+  }
+
+  updateIsEdgeIndexPage(url: string) {
+    let urlArray = url.split('/');
+    let file = urlArray.pop();
+
+    // Enable Segment Navigation for Edge-Index-Page
+    if ((file == 'history' || file == 'live') && urlArray.length == 3) {
+      this.isEdgeIndexPage = true;
+    } else {
+      this.isEdgeIndexPage = false;
+    }
   }
 
   ngOnDestroy() {

@@ -10,7 +10,6 @@ export class StorageComponent {
 
     private static readonly SELECTOR = "storage";
 
-
     public edge: Edge = null;
 
     constructor(
@@ -20,7 +19,7 @@ export class StorageComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentPage('', this.route).then(edge => {
+        this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, StorageComponent.SELECTOR, [
                 // Ess

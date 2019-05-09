@@ -10,7 +10,6 @@ export class ConsumptionComponent {
 
     private static readonly SELECTOR = "consumption";
 
-
     public edge: Edge = null;
 
     constructor(
@@ -20,7 +19,7 @@ export class ConsumptionComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentPage('', this.route).then(edge => {
+        this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, [
                 // Consumption

@@ -32,7 +32,7 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentPage(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route).then(edge => {
       this.edge = edge;
     });
     let componentId = this.route.snapshot.params["componentId"];

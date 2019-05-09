@@ -10,7 +10,6 @@ export class GridComponent {
 
     private static readonly SELECTOR = "grid";
 
-
     public edge: Edge = null;
 
     constructor(
@@ -20,7 +19,7 @@ export class GridComponent {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentPage('', this.route).then(edge => {
+        this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, GridComponent.SELECTOR, [
                 // Grid

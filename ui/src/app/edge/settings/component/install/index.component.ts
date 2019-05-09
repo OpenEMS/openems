@@ -27,7 +27,7 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentPage(this.translate.instant('Edge.Config.Index.AddComponents'), this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AddComponents'), this.route);
     this.service.getConfig().then(config => {
       for (let natureId in config.natures) {
         if (IGNORE_NATURES.includes(natureId)) {

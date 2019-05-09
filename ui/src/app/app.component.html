@@ -7,25 +7,23 @@
         </ion-button>
       </ion-buttons>
       <ion-title>{{ service.currentPageTitle }}</ion-title>
-      <ion-buttons slot="start" *ngIf="sideMenu">
+      <ion-buttons slot="start" *ngIf="enableSideMenu">
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
     </ion-toolbar>
 
-    <div *ngIf="navigation">
-      <ng-container *ngIf="!backUrl && service.currentEdge | async as edge">
-        <ion-toolbar color="primary">
-          <ion-segment>
-            <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/live">
-              <ion-label translate>General.Live</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="History" routerLink="/device/{{ edge.id }}/history">
-              <ion-label translate>General.History</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-        </ion-toolbar>
-      </ng-container>
-    </div>
+    <ng-container *ngIf="isEdgeIndexPage && service.currentEdge | async as edge">
+      <ion-toolbar color="primary">
+        <ion-segment>
+          <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/live">
+            <ion-label translate>General.Live</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="History" routerLink="/device/{{ edge.id }}/history">
+            <ion-label translate>General.History</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-toolbar>
+    </ng-container>
   </ion-header>
 
   <ion-content>

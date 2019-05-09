@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { Service, Widget } from '../../../shared/shared';
 
 @Component({
-  selector: WidgetComponent.SELECTOR,
-  templateUrl: './widget.component.html'
+  selector: WidgetsComponent.SELECTOR,
+  templateUrl: './widgets.component.html'
 })
-export class WidgetComponent {
+export class WidgetsComponent {
 
-  private static readonly SELECTOR = "widget";
+  private static readonly SELECTOR = "widgets";
 
   public widgets: Widget[] = [];
 
@@ -18,7 +18,7 @@ export class WidgetComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentPage('', this.route);
+    this.service.setCurrentComponent('', this.route);
     this.service.getWidgets().then(widgets => this.widgets = widgets);
   }
 

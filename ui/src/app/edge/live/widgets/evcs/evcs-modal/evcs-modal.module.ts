@@ -1,12 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
-
-import { IonicModule, ModalController } from '@ionic/angular';
-
-import { EvcsModalPage } from './evcs-modal.page';
+import { RouterModule, Routes } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { EvcsModalPage } from './evcs-modal.page';
 import { InfoPopoverComponent } from './info-popover/info-popover.component';
 
 const routes: Routes = [

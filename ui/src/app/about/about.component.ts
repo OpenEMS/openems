@@ -9,18 +9,14 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AboutComponent {
 
-  public edge: Edge = null
-
   constructor(
-    public translate: TranslateService,
+    private translate: TranslateService,
     private route: ActivatedRoute,
     private service: Service,
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentPage(this.translate.instant('Menu.AboutUI'), this.route).then(edge => {
-      this.edge = edge
-    });
+    this.service.setCurrentComponent(this.translate.instant('Menu.AboutUI'), this.route);
   }
 
 }

@@ -24,7 +24,7 @@ export class ChannelthresholdComponent {
 
   ngOnInit() {
     // Subscribe to CurrentData
-    this.service.setCurrentPage('', this.route).then(edge => {
+    this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);

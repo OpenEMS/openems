@@ -37,7 +37,7 @@ export class EvcsComponent {
   ngOnInit() {
 
     // Subscribe to CurrentData
-    this.service.setCurrentPage('', this.route).then(edge => {
+    this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
       edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId, [
         // Evcs
