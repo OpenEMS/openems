@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/shared';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: ComponentInstallComponent.SELECTOR,
@@ -25,11 +26,12 @@ export class ComponentInstallComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
+    private translate: TranslateService
   ) {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AddComponents'), this.route).then(edge => {
       this.edge = edge;
     });
     let factoryId = this.route.snapshot.params["factoryId"];

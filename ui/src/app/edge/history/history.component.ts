@@ -48,13 +48,12 @@ export class HistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
   }
 
   updateOnWindowResize() {
-    //console.log(window.innerHeight, window.innerWidth);
     let ref = /* fix proportions */ Math.min(window.innerHeight - 150,
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =

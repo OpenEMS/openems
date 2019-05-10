@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -31,7 +31,8 @@ export class IndexComponent {
     private translate: TranslateService,
     private formBuilder: FormBuilder,
     private router: Router,
-    private service: Service) {
+    private service: Service,
+    private route: ActivatedRoute) {
     this.form = this.formBuilder.group({
       "password": this.formBuilder.control('user')
     });
@@ -47,6 +48,10 @@ export class IndexComponent {
       }
       this.updateFilteredEdges();
     })
+  }
+
+  ngOnInit() {
+    this.service.setCurrentComponent('', this.route);
   }
 
   updateFilteredEdges() {

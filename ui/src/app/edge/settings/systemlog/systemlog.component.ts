@@ -4,6 +4,7 @@ import { parse } from 'date-fns';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Service, Utils, Websocket } from '../../../shared/shared';
+import { TranslateCompiler, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: SystemLogComponent.SELECTOR,
@@ -29,11 +30,12 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
+    private translate: TranslateService
   ) {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.LiveLog'), this.route);
     this.subscribe();
   }
 

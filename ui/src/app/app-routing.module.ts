@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AboutComponent } from './about/about.component';
 import { SettingsComponent } from './settings/settings.component';
 import { IndexComponent } from './index/index.component';
-import { IndexComponent as EdgeIndexComponent } from './edge/index/index.component';
+import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemLogComponent as EdgeSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
@@ -20,8 +20,8 @@ const routes: Routes = [
   { path: 'about', component: AboutComponent },
   { path: 'settings', component: SettingsComponent },
 
-  { path: 'device/:edgeId', redirectTo: 'device/:edgeId/index', pathMatch: 'full' },
-  { path: 'device/:edgeId/index', component: EdgeIndexComponent },
+  { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
+  { path: 'device/:edgeId/live', component: EdgeLiveComponent },
   { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },

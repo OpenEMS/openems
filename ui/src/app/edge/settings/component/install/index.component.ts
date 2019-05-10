@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Service, Utils, Websocket, EdgeConfig } from '../../../../shared/shared';
 import { IGNORE_NATURES } from '../shared/shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: IndexComponent.SELECTOR,
@@ -21,11 +22,12 @@ export class IndexComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
+    private translate: TranslateService
   ) {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AddComponents'), this.route);
     this.service.getConfig().then(config => {
       for (let natureId in config.natures) {
         if (IGNORE_NATURES.includes(natureId)) {
