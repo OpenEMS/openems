@@ -14,13 +14,14 @@ export class IndexComponent implements OnInit {
 
   public list: {
     readonly nature: EdgeConfig.Nature,
-    readonly factories: EdgeConfig.Factory[]
+    isNatureClicked: Boolean,
+    readonly allFactories: EdgeConfig.Factory[]
+    filteredFactories: EdgeConfig.Factory[]
   }[] = [];
+  public showAllFactories = false;
 
   constructor(
     private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
     private service: Service,
     private translate: TranslateService
   ) {
@@ -41,10 +42,34 @@ export class IndexComponent implements OnInit {
         }
         this.list.push({
           nature: nature,
-          factories: factories
+          isNatureClicked: false,
+          allFactories: factories,
+          filteredFactories: factories
         });
       }
+      this.updateFilter("");
     });
   }
 
+  updateFilter(completeFilter: string) {
+    // take each space-separated string as an individual and-combined filter
+    let filters = completeFilter.split(' ');
+    let countFilteredFactories = 0;
+    for (let entry of this.list) {
+      entry.filteredFactories = entry.allFactories.filter(factory =>
+        // Search for filter strings
+        Utils.matchAll(filters, [
+          factory.id.toLowerCase(),
+          factory.name.toLowerCase(),
+          factory.description.toLowerCase()]),
+      );
+      countFilteredFactories += entry.filteredFactories.length;
+    }
+    // If not more than 10 Factories survived filtering -> show all of them immediately
+    if (countFilteredFactories > 10) {
+      this.showAllFactories = false;
+    } else {
+      this.showAllFactories = true;
+    }
+  }
 }

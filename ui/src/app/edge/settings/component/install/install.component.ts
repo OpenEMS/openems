@@ -47,14 +47,13 @@ export class ComponentInstallComponent implements OnInit {
           type: 'input',
           templateOptions: {
             label: property.name,
-            description: property.description,
-            required: property.isRequired,
+            description: property.description
           }
         }
         // add Property Schema 
         Utils.deepCopy(property.schema, field);
         fields.push(field);
-        if (property.defaultValue) {
+        if (property.defaultValue != null) {
           model[property_id] = property.defaultValue;
         }
       }

@@ -186,6 +186,7 @@ export module EdgeConfig {
 
     export class Component {
         public id: string = "";
+        public alias: string = "";
 
         constructor(
             public readonly factoryId: string = "",
