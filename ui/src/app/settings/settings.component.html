@@ -7,14 +7,15 @@
                         <ion-icon color="primary" name="options" size="large"></ion-icon>
                     </ion-avatar>
                     <ion-label text-wrap translate>
-                        Menu.Settings
+                        Menu.GeneralSettings
                     </ion-label>
                 </ion-item>
                 <ion-card-content>
                     <ul translate>
                         About.Language
                         <select #langSelect (change)="setLanguage(langSelect.value)">
-                            <option *ngFor="let language of languages" [value]="language" [selected]="language == currentLanguage">{{
+                            <option *ngFor="let language of languages" [value]="language"
+                                [selected]="language == currentLanguage">{{
                                 language }}</option>
                         </select>
                     </ul>
@@ -34,7 +35,8 @@
                 <ion-card-content>
                     <ion-list>
                         <ion-item>
-                            <ion-checkbox (ionChange)="toggleDebugMode($event)" slot="start" [(ngModel)]="env.debugMode"></ion-checkbox>
+                            <ion-checkbox (ionChange)="toggleDebugMode($event)" slot="start"
+                                [(ngModel)]="env.debugMode"></ion-checkbox>
                             <ion-label translate>Debug-Mode</ion-label>
                         </ion-item>
                     </ion-list>
