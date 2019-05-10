@@ -61,7 +61,7 @@
     "ngx-loading": "^3.0.1",
     "node-sass": "^4.12.0",
     "roboto-fontface": "0.10.0",
-    "rxjs": "~6.5.1",
+    "rxjs": "~6.5.2",
     "semver-compare-multi": "^1.0.3",
     "xlsx": "^0.14.3",
     "zone.js": "~0.8.29"
