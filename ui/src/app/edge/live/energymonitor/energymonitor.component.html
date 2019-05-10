@@ -1,10 +1,10 @@
 <ion-card *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="edge.currentData | async as currentData">
-    <ion-item>
-      <ion-icon slot="start" name="laptop" color="primary"></ion-icon>
-      <ion-label>
-        <ion-card-title translate>Edge.Index.Energymonitor.Title</ion-card-title>
+    <ion-item lines="full" color="light">
+      <ion-icon size="large" slot="start" name="laptop" color="primary"></ion-icon>
+      <ion-label translate>
+        Edge.Index.Energymonitor.Title
       </ion-label>
     </ion-item>
     <ion-card-content>

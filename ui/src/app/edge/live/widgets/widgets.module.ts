@@ -8,6 +8,7 @@ import { StorageComponent } from './storage/storage.component';
 import { GridComponent } from './grid/grid.component';
 import { ProductionComponent } from './production/production.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
+import { InfoComponent } from './info/info.component';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { ConsumptionComponent } from './consumption/consumption.component';
     StorageComponent,
     GridComponent,
     ConsumptionComponent,
-    ProductionComponent
+    ProductionComponent,
+    InfoComponent
   ],
   exports: [
     WidgetsComponent

@@ -36,25 +36,23 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        let power = Utils.addSafely(
-            Utils.subtractSafely(sum.storage.chargeActivePowerAC,
-                sum.storage.dischargeActivePowerAC),
-            sum.production.activePowerDC);
-        if (power == null || power == 0) {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
-            super.updateSectionData(0, 0, 0);
-        } else if (power > 0) {
+        if (sum.storage.effectiveChargePower != null) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageCharge');
             super.updateSectionData(
-                power,
+                sum.storage.effectiveChargePower,
                 sum.storage.powerRatio,
-                Utils.divideSafely(power, sum.system.totalPower));
-        } else {
+                Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower));
+
+        } else if (sum.storage.effectiveDischargePower != null) {
             this.name = this.translate.instant('Edge.Index.Energymonitor.StorageDischarge');
             super.updateSectionData(
-                power * -1,
+                sum.storage.effectiveDischargePower,
                 sum.storage.powerRatio,
-                Utils.divideSafely(power, sum.system.totalPower));
+                Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower));
+
+        } else {
+            this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
+            super.updateSectionData(0, 0, 0);
         }
 
         this.socValue = sum.storage.soc;

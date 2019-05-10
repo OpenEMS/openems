@@ -1,11 +1,13 @@
-<ion-card *ngIf="edge">
+<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-    <ion-item>
-      <ion-img (click)="presentModal()" style="width:40px; cursor: pointer;" src="assets/img/evcs.png"></ion-img>
+    <ion-item lines="full" color="light">
+      <ion-avatar slot="start">
+        <img src="assets/img/evcs.png">
+      </ion-avatar>
       <!-- TODO Fix formatting -->
-      <ion-label (click)="presentModal()" style="cursor: pointer;">
-        <ion-card-title translate>Edge.Index.Widgets.EVCS.ChargingStation</ion-card-title>
+      <ion-label translate>
+        Edge.Index.Widgets.EVCS.ChargingStation
       </ion-label>
     </ion-item>
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
@@ -16,8 +18,8 @@
             <td style="width:15%"></td>
             <td style="width:45%" class="align_right">
               {{ outputPowerOrState(currentData[componentId + "/ChargePower"] | number:'1.0-0',
-                 currentData[componentId + "/Status"], 
-                 currentData[componentId + "/Plug"]) }}
+                   currentData[componentId + "/Status"], 
+                   currentData[componentId + "/Plug"]) }}
             </td>
           </tr>
           <tr>
@@ -29,7 +31,6 @@
           </tr>
         </table>
       </ion-card-content>
-
     </ion-label>
     <ion-card-content *ngIf="currentData[componentId + '/State'] == 3">
       <ion-label translate>

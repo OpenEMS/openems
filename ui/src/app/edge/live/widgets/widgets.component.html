@@ -1,6 +1,5 @@
 <ion-grid no-padding>
   <ion-row>
-
     <!-- Regular Widgets -->
     <ion-col size="12" size-lg="6">
       <storage></storage>
@@ -17,7 +16,6 @@
     <ion-col size="12" size-lg="6">
       <consumption></consumption>
     </ion-col>
-
 
     <!-- Widgets depending on the configuration of the OpenEMS Edge -->
     <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
@@ -39,5 +37,10 @@
       </ion-col>
 
     </ng-container>
+
+    <ion-col size="12" size-lg="12">
+      <info></info>
+    </ion-col>
+
   </ion-row>
 </ion-grid>

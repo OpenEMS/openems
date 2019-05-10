@@ -1,7 +1,7 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card>
-            <ion-item color="light">
+            <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
                     <img src="assets/img/storage.png">
                 </ion-avatar>
@@ -16,47 +16,31 @@
                             <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
-                        <!-- DC -->
-                        <tr *ngIf="sum.chargeActivePowerDC != null">
-                            <td>
-                                <span translate>General.ChargePower</span> DC</td>
-                            <td></td>
-                            <td class="align_right">{{ sum.chargeActivePowerDC | number:'1.0-0' }}</td>
-                            <td>&nbsp;W</td>
+                        <tr>
+                            <td style="width:50%" translate>General.ChargePower</td>
+                            <td style="width:15%"></td>
+                            <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
+                                <td style="width:25%">{{ sum.effectiveChargePower | number:'1.0-0' }}</td>
+                                <td style="width:50%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
                         </tr>
-                        <!-- AC -->
-                        <ng-container *ngIf="sum.chargeActivePowerAC != null">
-                            <tr>
-                                <td translate>General.ChargePower
-                                    <span *ngIf="sum.chargeActivePowerDC != null"> AC</span>
-                                </td>
-                                <td></td>
-                                <ng-container *ngIf="sum.chargeActivePowerAC != 0; else empty">
-                                    <td class="align_right">{{ sum.chargeActivePowerAC | number:'1.0-0' }}</td>
-                                    <td>&nbsp;W</td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td class="align_right">-</td>
-                                    <td></td>
-                                </ng-template>
-                            </tr>
-                        </ng-container>
-                        <ng-container *ngIf="sum.dischargeActivePowerAC != null">
-                            <tr>
-                                <td translate>General.DischargePower
-                                    <span *ngIf="sum.chargeActivePowerDC != null"> AC</span>
-                                </td>
-                                <td></td>
-                                <ng-container *ngIf="sum.dischargeActivePowerAC != 0; else empty">
-                                    <td class="align_right">{{ sum.dischargeActivePowerAC | number:'1.0-0' }}</td>
-                                    <td>&nbsp;W</td>
-                                </ng-container>
-                                <ng-template #empty>
-                                    <td class="align_right">-</td>
-                                    <td></td>
-                                </ng-template>
-                            </tr>
-                        </ng-container>
+                        <tr>
+                            <td translate>General.DischargePower</td>
+                            <td style="width:15%"></td>
+                            <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.effectiveDischargePower | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
                     </table>
                 </ion-grid>
             </ion-card-content>
