@@ -1,18 +1,26 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 
 public class StateMachine {
 
+	private static final int TIME_TOLERANCE_LINK_VOLTAGE = 15;
+
 	protected final GridconPCS parent;
+
+	private LocalDateTime ccuStateIsRunningSince = null;
 
 	private final Logger log = LoggerFactory.getLogger(StateMachine.class);
 	private final GoingOngridHandler goingOngridHandler = new GoingOngridHandler(this);
@@ -26,6 +34,27 @@ public class StateMachine {
 
 	public StateMachine(GridconPCS parent) {
 		this.parent = parent;
+
+		/*
+		 * Call back for ccu state when ccu state is set to run a time variable is set
+		 * this is important for checking the link voltage because the link voltage is
+		 * not present at start up
+		 */
+		BooleanReadChannel ccuStateRunChannel = this.parent.channel(GridConChannelId.CCU_STATE_RUN);
+		ccuStateRunChannel.onChange(v -> {
+			Optional<Boolean> val = v.asOptional();
+			if (!val.isPresent()) {
+				return;
+			}
+
+			if (this.ccuStateIsRunningSince == null && val.get()) {
+				this.ccuStateIsRunningSince = LocalDateTime.now();
+			}
+
+			if (this.ccuStateIsRunningSince != null && !val.get()) {
+				this.ccuStateIsRunningSince = null; // it is not running
+			}
+		});
 	}
 
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
@@ -112,12 +141,34 @@ public class StateMachine {
 
 		// Link Voltage is too low
 		// TODO check Link-Voltage here?
-		
-		if (ccuState == CCUState.RUN && this.parent.isLinkVoltageTooLow()) {
+
+		if (ccuState == CCUState.RUN && this.isLinkVoltageTooLow()) {
 			result = true;
 		}
 
 		return result;
+	}
+
+	protected boolean isLinkVoltageTooLow() {
+
+		if (ccuStateIsRunningSince == null) {
+			return false; // if system is not running, validation is not possible
+		}
+
+		if (ccuStateIsRunningSince.plusSeconds(TIME_TOLERANCE_LINK_VOLTAGE).isAfter(LocalDateTime.now())) {
+			return false; // system has to run a certain until validation is senseful
+		}
+
+		FloatReadChannel frc = this.parent.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+		Optional<Float> linkVoltageOpt = frc.value().asOptional();
+		if (!linkVoltageOpt.isPresent()) {
+			return false;
+		}
+
+		float linkVoltage = linkVoltageOpt.get();
+		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+
+		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
 	}
 
 	/**

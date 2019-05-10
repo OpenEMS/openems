@@ -59,23 +59,23 @@ public class ErrorHandler {
 		this.readErrorMap = null;
 		this.delayAfterFinishing = null;
 	}
-	
+
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.state) {
 		case UNDEFINED:
 			if (parent.getCcuState() == CCUState.ERROR) {
-				this.state =  State.READ_ERRORS;
-			} else if (this.parent.parent.isLinkVoltageTooLow()) {
+				this.state = State.READ_ERRORS;
+			} else if (this.parent.isLinkVoltageTooLow()) {
 				this.state = State.LINK_VOLTAGE_TOO_LOW;
 			} else {
-				this.state =  State.READ_ERRORS;
+				this.state = State.READ_ERRORS;
 			}
 			break;
 
 		case LINK_VOLTAGE_TOO_LOW:
 			this.state = this.doLinkVoltageTooLow();
 			break;
-			
+
 		case READ_ERRORS:
 			this.state = this.doReadErrors();
 			break;
@@ -101,10 +101,10 @@ public class ErrorHandler {
 			if (this.delayAfterFinishing == null) {
 				this.delayAfterFinishing = LocalDateTime.now();
 			}
-			
+
 			if (this.delayAfterFinishing.plusSeconds(DELAY_AFTER_FINISHING_SECONDS).isAfter(LocalDateTime.now())) {
 				// do nothing
-				//this.state = State.FINISH_ERROR_HANDLING;
+				// this.state = State.FINISH_ERROR_HANDLING;
 			} else {
 				this.initialize();
 				return StateMachine.State.UNDEFINED;
@@ -115,20 +115,20 @@ public class ErrorHandler {
 	}
 
 	private State doLinkVoltageTooLow() throws IllegalArgumentException, OpenemsNamedException {
-		
+
 		new CommandControlRegisters() //
-		// Stop the system
-		.stop(true) // 
-		.syncApproval(true) //
-		.blackstartApproval(false) //
-		.shortCircuitHandling(true) //
-		.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-		.parameterSet1(true) //
-		.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-		.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-		.enableIpus(this.parent.parent.config.inverterCount()) //
-		.writeToChannels(this.parent.parent);
-		
+				// Stop the system
+				.stop(true) //
+				.syncApproval(true) //
+				.blackstartApproval(false) //
+				.shortCircuitHandling(true) //
+				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+				.parameterSet1(true) //
+				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+				.enableIpus(this.parent.parent.config.inverterCount()) //
+				.writeToChannels(this.parent.parent);
+
 		return State.FINISH_ERROR_HANDLING;
 	}
 
@@ -229,40 +229,41 @@ public class ErrorHandler {
 				.writeToChannels(this.parent.parent);
 
 		if (this.readErrorMap.isEmpty()) {
-			
-			if (!this.sendSecondAcknowledge ) {
+
+			if (!this.sendSecondAcknowledge) {
 				new CommandControlRegisters() //
-				// Set acknowledge error bit to false and then to true again, because gridcon acts on rising edge of signal
-				.acknowledge(false) //
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.errorCodeFeedback(currentErrorCodeFeedBack) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.parent.config.inverterCount()) //
-				.writeToChannels(this.parent.parent);
-				
+						// Set acknowledge error bit to false and then to true again, because gridcon
+						// acts on rising edge of signal
+						.acknowledge(false) //
+						.syncApproval(true) //
+						.blackstartApproval(false) //
+						.errorCodeFeedback(currentErrorCodeFeedBack) //
+						.shortCircuitHandling(true) //
+						.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+						.parameterSet1(true) //
+						.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+						.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+						.enableIpus(this.parent.parent.config.inverterCount()) //
+						.writeToChannels(this.parent.parent);
+
 				this.sendSecondAcknowledge = true;
-				
+
 			} else {
-			
+
 				new CommandControlRegisters() //
-				// Acknowledge error for a 2nd time (in tests gridcon needs sometime two times)
-				.acknowledge(true) //
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.errorCodeFeedback(currentErrorCodeFeedBack) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.parent.config.inverterCount()) //
-				.writeToChannels(this.parent.parent);
-				
+						// Acknowledge error for a 2nd time (in tests gridcon needs sometime two times)
+						.acknowledge(true) //
+						.syncApproval(true) //
+						.blackstartApproval(false) //
+						.errorCodeFeedback(currentErrorCodeFeedBack) //
+						.shortCircuitHandling(true) //
+						.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+						.parameterSet1(true) //
+						.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+						.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+						.enableIpus(this.parent.parent.config.inverterCount()) //
+						.writeToChannels(this.parent.parent);
+
 				this.sendSecondAcknowledge = false;
 				this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
 				return State.FINISH_ERROR_HANDLING;
@@ -400,8 +401,7 @@ public class ErrorHandler {
 		HANDLE_ERRORS(3, "Handle Errors"), //
 		HARD_RESET(4, "Hard Reset"), //
 		FINISH_ERROR_HANDLING(5, "Finish Error Handling"), //
-		ERROR_HANDLING_NOT_POSSIBLE(6, "Error handling not possible"),
-		LINK_VOLTAGE_TOO_LOW(7, "Link voltage too low");
+		ERROR_HANDLING_NOT_POSSIBLE(6, "Error handling not possible"), LINK_VOLTAGE_TOO_LOW(7, "Link voltage too low");
 
 		private final int value;
 		private final String name;

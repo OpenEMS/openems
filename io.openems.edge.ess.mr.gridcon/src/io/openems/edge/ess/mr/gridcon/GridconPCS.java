@@ -1,6 +1,5 @@
 package io.openems.edge.ess.mr.gridcon;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -86,14 +85,11 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 
 	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
 	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
-	
-	private LocalDateTime runtime = null;
-	private static final int TIME_TOLERANCE_LINK_VOLTAGE = 15;
-
+		
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
 	// State-Machines
-	private final StateMachine stateMachine = new StateMachine(this);
+	private final StateMachine stateMachine;
 
 	protected Config config;
 
@@ -115,6 +111,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				ErrorCodeChannelId1.values(), //
 				GridConChannelId.values() //
 		);
+		this.stateMachine = new StateMachine(this);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -133,26 +130,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
 				config.modbus_id());
 		
-		/* Call back for ccu state
-		 * when ccu state is set to run a time variable is set
-		 * this is important for checking the link voltage because the link voltage is not 
-		 * present at start up
-		 */
-		this.channel(GridConChannelId.CCU_STATE_RUN).onChange(v -> {
-			@SuppressWarnings("unchecked")
-			Optional<Boolean> val = (Optional<Boolean>) v.asOptional();
-			if (!val.isPresent()) {
-				return;
-			}
-			
-			if (runtime == null && val.get()) {
-				runtime = LocalDateTime.now();
-			}
-			
-			if (runtime != null && !val.get()) {
-				runtime = null; // it is not running
-			}
-		});
 	}
 	
 
@@ -563,29 +540,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		}
 		return false;
 	}
-	
-	public boolean isLinkVoltageTooLow() {
-
-		if (runtime == null) {
-			return false; //if system is not running, validation is not possible
-		}
-		
-		if (runtime.plusSeconds(TIME_TOLERANCE_LINK_VOLTAGE).isAfter(LocalDateTime.now())) {
-			return false; // system has to run a certain until validation is senseful
-		}
-		
-		FloatReadChannel frc = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-		Optional<Float> linkVoltageOpt = frc.value().asOptional();
-		if (!linkVoltageOpt.isPresent()) {
-			return false;
-		}
-
-		float linkVoltage = linkVoltageOpt.get();
-		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
-	
-		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
-	}
-
 	
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
