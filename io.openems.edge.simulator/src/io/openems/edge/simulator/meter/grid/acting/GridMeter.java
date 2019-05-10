@@ -45,12 +45,13 @@ public class GridMeter extends AbstractOpenemsComponent
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
+//
+//		SIMULATED_PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+//				.unit(Unit.WATT_HOURS)),
 
-		SIMULATED_PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
-
-		SIMULATED_CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+//		SIMULATED_CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
+//				.unit(Unit.WATT_HOURS))
+		;
 		
 
 		private final Doc doc;
@@ -122,6 +123,8 @@ public class GridMeter extends AbstractOpenemsComponent
 		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
+//		int simulatedProdPower = this.datasource.getValue(OpenemsType.LONG, "ProductionEnergy");
+//		this.channel(ChannelId.SIMULATED_PRODUCTION_ACTIVE_ENERGY).setNextValue(simulatedProdPower);
 		/*
 		 * Calculate Active Power
 		 */
@@ -138,10 +141,13 @@ public class GridMeter extends AbstractOpenemsComponent
 		this.getActivePowerL2().setNextValue(activePower / 3);
 		this.getActivePowerL3().setNextValue(activePower / 3);
 		
+		//this.getActiveProductionEnergy().setNextValue(simulatedProdPower);
 		
+		/*		
 		boolean counter = true;
 		ArrayList <Integer> listActivePower = new ArrayList<Integer>();
-		listActivePower.add(activePower);
+		listActivePower.add(activePower);		
+		
 		
 		this.getActiveProductionEnergy().setNextValue(0);
 		this.getActiveConsumptionEnergy().setNextValue(0);
@@ -159,7 +165,7 @@ public class GridMeter extends AbstractOpenemsComponent
 				
 		
 		this.getActiveProductionEnergy().setNextValue(30);
-		this.getActiveConsumptionEnergy().setNextValue(30);
+		this.getActiveConsumptionEnergy().setNextValue(30);*/
 	}
 
 	@Override

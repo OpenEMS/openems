@@ -48,10 +48,8 @@ public class CalculateConsumption {
 	protected void run(ManagedSymmetricEss ess, SymmetricMeter meter, Config config, Sum sum) {
 
 		long production = meter.getActivePower().value().orElse(0);
-		long consumption = sum.getConsumptionActivePower().value().orElse(0) + sum.getEssActivePower().value().orElse(0);
-		
-		
-		
+		long consumption = sum.getConsumptionActivePower().value().orElse(0)
+				+ sum.getEssActivePower().value().orElse(0);
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
@@ -79,29 +77,30 @@ public class CalculateConsumption {
 		case PRODUCTION_LOWER_THAN_CONSUMPTION:
 
 			if (t0 != null) {
-				
+
 				// First time of the day when production > consumption.
 				// Avoids the fluctuations and shifts to next state only the next day.
-				if ((production > consumption || now.getHour() >= config.Max_Morning_hour()) && dateOfT0.isBefore(nowDate)) {
+				if ((production > consumption || now.getHour() >= config.Max_Morning_hour())
+						&& dateOfT0.isBefore(nowDate)) {
 					log.info(production + " is greater than " + consumption
 							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
 					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
 				}
 
-				/*// First time of the day when production > consumption.
-				// Avoids the fluctuations and shifts to next state only the next day.
-				if (production > consumption && dateOfT0.isBefore(nowDate)) {
-					log.info(production + " is greater than " + consumption
-							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
-					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
-				}
-
-				// shifts to next state when there is no production available.
-				else if (now.getHour() >= config.Max_Morning_hour() && dateOfT0.isBefore(nowDate)) {
-					log.info(production + " is greater than " + consumption
-							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
-					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
-				}*/
+				/*
+				 * // First time of the day when production > consumption. // Avoids the
+				 * fluctuations and shifts to next state only the next day. if (production >
+				 * consumption && dateOfT0.isBefore(nowDate)) { log.info(production +
+				 * " is greater than " + consumption +
+				 * " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION"
+				 * ); this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION; }
+				 * 
+				 * // shifts to next state when there is no production available. else if
+				 * (now.getHour() >= config.Max_Morning_hour() && dateOfT0.isBefore(nowDate)) {
+				 * log.info(production + " is greater than " + consumption +
+				 * " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION"
+				 * ); this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION; }
+				 */
 
 				// Detects the switching of hour
 				else if (now.getHour() == currentHour.plusHours(1).getHour() && dateOfT0.isBefore(nowDate)) {
