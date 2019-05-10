@@ -25,9 +25,11 @@ public class GoingOffgridHandler {
 
 	public void initialize() {
 		this.state = State.UNDEFINED;
+		this.startedWaiting = null;
 	}
 
 	protected StateMachine.State run() {
+		System.out.println("GoingOffgridHandler.run");
 		switch (this.state) {
 		case UNDEFINED:
 			this.state = this.doUndefined();

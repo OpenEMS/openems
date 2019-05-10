@@ -115,7 +115,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
 		// update filter for 'components'

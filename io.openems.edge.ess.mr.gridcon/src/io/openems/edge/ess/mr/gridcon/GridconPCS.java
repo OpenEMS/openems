@@ -1,5 +1,6 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -75,20 +76,19 @@ import io.openems.edge.ess.power.api.Relationship;
 public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
+	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
+	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
+
+	public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
+	
 	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
 	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
 	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
 	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
-
-	// public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally
-	// measured
-	public static final int MAX_POWER_PER_INVERTER = 40000; // experimentally measured
-
-	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
-	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
-//	private static final float MAX_CHARGE_W = 86 * 1000;
-//	private static final float MAX_DISCHARGE_W = 86 * 1000;
+	
+	private LocalDateTime runtime = null;
+	private static final int TIME_TOLERANCE_LINK_VOLTAGE = 15;
 
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
@@ -130,8 +130,31 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
 
 		// Call parent activate()
-		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id());
+		
+		/* Call back for ccu state
+		 * when ccu state is set to run a time variable is set
+		 * this is important for checking the link voltage because the link voltage is not 
+		 * present at start up
+		 */
+		this.channel(GridConChannelId.CCU_STATE_RUN).onChange(v -> {
+			@SuppressWarnings("unchecked")
+			Optional<Boolean> val = (Optional<Boolean>) v.asOptional();
+			if (!val.isPresent()) {
+				return;
+			}
+			
+			if (runtime == null && val.get()) {
+				runtime = LocalDateTime.now();
+			}
+			
+			if (runtime != null && !val.get()) {
+				runtime = null; // it is not running
+			}
+		});
 	}
+	
 
 	@Deactivate
 	protected void deactivate() {
@@ -488,131 +511,6 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return 100; // TODO estimated value
 	}
 
-//	LocalDateTime offGridDetected;
-//	long DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
-//
-//private void handleOffGridState() throws OpenemsNamedException {
-//		System.out.println("in handling off grid!");
-//
-//		if (offGridDetected == null) {
-//			System.out.println("setting time variable");
-//			offGridDetected = LocalDateTime.now();
-//			return;
-//		}
-//
-//		if (offGridDetected.plusSeconds(DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS).isAfter(LocalDateTime.now())) {
-//			System.out.println("waiting the first seconds if off grid is detected");
-//			return;
-//		}
-//
-//		System.out.println("do normal off grid handling");
-//
-//		// Measured by Grid-Meter, grid Values
-//		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter());
-//
-//		int gridFreq = gridMeter.getFrequency().value().orElse(-1);
-//		int gridVolt = gridMeter.getVoltage().value().orElse(-1);
-//
-//		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
-//
-//		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
-//				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
-//			log.info("Off-Grid -> F/U 1");
-//			System.out.println("off grid --> setting ");
-//			/*
-//			 * Off-Grid
-//			 */
-//			doNormalBlackStartMode();
-//
-//		} else {
-//			/*
-//			 * Going On-Grid
-//			 */
-//			
-//			BooleanReadChannel inputNAProtection1 = this.componentManager
-//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection1()));
-//			BooleanReadChannel inputNAProtection2 = this.componentManager
-//					.getChannel(ChannelAddress.fromString(this.config.inputNAProtection2()));
-//			
-//			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-//			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-//			
-//			if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
-//				
-//				if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
-//					// We are on grid MR has to be switched off and restarted
-//					System.out.println("!!!! Grid is back --> set state to undefined!!");
-//					this.state = StateMachine.UNDEFINED;
-//					
-//				} else {
-//					// going on grid
-//					System.out.println("Grid is back, M1C1 is set, going on grid!");
-//					doBlackStartGoingOnGrid(gridFreq, gridVolt);					
-//				}
-//				
-//			} else {
-//				System.out.println("Grid is back, M1C1 is not set, do normal mode!");
-//				doNormalBlackStartMode();
-//			}
-//		}
-//
-//	}
-
-//	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt) throws IllegalArgumentException, OpenemsNamedException {
-//		System.out.println("going on grid -->  ");
-//		int invSetFreq = gridFreq + this.config.overFrequency(); // add default 200 mHz  
-//		int invSetVolt = gridVolt + this.config.overVoltage(); // add default 2 V 
-//		float invSetFreqNormalized = invSetFreq / 50_000f;
-//		float invSetVoltNormalized = invSetVolt / 230_000f;
-//		log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
-//				+ invSetVoltNormalized);
-//
-//		System.out.println("Write parameters for off grid and adapted parameters for u0 and f0");
-//
-//			InverterCount inverterCount = this.config.inverterCount();
-//			new CommandControlRegisters() //
-//					.play(true) //
-//					.ready(false) //
-//					.acknowledge(false) //
-//					.stop(false) //
-//					
-//					.syncApproval(false) //
-//					.blackstartApproval(true) //
-//					.shortCircuitHandling(false) //
-//					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-//					.enableIpus(inverterCount) //
-//					
-//					.parameterU0(invSetVoltNormalized) //
-//					.parameterF0(invSetFreqNormalized) //
-//					
-//					.writeToChannels(this);
-//			new CcuControlParameters() //
-//					.pControlMode(PControlMode.DISABLED) //
-//					.qLimit(1f) //
-//					.writeToChannels(this);
-//			this.setIpuControl();
-//	}
-//
-//	private void doNormalBlackStartMode() throws IllegalArgumentException, OpenemsNamedException {
-//		System.out.println("Write channels for blackstart mode");
-//
-//			InverterCount inverterCount = this.config.inverterCount();
-//			new CommandControlRegisters() //
-//					.play(true) //
-//					.syncApproval(false) //
-//					.blackstartApproval(true)
-//					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-//					.enableIpus(inverterCount) //
-//					.parameterF0(OFF_GRID_FREQUENCY_FACTOR) //
-//					.parameterU0(OFF_GRID_VOLTAGE_FACTOR) //
-//					.writeToChannels(this);
-//			new CcuControlParameters() //
-//					.pControlMode(PControlMode.DISABLED) //
-//					.qLimit(1f) //
-//					.writeToChannels(this);
-//			this.setIpuControl();
-//	}
-
 	/**
 	 * Gets all Batteries.
 	 * 
@@ -654,9 +552,45 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return batteries;
 	}
 
+
+	public boolean isAtLeastOneBatteryReady() {
+		for (Battery battery : getBatteries()) {
+			Optional<Boolean> val = battery.getReadyForWorking().value().asOptional();
+			
+			if (val.isPresent() && val.get()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isLinkVoltageTooLow() {
+
+		if (runtime == null) {
+			return false; //if system is not running, validation is not possible
+		}
+		
+		if (runtime.plusSeconds(TIME_TOLERANCE_LINK_VOLTAGE).isAfter(LocalDateTime.now())) {
+			return false; // system has to run a certain until validation is senseful
+		}
+		
+		FloatReadChannel frc = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
+		Optional<Float> linkVoltageOpt = frc.value().asOptional();
+		if (!linkVoltageOpt.isPresent()) {
+			return false;
+		}
+
+		float linkVoltage = linkVoltageOpt.get();
+		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
+	
+		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
+	}
+
+	
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		int inverterCount = this.config.inverterCount().getCount();
+	
 		ModbusProtocol result = new ModbusProtocol(this, //
 				/*
 				 * CCU State
@@ -1298,5 +1232,4 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				ModbusSlaveNatureTable.of(GridconPCS.class, accessMode, 300) //
 						.build());
 	}
-
 }

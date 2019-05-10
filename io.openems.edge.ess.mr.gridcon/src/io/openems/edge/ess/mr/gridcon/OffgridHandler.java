@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
 import io.openems.edge.ess.mr.gridcon.writeutils.CcuControlParameters;
@@ -28,16 +27,26 @@ public class OffgridHandler {
 	}
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
+		System.out.println("OffgridHandler.run");
 		// Are we still Off-Grid?
-		GridMode gridMode = this.parent.parent.getGridMode().value().asEnum();
-		switch (gridMode) {
-		case OFF_GRID:
-		case UNDEFINED:
-			break;
-		case ON_GRID:
-			// new state is On-Grid -> switch to GOING_ONGRID
-			return StateMachine.State.GOING_ONGRID;
-		}
+		
+		BooleanReadChannel inputNAProtection1 = parent.parent.componentManager
+				.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection1()));
+		BooleanReadChannel inputNAProtection2 = parent.parent.componentManager
+				.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection2()));
+		
+		Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
+		Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
+		
+		if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
+			
+			if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
+				return StateMachine.State.ONGRID;				
+			} else {
+				return StateMachine.State.GOING_ONGRID;
+			}
+			
+		} 
 
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
 		this.parent.parent.setOutputSyncDeviceBridge(true);
@@ -63,103 +72,31 @@ public class OffgridHandler {
 			/*
 			 * Off-Grid
 			 */
-			this.doNormalBlackStartMode();
+			log.info("OffgridHandler.doNormalBlackStartMode() Write channels for blackstart mode");
+			InverterCount inverterCount = this.parent.parent.config.inverterCount();
+			new CommandControlRegisters() //
+					.play(true) //
+					.syncApproval(false) //
+					.blackstartApproval(true) //
+					.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
+					.enableIpus(inverterCount) //
+					.parameterF0(GridconPCS.OFF_GRID_FREQUENCY_FACTOR) //
+					.parameterU0(GridconPCS.OFF_GRID_VOLTAGE_FACTOR) //
+					.writeToChannels(this.parent.parent);
+			new CcuControlParameters() //
+					.pControlMode(PControlMode.DISABLED) //
+					.qLimit(1f) //
+					.writeToChannels(this.parent.parent);
+			this.parent.parent.setIpuControlSettings();
 
 		} else {
 			/*
 			 * Going On-Grid
+			 * done in GoingOnGridHandler
 			 */
-			BooleanReadChannel inputNAProtection1 = parent.parent.componentManager
-					.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection1()));
-			BooleanReadChannel inputNAProtection2 = parent.parent.componentManager
-					.getChannel(ChannelAddress.fromString(parent.parent.config.inputNAProtection2()));
-			
-			Optional<Boolean> isInputNAProtection1 = inputNAProtection1.value().asOptional();
-			Optional<Boolean> isInputNAProtection2 = inputNAProtection2.value().asOptional();
-			
-			if (isInputNAProtection1.isPresent() && isInputNAProtection1.get()) {
-				
-				if (isInputNAProtection2.isPresent() && isInputNAProtection2.get()) {
-					// We are on grid MR has to be switched off and restarted
-					System.out.println("!!!! Grid is back --> set state to undefined!!");
-//					this.state = StateMachine.UNDEFINED;
-					
-				} else {
-					// going on grid
-					System.out.println("Grid is back, M1C1 is set, going on grid!");
-					doBlackStartGoingOnGrid(gridFreq, gridVolt);					
-				}
-				
-			} else {
-				System.out.println("Grid is back, M1C1 is not set, do normal mode!");
-				doNormalBlackStartMode();
-			}
+
 		}
 
 		return StateMachine.State.OFFGRID;
-	}
-
-	/**
-	 * Handle Normal BlackStartMode.
-	 * 
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
-	 */
-	private void doNormalBlackStartMode() throws IllegalArgumentException, OpenemsNamedException {
-		log.info("OffgridHandler.doNormalBlackStartMode() Write channels for blackstart mode");
-		InverterCount inverterCount = this.parent.parent.config.inverterCount();
-		new CommandControlRegisters() //
-				.play(true) //
-				.syncApproval(false) //
-				.blackstartApproval(true) //
-				.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-				.enableIpus(inverterCount) //
-				.parameterF0(GridconPCS.OFF_GRID_FREQUENCY_FACTOR) //
-				.parameterU0(GridconPCS.OFF_GRID_VOLTAGE_FACTOR) //
-				.writeToChannels(this.parent.parent);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.DISABLED) //
-				.qLimit(1f) //
-				.writeToChannels(this.parent.parent);
-		this.parent.parent.setIpuControlSettings();
-	}
-
-	/**
-	 * Handle BlackStart GoingOnGrid.
-	 * 
-	 * @param gridFreq
-	 * @param gridVolt
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
-	 */
-	private void doBlackStartGoingOnGrid(int gridFreq, int gridVolt)
-			throws IllegalArgumentException, OpenemsNamedException {
-		int invSetFreq = gridFreq + this.parent.parent.config.overFrequency(); // add default 200 mHz
-		int invSetVolt = gridVolt + this.parent.parent.config.overVoltage(); // add default 2 V
-		float invSetFreqNormalized = invSetFreq / 50_000f;
-		float invSetVoltNormalized = invSetVolt / 230_000f;
-
-		log.info("OffgridHandler.doBlackStartGoingOnGrid() Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt
-				+ ", " + invSetFreqNormalized + ", " + invSetVoltNormalized);
-
-		InverterCount inverterCount = this.parent.parent.config.inverterCount();
-		new CommandControlRegisters() //
-				.play(true) //
-				.ready(false) //
-				.acknowledge(false) //
-				.stop(false) //
-				.syncApproval(false) //
-				.blackstartApproval(true) //
-				.shortCircuitHandling(false) //
-				.modeSelection(CommandControlRegisters.Mode.VOLTAGE_CONTROL) //
-				.enableIpus(inverterCount) //
-				.parameterU0(invSetVoltNormalized) //
-				.parameterF0(invSetFreqNormalized) //
-				.writeToChannels(this.parent.parent);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.DISABLED) //
-				.qLimit(1f) //
-				.writeToChannels(this.parent.parent);
-		this.parent.parent.setIpuControlSettings();
 	}
 }

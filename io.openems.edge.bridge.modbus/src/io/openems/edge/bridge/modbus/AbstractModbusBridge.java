@@ -46,8 +46,9 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	protected void activate(ComponentContext context, String id, boolean enabled, LogVerbosity logVerbosity) {
-		super.activate(context, id, enabled);
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
+			LogVerbosity logVerbosity) {
+		super.activate(context, id, alias, enabled);
 		this.logVerbosity = logVerbosity;
 		if (this.isEnabled()) {
 			this.worker.activate(id);
@@ -78,17 +79,15 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	public void removeProtocol(String sourceId) {
 		this.worker.removeProtocol(sourceId);
 	}
-	
-	@Override
-	public void update() {
-		this.worker.update();		
-	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.worker.onBeforeProcessImage();
+			break;
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.worker.triggerNextRun();
+			this.worker.onExecuteWrite();
 			break;
 		}
 	}

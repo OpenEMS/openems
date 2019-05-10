@@ -49,7 +49,7 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Generate OutputChannels
 		this.writeChannels = new BooleanWriteChannel[config.numberOfOutputs()];

@@ -30,7 +30,7 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, OpenemsConstants.META_ID, true);
+		super.activate(context, OpenemsConstants.META_ID, "Core.Meta", true);
 	}
 
 	@Deactivate

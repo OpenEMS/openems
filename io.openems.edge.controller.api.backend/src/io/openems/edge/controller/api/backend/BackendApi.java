@@ -98,7 +98,7 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.noOfCycles = config.noOfCycles();
 		this.debug = config.debug();
 

@@ -28,6 +28,7 @@ public class OngridHandler {
 	}
 
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
+		System.out.println("OngridHandler.run");
 		// Verify that we are still On-Grid -> otherwise switch to "Going Off-Grid"
 		GridMode gridMode = this.parent.parent.getGridMode().getNextValue().asEnum();
 		switch (gridMode) {
@@ -101,6 +102,11 @@ public class OngridHandler {
 		if (ccuState != CCUState.IDLE) {
 			return State.UNDEFINED;
 		}
+		
+		// If no battery is ready inverter cannot start
+		if (!this.parent.parent.isAtLeastOneBatteryReady()) {
+			return State.IDLE;
+		}
 
 		InverterCount inverterCount = this.parent.parent.config.inverterCount();
 		new CommandControlRegisters() //
@@ -128,27 +134,6 @@ public class OngridHandler {
 		if (ccuState != CCUState.RUN) {
 			return State.UNDEFINED;
 		}
-
-		// TODO this should be in ErrorHandler
-//		private int DELAY_TIME_NORMAL_OPERATION = 30;
-		// LocalDateTime lastTimeInSwitchedToOnGridNormal = null;
-		// if (isLinkVoltageTooLow()) {
-//			System.out.println("Link voltage too low!!");
-//
-//			if (this.lastTimeInSwitchedToOnGridNormal == null) {
-//				this.lastTimeInSwitchedToOnGridNormal = LocalDateTime.now();
-//			}
-//			if (this.lastTimeInSwitchedToOnGridNormal.plusSeconds(DELAY_TIME_NORMAL_OPERATION)
-//					.isBefore(LocalDateTime.now())) {
-//
-//				System.out.println("delay time passed, setting it to error");
-//
-//				this.state = StateMachine.ONGRID_ERROR;
-//				this.errorHandler.setState(XErrorStateMachine.HARD_RESET);
-//				this.lastTimeInSwitchedToOnGridNormal = null;
-//				return;
-//			}
-//		}
 
 		InverterCount inverterCount = this.parent.parent.config.inverterCount();
 		new CommandControlRegisters() //

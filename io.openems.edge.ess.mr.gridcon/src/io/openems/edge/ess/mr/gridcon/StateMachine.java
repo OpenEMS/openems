@@ -1,14 +1,11 @@
 package io.openems.edge.ess.mr.gridcon;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
@@ -115,7 +112,8 @@ public class StateMachine {
 
 		// Link Voltage is too low
 		// TODO check Link-Voltage here?
-		if (this.isLinkVoltageTooLow()) {
+		
+		if (ccuState == CCUState.RUN && this.parent.isLinkVoltageTooLow()) {
 			result = true;
 		}
 
@@ -183,19 +181,6 @@ public class StateMachine {
 		return CCUState.UNDEFINED;
 	}
 
-	private boolean isLinkVoltageTooLow() {
-		FloatReadChannel frc = this.parent.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-		Optional<Float> linkVoltageOpt = frc.value().asOptional();
-		if (!linkVoltageOpt.isPresent()) {
-			return false;
-		}
-
-		float linkVoltage = linkVoltageOpt.get();
-		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
-
-		return (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT);
-	}
-
 	/**
 	 * Switches to the next state.
 	 * 
@@ -203,8 +188,10 @@ public class StateMachine {
 	 */
 	private void switchState(State nextState) {
 		// initialize all Handlers
-		this.errorHandler.initialize();
+//		this.errorHandler.initialize(); //if error handler is always initialized newly, it has always state undef
 
+		// TODO check set state to next state?
+		this.state = nextState;
 	}
 
 	public State getState() {

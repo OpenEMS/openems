@@ -1,0 +1,29 @@
+Bundle-Name: OpenEMS Edge Meter Virtual Add
+Bundle-Vendor: FENECON GmbH
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: The provider bundle for io.openems.edge.meter.virtual.add. This virtual \
+	meter is used to sum up the values from the different components and calculate \
+	the average of those values.
+
+Export-Package:  \
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.asymmetric.api,\
+	io.openems.edge.meter.symmetric.api
+
+Private-Package: io.openems.edge.meter.virtual.symmetric.add
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.meter.api;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
+javac.source: 1.8
+javac.target: 1.8

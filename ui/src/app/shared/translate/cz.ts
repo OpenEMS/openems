@@ -85,6 +85,7 @@ export const TRANSLATION = {
                     CarFull: "Auto je plné",
                     EnergieSinceBeginning: "Energie od začátku nabíjení",
                     ChargeMode: "režim načítání",
+                    ActivateCharging: "Aktivujte nabíjecí stanici",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
@@ -94,8 +95,13 @@ export const TRANSLATION = {
                         Name: "Optimalizované zatížení",
                         ShortName: "optimalizované",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
-                        MinInfo: "Chcete-li zabránit nabíjení vozu při nízké paměti v noci, můžete nastavit minimální nabíjení.",
-                        MinCharging: "Garance minimálního poplatku?"
+                        MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
+                        MinCharging: "Garance minimálního poplatku?",
+                        ChargingPriority: {
+                            Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
+                            Car: "Car",
+                            Storage: "Storage"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",

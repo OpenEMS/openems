@@ -72,7 +72,7 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'Core'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Core", config.core_id())) {
 			return;

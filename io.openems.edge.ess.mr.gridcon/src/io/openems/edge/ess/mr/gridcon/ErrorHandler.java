@@ -13,6 +13,7 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.ess.mr.gridcon.enums.CCUState;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
@@ -40,10 +41,12 @@ public class ErrorHandler {
 	// HARD_RESET
 	private LocalDateTime lastHardReset = null;
 	private static final int SWITCH_OFF_TIME_SECONDS = 10;
-	private static final long RELOAD_TIME_SECONDS = 45; // Time for Mr Gridcon to boot and come back
+	private static final long RELOAD_TIME_SECONDS = 60; // Time for Mr Gridcon to boot and come back
 	private static final int MAX_TIMES_FOR_TRYING_TO_HARD_RESET = 5;
+	private static final long DELAY_AFTER_FINISHING_SECONDS = 5;
 	private int hardResetCounter = 0;
 	private boolean sendSecondAcknowledge = false;
+	private LocalDateTime delayAfterFinishing;
 
 	public ErrorHandler(StateMachine parent) {
 		this.parent = parent;
@@ -54,14 +57,25 @@ public class ErrorHandler {
 		this.state = State.UNDEFINED;
 		this.tryToAcknowledgeErrorsCounter = 0;
 		this.readErrorMap = null;
+		this.delayAfterFinishing = null;
 	}
-
+	
 	protected StateMachine.State run() throws IllegalArgumentException, OpenemsNamedException {
 		switch (this.state) {
 		case UNDEFINED:
-			this.state = State.READ_ERRORS;
+			if (parent.getCcuState() == CCUState.ERROR) {
+				this.state =  State.READ_ERRORS;
+			} else if (this.parent.parent.isLinkVoltageTooLow()) {
+				this.state = State.LINK_VOLTAGE_TOO_LOW;
+			} else {
+				this.state =  State.READ_ERRORS;
+			}
 			break;
 
+		case LINK_VOLTAGE_TOO_LOW:
+			this.state = this.doLinkVoltageTooLow();
+			break;
+			
 		case READ_ERRORS:
 			this.state = this.doReadErrors();
 			break;
@@ -83,11 +97,39 @@ public class ErrorHandler {
 			break;
 
 		case FINISH_ERROR_HANDLING:
-			this.initialize();
-			return StateMachine.State.UNDEFINED;
+			//
+			if (this.delayAfterFinishing == null) {
+				this.delayAfterFinishing = LocalDateTime.now();
+			}
+			
+			if (this.delayAfterFinishing.plusSeconds(DELAY_AFTER_FINISHING_SECONDS).isAfter(LocalDateTime.now())) {
+				// do nothing
+				//this.state = State.FINISH_ERROR_HANDLING;
+			} else {
+				this.initialize();
+				return StateMachine.State.UNDEFINED;
+			}
 		}
 
 		return StateMachine.State.ERROR;
+	}
+
+	private State doLinkVoltageTooLow() throws IllegalArgumentException, OpenemsNamedException {
+		
+		new CommandControlRegisters() //
+		// Stop the system
+		.stop(true) // 
+		.syncApproval(true) //
+		.blackstartApproval(false) //
+		.shortCircuitHandling(true) //
+		.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+		.parameterSet1(true) //
+		.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+		.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+		.enableIpus(this.parent.parent.config.inverterCount()) //
+		.writeToChannels(this.parent.parent);
+		
+		return State.FINISH_ERROR_HANDLING;
 	}
 
 	/**
@@ -358,7 +400,8 @@ public class ErrorHandler {
 		HANDLE_ERRORS(3, "Handle Errors"), //
 		HARD_RESET(4, "Hard Reset"), //
 		FINISH_ERROR_HANDLING(5, "Finish Error Handling"), //
-		ERROR_HANDLING_NOT_POSSIBLE(6, "Error handling not possible");
+		ERROR_HANDLING_NOT_POSSIBLE(6, "Error handling not possible"),
+		LINK_VOLTAGE_TOO_LOW(7, "Link voltage too low");
 
 		private final int value;
 		private final String name;

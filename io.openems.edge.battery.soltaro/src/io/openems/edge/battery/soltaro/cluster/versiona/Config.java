@@ -9,39 +9,43 @@ import io.openems.edge.battery.soltaro.BatteryState;
 		name = "BMS Soltaro Cluster Version A", //
 		description = "Implements the Soltaro master battery rack system.")
 @interface Config {
-	String service_pid();
 
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "bms0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige; ! Soltaro Cluster needs baudrate of 57600 !")
 	String modbus_id() default "modbus0";
-	
+
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
-	
+
 	@AttributeDefinition(name = "Battery state", description = "Switches the battery into the given state, if default is used, battery state is set automatically")
 	BatteryState batteryState() default BatteryState.DEFAULT;
-	
+
 	@AttributeDefinition(name = "Rack 1 Usage", description = "Determines whether rack 1 is used")
 	boolean rack1IsUsed() default true;
-	
+
 	@AttributeDefinition(name = "Rack 2 Usage", description = "Determines whether rack 2 is used")
 	boolean rack2IsUsed() default true;
-	
+
 	@AttributeDefinition(name = "Rack 3 Usage", description = "Determines whether rack 3 is used")
 	boolean rack3IsUsed() default true;
-	
+
 	@AttributeDefinition(name = "Error Level 2 Delay", description = "Sets the delay time in seconds how long the system should be stopped after an error level 2 has occurred")
 	int errorLevel2Delay() default 600;
-	
+
 	@AttributeDefinition(name = "Max Start Attempts", description = "Sets the counter how many time the system should try to start")
 	int maxStartAppempts() default 5;
-	
+
 	@AttributeDefinition(name = "Max Start Time", description = "Max Time in seconds allowed for starting the system")
 	int maxStartTime() default 20;
-	
+
 	@AttributeDefinition(name = "Start Not Successful Delay Time", description = "Sets the delay time in seconds how long the system should be stopped if it was not able to start")
 	int startUnsuccessfulDelay() default 3600;
 

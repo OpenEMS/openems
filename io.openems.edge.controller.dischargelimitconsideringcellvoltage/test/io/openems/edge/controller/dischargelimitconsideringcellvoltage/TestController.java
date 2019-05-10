@@ -185,6 +185,11 @@ public class TestController {
 			}
 
 			@Override
+			public String alias() {
+				return "";
+			}
+
+			@Override
 			public float firstCellVoltageLimit() {
 				return 2.85f;
 			}

@@ -8,9 +8,14 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 @ObjectClassDefinition( //
 		name = "ESS MR Gridcon PCS", //
 		description = "Implements the FENECON MR Gridcon PCS system")
-public @interface Config {
+public
+@interface Config {
 	String id() default "ess0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
