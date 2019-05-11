@@ -88,9 +88,9 @@ export class Edge {
    * @param id        a unique ID for this subscription (e.g. the component selector)
    * @param channels  the subscribed Channel-Adresses
    */
-  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): Promise<JsonrpcResponseSuccess> {
+  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
     this.subscribedChannels[id] = channels;
-    return this.sendSubscribeChannels(websocket);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
@@ -99,9 +99,9 @@ export class Edge {
    * @param websocket the Websocket
    * @param id        the unique ID for this subscription
    */
-  public unsubscribeChannels(websocket: Websocket, id: string): Promise<JsonrpcResponseSuccess> {
+  public unsubscribeChannels(websocket: Websocket, id: string): void {
     delete this.subscribedChannels[id];
-    return this.sendSubscribeChannels(websocket);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
@@ -127,15 +127,24 @@ export class Edge {
    * 
    * @param websocket the Websocket
    */
-  private sendSubscribeChannels(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    // merge channels from currentDataSubscribes
-    let channels: ChannelAddress[] = [];
-    for (let componentId in this.subscribedChannels) {
-      channels.push.apply(channels, this.subscribedChannels[componentId]);
+  private sendSubscribeChannels(websocket: Websocket): void {
+    // make sure to send not faster than every 100 ms
+    if (this.subscribeChannelsTimeout == null) {
+      this.subscribeChannelsTimeout = setTimeout(() => {
+        // reset subscribeChannelsTimeout
+        this.subscribeChannelsTimeout = null;
+
+        // merge channels from currentDataSubscribes
+        let channels: ChannelAddress[] = [];
+        for (let componentId in this.subscribedChannels) {
+          channels.push.apply(channels, this.subscribedChannels[componentId]);
+        }
+        let request = new SubscribeChannelsRequest(channels);
+        this.sendRequest(websocket, request);
+      }, 100);
     }
-    let request = new SubscribeChannelsRequest(channels);
-    return this.sendRequest(websocket, request);
   }
+  private subscribeChannelsTimeout: NodeJS.Timeout = null;
 
   /**
    * Handles a EdgeConfigNotification
