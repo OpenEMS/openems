@@ -6,7 +6,6 @@ import { ComponentInstallComponent } from './component/install/install.component
 import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
 import { SettingsComponent } from './settings.component';
-import { SystemLogComponent } from './systemlog/systemlog.component';
 
 @NgModule({
   imports: [
@@ -14,7 +13,6 @@ import { SystemLogComponent } from './systemlog/systemlog.component';
   ],
   declarations: [
     SettingsComponent,
-    SystemLogComponent,
     ChannelsComponent,
     ComponentInstallIndexComponent,
     ComponentInstallComponent,

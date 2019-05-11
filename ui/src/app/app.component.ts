@@ -18,6 +18,7 @@ export class AppComponent {
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public isEdgeIndexPage: boolean = false;
+  public isSystemLogEnabled: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
