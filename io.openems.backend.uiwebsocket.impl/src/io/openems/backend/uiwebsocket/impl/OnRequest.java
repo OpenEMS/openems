@@ -26,6 +26,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
+import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
@@ -142,6 +143,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case DeleteComponentConfigRequest.METHOD:
 			resultFuture = this.handleDeleteComponentConfigRequest(edgeId, user,
 					DeleteComponentConfigRequest.from(request));
+			break;
+
+		case SetChannelValueRequest.METHOD:
+			resultFuture = this.handleSetChannelValueRequest(edgeId, user, SetChannelValueRequest.from(request));
 			break;
 
 		case ComponentJsonApiRequest.METHOD:
@@ -304,6 +309,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(String edgeId, User user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
+
+		return this.parent.edgeWebsocket.send(edgeId, user, request);
+	}
+
+	/**
+	 * Handles a SetChannelValueRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the SetChannelValueRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(String edgeId, User user,
+			SetChannelValueRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
 
 		return this.parent.edgeWebsocket.send(edgeId, user, request);
 	}

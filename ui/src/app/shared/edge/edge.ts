@@ -144,7 +144,7 @@ export class Edge {
       }, 100);
     }
   }
-  private subscribeChannelsTimeout: NodeJS.Timeout = null;
+  private subscribeChannelsTimeout: any = null;
 
   /**
    * Handles a EdgeConfigNotification

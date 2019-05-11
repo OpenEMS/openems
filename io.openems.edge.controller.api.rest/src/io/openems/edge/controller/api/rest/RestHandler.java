@@ -39,6 +39,7 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
@@ -50,7 +51,6 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.EdgeUser;
-import io.openems.edge.controller.api.core.WritePojo;
 
 public class RestHandler extends AbstractHandler {
 
@@ -159,6 +159,31 @@ public class RestHandler extends AbstractHandler {
 		// get request attributes
 		ChannelAddress channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
 
+		// call handler methods
+		switch (request.getMethod()) {
+		case "GET":
+			this.handleGet(user, channelAddress, baseRequest, request, response);
+			break;
+		case "POST":
+			this.handlePost(user, channelAddress, baseRequest, request, response);
+			break;
+		}
+	}
+
+	/**
+	 * Handles HTTP GET request.
+	 * 
+	 * @param user           the User
+	 * @param channelAddress the ChannelAddress
+	 * @param baseRequest    the HTTP POST base-request
+	 * @param request        the HTTP POST request
+	 * @param response       the result to be returned
+	 * @throws OpenemsNamedException
+	 */
+	private void handleGet(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
+			HttpServletResponse response) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
+
 		// get channel
 		Channel<?> channel;
 		try {
@@ -168,31 +193,6 @@ public class RestHandler extends AbstractHandler {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-
-		// call handler methods
-		switch (request.getMethod()) {
-		case "GET":
-			this.handleGet(user, channel, baseRequest, request, response);
-			break;
-		case "POST":
-			this.handlePost(user, channel, baseRequest, request, response);
-			break;
-		}
-	}
-
-	/**
-	 * Handles HTTP GET request.
-	 * 
-	 * @param user        the User
-	 * @param channel     the affected channel
-	 * @param baseRequest the HTTP POST base-request
-	 * @param request     the HTTP POST request
-	 * @param response    the result to be returned
-	 * @throws OpenemsNamedException
-	 */
-	private void handleGet(User user, Channel<?> channel, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 
 		JsonObject j = new JsonObject();
 		j.add("value", channel.value().asJson());
@@ -222,21 +222,16 @@ public class RestHandler extends AbstractHandler {
 	/**
 	 * Handles HTTP POST request.
 	 *
-	 * @param user        the User
-	 * @param channel     the affected channel
-	 * @param baseRequest the HTTP POST base-request
-	 * @param request     the HTTP POST request
-	 * @param response    the result to be returned
+	 * @param user           the User
+	 * @param channelAddress the ChannelAddress
+	 * @param baseRequest    the HTTP POST base-request
+	 * @param request        the HTTP POST request
+	 * @param response       the result to be returned
 	 * @throws OpenemsNamedException
 	 */
-	private void handlePost(User user, Channel<?> channel, Request baseRequest, HttpServletRequest request,
+	private void handlePost(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP POST", Role.ADMIN);
-
-		// check for writable channel
-		if (!(channel instanceof WriteChannel<?>)) {
-			throw new OpenemsException("[" + channel + "] is not a Write Channel");
-		}
 
 		// parse json
 		JsonObject jHttpPost = RestHandler.parseJson(baseRequest);
@@ -249,15 +244,9 @@ public class RestHandler extends AbstractHandler {
 			throw new OpenemsException("Value is missing");
 		}
 
-		// set channel value
-		Object value;
-		if (jValue.isJsonNull()) {
-			value = null;
-		} else {
-			value = jValue.toString();
-		}
-		this.parent.apiWorker.addValue((WriteChannel<?>) channel, new WritePojo(value));
-		log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
+		// send request to apiworker
+		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, user,
+				new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
 
 		this.sendOkResponse(baseRequest, response, new JsonObject());
 	}

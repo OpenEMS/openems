@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { IGNORE_NATURES } from '../component/shared/shared';
+import { SetChannelVaLueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
@@ -12,6 +13,7 @@ export class ChannelsComponent {
   private static readonly SELECTOR = "channels";
 
   public edge: Edge = null;
+  public config: EdgeConfig = null;
   public subscribedChannels: ChannelAddress[] = [];
 
   constructor(
@@ -21,9 +23,16 @@ export class ChannelsComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentComponent("Channels" /* TODO translate */, this.route).then(edge => {
       this.edge = edge;
+      this.subscribeChannel("_sum", "EssSoc");
+      this.subscribeChannel("_sum", "State");
+      this.subscribeChannel("ess0", "SetActivePowerEquals");
+      this.subscribeChannel("io0", "InputOutput0");
     });
+    this.service.getConfig().then(config => {
+      this.config = config;
+    })
   }
 
   subscribeChannel(componentId: string, channelId: string) {
@@ -34,18 +43,47 @@ export class ChannelsComponent {
       }
     });
 
-    this.subscribedChannels.push(new ChannelAddress(componentId, channelId));
+    let address = new ChannelAddress(componentId, channelId);
+    this.subscribedChannels.push(address);
+
+    if (this.config) {
+      let channelConfig = this.config.getChannel(address);
+      if (channelConfig) {
+        if (channelConfig.accessMode == "WO") {
+          // do not subscribe Write-Only Channels
+          return;
+        }
+      }
+    }
+
     if (this.edge) {
       this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, this.subscribedChannels);
     }
   }
 
-  unsubscribeChannel(componentId: string, channelId: string) {
+  unsubscribeChannel(address: ChannelAddress) {
     this.subscribedChannels.forEach((item, index) => {
-      if (item.componentId === componentId && item.channelId === channelId) {
+      if (item.componentId === address.componentId && item.channelId === address.channelId) {
         this.subscribedChannels.splice(index, 1);
       }
     });
+  }
+
+  setChannelValue(address: ChannelAddress, value: any) {
+    if (this.edge) {
+      this.edge.sendRequest(
+        this.service.websocket,
+        new SetChannelVaLueRequest({
+          componentId: address.componentId,
+          channelId: address.channelId,
+          value: value
+        })
+      ).then(response => {
+        this.service.toast("Successfully set " + address.toString() + " to " + value, "success");
+      }).catch(reason => {
+        this.service.toast("Error setting " + address.toString() + " to " + value, 'danger');
+      });
+    }
   }
 
   ngOnDestroy() {
