@@ -6,7 +6,7 @@ import { Platform, ToastController, MenuController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
-import { Service, Websocket } from './shared/shared';
+import { Service, Websocket, Edge } from './shared/shared';
 import { LanguageTag } from './shared/translate/language';
 
 @Component({
@@ -87,6 +87,13 @@ export class AppComponent {
     // disable backUrl & Segment Navigation on initial 'index' page
     if (url === '/index') {
       this.backUrl = false;
+      return;
+    }
+
+    // set backUrl for general settings when an Edge had been selected before
+    let currentEdge: Edge = this.service.currentEdge.value;
+    if (url === '/settings' && currentEdge != null) {
+      this.backUrl = '/device/' + currentEdge.id + "/live"
       return;
     }
 
