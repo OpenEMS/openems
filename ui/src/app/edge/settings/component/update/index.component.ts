@@ -4,26 +4,29 @@ import { Service, Utils, Websocket, EdgeConfig } from '../../../../shared/shared
 import { IGNORE_NATURES } from '../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 
+interface ListEntry {
+  readonly component: EdgeConfig.Component
+  readonly factory: EdgeConfig.Factory
+};
+
 @Component({
   selector: IndexComponent.SELECTOR,
   templateUrl: './index.component.html'
 })
-export class IndexComponent implements OnInit, OnDestroy {
+export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
   public list: {
     readonly nature: EdgeConfig.Nature,
-    readonly entries: {
-      readonly component: EdgeConfig.Component
-      readonly factory: EdgeConfig.Factory
-    }[]
+    isNatureClicked: Boolean,
+    readonly allEntries: ListEntry[],
+    filteredEntries: ListEntry[]
   }[] = [];
+  public showAllEntries = false;
 
   constructor(
     private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
     private service: Service,
     private translate: TranslateService
   ) {
@@ -47,19 +50,42 @@ export class IndexComponent implements OnInit, OnDestroy {
             let factory = config.factories[component.factoryId];
             entries.push({
               component: component,
+              isFiltered: true,
               factory: factory
             })
           }
 
           this.list.push({
             nature: nature,
-            entries: entries
+            isNatureClicked: false,
+            allEntries: entries,
+            filteredEntries: entries
           });
         }
       }
+      this.updateFilter("");
     });
   }
 
-  ngOnDestroy() {
+  updateFilter(completeFilter: string) {
+    // take each space-separated string as an individual and-combined filter
+    let filters = completeFilter.split(' ');
+    let countFilteredEntries = 0;
+    for (let entry of this.list) {
+      entry.filteredEntries = entry.allEntries.filter(entry =>
+        // Search for filter strings in Component-ID, -Alias and Factory-ID
+        Utils.matchAll(filters, [
+          entry.component.id.toLowerCase(),
+          entry.component.alias.toLowerCase(),
+          entry.factory.id.toLowerCase()])
+      );
+      countFilteredEntries += entry.filteredEntries.length;
+    }
+    // If not more than 5 Entries survived filtering -> show all of them immediately
+    if (countFilteredEntries > 5) {
+      this.showAllEntries = false;
+    } else {
+      this.showAllEntries = true;
+    }
   }
 }

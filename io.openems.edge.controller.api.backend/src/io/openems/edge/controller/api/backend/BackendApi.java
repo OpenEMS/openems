@@ -58,8 +58,9 @@ public class BackendApi extends AbstractOpenemsComponent
 
 	protected final BackendWorker worker = new BackendWorker(this);
 
+	protected final ApiWorker apiWorker = new ApiWorker();
+	
 	private final Logger log = LoggerFactory.getLogger(BackendApi.class);
-	private final ApiWorker apiWorker = new ApiWorker();
 
 	protected WebsocketClient websocket = null;
 	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
