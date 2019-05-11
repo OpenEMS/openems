@@ -265,4 +265,13 @@ export class Edge {
   public roleIsAtLeast(role: Role | string): boolean {
     return Role.isAtLeast(this.role, role);
   }
+
+  /**
+   * Gets the Role of the Edge as a human-readable string.
+   * 
+   * @returns the name of the role
+   */
+  public getRoleString(): string {
+    return Role[this.role].toLowerCase();
+  }
 }
