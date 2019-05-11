@@ -18,6 +18,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.session.User;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -50,11 +51,18 @@ public class ApiWorker {
 	}
 
 	public void addValue(WriteChannel<?> channel, WriteObject writeObject) {
-		log.info("Set [" + channel.address() + "] to [" + writeObject.valueToString() + "] via API. Timeout is ["
-				+ this.timeoutSeconds + "s]");
 		this.resetTimeout();
 		synchronized (this.values) {
-			this.values.put(channel, writeObject);
+			if (writeObject.isNull()) {
+				// set null -> remove write-value
+				log.info("Unset [" + channel.address() + "] via API.");
+				this.values.remove(channel);
+			} else {
+				// set write-value
+				log.info("Set [" + channel.address() + "] to [" + writeObject.valueToString()
+						+ "] via API. Timeout is [" + this.timeoutSeconds + "s]");
+				this.values.put(channel, writeObject);
+			}
 		}
 	}
 
@@ -81,6 +89,11 @@ public class ApiWorker {
 			value = null;
 		} else {
 			value = JsonUtils.getAsBestType(request.getValue());
+			if (value instanceof String && ((String) value).isEmpty()
+					&& channel.channelId().doc().getType() != OpenemsType.STRING) {
+				// Allow non-string Channels to be set to 'UNDEFINED' using an empty string
+				value = null;
+			}
 		}
 
 		// set value

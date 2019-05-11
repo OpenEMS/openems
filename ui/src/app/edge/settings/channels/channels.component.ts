@@ -25,10 +25,6 @@ export class ChannelsComponent {
   ngOnInit() {
     this.service.setCurrentComponent("Channels" /* TODO translate */, this.route).then(edge => {
       this.edge = edge;
-      this.subscribeChannel("_sum", "EssSoc");
-      this.subscribeChannel("_sum", "State");
-      this.subscribeChannel("ess0", "SetActivePowerEquals");
-      this.subscribeChannel("io0", "InputOutput0");
     });
     this.service.getConfig().then(config => {
       this.config = config;
@@ -79,9 +75,9 @@ export class ChannelsComponent {
           value: value
         })
       ).then(response => {
-        this.service.toast("Successfully set " + address.toString() + " to " + value, "success");
+        this.service.toast("Successfully set " + address.toString() + " to [" + value + "]", "success");
       }).catch(reason => {
-        this.service.toast("Error setting " + address.toString() + " to " + value, 'danger');
+        this.service.toast("Error setting " + address.toString() + " to [" + value + "]", 'danger');
       });
     }
   }
