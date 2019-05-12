@@ -66,4 +66,6 @@ public abstract class WriteObject {
 	public abstract void setNextWriteValue(WriteChannel<?> writeChannel) throws OpenemsNamedException;
 
 	public abstract String valueToString();
+	
+	public abstract boolean isNull();
 }

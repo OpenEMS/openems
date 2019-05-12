@@ -12,7 +12,7 @@ import { TranslateCompiler, TranslateService } from '@ngx-translate/core';
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 
-  private static readonly SELECTOR = "log";
+  private static readonly SELECTOR = "systemLog";
 
   public lines: {
     time: string,

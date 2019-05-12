@@ -147,7 +147,7 @@ export class Service implements ErrorHandler {
 
       let timeout = setTimeout(() => {
         console.error("Timeout while setting current edge");
-        onError();
+        //  onError();
       }, Service.TIMEOUT);
 
       let setCurrentEdge = (edge: Edge) => {

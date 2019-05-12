@@ -15,6 +15,7 @@ import { EdgeModule } from './edge/edge.module';
 // components
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 
 // services
 import { Language } from './shared/translate/language';
@@ -35,7 +36,8 @@ import { EvcsModalPageModule } from './edge/live/widgets/evcs/evcs-modal/evcs-mo
 @NgModule({
   declarations: [
     AppComponent,
-    RepeatTypeComponent
+    RepeatTypeComponent,
+    SystemLogComponent
   ],
   entryComponents: [],
   imports: [

@@ -10,6 +10,11 @@
       <ion-buttons slot="start" *ngIf="enableSideMenu">
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
+      <ion-buttons slot="end" *ngIf="env.debugMode">
+        <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
+          <ion-icon name="bug"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-toolbar>
 
     <ng-container *ngIf="isEdgeIndexPage && service.currentEdge | async as edge">
@@ -89,6 +94,8 @@
     <!-- Show Sub-Views -->
     <router-outlet id="content"></router-outlet>
     <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
+
+    <systemLog *ngIf="isSystemLogEnabled">isSystemLogEnabled</systemLog>
 
   </ion-content>
 </ion-app>

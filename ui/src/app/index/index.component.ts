@@ -19,23 +19,18 @@ export class IndexComponent {
 
   public env = environment;
   public form: FormGroup;
-  private filter: string = '';
+  public filter: string = '';
+  public filteredEdges: Edge[] = [];
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private filteredEdges: Edge[] = [];
   private slice: number = 20;
 
   constructor(
     public websocket: Websocket,
     public utils: Utils,
-    private translate: TranslateService,
-    private formBuilder: FormBuilder,
     private router: Router,
     private service: Service,
     private route: ActivatedRoute) {
-    this.form = this.formBuilder.group({
-      "password": this.formBuilder.control('user')
-    });
 
     //Forwarding to device index if there is only 1 edge
     service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
@@ -85,12 +80,11 @@ export class IndexComponent {
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin() {
-    let password: string = this.form.value['password'];
+  doLogin(password: string) {
     let request = new AuthenticateWithPasswordRequest({ password: password });
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
-    }).then(reason => {
+    }).catch(reason => {
       console.error("Error on Login", reason);
     })
   }
