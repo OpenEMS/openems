@@ -160,7 +160,7 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 				value = ModbusRecordUint16.UNDEFINED_VALUE;
 				break;
 			}
-
+			nextRow++;
 			ws.value(nextRow, 0, modbusType.toString());
 			ws.value(nextRow, 1, byteArrayToString(value));
 			//Alternate Row shading
