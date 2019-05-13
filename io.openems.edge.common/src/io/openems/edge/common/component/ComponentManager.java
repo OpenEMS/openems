@@ -2,6 +2,7 @@ package io.openems.edge.common.component;
 
 import java.util.List;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -13,7 +14,7 @@ import io.openems.edge.common.channel.Doc;
 /**
  * A Service that provides access to OpenEMS-Components.
  */
-public interface ComponentManager {
+public interface ComponentManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
@@ -42,12 +43,15 @@ public interface ComponentManager {
 	 * Gets a OpenEMS-Component by its Component-ID.
 	 * 
 	 * @param componentId the Component-ID (e.g. "_sum")
-	 * @param             <T> the typed Component
+	 * @param <T>         the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
 	@SuppressWarnings("unchecked")
 	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
+			return (T) this;
+		}
 		List<OpenemsComponent> components = this.getComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {
@@ -61,7 +65,7 @@ public interface ComponentManager {
 	 * Gets a Channel by its Channel-Address.
 	 * 
 	 * @param channelAddress the Channel-Address
-	 * @param                <T> the typed Channel
+	 * @param <T>            the typed Channel
 	 * @return the Channel
 	 * @throws IllegalArgumentException if the Channel is not available
 	 * @throws OpenemsNamedException    on error

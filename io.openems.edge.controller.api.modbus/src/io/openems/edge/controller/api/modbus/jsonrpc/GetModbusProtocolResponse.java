@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.modbus;
+package io.openems.edge.controller.api.modbus.jsonrpc;
 
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -13,7 +13,9 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 
 /**
- * Wraps a JSON-RPC Response to "getModbusProtocol" Request
+ * Wraps a JSON-RPC Response to "getModbusProtocol" Request.
+ * 
+ * <p>
  * 
  * <pre>
  * {

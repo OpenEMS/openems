@@ -28,7 +28,8 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 	}
 
 	public static byte[] toByteArray(Object value) {
-		if (value == null || (value instanceof io.openems.common.types.OptionsEnum && ((io.openems.common.types.OptionsEnum) value).isUndefined())) {
+		if (value == null || (value instanceof io.openems.common.types.OptionsEnum
+				&& ((io.openems.common.types.OptionsEnum) value).isUndefined())) {
 			return UNDEFINED_VALUE;
 		} else {
 			return toByteArray((short) TypeUtils.getAsType(OpenemsType.SHORT, value));
@@ -37,7 +38,7 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? this.value + "/0x" + Integer.toHexString(this.value) : "";
+		return this.value != null ? Short.toString(this.value) : "";
 	}
 
 }
