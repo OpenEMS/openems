@@ -85,11 +85,6 @@
 			<version>3.6.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-			<version>4.3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.xmlrpc-client</artifactId>
 			<version>3.1.3_1</version>
