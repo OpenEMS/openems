@@ -233,7 +233,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		// Update Configuration
 		try {
 			this.applyConfiguration(user, config, properties);
-		} catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
 		}

@@ -105,4 +105,5 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 	public void removeProtocol(String sourceId) {
 		// ignore
 	}
+
 }

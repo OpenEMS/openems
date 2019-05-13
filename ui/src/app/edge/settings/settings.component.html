@@ -3,11 +3,9 @@
 
     <ion-col size="12" size-sm="6">
       <ion-card>
-        <ion-item>
-          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label>
-            <ion-card-title translate>Edge.Config.Index.Log</ion-card-title>
-          </ion-label>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-label translate>Edge.Config.Index.Log</ion-label>
         </ion-item>
         <ion-card-content>
           <ion-item translate>Edge.Config.Index.LiveLog</ion-item>
@@ -20,12 +18,9 @@
 
     <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
       <ion-card>
-        <ion-item>
-          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label>
-            <!-- TODO translate -->
-            <ion-card-title>Komponenten konfigurieren</ion-card-title>
-          </ion-label>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-label translate>Edge.Config.Index.AdjustComponents</ion-label>
         </ion-item>
         <ion-card-content>
           <ion-button float-right routerLink="/device/{{ edge.id }}/settings/component.update">
@@ -37,15 +32,27 @@
 
     <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
       <ion-card>
-        <ion-item>
-          <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label>
-            <!-- TODO translate -->
-            <ion-card-title>Komponenten installieren</ion-card-title>
-          </ion-label>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-label translate>Edge.Config.Index.AddComponents</ion-label>
         </ion-item>
         <ion-card-content>
           <ion-button float-right routerLink="/device/{{ edge.id }}/settings/component.install">
+            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <!-- TODO translate -->
+          <ion-label>Channels</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/channels">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
         </ion-card-content>

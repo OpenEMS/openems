@@ -22,7 +22,12 @@ public class WritePojo extends WriteObject {
 
 	@Override
 	public String valueToString() {
-		return this.value.toString();
+		return String.valueOf(this.value);
+	}
+
+	@Override
+	public boolean isNull() {
+		return this.value == null;
 	}
 
 }

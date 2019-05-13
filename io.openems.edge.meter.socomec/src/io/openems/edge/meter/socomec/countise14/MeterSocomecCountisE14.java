@@ -38,6 +38,11 @@ public class MeterSocomecCountisE14 extends AbstractOpenemsModbusComponent
 	private MeterType meterType = MeterType.PRODUCTION;
 	private SinglePhase phase = SinglePhase.L1;
 
+	/*
+	 * Invert power values
+	 */
+	private boolean invert = false;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -60,6 +65,7 @@ public class MeterSocomecCountisE14 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.invert = config.invert();
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
@@ -92,7 +98,7 @@ public class MeterSocomecCountisE14 extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, //
+		ModbusProtocol protocol = new ModbusProtocol(this, //
 				// TODO read "Extended Name" from 0xC38A and verify that this is really a
 				// Countis E24. Implement the same for all the other SOCOMEC meter.
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
@@ -103,19 +109,33 @@ public class MeterSocomecCountisE14 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0xc55A, 0xc55D), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
 						m(new UnsignedDoublewordElement(0xc560)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
+										ElementToChannelConverter.INVERT_IF_TRUE(this.invert)) //
+								.m(SymmetricMeter.ChannelId.CURRENT,
+										ElementToChannelConverter.INVERT_IF_TRUE(this.invert)) //
 								.build(), //
 						new DummyRegisterElement(0xc562, 0xc567), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.invert)), //
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A),
-								ElementToChannelConverter.SCALE_FACTOR_1) //
-				), new FC3ReadRegistersTask(0xC86F, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedWordElement(0xC86F)), //
-						new DummyRegisterElement(0xC870),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedWordElement(0xC871)) //
+								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.invert)) //
 				));
+
+		if (this.invert) {
+			protocol.addTask(new FC3ReadRegistersTask(0xC86F, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedWordElement(0xC86F)), //
+					new DummyRegisterElement(0xC870),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedWordElement(0xC871)) //
+			));
+		} else {
+			protocol.addTask(new FC3ReadRegistersTask(0xC86F, Priority.LOW, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedWordElement(0xC86F)), //
+					new DummyRegisterElement(0xC870),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedWordElement(0xC871)) //
+			));
+		}
+
+		return protocol;
 	}
 
 	@Override

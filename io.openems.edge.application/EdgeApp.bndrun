@@ -157,9 +157,14 @@
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
+	io.openems.edge.meter.virtual;version=snapshot,\
+	io.openems.edge.meter.artemes.am2;version=snapshot,\
+	io.openems.edge.ess.byd.container;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
+	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
+	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\
 	json;version='[20160212.0.0,20160212.0.1)',\

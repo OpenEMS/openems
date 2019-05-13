@@ -2,6 +2,7 @@ package io.openems.edge.common.component;
 
 import java.util.List;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -13,7 +14,7 @@ import io.openems.edge.common.channel.Doc;
 /**
  * A Service that provides access to OpenEMS-Components.
  */
-public interface ComponentManager {
+public interface ComponentManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
@@ -50,6 +51,9 @@ public interface ComponentManager {
 	 */
 	@SuppressWarnings("unchecked")
 	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
+			return (T) this;
+		}
 		List<OpenemsComponent> components = this.getComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {

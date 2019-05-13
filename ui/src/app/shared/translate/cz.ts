@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Žádná hodnota",
         Soc: "Stav nabití",
         Percentage: "Procentuální vyjádření",
@@ -35,6 +36,9 @@ export const TRANSLATION = {
         Index: "Přehled",
         AboutUI: "About FEMS",
         Settings: 'Obecné Nastavení',
+        EdgeSettings: 'FEMS Obecné Nastavení',
+        Menu: 'Menu',
+        Overview: 'FEMS Overvire',
         Logout: 'Odhlásit'
     },
     Index: {
@@ -133,6 +137,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Zahájit simulaci",
                 Log: "Log",
                 LiveLog: "Live log systému",
+                AddComponents: "Komponenten installieren",
+                AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuální ovládání",
                 DataStorage: "Ukládání dat"
             },

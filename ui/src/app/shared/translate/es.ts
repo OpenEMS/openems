@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
         History: "Historia",
+        Live: 'Live',
         NoValue: "Sin valor",
         Soc: "Cargo",
         Percentage: "Por ciento",
@@ -36,6 +37,9 @@ export const TRANSLATION = {
         Index: "Visión general",
         AboutUI: "Sobre FEMS-UI",
         Settings: 'Configuración general',
+        EdgeSettings: 'Configuración FEMS',
+        Menu: 'Menú',
+        Overview: 'estudio FEMS',
         Logout: 'Desuscribirse'
     },
     Index: {
@@ -132,6 +136,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Ejecutar simulaciones",
                 Log: "Registro",
                 LiveLog: "Protocolos de sistema de vida",
+                AddComponents: "Instalar componentes",
+                AdjustComponents: "Configurar componentes",
                 ManualControl: "Control manual",
                 DataStorage: "Almacenamiento de datos"
             },
