@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.openems.common.access_control.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -72,6 +73,11 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 		return this.authenticate();
+	}
+
+	@Override
+	public RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException {
+		return null;
 	}
 
 	@Override

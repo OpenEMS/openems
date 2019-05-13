@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.openems.common.access_control.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -259,6 +260,11 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		AuthenticateWithUsernameAndPasswordResponse response = AuthenticateWithUsernameAndPasswordResponse
 				.from(origResponse);
 		return this.authenticate(response.getSessionId());
+	}
+
+	@Override
+	public RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException {
+		return null;
 	}
 
 	/**

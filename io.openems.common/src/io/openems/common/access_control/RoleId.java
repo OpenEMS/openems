@@ -6,8 +6,12 @@ public class RoleId {
 
     private final String id;
 
-    public RoleId(String id) {
+    RoleId(String id) {
         this.id = id;
+    }
+
+    public String id() {
+        return id;
     }
 
     @Override

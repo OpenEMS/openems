@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.common.access_control.RoleId;
 import io.openems.common.utils.FileUtils;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -91,6 +92,11 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
 		return this.authenticate();
+	}
+
+	@Override
+	public RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException {
+		return null;
 	}
 
 	@Override

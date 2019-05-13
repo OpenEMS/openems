@@ -12,7 +12,13 @@ public enum JsonKeys {
     EMAIL("email"),
     DESCRIPTION("description"),
     PERMISSION("permission"),
-    PERMISSIONS("permissions"),
+    SYSTEM_LOG_PERMISSIONS("systemLogPermissions"),
+    QUERY_HISTORIC_PERMISSIONS("queryHistoricPermissions"),
+    EDGE_CONFIG_PERMISSIONS("edgeConfigPermissions"),
+    CREATE_PERMISSIONS("createPermissions"),
+    UPDATE_PERMISSIONS("updatePermissions"),
+    DELETE_PERMISSIONS("deletePermissions"),
+    SUBSCRIBE_CHANNEL_PERMISSIONS("subscribeChannelPermissions"),
     ASSIGNED_TO_GROUPS("assignedToGroups"),
     EDGES("edges"),
     EDGE_ID("edgeId"),
@@ -33,7 +39,7 @@ public enum JsonKeys {
         return value;
     }
 
-    public String getValue() {
+    public String value() {
         return value;
     }
 }

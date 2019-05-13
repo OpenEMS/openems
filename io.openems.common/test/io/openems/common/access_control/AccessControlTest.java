@@ -1,6 +1,5 @@
 package io.openems.common.access_control;
 
-import io.openems.common.access_control.*;
 import io.openems.common.types.ChannelAddress;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,7 +13,7 @@ public class AccessControlTest {
 
     private AccessControl accessControl;
 
-    public static final RoleId DUMMY_ROLE_ID = new RoleId(Long.toString(1L));
+    public static final String DUMMY_ROLE_ID = Long.toString(1L);
     public static final String DUMMY_NAME = "Kartoffelsalat3000";
     public static final String DUMMY_PASSWORD = "Mayonnaise";
     public static final String DUMMY_ROLE_NAME = "Dummy Role";
@@ -63,7 +62,7 @@ public class AccessControlTest {
         HashSet<Group> dummyGroups = new HashSet<>();
         dummyGroups.add(createDummyGroup(dummyChannelToPermissionMapping));
         Role roleDummy = new Role(dummyGroups);
-        roleDummy.setId(DUMMY_ROLE_ID);
+        roleDummy.setId(new RoleId(DUMMY_ROLE_ID));
         roleDummy.setName(DUMMY_ROLE_NAME);
         Set<Role> roles = new HashSet<>();
         roles.add(roleDummy);
@@ -84,6 +83,8 @@ public class AccessControlTest {
             return this.accessControl.login(DUMMY_NAME, DUMMY_PASSWORD, DUMMY_ROLE_ID);
         } catch (AuthenticationException e) {
             fail("Valid login did not work");
+        } catch (ServiceNotAvailableException e) {
+            fail("AccessControl was not initialized before");
         }
         return null;
     }
@@ -92,9 +93,11 @@ public class AccessControlTest {
     public void assertPermission() {
         RoleId roleId = login();
         try {
-            this.accessControl.assertPermission(roleId, this.createDummyChannel(DUMMY_COMPONENT, STATE), Permission.READ);
+            this.accessControl.assertPermissionForChannel(roleId, this.createDummyChannel(DUMMY_COMPONENT, STATE), Permission.READ);
         } catch (AuthenticationException | AuthorizationException e) {
             fail("Valid role did not get roles");
+        } catch (ServiceNotAvailableException e) {
+            fail("AccessControl was not initialized before");
         }
     }
 
@@ -114,6 +117,8 @@ public class AccessControlTest {
             assertNotEquals(dummyChannels, channelAddresses);
         } catch (AuthenticationException e) {
             fail("Valid role did not get roles");
+        } catch (ServiceNotAvailableException e) {
+            fail("AccessControl was not initialized before");
         }
     }
 }

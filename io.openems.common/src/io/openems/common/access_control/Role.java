@@ -24,7 +24,7 @@ public class Role {
         this.groups = groups;
     }
 
-    public RoleId getId() {
+    public RoleId getRoleId() {
         return id;
     }
 

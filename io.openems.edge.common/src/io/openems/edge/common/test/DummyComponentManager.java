@@ -21,13 +21,8 @@ public class DummyComponentManager implements ComponentManager {
     }
 
     @Override
-    public List<OpenemsComponent> getComponents(Role role) {
-        return Collections.unmodifiableList(this.components);
-    }
-
-    @Override
     public List<OpenemsComponent> getComponents() {
-        return this.getComponents(null);
+        return Collections.unmodifiableList(this.components);
     }
 
     /**
@@ -39,11 +34,6 @@ public class DummyComponentManager implements ComponentManager {
         if (component != this) {
             this.components.add(component);
         }
-    }
-
-    @Override
-    public EdgeConfig getEdgeConfig(Role role) {
-        return new EdgeConfig();
     }
 
     @Override
@@ -70,7 +60,6 @@ public class DummyComponentManager implements ComponentManager {
     @Override
     public List<String> checkForNotActivatedComponents() {
         return null;
-        // TODO take care of this
     }
 
 }

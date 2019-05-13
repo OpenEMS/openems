@@ -7,6 +7,7 @@ import java.util.Optional;
 import io.openems.common.access_control.AccessControl;
 import io.openems.common.access_control.AuthenticationException;
 import io.openems.common.access_control.RoleId;
+import io.openems.common.access_control.ServiceNotAvailableException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -75,8 +76,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public RoleId authenticate2(String username, String password) {
         try {
-            return AccessControl.getInstance().login(username, password, new RoleId(Long.toString(1L)));
-        } catch (AuthenticationException e) {
+            return AccessControl.getInstance().login(username, password, Long.toString(1L));
+        } catch (ServiceNotAvailableException | AuthenticationException e) {
             this.log.info("Authentication did not succeed", e);
         }
         return null;

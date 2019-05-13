@@ -1,4 +1,4 @@
-package io.openems.edge.core.componentmanager.basic;
+package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -13,10 +13,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import io.openems.common.access_control.Role;
-import io.openems.common.session.User;
-import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.core.componentmanager.OsgiValidateWorker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -26,11 +22,16 @@ import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -56,6 +57,8 @@ import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.session.Role;
+import io.openems.common.session.User;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
@@ -65,22 +68,24 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumDoc;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.JsonApi;
 
-@Designate(
-        ocd = Config.class, factory = false
-)
 @Component( //
-        name = "Core.ComponentManagerBasic", //
+        name = "Core.ComponentManager", //
         immediate = true, //
-        configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class ComponentManagerBasic extends AbstractOpenemsComponent
+        property = { //
+                "id=" + OpenemsConstants.COMPONENT_MANAGER_ID, //
+                "enabled=true" //
+        })
+public class ComponentManagerImpl extends AbstractOpenemsComponent
         implements ComponentManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
-    private final Logger log = LoggerFactory.getLogger(ComponentManagerBasic.class);
+    private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
 
     private final OsgiValidateWorker osgiValidateWorker;
 
@@ -98,7 +103,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
             target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
     protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
-    public ComponentManagerBasic() {
+    public ComponentManagerImpl() {
         super(//
                 OpenemsComponent.ChannelId.values(), //
                 ComponentManager.ChannelId.values() //
@@ -107,7 +112,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     }
 
     @Activate
-    void activate(ComponentContext componentContext, BundleContext bundleContext, Config config) throws OpenemsException {
+    void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
         super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, true);
 
         this.bundleContext = bundleContext;
@@ -125,13 +130,13 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     }
 
     @Override
-    public List<OpenemsComponent> getComponents(Role role) {
-        return Collections.unmodifiableList(this.components);
-    }
-
-    @Override
     public List<OpenemsComponent> getComponents() {
         return Collections.unmodifiableList(this.components);
+
+    }
+
+    protected StateChannel configNotActivatedChannel() {
+        return this.channel(ComponentManager.ChannelId.CONFIG_NOT_ACTIVATED);
     }
 
     @Override
@@ -147,7 +152,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     @Override
     public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
             throws OpenemsNamedException {
-        //role.assertRoleIsAtLeast("handleJsonrpcRequest", io.openems.common.session.Role.GUEST);
+        user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
 
         switch (request.getMethod()) {
 
@@ -171,7 +176,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     /**
      * Handles a GetEdgeConfigRequest.
      *
-     * @param user
+     * @param user    the User
      * @param request the GetEdgeConfigRequest
      * @return the Future JSON-RPC Response
      * @throws OpenemsNamedException on error
@@ -322,7 +327,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
     }
 
     @Override
-    public EdgeConfig getEdgeConfig(Role role) {
+    public EdgeConfig getEdgeConfig() {
         EdgeConfig result = new EdgeConfig();
 
         // get configurations that have an 'id' property -> OpenEMS Components
@@ -349,7 +354,7 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
                 // get Channels
                 TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
                 try {
-                    OpenemsComponent component = this.getComponent(componentId, role);
+                    OpenemsComponent component = this.getComponent(componentId);
                     for (Channel<?> channel : component.channels()) {
                         io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
                         Doc doc = channelId.doc();
@@ -425,11 +430,6 @@ public class ComponentManagerBasic extends AbstractOpenemsComponent
             }
         }
         return result;
-    }
-
-    @Override
-    public EdgeConfig getEdgeConfig() {
-        return this.getEdgeConfig(null);
     }
 
     /**

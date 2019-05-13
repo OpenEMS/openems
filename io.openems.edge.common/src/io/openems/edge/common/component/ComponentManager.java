@@ -7,7 +7,6 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.access_control.Role;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import org.slf4j.Logger;
  */
 public interface ComponentManager {
 
-    // TODO extend interface with roles and stuff
+	// TODO extend interface with roles and stuff
 
 	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
@@ -25,7 +24,7 @@ public interface ComponentManager {
 
 		private final Doc doc;
 
-		ChannelId(Doc doc) {
+		private ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 
@@ -36,24 +35,23 @@ public interface ComponentManager {
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
-	 * 
+	 *
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
-    List<OpenemsComponent> getComponents();
+	List<OpenemsComponent> getComponents();
 
 	/**
 	 * Gets a OpenEMS-Component by its Component-ID.
-	 * 
-	 * @param             <T> the typed Component
+	 *
 	 * @param componentId the Component-ID (e.g. "_sum")
-	 * @param role
+	 * @param             <T> the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
 	@SuppressWarnings("unchecked")
-    default <T extends OpenemsComponent> T getComponent(String componentId, Role role) throws OpenemsNamedException {
-		List<OpenemsComponent> components = this.getComponents(role);
+	default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+		List<OpenemsComponent> components = this.getComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {
 				return (T) component;
@@ -62,46 +60,27 @@ public interface ComponentManager {
 		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
 	}
 
-    default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
-	    return this.getComponent(componentId, null);
-    }
-
 	/**
 	 * Gets a Channel by its Channel-Address.
-	 * 
-	 * @param                <T> the typed Channel
+	 *
 	 * @param channelAddress the Channel-Address
-	 * @param role
+	 * @param                <T> the typed Channel
 	 * @return the Channel
 	 * @throws IllegalArgumentException if the Channel is not available
 	 * @throws OpenemsNamedException    on error
 	 */
-	default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress, Role role)
+	default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
 			throws IllegalArgumentException, OpenemsNamedException {
-		OpenemsComponent component = this.getComponent(channelAddress.getComponentId(), role);
+		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
 		return component.channel(channelAddress.getChannelId());
 	}
 
-    /**
-     * Gets a Channel by its Channel-Address.
-     *
-     * @param                <T> the typed Channel
-     * @param channelAddress the Channel-Address
-     * @return the Channel
-     * @throws IllegalArgumentException if the Channel is not available
-     * @throws OpenemsNamedException    on error
-     */
-    default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
-            throws IllegalArgumentException, OpenemsNamedException {
-        return this.getChannel(channelAddress, null);
-    }
-
-    /**
-     * Gets the complete configuration of this OpenEMS Edge.
-     *
-     * @return the EdgeConfig object
-     */
-    EdgeConfig getEdgeConfig();
+	/**
+	 * Gets the complete configuration of this OpenEMS Edge.
+	 *
+	 * @return the EdgeConfig object
+	 */
+	EdgeConfig getEdgeConfig();
 
 	/**
 	 * Checks whether the corresponding component to the given information is activated
@@ -116,20 +95,4 @@ public interface ComponentManager {
 	void logError(Logger log, String message);
 
 	List<String> checkForNotActivatedComponents();
-
-	/**
-	 * Gets all enabled OpenEMS-Components.
-	 *
-	 * @return a List of OpenEMS-Components
-	 * @throws IllegalArgumentException if the Component was not found
-	 */
-	List<OpenemsComponent> getComponents(Role role);
-
-	/**
-	 * Gets the complete configuration of this OpenEMS Edge.
-	 *
-	 * @return the EdgeConfig object
-	 * @param role
-	 */
-	EdgeConfig getEdgeConfig(Role role);
 }

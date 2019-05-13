@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.openems.common.access_control.RoleId;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		// login using session_id from the handshake
 		Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
 				"session_id");
+
+		RoleId roleId = this.parent.metadata.authenticate2("Kartoffelsalat3000", "user", Long.toString(1L));
+		wsData.setRoleId(roleId);
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID

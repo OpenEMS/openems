@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.metadata.api.BackendUser;
+import io.openems.common.access_control.RoleId;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.websocket.SubscribedChannelsWorker;
@@ -14,9 +15,18 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final SubscribedChannelsWorker subscribedChannelsWorker;
 	private Optional<String> userId = Optional.empty();
 	private Optional<UUID> token = Optional.empty();
+	private RoleId roleId;
 
 	public WsData(UiWebsocketImpl parent) {
 		this.subscribedChannelsWorker = new SubscribedChannelsWorkerMultipleEdges(parent, this);
+	}
+
+	public RoleId getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(RoleId roleId) {
+		this.roleId = roleId;
 	}
 
 	@Override

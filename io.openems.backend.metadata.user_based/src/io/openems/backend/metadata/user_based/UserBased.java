@@ -3,6 +3,8 @@ package io.openems.backend.metadata.user_based;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.common.access_control.AccessControl;
+import io.openems.common.access_control.RoleId;
 import io.openems.common.utils.FileUtils;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
@@ -44,6 +46,7 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
     private final Map<String, Edge> edges = new HashMap<>();
     private String path = "";
     private AtomicInteger sessionId = new AtomicInteger(0);
+    private final AccessControl accessControl = AccessControl.getInstance();
 
     public UserBased() {
         super("Metadata.UserBased");
@@ -69,7 +72,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         return userMap.get("user0");
     }
 
-    @Override
     public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
         Optional<Entry<BackendUser, String>> entryOpt = this.userPasswordMapping.entrySet().stream().filter(
                 entry -> entry.getKey().getId().equals(username)).findFirst();
@@ -93,6 +95,11 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
             return this.sessionIdUserMap.get(sessionId);
         }
         throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+    }
+
+    @Override
+    public RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException {
+        return accessControl.login(userName, password, roleId);
     }
 
     @Override
@@ -188,23 +195,23 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         // parse to JSON
         try {
             JsonElement config = JsonUtils.parse(sb.toString());
-            JsonArray jUsers = JsonUtils.getAsJsonArray(config, JsonKeys.USERS.getValue());
+            JsonArray jUsers = JsonUtils.getAsJsonArray(config, JsonKeys.USERS.value());
             for (JsonElement jUser : jUsers) {
                 // handle the user
-                String userId = JsonUtils.getAsString(jUser, JsonKeys.USER_ID.getValue());
-                String name = JsonUtils.getAsString(jUser, JsonKeys.NAME.getValue());
+                String userId = JsonUtils.getAsString(jUser, JsonKeys.USER_ID.value());
+                String name = JsonUtils.getAsString(jUser, JsonKeys.NAME.value());
                 BackendUser user = new BackendUser(userId, name);
                 this.userMap.put(userId, user);
                 // handle the connected edges
-                for (JsonElement jEdge : JsonUtils.getAsJsonArray(jUser, JsonKeys.EDGES.getValue())) {
-                    String edgeId = JsonUtils.getAsString(jEdge, JsonKeys.EDGE_ID.getValue());
-                    JsonArray permittedChannels = JsonUtils.getAsJsonArray(jEdge, JsonKeys.PERMITTED_CHANNELS.getValue());
+                for (JsonElement jEdge : JsonUtils.getAsJsonArray(jUser, JsonKeys.EDGES.value())) {
+                    String edgeId = JsonUtils.getAsString(jEdge, JsonKeys.EDGE_ID.value());
+                    JsonArray permittedChannels = JsonUtils.getAsJsonArray(jEdge, JsonKeys.PERMITTED_CHANNELS.value());
                     // TODO handle the permissions of the user
                     user.addEdgeRole(edgeId, Role.ADMIN);
                     edges.add(new Edge(//
                             edgeId,
-                            JsonUtils.getAsString(jEdge, JsonKeys.API_KEY.getValue()), //
-                            JsonUtils.getAsString(jEdge, JsonKeys.COMMENT.getValue()), //
+                            JsonUtils.getAsString(jEdge, JsonKeys.API_KEY.value()), //
+                            JsonUtils.getAsString(jEdge, JsonKeys.COMMENT.value()), //
                             State.ACTIVE, // State
                             "", // Version
                             "", // Product-Type
@@ -217,8 +224,8 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
                     List<ChannelAddress> addresses = new ArrayList<>();
                     for (JsonElement channel : permittedChannels) {
                         addresses.add(new ChannelAddress(
-                                JsonUtils.getAsString(channel, JsonKeys.COMPONENT_ID.getValue()),
-                                JsonUtils.getAsString(channel, JsonKeys.CHANNEL_ID.getValue())));
+                                JsonUtils.getAsString(channel, JsonKeys.COMPONENT_ID.value()),
+                                JsonUtils.getAsString(channel, JsonKeys.CHANNEL_ID.value())));
                     }
 
                     user.addEdgeChannel(edgeId, addresses);
