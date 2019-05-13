@@ -123,9 +123,9 @@ export class CurrentData {
             let effectivePower = Utils.addSafely(Utils.subtractSafely(result.storage.chargeActivePowerAC, result.storage.dischargeActivePowerAC), result.production.activePowerDC);
             if (effectivePower != null) {
                 if (effectivePower > 0) {
-                    result.storage.effectiveChargePower = effectivePower;
+                    result.storage.effectiveDischargePower = effectivePower;
                 } else {
-                    result.storage.effectiveDischargePower = effectivePower * -1;
+                    result.storage.effectiveChargePower = effectivePower * -1;
                 }
             }
         }
