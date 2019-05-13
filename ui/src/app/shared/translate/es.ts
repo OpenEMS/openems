@@ -36,7 +36,7 @@ export const TRANSLATION = {
     Menu: {
         Index: "Visión general",
         AboutUI: "Sobre FEMS-UI",
-        Settings: 'Configuración general',
+        GeneralSettings: 'Configuración general',
         EdgeSettings: 'Configuración FEMS',
         Menu: 'Menú',
         Overview: 'estudio FEMS',
