@@ -80,6 +80,8 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Charing Station + E-Vehicel plugged in + locked",
                     ChargingLimit: "Charging limit",
                     ChargingPower: "Charing power",
+                    AmountOfChargingStations: "Amount of charging stations",
+                    TotalChargingPower: "Total charging power",
                     CurrentCharge: "Current charge",
                     TotalCharge: "Total charge",
                     EnforceCharging: "Enforce charging",

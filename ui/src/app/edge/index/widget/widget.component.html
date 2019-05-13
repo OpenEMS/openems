@@ -2,10 +2,6 @@
   <ion-row>
     <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
 
-        <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
-          <evcs [componentId]="widget.componentId"></evcs>
-        </ion-col>
-
       <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12">
         <modbusapi [componentId]="widget.componentId"></modbusapi>
       </ion-col>
@@ -19,5 +15,10 @@
       </ion-col>
 
     </ng-container>
+
+    <ion-col *ngIf="haveEvcsWidget()" size="12">
+      <evcs></evcs>
+    </ion-col>
+
   </ion-row>
 </ion-grid>

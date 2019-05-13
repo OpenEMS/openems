@@ -80,6 +80,8 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Estación de carga + e-Car enchufado + bloqueando",
                     ChargingLimit: "Límite de carga",
                     ChargingPower: "Energía de carga",
+                    AmountOfChargingStations: "Cantidad de estaciones de carga",
+                    TotalChargingPower: "Potencia de carga total",
                     CurrentCharge: "Carga actual",
                     TotalCharge: "Carga total",
                     EnforceCharging: "Forzar la carga",

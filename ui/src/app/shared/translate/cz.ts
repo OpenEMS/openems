@@ -77,6 +77,8 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Nabíjecí stanice + e-car připojené + uzamčena",
                     ChargingLimit: "Omezení nabíjení",
                     ChargingPower: "Nabíjecí výkon",
+                    AmountOfChargingStations: "Počet nabíjecích stanic",
+                    TotalChargingPower: "Celkový nabíjecí výkon",
                     CurrentCharge: "Aktuální nabíjení",
                     TotalCharge: "Celkový poplatek",
                     EnforceCharging: "Prosazování poplatků",

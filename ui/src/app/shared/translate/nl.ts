@@ -77,6 +77,8 @@ export const TRANSLATION = {
                     ChargingStationPluggedInEVLocked: "Laadstation + E-Auto aangesloten + op slot",
                     ChargingLimit: "Laadlimiet",
                     ChargingPower: "Oplaadvermogen",
+                    AmountOfChargingStations: "Aantal laadstations",
+                    TotalChargingPower: "Totaal laadvermogen",
                     CurrentCharge: "Huidige lading",
                     TotalCharge: "Totale lading",
                     EnforceCharging: "Handhaaf het laden",
