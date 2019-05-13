@@ -11,8 +11,8 @@
                 <ion-grid no-padding>
                     <table class="full_width">
                         <tr>
-                            <td style="width:50%"></td>
-                            <ng-container *ngIf="sum.activePower != 0; else empty">
+                            <td style="width:65%"></td>
+                            <ng-container *ngIf="sum.activePower != null; else empty">
                                 <td style="width:25%" class="align_right">{{ sum.activePower | number:'1.0-0' }}</td>
                                 <td style="width:10%">&nbsp;W</td>
                             </ng-container>

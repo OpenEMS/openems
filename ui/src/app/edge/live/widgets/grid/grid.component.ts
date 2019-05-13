@@ -13,7 +13,7 @@ export class GridComponent {
     public edge: Edge = null;
 
     constructor(
-        private service: Service,
+        public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
     ) { }
