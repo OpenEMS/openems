@@ -1,13 +1,12 @@
 package io.openems.edge.controller.api.modbus.jsonrpc;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.dhatim.fastexcel.Color;
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
 
@@ -52,15 +51,48 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 	private static byte[] generatePayload(TreeMap<Integer, String> components, TreeMap<Integer, ModbusRecord> records) {
 		byte[] payload = new byte[0];
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			Workbook wb = new Workbook(os, "MyApplication", "1.0");
-			Worksheet ws = wb.newWorksheet("Sheet 1");
-			
-			ws.value(0, 0, "This is a string in A1");
-			ws.value(0, 2, 1234);
-			ws.value(0, 3, 123456L);
-			ws.value(0, 4, 1.234);
-			wb.finish();
+			Workbook wb = new Workbook(os, "OpenEMS Modbus-TCP", "1.0");
+			Worksheet ws = wb.newWorksheet("Modbus-Table");
 
+			ws.width(COL_ADDRESS, 10);
+			ws.width(COL_DESCRIPTION, 25);
+			ws.width(COL_TYPE, 10);
+			ws.width(COL_VALUE, 35);
+			ws.width(COL_UNIT, 20);
+			ws.width(COL_ACCESS, 10);
+			// Add headers
+			addSheetHeader(wb, ws);
+			// Create Sheet
+			int nextRow = 1;
+			for (Entry<Integer, ModbusRecord> entry : records.entrySet()) {
+				int address = entry.getKey();
+
+				String component = components.get(address);
+				if (address == 0 || component != null) {
+					if (address == 0) {
+						// Add the global header row
+						addComponentHeader(ws, "Header", nextRow);
+					} else {
+						// Add Component-Header-Row
+						addComponentHeader(ws, component, nextRow);
+					}
+					nextRow++;
+				}
+
+				// Add a Record-Row
+				ModbusRecord record = entry.getValue();
+				if (nextRow % 2 == 0) {
+					addRecord(ws, address, record, nextRow);
+				} else {
+					addRecord(ws, address, record, nextRow);
+				}
+				nextRow++;
+			}
+			// Shading alternative Rows
+			ws.range(1, 0, nextRow, 5).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
+			// Add undefined values sheet
+			addUndefinedSheet(wb);
+			wb.finish();
 			os.flush();
 			payload = os.toByteArray();
 			os.close();
@@ -68,196 +100,83 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-//		try (Workbook workbook = new XSSFWorkbook()) {
-//			Sheet sheet = workbook.createSheet("Modbus-Table");
-//			addSheetHeader(workbook, sheet);
-//
-//			// define Styles
-//			CellStyle recordStyleEven = workbook.createCellStyle();
-//			recordStyleEven.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
-//			recordStyleEven.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//			CellStyle recordStyleOdd = workbook.createCellStyle();
-//			XSSFFont componentHeaderFont = ((XSSFWorkbook) workbook).createFont();
-//			componentHeaderFont.setBold(true);
-//			componentHeaderFont.setFontHeight(15);
-//			componentHeaderFont.setColor(IndexedColors.DARK_BLUE.getIndex());
-//			CellStyle componentHeaderStyle = workbook.createCellStyle();
-//			componentHeaderStyle.setFont(componentHeaderFont);
-//			componentHeaderStyle.setBorderBottom(BorderStyle.THICK);
-//			componentHeaderStyle.setBottomBorderColor(IndexedColors.DARK_BLUE.getIndex());
-//
-//			// Create Sheet
-//			int nextRow = 1;
-//			for (Entry<Integer, ModbusRecord> entry : records.entrySet()) {
-//				int address = entry.getKey();
-//
-//				String component = components.get(address);
-//				if (address == 0 || component != null) {
-//					if (address == 0) {
-//						// Add the global header row
-//						addComponentHeader(sheet, componentHeaderStyle, "Header", nextRow);
-//					} else {
-//						// Add Component-Header-Row
-//						addComponentHeader(sheet, componentHeaderStyle, component, nextRow);
-//					}
-//					nextRow++;
-//				}
-//
-//				// Add a Record-Row
-//				ModbusRecord record = entry.getValue();
-//				if (nextRow % 2 == 0) {
-//					addRecord(sheet, recordStyleEven, address, record, nextRow);
-//				} else {
-//					addRecord(sheet, recordStyleOdd, address, record, nextRow);
-//				}
-//				nextRow++;
-//			}
-//
-//			// Add a Sheet to describe undefined values
-//			addUndefinedSheet(workbook);
-//			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//
-//			workbook.write(outputStream);
-//			payload = outputStream.toByteArray();
-//		} catch (IOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
 		return payload;
 	}
 
-//	private static void addSheetHeader(Workbook workbook, Sheet sheet) {
-//		sheet.setColumnWidth(COL_ADDRESS, 4_000);
-//		sheet.setColumnWidth(COL_DESCRIPTION, 10_000);
-//		sheet.setColumnWidth(COL_TYPE, 3_000);
-//		sheet.setColumnWidth(COL_VALUE, 10_000);
-//		sheet.setColumnWidth(COL_UNIT, 4_000);
-//		sheet.setColumnWidth(COL_ACCESS, 3_000);
-//		Row header = sheet.createRow(0);
-//
-//		CellStyle style = workbook.createCellStyle();
-//		XSSFFont font = ((XSSFWorkbook) workbook).createFont();
-//		font.setBold(true);
-//		style.setFont(font);
-//
-//		Cell cell = header.createCell(COL_ADDRESS);
-//		cell.setCellValue("Address");
-//		cell.setCellStyle(style);
-//		cell = header.createCell(COL_DESCRIPTION);
-//		cell.setCellValue("Description");
-//		cell.setCellStyle(style);
-//		cell = header.createCell(COL_TYPE);
-//		cell.setCellValue("Type");
-//		cell.setCellStyle(style);
-//		cell = header.createCell(COL_VALUE);
-//		cell.setCellValue("Value/Range");
-//		cell.setCellStyle(style);
-//		cell = header.createCell(COL_UNIT);
-//		cell.setCellValue("Unit");
-//		cell.setCellStyle(style);
-//		cell = header.createCell(COL_ACCESS);
-//		cell.setCellValue("Access");
-//		cell.setCellStyle(style);
-//
-//		// Add Auto-Filter
-//		sheet.setAutoFilter(new CellRangeAddress(0, 0, 0, COL_ACCESS));
-//	}
-//
-//	private static void addComponentHeader(Sheet sheet, CellStyle style, String title, int rowCount) {
-//		Row row = sheet.createRow(rowCount);
-//		Cell cell = row.createCell(0);
-//		cell.setCellValue(title);
-//		cell.setCellStyle(style);
-//		for (int i = 1; i <= COL_ACCESS; i++) {
-//			cell = row.createCell(i);
-//			cell.setCellStyle(style);
-//		}
-//	}
-//
-//	private static void addRecord(Sheet sheet, CellStyle style, int address, ModbusRecord record, int rowCount) {
-//		Row row = sheet.createRow(rowCount);
-//		Cell cell = row.createCell(COL_ADDRESS);
-//		cell.setCellValue(address);
-//		cell.setCellStyle(style);
-//		cell = row.createCell(COL_DESCRIPTION);
-//		cell.setCellValue(record.getName());
-//		cell.setCellStyle(style);
-//		cell = row.createCell(COL_TYPE);
-//		cell.setCellValue(record.getType().toString());
-//		cell.setCellStyle(style);
-//		cell = row.createCell(COL_VALUE);
-//		cell.setCellValue(record.getValueDescription());
-//		cell.setCellStyle(style);
-//		cell = row.createCell(COL_UNIT);
-//		Unit unit = record.getUnit();
-//		if (unit != Unit.NONE) {
-//			cell.setCellValue(record.getUnit().toString());
-//		}
-//		cell.setCellStyle(style);
-//		cell = row.createCell(COL_ACCESS);
-//		cell.setCellValue(record.getAccessMode().getAbbreviation());
-//		cell.setCellStyle(style);
-//	}
-//
-//	/**
-//	 * Add Sheet to describe UNDEFINED values.
-//	 * 
-//	 * @param workbook the Workbook
-//	 */
-//	private static void addUndefinedSheet(Workbook workbook) {
-//		Sheet sheet = workbook.createSheet("Undefined values");
-//		Row row;
-//		Cell cell;
-//
-//		row = sheet.createRow(0);
-//		cell = row.createCell(0);
-//		cell.setCellValue("In case a modbus value is 'undefined', the following value will be read:");
-//
-//		row = sheet.createRow(1);
-//		cell = row.createCell(0);
-//		cell.setCellValue("type");
-//		cell = row.createCell(1);
-//		cell.setCellValue("value");
-//
-//		// Add Auto-Filter
-//		sheet.setAutoFilter(new CellRangeAddress(1, 1, 0, 1));
-//
-//		int nextRow = 2;
-//		for (ModbusType modbusType : ModbusType.values()) {
-//			byte[] value = new byte[0];
-//			switch (modbusType) {
-//			case FLOAT32:
-//				value = ModbusRecordFloat32.UNDEFINED_VALUE;
-//				break;
-//			case FLOAT64:
-//				value = ModbusRecordFloat64.UNDEFINED_VALUE;
-//				break;
-//			case STRING16:
-//				value = ModbusRecordString16.UNDEFINED_VALUE;
-//				break;
-//			case UINT16:
-//				value = ModbusRecordUint16.UNDEFINED_VALUE;
-//				break;
-//			}
-//
-//			row = sheet.createRow(nextRow++);
-//			cell = row.createCell(0);
-//			cell.setCellValue(modbusType.toString());
-//			cell = row.createCell(1);
-//			cell.setCellValue(byteArrayToString(value));
-//		}
-//	}
-//
-//	private static String byteArrayToString(byte[] value) {
-//		if (value.length == 0) {
-//			return "";
-//		}
-//		StringBuilder result = new StringBuilder("0x");
-//		for (byte b : value) {
-//			result.append(Integer.toHexString(b & 0xff));
-//		}
-//		return result.toString();
-//	}
+	public static void addSheetHeader(Workbook workbook, Worksheet sheet) {
+
+		sheet.value(0, COL_ADDRESS, "Address");
+		sheet.value(0, COL_DESCRIPTION, "Description");
+		sheet.value(0, COL_TYPE, "Type");
+		sheet.value(0, COL_VALUE, "Value/Range");
+		sheet.value(0, COL_UNIT, "Unit");
+		sheet.value(0, COL_ACCESS, "Access");
+		sheet.style(0, 0).bold().fillColor(Color.GRAY5).borderStyle("thin");
+	}
+
+	public static void addComponentHeader(Worksheet sheet, String title, int rowCount) {
+		sheet.value(rowCount, 0, title);
+		sheet.style(rowCount, 0).bold().fillColor(Color.GRAY10).borderStyle("thin");
+	}
+
+	public static void addRecord(Worksheet sheet, int address, ModbusRecord record, int rowCount) {
+		sheet.value(rowCount, COL_ADDRESS, address);
+		sheet.value(rowCount, COL_DESCRIPTION, record.getName());
+		sheet.value(rowCount, COL_TYPE, record.getType().toString());
+		sheet.value(rowCount, COL_VALUE, record.getValueDescription());
+		Unit unit = record.getUnit();
+		if (unit != Unit.NONE) {
+			sheet.value(rowCount, COL_UNIT, unit.toString());
+		}
+		sheet.value(rowCount, COL_ACCESS, record.getAccessMode().getAbbreviation());
+	}
+
+	/**
+	 * Add Sheet to describe UNDEFINED values.
+	 * 
+	 * @param workbook the Workbook
+	 */
+	private static void addUndefinedSheet(Workbook wb) {
+		Worksheet ws = wb.newWorksheet("Undefined values");
+
+		ws.value(0, COL_ADDRESS, "In case a modbus value is 'undefined', the following value will be read:");
+		ws.value(1, 0, "type");
+		ws.value(1, 1, "value");
+
+		int nextRow = 2;
+		for (ModbusType modbusType : ModbusType.values()) {
+			byte[] value = new byte[0];
+			switch (modbusType) {
+			case FLOAT32:
+				value = ModbusRecordFloat32.UNDEFINED_VALUE;
+				break;
+			case FLOAT64:
+				value = ModbusRecordFloat64.UNDEFINED_VALUE;
+				break;
+			case STRING16:
+				value = ModbusRecordString16.UNDEFINED_VALUE;
+				break;
+			case UINT16:
+				value = ModbusRecordUint16.UNDEFINED_VALUE;
+				break;
+			}
+
+			ws.value(nextRow, 0, modbusType.toString());
+			ws.value(nextRow, 1, byteArrayToString(value));
+			//Alternate Row shading
+			ws.range(1, 0, nextRow, 2).style().borderStyle("thin").shadeAlternateRows(Color.GRAY1).set();
+		}
+	}
+
+	private static String byteArrayToString(byte[] value) {
+		if (value.length == 0) {
+			return "";
+		}
+		StringBuilder result = new StringBuilder("0x");
+		for (byte b : value) {
+			result.append(Integer.toHexString(b & 0xff));
+		}
+		return result.toString();
+	}
 
 }
