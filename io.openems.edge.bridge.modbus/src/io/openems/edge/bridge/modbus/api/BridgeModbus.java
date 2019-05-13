@@ -44,4 +44,5 @@ public interface BridgeModbus extends OpenemsComponent {
 	 * @param sourceId the unique source identifier
 	 */
 	public void removeProtocol(String sourceId);
+
 }

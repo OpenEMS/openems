@@ -79,7 +79,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	public void removeProtocol(String sourceId) {
 		this.worker.removeProtocol(sourceId);
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {

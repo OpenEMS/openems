@@ -180,6 +180,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		case RUNNING:
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
+			} else if (!this.isSystemRunning()) {
+				this.setStateMachineState(State.UNDEFINED);				
 			} else {
 				// if minimal cell voltage is lower than configured minimal cell voltage, then force system to charge
 				IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
@@ -191,8 +193,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						// TODO check if this is working!
 						this.getDischargeMaxCurrent().setNextValue( (-1) * this.getChargeMaxCurrent().value().get() );
 					}
-				}
-				
+				}				
 				readyForWorking = true;
 			}
 			break;

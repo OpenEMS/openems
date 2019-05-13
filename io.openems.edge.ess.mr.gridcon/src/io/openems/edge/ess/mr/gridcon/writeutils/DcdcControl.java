@@ -1,10 +1,15 @@
-package io.openems.edge.ess.mr.gridcon;
+package io.openems.edge.ess.mr.gridcon.writeutils;
 
 import io.openems.common.exceptions.OpenemsException;
+
+import java.util.Optional;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.ess.mr.gridcon.Config;
+import io.openems.edge.ess.mr.gridcon.GridconPCS;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 
 public class DcdcControl {
@@ -40,34 +45,31 @@ public class DcdcControl {
 
 	public DcdcControl stringControlMode(ComponentManager componentManager, Config config)
 			throws OpenemsNamedException {
-		int weightingMode = 0;
+		int weightingMode = 0; 		// Depends on number of battery strings!!!
 
-		// Depends on number of battery strings!!!
-		// battA = 1 (2^0)
-		// battB = 8 (2^3)
-		// battC = 64 (2^6)
-
-		if (config.batteryStringA_id() != null && config.batteryStringA_id().length() > 0) {
-			Battery batteryStringA = componentManager.getComponent(config.batteryStringA_id());
-			if (batteryStringA != null) {
-				weightingMode = weightingMode + 1;
-			}
-		}
-		if (config.batteryStringB_id() != null && config.batteryStringB_id().length() > 0) {
-			Battery batteryStringB = componentManager.getComponent(config.batteryStringB_id());
-			if (batteryStringB != null) {
-				weightingMode = weightingMode + 8;
-			}
-		}
-		if (config.batteryStringC_id() != null && config.batteryStringC_id().length() > 0) {
-			Battery batteryStringC = componentManager.getComponent(config.batteryStringC_id());
-			if (batteryStringC != null) {
-				weightingMode = weightingMode + 64;
-			}
-		}
-
+		weightingMode = weightingMode + calcWeightingMode(config.batteryStringA_id(), 1, componentManager); // battA = 1 (2^0)
+		weightingMode = weightingMode + calcWeightingMode(config.batteryStringB_id(), 8, componentManager);	// battB = 8 (2^3)		
+		weightingMode = weightingMode + calcWeightingMode(config.batteryStringC_id(), 64, componentManager); // battC = 64 (2^6)
+		
+		System.out.println("Weighting mode: " + weightingMode);
+		
 		this.stringControlMode = weightingMode;
+		
 		return this;
+	}
+
+	private int calcWeightingMode(String batteryStringId, int weightingValue, ComponentManager componentManager) throws OpenemsNamedException {
+		//If the battery is connected and switched on and ready for working it can be considered for weighting
+		if (batteryStringId != null && batteryStringId.length() > 0) {
+			Battery battery = componentManager.getComponent(batteryStringId);			 
+			if (battery != null) {
+				Optional<Boolean> batteryReady = battery.getReadyForWorking().value().asOptional();
+				if (batteryReady.isPresent() && batteryReady.get()) {
+					return weightingValue;					
+				}				
+			}
+		}
+		return 0;
 	}
 
 	public void writeToChannels(GridconPCS parent) throws IllegalArgumentException, OpenemsNamedException {
