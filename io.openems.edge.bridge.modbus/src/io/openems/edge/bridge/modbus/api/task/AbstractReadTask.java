@@ -21,8 +21,6 @@ import io.openems.edge.common.taskmanager.Priority;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link AbstractModbusElement} which have register addresses in the same
  * range.
- * 
- * @author stefan.feilmeier
  */
 public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTask {
 
@@ -35,13 +33,14 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		this.priority = priority;
 	}
 
-	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		T[] response;
 		try {
 			/*
 			 * First try
 			 */
 			response = this.readElements(bridge);
+
 		} catch (OpenemsException | ModbusException e) {
 			/*
 			 * Second try: with new connection
@@ -49,6 +48,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 			bridge.closeModbusConnection();
 			try {
 				response = this.readElements(bridge);
+
 			} catch (ModbusException e2) {
 				for (ModbusElement<?> elem : this.getElements()) {
 					if (!elem.isIgnored()) {
@@ -65,7 +65,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 					"Received message is too short. Expected [" + getLength() + "], got [" + response.length + "]");
 		}
 
-		fillElements(response);
+		this.fillElements(response);
 		return 1;
 	}
 
@@ -148,4 +148,5 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		log.error("A " + getRequiredElementName() + " is required for a " + getActiondescription() + "Task! Element ["
 				+ modbusElement + "]");
 	}
+
 }

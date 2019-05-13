@@ -112,7 +112,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.readOnlyMode = config.readOnlyMode();
 	}
@@ -1215,8 +1216,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40Impl.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x021B),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40Impl.ChannelId.FREQUENCY, new UnsignedWordElement(0x021C))), //
-				new FC3ReadRegistersTask(0x0222, Priority.HIGH, //
+						m(EssFeneconCommercial40Impl.ChannelId.FREQUENCY, new UnsignedWordElement(0x021C)), //
+						new DummyRegisterElement(0x021D, 0x0221), //
 						m(EssFeneconCommercial40Impl.ChannelId.INVERTER_VOLTAGE_L1, new UnsignedWordElement(0x0222),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40Impl.ChannelId.INVERTER_VOLTAGE_L2, new UnsignedWordElement(0x0223),
@@ -1513,7 +1514,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40Impl.ChannelId.CELL_222_VOLTAGE, new UnsignedWordElement(0x15DD)),
 						m(EssFeneconCommercial40Impl.ChannelId.CELL_223_VOLTAGE, new UnsignedWordElement(0x15DE)),
 						m(EssFeneconCommercial40Impl.ChannelId.CELL_224_VOLTAGE, new UnsignedWordElement(0x15DF))),
-				new FC3ReadRegistersTask(0x1402, Priority.HIGH, //
+				new FC3ReadRegistersTask(0x1402, Priority.LOW, //
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 	}
 

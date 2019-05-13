@@ -48,7 +48,7 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
   }];
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentComponent('', this.route);
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "%";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {

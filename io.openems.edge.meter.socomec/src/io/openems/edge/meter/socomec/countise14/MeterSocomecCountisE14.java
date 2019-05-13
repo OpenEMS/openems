@@ -61,7 +61,7 @@ public class MeterSocomecCountisE14 extends AbstractOpenemsModbusComponent
 		this.meterType = config.type();
 		this.phase = config.phase();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
 		SinglePhaseMeter.initializeCopyPhaseChannel(this, this.phase);

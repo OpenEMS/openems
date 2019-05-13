@@ -10,5 +10,4 @@ import io.openems.edge.common.taskmanager.ManagedTask;
  * WriteTask} inherits from ReadTask.
  */
 public interface ReadTask extends Task, ManagedTask {
-
 }

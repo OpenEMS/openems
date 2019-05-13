@@ -87,7 +87,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {

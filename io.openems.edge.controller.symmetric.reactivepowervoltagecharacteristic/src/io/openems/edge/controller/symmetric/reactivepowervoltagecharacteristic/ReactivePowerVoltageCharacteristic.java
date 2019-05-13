@@ -84,7 +84,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}

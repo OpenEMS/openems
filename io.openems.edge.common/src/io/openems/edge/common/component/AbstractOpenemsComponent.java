@@ -34,6 +34,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
 
 	private String id = null;
+	private String alias = null;
 	private ComponentContext componentContext = null;
 	private boolean enabled = true;
 
@@ -84,13 +85,21 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * 
 	 * @param context the OSGi ComponentContext
 	 * @param id      the unique OpenEMS Component ID
+	 * @param alias   Human-readable name of this Component. Typically
+	 *                'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled is the Component enabled?
 	 */
-	protected void activate(ComponentContext context, String id, boolean enabled) {
-		if (id == null || id.trim().equals("")) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+		if (id == null || id.trim().isEmpty()) {
 			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
 		} else {
 			this.id = id;
+		}
+
+		if (alias == null || alias.trim().isEmpty()) {
+			this.alias = this.id;
+		} else {
+			this.alias = alias;
 		}
 
 		this.enabled = enabled;
@@ -190,6 +199,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public String id() {
 		return this.id;
+	}
+
+	@Override
+	public String alias() {
+		return this.alias;
 	}
 
 	@Override

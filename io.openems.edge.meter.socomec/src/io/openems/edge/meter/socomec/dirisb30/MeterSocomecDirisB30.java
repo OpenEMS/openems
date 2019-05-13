@@ -58,7 +58,7 @@ public class MeterSocomecDirisB30 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
 

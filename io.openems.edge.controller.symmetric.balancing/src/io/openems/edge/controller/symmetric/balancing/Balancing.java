@@ -61,7 +61,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
 

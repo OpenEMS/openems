@@ -81,4 +81,18 @@ public enum Level implements OptionsEnum {
 		}
 		return Level.fromValue(valueOpt.get());
 	}
+
+	/**
+	 * Gets the Level from a JsonElement.
+	 * 
+	 * @param element the JsonElement
+	 * @return the Level
+	 */
+	public static Optional<Level> fromJson(JsonElement element) {
+		Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(element);
+		if (!valueOpt.isPresent()) {
+			return Optional.empty();
+		}
+		return Level.fromValue(valueOpt.get());
+	}
 }

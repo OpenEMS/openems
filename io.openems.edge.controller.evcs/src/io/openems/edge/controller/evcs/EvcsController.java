@@ -54,8 +54,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Reference
 	protected ConfigurationAdmin cm;
-	
-	Evcs evcs;
 
 	@Reference
 	private Sum sum;
@@ -99,7 +97,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.enabledCharging = config.enabledCharging();
 		this.forceChargeMinPower = Math.max(0, config.forceChargeMinPower()); // at least '0'
@@ -119,17 +117,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.channel(ChannelId.CHARGE_MODE).setNextValue(chargeMode);
 		this.channel(ChannelId.PRIORITY).setNextValue(priority);
 		this.channel(ChannelId.ENABLED_CHARGING).setNextValue(enabledCharging);
-		
-		evcs = this.componentManager.getComponent(this.evcsId);
-		if(!enabledCharging) {
-			evcs.setChargePower().setNextWriteValue(0);
-		}
-		//evcs.setEnabled().setNextWriteValue(enabledCharging);
-		
-		// update filter for 'evcs'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", evcsId)) {
-			return;
-		}
 	}
 
 	@Deactivate
@@ -139,9 +126,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		Evcs evcs = this.componentManager.getComponent(this.evcsId);
 
 		// Executes only if charging is enabled
 		if (!this.enabledCharging) {
+			evcs.setChargePower().setNextWriteValue(0);
 			return;
 		}
 
@@ -150,7 +139,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			return;
 		}
 
-		
 		// Channel<Integer> phases = evcs.channel("Phases");
 
 		int nextChargePower = 0;

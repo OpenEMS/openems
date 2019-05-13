@@ -89,7 +89,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
 				this.ess.getModbusBridgeId());
 
 		// update filter for 'Ess'

@@ -121,7 +121,7 @@ public class TasksManager<T extends ManagedTask> {
 	 * @param priority the Priority
 	 * @return a list of Tasks
 	 */
-	public synchronized List<T> getTasks(Priority priority) {
+	public synchronized List<T> getAllTasks(Priority priority) {
 		switch (priority) {
 		case HIGH:
 			return Collections.unmodifiableList(this.prioHighTasks);
@@ -199,7 +199,7 @@ public class TasksManager<T extends ManagedTask> {
 	 * @return the next task; null if there are no tasks with the given Priority
 	 */
 	public synchronized T getOneTask(Priority priority) {
-		List<T> tasks = this.getTasks(priority);
+		List<T> tasks = this.getAllTasks(priority);
 		if (tasks.isEmpty()) {
 			return null;
 		}
