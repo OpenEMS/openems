@@ -92,7 +92,7 @@
     "typescript": "~3.1.6",
     "webpack": "^4.31.0"
   },
-  "description": "OpenEMS UI",
+  "description": "FEMS",
   "cordova": {
     "plugins": {
       "cordova-plugin-whitelist": {},
