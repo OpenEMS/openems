@@ -1,4 +1,5 @@
 import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
+import { ChannelAddress } from '../type/channeladdress';
 
 export class EdgeConfig {
 
@@ -174,6 +175,20 @@ export class EdgeConfig {
             return {};
         }
     }
+
+    /**
+     * Get Channel.
+     * 
+     * @param address the ChannelAddress
+     */
+    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
+        let component = this.components[address.componentId];
+        if (component) {
+            return component.channels[address.channelId];
+        } else {
+            return null;
+        }
+    }
 }
 
 export module EdgeConfig {
@@ -186,6 +201,7 @@ export module EdgeConfig {
 
     export class Component {
         public id: string = "";
+        public alias: string = "";
 
         constructor(
             public readonly factoryId: string = "",

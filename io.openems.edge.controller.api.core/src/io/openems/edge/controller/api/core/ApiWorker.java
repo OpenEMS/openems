@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.core;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -11,9 +12,17 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.SetChannelValueRequest;
+import io.openems.common.session.User;
+import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 
 /**
  * Takes care of continuously writing channels till a timeout. This class is
@@ -42,12 +51,55 @@ public class ApiWorker {
 	}
 
 	public void addValue(WriteChannel<?> channel, WriteObject writeObject) {
-		log.info("Set [" + channel.address() + "] to [" + writeObject.valueToString() + "] via API. Timeout is ["
-				+ this.timeoutSeconds + "s]");
 		this.resetTimeout();
 		synchronized (this.values) {
-			this.values.put(channel, writeObject);
+			if (writeObject.isNull()) {
+				// set null -> remove write-value
+				log.info("Unset [" + channel.address() + "] via API.");
+				this.values.remove(channel);
+			} else {
+				// set write-value
+				log.info("Set [" + channel.address() + "] to [" + writeObject.valueToString()
+						+ "] via API. Timeout is [" + this.timeoutSeconds + "s]");
+				this.values.put(channel, writeObject);
+			}
 		}
+	}
+
+	/**
+	 * Adds a value via JSON-RPC SetChannelValueRequest.
+	 * 
+	 * @param user    the authenticated User
+	 * @param request the Request
+	 * @return success
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
+	 */
+	public CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(ComponentManager componentManager,
+			User user, SetChannelValueRequest request) throws IllegalArgumentException, OpenemsNamedException {
+		// check for writable channel
+		Channel<?> channel = componentManager.getChannel(request.getChannelAddress());
+		if (!(channel instanceof WriteChannel<?>)) {
+			throw new OpenemsException("[" + channel + "] is not a Write Channel");
+		}
+
+		// parse value
+		Object value;
+		if (request.getValue().isJsonNull()) {
+			value = null;
+		} else {
+			value = JsonUtils.getAsBestType(request.getValue());
+			if (value instanceof String && ((String) value).isEmpty()
+					&& channel.channelId().doc().getType() != OpenemsType.STRING) {
+				// Allow non-string Channels to be set to 'UNDEFINED' using an empty string
+				value = null;
+			}
+		}
+
+		// set value
+		this.addValue((WriteChannel<?>) channel, new WritePojo(value));
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	private synchronized void resetTimeout() {

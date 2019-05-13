@@ -1,33 +1,33 @@
 <ion-grid>
   <ion-row justify-content-center>
-    <ion-col size="12" size-md="6">
+    <ion-col size="12" size-md="6" size-lg="4">
+
       <!-- Waiting for authentication -->
-      <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'" padding>
-        <ion-item lines="none">
-          <ion-icon slot="start" name="contact" color="primary"></ion-icon>
-          <ion-label>
-            <ion-card-title>Login</ion-card-title>
-            <ion-card-subtitle text-wrap>
-              Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
-            </ion-card-subtitle>
-          </ion-label>
+      <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
+        <ion-item color="primary" lines="full">
+          <ion-icon slot="start" name="contact"></ion-icon>
+          <ion-label>Login</ion-label>
         </ion-item>
 
         <ion-card-content>
-          <ion-item lines="inset">
-            <form [formGroup]="form" (ngSubmit)="doLogin()" (keyup.enter)="doLogin()">
-              <ion-label position="floating">Passwort</ion-label>
-              <ion-input formControlName="password" required type="password" placeholder="Passwort"></ion-input>
-            </form>
-          </ion-item>
-          <!-- Messages -->
-          <p>
-            {{ (websocket.event | async)?.message }}
-          </p>
-          <ion-button float-right (click)="doLogin()">
-            <ion-icon slot="icon-only" name="log-in"></ion-icon>
-          </ion-button>
+          <form (ngSubmit)="doLogin(password.value)">
+            <div padding>
+              <ion-item>
+                <ion-text text-wrap color="medium">
+                  Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
+                </ion-text>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Passwort</ion-label>
+                <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
+              </ion-item>
+              <ion-button float-right type="submit">
+                <ion-icon slot="icon-only" name="log-in"></ion-icon>
+              </ion-button>
+            </div>
+          </form>
         </ion-card-content>
+
       </ion-card>
     </ion-col>
   </ion-row>
@@ -54,7 +54,7 @@
                 <p>ID: {{ edge.id }}</p>
                 <p text-wrap>Typ: {{ edge.producttype }}</p>
               </ng-container>
-              <p text-wrap>Angemeldet als: {{ edge.role }}.</p>
+              <p text-wrap>Angemeldet als: {{ edge.getRoleString() }}.</p>
             </ion-label>
             <ion-icon *ngIf="edge.isOnline" slot="end" name="play" color="primary"></ion-icon>
             <ion-icon *ngIf="!edge.isOnline" slot="end" name="square" color="primary"></ion-icon>

@@ -7,8 +7,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Channel Threshold", //
 		description = "This controller switches a Digital Output channel ON, if the value of the input channel is within a configured threshold. This behaviour can be inverted using the 'invert' config option.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlChannelThreshold0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")

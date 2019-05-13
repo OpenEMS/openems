@@ -327,7 +327,7 @@ public class OdooUtils {
 	 * @param credentials the Odoo credentials
 	 * @param model       Odoo model (e.g. 'res.partner')
 	 * @param id          id of model
-	 * @param fields      fields that should be read
+	 * @param message     the message
 	 * @throws OpenemsException on error
 	 */
 	protected static void addChatterMessage(OdooCredentials credentials, String model, int id, String message)
@@ -355,7 +355,7 @@ public class OdooUtils {
 	 * @param fieldValues fields and values that should be written
 	 * @throws OpenemsException on error
 	 */
-	protected static void write(OdooCredentials credentials, String model, Integer[] ids, FieldValue... fieldValues)
+	protected static void write(OdooCredentials credentials, String model, Integer[] ids, FieldValue<?>... fieldValues)
 			throws OpenemsException {
 		// // for debugging:
 		// StringBuilder b = new StringBuilder("Odoo Write: " + model + "; ");
@@ -372,7 +372,7 @@ public class OdooUtils {
 		String action = "write";
 		// Add fieldValues
 		Map<String, Object> paramsFieldValues = new HashMap<>();
-		for (FieldValue fieldValue : fieldValues) {
+		for (FieldValue<?> fieldValue : fieldValues) {
 			paramsFieldValues.put(fieldValue.getField().n(), fieldValue.getValue());
 		}
 		// Create request params

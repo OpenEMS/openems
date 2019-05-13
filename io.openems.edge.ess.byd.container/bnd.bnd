@@ -1,0 +1,25 @@
+Bundle-Name: OpenEMS Edge ESS FENECON BYD-Container
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Vendor: FENECON GmbH
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: This is a bundle which implements the BYD container.
+
+Export-Package: \
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.power.api
+
+Private-Package: \
+	io.openems.edge.ess.byd.container
+
+-includeresource: {readme.md}
+
+-buildpath: ${buildpath},\
+	io.openems.edge.ess.api;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8

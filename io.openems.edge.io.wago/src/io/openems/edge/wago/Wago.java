@@ -104,7 +104,8 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		/*
 		 * Async Create Channels dynamically from ea-config.xml file
 		 */

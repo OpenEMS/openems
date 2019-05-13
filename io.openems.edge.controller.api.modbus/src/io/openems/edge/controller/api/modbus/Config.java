@@ -9,8 +9,14 @@ import io.openems.common.channel.AccessMode;
 		name = "Controller Api Modbus/TCP", //
 		description = "This controller provides a Modbus/TCP api.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlApiModbusTcp0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Port", description = "Port on which the server should listen.")

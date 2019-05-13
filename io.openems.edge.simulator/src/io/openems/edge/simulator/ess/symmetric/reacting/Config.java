@@ -9,8 +9,14 @@ import io.openems.edge.common.sum.GridMode;
 		name = "Simulator EssSymmetric Reacting", //
 		description = "This simulates a 'reacting' symmetric Energy Storage System.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Datasource-ID", description = "ID of Simulator Datasource.")

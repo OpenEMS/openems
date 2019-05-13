@@ -308,8 +308,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * the calculated power to the ESS. If you need to constrain the allowed power,
 	 * add Constraints using the {@link #getStaticConstraints()} method.
 	 * 
-	 * @param activePower   the active power
-	 * @param reactivePower the reactive power
+	 * @param activePower   the active power in [W]
+	 * @param reactivePower the reactive power in [var]
 	 * @throws OpenemsException      on error; causes activation of
 	 *                               APPLY_POWER_FAILED StateChannel
 	 * @throws OpenemsNamedException

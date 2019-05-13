@@ -23,7 +23,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.channel.Level;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -49,15 +48,46 @@ public class JsonUtils {
 		return jPrimitive.getAsBoolean();
 	}
 
-	@SuppressWarnings("unchecked")
+	public static Optional<Boolean> getAsOptionalBoolean(JsonElement element, String memberName) {
+		try {
+			return Optional.of(getAsBoolean(element, memberName));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
 	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement, String memberName)
 			throws OpenemsNamedException {
 		String element = getAsString(jElement, memberName);
 		try {
-			return (E) Enum.valueOf(Level.class, element);
+			return (E) Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
-			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, jElement.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
 		}
+	}
+
+	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
+			String memberName) {
+		Optional<String> elementOpt = getAsOptionalString(jElement, memberName);
+		if (!elementOpt.isPresent()) {
+			return Optional.empty();
+		}
+		try {
+			return Optional.ofNullable((E) Enum.valueOf(enumType, elementOpt.get()));
+		} catch (IllegalArgumentException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static int getAsInt(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsInt();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Integer.parseInt(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER.exception(jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
 	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsNamedException {
@@ -218,6 +248,14 @@ public class JsonUtils {
 			return Long.parseLong(string);
 		}
 		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static Optional<Integer> getAsOptionalInt(JsonElement jElement) {
+		try {
+			return Optional.of(getAsInt(jElement));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
 	}
 
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {

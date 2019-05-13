@@ -1,0 +1,49 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <img src="assets/img/storage.png">
+                </ion-avatar>
+                <ion-label translate>General.StorageSystem</ion-label>
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary.storage as sum">
+                <ion-grid no-padding>
+                    <table class="full_width">
+                        <tr class="underline">
+                            <td style="width:50%" translate>General.Soc</td>
+                            <td style="width:15%"></td>
+                            <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
+                            <td style="width:10%">&nbsp;%</td>
+                        </tr>
+                        <tr>
+                            <td style="width:50%" translate>General.ChargePower</td>
+                            <td style="width:15%"></td>
+                            <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
+                                <td style="width:25%">{{ sum.effectiveChargePower | number:'1.0-0' }}</td>
+                                <td style="width:50%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                        <tr>
+                            <td translate>General.DischargePower</td>
+                            <td style="width:15%"></td>
+                            <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.effectiveDischargePower | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

@@ -10,13 +10,19 @@ import io.openems.edge.ess.api.SinglePhase;
 		name = "Simulator EssSinglePhase Reacting", //
 		description = "This simulates a 'reacting' single-phase Energy Storage System.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Phase", description = "On which Phase is the ESS connected?")
 	SinglePhase phase() default SinglePhase.L1;
-	
+
 	@AttributeDefinition(name = "Datasource-ID", description = "ID of Simulator Datasource.")
 	String datasource_id() default "datasource0";
 
