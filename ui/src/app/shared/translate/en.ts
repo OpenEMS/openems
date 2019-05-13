@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Power",
         StorageSystem: "Storage System",
         History: "History",
+        Live: 'Live',
         NoValue: "No value",
         Soc: "State of charge",
         Percentage: "Percentage",
@@ -35,7 +36,10 @@ export const TRANSLATION = {
     Menu: {
         Index: "Index",
         AboutUI: "About OpenEMS UI",
-        Settings: 'General Settings',
+        GeneralSettings: 'General Settings',
+        EdgeSettings: 'FEMS Settings',
+        Menu: 'Menu',
+        Overview: 'FEMS Overview',
         Logout: 'Sign Out'
     },
     Index: {
@@ -136,6 +140,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Execute simulations",
                 Log: "Log",
                 LiveLog: "Live system log",
+                AddComponents: "Install components",
+                AdjustComponents: "Configure components",
                 ManualControl: "Manual control",
                 DataStorage: "Data Storage"
             },

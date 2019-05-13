@@ -17,6 +17,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
@@ -436,10 +437,26 @@ public class EdgeConfig {
 					description = "";
 				}
 
-				JsonElement defaultValue = JsonUtils.getAsJsonElement(ad.getDefaultValue());
-				if ((ad.getCardinality() == 0 || ad.getCardinality() == 1) && defaultValue.isJsonArray()
-						&& ((JsonArray) defaultValue).size() == 1) {
-					defaultValue = ((JsonArray) defaultValue).get(0);
+				String[] defaultValues = ad.getDefaultValue();
+				JsonElement defaultValue;
+				if (defaultValues == null) {
+					defaultValue = JsonNull.INSTANCE;
+
+				} else if (ad.getCardinality() == 0) {
+					// Simple Type
+					if (defaultValues.length == 1) {
+						defaultValue = JsonUtils.getAsJsonElement(defaultValues[0]);
+					} else {
+						defaultValue = new JsonPrimitive("");
+					}
+
+				} else {
+					// Array Type
+					JsonArray defaultValueArray = new JsonArray();
+					for (String value : defaultValues) {
+						defaultValueArray.add(JsonUtils.getAsJsonElement(value));
+					}
+					defaultValue = defaultValueArray;
 				}
 
 				JsonObject schema;

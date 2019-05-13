@@ -21,7 +21,7 @@ export class WidgetComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentComponent('', this.route);
     this.service.getWidgets().then(widgets => {
       let result: string[] = [];
       for (let widget of widgets) {
