@@ -81,11 +81,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	}
 	
 	@Override
-	public void update() {
-		this.worker.update();		
-	}
-
-	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:

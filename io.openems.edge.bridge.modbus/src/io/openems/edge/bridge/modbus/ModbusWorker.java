@@ -317,8 +317,4 @@ class ModbusWorker extends AbstractImmediateWorker {
 	private static long ceilDiv(long x, long y) {
 		return -Math.floorDiv(-x, y);
 	}
-	
-	public void update() {
-		this.updateReadTasksManager();
-	}
 }

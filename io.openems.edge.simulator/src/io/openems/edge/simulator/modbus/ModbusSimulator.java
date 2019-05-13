@@ -105,10 +105,4 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 	public void removeProtocol(String sourceId) {
 		// ignore
 	}
-
-	@Override
-	public void update() {
-		// TODO Auto-generated method stub
-		
-	}
 }

@@ -40,7 +40,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -228,9 +227,6 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 					new FC1ReadCoilsTask(512, Priority.LOW,
 							readElements512.toArray(new AbstractModbusElement<?>[readElements512.size()])));
 		}
-		
-		BridgeModbus bridgeModbus = this.getModbusBridge();
-		bridgeModbus.update();
 	}
 
 	protected AbstractModbusElement<?> createModbusElement(io.openems.edge.common.channel.ChannelId channelId,
