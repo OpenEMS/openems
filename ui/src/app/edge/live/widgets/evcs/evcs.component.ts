@@ -37,7 +37,7 @@ export class EvcsComponent {
   ngOnInit() {
 
     // Subscribe to CurrentData
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
 
       this.getConfig().then(config => {

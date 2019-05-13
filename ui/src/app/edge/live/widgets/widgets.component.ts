@@ -3,10 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { Service, Widget, WidgetNature } from '../../../shared/shared';
 
 @Component({
-  selector: WidgetComponent.SELECTOR,
-  templateUrl: './widget.component.html'
+  selector: WidgetsComponent.SELECTOR,
+  templateUrl: './widgets.component.html'
 })
-export class WidgetComponent {
+export class WidgetsComponent {
 
   private static readonly SELECTOR = "widget";
 
@@ -19,7 +19,7 @@ export class WidgetComponent {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentComponent('', this.route);
     this.service.getWidgets().then(widgets => {
       this.widgets = widgets;
       this.widgets.forEach(widget => {
