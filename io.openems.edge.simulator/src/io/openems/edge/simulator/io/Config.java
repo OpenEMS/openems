@@ -8,10 +8,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Simulates digital input/output channels with name 'InputOutputX', starting with index 0.")
 @interface Config {
 
-	String id()
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "io0";
 
-	default "io0";
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
 
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Number of input/output channels", description = "This many channels 'InputOutputX' are created.")

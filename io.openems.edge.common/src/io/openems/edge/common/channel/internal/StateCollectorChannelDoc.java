@@ -1,9 +1,9 @@
 package io.openems.edge.common.channel.internal;
 
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumDoc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class StateCollectorChannelDoc extends EnumDoc {

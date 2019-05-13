@@ -1,6 +1,7 @@
 package io.openems.edge.common.meta;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -32,9 +33,9 @@ public interface Meta extends ModbusSlave {
 	}
 
 	@Override
-	public default ModbusSlaveTable getModbusSlaveTable() {
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				ModbusSlaveNatureTable.of(Meta.class, 199) //
+				ModbusSlaveNatureTable.of(Meta.class, accessMode, 199) //
 						.uint16(0, "OpenEMS Version Major", OpenemsConstants.VERSION_MAJOR) //
 						.uint16(1, "OpenEMS Version Minor", OpenemsConstants.VERSION_MINOR) //
 						.uint16(2, "OpenEMS Version Patch", OpenemsConstants.VERSION_PATCH) //

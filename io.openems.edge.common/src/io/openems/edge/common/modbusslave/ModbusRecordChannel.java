@@ -1,15 +1,20 @@
 package io.openems.edge.common.modbusslave;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class ModbusRecordChannel extends ModbusRecord {
@@ -17,6 +22,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 	private final Logger log = LoggerFactory.getLogger(ModbusRecordChannel.class);
 
 	private final ChannelId channelId;
+	private final AccessMode accessMode;
 
 	protected Consumer<Object> onWriteValueCallback = null;
 
@@ -26,9 +32,10 @@ public class ModbusRecordChannel extends ModbusRecord {
 	 */
 	private final Byte[] writeValueBuffer;
 
-	public ModbusRecordChannel(int offset, ModbusType type, ChannelId channelId) {
+	public ModbusRecordChannel(int offset, ModbusType type, ChannelId channelId, AccessMode modbusApiAccessMode) {
 		super(offset, type);
 		this.channelId = channelId;
+		this.accessMode = evaluateActualAccessMode(channelId, modbusApiAccessMode);
 
 		// initialize buffer
 		int byteLength = 0;
@@ -49,6 +56,47 @@ public class ModbusRecordChannel extends ModbusRecord {
 		this.writeValueBuffer = new Byte[byteLength];
 	}
 
+	/**
+	 * Evaluate the AccessMode from configured Modbus-Api-AccessMode and
+	 * Channel-AccessMode.
+	 * 
+	 * @param channelId
+	 * @param channelAccessMode
+	 * @return
+	 */
+	private static AccessMode evaluateActualAccessMode(ChannelId channelId, AccessMode modbusApiAccessMode) {
+		AccessMode channelAccessMode = channelId.doc().getAccessMode();
+		switch (modbusApiAccessMode) {
+		case READ_ONLY:
+			switch (channelAccessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+			case WRITE_ONLY:
+				return AccessMode.READ_ONLY;
+			}
+		case READ_WRITE:
+			switch (channelAccessMode) {
+			case READ_ONLY:
+				return AccessMode.READ_ONLY;
+			case READ_WRITE:
+				return AccessMode.READ_WRITE;
+			case WRITE_ONLY:
+				return AccessMode.WRITE_ONLY;
+			}
+		case WRITE_ONLY:
+			switch (channelAccessMode) {
+			case READ_ONLY:
+				return AccessMode.READ_ONLY;
+			case READ_WRITE:
+			case WRITE_ONLY:
+				return AccessMode.WRITE_ONLY;
+			}
+		}
+		// should never come here
+		assert (true);
+		return AccessMode.READ_ONLY;
+	}
+
 	public ChannelId getChannelId() {
 		return channelId;
 	}
@@ -65,13 +113,37 @@ public class ModbusRecordChannel extends ModbusRecord {
 		Object value = channel.value().get();
 		switch (this.getType()) {
 		case FLOAT32:
-			return ModbusRecordFloat32.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordFloat32.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordFloat32Reserved.UNDEFINED_VALUE;
+			}
 		case FLOAT64:
-			return ModbusRecordFloat64.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordFloat64.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordFloat64Reserved.UNDEFINED_VALUE;
+			}
 		case STRING16:
-			return ModbusRecordString16.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordString16.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordString16Reserved.UNDEFINED_VALUE;
+			}
 		case UINT16:
-			return ModbusRecordUint16.toByteArray(value);
+			switch (this.accessMode) {
+			case READ_ONLY:
+			case READ_WRITE:
+				return ModbusRecordUint16.toByteArray(value);
+			case WRITE_ONLY:
+				return ModbusRecordUint16Reserved.UNDEFINED_VALUE;
+			}
 		}
 		assert true;
 		return new byte[0];
@@ -83,6 +155,16 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	@Override
 	public void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2) {
+		switch (this.accessMode) {
+		case READ_ONLY:
+			// Read-Only Access enabled. Do not write value.
+			return;
+
+		case READ_WRITE:
+		case WRITE_ONLY:
+			break;
+		}
+
 		this.writeValueBuffer[index * 2] = byte1;
 		this.writeValueBuffer[index * 2 + 1] = byte2;
 		// is the buffer full?
@@ -141,7 +223,23 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	@Override
 	public String getValueDescription() {
+		Doc doc = this.channelId.doc();
+		if (doc instanceof EnumDoc) {
+			// List possible Options for this Enum
+			EnumDoc d = (EnumDoc) doc;
+			return Arrays.stream(d.getOptions()) //
+					.map(option -> {
+						return option.getValue() + ":" + option.getName();
+					}) //
+					.collect(Collectors.joining(", "));
+		}
+
 		return ""; // TODO get some meaningful text from Doc(), like 'between 0 and 100 %'
+	}
+
+	@Override
+	public AccessMode getAccessMode() {
+		return this.accessMode;
 	}
 
 }

@@ -4,10 +4,11 @@ import java.util.function.Consumer;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -114,8 +115,8 @@ public interface AsymmetricEss extends SymmetricEss {
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(AsymmetricEss.class, 100) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(AsymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //

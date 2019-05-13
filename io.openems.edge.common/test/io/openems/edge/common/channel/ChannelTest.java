@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class ChannelTest {

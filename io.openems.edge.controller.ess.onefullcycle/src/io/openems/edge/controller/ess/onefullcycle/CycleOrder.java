@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.onefullcycle;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum CycleOrder implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

@@ -1,7 +1,5 @@
 package io.openems.edge.pvinverter.solarlog;
 
-import java.util.function.Consumer;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,6 +14,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractWorker;
@@ -30,10 +32,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
@@ -75,7 +75,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
 		this.maxActivePower = config.maxActivePower();
@@ -160,7 +160,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		return "L:" + this.getActivePower().value().asString();
 	}
 
-	public final Consumer<Integer> setPvLimit = (power) -> {
+	public final CheckedConsumer<Integer> setPvLimit = (power) -> {
 		int pLimitPerc = (int) ((double) power / (double) this.maxActivePower * 100.0);
 
 		// keep percentage in range [0, 100]
@@ -182,7 +182,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		try {
 			pLimitTypeCh.setNextWriteValue(2);
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
 		}
 	};
@@ -223,7 +223,8 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 				.unit(Unit.PERCENT)),
 		P_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT)),
-		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER)), //
+		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		STATUS(Doc.of(Status.values()));
 
 		private final Doc doc;

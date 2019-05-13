@@ -26,7 +26,9 @@ export class KwhComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route);
+    this.service.setCurrentComponent('', this.route).then(response => {
+      this.edge = response;
+    });
   }
 
 
@@ -52,7 +54,9 @@ export class KwhComponent implements OnInit, OnChanges {
         new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
         new ChannelAddress('_sum', 'GridSellActiveEnergy'),
         new ChannelAddress('_sum', 'ProductionActiveEnergy'),
-        new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+        new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
+        new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+        new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
       ]);
     });
   };
@@ -81,6 +85,34 @@ export class KwhComponent implements OnInit, OnChanges {
         }).catch(reason => reject(reason));
       })
     })
+  }
+
+  /**
+   * Returns the given date's unix-milliseconds value
+   * 
+   * @param date the date to format as unix-milliseconds
+   */
+  private toUnix(date: Date): number {
+    return date.getTime();
+  }
+
+  /**
+   * Returns a new date, which represents the beginning of the given date's day
+   * 
+   * @param date the date to process
+   */
+  private startOfDay(date: Date): Date {
+    return new Date(date.getUTCFullYear(), date.getMonth(), date.getDate());
+  }
+
+  /**
+   * Returns a new date, which represents the end of the given date's day/the 
+   * beginning of the following day
+   * 
+   * @param date the date to process
+   */
+  private endOfDay(date: Date): Date {
+    return new Date(date.getUTCFullYear(), date.getMonth(), date.getDate(), 24);
   }
 
 }

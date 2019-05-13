@@ -1,0 +1,24 @@
+= Implemented Schedulers
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../../assets/images
+
+The following Schedulers are available in OpenEMS Edge.
+
+== All-Alphabetically
+
+Takes an ordered list of Component IDs. All remaining Controllers are afterwards ordered alphabetically by their ID.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.scheduler.allalphabetically[Source Code icon:github[]]
+
+== Fixed Order
+
+Takes a list of Component IDs and returns the Controllers statically sorted by this order.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.scheduler.fixedorder[Source Code icon:github[]]

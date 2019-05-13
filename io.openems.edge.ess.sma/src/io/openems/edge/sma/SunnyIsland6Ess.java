@@ -76,7 +76,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
@@ -89,7 +89,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	// TODO IMP!! LOAD_POWER "30861"
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		EnumWriteChannel setControlMode = this.channel(SiChannelId.SET_CONTROL_MODE);
 		IntegerWriteChannel setActivePowerChannel = this.channel(SiChannelId.SET_ACTIVE_POWER);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(SiChannelId.SET_REACTIVE_POWER);

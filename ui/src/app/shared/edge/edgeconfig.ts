@@ -1,11 +1,12 @@
 import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
+import { ChannelAddress } from '../type/channeladdress';
 
 export class EdgeConfig {
 
-    constructor(source?: GetEdgeConfigResponse) {
+    constructor(source?: EdgeConfig) {
         if (source) {
-            this.components = source.result.components;
-            this.factories = source.result.factories;
+            this.components = source.components;
+            this.factories = source.factories;
         }
 
         // initialize Components
@@ -174,16 +175,38 @@ export class EdgeConfig {
             return {};
         }
     }
+
+    /**
+     * Get Channel.
+     * 
+     * @param address the ChannelAddress
+     */
+    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
+        let component = this.components[address.componentId];
+        if (component) {
+            return component.channels[address.channelId];
+        } else {
+            return null;
+        }
+    }
 }
 
 export module EdgeConfig {
+    export class ComponentChannel {
+        public readonly type: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
+        public readonly accessMode: "RO" | "RW" | "WO";
+        public readonly unit: string;
+        public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+    }
 
     export class Component {
         public id: string = "";
+        public alias: string = "";
 
         constructor(
             public readonly factoryId: string = "",
-            public readonly properties: { [key: string]: any } = {}
+            public readonly properties: { [key: string]: any } = {},
+            public readonly channels: { [channelId: string]: ComponentChannel } = {}
         ) { }
     }
 
@@ -202,6 +225,7 @@ export module EdgeConfig {
 
         constructor(
             public readonly name: string,
+            public readonly description: string,
             public readonly natureIds: string[] = [],
             public readonly properties: FactoryProperty[] = []
         ) { }

@@ -4,24 +4,55 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.ChannelId;
 
 public final class ModbusSlaveNatureTable {
 
 	public static class Builder {
 		private final Class<?> nature;
+		private final AccessMode accessModeFilter;
 		private final int length;
 		private final List<ModbusRecord> maps = new ArrayList<>();
 
 		private int nextOffset = 0;
 
-		public Builder(Class<?> nature, int length) {
+		public Builder(Class<?> nature, AccessMode accessModeFilter, int length) {
 			this.nature = nature;
+			this.accessModeFilter = accessModeFilter;
 			this.length = length;
 		}
 
 		public Builder channel(int offset, ChannelId channelId, ModbusType type) {
-			this.add(new ModbusRecordChannel(offset, type, channelId));
+			AccessMode filter = this.accessModeFilter;
+			AccessMode channel = channelId.doc().getAccessMode();
+			if (
+			// Filter for READ_ONLY Channels
+			(filter == AccessMode.READ_ONLY && (channel == AccessMode.READ_ONLY || channel == AccessMode.READ_WRITE)) || //
+			// Filter for READ_WRITE channels -> allow all Channels
+					(filter == AccessMode.READ_WRITE) || //
+					// Filter for WRITE_ONLY channels
+					(filter == AccessMode.WRITE_ONLY
+							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE))) {
+				this.add(new ModbusRecordChannel(offset, type, channelId, filter));
+
+			} else {
+				// Channel did not pass filter -> show as Reserved
+				switch (type) {
+				case FLOAT32:
+					this.float32Reserved(offset);
+					break;
+				case FLOAT64:
+					this.float64Reserved(offset);
+					break;
+				case STRING16:
+					this.string16Reserved(offset);
+					break;
+				case UINT16:
+					this.uint16Reserved(offset);
+					break;
+				}
+			}
 			return this;
 		}
 
@@ -50,8 +81,23 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
+		public Builder float64(int offset, String name, double value) {
+			this.add(new ModbusRecordFloat64(offset, name, value));
+			return this;
+		}
+
+		public Builder float64Reserved(int offset) {
+			this.add(new ModbusRecordFloat64Reserved(offset));
+			return this;
+		}
+
 		public Builder string16(int offset, String name, String value) {
 			this.add(new ModbusRecordString16(offset, name, value));
+			return this;
+		}
+
+		public Builder string16Reserved(int offset) {
+			this.add(new ModbusRecordString16Reserved(offset));
 			return this;
 		}
 
@@ -71,10 +117,11 @@ public final class ModbusSlaveNatureTable {
 			});
 			return new ModbusSlaveNatureTable(nature, length, this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
+
 	}
 
-	public static Builder of(Class<?> nature, int length) {
-		return new Builder(nature, length);
+	public static Builder of(Class<?> nature, AccessMode accessMode, int length) {
+		return new Builder(nature, accessMode, length);
 	}
 
 	private final Class<?> nature;

@@ -1,0 +1,18 @@
+= Timedata services
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../../assets/images
+
+The following timedata services are available for OpenEMS Edge.
+
+== InfluxDB
+
+Persists all data of OpenEMS Edge Channels to an InfluxDB timeseries database.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timedata.influxdb[Source Code icon:github[]]

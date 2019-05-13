@@ -2,9 +2,9 @@ package io.openems.edge.common.channel;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.type.TypeUtils;
 
 public interface WriteChannel<T> extends Channel<T> {
@@ -13,8 +13,9 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * Updates the 'next' write value of Channel.
 	 * 
 	 * @param value the typed value
+	 * @throws OpenemsNamedException on error
 	 */
-	public default void setNextWriteValue(T value) throws OpenemsException {
+	public default void setNextWriteValue(T value) throws OpenemsNamedException {
 		this.setNextWriteValueFromObject(value);
 	}
 
@@ -26,12 +27,23 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * {@link WriteChannel#setNextWriteValue(Object)} directly.
 	 * 
 	 * @param value the value as an Object
+	 * @throws OpenemsNamedException on error
 	 */
-	public default void setNextWriteValueFromObject(Object value) throws OpenemsException {
+	public default void setNextWriteValueFromObject(Object value) throws OpenemsNamedException {
 		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
+		OpenemsNamedException exception = null;
 		// set the write value
 		this._setNextWriteValue(typedValue);
-		this.getOnSetNextWrites().forEach(callback -> callback.accept(typedValue));
+		for (CheckedConsumer<T> callback : this.getOnSetNextWrites()) {
+			try {
+				callback.accept(typedValue);
+			} catch (OpenemsNamedException e) {
+				exception = e;
+			}
+		}
+		if (exception != null) {
+			throw exception;
+		}
 	}
 
 	/**
@@ -65,9 +77,12 @@ public interface WriteChannel<T> extends Channel<T> {
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
 	 * set.
+	 * 
+	 * <p>
+	 * The callback can throw an {@link OpenemsNamedException}.
 	 */
-	public void onSetNextWrite(Consumer<T> callback);
+	public void onSetNextWrite(CheckedConsumer<T> callback);
 
-	public List<Consumer<T>> getOnSetNextWrites();
+	public List<CheckedConsumer<T>> getOnSetNextWrites();
 
 }

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.evcs.api.Evcs;
@@ -23,7 +23,8 @@ public class WriteHandler implements Runnable {
 	/**
 	 * Minimum pause between two consecutive writes
 	 */
-	private final static int WRITE_INTERVAL_SECONDS = 60; // 60 seconds
+	private final static int WRITE_INTERVAL_SECONDS = 5; // before change the interval was 60 seconds
+	private final static int WRITE_DISPLAY_INTERVAL_SECONDS = 60;
 
 	public WriteHandler(KebaKeContact parent) {
 		this.parent = parent;
@@ -64,7 +65,7 @@ public class WriteHandler implements Runnable {
 				this.parent.logInfo(this.log, "Setting KEBA KeContact display text to [" + display + "]");
 				boolean sentSuccessfully = parent.send("display 0 0 0 0 " + display);
 				if (sentSuccessfully) {
-					this.nextDisplayWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+					this.nextDisplayWrite = LocalDateTime.now().plusSeconds(WRITE_DISPLAY_INTERVAL_SECONDS);
 					this.lastDisplay = display;
 				}
 			}
@@ -75,10 +76,14 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextEnabledWrite = LocalDateTime.MIN;
 
 	/**
+	 * SetEnabled is never used because it causes several errors that doesn't make sense
+	 * If the charging station will be activated, all seems to work, but no charging is possible.
+	 * 
+	 * 
 	 * Sets the enabled state from SET_ENABLED channel
 	 */
 	private void setEnabled() {
-		WriteChannel<Boolean> channel = this.parent.channel(KebaChannelId.SET_ENABLED);
+		WriteChannel<Boolean> channel = this.parent.channel(Evcs.ChannelId.SET_ENABLED);
 		Optional<Boolean> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			Boolean enabled = valueOpt.get();
@@ -105,6 +110,10 @@ public class WriteHandler implements Runnable {
 	 * the DIP-switch settings and the used cable of the charging station.
 	 */
 	private void setPower() {
+		if(this.nextEnabledWrite.isAfter(LocalDateTime.now())) {
+			return;
+		}
+		
 		WriteChannel<Integer> channel = this.parent.channel(Evcs.ChannelId.SET_CHARGE_POWER);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
@@ -113,8 +122,12 @@ public class WriteHandler implements Runnable {
 			Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
 			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
 
+			// limits the charging value because KEBA knows only values between 6000 and 63000
+			if(current>63000) {
+				current = 63000;
+			}
+			
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
-
 				this.parent.logInfo(this.log, "Setting KEBA KeContact current to [" + current
 						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
 
@@ -122,7 +135,7 @@ public class WriteHandler implements Runnable {
 					Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
 					this.parent.setDisplayText()
 							.setNextWriteValue("Charging " + (currPower.value().orElse(0) / 1000) + "W");
-				} catch (OpenemsException e) {
+				} catch (OpenemsNamedException e) {
 					e.printStackTrace();
 				}
 

@@ -37,6 +37,6 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 
 	@Override
 	protected String getActiondescription() {
-		return "FC1 Read Coils";
+		return "FC1ReadCoils";
 	}
 }

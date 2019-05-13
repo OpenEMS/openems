@@ -1,6 +1,8 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -16,6 +18,8 @@ import io.openems.edge.bridge.modbus.api.task.AbstractTask;
  * @param <T> the target OpenemsType
  */
 public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
+
+	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusElement.class);
 
@@ -33,6 +37,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 		this.type = type;
 		this.startAddress = startAddress;
 		this.isIgnored = isIgnored;
+	}
+
+	@Override
+	public final void onSetNextWrite(Consumer<Optional<T>> callback) {
+		this.onSetNextWriteCallbacks.add(callback);
 	}
 
 	@Override
@@ -107,5 +116,10 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	@Override
 	public String toString() {
 		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);
+	}
+
+	@Override
+	public void deactivate() {
+		this.onUpdateCallbacks.clear();
 	}
 }

@@ -6,9 +6,9 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
-import io.openems.edge.common.channel.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 /**

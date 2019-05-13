@@ -86,7 +86,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.power = Math.abs(config.power());
 		this.essId = config.ess_id();
 	}
@@ -152,7 +152,7 @@ public class EssOneFullCycle extends AbstractOpenemsComponent implements Control
 	}
 
 	private void applyPower(ManagedSymmetricEss ess, int maxChargePower, int maxDischargePower)
-			throws OpenemsException {
+			throws OpenemsNamedException {
 		switch (this.state) {
 		case FIRST_CHARGE: {
 			/*

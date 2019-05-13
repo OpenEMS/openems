@@ -3,15 +3,10 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.common.worker.AbstractWorker;
 
 public class ReadWorker extends AbstractWorker {
 
-	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
-	
 	private final KebaKeContact parent;
 
 	private LocalDateTime lastReport1 = LocalDateTime.MIN;
@@ -119,7 +114,6 @@ public class ReadWorker extends AbstractWorker {
 	 * @param receivedAMessage return value from the ReadHandler   
 	 */
 	private void currentCommunication(boolean receivedAMessage) {
-		this.parent.logInfo(log, "Existing charging communication: "+receivedAMessage);
 		this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
 	}
 	

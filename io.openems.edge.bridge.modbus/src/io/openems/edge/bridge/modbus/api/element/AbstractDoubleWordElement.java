@@ -84,6 +84,7 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 		} else {
 			this.setNextWriteValueRegisters(Optional.empty());
 		}
+		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
 	}
 
 	/**

@@ -9,11 +9,11 @@
 :source-highlighter: highlight.js
 :icons: font
 
-OpenEMS Backend provides a "Backend-to-Backend-Api", that provides a way to communicate with one or more OpenEMS Edge devices via backend connection. It is designed as a JSON-RPC communication protocol via Websocket connection.
+OpenEMS Backend provides two "Backend-to-Backend-Api" implementations, that provide a way to communicate with one or more OpenEMS Edge devices via backend connection. They are designed using the JSON-RPC communication protocol via REST/JSON (_io.openems.backend.b2brest_) or via Websocket (_io.openems.backend.b2bwebsocket_) connection.
 
 == Authentication
 
-BasicAuth on opening of the Websocket connection.
+BasicAuth on opening of the connection.
 
 == Error Handling
 
@@ -33,6 +33,8 @@ Example:
   }
 }
 ----
+
+NOTE: Properties `id` and `jsonrpc` can be omitted for JSON/REST, as they are not required for HTTP POST calls.
 
 == Requests
 

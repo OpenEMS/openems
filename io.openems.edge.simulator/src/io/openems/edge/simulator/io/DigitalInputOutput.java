@@ -11,7 +11,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.common.channel.AccessMode;
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -49,7 +49,7 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Generate OutputChannels
 		this.writeChannels = new BooleanWriteChannel[config.numberOfOutputs()];
@@ -57,7 +57,7 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 		for (int i = 0; i < config.numberOfOutputs(); i++) {
 			String channelName = String.format(CHANNEL_NAME, i);
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
-					.accessMode(AccessMode.WRITE_ONLY);
+					.accessMode(AccessMode.READ_WRITE);
 			BooleanWriteChannel channel = (BooleanWriteChannel) this.addChannel(new MyChannelId(channelName, doc));
 
 			// default to OFF

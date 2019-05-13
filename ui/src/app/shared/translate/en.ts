@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Power",
         StorageSystem: "Storage System",
         History: "History",
+        Live: 'Live',
         NoValue: "No value",
         Soc: "State of charge",
         Percentage: "Percentage",
@@ -29,12 +30,16 @@ export const TRANSLATION = {
             Friday: "Friday",
             Saturday: "Saturday",
             Sunday: "Sunday"
-        }
+        },
+        ReportValue: "Report corrupted data"
     },
     Menu: {
         Index: "Index",
         AboutUI: "About OpenEMS UI",
-        Settings: 'General Settings',
+        GeneralSettings: 'General Settings',
+        EdgeSettings: 'FEMS Settings',
+        Menu: 'Menu',
+        Overview: 'FEMS Overview',
         Logout: 'Sign Out'
     },
     Index: {
@@ -87,6 +92,7 @@ export const TRANSLATION = {
                     CarFull: "Car is full",
                     EnergieSinceBeginning: "Energy since the begin of charge",
                     ChargeMode: "Charge Mode",
+                    ActivateCharging: "Activate the charging station",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",
@@ -97,7 +103,12 @@ export const TRANSLATION = {
                         ShortName: "Optimized",
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
-                        MinCharging: "Guarantee minimum charge?"
+                        MinCharging: "Guarantee minimum charge?",
+                        ChargingPriority: {
+                            Info: "Depending on the prioritization, the selected component will be loaded first",
+                            Car: "Car",
+                            Storage: "Storage"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Force charging",
@@ -129,6 +140,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Execute simulations",
                 Log: "Log",
                 LiveLog: "Live system log",
+                AddComponents: "Install components",
+                AdjustComponents: "Configure components",
                 ManualControl: "Manual control",
                 DataStorage: "Data Storage"
             },
