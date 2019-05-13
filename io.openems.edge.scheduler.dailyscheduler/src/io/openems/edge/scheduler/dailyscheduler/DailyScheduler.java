@@ -156,7 +156,8 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 	public List<Controller> getControllers() {
 
 		LocalTime currentTime = LocalTime.now();
-
+		
+		// returns all the controllers that are activated at given time.
 		if (!(this.contollersList.isEmpty())) {
 			if (!this.contollersList.lowerEntry(currentTime).getValue().isEmpty()) {
 				this.sortedControllers.addAll(this.contollersList.lowerEntry(currentTime).getValue());
