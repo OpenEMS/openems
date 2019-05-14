@@ -124,9 +124,9 @@ export class CurrentData {
             if (result.storage.chargeActivePowerAC == null && result.storage.dischargeActivePowerAC == null && result.production.activePowerDC == null) {
                 effectivePower = null;
             } else {
-                effectivePower = Utils.addSafely(
+                effectivePower = Utils.subtractSafely(
                     Utils.subtractSafely(
-                        Utils.orElse(result.storage.chargeActivePowerAC, 0), result.storage.dischargeActivePowerAC
+                        Utils.orElse(result.storage.dischargeActivePowerAC, 0), result.storage.chargeActivePowerAC
                     ), result.production.activePowerDC);
             }
             if (effectivePower != null) {
