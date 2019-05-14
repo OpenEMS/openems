@@ -8,9 +8,8 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 @ObjectClassDefinition( //
 		name = "ESS MR Gridcon PCS", //
 		description = "Implements the FENECON MR Gridcon PCS system")
+public
 @interface Config {
-
-	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ess0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
@@ -43,9 +42,25 @@ import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 	@AttributeDefinition(name = "MinSoCB", description = "Minimal SoC of Battery String B, if reached no further discharging is allowed")
 	int minSocBatteryB() default 25;
 
-	//TODO Component was not able to start because key 'minSocC' exists already... renaming to 'minSocBatteryC' works
+	// TODO Component was not able to start because key 'minSocC' exists already...
+	// renaming to 'minSocBatteryC' works
 	@AttributeDefinition(name = "MinSoCC", description = "Minimal SoC of Battery String C, if reached no further discharging is allowed")
 	int minSocBatteryC() default 25;
+
+	@AttributeDefinition(name = "WeightFactorBatteryA", description = "Weight factor for battery on string A, if more than one battery is connected, it is necessary to set the correct weighting for the battery strings to avoid battery damages. The total voltage of this battery is divided by this factor and compared to the others. An appropriate factor is the number of modules in the battery rack.")
+	double weightFactorBatteryA() default 20;
+
+	@AttributeDefinition(name = "WeightFactorBatteryB", description = "Weight factor for battery on string B, if more than one battery is connected, it is necessary to set the correct weighting for the battery strings to avoid battery damages. The total voltage of this battery is divided by this factor and compared to the others. An appropriate factor is the number of modules in the battery rack.")
+	double weightFactorBatteryB() default 20;
+
+	@AttributeDefinition(name = "WeightFactorBatteryC", description = "Weight factor for battery on string C, if more than one battery is connected, it is necessary to set the correct weighting for the battery strings to avoid battery damages. The total voltage of this battery is divided by this factor and compared to the others. An appropriate factor is the number of modules in the battery rack.")
+	double weightFactorBatteryC() default 20;
+
+	@AttributeDefinition(name = "OverFrequency", description = "Frequency in millihertz that is added to grid frequency when going on grid")
+	int overFrequency() default 200;
+
+	@AttributeDefinition(name = "OverVoltage", description = "Voltage in millivolt that is added to grid voltage when going on grid")
+	int overVoltage() default 2000;
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of Grid-Meter")
 	String meter() default "meter0";

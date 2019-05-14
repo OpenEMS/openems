@@ -14,8 +14,7 @@
                             <td colspan="4" translate>General.OffGrid</td>
                         </tr>
                         <tr>
-                            <td style="width:50%" translate>General.GridBuy</td>
-                            <td style="width:15%"></td>
+                            <td style="width:65%" translate>General.GridBuy</td>
                             <ng-container *ngIf="sum.buyActivePower != 0; else empty">
                                 <td style="width:25%" class="align_right">{{ sum.buyActivePower | number:'1.0-0' }}</td>
                                 <td style="width:10%">&nbsp;W</td>
@@ -26,8 +25,7 @@
                             </ng-template>
                         </tr>
                         <tr>
-                            <td style="width:50%" translate>General.GridSell</td>
-                            <td style="width:15%"></td>
+                            <td style="width:65%" translate>General.GridSell</td>
                             <ng-container *ngIf="sum.sellActivePower != 0; else empty">
                                 <td style="width:25%" class="align_right">{{ sum.sellActivePower | number:'1.0-0' }}
                                 </td>

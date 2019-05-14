@@ -11,17 +11,16 @@
                 <ion-grid no-padding>
                     <table class="full_width">
                         <tr class="underline">
-                            <td style="width:50%" translate>General.Soc</td>
-                            <td style="width:15%"></td>
+                            <td style="width:65%" translate>General.Soc</td>
                             <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
                         <tr>
-                            <td style="width:50%" translate>General.ChargePower</td>
-                            <td style="width:15%"></td>
+                            <td style="width:65%" translate>General.ChargePower</td>
                             <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
-                                <td style="width:25%">{{ sum.effectiveChargePower | number:'1.0-0' }}</td>
-                                <td style="width:50%">&nbsp;W</td>
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.effectiveChargePower | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
                             </ng-container>
                             <ng-template #empty>
                                 <td style="width:25%" class="align_right">-</td>
@@ -29,8 +28,7 @@
                             </ng-template>
                         </tr>
                         <tr>
-                            <td translate>General.DischargePower</td>
-                            <td style="width:15%"></td>
+                            <td style="width:65%" translate>General.DischargePower</td>
                             <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
                                 <td style="width:25%" class="align_right">
                                     {{ sum.effectiveDischargePower | number:'1.0-0' }}</td>

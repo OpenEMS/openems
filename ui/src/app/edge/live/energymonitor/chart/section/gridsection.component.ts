@@ -42,7 +42,7 @@ export class GridSectionComponent extends AbstractSection {
                 Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower));
         } else {
             this.name = this.translate.instant('General.Grid')
-            super.updateSectionData(0, 0, 0);
+            super.updateSectionData(null, null, null);
         }
 
         // set grid mode

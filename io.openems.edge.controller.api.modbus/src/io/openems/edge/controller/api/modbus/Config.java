@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.channel.AccessMode;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Api Modbus/TCP", //
 		description = "This controller provides a Modbus/TCP api.")
 @interface Config {
