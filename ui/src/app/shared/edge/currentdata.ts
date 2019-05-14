@@ -120,7 +120,15 @@ export class CurrentData {
             result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
             result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC;
 
-            let effectivePower = Utils.addSafely(Utils.subtractSafely(result.storage.chargeActivePowerAC, result.storage.dischargeActivePowerAC), result.production.activePowerDC);
+            let effectivePower;
+            if (result.storage.chargeActivePowerAC == null && result.storage.dischargeActivePowerAC == null && result.production.activePowerDC == null) {
+                effectivePower = null;
+            } else {
+                effectivePower = Utils.addSafely(
+                    Utils.subtractSafely(
+                        Utils.orElse(result.storage.chargeActivePowerAC, 0), result.storage.dischargeActivePowerAC
+                    ), result.production.activePowerDC);
+            }
             if (effectivePower != null) {
                 if (effectivePower > 0) {
                     result.storage.effectiveDischargePower = effectivePower;
