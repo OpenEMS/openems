@@ -116,6 +116,12 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 
 	private void handleStateMachine() {
 
+		// by default: block Power
+		this.isActivePowerAllowed = false;
+		
+		// do always
+		setBatteryRanges();
+		
 		IntegerReadChannel operatingStateChannel = this.channel(ChannelId.ST);
 		OperatingState operatingState = operatingStateChannel.value().asEnum();
 
@@ -189,7 +195,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	}
 
 	private void exitStandbyMode() {
-		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCSSetOperation);
+		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCS_SET_OPERATION);
 		try {
 			pcsSetOperation.setNextWriteValue(4);
 		} catch (OpenemsNamedException e) {
@@ -198,7 +204,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	}
 
 	private void enterStandbyMode() {
-		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCSSetOperation);
+		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCS_SET_OPERATION);
 		try {
 			pcsSetOperation.setNextWriteValue(3);
 		} catch (OpenemsNamedException e) {
@@ -208,7 +214,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 
 	private void doGridConnectedHandling() {
 
-		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCSSetOperation);
+		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCS_SET_OPERATION);
 		try {
 			pcsSetOperation.setNextWriteValue(1);
 		} catch (OpenemsNamedException e) {
@@ -224,7 +230,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	}
 
 	private void stopSystem() {
-		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCSSetOperation);
+		IntegerWriteChannel pcsSetOperation = this.channel(ChannelId.PCS_SET_OPERATION);
 		try {
 			pcsSetOperation.setNextWriteValue(2);
 		} catch (OpenemsNamedException e) {
@@ -252,11 +258,11 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable() //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 
@@ -278,19 +284,26 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 
-		IntegerWriteChannel wMaxLimPctChannel = this.channel(ChannelId.WMaxLimPct);
-		IntegerWriteChannel wMaxLim_EnaChannel = this.channel(ChannelId.WMaxLim_Ena);
+		IntegerWriteChannel wMaxChannel = this.channel(ChannelId.W_MAX_LIM_PCT);
+		IntegerWriteChannel wMaxLimPctChannel = this.channel(ChannelId.W_MAX_LIM_PCT);
+		IntegerWriteChannel wMaxLim_EnaChannel = this.channel(ChannelId.W_MAX_LIM_ENA);
+		IntegerWriteChannel varMaxLimPctChannel = this.channel(ChannelId.VAR_W_MAX_PCT);
+		IntegerWriteChannel varMaxLim_EnaChannel = this.channel(ChannelId.VAR_PCT_ENA);
 
+		// Vorgabe WMax
+		wMaxChannel.setNextWriteValue(MAX_APPARENT_POWER);
+		
+		// Wirkleistungsvorgabe an den Umrichter als Prozentwert bezogen auf WMAX!!
 		int wSetPct = ((100 * activePower) / MAX_APPARENT_POWER);
-		try {
-			wMaxLimPctChannel.setNextWriteValue(wSetPct);
-			wMaxLim_EnaChannel.setNextWriteValue(1);
-		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		wMaxLimPctChannel.setNextWriteValue(wSetPct);
+		wMaxLim_EnaChannel.setNextWriteValue(1);
+		
+		//Blindleistungsvorgabe an den Umrichter als Prozentwert bezogen auf WMAX
+		int varSetPct = ((100 * reactivePower) / MAX_APPARENT_POWER);
+		varMaxLimPctChannel.setNextWriteValue(varSetPct);
+		varMaxLim_EnaChannel.setNextWriteValue(1);
 
 	}
 
@@ -367,80 +380,80 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 		/*
 		 * Model SUNSPEC_120 (Inverter Controls Nameplate Ratings)
 		 */
-		Id_120(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		ID_120(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		L_120(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		DERTyp(Doc.of(DerTyp.values())), //
-		WRtg(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
-		WRtg_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		VARtg(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE).accessMode(AccessMode.READ_ONLY)), //
-		VARtg_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		VArRtgQ1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
-		VArRtgQ2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
-		VArRtgQ3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
-		VArRtgQ4(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
-		VArRtg_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		ARtg(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)), //
-		ARtg_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		PFRtgQ1(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
-		PFRtgQ2(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
-		PFRtgQ3(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
-		PFRtgQ4(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
-		PFRtg_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		Pad_120(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		DER_TYP(Doc.of(DerTyp.values())), //
+		W_RTG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
+		W_RTG_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		VA_RTG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE).accessMode(AccessMode.READ_ONLY)), //
+		VA_RTG_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		VAR_RTG_Q1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
+		VAR_RTG_Q2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
+		VAR_RTG_Q3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
+		VAR_RTG_Q4(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
+		VAR_RTG_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		A_RTG(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)), //
+		A_RTG_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		PF_RTG_Q1(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
+		PF_RTG_Q2(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
+		PF_RTG_Q3(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
+		PF_RTG_Q4(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), // // cos()
+		PF_RTG_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		PAD_120(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 
 		/*
 		 * Model SUNSPEC_121 (Inverter Controls Basic Settings)
 		 */
-		Id_121(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		ID_121(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		L_121(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		WMax(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
-		VRef(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
-		VRefOfs(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
-		WMax_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		VRef_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		VRefOfs_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		W_MAX(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_WRITE)), //
+		V_REF(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
+		V_REF_OFS(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
+		W_MAX_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		V_REF_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		V_REF_OFS_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 
 		/*
 		 * Model SUNSPEC_123 (Immediate Inverter Controls)
 		 */
-		Id_123(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		ID_123(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		L_123(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		CONN(Doc.of(Conn.values())), //
-		WMaxLimPct(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // % WMax
-		WMaxLim_Ena(Doc.of(WMaxLimEna.values())), //
-		OutPFSet(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // // cos()
-		OutPFSet_Ena(Doc.of(OutPFSetEna.values())), //
-		VArWMaxPct(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // // % WMax
-		VArPct_Ena(Doc.of(VArPctEna.values())), //
-		WMaxLimPct_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		OutPFSet_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		VArPct_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		W_MAX_LIM_PCT(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // % WMax
+		W_MAX_LIM_ENA(Doc.of(WMaxLimEna.values())), //
+		OUT_PF_SET(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // // cos()
+		OUT_PF_SET_ENA(Doc.of(OutPFSetEna.values())), //
+		VAR_W_MAX_PCT(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // // % WMax
+		VAR_PCT_ENA(Doc.of(VArPctEna.values())), //
+		W_MAX_LIM_PCT_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		OUT_PF_SET_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		VAR_PCT_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 
 		/*
 		 * Model SUNSPEC_64040 (Request REFU Parameter ID)
 		 */
-		Id_64040(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		ID_64040(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		L_64040(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		ReadWriteParamId(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamIndex(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_ID(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_INDEX(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 
 		/*
 		 * Model SUNSPEC_64041 (Request REFU Parameter ID)
 		 */
-		Id_64041(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
+		ID_64041(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		L_64041(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		ReadWriteParamValue_U32(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamValue_S32(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamValue_F32(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamValue_U16(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamValue_S16(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamValue_U8(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-		ReadWriteParamValue_S8(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_U32(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_S32(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_F32(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_U16(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_S16(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_U8(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+		READ_WRITE_PARAM_VALUE_S8(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 
 		/*
 		 * Sunspec Model No: 64800
 		 */
-		PCSSetOperation(Doc.of(OperatingState.values())), //
+		PCS_SET_OPERATION(Doc.of(OperatingState.values())), //
 //		PCSSetOperation(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 		;
 
@@ -548,105 +561,105 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 						m(EssREFUstore88K.ChannelId.EVT_VND_4, new UnsignedDoublewordElement(SUNSPEC_103 + 50))),
 
 				new FC3ReadRegistersTask(SUNSPEC_120, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.Id_120, new UnsignedWordElement(SUNSPEC_120)),
+						m(EssREFUstore88K.ChannelId.ID_120, new UnsignedWordElement(SUNSPEC_120)),
 						m(EssREFUstore88K.ChannelId.L_120, new UnsignedWordElement(SUNSPEC_120 + 1)),
-						m(EssREFUstore88K.ChannelId.DERTyp, new UnsignedWordElement(SUNSPEC_120 + 2)),
-						m(EssREFUstore88K.ChannelId.WRtg, new UnsignedWordElement(SUNSPEC_120 + 3),
+						m(EssREFUstore88K.ChannelId.DER_TYP, new UnsignedWordElement(SUNSPEC_120 + 2)),
+						m(EssREFUstore88K.ChannelId.W_RTG, new UnsignedWordElement(SUNSPEC_120 + 3),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.WRtg_SF, new UnsignedWordElement(SUNSPEC_120 + 4)),
-						m(EssREFUstore88K.ChannelId.VARtg, new UnsignedWordElement(SUNSPEC_120 + 5),
+						m(EssREFUstore88K.ChannelId.W_RTG_SF, new UnsignedWordElement(SUNSPEC_120 + 4)),
+						m(EssREFUstore88K.ChannelId.VA_RTG, new UnsignedWordElement(SUNSPEC_120 + 5),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VARtg_SF, new UnsignedWordElement(SUNSPEC_120 + 6)),
-						m(EssREFUstore88K.ChannelId.VArRtgQ1, new SignedWordElement(SUNSPEC_120 + 7),
+						m(EssREFUstore88K.ChannelId.VA_RTG_SF, new UnsignedWordElement(SUNSPEC_120 + 6)),
+						m(EssREFUstore88K.ChannelId.VAR_RTG_Q1, new SignedWordElement(SUNSPEC_120 + 7),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VArRtgQ2, new SignedWordElement(SUNSPEC_120 + 8),
+						m(EssREFUstore88K.ChannelId.VAR_RTG_Q2, new SignedWordElement(SUNSPEC_120 + 8),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VArRtgQ3, new SignedWordElement(SUNSPEC_120 + 9),
+						m(EssREFUstore88K.ChannelId.VAR_RTG_Q3, new SignedWordElement(SUNSPEC_120 + 9),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VArRtgQ4, new SignedWordElement(SUNSPEC_120 + 10),
+						m(EssREFUstore88K.ChannelId.VAR_RTG_Q4, new SignedWordElement(SUNSPEC_120 + 10),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VArRtg_SF, new SignedWordElement(SUNSPEC_120 + 11)),
-						m(EssREFUstore88K.ChannelId.ARtg, new UnsignedWordElement(SUNSPEC_120 + 12),
+						m(EssREFUstore88K.ChannelId.VAR_RTG_SF, new SignedWordElement(SUNSPEC_120 + 11)),
+						m(EssREFUstore88K.ChannelId.A_RTG, new UnsignedWordElement(SUNSPEC_120 + 12),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						m(EssREFUstore88K.ChannelId.ARtg_SF, new SignedWordElement(SUNSPEC_120 + 13)),
-						m(EssREFUstore88K.ChannelId.PFRtgQ1, new SignedWordElement(SUNSPEC_120 + 14),
+						m(EssREFUstore88K.ChannelId.A_RTG_SF, new SignedWordElement(SUNSPEC_120 + 13)),
+						m(EssREFUstore88K.ChannelId.PF_RTG_Q1, new SignedWordElement(SUNSPEC_120 + 14),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(EssREFUstore88K.ChannelId.PFRtgQ2, new SignedWordElement(SUNSPEC_120 + 15),
+						m(EssREFUstore88K.ChannelId.PF_RTG_Q2, new SignedWordElement(SUNSPEC_120 + 15),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(EssREFUstore88K.ChannelId.PFRtgQ3, new SignedWordElement(SUNSPEC_120 + 16),
+						m(EssREFUstore88K.ChannelId.PF_RTG_Q3, new SignedWordElement(SUNSPEC_120 + 16),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(EssREFUstore88K.ChannelId.PFRtgQ4, new SignedWordElement(SUNSPEC_120 + 17),
+						m(EssREFUstore88K.ChannelId.PF_RTG_Q4, new SignedWordElement(SUNSPEC_120 + 17),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(EssREFUstore88K.ChannelId.PFRtg_SF, new SignedWordElement(SUNSPEC_120 + 18))),
+						m(EssREFUstore88K.ChannelId.PF_RTG_SF, new SignedWordElement(SUNSPEC_120 + 18))),
 
 				new FC3ReadRegistersTask(SUNSPEC_121, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.Id_121, new UnsignedWordElement(SUNSPEC_121)),
+						m(EssREFUstore88K.ChannelId.ID_121, new UnsignedWordElement(SUNSPEC_121)),
 						m(EssREFUstore88K.ChannelId.L_121, new UnsignedWordElement(SUNSPEC_121 + 1))),
 				new FC3ReadRegistersTask(SUNSPEC_121 + 22, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.WMax_SF, new UnsignedWordElement(SUNSPEC_121 + 22)),
-						m(EssREFUstore88K.ChannelId.VRef_SF, new UnsignedWordElement(SUNSPEC_121 + 23)),
-						m(EssREFUstore88K.ChannelId.VRefOfs_SF, new UnsignedWordElement(SUNSPEC_121 + 24))),
+						m(EssREFUstore88K.ChannelId.W_MAX_SF, new UnsignedWordElement(SUNSPEC_121 + 22)),
+						m(EssREFUstore88K.ChannelId.V_REF_SF, new UnsignedWordElement(SUNSPEC_121 + 23)),
+						m(EssREFUstore88K.ChannelId.V_REF_OFS_SF, new UnsignedWordElement(SUNSPEC_121 + 24))),
 
 				new FC16WriteRegistersTask(SUNSPEC_121 + 2, //
-						m(EssREFUstore88K.ChannelId.WMax, new UnsignedWordElement(SUNSPEC_121 + 2),
+						m(EssREFUstore88K.ChannelId.W_MAX, new UnsignedWordElement(SUNSPEC_121 + 2),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VRef, new UnsignedWordElement(SUNSPEC_121 + 3),
+						m(EssREFUstore88K.ChannelId.V_REF, new UnsignedWordElement(SUNSPEC_121 + 3),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(EssREFUstore88K.ChannelId.VRefOfs, new UnsignedWordElement(SUNSPEC_121 + 4),
+						m(EssREFUstore88K.ChannelId.V_REF_OFS, new UnsignedWordElement(SUNSPEC_121 + 4),
 								ElementToChannelConverter.SCALE_FACTOR_1)),
 
 				new FC3ReadRegistersTask(SUNSPEC_123, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.Id_123, new UnsignedWordElement(SUNSPEC_123)),
+						m(EssREFUstore88K.ChannelId.ID_123, new UnsignedWordElement(SUNSPEC_123)),
 						m(EssREFUstore88K.ChannelId.L_123, new UnsignedWordElement(SUNSPEC_123 + 1))),
 				new FC3ReadRegistersTask(SUNSPEC_123 + 23, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.WMaxLimPct_SF, new UnsignedWordElement(SUNSPEC_123 + 23)),
-						m(EssREFUstore88K.ChannelId.OutPFSet_SF, new UnsignedWordElement(SUNSPEC_123 + 24)),
-						m(EssREFUstore88K.ChannelId.VArPct_SF, new UnsignedWordElement(SUNSPEC_123 + 25))),
+						m(EssREFUstore88K.ChannelId.W_MAX_LIM_PCT_SF, new UnsignedWordElement(SUNSPEC_123 + 23)),
+						m(EssREFUstore88K.ChannelId.OUT_PF_SET_SF, new UnsignedWordElement(SUNSPEC_123 + 24)),
+						m(EssREFUstore88K.ChannelId.VAR_PCT_SF, new UnsignedWordElement(SUNSPEC_123 + 25))),
 
 				new FC16WriteRegistersTask(SUNSPEC_123 + 4, //
 						m(EssREFUstore88K.ChannelId.CONN, new UnsignedWordElement(SUNSPEC_123 + 4)),
-						m(EssREFUstore88K.ChannelId.WMaxLimPct, new SignedWordElement(SUNSPEC_123 + 5),
+						m(EssREFUstore88K.ChannelId.W_MAX_LIM_PCT, new SignedWordElement(SUNSPEC_123 + 5),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 				new FC16WriteRegistersTask(SUNSPEC_123 + 9, //
-						m(EssREFUstore88K.ChannelId.WMaxLim_Ena, new UnsignedWordElement(SUNSPEC_123 + 9)),
-						m(EssREFUstore88K.ChannelId.OutPFSet, new SignedWordElement(SUNSPEC_123 + 10),
+						m(EssREFUstore88K.ChannelId.W_MAX_LIM_ENA, new UnsignedWordElement(SUNSPEC_123 + 9)),
+						m(EssREFUstore88K.ChannelId.OUT_PF_SET, new SignedWordElement(SUNSPEC_123 + 10),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
 				new FC16WriteRegistersTask(SUNSPEC_123 + 14, //
-						m(EssREFUstore88K.ChannelId.OutPFSet_Ena, new UnsignedWordElement(SUNSPEC_123 + 14)),
-						m(EssREFUstore88K.ChannelId.VArWMaxPct, new SignedWordElement(SUNSPEC_123 + 15),
+						m(EssREFUstore88K.ChannelId.OUT_PF_SET_ENA, new UnsignedWordElement(SUNSPEC_123 + 14)),
+						m(EssREFUstore88K.ChannelId.VAR_W_MAX_PCT, new SignedWordElement(SUNSPEC_123 + 15),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 				new FC16WriteRegistersTask(SUNSPEC_123 + 22, //
-						m(EssREFUstore88K.ChannelId.VArPct_Ena, new UnsignedWordElement(SUNSPEC_123 + 22))),
+						m(EssREFUstore88K.ChannelId.VAR_PCT_ENA, new UnsignedWordElement(SUNSPEC_123 + 22))),
 
 				new FC3ReadRegistersTask(SUNSPEC_64040, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.Id_64040, new UnsignedWordElement(SUNSPEC_64040)),
+						m(EssREFUstore88K.ChannelId.ID_64040, new UnsignedWordElement(SUNSPEC_64040)),
 						m(EssREFUstore88K.ChannelId.L_64040, new UnsignedWordElement(SUNSPEC_64040 + 1))),
 
 				new FC16WriteRegistersTask(SUNSPEC_64040 + 2, //
-						m(EssREFUstore88K.ChannelId.ReadWriteParamId, new UnsignedDoublewordElement(SUNSPEC_64040 + 2)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamIndex,
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_ID, new UnsignedDoublewordElement(SUNSPEC_64040 + 2)),
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_INDEX,
 								new UnsignedDoublewordElement(SUNSPEC_64040 + 4))),
 
 				new FC3ReadRegistersTask(SUNSPEC_64041, Priority.LOW, //
-						m(EssREFUstore88K.ChannelId.Id_64041, new UnsignedWordElement(SUNSPEC_64041)),
+						m(EssREFUstore88K.ChannelId.ID_64041, new UnsignedWordElement(SUNSPEC_64041)),
 						m(EssREFUstore88K.ChannelId.L_64041, new UnsignedWordElement(SUNSPEC_64041 + 1))),
 
 				new FC16WriteRegistersTask(SUNSPEC_64041 + 2, //
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_U32,
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_U32,
 								new UnsignedDoublewordElement(SUNSPEC_64041 + 2)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_S32,
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_S32,
 								new SignedDoublewordElement(SUNSPEC_64041 + 4)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_F32,
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_F32,
 								new SignedDoublewordElement(SUNSPEC_64041 + 6)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_U16,
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_U16,
 								new UnsignedWordElement(SUNSPEC_64041 + 8)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_S16, new SignedWordElement(SUNSPEC_64041 + 9)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_U8,
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_S16, new SignedWordElement(SUNSPEC_64041 + 9)),
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_U8,
 								new UnsignedWordElement(SUNSPEC_64041 + 10)),
-						m(EssREFUstore88K.ChannelId.ReadWriteParamValue_S8, new SignedWordElement(SUNSPEC_64041 + 11))),
+						m(EssREFUstore88K.ChannelId.READ_WRITE_PARAM_VALUE_S8, new SignedWordElement(SUNSPEC_64041 + 11))),
 
 				new FC16WriteRegistersTask(SUNSPEC_64800 + 6, //
-						m(EssREFUstore88K.ChannelId.PCSSetOperation, new SignedWordElement(SUNSPEC_64800 + 6))));
+						m(EssREFUstore88K.ChannelId.PCS_SET_OPERATION, new SignedWordElement(SUNSPEC_64800 + 6))));
 	}
 
 	@Override

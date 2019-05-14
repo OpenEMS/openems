@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "ESS REFUstore 88K Battery Inverter", //
-		description = "Implements the 2nd Life ESS Renault / Mobility House")
+		description = "Implements the REFUstore 88K Battery Inverter")
 @interface Config {
 	String id() default "ess0";
 
