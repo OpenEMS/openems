@@ -202,6 +202,7 @@ export module EdgeConfig {
     export class Component {
         public id: string = "";
         public alias: string = "";
+        public isEnabled: boolean = false;
 
         constructor(
             public readonly factoryId: string = "",
