@@ -2,9 +2,9 @@ package io.openems.edge.wago;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;

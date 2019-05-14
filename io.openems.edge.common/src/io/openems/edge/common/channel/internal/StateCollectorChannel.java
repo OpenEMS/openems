@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;

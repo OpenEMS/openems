@@ -17,8 +17,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.edge.common.channel.AccessMode;
-import io.openems.edge.common.channel.Level;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
@@ -68,7 +68,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, OpenemsConstants.SUM_ID, true);
+		super.activate(context, OpenemsConstants.SUM_ID, "Sum", true);
 	}
 
 	@Deactivate

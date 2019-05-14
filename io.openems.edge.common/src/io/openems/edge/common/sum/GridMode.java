@@ -1,6 +1,6 @@
 package io.openems.edge.common.sum;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum GridMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

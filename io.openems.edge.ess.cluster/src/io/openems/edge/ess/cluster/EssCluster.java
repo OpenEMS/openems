@@ -19,8 +19,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
@@ -118,7 +118,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'esss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "esss", config.ess_ids())) {

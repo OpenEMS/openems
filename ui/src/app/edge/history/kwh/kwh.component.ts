@@ -26,7 +26,7 @@ export class KwhComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route).then(response => {
+    this.service.setCurrentComponent('', this.route).then(response => {
       this.edge = response;
     });
   }
@@ -37,7 +37,6 @@ export class KwhComponent implements OnInit, OnChanges {
   };
 
   updateValues() {
-    console.log(this.fromDate, this.toDate);
     this.queryEnergy(this.fromDate, this.toDate).then(response => {
       this.data = response.result.data;
     });

@@ -89,7 +89,7 @@ public abstract class AbstractWorker {
 					/*
 					 * Wait for next cycle
 					 */
-					int cycleTime = getCycleTime();
+					int cycleTime = AbstractWorker.this.getCycleTime();
 					if (cycleTime == DO_NOT_WAIT) {
 						// no wait
 					} else if (cycleTime > 0) {
@@ -109,7 +109,7 @@ public abstract class AbstractWorker {
 					/*
 					 * Call forever() forever.
 					 */
-					forever();
+					AbstractWorker.this.forever();
 
 					// Everything went ok -> reset onWorkerExceptionSleep
 					onWorkerExceptionSleep = 1;

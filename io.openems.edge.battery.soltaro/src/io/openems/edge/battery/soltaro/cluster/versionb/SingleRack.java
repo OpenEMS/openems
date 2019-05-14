@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -20,8 +22,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**

@@ -36,6 +36,16 @@ public class BalancingTest {
 		public String meter_id() {
 			return this.meterId;
 		}
+
+		@Override
+		public double maxPowerAdjustmentRate() {
+			return Balancing.DEFAULT_MAX_ADJUSTMENT_RATE;
+		}
+
+		@Override
+		public int targetGridSetpoint() {
+			return 0;
+		}
 	}
 
 	@Test
@@ -62,6 +72,9 @@ public class BalancingTest {
 						.input(ess0GridMode, GridMode.ON_GRID) //
 						.input(ess0ActivePower, 1000).input(meter0ActivePower, 2000) //
 						.output(ess0SetActivePowerEquals, 3000)) //
+				.next(new TestCase() //
+						.input(ess0ActivePower, 1500).input(meter0ActivePower, 2500) //
+						.output(ess0SetActivePowerEquals, 3600)) //
 				.next(new TestCase() //
 						.input(ess0ActivePower, 1500).input(meter0ActivePower, 2500) //
 						.output(ess0SetActivePowerEquals, 4000)) //

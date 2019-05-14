@@ -1,6 +1,6 @@
 package io.openems.edge.ess.refu88k;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum Event1 implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"),

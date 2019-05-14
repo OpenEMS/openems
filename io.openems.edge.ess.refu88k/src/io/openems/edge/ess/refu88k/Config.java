@@ -8,6 +8,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Implements the REFUstore 88K Battery Inverter")
 @interface Config {
 	String id() default "ess0";
+	
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
 
 	boolean enabled() default true;
 	

@@ -33,8 +33,8 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.AccessMode;
-import io.openems.edge.common.channel.Unit;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -93,20 +93,7 @@ public class EssREFUstore88K extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id()); //
-	}
-
-	@ObjectClassDefinition
-	@interface Config {
-		String name()
-
-		default "World";
-
-		String id();
-
-		boolean enabled();
-
-		String modbus_id();
+		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id()); //
 	}
 
 	@Deactivate

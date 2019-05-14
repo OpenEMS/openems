@@ -20,6 +20,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -33,12 +36,9 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -58,8 +58,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
-	public static final int DISCHARGE_MAX_A = 20;
-	public static final int CHARGE_MAX_A = 20;
+	public static final int DISCHARGE_MAX_A = 0;
+	public static final int CHARGE_MAX_A = 0;
 
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
@@ -103,7 +103,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 		this.batteryState = config.batteryState();

@@ -1,6 +1,11 @@
 package io.openems.edge.common.channel;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.ChannelCategory;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -72,6 +77,13 @@ public interface Doc {
 	public static StateChannelDoc of(Level level) {
 		return new StateChannelDoc(level);
 	}
+
+	/**
+	 * Gets the {@link ChannelCategory} of the Channel of this Doc.
+	 * 
+	 * @return the ChannelCategory
+	 */
+	public ChannelCategory getChannelCategory();
 
 	/**
 	 * Gets the OpenemsType.

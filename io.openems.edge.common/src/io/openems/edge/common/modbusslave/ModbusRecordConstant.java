@@ -3,7 +3,7 @@ package io.openems.edge.common.modbusslave;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.common.channel.AccessMode;
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class ModbusRecordConstant extends ModbusRecord {

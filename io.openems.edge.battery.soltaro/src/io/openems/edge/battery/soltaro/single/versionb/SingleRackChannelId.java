@@ -1,5 +1,8 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ChargeIndication;
@@ -12,10 +15,7 @@ import io.openems.edge.battery.soltaro.single.versionb.Enums.PreContactorState;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ShortCircuitFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.SystemRunMode;
 import io.openems.edge.battery.soltaro.State;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 
 public enum SingleRackChannelId implements io.openems.edge.common.channel.ChannelId {
 	// IntegerWriteChannels
@@ -474,7 +474,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 			.text("Alarm flag status charge over current")), //
 	ALARM_FLAG_STATUS_SYSTEM_OVER_VOLTAGE(Doc.of(Level.OK) //
 			.text("Alarm flag status system over voltage")), //
-	ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+	ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(Level.OK) //
 			.text("Alarm flag status cell over voltage")), //
 	PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW(Doc.of(Level.OK) //
 			.text("Protect flag status discharge temperature low")), //

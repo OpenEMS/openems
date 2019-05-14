@@ -8,8 +8,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Defines a fixed charge/discarge power to an Electric Vehicle Charging Station.")
 @interface Config {
 
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlEvcsFixActivePower0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Evcs-id", description = "ID of Evcs device.")

@@ -1,6 +1,6 @@
 package io.openems.edge.battery.soltaro;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum State implements OptionsEnum {
 	UNDEFINED("Undefined", -1), //

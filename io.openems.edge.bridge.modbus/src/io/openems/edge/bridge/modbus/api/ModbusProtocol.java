@@ -49,7 +49,7 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Adds a Task to the Protocol
+	 * Adds a Task to the Protocol.
 	 * 
 	 * @param task the task
 	 */
@@ -82,39 +82,21 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Returns the next list of WriteTasks that should be executed within one cycle.
+	 * Gets the Read-Tasks Manager.
 	 * 
-	 * @return a list of WriteTasks
+	 * @return a the TaskManager
 	 */
-	public List<WriteTask> getNextWriteTasks() {
-		return this.writeTaskManager.getNextTasks();
+	public TasksManager<ReadTask> getReadTasksManager() {
+		return this.readTaskManager;
 	}
 
 	/**
-	 * Returns one WriteTask sequentially.
+	 * Gets the Write-Tasks Manager.
 	 * 
-	 * @return a WriteTasks
+	 * @return a the TaskManager
 	 */
-	public WriteTask getOneWriteTask() {
-		return this.writeTaskManager.getOneTask();
-	}
-
-	/**
-	 * Returns the next list of ReadTasks that should be executed within one cycle.
-	 * 
-	 * @return a list of ReadTasks
-	 */
-	public List<ReadTask> getNextReadTasks() {
-		return this.readTaskManager.getNextTasks();
-	}
-
-	/**
-	 * Returns one ReadTask sequentially.
-	 * 
-	 * @return a ReadTasks
-	 */
-	public ReadTask getOneReadTask() {
-		return this.readTaskManager.getOneTask();
+	public TasksManager<WriteTask> getWriteTasksManager() {
+		return this.writeTaskManager;
 	}
 
 	/**

@@ -18,6 +18,7 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 
 export class Edge {
 
@@ -71,7 +72,8 @@ export class Edge {
   public refreshConfig(websocket: Websocket): void {
     let request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
-      this.config.next(new EdgeConfig(response as GetEdgeConfigResponse));
+      let edgeConfigResponse = response as GetEdgeConfigResponse;
+      this.config.next(new EdgeConfig(edgeConfigResponse.result));
     }).catch(reason => {
       console.warn("refreshConfig got error", reason)
       // TODO error
@@ -86,9 +88,9 @@ export class Edge {
    * @param id        a unique ID for this subscription (e.g. the component selector)
    * @param channels  the subscribed Channel-Adresses
    */
-  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): Promise<JsonrpcResponseSuccess> {
+  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
     this.subscribedChannels[id] = channels;
-    return this.sendSubscribeChannels(websocket);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
@@ -97,9 +99,9 @@ export class Edge {
    * @param websocket the Websocket
    * @param id        the unique ID for this subscription
    */
-  public unsubscribeChannels(websocket: Websocket, id: string): Promise<JsonrpcResponseSuccess> {
+  public unsubscribeChannels(websocket: Websocket, id: string): void {
     delete this.subscribedChannels[id];
-    return this.sendSubscribeChannels(websocket);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
@@ -125,14 +127,30 @@ export class Edge {
    * 
    * @param websocket the Websocket
    */
-  private sendSubscribeChannels(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    // merge channels from currentDataSubscribes
-    let channels: ChannelAddress[] = [];
-    for (let componentId in this.subscribedChannels) {
-      channels.push.apply(channels, this.subscribedChannels[componentId]);
+  private sendSubscribeChannels(websocket: Websocket): void {
+    // make sure to send not faster than every 100 ms
+    if (this.subscribeChannelsTimeout == null) {
+      this.subscribeChannelsTimeout = setTimeout(() => {
+        // reset subscribeChannelsTimeout
+        this.subscribeChannelsTimeout = null;
+
+        // merge channels from currentDataSubscribes
+        let channels: ChannelAddress[] = [];
+        for (let componentId in this.subscribedChannels) {
+          channels.push.apply(channels, this.subscribedChannels[componentId]);
+        }
+        let request = new SubscribeChannelsRequest(channels);
+        this.sendRequest(websocket, request);
+      }, 100);
     }
-    let request = new SubscribeChannelsRequest(channels);
-    return this.sendRequest(websocket, request);
+  }
+  private subscribeChannelsTimeout: any = null;
+
+  /**
+   * Handles a EdgeConfigNotification
+   */
+  public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
+    this.config.next(new EdgeConfig(message.params));
   }
 
   /**
@@ -255,5 +273,14 @@ export class Edge {
 	 */
   public roleIsAtLeast(role: Role | string): boolean {
     return Role.isAtLeast(this.role, role);
+  }
+
+  /**
+   * Gets the Role of the Edge as a human-readable string.
+   * 
+   * @returns the name of the role
+   */
+  public getRoleString(): string {
+    return Role[this.role].toLowerCase();
   }
 }

@@ -1,6 +1,6 @@
 package io.openems.edge.battery.renaultzoe;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum BatteryModel implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
