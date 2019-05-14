@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int Max_Morning_hour() default 7;
 	
 	@AttributeDefinition(name = "Evening-Hour", description = "Calculation starts at this hour")
-	int Max_Evening_hour() default 4;
+	int Max_Evening_hour() default 16;
 	
 	@AttributeDefinition(name = "Grid-Meter-Id", description = "ID of the Grid-Meter.")
 	String meter_id();

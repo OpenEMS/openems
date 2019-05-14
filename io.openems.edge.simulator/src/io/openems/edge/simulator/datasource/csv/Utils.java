@@ -27,6 +27,8 @@ public class Utils {
 			return "h0-summer-weekday-non-regulated-consumption.csv";
 		case H0_HOUSEHOLD_SUMMER_WEEKDAY_PV_PRODUCTION2:
 			return "h0-summer-weekday-pv-production2.csv";
+		case GENERATED:
+			return "generated.csv";
 		}
 		return null;
 	}

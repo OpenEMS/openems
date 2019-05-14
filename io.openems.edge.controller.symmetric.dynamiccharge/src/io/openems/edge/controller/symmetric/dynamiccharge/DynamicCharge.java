@@ -33,7 +33,6 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class DynamicCharge extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
-
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
 	private static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
 	boolean executed = false;

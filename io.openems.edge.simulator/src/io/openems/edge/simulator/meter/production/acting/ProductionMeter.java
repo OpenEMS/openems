@@ -106,6 +106,8 @@ public class ProductionMeter extends AbstractOpenemsComponent
 		this.getActivePowerL1().setNextValue(simulatedActivePower / 3);
 		this.getActivePowerL2().setNextValue(simulatedActivePower / 3);
 		this.getActivePowerL3().setNextValue(simulatedActivePower / 3);
+		
+		this.getActiveProductionEnergy().setNextValue(this.datasource.getValue(OpenemsType.INTEGER, "ActiveProductionEnergy"));
 	}
 
 	@Override

@@ -125,9 +125,11 @@ public class GridMeter extends AbstractOpenemsComponent
 
 //		int simulatedProdPower = this.datasource.getValue(OpenemsType.LONG, "ProductionEnergy");
 //		this.channel(ChannelId.SIMULATED_PRODUCTION_ACTIVE_ENERGY).setNextValue(simulatedProdPower);
+		
 		/*
 		 * Calculate Active Power
 		 */
+		
 		int activePower = simulatedActivePower;
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
 			Optional<Integer> essPowerOpt = ess.getActivePower().value().asOptional();

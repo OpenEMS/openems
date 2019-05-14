@@ -47,9 +47,8 @@ public class CalculateConsumption {
 
 	protected void run(ManagedSymmetricEss ess, SymmetricMeter meter, Config config, Sum sum) {
 
-		long production = meter.getActivePower().value().orElse(0);
-		long consumption = sum.getConsumptionActivePower().value().orElse(0)
-				+ sum.getEssActivePower().value().orElse(0);
+		long production = sum.getProductionActiveEnergy().value().orElse(0L);
+		long consumption = sum.getGridActivePower().value().orElse(0);
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
@@ -71,7 +70,7 @@ public class CalculateConsumption {
 			log.info("t1: " + t1);
 		}
 
-		log.info("Consumption: " + consumption + " Total  production: " + production);
+		log.info("Consumption: " + consumption + " Production: " + production + " t0: " + t0 + " t1: " + t1);
 
 		switch (currentState) {
 		case PRODUCTION_LOWER_THAN_CONSUMPTION:
@@ -86,21 +85,6 @@ public class CalculateConsumption {
 							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
 					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
 				}
-
-				/*// First time of the day when production > consumption.
-				// Avoids the fluctuations and shifts to next state only the next day.
-				if (production > consumption && dateOfT0.isBefore(nowDate)) {
-					log.info(production + " is greater than " + consumption
-							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
-					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
-				}
-
-				// shifts to next state when there is no production available.
-				else if (now.getHour() >= config.Max_Morning_hour() && dateOfT0.isBefore(nowDate)) {
-					log.info(production + " is greater than " + consumption
-							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
-					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
-				}*/
 
 				// Detects the switching of hour
 				else if (now.getHour() == currentHour.plusHours(1).getHour() && dateOfT0.isBefore(nowDate)) {

@@ -45,7 +45,7 @@ public class DataContainer {
 	 * 
 	 * @return the current record
 	 */
-	public float[] getCurrentRecord() {
+	public float[] getCurrentRecord() throws IndexOutOfBoundsException {
 		return this.records.get(currentIndex);
 	}
 
@@ -53,10 +53,18 @@ public class DataContainer {
 	 * Gets the value for the key from the current record.
 	 * 
 	 * @param key the Channel-Id
-	 * @return the record value
+	 * @return the record value; or null
 	 */
-	public float getValue(String key) {
-		return this.getCurrentRecord()[this.keys.get(key)];
+	public Float getValue(String key) {
+		Integer keyIndex = this.keys.get(key);
+		if (keyIndex == null) {
+			return null;
+		}
+		try {
+			return this.getCurrentRecord()[this.keys.get(key)];
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
 
 	/**
