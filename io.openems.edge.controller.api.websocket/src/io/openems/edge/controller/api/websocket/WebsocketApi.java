@@ -65,6 +65,8 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 */
 	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
 
+	String edgeIdentifier;
+
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -104,6 +106,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			// abort if disabled
 			return;
 		}
+		this.edgeIdentifier = config.edgeIdentfier();
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 		this.startServer(config.port());
 	}
