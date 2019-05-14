@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.2</version>
+			<version>0.10.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>
