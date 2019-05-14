@@ -98,7 +98,7 @@ export class CurrentData {
              */
             result.storage.soc = c['_sum/EssSoc'];
             const essActivePower: number = c['_sum/EssActivePower'];
-            result.storage.maxApparentPower = c['_sum/MaxApparentPower'];
+            result.storage.maxApparentPower = c['_sum/EssMaxApparentPower'];
 
             if (!result.storage.maxApparentPower) {
                 result.storage.maxApparentPower = 5000;
