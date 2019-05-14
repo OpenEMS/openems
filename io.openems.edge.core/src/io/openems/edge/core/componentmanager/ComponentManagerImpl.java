@@ -383,6 +383,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (Entry<String, Configuration> componentEntry : componentsMap.entrySet()) {
 			String componentId = componentEntry.getKey();
 			String alias = componentId;
+			boolean isEnabled = false; // defaults to true
 			TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
 			String factoryPid = "";
 
@@ -404,7 +405,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				while (keys.hasMoreElements()) {
 					String key = keys.nextElement();
 					if (!this.ignorePropertyKey(key)) {
-						propertyMap.put(key, JsonUtils.getAsJsonElement(properties.get(key)));
+						propertyMap.put(key, getPropertyAsJsonElement(properties.get(key)));
 					}
 				}
 			}
@@ -413,6 +414,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
 			try {
 				OpenemsComponent component = this.getComponent(componentId);
+				isEnabled = component.isEnabled();
 				alias = component.alias();
 				for (Channel<?> channel : component.channels()) {
 					io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
@@ -453,7 +455,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 			// Create EdgeConfig.Component and add it to Result
 			result.addComponent(componentId,
-					new EdgeConfig.Component(componentId, alias, factoryPid, propertyMap, channelMap));
+					new EdgeConfig.Component(componentId, alias, isEnabled, factoryPid, propertyMap, channelMap));
 		}
 
 		final Bundle[] bundles = this.bundleContext.getBundles();
@@ -589,5 +591,26 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		default:
 			return false;
 		}
+	}
+
+	/**
+	 * Gets a component Property as JsonElement. Uses some more techniques to find
+	 * the proper type than {@link JsonUtils#getAsJsonElement(Object)}.
+	 * 
+	 * @param value the property value
+	 * @return the value as JsonElement
+	 */
+	private static JsonElement getPropertyAsJsonElement(Object valueObj) {
+		if (valueObj != null && valueObj instanceof String) {
+			String value = (String) valueObj;
+			// find boolean
+			if (value.equalsIgnoreCase("true")) {
+				return new JsonPrimitive(true);
+			} else if (value.equalsIgnoreCase("false")) {
+				return new JsonPrimitive(false);
+			}
+		}
+		// falback to JsonUtils
+		return JsonUtils.getAsJsonElement(valueObj);
 	}
 }
