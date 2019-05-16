@@ -21,6 +21,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
@@ -47,6 +48,8 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -56,7 +59,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class Cluster extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler {
+public class Cluster extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int DISCHARGE_MAX_A = 0; // default value 0 to avoid damages
 	public static final int CHARGE_MAX_A = 0; // default value 0 to avoid damages
@@ -231,6 +234,10 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			}
 			break;
 		case PENDING:
+			this.stopSystem();
+			this.setStateMachineState(State.OFF);
+			break;
+		case ERROR_CELL_VOLTAGES_DRIFT:
 			this.stopSystem();
 			this.setStateMachineState(State.OFF);
 			break;
@@ -549,7 +556,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 		return super.m(bitsWordElement);
 	}
 	
-	public void recalculateSoc() {		
+	protected void recalculateSoc() {		
 		int i = 0;
 		int soc = 0;
 
@@ -567,6 +574,14 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
+	
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Battery.getModbusSlaveNatureTable(accessMode) //
+		);
+	}	
 
 	private static Map<Integer, RackInfo> createRackInfo() {
 		Map<Integer, RackInfo> map = new HashMap<Integer, RackInfo>();
