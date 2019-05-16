@@ -1,0 +1,22 @@
+<ion-card *ngIf="edge && controller && outputChannel" (click)="presentModal()" style="cursor: pointer;">
+  <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
+
+  <ion-item lines="full" color="light">
+    <ion-icon slot="start" size="large" color="primary" name="power"></ion-icon>
+    <ion-label>{{ controller.alias }}</ion-label>
+  </ion-item>
+
+  <ion-card-content *ngIf="(edge.currentData | async).channel as channel">
+    <ion-grid no-padding>
+      <table class="full_width">
+        <tr>
+          <td style="width:65%">Aktueller Status</td>
+          <td style="width:25%" class="align_right" *ngIf="channel[outputChannel] == null">-</td>
+          <td style="width:25%" class="align_right" *ngIf="channel[outputChannel] == 1">Ein</td>
+          <td style="width:25%" class="align_right" *ngIf="channel[outputChannel] == 0">Aus</td>
+          <td style="width:10%"></td>
+        </tr>
+      </table>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>

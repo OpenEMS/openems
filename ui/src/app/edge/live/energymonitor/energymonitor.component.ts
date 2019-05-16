@@ -23,7 +23,7 @@ export class EnergymonitorComponent {
       this.edge = edge;
       edge.subscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR, [
         // Ess
-        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'),
+        new ChannelAddress('_sum', 'EssSoc'), new ChannelAddress('_sum', 'EssActivePower'), new ChannelAddress('_sum', 'EssMaxApparentPower'),
         // Grid
         new ChannelAddress('_sum', 'GridActivePower'), new ChannelAddress('_sum', 'GridMinActivePower'), new ChannelAddress('_sum', 'GridMaxActivePower'),
         // Production

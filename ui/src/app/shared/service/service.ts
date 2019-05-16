@@ -119,7 +119,7 @@ export class Service implements ErrorHandler {
   public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
-      if (this.currentActivatedRoute == activatedRoute) {
+      if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
           this.currentPageTitle = 'OpenEMS UI';
         } else {
