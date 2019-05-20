@@ -52,8 +52,6 @@ public class CalculateConsumption {
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
-		// int secondOfDay = now.getSecond() + now.getMinute() * 60 + now.getHour() *
-		// 3600;
 
 		/*
 		 * Detect switch to next day
@@ -70,7 +68,8 @@ public class CalculateConsumption {
 			log.info("t1: " + t1);
 		}
 
-		log.info("Consumption: " + consumption + " Production: " + production + " t0: " + t0 + " t1: " + t1);
+		log.info("Consumption: " + consumption + " Production: " + production + " t0: " + t0 + " t1: " + t1
+				+ " total Consumption: " + totalConsumption + " currenthour: " + currentHour);
 
 		switch (currentState) {
 		case PRODUCTION_LOWER_THAN_CONSUMPTION:
@@ -87,7 +86,8 @@ public class CalculateConsumption {
 				}
 
 				// Detects the switching of hour
-				else if (now.getHour() == currentHour.plusHours(1).getHour() && dateOfT0.isBefore(nowDate)) {
+				else if (now.getHour() == currentHour.plusHours(1).getHour()) {
+					log.info(" Switching of the hour detected and updating " + currentHour);
 					hourlyConsumption.put(currentHour, totalConsumption);
 					currentHour = now;
 				}
@@ -199,13 +199,14 @@ public class CalculateConsumption {
 
 				// if the battery doesn't has sufficient energy!
 				chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour;
+				totalDemand -= chargebleConsumption;
 
 				/*
 				 * During the cheap hour, Grid is used for both charging the battery and also to
 				 * satisfy the current loads.
 				 */
 
-				if (chargebleConsumption != 0) {
+				if (chargebleConsumption > 0) {
 					chargeSchedule.put(entry1.getKey(), chargebleConsumption);
 				}
 				minPrice = Float.MAX_VALUE;

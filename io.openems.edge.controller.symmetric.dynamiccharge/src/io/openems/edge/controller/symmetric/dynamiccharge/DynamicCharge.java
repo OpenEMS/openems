@@ -77,8 +77,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		
-		
+
 		LocalDateTime now = LocalDateTime.now();
 		int hourOfDay = now.getHour();
 
@@ -111,15 +110,13 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 					/*
 					 * TODO Actual condition to charge the ESS
 					 */
-				System.out.println("Charging");
+					System.out.println("Charging");
+					long power = entry.getValue();
+					int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
+							(int) power);
+					ess.addPowerConstraintAndValidate("SymmetricFixActivePower", Phase.ALL, Pwr.ACTIVE,
+							Relationship.EQUALS, calculatedPower);
 
-					/*
-					 * int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL,
-					 * Pwr.ACTIVE, entry.getValue());
-					 * 
-					 * ess.addPowerConstraintAndValidate("SymmetricFixActivePower", Phase.ALL,
-					 * Pwr.ACTIVE, Relationship.EQUALS, calculatedPower);
-					 */
 				}
 
 			}
