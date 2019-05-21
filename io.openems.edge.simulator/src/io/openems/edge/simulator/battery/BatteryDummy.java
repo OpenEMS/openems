@@ -79,6 +79,8 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		this.getVoltage().setNextValue(this.voltage);
 		this.getMinCellVoltage().setNextValue(this.minCellVoltage);
 		this.getMaxCellVoltage().setNextValue(this.minCellVoltage);
+		
+		this.getReadyForWorking().setNextValue(true);
 	}
 
 }

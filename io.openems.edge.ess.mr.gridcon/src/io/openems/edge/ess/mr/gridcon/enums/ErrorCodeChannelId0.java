@@ -9,7 +9,7 @@ import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc.ReactionLevel;
 /**
  * This enum holds every possible error channel id for a gridcon.
  */
-public enum ErrorCodeChannelId implements ChannelId {
+public enum ErrorCodeChannelId0 implements ChannelId {
 
 	STATE_TEMP_TRIP_IGBT_3_IPU_1_1(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
@@ -5677,7 +5677,7 @@ public enum ErrorCodeChannelId implements ChannelId {
 
 	private final Doc doc;
 
-	private ErrorCodeChannelId(Doc doc) {
+	private ErrorCodeChannelId0(Doc doc) {
 		this.doc = doc;
 	}
 
