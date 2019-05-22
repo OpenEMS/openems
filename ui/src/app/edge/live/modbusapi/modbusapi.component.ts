@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as FileSaver from 'file-saver';
-import { ComponentJsonApiRequest } from '../../../../shared/jsonrpc/request/componentJsonApiRequest';
-import { EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { ComponentJsonApiRequest } from '../../../shared/jsonrpc/request/componentJsonApiRequest';
+import { EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { GetModbusProtocolExportXlsxRequest } from './getModbusProtocolExportXlsxRequest';
-import { Base64PayloadResponse } from '../../../../shared/jsonrpc/response/base64PayloadResponse';
+import { Base64PayloadResponse } from '../../../shared/jsonrpc/response/base64PayloadResponse';
 
 @Component({
   selector: ModbusApiComponent.SELECTOR,

@@ -1,8 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Edge, Service, Websocket } from '../../../../shared/shared';
 
 @Component({
   selector: 'fixdigitaloutput-modal',

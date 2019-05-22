@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Edge } from '../../../../shared/shared';
+import { Edge } from '../../../shared/shared';
 
 @Component({
     selector: 'info',
