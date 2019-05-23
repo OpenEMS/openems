@@ -18,6 +18,7 @@ export class AppComponent {
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public isEdgeIndexPage: boolean = false;
+  public isEdgeHistoryPage: boolean = false;
   public isSystemLogEnabled: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -69,6 +70,7 @@ export class AppComponent {
     this.updateBackUrl(url);
     this.updateEnableSideMenu(url);
     this.updateIsEdgeIndexPage(url);
+    this.updateIsEdgeHistoryPage(url);
   }
 
   updateEnableSideMenu(url: string) {
@@ -138,6 +140,18 @@ export class AppComponent {
       this.isEdgeIndexPage = true;
     } else {
       this.isEdgeIndexPage = false;
+    }
+  }
+
+  updateIsEdgeHistoryPage(url: string) {
+    let urlArray = url.split('/');
+    let file = urlArray.pop();
+
+    // Enable Segment Navigation for Edge-Index-Page
+    if (file == 'history' && urlArray.length == 3) {
+      this.isEdgeHistoryPage = true;
+    } else {
+      this.isEdgeHistoryPage = false;
     }
   }
 

@@ -17,6 +17,7 @@ export class HistoryComponent implements OnInit {
   private readonly YESTERDAY = subDays(new Date(), 1);
   private readonly TOMORROW = addDays(new Date(), 1);
 
+
   public activePeriodText: string = "";
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
@@ -24,6 +25,8 @@ export class HistoryComponent implements OnInit {
   public activePeriod: PeriodString = "today";
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
+  // holds the Edge dependend Widget names
+  public widgetNames: string[] = [];
 
   protected edge: Edge = null;
   protected dateRange: IMyDateRange;
@@ -51,6 +54,15 @@ export class HistoryComponent implements OnInit {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
+    this.service.getWidgets().then(widgets => {
+      let result: string[] = [];
+      for (let widget of widgets) {
+        if (!result.includes(widget.name.toString())) {
+          result.push(widget.name.toString());
+        }
+      }
+      this.widgetNames = result;
+    });
   }
 
   updateOnWindowResize() {
@@ -75,8 +87,10 @@ export class HistoryComponent implements OnInit {
   }
 
   onDateRangeChanged(event: IMyDateRangeModel) {
+    console.log("HISTORYDATERANGECHANGED")
     let fromDate = event.beginJsDate;
     let toDate = event.endJsDate;
+
     if (isSameDay(fromDate, toDate)) {
       // only one day selected
       if (isSameDay(this.TODAY, fromDate)) {

@@ -7,29 +7,30 @@
         <ion-grid>
           <ion-row>
             <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="activePeriod === 'today'" (click)="setPeriod('today')">
+              <ion-button expand="block" [class.activated]="service.activePeriod === 'today'"
+                (click)="service.setPeriod('today')">
                 <span translate>Edge.History.Today</span>
               </ion-button>
             </ion-col>
             <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="activePeriod === 'yesterday'"
-                (click)="setPeriod('yesterday')">
+              <ion-button expand="block" [class.activated]="service.activePeriod === 'yesterday'"
+                (click)="service.setPeriod('yesterday')">
                 <span translate>Edge.History.Yesterday</span>
               </ion-button>
             </ion-col>
-            <ion-col size="12" *ngIf="activePeriod !== 'otherPeriod'">
-              <ion-button expand="block" [class.activated]="activePeriod === 'otherPeriod'"
-                (click)="clickOtherPeriod()"><span translate>Edge.History.OtherPeriod</span></ion-button>
+            <ion-col size="12" *ngIf="service.activePeriod !== 'otherPeriod'">
+              <ion-button expand="block" [class.activated]="service.activePeriod === 'otherPeriod'"
+                (click)="service.clickOtherPeriod()"><span translate>Edge.History.OtherPeriod</span></ion-button>
             </ion-col>
-            <ion-col size="12" *ngIf="activePeriod === 'otherPeriod'" style="text-align:center">
-              <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange"
-                (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
+            <ion-col size="12" *ngIf="service.activePeriod === 'otherPeriod'" style="text-align:center">
+              <my-date-range-picker [options]="service.dateRangePickerOptions" [(ngModel)]="service.dateRange"
+                (dateRangeChanged)="service.onDateRangeChanged($event)"></my-date-range-picker>
             </ion-col>
           </ion-row>
         </ion-grid>
       </ion-card>
       <ion-col size="12">
-        <kwh [fromDate]="fromDate" [toDate]="toDate"></kwh>
+        <kwh [fromDate]="service.fromDate" [toDate]="service.toDate"></kwh>
       </ion-col>
     </ion-col>
 
@@ -38,7 +39,7 @@
         <ion-item>
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
           <ion-label>
-            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}
+            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ service.activePeriodText }}
             </ion-card-title>
           </ion-label>
         </ion-item>
@@ -48,16 +49,37 @@
 
             <ion-row [style.height]="socChartHeight">
               <ion-col size="12">
-                <soc [fromDate]="fromDate" [toDate]="toDate"></soc>
+                <soc [fromDate]="service.fromDate" [toDate]="service.toDate"></soc>
               </ion-col>
             </ion-row>
             <ion-row [style.height]="energyChartHeight">
               <ion-col size="12">
-                <energy [fromDate]="fromDate" [toDate]="toDate"></energy>
+                <energy [fromDate]="service.fromDate" [toDate]="service.toDate"></energy>
               </ion-col>
             </ion-row>
 
-            <widget [fromDate]="fromDate" [toDate]="toDate"></widget>
+            <ng-container *ngFor="let name of widgetNames" [ngSwitch]="name">
+
+              <ion-row *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px">
+                <ion-col size="12">
+                  <evcs [fromDate]="service.fromDate" [toDate]="service.toDate"></evcs>
+                </ion-col>
+              </ion-row>
+
+              <ion-row *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
+                style.height="150px">
+                <ion-col size="12">
+                  <channelthreshold [fromDate]="service.fromDate" [toDate]="service.toDate"></channelthreshold>
+                </ion-col>
+              </ion-row>
+
+              <ion-row *ngSwitchCase="'Controller.ChannelThreshold'" style.height="150px">
+                <ion-col size="12">
+                  <channelthreshold [fromDate]="service.fromDate" [toDate]="service.toDate"></channelthreshold>
+                </ion-col>
+              </ion-row>
+
+            </ng-container>
           </ion-grid>
 
         </ion-card-content>

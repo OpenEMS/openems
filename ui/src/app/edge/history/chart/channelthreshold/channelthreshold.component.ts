@@ -2,16 +2,16 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { QueryHistoricTimeseriesDataResponse } from '../../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils } from '../../../../../shared/shared';
-import { AbstractHistoryChart } from '../../../abstracthistorychart';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../../shared';
+import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, Service, Utils } from '../../../../shared/shared';
+import { AbstractHistoryChart } from '../../abstracthistorychart';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
 
 @Component({
-  selector: 'evcs',
-  templateUrl: './evcs.component.html'
+  selector: 'channelthreshold',
+  templateUrl: './channelthreshold.component.html'
 })
-export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ChannelthresholdComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
@@ -34,19 +34,27 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
   protected datasets: Dataset[] = EMPTY_DATASET;
   protected options: ChartOptions;
   protected colors = [{
-    // Actual Power
-    backgroundColor: 'rgba(173,255,47,0.1)',
-    borderColor: 'rgba(173,255,47,1)',
+    backgroundColor: 'rgba(204,204,204,0.1)',
+    borderColor: 'rgba(204,204,204,1)',
+  }, {
+    backgroundColor: 'rgba(153,153,153,0.1)',
+    borderColor: 'rgba(153,153,153,1)',
+  }, {
+    backgroundColor: 'rgba(102,102,102,0.1)',
+    borderColor: 'rgba(102,102,102,1)',
+  }, {
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(0,0,0,1)',
   }];
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.scales.yAxes[0].scaleLabel.labelString = "%";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      return label + ": " + formatNumber(value, 'de', '1.0-2') + " %";
     }
     this.options = options;
   }
@@ -63,8 +71,8 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
       }
       this.labels = labels;
 
-      // show Component-ID if there is more than one Channel
-      let showComponentId = Object.keys(result.data).length > 1 ? true : false;
+      // show Channel-ID if there is more than one Channel
+      let showChannelId = Object.keys(result.data).length > 1 ? true : false;
 
       // convert datasets
       let datasets = [];
@@ -74,11 +82,11 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
           if (value == null) {
             return null
           } else {
-            return value / 1000; // convert to kW
+            return value * 100; // convert to % [0,100]
           }
         });
         datasets.push({
-          label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+          label: "Ausgang" + (showChannelId ? ' (' + address.channelId + ')' : ''),
           data: data
         });
       }
@@ -97,9 +105,12 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
     return new Promise((resolve, reject) => {
       this.service.getConfig().then(config => {
         let channeladdresses = [];
-        // find all EVCS components
-        for (let componentId of config.getComponentIdsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
-          channeladdresses.push(new ChannelAddress(componentId, 'ChargePower'));
+        // find all ChannelThresholdControllers
+        for (let controllerId of
+          config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
+            .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
+          const outputChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)['outputChannelAddress']);
+          channeladdresses.push(outputChannel);
         }
         resolve(channeladdresses);
       }).catch(reason => reject(reason));

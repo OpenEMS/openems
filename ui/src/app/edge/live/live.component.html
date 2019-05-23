@@ -1,20 +1,21 @@
 <ion-grid *ngIf="edge">
   <ion-row justify-content-center>
+    <!-- Widgets -->
+
     <!-- Energymonitor -->
     <ion-col size="12" size-md="8" size-lg="4">
       <energymonitor></energymonitor>
     </ion-col>
 
-    <!-- Widgets -->
     <ion-col size="12" size-md="8" size-lg="6">
       <ion-grid no-padding>
         <ion-row>
           <!-- Regular Widgets -->
-          <ion-col size="12" size-lg="6">
+          <ion-col size="12" size-lg="6" no-padding>
             <storage></storage>
           </ion-col>
 
-          <ion-col size="12" size-lg="6">
+          <ion-col size="12" size-lg="6" no-padding>
             <grid></grid>
           </ion-col>
 
