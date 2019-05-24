@@ -4736,7 +4736,7 @@ public enum ErrorCodeChannelId0 implements ChannelId {
 	STATE_STATE_TRIP_IPU_4(new ErrorDoc(Level.WARNING) //
 			.acknowledge(Acknowledge.RESTART) //
 			.reactionLevel(ReactionLevel.SHUTDOWN) //
-			.needsHardReset(false) //
+			.needsHardReset(true) // not according to list, hard reset is necessary
 			.code(0x404803) //
 			.text("(XT) State Trip")),
 	STATE_ENABLE24_OFF_IPU_1(new ErrorDoc(Level.WARNING) //

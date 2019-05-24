@@ -261,7 +261,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 		}
 
 		// Check for communication errors
-		for (int key : racks.keySet()) {
+		for (int key : this.racks.keySet()) {
 			if (readValueFromStateChannel(RACK_INFO.get(key).subMasterCommunicationAlarmChannelId)) {
 				return true;
 			}
@@ -290,7 +290,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
 		boolean b = true;
-		for (SingleRack r : racks.values()) {
+		for (SingleRack r : this.racks.values()) {
 			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value()
 					.asEnum();
 		}
@@ -305,7 +305,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	private boolean isSystemStatePending() {
 		boolean b = true;
 
-		for (SingleRack r : racks.values()) {
+		for (SingleRack r : this.racks.values()) {
 			EnumReadChannel channel = this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId);
 			Optional<Integer> val = channel.value().asOptional();
 			b = b && val.isPresent();
@@ -328,7 +328,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			// Only set the racks that are used, but set the others to unused
 			for (int i : RACK_INFO.keySet()) {
 				EnumWriteChannel rackUsageChannel = this.channel(RACK_INFO.get(i).usageChannelId);
-				if (racks.containsKey(i)) {
+				if (this.racks.containsKey(i)) {
 					rackUsageChannel.setNextWriteValue(RackUsage.USED);
 				} else {
 					rackUsageChannel.setNextWriteValue(RackUsage.UNUSED);
@@ -531,7 +531,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 				
 		});
 		
-		for (SingleRack rack : racks.values()) {			
+		for (SingleRack rack : this.racks.values()) {			
 			protocol.addTasks(rack.getTasks().toArray(new Task[] {}));
 		}		
 
