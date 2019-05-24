@@ -9,3 +9,55 @@
 @import '~@ionic/angular/css/text-alignment.css';
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+mat-card.single {
+    margin: 20px;
+}
+  
+mat-card.single_leftright {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+  
+mat-card.single_top {
+    margin-top: 20px;
+}
+  
+table.full_width {
+    width: 100%;
+}
+  
+td.align_right {
+    text-align: right;
+}
+  
+table {
+    border-collapse: collapse;
+}
+  
+tr.underline {
+    border-bottom: 1pt solid lightgray;
+}
+  
+.gray_color {
+    color: gray;
+}
+  
+button.activated {
+    color: black;
+    background-color: lightgreen;
+}
+  
+#toast-container {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.my-custom-modal-css .modal-wrapper {
+    height: 25%;
+    width: 25%;
+    // position: absolute; 
+    // top: 80%;
+    display: block;
+  }
+

@@ -2,12 +2,14 @@ import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Platform, ToastController, MenuController } from '@ionic/angular';
+import { Platform, ToastController, MenuController, ActionSheetController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket, Edge } from './shared/shared';
 import { LanguageTag } from './shared/translate/language';
+import { HistoryComponent } from './edge/history/history.component';
+import { PickDateModalComponent } from './shared/pickdate/pickdate-modal/pickdate-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,8 @@ export class AppComponent {
     public router: Router,
     public toastController: ToastController,
     public menu: MenuController,
+    public actionSheetController: ActionSheetController,
+    public modalController: ModalController
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -159,4 +163,14 @@ export class AppComponent {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: PickDateModalComponent,
+      componentProps: { value: 123 },
+      cssClass: 'my-custom-modal-css'
+    });
+    return await modal.present();
+  }
+
 }

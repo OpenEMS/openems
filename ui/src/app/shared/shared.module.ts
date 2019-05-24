@@ -35,6 +35,7 @@ import { SignPipe } from './pipe/sign/sign.pipe';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { PickDateModalComponent } from './pickdate/pickdate-modal/pickdate-modal.component';
 
 @NgModule({
   imports: [
@@ -60,6 +61,7 @@ import { Websocket } from './service/websocket';
     HasclassPipe,
     // components
     SocComponent,
+    PickDateModalComponent
   ],
   exports: [
     // pipes
