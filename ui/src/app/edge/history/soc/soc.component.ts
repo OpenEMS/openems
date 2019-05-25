@@ -2,16 +2,15 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils } from '../../../../shared/shared';
-import { AbstractHistoryChart } from '../../abstracthistorychart';
-import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './../shared';
 
 @Component({
-  selector: 'evcs',
-  templateUrl: './evcs.component.html'
+  selector: 'soc',
+  templateUrl: './soc.component.html'
 })
-export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SocComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
@@ -34,27 +33,45 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
   protected datasets: Dataset[] = EMPTY_DATASET;
   protected options: ChartOptions;
   protected colors = [{
-    // Actual Power
-    backgroundColor: 'rgba(173,255,47,0.1)',
-    borderColor: 'rgba(173,255,47,1)',
+    backgroundColor: 'rgba(0,152,70,0.05)',
+    borderColor: 'rgba(0,152,70,1)',
+  }, {
+    backgroundColor: 'rgba(0,152,204,0.05)',
+    borderColor: 'rgba(0,152,204,1)'
+  }, {
+    backgroundColor: 'rgba(107,207,0,0.05)',
+    borderColor: 'rgba(107,207,0,1)'
+  }, {
+    backgroundColor: 'rgba(224,232,17,0.05)',
+    borderColor: 'rgba(224,232,17,1)'
   }];
 
   ngOnInit() {
     this.service.setCurrentComponent('', this.route);
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      if (label == this.grid) {
+        if (value < 0) {
+          value *= -1;
+          label = this.gridBuy;
+        } else {
+          label = this.gridSell;
+        }
+      }
+      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     }
+    options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
+    // this.querykWh(this.fromDate, this.toDate)
   }
 
   private updateChart() {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
-      let result = (response as QueryHistoricTimeseriesDataResponse).result;
+      let result = response.result;
 
       // convert labels
       let labels: Date[] = [];
@@ -73,19 +90,19 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
         let data = result.data[channel].map(value => {
           if (value == null) {
             return null
+          } else if (value > 100 || value < 0) {
+            return null;
           } else {
-            return value / 1000; // convert to kW
+            return value;
           }
         });
         datasets.push({
-          label: this.translate.instant('General.ActualPower') + (showComponentId ? ' (' + address.componentId + ')' : ''),
+          label: this.translate.instant('General.Soc') + (showComponentId ? ' (' + address.componentId + ')' : ''),
           data: data
         });
       }
       this.datasets = datasets;
-
       this.loading = false;
-
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -95,14 +112,20 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
 
   protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
-      this.service.getConfig().then(config => {
-        let channeladdresses = [];
-        // find all EVCS components
-        for (let componentId of config.getComponentIdsImplementingNature("io.openems.edge.evcs.api.Evcs")) {
-          channeladdresses.push(new ChannelAddress(componentId, 'ChargePower'));
-        }
-        resolve(channeladdresses);
-      }).catch(reason => reject(reason));
+      if (edge.isVersionAtLeast('2018.8')) {
+        resolve([new ChannelAddress('_sum', 'EssSoc')]);
+
+      } else {
+        // TODO: remove after full migration
+        this.service.getConfig().then(config => {
+          // get 'Soc'-Channel of all 'EssNatures'
+          let channeladdresses = [];
+          for (let componentId of config.getComponentIdsImplementingNature("EssNature")) {
+            channeladdresses.push(new ChannelAddress(componentId, 'Soc'));
+          }
+          resolve(channeladdresses);
+        }).catch(reason => reject(reason));
+      }
     });
   }
 
@@ -111,5 +134,4 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
     this.labels = [];
     this.loading = false;
   }
-
 }

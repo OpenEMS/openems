@@ -2,9 +2,9 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { QueryHistoricTimeseriesDataResponse } from '../../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, Service, Utils } from '../../../../shared/shared';
-import { AbstractHistoryChart } from '../../abstracthistorychart';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
 
 @Component({
