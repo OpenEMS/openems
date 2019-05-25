@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { ModalController } from '@ionic/angular';
+import { StorageModalComponent } from './storage-modal/storage-modal.component';
 
 @Component({
     selector: 'storage',
@@ -16,6 +18,7 @@ export class StorageComponent {
         public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
+        public modalController: ModalController
     ) { }
 
     ngOnInit() {
@@ -33,5 +36,15 @@ export class StorageComponent {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, StorageComponent.SELECTOR);
         }
+    }
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: StorageModalComponent,
+            componentProps: {
+                edge: this.edge
+            }
+        });
+        return await modal.present();
     }
 }

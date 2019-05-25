@@ -1,0 +1,65 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title translate>General.StorageSystem</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ng-container *ngIf="edge.currentData | async as currentData">
+    <ion-content *ngIf="currentData.summary.storage as sum">
+        <!-- <ion-card class="full_width"> -->
+        <ion-item lines="full">
+            <ion-label slot="start" translate>
+                General.Soc
+            </ion-label>
+            <ion-label slot="end" text-end>{{ sum.soc | number:'1.0-0' }}&nbsp;%</ion-label>
+        </ion-item>
+
+        <!-- DC -->
+        <ng-container *ngIf="sum.chargeActivePowerDC != null">
+            <ion-item lines="none">
+                <ion-label slot="start" translate>General.ChargePower<span> DC</span></ion-label>
+                <ion-label slot="end" text-end>{{ sum.chargeActivePowerDC | number:'1.0-0' }}&nbsp;W</ion-label>
+            </ion-item>
+        </ng-container>
+
+        <!-- AC -->
+        <ion-item lines="none" *ngIf="sum.chargeActivePowerAC != null">
+            <ion-label slot="start" translate>General.ChargePower<span> AC</span></ion-label>
+            <ng-container *ngIf="sum.chargeActivePowerAC != 0; else empty">
+                <ion-label slot="end" text-end>{{ sum.chargeActivePowerAC | number:'1.0-0' }}&nbsp;W</ion-label>
+            </ng-container>
+            <ng-template #empty>
+                <ion-label slot="end" text-end>-&nbsp;W</ion-label>
+            </ng-template>
+        </ion-item>
+        <ion-item lines="full" *ngIf="sum.dischargeActivePowerAC != null">
+            <ion-label slot="start" translate>General.DischargePower<span> AC</span></ion-label>
+            <ng-container *ngIf="sum.dischargeActivePowerAC != 0; else empty">
+                <ion-label slot="end" text-end>{{ sum.dischargeActivePowerAC | number:'1.0-0' }}&nbsp;W</ion-label>
+            </ng-container>
+            <ng-template #empty>
+                <ion-label slot="end" text-end>-&nbsp;W</ion-label>
+            </ng-template>
+        </ion-item>
+
+
+
+        <ion-item lines="inset">
+            <ion-title text-center>Historie</ion-title>
+        </ion-item>
+        <ion-row justify-content-center>
+            <pickdate></pickdate>
+        </ion-row>
+        <div style="height: 150px" *ngIf="edge">
+            <soc [fromDate]="service.fromDate" [toDate]="service.toDate"></soc>
+        </div>
+        <ion-card-title text-center text-wrap><span translate>Edge.History.SelectedPeriod</span>
+            {{ service.activePeriodText }}
+        </ion-card-title>
+    </ion-content>
+</ng-container>
