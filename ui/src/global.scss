@@ -36,7 +36,7 @@ table {
     border-collapse: collapse;
 }
   
-tr.underline {
+.underline {
     border-bottom: 1pt solid lightgray;
 }
   
@@ -53,11 +53,7 @@ button.activated {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-.my-custom-modal-css .modal-wrapper {
-    height: 25%;
-    width: 25%;
-    // position: absolute; 
-    // top: 80%;
-    display: block;
-  }
-
+.no-scroll {
+    overflow-y: hidden;
+    overflow-x: hidden;
+}

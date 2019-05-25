@@ -37,21 +37,8 @@
     <ng-container *ngIf="isEdgeHistoryPage && service.currentEdge | async as edge">
       <ion-toolbar color="primary">
         <ion-buttons slot="end">
-          <ion-button [class.activated]="service.activePeriod === 'today'" (click)="service.setPeriod('today')">
-            <span translate>Edge.History.Today</span>
-          </ion-button>
-          <ion-button [class.activated]="service.activePeriod === 'yesterday'" (click)="service.setPeriod('yesterday')">
-            <span translate>Edge.History.Yesterday</span>
-          </ion-button>
-          <ion-button *ngIf="service.activePeriod !== 'otherPeriod'"
-            [class.activated]="service.activePeriod === 'otherPeriod'" (click)="service.clickOtherPeriod()">
-            <span translate>Edge.History.OtherPeriod</span>
-          </ion-button>
-          <my-date-range-picker *ngIf="service.activePeriod === 'otherPeriod'"
-            [options]="service.dateRangePickerOptions" [(ngModel)]="service.dateRange"
-            (dateRangeChanged)="service.onDateRangeChanged($event)"></my-date-range-picker>
+          <pickdate></pickdate>
         </ion-buttons>
-        <ion-button (click)="presentModal()">CLICKME</ion-button>
       </ion-toolbar>
     </ng-container>
   </ion-header>

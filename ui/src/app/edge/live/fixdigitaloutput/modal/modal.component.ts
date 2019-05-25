@@ -40,10 +40,6 @@ export class ModalComponent implements OnInit {
     });
   }
 
-  cancel() {
-    this.modalCtrl.dismiss();
-  }
-
   setValue(event: CustomEvent) {
     let nextState = event.detail.value;
     if (this.state == nextState) {

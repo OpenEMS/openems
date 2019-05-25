@@ -20,14 +20,18 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
 @Injectable()
 export class Service implements ErrorHandler {
 
+  //DateRangePicker Variables
   public readonly TODAY = new Date();
   public readonly YESTERDAY = subDays(new Date(), 1);
   public readonly TOMORROW = addDays(new Date(), 1);
+
   public activePeriod: PeriodString = "today";
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
   public dateRange: IMyDateRange;
   public activePeriodText: string = "";
+
+  //DateRangePicker Options
   public dateRangePickerOptions: IMyDrpOptions = {
     inline: true,
     showClearBtn: false,

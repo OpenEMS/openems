@@ -3,50 +3,24 @@
 
     <!-- TODO: move date selection to modal view -->
     <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
-      <ion-card>
-        <ion-grid>
-          <ion-row>
-            <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="service.activePeriod === 'today'"
-                (click)="service.setPeriod('today')">
-                <span translate>Edge.History.Today</span>
-              </ion-button>
-            </ion-col>
-            <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="service.activePeriod === 'yesterday'"
-                (click)="service.setPeriod('yesterday')">
-                <span translate>Edge.History.Yesterday</span>
-              </ion-button>
-            </ion-col>
-            <ion-col size="12" *ngIf="service.activePeriod !== 'otherPeriod'">
-              <ion-button expand="block" [class.activated]="service.activePeriod === 'otherPeriod'"
-                (click)="service.clickOtherPeriod()"><span translate>Edge.History.OtherPeriod</span></ion-button>
-            </ion-col>
-            <ion-col size="12" *ngIf="service.activePeriod === 'otherPeriod'" style="text-align:center">
-              <my-date-range-picker [options]="service.dateRangePickerOptions" [(ngModel)]="service.dateRange"
-                (dateRangeChanged)="service.onDateRangeChanged($event)"></my-date-range-picker>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-card>
-      <ion-col size="12">
+      <ion-col size="12" size-md="5" size-lg="4" size-xl="3" no-padding>
         <kwh [fromDate]="service.fromDate" [toDate]="service.toDate"></kwh>
       </ion-col>
     </ion-col>
 
     <ion-col size="12" size-md="9" size-lg="10" size-xl="9">
       <ion-card>
-        <ion-item>
+        <ion-item color="light" lines="full">
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
           <ion-label>
-            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ service.activePeriodText }}
+            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span>
+              {{ service.activePeriodText }}
             </ion-card-title>
           </ion-label>
         </ion-item>
 
         <ion-card-content>
           <ion-grid no-padding>
-
             <ion-row [style.height]="socChartHeight">
               <ion-col size="12">
                 <soc [fromDate]="service.fromDate" [toDate]="service.toDate"></soc>

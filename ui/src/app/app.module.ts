@@ -32,15 +32,16 @@ import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { EvcsModalPageModule } from './edge/live/evcs/evcs-modal/evcs-modal.module';
-import { PickDateModalComponent } from './shared/pickdate/pickdate-modal/pickdate-modal.component';
+import { PickDatePopoverComponent } from './shared/pickdate/pickdate-modal/pickdate-popover.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     RepeatTypeComponent,
     SystemLogComponent,
+    PickDatePopoverComponent
   ],
-  entryComponents: [PickDateModalComponent],
+  entryComponents: [PickDatePopoverComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
