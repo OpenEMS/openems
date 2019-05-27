@@ -12,7 +12,7 @@ import { ProductionComponent } from './production/production.component';
 import { InfoComponent } from './info/info.component';
 import { ModalComponent as FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
-import { StorageModalComponent } from './storage/storage-modal/storage-modal.component';
+import { StorageModalComponent } from './storage/modal/modal.component';
 
 @NgModule({
   imports: [
