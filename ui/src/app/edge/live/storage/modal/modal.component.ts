@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Service } from 'src/app/shared/shared';
+import { Service, EdgeConfig } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
 
@@ -9,12 +9,17 @@ import { ModalController } from '@ionic/angular';
 })
 export class StorageModalComponent implements OnInit {
 
+
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public modalCtrl: ModalController
+        public modalCtrl: ModalController,
     ) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.service.getConfig().then(config => {
+            console.log("config:", config)
+        })
+    }
 
 }

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { StorageModalComponent } from './modal/modal.component';
 
@@ -14,11 +14,12 @@ export class StorageComponent {
 
     public edge: Edge = null;
 
+
     constructor(
         public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
-        public modalController: ModalController
+        public modalController: ModalController,
     ) { }
 
     ngOnInit() {
@@ -47,4 +48,5 @@ export class StorageComponent {
         });
         return await modal.present();
     }
+
 }

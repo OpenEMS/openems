@@ -18,6 +18,7 @@ export class AppComponent {
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
   public isEdgeIndexPage: boolean = false;
+  public isEdgeLivePage: boolean = false;
   public isEdgeHistoryPage: boolean = false;
   public isSystemLogEnabled: boolean = false;
 
@@ -71,6 +72,7 @@ export class AppComponent {
     this.updateBackUrl(url);
     this.updateEnableSideMenu(url);
     this.updateIsEdgeIndexPage(url);
+    this.updateIsEdgeLivePage(url);
     this.updateIsEdgeHistoryPage(url);
   }
 
@@ -141,6 +143,18 @@ export class AppComponent {
       this.isEdgeIndexPage = true;
     } else {
       this.isEdgeIndexPage = false;
+    }
+  }
+
+  updateIsEdgeLivePage(url: string) {
+    let urlArray = url.split('/');
+    let file = urlArray.pop();
+
+    // Enable Segment Navigation for Edge-Index-Page
+    if (file == 'live' && urlArray.length == 3) {
+      this.isEdgeLivePage = true;
+    } else {
+      this.isEdgeLivePage = false;
     }
   }
 
