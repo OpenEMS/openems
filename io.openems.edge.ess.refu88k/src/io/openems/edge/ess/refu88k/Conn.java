@@ -29,5 +29,5 @@ public enum Conn implements OptionsEnum {
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}
+	} 
 }
