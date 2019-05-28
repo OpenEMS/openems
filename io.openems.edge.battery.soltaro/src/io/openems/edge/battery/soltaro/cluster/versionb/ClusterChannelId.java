@@ -55,8 +55,6 @@ public enum ClusterChannelId implements io.openems.edge.common.channel.ChannelId
 	// IntegerReadChannels
 	SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIAMPERE)), //
-	SYSTEM_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MILLIVOLT)), //
 	SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.OHM)), //
 
