@@ -86,6 +86,7 @@ public class OpenemsConstants {
 	/*
 	 * Static OpenEMS Component-IDs
 	 */
+	public final static String CYCLE_ID = "_cycle";
 	public final static String COMPONENT_MANAGER_ID = "_componentManager";
 	public final static String META_ID = "_meta";
 	public final static String SUM_ID = "_sum";
