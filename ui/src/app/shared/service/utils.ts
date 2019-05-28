@@ -243,4 +243,26 @@ export class Utils {
       return v;
     }
   }
+
+  /**
+   * Matches all filter-strings with all base-strings.
+   * 
+   * @param filters array of filter-strings
+   * @param bases   array of base-strings
+   * @returns       true if all filter strings exist in any base-strings
+   */
+  public static matchAll(filters: string[], bases: string[]): Boolean {
+    for (let filter of filters) {
+      let filterMatched = false;
+      for (let base of bases) {
+        if (base.includes(filter)) {
+          filterMatched = true;
+        }
+      }
+      if (!filterMatched) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

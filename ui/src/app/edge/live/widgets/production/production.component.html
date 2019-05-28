@@ -1,0 +1,42 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <img src="assets/img/production.png">
+                </ion-avatar>
+                <ion-label translate>General.Production</ion-label>
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary.production as sum">
+                <ion-grid no-padding>
+                    <table class="full_width">
+                        <!-- DC -->
+                        <tr *ngIf="sum.activePowerDC != null">
+                            <td style="width:65%">
+                                <span translate>General.Production</span> DC</td>
+                            <td style="width:25%" class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
+                            <td style="width:10%">&nbsp;W</td>
+                        </tr>
+                        <!-- AC -->
+                        <ng-container *ngIf="sum.activePowerAC != null">
+                            <tr>
+                                <td style="width:65%" translate>General.Production
+                                    <span *ngIf="currentData.summary.storage.chargeActivePowerDC != null"> AC</span>
+                                </td>
+                                <ng-container *ngIf="sum.activePowerAC != 0; else empty">
+                                    <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}
+                                    </td>
+                                    <td style="width:10%">&nbsp;W</td>
+                                </ng-container>
+                                <ng-template #empty>
+                                    <td style="width:25%" class="align_right">-</td>
+                                    <td style="width:10%"></td>
+                                </ng-template>
+                            </tr>
+                        </ng-container>
+                    </table>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

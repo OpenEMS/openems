@@ -26,7 +26,8 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public void executeWrite(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
+		int noOfWrittenRegisters = 0;
 		ModbusElement<?> element = this.getElements()[0];
 
 		if (element instanceof AbstractWordElement<?, ?>) {
@@ -45,6 +46,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
 						this.writeSingleRegister(bridge, this.getParent().getUnitId(), this.getStartAddress(),
 								register);
+						noOfWrittenRegisters = 1;
 					} catch (OpenemsException | ModbusException e) {
 						/*
 						 * Second try: with new connection
@@ -53,6 +55,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 						try {
 							this.writeSingleRegister(bridge, this.getParent().getUnitId(), this.getStartAddress(),
 									register);
+							noOfWrittenRegisters = 1;
 						} catch (ModbusException e2) {
 							throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 						}
@@ -64,6 +67,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 		} else {
 			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!");
 		}
+		return noOfWrittenRegisters;
 	}
 
 	@Override

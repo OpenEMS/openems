@@ -1,5 +1,6 @@
 package io.openems.edge.io.test;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -19,16 +20,16 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 	private final BooleanWriteChannel[] ioChannels;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		INPUT_OUTPUT_0(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_1(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_2(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_3(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_4(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_5(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_6(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_7(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_8(Doc.of(OpenemsType.BOOLEAN)), //
-		INPUT_OUTPUT_9(Doc.of(OpenemsType.BOOLEAN));
+		INPUT_OUTPUT_0(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_1(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_2(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_3(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_4(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_5(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_6(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_7(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_8(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)), //
+		INPUT_OUTPUT_9(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;
 
@@ -63,7 +64,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 				this.channel(ChannelId.INPUT_OUTPUT_8), //
 				this.channel(ChannelId.INPUT_OUTPUT_9) //
 		};
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 	@Override

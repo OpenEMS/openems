@@ -4,6 +4,7 @@ import { Service, Utils, Websocket, EdgeConfig, Edge } from '../../../../shared/
 import { FormGroup, FormControl } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
@@ -25,12 +26,13 @@ export class ComponentUpdateComponent implements OnInit {
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
-    private service: Service
+    private service: Service,
+    private translate: TranslateService
   ) {
   }
 
   ngOnInit() {
-    this.service.setCurrentEdge(this.route).then(edge => {
+    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.AdjustComponents'), this.route).then(edge => {
       this.edge = edge;
     });
     let componentId = this.route.snapshot.params["componentId"];

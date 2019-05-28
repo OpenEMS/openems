@@ -21,7 +21,7 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 }

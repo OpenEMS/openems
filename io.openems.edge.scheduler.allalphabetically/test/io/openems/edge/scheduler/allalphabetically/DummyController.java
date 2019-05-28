@@ -10,13 +10,18 @@ import io.openems.edge.controller.api.Controller;
 public class DummyController implements Controller {
 
 	private final String id;
-	
+
 	public DummyController(String id) {
 		this.id = id;
 	}
-	
+
 	@Override
 	public String id() {
+		return this.id;
+	}
+
+	@Override
+	public String alias() {
 		return this.id;
 	}
 
@@ -44,5 +49,4 @@ public class DummyController implements Controller {
 	public void run() {
 
 	}
-
 }

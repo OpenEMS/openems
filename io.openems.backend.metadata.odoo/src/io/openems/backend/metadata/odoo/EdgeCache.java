@@ -10,20 +10,20 @@ import io.openems.backend.metadata.api.Edge;
 public class EdgeCache {
 
 	/**
-	 * Maps Edge-ID to Edge
+	 * Maps Edge-ID to Edge.
 	 */
 	private ConcurrentHashMap<String, MyEdge> edgeIdToEdge = new ConcurrentHashMap<>();
 	/**
-	 * Maps Odoo-ID to Edge-ID
+	 * Maps Odoo-ID to Edge-ID.
 	 */
 	private ConcurrentHashMap<Integer, String> odooIdToEdgeId = new ConcurrentHashMap<>();
 	/**
-	 * Maps API-Key to Edge-ID
+	 * Maps API-Key to Edge-ID.
 	 */
 	private ConcurrentHashMap<String, String> apikeyToEdgeId = new ConcurrentHashMap<>();
 
 	/**
-	 * Adds an Edge to the Cache
+	 * Adds an Edge to the Cache.
 	 * 
 	 * @param edge the Edge
 	 */
