@@ -66,6 +66,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
+	
+	private static final int PENDING_TIME_SECONDS = 15;
 
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
 
@@ -87,6 +89,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	// indicates that system is stopping; during that time no commands should be
 	// sent
 	private boolean isStopping = false;
+	
+	private LocalDateTime pendingTimestamp;
 
 	public SingleRack() {
 		super(//
@@ -236,6 +240,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					}
 				}
 				readyForWorking = true;
+				this.setStateMachineState(State.RUNNING);
 			}
 			break;
 		case STOPPING:
@@ -259,8 +264,23 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case PENDING:
-			this.stopSystem();
-			this.setStateMachineState(State.OFF);
+			if (this.pendingTimestamp == null) {
+				this.pendingTimestamp = LocalDateTime.now();
+			}
+			if (this.pendingTimestamp.plusSeconds(PENDING_TIME_SECONDS).isBefore(LocalDateTime.now())) {
+				// System state could not be determined, stop and start it 
+				this.pendingTimestamp = null;
+				this.stopSystem();
+				this.setStateMachineState(State.OFF);
+			} else {
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+				} else if (this.isSystemRunning()) {
+					this.setStateMachineState(State.RUNNING);
+				}
+			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
 			// not able to handle in version A

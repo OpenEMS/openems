@@ -70,6 +70,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	private static final int ADDRESS_OFFSET_RACK_4 = 0x5000;
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
+	private static final int PENDING_TIME_SECONDS = 15;
 
 	// Helper that holds general information about single racks, independent if they
 	// are used or not
@@ -89,6 +90,8 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	private State state = State.UNDEFINED;
 	private Config config;
 	private Map<Integer, SingleRack> racks = new HashMap<>();
+	// this timestamp is used to wait a certain time if system state could no be determined at once 
+	private LocalDateTime pendingTimestamp;
 
 	public Cluster() {
 		super(//
@@ -208,6 +211,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 					this.setStateMachineState(State.ERROR);
 				} else {
 					readyForWorking = true;
+					this.setStateMachineState(State.RUNNING);
 				}
 			} else {
 				this.setStateMachineState(State.UNDEFINED);
@@ -234,8 +238,23 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			}
 			break;
 		case PENDING:
-			this.stopSystem();
-			this.setStateMachineState(State.OFF);
+			if (this.pendingTimestamp == null) {
+				this.pendingTimestamp = LocalDateTime.now();
+			}
+			if (this.pendingTimestamp.plusSeconds(PENDING_TIME_SECONDS).isBefore(LocalDateTime.now())) {
+				// System state could not be determined, stop and start it 
+				this.pendingTimestamp = null;
+				this.stopSystem();
+				this.setStateMachineState(State.OFF);
+			} else {
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+				} else if (this.isSystemRunning()) {
+					this.setStateMachineState(State.RUNNING);
+				}
+			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
 			this.stopSystem();

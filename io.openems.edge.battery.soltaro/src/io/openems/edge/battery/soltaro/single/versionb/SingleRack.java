@@ -78,6 +78,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
 	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
+	private static final int PENDING_TIME_SECONDS = 15;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -102,6 +103,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 
 	private double lastMinCellVoltage = Double.MIN_VALUE;
 	private double lastMaxCellVoltage = Double.MIN_VALUE;
+	
+	private LocalDateTime pendingTimestamp;
 
 	public SingleRack() {
 		super(//
@@ -204,7 +207,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 						// TODO check if this is working!
 						this.getDischargeMaxCurrent().setNextValue( (-1) * this.getChargeMaxCurrent().value().get() );
 					}
-				}				
+				}		
+				this.setStateMachineState(State.RUNNING);
 				readyForWorking = true;
 			}
 			break;
@@ -229,8 +233,15 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			}
 			break;
 		case PENDING:
-			this.stopSystem();
-			this.setStateMachineState(State.OFF);
+			if (this.pendingTimestamp == null) {
+				this.pendingTimestamp = LocalDateTime.now();
+			}
+			if (this.pendingTimestamp.plusSeconds(PENDING_TIME_SECONDS).isBefore(LocalDateTime.now())) {
+				// System state could not be determined, stop and start it 
+				this.pendingTimestamp = null;
+				this.stopSystem();
+				this.setStateMachineState(State.OFF);
+			} 
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
 			// Reset the system
