@@ -31,39 +31,31 @@ export class StorageModalComponent implements OnInit {
     ngOnInit() {
         this.service.getConfig().then(config => {
             let components = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
+            let channels = [];
+            this.components = components;
             for (let component of components) {
-
-                // component.channels
                 let factoryID = component.factoryId;
                 let factory = config.factories[factoryID];
-                // console.log("COMPONONENTO1", component)
-                if ((factory.natureIds.includes("io.openems.edge.ess.api.SymmetricEss"))) {
-                    this.components = components;
-                    // this.edge.subscribeChannels(this.websocket, StorageModalComponent.SELECTOR + component.id, [
-
-                    // ])
+                channels.push(
+                    new ChannelAddress(component.id, 'Soc'),
+                    new ChannelAddress(component.id, 'ActivePower')
+                );
+                if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+                    channels.push(
+                        new ChannelAddress(component.id, 'ActivePowerL1'),
+                        new ChannelAddress(component.id, 'ActivePowerL2'),
+                        new ChannelAddress(component.id, 'ActivePowerL3')
+                    );
                 }
-
             }
-            // this.edgeConfig = config;
-            // console.log("config:", config)
-            // console.log("components:", this.components)
+            this.edge.subscribeChannels(this.websocket, StorageModalComponent.SELECTOR, channels);
+            console.log("currentdataoleole", this.edge.currentData)
         })
     }
-    //  this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-    //     edge.subscribeChannels(this.websocket, ChannelthresholdComponent.SELECTOR + this.componentId, [
-    //       this.outputChannel
-    //     ]);
-    // this.service.getConfig().then(config => {
-    //     let controllers = config.getComponentsByFactory("Controller.Evcs");
-    //     for (let controller of controllers) {
-    //       let properties = controller.properties;
-    //       if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
-    //         // this 'controller' is the Controller responsible for this EVCS
-    //         this.controller = controller;
-    //         return;
-    //       }
-    //     }
-    //   });
 
+    ngOnDestroy() {
+        if (this.edge != null) {
+            this.edge.unsubscribeChannels(this.websocket, StorageModalComponent.SELECTOR);
+        }
+    }
 }

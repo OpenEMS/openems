@@ -106,5 +106,30 @@
         <ion-buttons justify-content-center>
             <pickdate></pickdate>
         </ion-buttons>
+
+        <ng-container *ngFor="let component of components">
+            <ng-container *ngIf="components.length > 1">
+                <!-- SUMMEN -->
+            </ng-container>
+            <ng-template #singleView>
+                <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+                    EIN ESS+{{currentData[componentId + "/ActivePower"]}}
+                </ng-container>
+            </ng-template>
+        </ng-container>
+
+
+        <!-- <ng-container *ngIf="components.length > 1; else #single"> -->
+        <ion-note text-center>Gesamt</ion-note>
+        <ng-container *ngFor="let component of components">
+            {{component.id}}
+        </ng-container>
+        <!-- </ng-container> -->
+
+        <!-- <ng-template #single> -->
+
+        <!-- </ng-template> -->
+
+
     </ion-content>
 </ng-container>
