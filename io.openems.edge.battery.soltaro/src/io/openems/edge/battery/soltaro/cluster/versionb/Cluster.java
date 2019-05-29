@@ -476,9 +476,8 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 							.onUpdateCallback( val -> { recalculateSoc(); } ), //
 						m(ClusterChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
-						m(ClusterChannelId.SYSTEM_VOLTAGE, new UnsignedWordElement(0x1049). //
-								onUpdateCallback( val -> { this.getVoltage().setNextValue(val/10); } ), // map value to api channel
-								ElementToChannelConverter.SCALE_FACTOR_2) // TODO Check if scale factor is correct
+						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
 				), //
 
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
