@@ -108,9 +108,64 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
 }
 
 /*
+ * Copies Bundle readme.adoc files to doc.
+ */
+task copyBundleReadmes() {
+    doLast {
+        // define target files
+        def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
+        def targetControllers = basePath + "edge/controller.adoc"
+
+        // initialize target files and directories
+        [targetControllers].each { file ->
+            print fileTree(dir: file + ".d", include: '**/*.adoc') 
+            delete fileTree(dir: file + ".d", include: '**/*.adoc') 
+            new File(file + ".d/_include.adoc").write('')
+        }
+
+        subprojects.each { proj ->
+            // in each subproject (= bundle)...
+            proj.file(".").listFiles().each { sourceFile ->
+                // find the 'readme.adoc' file
+                if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
+                    def bundle = sourceFile.getParentFile().getName()
+                    def target = null
+                    // evaluate the OpenEMS Component ('Backend' or 'Edge')
+                    if(bundle.startsWith("io.openems.edge.")) {
+                        // evaluate the bundle type (e.g. 'Controller')
+                        def edgeBundle = bundle.substring("io.openems.edge.".length())
+                        if(edgeBundle.startsWith("controller")) {
+                            target = targetControllers
+                        }
+                    }
+
+                    // could we exactly evaluate the bundle type and set the targetFile?
+                    if(target == null) {
+                        throw new Exception("Bundle type is unknown for " + bundle)
+                    }
+
+                    // copy the readme file to "target.d" folder
+                    copy {
+                        from (sourceFile.toPath())
+                        into (target + ".d")
+                        rename { fileName ->
+                           return bundle + ".adoc"
+                        }
+                    }
+
+                    // append content of source file to target file
+                    File targetFile = new File(target + ".d/_include.adoc")
+                    targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=1]\n")
+                }
+            }
+        }
+    }
+}
+
+/*
  * Build Antora docs
  */
-task buildAntoraDocs() {
+task buildAntoraDocs(dependsOn: copyBundleReadmes) {
     dependsOn ":doc:buildAntoraDocs"
     doLast {
         copy {
@@ -118,4 +173,4 @@ task buildAntoraDocs() {
             into "${buildDir}/www"
         }
     }
-}
+}	

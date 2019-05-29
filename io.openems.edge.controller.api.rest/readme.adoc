@@ -1,10 +1,14 @@
-# REST-Api Controller
+= REST-Api Controller
 
-## Endpoint '/rest/channel/{Component-ID}/{Channel-ID}'
+Provides a JSON/REST implementation for OpenEMS Edge. It provides access to Channels and JSON-RPC Requests from an external device via JSON/REST.
 
-### GET
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.rest[Source Code icon:github[]]
 
-### POST
+== Endpoint '/rest/channel/{Component-ID}/{Channel-ID}'
+
+=== GET
+
+=== POST
 
 ```
 {
@@ -12,11 +16,11 @@
 }
 ```
 
-## Endpoint '/jsonrpc'
+== Endpoint '/jsonrpc'
 
 Properties 'id' and 'jsonrpc' can be omitted, as they are not required for HTTP POST calls.
 
-### getEdgeConfig
+=== getEdgeConfig
 
 ```
 {
@@ -25,9 +29,9 @@ Properties 'id' and 'jsonrpc' can be omitted, as they are not required for HTTP 
 }
 ```
 
-### componentJsonApi
+=== componentJsonApi
 
-#### getModbusProtocol
+==== getModbusProtocol
 
 ```
 {
@@ -44,7 +48,7 @@ Properties 'id' and 'jsonrpc' can be omitted, as they are not required for HTTP 
 }
 ```
 
-### updateComponentConfig
+=== updateComponentConfig
 
 ```
 {

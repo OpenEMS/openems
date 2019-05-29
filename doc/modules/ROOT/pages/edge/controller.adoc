@@ -65,3 +65,5 @@ Allows setting of a fixed Active-Power value for an ESS.
 Allows setting of a fixed Reactive-Power value for an ESS.
 
 === Developing a Controller
+
+include::controller.adoc.d/_include.adoc[]
