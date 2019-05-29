@@ -241,7 +241,15 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				this.pendingTimestamp = null;
 				this.stopSystem();
 				this.setStateMachineState(State.OFF);
-			} 
+			} else {
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+				} else if (this.isSystemRunning()) {
+					this.setStateMachineState(State.RUNNING);
+				}
+			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
 			// Reset the system
