@@ -1,0 +1,5 @@
+= Asymmetric Balancing Cos-Phi
+
+Controls an asymmetric energy storage system in self-consumption optimization mode while keeping the grid meter on a defined cos-phi.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.asymmetric.balancingcosphi[Source Code icon:github[]]

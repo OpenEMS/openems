@@ -1,0 +1,5 @@
+= IO Alarm
+
+Switches a digital output, when one or more State-Channels are set. Can be used to signal alarms.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.alarm[Source Code icon:github[]]

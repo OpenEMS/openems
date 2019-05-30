@@ -9,7 +9,6 @@
 ** xref:edge/controller.adoc[Controller]
 ** xref:edge/implement.adoc[Implementing a Device]
 ** Apps
-*** xref:edge/apps/controllers.adoc[Implemented Controllers]
 *** xref:edge/apps/devices.adoc[Implemented Devices]
 *** xref:edge/apps/schedulers.adoc[Implemented Schedulers]
 *** xref:edge/apps/timedata.adoc[Timedata services]
