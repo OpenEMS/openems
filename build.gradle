@@ -114,13 +114,13 @@ task copyBundleReadmes() {
     doLast {
         // define target files
         def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
-        def targetControllers = basePath + "edge/controller.adoc"
+        def targetControllers = basePath + "edge/controller.adoc.d"
+        def targetSchedulers = basePath + "edge/scheduler.adoc.d"
 
         // initialize target files and directories
-        [targetControllers].each { file ->
-            print fileTree(dir: file + ".d", include: '**/*.adoc') 
-            delete fileTree(dir: file + ".d", include: '**/*.adoc') 
-            new File(file + ".d/_include.adoc").write('')
+        [targetControllers, targetSchedulers].each { target ->
+            delete fileTree(dir: target, include: '**/*.adoc') 
+            new File(target + "/_include.adoc").write('')
         }
 
         subprojects.each { proj ->
@@ -136,6 +136,8 @@ task copyBundleReadmes() {
                         def edgeBundle = bundle.substring("io.openems.edge.".length())
                         if(edgeBundle.startsWith("controller")) {
                             target = targetControllers
+                        } else if(edgeBundle.startsWith("scheduler")) {
+                            target = targetSchedulers
                         }
                     }
 
@@ -147,14 +149,14 @@ task copyBundleReadmes() {
                     // copy the readme file to "target.d" folder
                     copy {
                         from (sourceFile.toPath())
-                        into (target + ".d")
+                        into (target)
                         rename { fileName ->
                            return bundle + ".adoc"
                         }
                     }
 
                     // append content of source file to target file
-                    File targetFile = new File(target + ".d/_include.adoc")
+                    File targetFile = new File(target + "/_include.adoc")
                     targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=1]\n")
                 }
             }

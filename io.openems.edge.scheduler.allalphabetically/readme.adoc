@@ -1,0 +1,5 @@
+= All-Alphabetically
+
+Takes an ordered list of Component IDs. All remaining Controllers are afterwards ordered alphabetically by their ID.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.scheduler.allalphabetically[Source Code icon:github[]]

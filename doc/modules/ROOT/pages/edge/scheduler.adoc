@@ -9,6 +9,12 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-== Existing Schedulers
+A OpenEMS Edge Scheduler plans the execution of Controllers. It defines...
 
-== Developing a Scheduler
+- which Controllers are executed
+- in which priority the Controllers are executed
+
+include::scheduler.adoc.d/_include.adoc[]
+
+// TODO
+//== Developing a Scheduler
