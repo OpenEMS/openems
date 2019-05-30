@@ -4,9 +4,11 @@
 * OpenEMS Edge
 ** xref:edge/architecture.adoc[Architecture]
 ** xref:edge/configuration.adoc[Configuration]
-** xref:edge/hardware.adoc[Hardware]
+** xref:edge/nature.adoc[Nature]
 ** xref:edge/scheduler.adoc[Scheduler]
 ** xref:edge/controller.adoc[Controller]
+** xref:edge/bridge.adoc[Bridge]
+** xref:edge/device_service.adoc[Device & Service]
 ** xref:edge/implement.adoc[Implementing a Device]
 ** Apps
 *** xref:edge/apps/devices.adoc[Implemented Devices]
