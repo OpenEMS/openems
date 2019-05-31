@@ -12,7 +12,7 @@ Export-Package: \
 Private-Package: \
 	io.openems.edge.meter.artemes.am2
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.edge.meter.api;version=latest,\

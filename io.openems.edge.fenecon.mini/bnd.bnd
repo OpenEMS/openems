@@ -14,7 +14,7 @@ Private-Package: \
 	io.openems.edge.fenecon.mini.ess,\
 	io.openems.edge.fenecon.mini.gridmeter
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
