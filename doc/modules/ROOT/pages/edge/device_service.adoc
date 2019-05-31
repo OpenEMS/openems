@@ -9,9 +9,15 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-TODO: write some text about devices and services
+
+For the following devices driver implementations are available in OpenEMS Edge.
 
 include::device_service.adoc.d/_include.adoc[]
 
-// TODO
-//=== Developing a Controller
+== KACO blueplanet hybrid 10.0 TL3
+
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+
+(proprietary)

@@ -11,7 +11,6 @@
 ** xref:edge/device_service.adoc[Device & Service]
 ** xref:edge/implement.adoc[Implementing a Device]
 ** Apps
-*** xref:edge/apps/devices.adoc[Implemented Devices]
 *** xref:edge/apps/timedata.adoc[Timedata services]
 *** xref:edge/apps/utils.adoc[Helpful utilities]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
