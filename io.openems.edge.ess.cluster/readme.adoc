@@ -1,17 +1,4 @@
-= Helpful utilities
-:sectnums:
-:sectnumlevels: 4
-:toc:
-:toclevels: 4
-:experimental:
-:keywords: AsciiDoc
-:source-highlighter: highlight.js
-:icons: font
-:imagesdir: ../../../assets/images
-
-The following generic utilities are available in OpenEMS Edge.
-
-== ESS Cluster
+= ESS Cluster
 
 Combines multiple energy storage systems (ESS) to one common ESS. This way every Controller can easily work with multiple ESS in parallel. Distribution of power requests to each ESS is controlled via the https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.core/src/io/openems/edge/ess/core/power[Power-Class icon:github[]].
 

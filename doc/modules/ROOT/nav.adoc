@@ -10,9 +10,6 @@
 ** xref:edge/bridge.adoc[Bridge]
 ** xref:edge/device_service.adoc[Device & Service]
 ** xref:edge/implement.adoc[Implementing a Device]
-** Apps
-*** xref:edge/apps/timedata.adoc[Timedata services]
-*** xref:edge/apps/utils.adoc[Helpful utilities]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
 * OpenEMS UI
