@@ -14,9 +14,9 @@ export class StorageModalComponent implements OnInit {
 
     @Input() edge: Edge;
 
-    edgeConfig: EdgeConfig = null;
-    components: EdgeConfig.Component[] = null;
-    component: EdgeConfig.Component = null;
+    public config: EdgeConfig = null;
+    public essComponents: EdgeConfig.Component[] = null;
+    public chargerComponents: EdgeConfig.Component[] = null;
     public outputChannel: ChannelAddress[] = null;
 
 
@@ -30,10 +30,17 @@ export class StorageModalComponent implements OnInit {
 
     ngOnInit() {
         this.service.getConfig().then(config => {
-            let components = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
+            this.config = config;
             let channels = [];
-            this.components = components;
-            for (let component of components) {
+            this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+            console.log("chargerCPO", this.chargerComponents)
+            for (let component of this.chargerComponents) {
+                channels.push(
+                    new ChannelAddress(component.id, 'ActualPower'),
+                )
+            }
+            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
+            for (let component of this.essComponents) {
                 let factoryID = component.factoryId;
                 let factory = config.factories[factoryID];
                 channels.push(
@@ -49,7 +56,6 @@ export class StorageModalComponent implements OnInit {
                 }
             }
             this.edge.subscribeChannels(this.websocket, StorageModalComponent.SELECTOR, channels);
-            console.log("currentdataoleole", this.edge.currentData)
         })
     }
 
