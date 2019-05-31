@@ -108,7 +108,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 				if (now.getHour() == entry.getKey().getHour()) {
 
 					/*
-					 * TODO Actual condition to charge the ESS
+					 * Actual condition to charge the ESS
 					 */
 					System.out.println("Charging");
 					long power = entry.getValue();
