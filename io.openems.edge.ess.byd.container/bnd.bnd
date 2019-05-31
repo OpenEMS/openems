@@ -11,7 +11,7 @@ Export-Package: \
 Private-Package: \
 	io.openems.edge.ess.byd.container
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.edge.ess.api;version=latest,\

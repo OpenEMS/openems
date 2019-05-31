@@ -9,7 +9,7 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-A OpenEMS Edge Controller is holds the actual business logic or the actual algorithm that controls hardware. The logic of each active Controller is executed regularly on every Cycle, i.e. once per second.
+A OpenEMS Edge Controller holds the actual business logic or the actual algorithm that controls hardware. The logic of each active Controller is executed regularly on every Cycle, i.e. once per second.
 
 include::controller.adoc.d/_include.adoc[]
 
