@@ -29,10 +29,10 @@ public class App {
 
 		LocalDateTime now = LocalDateTime.now();
 
-		for (int i = 0; i < 24; i++) {
+		for (int i = 0; i < 19; i++) {
 
 			if (i >= 4 && i <= 19) {
-				hourlyConsumption.put(now.minusDays(5).plusHours(i), (long) (300 + (150 * i)));
+				hourlyConsumption.put(now.minusDays(6).plusHours(i), (long) (300 + (150 * i)));
 			}
 		}
 
@@ -71,58 +71,63 @@ public class App {
 		 * Calculates the amount of energy that needs to be charged during the cheapest
 		 * price hours.
 		 */
-
-		// if the battery has sufficient energy!
-		if (availableCapacity >= demand_Till_Cheapest_Hour) {
-			System.out.println("entering second loop ");
-			getCheapestHoursIfBatterySufficient(cheapTimeStamp, HourlyPrices.lastKey());
-		}
-
-		// if the battery doesn't has sufficient energy!
-
-		/*
-		 * During the cheap hour, Grid is used for both charging the battery and also to
-		 * satisfy the current loads
-		 * (hourlyConsumption.get(cheapTimeStamp.minusDays(1))).
-		 */
 		if (totalDemand > 0) {
-			System.out.println("greater than 0 ");
-			chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour
-					- hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
-			bufferAmountToCharge = 0;
-			System.out.println(hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue());
-			System.out.println("chargebleConsumption: " + chargebleConsumption);
-
-			if (chargebleConsumption > 0) {
-				System.out.println("greater than 0 ");
-
-				if (chargebleConsumption > maxApparentPower) {
-					if (chargebleConsumption > nettCapacity) {
-						bufferAmountToCharge = nettCapacity - maxApparentPower;
-						remainingConsumption = chargebleConsumption - nettCapacity;
-						System.out.println("getting into adjusting remaining charge: ");
-						adjustRemainigConsumption(cheapTimeStamp.plusHours(2),
-								hourlyConsumption.lastKey().plusDays(1));
-					} else {
-						bufferAmountToCharge = chargebleConsumption - maxApparentPower;
-					}
-
-					System.out.println("Buffer Amount: " + bufferAmountToCharge);
-					chargebleConsumption = maxApparentPower;
-				}
-				totalDemand = demand_Till_Cheapest_Hour + bufferAmountToCharge;
-				System.out.println("tota Demand: " + totalDemand + "chargebleConsumption: " + chargebleConsumption);
-				chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
-				getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), cheapTimeStamp);
+			// if the battery has sufficient energy!
+			if (availableCapacity >= demand_Till_Cheapest_Hour) {
+				System.out.println("entering second loop ");
+				getCheapestHoursIfBatterySufficient(cheapTimeStamp, HourlyPrices.lastKey());
 			} else {
-				System.out.println("Not charging ");
-				totalDemand = totalDemand - hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
-				System.out.println("tota Demand: " + totalDemand);
-				getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), cheapTimeStamp);
+
+				// if the battery doesn't has sufficient energy!
+
+				/*
+				 * During the cheap hour, Grid is used for both charging the battery and also to
+				 * satisfy the current loads
+				 * (hourlyConsumption.get(cheapTimeStamp.minusDays(1))).
+				 */
+
+				System.out.println("greater than 0 ");
+				chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour
+						- hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
+				// bufferAmountToCharge = 0;
+				System.out.println(hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue());
+				System.out.println("chargebleConsumption: " + chargebleConsumption);
+
+				if (chargebleConsumption > 0) {
+					System.out.println("greater than 0 ");
+
+					if (chargebleConsumption > maxApparentPower) {
+						LocalDateTime latestCheapTimeStamp = cheapTimeStamp;
+						float latestMinPrice = minPrice;
+						cheapHour(cheapTimeStamp.plusHours(1), hourlyConsumption.lastKey().plusDays(1));
+
+						if (chargebleConsumption > nettCapacity) {
+							bufferAmountToCharge = nettCapacity - maxApparentPower;
+							remainingConsumption = chargebleConsumption - nettCapacity;
+							// System.out.println("getting into adjusting remaining charge: ");
+							// adjustRemainigConsumption(cheapTimeStamp,
+							// hourlyConsumption.lastKey().plusDays(1));
+							// cheapTimeStamp = latestCheapTimeStamp;
+						} else {
+							bufferAmountToCharge = chargebleConsumption - maxApparentPower;
+						}
+
+						System.out.println("Buffer Amount: " + bufferAmountToCharge);
+						chargebleConsumption = maxApparentPower;
+					}
+					totalDemand = demand_Till_Cheapest_Hour + bufferAmountToCharge;
+					System.out.println("tota Demand: " + totalDemand + "chargebleConsumption: " + chargebleConsumption);
+					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
+					getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), cheapTimeStamp);
+				} else {
+					System.out.println("Not charging ");
+					totalDemand = totalDemand - hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
+					System.out.println("tota Demand: " + totalDemand);
+					getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), cheapTimeStamp);
+				}
+
 			}
-
 		}
-
 	}
 
 	private static void getCheapestHoursIfBatterySufficient(LocalDateTime start, LocalDateTime end) {
@@ -169,11 +174,25 @@ public class App {
 
 	}
 
-	private static void adjustRemainigConsumption(LocalDateTime start, LocalDateTime end) {
-
-		cheapHour(start, end);
-
-	}
+	/*
+	 * private static void adjustRemainigConsumption(LocalDateTime start,
+	 * LocalDateTime end) {
+	 * 
+	 * cheapHour(start, end);
+	 * 
+	 * 
+	 * System.out.println(start.minusDays(1));
+	 * System.out.println(cheapTimeStamp.minusDays(1));
+	 * System.out.println(hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1))
+	 * .getValue()); long demand =
+	 * calculateDemandTillThishour(cheapTimeStamp.minusDays(1).plusHours(1),
+	 * end.minusDays(1)) + hourlyConsumption.lastEntry().getValue();
+	 * System.out.println("totalDemand: " + demand);
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
 
 	private static void cheapHour(LocalDateTime start, LocalDateTime end) {
 		minPrice = Float.MAX_VALUE;
