@@ -24,6 +24,5 @@ io0/relay1 = represents the relay 1 of the KM tronic relay board.
 
 The above example configuration describes, if any of the configured three input channels is set to "True" then a signal "True" is sent to output channel, else the "False" signal is sent to outout channel.
 
-a link to km tronic relay board
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.alarm[Source Code icon:github[]]
