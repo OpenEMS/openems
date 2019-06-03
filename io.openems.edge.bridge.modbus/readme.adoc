@@ -1,0 +1,15 @@
+= Modbus
+
+Modbus is a widely used standard for fieldbus connections. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.
+
+== Modbus/TCP
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcpImpl.java[Modbus/TCP icon:code[]]::
+https://en.wikipedia.org/wiki/Modbus[Modbus/TCP icon:external-link[]] for fieldbus connections via TCP/IP network.
+// TODO add configuration settings
+
+== Modbus/RTU
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerialImpl.java[Modbus/Serial icon:code[]]::
+https://en.wikipedia.org/wiki/Modbus[Modbus/RTU icon:external-link[]] for fieldbus connections via RS485 serial bus. 
+// TODO add configuration settings

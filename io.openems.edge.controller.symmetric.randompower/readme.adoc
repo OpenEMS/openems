@@ -1,0 +1,5 @@
+= Symmetric Random-Power
+
+Applies random charging/discharging of a symmetric energy storage system for performance tests.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.randompower[Source Code icon:github[]]

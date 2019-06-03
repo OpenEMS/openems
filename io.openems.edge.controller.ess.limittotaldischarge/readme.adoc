@@ -1,0 +1,5 @@
+= ESS Limit Total Discharge
+
+Limits the discharge power of an energy storage system according to its State-of-Charge, e.g. to keep energy for emergency power or to avoid deep discharge.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.limittotaldischarge[Source Code icon:github[]]

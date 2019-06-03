@@ -23,6 +23,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
 	int apiTimeout() default 60;
 
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default RestApi.DEFAULT_DEBUG_MODE;
+
 	String webconsole_configurationFactory_nameHint() default "Controller Api REST/JSON [{id}]";
 
 }

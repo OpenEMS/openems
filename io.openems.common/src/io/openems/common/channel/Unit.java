@@ -268,12 +268,25 @@ public enum Unit {
 		case OHM:
 		case KILOOHM:
 		case SECONDS:
+		case AMPERE_HOURS:
+		case HOUR:
+		case KILOVOLT_AMPERE:
+		case KILOVOLT_AMPERE_REACTIVE:
+		case KILOVOLT_AMPERE_REACTIVE_HOURS:
+		case KILOWATT_HOURS:
+		case MICROOHM:
+		case MILLIAMPERE_HOURS:
+		case MILLIOHM:
+		case MILLISECONDS:
+		case MINUTE:
+		case THOUSANDTH:
+		case VOLT_AMPERE_HOURS:
+		case VOLT_AMPERE_REACTIVE_HOURS:
+		case WATT_HOURS_BY_WATT_PEAK:
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
 			return booleanValue ? "ON" : "OFF";
-		default:
-			break;
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}

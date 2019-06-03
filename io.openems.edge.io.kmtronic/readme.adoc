@@ -1,0 +1,6 @@
+= KMtronic Modbus Relay Board
+
+Implemented Natures::
+- DigitalOutput
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.kmtronic[Source Code icon:github[]]

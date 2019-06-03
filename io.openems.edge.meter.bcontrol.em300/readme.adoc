@@ -1,0 +1,7 @@
+= SOCOMEC Diris A10 | A14 | B30 | E24 Meter
+
+Implemented Natures::
+- SymmetricMeter
+- AsymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.socomec[Source Code icon:github[]]

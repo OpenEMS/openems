@@ -6,7 +6,7 @@ Export-Package: io.openems.edge.controller.api
 Private-Package: io.openems.edge.controller.api.modbus,\
 	io.openems.edge.controller.api.modbus.jsonrpc
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	${buildpath},\

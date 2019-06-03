@@ -1,0 +1,5 @@
+= ESS Discharge Limit Considering Cell Voltage
+
+Limit discharge of an energy storage system depending on cell voltages.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.dischargelimitconsideringcellvoltage[Source Code icon:github[]]

@@ -1,0 +1,7 @@
+= WAGO Fieldbus Coupler 750-352
+
+Implemented Natures::
+- DigitalOutput
+- DigitalInput
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.wago[Source Code icon:github[]]
