@@ -1,0 +1,8 @@
+# io.openems.edge.project.controller.karpfsee.emergencymode Provider
+
+${Bundle-Description}
+
+## Example
+
+## References
+

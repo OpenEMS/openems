@@ -1,0 +1,27 @@
+Bundle-Name: OpenEMS Edge Scheduler DailyScheduler
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: \
+	Daily scheduler of the controllers
+
+Export-Package:  \
+	io.openems.edge.scheduler.dailyscheduler.api;-provide=true
+
+Private-Package:  \
+	io.openems.edge.scheduler.dailyscheduler
+
+-includeresource: {readme.adoc}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.scheduler.api;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
+	slf4j.api,\
+	com.google.gson
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
+
