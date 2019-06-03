@@ -5,7 +5,7 @@ Bundle-License: Proprietary (for now)
 Export-Package: io.openems.edge.meter.microcare.sdm630.api;-provide=true
 Private-Package: io.openems.edge.meter.microcare.sdm630
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

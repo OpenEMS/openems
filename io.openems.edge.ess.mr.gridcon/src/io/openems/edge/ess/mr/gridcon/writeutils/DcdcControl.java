@@ -1,10 +1,9 @@
 package io.openems.edge.ess.mr.gridcon.writeutils;
 
-import io.openems.common.exceptions.OpenemsException;
-
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
@@ -15,9 +14,9 @@ import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 public class DcdcControl {
 
 	private float dcVoltageSetpoint = 0f;
-	private final float weightStringA = 0f; // is set in applyPower()
-	private final float weightStringB = 0f; // is set in applyPower()
-	private final float weightStringC = 0f; // is set in applyPower()
+	private float weightStringA = 0f; // is set in applyPower()
+	private float weightStringB = 0f; // is set in applyPower()
+	private float weightStringC = 0f; // is set in applyPower()
 	private float iRefStringA = 0f;
 	private float iRefStringB = 0f;
 	private float iRefStringC = 0f;
@@ -42,11 +41,29 @@ public class DcdcControl {
 		this.iRefStringC = value;
 		return this;
 	}
+	
+	public DcdcControl weightStringA(float value) {
+		this.weightStringA = value;
+		return this;
+	}
+
+	public DcdcControl weightStringB(float value) {
+		this.weightStringB = value;
+		return this;
+	}
+
+	public DcdcControl weightStringC(float value) {
+		this.weightStringC = value;
+		return this;
+	}
+
 
 	public DcdcControl stringControlMode(ComponentManager componentManager, Config config)
 			throws OpenemsNamedException {
 		int weightingMode = 0; 		// Depends on number of battery strings!!!
 
+		//--- // TODO if battery is not ready for work, remove it from the weighting mode!!
+		
 		weightingMode = weightingMode + calcWeightingMode(config.batteryStringA_id(), 1, componentManager); // battA = 1 (2^0)
 		weightingMode = weightingMode + calcWeightingMode(config.batteryStringB_id(), 8, componentManager);	// battB = 8 (2^3)		
 		weightingMode = weightingMode + calcWeightingMode(config.batteryStringC_id(), 64, componentManager); // battC = 64 (2^6)
@@ -73,7 +90,7 @@ public class DcdcControl {
 	}
 
 	public void writeToChannels(GridconPCS parent) throws IllegalArgumentException, OpenemsNamedException {
-		// weighting is never allowed to be '0'
+//		 weighting is never allowed to be '0'
 		if (this.stringControlMode == 0) {
 			throw new OpenemsException("Calculated weight of '0' -> not allowed!");
 		}

@@ -14,7 +14,7 @@ Export-Package: io.openems.edge.controller.api
 Private-Package:  \
 	io.openems.edge.controller.chp.soc	
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
