@@ -291,7 +291,6 @@ export class Service implements ErrorHandler {
     });
   }
 
-  ///////////////////
   public clickOtherPeriod() {
     if (this.activePeriod === 'otherPeriod') {
       this.setPeriod("today");
@@ -377,7 +376,6 @@ export class Service implements ErrorHandler {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
   }
 
-  //////////////////////////////
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
     const toast = await this.toaster.create({
