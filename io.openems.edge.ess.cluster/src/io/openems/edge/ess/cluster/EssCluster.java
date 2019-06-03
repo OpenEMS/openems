@@ -156,6 +156,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 		final CalculateIntegerSum maxApparentPower = new CalculateIntegerSum();
 		final CalculateLongSum activeChargeEnergy = new CalculateLongSum();
 		final CalculateLongSum activeDischargeEnergy = new CalculateLongSum();
+		final CalculateIntegerSum netCapacity = new CalculateIntegerSum();
 
 		final CalculateIntegerSum activePowerL1 = new CalculateIntegerSum();
 		final CalculateIntegerSum reactivePowerL1 = new CalculateIntegerSum();
@@ -172,6 +173,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 			maxApparentPower.addValue(ess.getMaxApparentPower());
 			activeChargeEnergy.addValue(ess.getActiveChargeEnergy());
 			activeDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
+			netCapacity.addValue(ess.getNetCapacity());
 
 			if (ess instanceof AsymmetricEss) {
 				AsymmetricEss e = (AsymmetricEss) ess;
@@ -190,6 +192,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 		this.getActivePower().setNextValue(activePower.calculate());
 		this.getReactivePower().setNextValue(reactivePower.calculate());
 		this.getMaxApparentPower().setNextValue(maxApparentPower.calculate());
+		this.getNetCapacity().setNextValue(netCapacity.calculate());
 		this.getActiveChargeEnergy().setNextValue(activeChargeEnergy.calculate());
 		this.getActiveDischargeEnergy().setNextValue(activeDischargeEnergy.calculate());
 
