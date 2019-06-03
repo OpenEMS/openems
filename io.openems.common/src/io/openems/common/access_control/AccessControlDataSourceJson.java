@@ -1,9 +1,13 @@
 package io.openems.common.access_control;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.FileUtils;
+import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
@@ -14,15 +18,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.openems.common.utils.JsonKeys.*;
 
-@Designate(ocd = Config.class, factory = true)
+@Designate(ocd = ConfigJson.class, factory = true)
 @Component( //
         name = "common.AccessControlDataSource.AccessControlDataSourceJson", //
         immediate = true, //
@@ -32,7 +33,7 @@ public class AccessControlDataSourceJson extends AccessControlDataSource {
     protected final Logger log = LoggerFactory.getLogger(AccessControlDataSourceJson.class);
 
     @Activate
-    void activate(ComponentContext componentContext, BundleContext bundleContext, Config config) {
+    void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigJson config) {
         this.initializeAccessControl(config.path());
     }
 
@@ -45,9 +46,8 @@ public class AccessControlDataSourceJson extends AccessControlDataSource {
 
         try {
             JsonElement config = JsonUtils.parse(sb.toString());
-            handleGroups(config);
-            handleRoles(config);
-            handleUsers(config);
+            handleUsers(JsonUtils.getAsJsonObject(config, USERS.value()));
+            handleRoles(JsonUtils.getAsJsonObject(config, ROLES.value()));
 
             // everything worked since no exception was thrown -> data may get used now
             this.accessControl.setInitialized();
@@ -56,89 +56,118 @@ public class AccessControlDataSourceJson extends AccessControlDataSource {
         }
     }
 
-    private void handleUsers(JsonElement config) throws OpenemsError.OpenemsNamedException {
-        for (JsonElement userJson : JsonUtils.getAsJsonArray(config, USERS.value())) {
+    private void handleRoles(JsonObject jsonRoles) throws OpenemsError.OpenemsNamedException {
+        Map<Role, List<RoleId>> createdRoles = new HashMap<>();
+        for (Map.Entry<String, JsonElement> jsonRole : jsonRoles.entrySet()) {
+            Role newRole = new Role();
+            newRole.setId(new RoleId(jsonRole.getKey()));
+            newRole.setDescription(JsonUtils.getAsString(jsonRole.getValue(), DESCRIPTION.value()));
+            JsonArray jsonParents = JsonUtils.getAsJsonArray(jsonRole.getValue(), PARENTS.value());
+            List<RoleId> tempRoleIds = new ArrayList<>();
+            for (JsonElement jsonParent : jsonParents) {
+                tempRoleIds.add(new RoleId(jsonParent.getAsString()));
+            }
+
+            if (createdRoles.put(newRole, tempRoleIds) != null) {
+                // this means there was already a role assigned with the same id
+                // -> this must not happen and means a invalid configuration
+                throw new ConfigurationException("AccessControlProviderJson has a inconsistent role configuration. " +
+                        "Role with id (" + newRole.getRoleId() + ") is configured at least twice.");
+            }
+
+            JsonObject jsonObject = JsonUtils.getAsJsonObject(jsonRole.getValue(), EDGES.value());
+            for (Map.Entry<String, JsonElement> jsonEdgeEntry : jsonObject.entrySet()) {
+                String edgeId = jsonEdgeEntry.getKey();
+                JsonObject jsonRpcs = JsonUtils.getAsJsonObject(jsonEdgeEntry.getValue(), JsonKeys.JSON_RPC.value());
+                Map<String, ExecutePermission> methodPermissionMapping = new HashMap<>();
+                for (Map.Entry<String, JsonElement> methodPermissionEntry : jsonRpcs.entrySet()) {
+                    methodPermissionMapping.put(
+                            methodPermissionEntry.getKey(),
+                            ExecutePermission.valueOf(JsonUtils.getAsString(methodPermissionEntry.getValue(), PERMISSION.value())));
+                }
+                newRole.addJsonRpcPermission(edgeId, methodPermissionMapping);
+                JsonObject jsonChannels = JsonUtils.getAsJsonObject(jsonEdgeEntry.getValue(), CHANNELS.value());
+                Map<ChannelAddress, AccessMode> channelPermissionMapping = new HashMap<>();
+                for (Map.Entry<String, JsonElement> channelPermissionEntry : jsonChannels.entrySet()) {
+                    String[] key = channelPermissionEntry.getKey().split(ChannelAddress.DELIMITER);
+                    channelPermissionMapping.put(
+                            new ChannelAddress(key[0], key[1]),
+                            AccessMode.valueOf(JsonUtils.getAsString(channelPermissionEntry.getValue(), PERMISSION.value())));
+                }
+                newRole.addChannelPermissions(edgeId, channelPermissionMapping);
+            }
+        }
+
+        resolveParentInheritance(createdRoles);
+    }
+
+    /**
+     * This method sets all the inheritances and also checks for loops and throws a exception in case
+     *
+     * @param createdRoles
+     */
+    private void resolveParentInheritance(Map<Role, List<RoleId>> createdRoles) throws ConfigurationException {
+        detectLoop(createdRoles);
+
+        // since no exception has been thrown we can simply set the roles of the parents via the already given roleIds
+        createdRoles.forEach((key, value) -> key.setParents(value.stream().map(Role::new).collect(Collectors.toSet())));
+        accessControl.addRoles(createdRoles.keySet());
+    }
+
+    /**
+     * This method checks for loops within the whole roles using a depth search
+     *
+     * @param createdRoles
+     * @throws ConfigurationException
+     */
+    private void detectLoop(Map<Role, List<RoleId>> createdRoles) throws ConfigurationException {
+        createdRoles.entrySet().stream().forEach(roleListEntry -> {
+
+        });
+        for (Map.Entry<Role, List<RoleId>> roleListEntry : createdRoles.entrySet()) {
+            // the current role is just myself -> helps understanding if looking at the other roles from a pov
+            RoleId myself = roleListEntry.getKey().getRoleId();
+            Set<RoleId> seenRoleIds = new HashSet<>();
+            seenRoleIds.add(myself);
+            Stack<RoleId> rolesToLookAt = new Stack<>();
+            roleListEntry.getValue().forEach(rolesToLookAt::push);
+
+            // iterate over all parents of myself
+            while (!rolesToLookAt.empty()) {
+                RoleId parentRoleId = rolesToLookAt.pop();
+                // fetch the role of the parentId of myself
+                Role other = createdRoles.keySet().stream().filter(e -> e.getRoleId().equals(parentRoleId)).findFirst()
+                        .orElseThrow(() -> new ConfigurationException(
+                                "AccessControlProviderJson: There is a roleId assignment ("
+                                        + parentRoleId + ") which points to a non existing role"));
+
+                if (!seenRoleIds.contains(other.getRoleId())) {
+                    // everything fine. role not part of the seen ones yet
+                    seenRoleIds.add(other.getRoleId());
+
+                    // add the parents of the other
+                    createdRoles.get(other).forEach(rolesToLookAt::push);
+                } else {
+                    // loop detected!
+                    throw new ConfigurationException("AccessControlDataSourceJson: Loop detected. Check your configuration!" +
+                            "rolesToCompare(" + seenRoleIds + ", currentRole (" + other + ")");
+                }
+            }
+        }
+    }
+
+    private void handleUsers(JsonObject jsonUsers) throws OpenemsError.OpenemsNamedException {
+        for (Map.Entry<String, JsonElement> userJson : jsonUsers.entrySet()) {
             io.openems.common.access_control.User newUser = new io.openems.common.access_control.User();
-            newUser.setId(JsonUtils.getAsLong(userJson, ID.value()));
-            newUser.setUsername(JsonUtils.getAsString(userJson, NAME.value()));
-            newUser.setDescription(JsonUtils.getAsString(userJson, DESCRIPTION.value()));
-            newUser.setPassword(JsonUtils.getAsString(userJson, PASSWORD.value()));
-            newUser.setEmail(JsonUtils.getAsString(userJson, EMAIL.value()));
-            newUser.setRoles(accessControl.getRoles());
+            newUser.setId(userJson.getKey());
+            newUser.setUsername(JsonUtils.getAsString(userJson.getValue(), NAME.value()));
+            newUser.setDescription(JsonUtils.getAsString(userJson.getValue(), DESCRIPTION.value()));
+            newUser.setPassword(JsonUtils.getAsString(userJson.getValue(), PASSWORD.value()));
+            newUser.setEmail(JsonUtils.getAsString(userJson.getValue(), EMAIL.value()));
+            newUser.setRoleId(new RoleId(JsonUtils.getAsString(userJson.getValue(), ROLE.value())));
             accessControl.addUser(newUser);
         }
     }
 
-    private void handleRoles(JsonElement config) throws OpenemsError.OpenemsNamedException {
-        for (JsonElement roleJson : JsonUtils.getAsJsonArray(config, ROLES.value())) {
-            Role newRole = new Role();
-            newRole.setId(new RoleId(Long.toString(JsonUtils.getAsLong(roleJson, ID.value()))));
-            newRole.setDescription(JsonUtils.getAsString(roleJson, DESCRIPTION.value()));
-            newRole.setName(JsonUtils.getAsString(roleJson, NAME.value()));
-            Set<Long> groupIds = new HashSet<>();
-            for (JsonElement jsonElement : JsonUtils.getAsJsonArray(roleJson, ASSIGNED_TO_GROUPS.value())) {
-                groupIds.add(jsonElement.getAsLong());
-            }
 
-            newRole.setGroups(accessControl.getGroups().stream().filter(
-                    group -> groupIds.contains(group.getId())).collect(Collectors.toSet()));
-            accessControl.addRole(newRole);
-        }
-    }
-
-    private void handleGroups(JsonElement config) throws OpenemsError.OpenemsNamedException {
-        for (JsonElement group : JsonUtils.getAsJsonArray(config, GROUPS.value())) {
-            Group newGroup = new Group();
-            newGroup.setId(JsonUtils.getAsLong(group, ID.value()));
-            newGroup.setName(JsonUtils.getAsString(group, NAME.value()));
-            newGroup.setDescription(JsonUtils.getAsString(group, DESCRIPTION.value()));
-            Map<ChannelAddress, Set<Permission>> mapping = new HashMap<>();
-            for (JsonElement jsonPer : JsonUtils.getAsJsonArray(group, SUBSCRIBE_CHANNEL_PERMISSIONS.value())) {
-                ChannelAddress channelAddress = new ChannelAddress(
-                        JsonUtils.getAsString(jsonPer, COMPONENT_ID.value()),
-                        JsonUtils.getAsString(jsonPer, CHANNEL_ID.value()));
-                Set<Permission> permissions = new HashSet<>();
-                for (JsonElement jsonElement : JsonUtils.getAsJsonArray(jsonPer, PERMISSION.value())) {
-                    permissions.add(Permission.from(JsonUtils.getAsString(jsonElement)));
-                }
-                mapping.put(channelAddress, permissions);
-            }
-            newGroup.setChannelToPermissionsMapping(mapping);
-            String[] permissionIdentifiers = new String[]{
-                    SYSTEM_LOG_PERMISSIONS.value(),
-                    QUERY_HISTORIC_PERMISSIONS.value(),
-                    EDGE_CONFIG_PERMISSIONS.value(),
-                    CREATE_PERMISSIONS.value(),
-                    UPDATE_PERMISSIONS.value(),
-                    DELETE_PERMISSIONS.value()};
-
-            for (String permissionIdentifier : permissionIdentifiers) {
-                Map<String, Set<Permission>> genericMapping = new HashMap<>();
-                for (JsonElement jsonPer : JsonUtils.getAsJsonArray(group, permissionIdentifier)) {
-                    Set<Permission> permissions = new HashSet<>();
-                    for (JsonElement jsonElement : JsonUtils.getAsJsonArray(jsonPer, PERMISSION.value())) {
-                        permissions.add(Permission.from(JsonUtils.getAsString(jsonElement)));
-                    }
-                    genericMapping.put(JsonUtils.getAsString(jsonPer, EDGE_ID.value()), permissions);
-                }
-                if (permissionIdentifier.equals(SYSTEM_LOG_PERMISSIONS.value())) {
-                    newGroup.setEdgeToSystemLogPermissions(genericMapping);
-                } else if (permissionIdentifier.equals(QUERY_HISTORIC_PERMISSIONS.value())) {
-                    newGroup.setEdgeToQueryHistoricPermissions(genericMapping);
-                } else if (permissionIdentifier.equals(EDGE_CONFIG_PERMISSIONS.value())) {
-                    newGroup.setEdgeToEdgeConfigPermissions(genericMapping);
-                } else if (permissionIdentifier.equals(CREATE_PERMISSIONS.value())) {
-                    newGroup.setEdgeToCreatePermissions(genericMapping);
-                } else if (permissionIdentifier.equals(UPDATE_PERMISSIONS.value())) {
-                    newGroup.setEdgeToUpdatePermissions(genericMapping);
-                } else if (permissionIdentifier.equals(DELETE_PERMISSIONS.value())) {
-                    newGroup.setEdgeToDeletePermissions(genericMapping);
-                } else if (permissionIdentifier.equals(SUBSCRIBE_CHANNEL_PERMISSIONS.value())) {
-                    newGroup.setChannelToPermissionsMapping(mapping);
-                }
-            }
-
-            accessControl.addGroup(newGroup);
-        }
-    }
 }

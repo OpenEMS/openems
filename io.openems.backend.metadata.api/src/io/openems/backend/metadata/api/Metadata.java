@@ -37,7 +37,7 @@ public interface Metadata {
      */
     BackendUser authenticate(String username, String password) throws OpenemsNamedException;
 
-    RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException;
+    RoleId authenticate2(String userName, String password) throws OpenemsException;
 
     /**
      * Authenticates the User by a Session-ID.

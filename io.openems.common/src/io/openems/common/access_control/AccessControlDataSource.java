@@ -5,4 +5,9 @@ abstract class AccessControlDataSource {
 
     abstract void initializeAccessControl(String path);
 
+/*
+    @Reference
+    List<AccessControlDataSource> datasources;
+*/
+
 }

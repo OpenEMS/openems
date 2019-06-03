@@ -95,7 +95,7 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException {
+	public RoleId authenticate2(String userName, String password) throws OpenemsException {
 		return null;
 	}
 

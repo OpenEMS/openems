@@ -98,8 +98,8 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
     }
 
     @Override
-    public RoleId authenticate2(String userName, String password, String roleId) throws OpenemsException {
-        return accessControl.login(userName, password, roleId);
+    public RoleId authenticate2(String userName, String password) throws OpenemsException {
+        return accessControl.login(userName, password);
     }
 
     @Override

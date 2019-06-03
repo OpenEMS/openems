@@ -4,8 +4,9 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.common.access_control.Permission;
+import io.openems.common.access_control.AccessControl;
 import io.openems.common.access_control.RoleId;
+import io.openems.common.channel.AccessMode;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,6 @@ import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.EdgeUser;
-import io.openems.common.access_control.AccessControl;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
@@ -183,7 +183,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
         worker.clearAll();
 
-        Set<ChannelAddress> permittedChannels = AccessControl.getInstance().intersectPermittedChannels(wsData.getRoleId(), request.getChannels(), Permission.READ);
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, SubscribeChannelsRequest.METHOD);
+        Set<ChannelAddress> permittedChannels = AccessControl.getInstance().intersectAccessPermission(
+                wsData.getRoleId(),
+                this.parent.edgeIdentifier, request.getChannels(),
+                AccessMode.READ_ONLY,
+                AccessMode.READ_WRITE);
         worker.handleSubscribeChannelsRequest(user.getRole(), request.getCount(), permittedChannels, WebsocketApi.EDGE_ID);
 
         // JSON-RPC response
@@ -193,7 +198,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     /**
      * Handles a QueryHistoricDataRequest.
      *
-     *
      * @param wsData
      * @param user    the User
      * @param request the QueryHistoricDataRequest
@@ -202,7 +206,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(WsData wsData, EdgeUser user,
                                                                                      QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-        AccessControl.getInstance().assertQueryHistoricData(this.parent.edgeIdentifier, wsData.getRoleId());
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, QueryHistoricTimeseriesDataRequest.METHOD);
         TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricData(//
                 null, /* ignore Edge-ID */
                 request.getFromDate(), //
@@ -216,7 +220,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     /**
      * Handles a QueryHistoricEnergyRequest.
      *
-     *
      * @param wsData
      * @param request the QueryHistoricEnergyRequest
      * @return the Future JSPN-RPC Response
@@ -224,7 +227,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(
             WsData wsData, QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-        AccessControl.getInstance().assertQueryHistoricData(this.parent.edgeIdentifier, wsData.getRoleId());
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, QueryHistoricTimeseriesEnergyRequest.METHOD);
         Map<ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricEnergy(//
                 null, /* ignore Edge-ID */
                 request.getFromDate(), request.getToDate(), request.getChannels());
@@ -236,7 +239,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     /**
      * Handles a CreateComponentConfigRequest.
      *
-     *
      * @param wsData
      * @param user                         the User
      * @param createComponentConfigRequest the CreateComponentConfigRequest
@@ -245,7 +247,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(WsData wsData, EdgeUser user,
                                                                                          CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
-        AccessControl.getInstance().assertCreateComponent(this.parent.edgeIdentifier, wsData.getRoleId());
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, CreateComponentConfigRequest.METHOD);
         // wrap original request inside ComponentJsonApiRequest
         String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
         ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, createComponentConfigRequest);
@@ -256,7 +258,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     /**
      * Handles a UpdateComponentConfigRequest.
      *
-     *
      * @param wsData
      * @param user                         the User
      * @param updateComponentConfigRequest the UpdateComponentConfigRequest
@@ -265,7 +266,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(WsData wsData, EdgeUser user,
                                                                                          UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
-        AccessControl.getInstance().assertUpdateComponent(this.parent.edgeIdentifier, wsData.getRoleId());
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, UpdateComponentConfigRequest.METHOD);
         // wrap original request inside ComponentJsonApiRequest
         String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
         ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
@@ -284,7 +285,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(EdgeUser user,
                                                                                          DeleteComponentConfigRequest deleteComponentConfigRequest, WsData wsData) throws OpenemsNamedException {
-        AccessControl.getInstance().assertDeleteComponent(this.parent.edgeIdentifier, wsData.getRoleId());
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, DeleteComponentConfigRequest.METHOD);
         // wrap original request inside ComponentJsonApiRequest
         String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
         ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, deleteComponentConfigRequest);
@@ -295,7 +296,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     /**
      * Handles a GetEdgeConfigRequest.
      *
-     *
      * @param wsData
      * @param user                 the User
      * @param getEdgeConfigRequest the GetEdgeConfigRequest
@@ -304,7 +304,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
      */
     private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(WsData wsData, EdgeUser user,
                                                                                  GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
-        AccessControl.getInstance().assertGetEdgeConfig(this.parent.edgeIdentifier, wsData.getRoleId());
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, GetEdgeConfigRequest.METHOD);
         // wrap original request inside ComponentJsonApiRequest
         ComponentJsonApiRequest request = new ComponentJsonApiRequest(OpenemsConstants.COMPONENT_MANAGER_ID,
                 getEdgeConfigRequest);
@@ -368,7 +368,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         if (token == null) {
             throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
         }
-        AccessControl.getInstance().assertSubscribeSystemLog(this.parent.edgeIdentifier, wsData.getRoleId());
+
+        AccessControl.getInstance().assertExecutePermission(wsData.getRoleId(), this.parent.edgeIdentifier, SubscribeSystemLogRequest.METHOD);
+
+        // TODO @Stefan: Muss hier noch eine weitere Prüfung auf Channels durchgeführt werden? Der RPC hört sich so nach
+        // zyklischen Channel Informationen an
 
         this.parent.handleSubscribeSystemLogRequest(token, request);
         return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

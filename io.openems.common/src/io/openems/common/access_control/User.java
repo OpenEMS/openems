@@ -1,22 +1,21 @@
 package io.openems.common.access_control;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 public class User {
 
-    private Long id;
+    private String id;
     private String username;
     private String description;
     private String email;
     private String password;
-    private Set<Role> roles = new HashSet<>();
+    private RoleId role;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -52,11 +51,24 @@ public class User {
         this.password = password;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public RoleId getRoleId() {
+        return role;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRoleId(RoleId roleId) {
+        this.role = roleId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

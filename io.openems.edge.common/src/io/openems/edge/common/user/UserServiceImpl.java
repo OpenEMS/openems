@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public RoleId authenticate2(String username, String password) {
         try {
-            return AccessControl.getInstance().login(username, password, Long.toString(1L));
+            return AccessControl.getInstance().login(username, password);
         } catch (ServiceNotAvailableException | AuthenticationException e) {
             this.log.info("Authentication did not succeed", e);
         }

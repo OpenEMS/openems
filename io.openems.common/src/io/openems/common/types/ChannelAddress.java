@@ -5,6 +5,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
 
+	public static final String DELIMITER = "/";
+
 	private final String componentId;
 	private final String channelId;
 
@@ -34,7 +36,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public String toString() {
-		return componentId + "/" + channelId;
+		return componentId + DELIMITER + channelId;
 	}
 
 	/**
