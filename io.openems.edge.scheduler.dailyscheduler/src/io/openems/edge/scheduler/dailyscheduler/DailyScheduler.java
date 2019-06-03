@@ -20,7 +20,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -41,8 +40,9 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 	private final Logger log = LoggerFactory.getLogger(DailyScheduler.class);
 
 	private final List<Controller> sortedControllers = new ArrayList<>();
+	private final List<Controller> alwaysRunningControllers = new ArrayList<>();
 
-	private final TreeMap<LocalTime, List<Controller>> contollersList = new TreeMap<>();
+	private final TreeMap<LocalTime, List<Controller>> contollersSchedule = new TreeMap<>();
 
 	private Map<String, Controller> _controllers = new ConcurrentHashMap<>();
 
@@ -96,18 +96,18 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 		this.controllersIdsJson = config.controllers_ids_json();
 		this.controllersIds = config.controllers_ids();
 		this.updateSortedControllers();
-
 	}
 
 	private synchronized void updateSortedControllers() throws OpenemsNamedException {
+		this.alwaysRunningControllers.clear();
 		this.sortedControllers.clear();
 
 		for (String id : this.controllersIds) {
-			Controller controller = this._controllers.get(id);
-			if (controller == null) {
+			Controller alwaysRunningController = this._controllers.get(id);
+			if (alwaysRunningController == null) {
 				log.warn("Required Controller [" + id + "] is not available.");
 			} else {
-				this.sortedControllers.add(controller);
+				this.alwaysRunningControllers.add(alwaysRunningController);
 			}
 		}
 		if (this.controllersIdsJson != null && !(this.controllersIdsJson.isEmpty())) {
@@ -121,18 +121,18 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 						JsonArray JsonControllers = JsonUtils.getAsJsonArray(element, "controller");
 						List<Controller> listOfControllers = new ArrayList<>();
 
-						for (JsonElement id : JsonControllers) {
+						for (JsonElement Jsonid : JsonControllers) {
 
-							Controller controller = this._controllers
-									.get(JsonUtils.getAsString(id));
+							Controller controller = this._controllers.get(JsonUtils.getAsString(Jsonid));
 
 							if (controller == null) {
-								log.warn("Required Controller [" + id + "] is not available.");
+								this.contollersSchedule.put(Time, null);
 							} else {
-								listOfControllers.add(controller);
-								this.contollersList.put(Time, listOfControllers);
-							}
 
+								listOfControllers.add(controller);
+
+								this.contollersSchedule.put(Time, listOfControllers);
+							}
 						}
 
 					}
@@ -142,7 +142,6 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 				throw new OpenemsException("Unable to set values [" + controllersIds + "] " + e.getMessage());
 			}
 		}
-		
 
 	}
 
@@ -154,13 +153,20 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 	@Override
 	public List<Controller> getControllers() {
+		this.sortedControllers.clear();
+		this.sortedControllers.addAll(alwaysRunningControllers);
 
 		LocalTime currentTime = LocalTime.now();
-		
+
 		// returns all the controllers that are activated at given time.
-		if (!(this.contollersList.isEmpty())) {
-			if (!this.contollersList.lowerEntry(currentTime).getValue().isEmpty()) {
-				this.sortedControllers.addAll(this.contollersList.lowerEntry(currentTime).getValue());
+
+		if (!(this.contollersSchedule.isEmpty())) {
+
+			if (this.contollersSchedule.lowerEntry(currentTime).getValue() == null) {
+				log.warn("No controllers specified to run");
+			} else {
+
+				this.sortedControllers.addAll(this.contollersSchedule.lowerEntry(currentTime).getValue());
 			}
 		}
 		return this.sortedControllers;
