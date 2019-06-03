@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.openems.common.access_control.AccessControl;
 import org.java_websocket.WebSocket;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -72,6 +73,9 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Reference
 	protected UserService userService;
+
+	@Reference
+	protected AccessControl accessControl;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;

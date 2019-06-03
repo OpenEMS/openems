@@ -8,10 +8,7 @@ import io.openems.common.access_control.AccessControl;
 import io.openems.common.access_control.AuthenticationException;
 import io.openems.common.access_control.RoleId;
 import io.openems.common.access_control.ServiceNotAvailableException;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +25,9 @@ import io.openems.common.session.Role;
 public class UserServiceImpl implements UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Reference
+    private AccessControl accessControl;
 
     /**
      * All configured users. Ordered as they are added.
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public RoleId authenticate2(String username, String password) {
         try {
-            return AccessControl.getInstance().login(username, password);
+            return accessControl.login(username, password);
         } catch (ServiceNotAvailableException | AuthenticationException e) {
             this.log.info("Authentication did not succeed", e);
         }

@@ -11,9 +11,7 @@ import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,19 +23,21 @@ import static io.openems.common.utils.JsonKeys.*;
 
 @Designate(ocd = ConfigJson.class, factory = true)
 @Component( //
-        name = "common.AccessControlDataSource.AccessControlDataSourceJson", //
+        name = "common.AccessControlProvider.AccessControlProviderJson", //
         immediate = true, //
         configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class AccessControlDataSourceJson extends AccessControlDataSource {
+public class AccessControlProviderJson implements AccessControlProvider {
 
-    protected final Logger log = LoggerFactory.getLogger(AccessControlDataSourceJson.class);
+    protected final Logger log = LoggerFactory.getLogger(AccessControlProviderJson.class);
+
+    private String path;
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigJson config) {
-        this.initializeAccessControl(config.path());
+        this.path = config.path();
     }
 
-    void initializeAccessControl(String path) {
+    public void initializeAccessControl(AccessControl accessControl) {
         StringBuilder sb = FileUtils.checkAndGetFileContent(path);
         if (sb == null) {
             // exception occurred. File could not be read
@@ -46,17 +46,15 @@ public class AccessControlDataSourceJson extends AccessControlDataSource {
 
         try {
             JsonElement config = JsonUtils.parse(sb.toString());
-            handleUsers(JsonUtils.getAsJsonObject(config, USERS.value()));
-            handleRoles(JsonUtils.getAsJsonObject(config, ROLES.value()));
+            handleUsers(JsonUtils.getAsJsonObject(config, USERS.value()), accessControl);
+            handleRoles(JsonUtils.getAsJsonObject(config, ROLES.value()), accessControl);
 
-            // everything worked since no exception was thrown -> data may get used now
-            this.accessControl.setInitialized();
         } catch (OpenemsError.OpenemsNamedException e) {
             this.log.warn("Unable to parse JSON-file [" + path + "]: " + e.getMessage());
         }
     }
 
-    private void handleRoles(JsonObject jsonRoles) throws OpenemsError.OpenemsNamedException {
+    private void handleRoles(JsonObject jsonRoles, AccessControl accessControl) throws OpenemsError.OpenemsNamedException {
         Map<Role, List<RoleId>> createdRoles = new HashMap<>();
         for (Map.Entry<String, JsonElement> jsonRole : jsonRoles.entrySet()) {
             Role newRole = new Role();
@@ -98,15 +96,16 @@ public class AccessControlDataSourceJson extends AccessControlDataSource {
             }
         }
 
-        resolveParentInheritance(createdRoles);
+        resolveParentInheritance(createdRoles, accessControl);
     }
 
     /**
      * This method sets all the inheritances and also checks for loops and throws a exception in case
      *
      * @param createdRoles
+     * @param accessControl
      */
-    private void resolveParentInheritance(Map<Role, List<RoleId>> createdRoles) throws ConfigurationException {
+    private void resolveParentInheritance(Map<Role, List<RoleId>> createdRoles, AccessControl accessControl) throws ConfigurationException {
         detectLoop(createdRoles);
 
         // since no exception has been thrown we can simply set the roles of the parents via the already given roleIds
@@ -149,14 +148,14 @@ public class AccessControlDataSourceJson extends AccessControlDataSource {
                     createdRoles.get(other).forEach(rolesToLookAt::push);
                 } else {
                     // loop detected!
-                    throw new ConfigurationException("AccessControlDataSourceJson: Loop detected. Check your configuration!" +
+                    throw new ConfigurationException("AccessControlProviderJson: Loop detected. Check your configuration!" +
                             "rolesToCompare(" + seenRoleIds + ", currentRole (" + other + ")");
                 }
             }
         }
     }
 
-    private void handleUsers(JsonObject jsonUsers) throws OpenemsError.OpenemsNamedException {
+    private void handleUsers(JsonObject jsonUsers, AccessControl accessControl) throws OpenemsError.OpenemsNamedException {
         for (Map.Entry<String, JsonElement> userJson : jsonUsers.entrySet()) {
             io.openems.common.access_control.User newUser = new io.openems.common.access_control.User();
             newUser.setId(userJson.getKey());

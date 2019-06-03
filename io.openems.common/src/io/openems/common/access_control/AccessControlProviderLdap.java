@@ -15,20 +15,20 @@ import java.util.Hashtable;
 
 @Designate(ocd = ConfigLdap.class, factory = true)
 @Component( //
-        name = "common.AccessControlDataSource.AccessControlDataSourceLdap", //
+        name = "common.AccessControlProvider.AccessControlProviderLdap", //
         immediate = true, //
         configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class AccessControlDataSourceLdap extends AccessControlDataSource {
+public class AccessControlProviderLdap implements AccessControlProvider {
 
-    protected final AccessControl accessControl = AccessControl.getInstance();
+    private String path;
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigLdap config) {
-        this.initializeAccessControl(config.host() + ":" + config.port());
+        this.path = path;
     }
 
     @Override
-    void initializeAccessControl(String path) {
+    public void initializeAccessControl(AccessControl accessControl) {
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://" + path);

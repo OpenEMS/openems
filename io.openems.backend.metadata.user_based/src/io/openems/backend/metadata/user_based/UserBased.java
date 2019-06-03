@@ -19,10 +19,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +43,9 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
     private final Map<String, Edge> edges = new HashMap<>();
     private String path = "";
     private AtomicInteger sessionId = new AtomicInteger(0);
-    private final AccessControl accessControl = AccessControl.getInstance();
+
+    @Reference
+    private AccessControl accessControl;
 
     public UserBased() {
         super("Metadata.UserBased");

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.common.access_control.AccessControl;
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,6 +47,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	@Reference
 	protected volatile Timedata timeData;
+
+	@Reference
+	protected AccessControl accessControl;
 
 	public UiWebsocketImpl() {
 		super("Ui.Websocket");

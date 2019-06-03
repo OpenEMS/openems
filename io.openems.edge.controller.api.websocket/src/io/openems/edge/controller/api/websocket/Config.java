@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
 	int apiTimeout() default 60;
 
-	@AttributeDefinition(name = "Edge identifier", description = "This identifier gets used when the edge has to authenticate on the AccessControl")
+	@AttributeDefinition(name = "Edge identifier", description = "This identifier gets used when the edge has to authenticate on the AccessControlImpl")
 	String edgeIdentfier();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Api Websocket [{id}]";

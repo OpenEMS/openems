@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 public class AccessControlTest {
 
-    /*private AccessControl accessControl;
+    /*private AccessControlImpl accessControl;
 
     public static final String DUMMY_ROLE_ID = Long.toString(1L);
     public static final String DUMMY_NAME = "Kartoffelsalat3000";
@@ -22,7 +22,7 @@ public class AccessControlTest {
 
     @Before
     public void setUp() {
-        this.accessControl = AccessControl.getInstance();
+        this.accessControl = AccessControlImpl.getInstance();
         Set<ExecutePermission> dummyPermissions = createDummyPermissions();
         Map<ChannelAddress, Set<ExecutePermission>> dummyChannelToPermissionMapping = createDummyChannelToPermissionMapping(dummyPermissions);
         Set<Role> roles = createDummyRoles(dummyChannelToPermissionMapping);
@@ -84,7 +84,7 @@ public class AccessControlTest {
         } catch (AuthenticationException e) {
             fail("Valid login did not work");
         } catch (ServiceNotAvailableException e) {
-            fail("AccessControl was not initialized before");
+            fail("AccessControlImpl was not initialized before");
         }
         return null;
     }
@@ -93,11 +93,11 @@ public class AccessControlTest {
     public void assertPermission() {
         RoleId roleId = login();
         try {
-            this.accessControl.assertPermissionForChannel(roleId, this.createDummyChannel(DUMMY_COMPONENT, STATE), ExecutePermission.READ);
+           this.parent.accessControl.assertPermissionForChannel(roleId, this.createDummyChannel(DUMMY_COMPONENT, STATE), ExecutePermission.READ);
         } catch (AuthenticationException | AuthorizationException e) {
             fail("Valid role did not get roles");
         } catch (ServiceNotAvailableException e) {
-            fail("AccessControl was not initialized before");
+            fail("AccessControlImpl was not initialized before");
         }
     }
 
@@ -118,7 +118,7 @@ public class AccessControlTest {
         } catch (AuthenticationException e) {
             fail("Valid role did not get roles");
         } catch (ServiceNotAvailableException e) {
-            fail("AccessControl was not initialized before");
+            fail("AccessControlImpl was not initialized before");
         }
     }*/
 }
