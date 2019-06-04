@@ -3,7 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
 import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
-import { Edge, Service } from '../../shared/shared';
+import { Edge, Service, Websocket } from '../../shared/shared';
+import { ChannelAddress } from '../../shared/type/channeladdress'
+import { GetHistoryDataExportXlsxRequest } from "src/app/edge/history/GetHistoryDataExportXlsxRequest";
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import * as FileSaver from 'file-saver';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
@@ -13,6 +17,8 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
 })
 export class HistoryComponent implements OnInit {
 
+  private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  private static readonly EXCEL_EXTENSION = '.xlsx';
   private readonly TODAY = new Date();
   private readonly YESTERDAY = subDays(new Date(), 1);
   private readonly TOMORROW = addDays(new Date(), 1);
@@ -44,6 +50,7 @@ export class HistoryComponent implements OnInit {
     private route: ActivatedRoute,
     private translate: TranslateService,
     private service: Service,
+    private websocket: Websocket,
   ) {
   }
 
@@ -148,5 +155,51 @@ export class HistoryComponent implements OnInit {
    */
   private toIMyDate(date: Date): IMyDate {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
+  }
+
+  /**
+ * Method to extract the history data into xlxs file
+ */
+  public getDataIntoXlxs() {
+    this.service.getCurrentEdge().then(edge => {
+      let dataChannels = [
+
+        new ChannelAddress('_sum', 'EssActivePower'),
+        // Grid
+        new ChannelAddress('_sum', 'GridActivePower'),
+        // Production
+        new ChannelAddress('_sum', 'ProductionActivePower'),
+        // Consumption
+        new ChannelAddress('_sum', 'ConsumptionActivePower')
+      ]
+      let energyChannels = [
+        new ChannelAddress('_sum', 'EssSoc'),
+        new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+        new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+        new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+        new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
+        new ChannelAddress('_sum', 'EssActiveChargeEnergy'),
+        new ChannelAddress('_sum', 'EssActiveDischargeEnergy')
+      ]
+      edge.sendRequest(this.websocket, new GetHistoryDataExportXlsxRequest(this.fromDate, this.toDate, dataChannels, energyChannels)).then(response => {
+        let r = response as Base64PayloadResponse;
+        var binary = atob(r.result.payload.replace(/\s/g, ''));
+        var len = binary.length;
+        var buffer = new ArrayBuffer(len);
+        var view = new Uint8Array(buffer);
+        for (var i = 0; i < len; i++) {
+          view[i] = binary.charCodeAt(i);
+        }
+        const data: Blob = new Blob([view], {
+          type: HistoryComponent.EXCEL_TYPE
+        });
+
+        const fileName = "Kopie von " + edge.id;
+        FileSaver.saveAs(data, fileName);
+
+      }).catch(reason => {
+        console.warn(reason);
+      })
+    })
   }
 }

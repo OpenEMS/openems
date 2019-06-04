@@ -26,6 +26,7 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.GetHistoryDataExportXlxsRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
@@ -36,6 +37,7 @@ import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesExportXlsxResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
@@ -109,6 +111,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case QueryHistoricTimeseriesEnergyRequest.METHOD:
 			resultFuture = this.handleQueryHistoricEnergyRequest(QueryHistoricTimeseriesEnergyRequest.from(request));
 			break;
+			
+		case GetHistoryDataExportXlxsRequest.METHOD:
+			resultFuture = this.handleHistoryDataExportXlsx(user, GetHistoryDataExportXlxsRequest.from(request));
+			break;	
 
 		case CreateComponentConfigRequest.METHOD:
 			resultFuture = this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
@@ -133,6 +139,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case ComponentJsonApiRequest.METHOD:
 			resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
 			break;
+		
 
 		// TODO: to be implemented: UI Logout
 
@@ -172,7 +179,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
 				wsData.getSessionToken(), Utils.getEdgeMetadata(user.getRole())));
 	}
+		
+	/**
+	 * Handles a QueryHistoryDataExportXlsxRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the GetHistoryDataExportXlxsRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
 
+	private CompletableFuture<JsonrpcResponseSuccess> handleHistoryDataExportXlsx(EdgeUser user,
+			GetHistoryDataExportXlxsRequest request) throws OpenemsNamedException {
+		Map<ChannelAddress, JsonElement> dataChannels = this.parent.getTimedata().exportHistoryData(request);
+		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> energyChannels = this.parent.getTimedata()
+				.exportEnergyData(request);
+		return CompletableFuture.completedFuture(
+				new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), request.getFromDate(), request.getToDate(), dataChannels, energyChannels));
+	}
+	
 	/**
 	 * Handles a SubscribeChannelsRequest.
 	 * 
