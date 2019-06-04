@@ -1,13 +1,27 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card button (click)="presentModal()" style="cursor: pointer;">
+        <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="currentData.summary.storage as sum">
             <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
-                    <img src="assets/img/storage.png">
+                    <ng-container *ngIf="sum.soc < 20">
+                        <img src="assets/img/storage_20.png">
+                    </ng-container>
+                    <ng-container *ngIf="sum.soc < 40">
+                        <img src="assets/img/storage_40.png">
+                    </ng-container>
+                    <ng-container *ngIf="sum.soc < 60">
+                        <img src="assets/img/storage_60.png">
+                    </ng-container>
+                    <ng-container *ngIf="sum.soc < 80">
+                        <img src="assets/img/storage_20.png">
+                    </ng-container>
+                    <ng-container *ngIf="sum.soc <= 100">
+                        <img src="assets/img/storage_100.png">
+                    </ng-container>
                 </ion-avatar>
                 <ion-label translate>General.StorageSystem</ion-label>
             </ion-item>
-            <ion-card-content *ngIf="currentData.summary.storage as sum">
+            <ion-card-content>
                 <ion-grid no-padding>
                     <table class="full_width">
                         <tr class="underline">
