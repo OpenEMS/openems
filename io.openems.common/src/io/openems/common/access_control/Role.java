@@ -81,6 +81,25 @@ public class Role {
                 .map(Map.Entry::getValue).findFirst();
     }
 
+    public Map<ChannelAddress, AccessMode> getChannelPermissionsWithInheritance(String edgeId) {
+
+        Map<ChannelAddress, AccessMode> retVal = new HashMap<>();
+        Stack<Role> parentsToGo = new Stack<>();
+        parentsToGo.push(this);
+
+        while(!parentsToGo.isEmpty()) {
+            Role parent = parentsToGo.pop();
+
+            // add the parents of the parents
+            parent.parents.forEach(parentsToGo::push);
+            parent.channelPermissions.entrySet().stream()
+                    .filter(entry -> entry.getKey().equals(edgeId))
+                    .map(Map.Entry::getValue).findFirst().ifPresent(retVal::putAll);
+        }
+
+        return retVal;
+    }
+
     public Map<String, Map<String, ExecutePermission>> getJsonRpcPermissions() {
         return jsonRpcPermissions;
     }

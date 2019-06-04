@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class AccessControlImpl implements AccessControl {
@@ -63,21 +64,16 @@ public class AccessControlImpl implements AccessControl {
         }
     }
 
-    public Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, TreeSet<ChannelAddress> channels, AccessMode... accessModes)
+    public Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, Set<ChannelAddress> requestedChannels, AccessMode... accessModes)
             throws AuthenticationException {
         Role role = getRole(roleId);
-        Set<ChannelAddress> retVal = new TreeSet<>();
-        role.getChannelPermissions(edgeIdentifier).ifPresent((Map<ChannelAddress, AccessMode> map) -> {
+        Map<ChannelAddress, AccessMode> allowedChannels = role.getChannelPermissionsWithInheritance(edgeIdentifier);
             // remove all channels which are not even part of the configuration
-            map.keySet().retainAll(channels);
-
-            // remove those channels for which the permission is not set
-            map.entrySet().removeIf((entry) -> !Arrays.asList(accessModes).contains(entry.getValue()));
-            retVal.addAll(map.keySet());
-        });
-        return retVal;
+            // requestedChannels.retainAll(allowedChannels.keySet());
+        return allowedChannels.entrySet().stream()
+                .filter(entry -> requestedChannels.contains(entry.getKey()) && Arrays.asList(accessModes).contains(entry.getValue()))
+                .map(Map.Entry::getKey).collect(Collectors.toCollection(TreeSet::new));
     }
-
 
     /**
      * This method checks if there is a valid role for the given roleId and returns those role

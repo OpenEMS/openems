@@ -20,6 +20,6 @@ public interface AccessControl {
     void assertExecutePermission(RoleId roleId, String edgeId, String method)
             throws AuthenticationException, ServiceNotAvailableException, AuthorizationException;
 
-    Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, TreeSet<ChannelAddress> channels, AccessMode... accessModes)
+    Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, Set<ChannelAddress> channels, AccessMode... accessModes)
             throws AuthenticationException, ServiceNotAvailableException;
 }

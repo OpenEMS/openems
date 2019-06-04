@@ -69,12 +69,12 @@ public class AccessControlProviderJson implements AccessControlProvider {
             newRole.setId(new RoleId(jsonRole.getKey()));
             newRole.setDescription(JsonUtils.getAsString(jsonRole.getValue(), DESCRIPTION.value()));
             JsonArray jsonParents = JsonUtils.getAsJsonArray(jsonRole.getValue(), PARENTS.value());
-            List<RoleId> tempRoleIds = new ArrayList<>();
+            List<RoleId> parentRoleIds = new ArrayList<>();
             for (JsonElement jsonParent : jsonParents) {
-                tempRoleIds.add(new RoleId(jsonParent.getAsString()));
+                parentRoleIds.add(new RoleId(jsonParent.getAsString()));
             }
 
-            if (createdRoles.put(newRole, tempRoleIds) != null) {
+            if (createdRoles.put(newRole, parentRoleIds) != null) {
                 // this means there was already a role assigned with the same id
                 // -> this must not happen and means a invalid configuration
                 throw new ConfigurationException("AccessControlProviderJson has a inconsistent role configuration. " +
@@ -109,14 +109,18 @@ public class AccessControlProviderJson implements AccessControlProvider {
 
     /**
      * This method sets all the inheritances and also checks for loops and throws a exception in case
-     *  @param createdRoles
+     *
+     * @param createdRoles
      * @param accessControlDataManager
      */
     private void resolveAndSetParentInheritance(Map<Role, List<RoleId>> createdRoles, AccessControlDataManager accessControlDataManager) throws ConfigurationException {
         detectLoop(createdRoles);
 
         // since no exception has been thrown we can simply set the roles of the parents via the already given roleIds
-        createdRoles.forEach((key, value) -> key.setParents(value.stream().map(Role::new).collect(Collectors.toSet())));
+        createdRoles.forEach((key, value) ->
+                value.forEach(roleId ->
+                        key.setParents(accessControlDataManager.getRoles().stream().filter(r ->
+                                r.getRoleId().equals(roleId)).collect(Collectors.toSet()))));
         accessControlDataManager.addRoles(createdRoles.keySet(), true);
     }
 
