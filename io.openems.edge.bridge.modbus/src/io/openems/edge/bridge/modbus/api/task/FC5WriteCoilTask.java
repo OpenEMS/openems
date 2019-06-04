@@ -29,7 +29,8 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public void execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
+		int noOfWrittenCoils = 0;
 		ModbusElement<?> element = this.getElements()[0];
 		if (element instanceof ModbusCoilElement) {
 			Optional<Boolean> valueOpt = ((ModbusCoilElement) element).getNextWriteValueAndReset();
@@ -41,6 +42,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 					 * First try
 					 */
 					this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), value);
+					noOfWrittenCoils = 1;
 				} catch (OpenemsException | ModbusException e) {
 					/*
 					 * Second try: with new connection
@@ -48,6 +50,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 					bridge.closeModbusConnection();
 					try {
 						this.writeCoil(bridge, this.getParent().getUnitId(), this.getStartAddress(), value);
+						noOfWrittenCoils = 1;
 					} catch (ModbusException e2) {
 						throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 					}
@@ -56,6 +59,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 		} else {
 			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusCoilElement!");
 		}
+		return noOfWrittenCoils;
 	}
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)

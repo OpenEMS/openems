@@ -1,0 +1,29 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <img src="assets/img/consumption.png">
+                </ion-avatar>
+                <ion-label translate>General.Consumption</ion-label>
+            </ion-item>
+            <ion-card-content *ngIf="currentData.summary.consumption as sum">
+                <ion-grid no-padding>
+                    <table class="full_width">
+                        <tr>
+                            <td style="width:65%"></td>
+                            <ng-container *ngIf="sum.activePower != null; else empty">
+                                <td style="width:25%" class="align_right">{{ sum.activePower | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

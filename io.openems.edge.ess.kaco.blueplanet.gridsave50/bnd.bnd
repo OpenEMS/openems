@@ -7,7 +7,7 @@ Export-Package: \
 	io.openems.edge.ess.power.api
 Private-Package: io.openems.edge.ess.kaco.blueplanet.gridsave50
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

@@ -9,59 +9,9 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-== Existing Controllers
+A OpenEMS Edge Controller holds the actual business logic or the actual algorithm that controls hardware. The logic of each active Controller is executed regularly on every Cycle, i.e. once per second.
 
-=== Api Backend Controller
+include::controller.adoc.d/_include.adoc[]
 
-Establishes the connection to OpenEMS Backend.
-
-=== Api REST/JSON Controller
-
-Provides a REST-Api for external access to OpenEMS Edge. The default port for the server is *8084*; so the default base address for REST calls is `http://x:<PASSWORD>@<IP>:8084/rest`, where
-
-- "http" is the protocol
-- "x" is the user. Authentification in OpenEMS is via password only, so username can be anything.
-- "<PASSWORD>" is the user password. If no specifi settings have been made, try 'user' or 'admin' here.
-- "8084" is the configured port
-
-A good way to test REST-Api calls is via the Chrome extension https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm[Restlet]
-
-Api-Endpoints:
-
-- `/channel/<ThingId>/<ChannelName>`
-+
-Provides access to a channel value. Example: use a GET request to http://x:user@localhost:8084/rest/_sum/EssSoC to get the current average state of charge.
-
-=== Api Websocket Controller
-
-Server for connection from OpenEMS UI to OpenEMS Edge.
-
-=== Channel-Threshold Controller
-
-Switch I/Os according to Channel-Value, e.g. State-of-Charge of the battery.
-
-=== Debug Detailed-Log Controller
-
-Output detailed debug information about specific Components on the console.
-
-=== Debug Log Controller
-
-Output generic information about every Component on every cycle.
-
-=== Ess Limit Total Discharge
-
-Avoid total discharge of an energy storage system (ESS). Allows to define a Min-SoC and Force-Charge-SoC.
-
-=== Symmetric Balancing Controller
-
-Symmetric self-consumption optimization.
-
-=== Symmetric Fix-Active-Power Controller
-
-Allows setting of a fixed Active-Power value for an ESS.
-
-=== Symmetric Fix-Reactive-Power Controller
-
-Allows setting of a fixed Reactive-Power value for an ESS.
-
-=== Developing a Controller
+// TODO
+//=== Developing a Controller

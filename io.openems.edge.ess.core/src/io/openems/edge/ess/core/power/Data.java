@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -197,34 +196,30 @@ public class Data {
 				continue;
 			}
 
-			Optional<Integer> allowedCharge = ess.getAllowedCharge().value().asOptional();
-			if (allowedCharge.isPresent()) {
-				result.add(this.createSimpleConstraint(essId + ": Allowed Charge", essId, Phase.ALL, Pwr.ACTIVE,
-						Relationship.GREATER_OR_EQUALS, allowedCharge.get()));
-			}
-			Optional<Integer> allowedDischarge = ess.getAllowedDischarge().value().asOptional();
-			if (allowedDischarge.isPresent()) {
-				result.add(this.createSimpleConstraint(essId + ": Allowed Discharge", essId, Phase.ALL, Pwr.ACTIVE,
-						Relationship.LESS_OR_EQUALS, allowedDischarge.get()));
-			}
-			Optional<Integer> maxApparentPower = ess.getMaxApparentPower().value().asOptional();
-			if (maxApparentPower.isPresent()) {
-				if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode
-						&& !(ess instanceof ManagedSinglePhaseEss)) {
-					double maxApparentPowerPerPhase = maxApparentPower.get() / 3d;
-					for (Phase phase : Phase.values()) {
-						if (phase == Phase.ALL) {
-							continue; // do not add Max Apparent Power Constraint for ALL phases
-						}
-						result.addAll(//
-								this.apparentPowerConstraintFactory.getConstraints(essId, phase,
-										maxApparentPowerPerPhase));
+			// Allowed Charge Power
+			result.add(this.createSimpleConstraint(essId + ": Allowed Charge", //
+					essId, Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
+					ess.getAllowedCharge().value().orElse(0)));
+
+			// Allowed Charge Power
+			result.add(this.createSimpleConstraint(essId + ": Allowed Discharge", //
+					essId, Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
+					ess.getAllowedDischarge().value().orElse(0)));
+
+			// Max Apparent Power
+			int maxApparentPower = ess.getMaxApparentPower().value().orElse(0);
+			if (ess instanceof ManagedAsymmetricEss && !this.symmetricMode && !(ess instanceof ManagedSinglePhaseEss)) {
+				double maxApparentPowerPerPhase = maxApparentPower / 3d;
+				for (Phase phase : Phase.values()) {
+					if (phase == Phase.ALL) {
+						continue; // do not add Max Apparent Power Constraint for ALL phases
 					}
-				} else {
 					result.addAll(//
-							this.apparentPowerConstraintFactory.getConstraints(essId, Phase.ALL,
-									maxApparentPower.get()));
+							this.apparentPowerConstraintFactory.getConstraints(essId, phase, maxApparentPowerPerPhase));
 				}
+			} else {
+				result.addAll(//
+						this.apparentPowerConstraintFactory.getConstraints(essId, Phase.ALL, maxApparentPower));
 			}
 		}
 		return result;

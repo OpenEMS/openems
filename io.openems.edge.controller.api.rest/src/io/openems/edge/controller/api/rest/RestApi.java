@@ -28,11 +28,14 @@ import io.openems.edge.controller.api.core.ApiWorker;
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class RestApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
+	public final static boolean DEFAULT_DEBUG_MODE = true;
+
 	private final Logger log = LoggerFactory.getLogger(RestApi.class);
 
 	protected final ApiWorker apiWorker = new ApiWorker();
 
 	private Server server = null;
+	private boolean isDebugModeEnabled = DEFAULT_DEBUG_MODE;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -64,7 +67,8 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.isDebugModeEnabled = config.debugMode();
 
 		if (!this.isEnabled()) {
 			// abort if disabled
@@ -104,7 +108,21 @@ public class RestApi extends AbstractOpenemsComponent implements Controller, Ope
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	protected boolean isDebugModeEnabled() {
+		return isDebugModeEnabled;
 	}
 }

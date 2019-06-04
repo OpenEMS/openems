@@ -21,7 +21,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 	@Override
 	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
 		WsData wsData = ws.getAttachment();
-		Optional<BackendUser> user = wsData.getUser();
+		Optional<BackendUser> user = wsData.getUserOpt();
 		if (user.isPresent()) {
 			this.parent.logInfo(this.log, "User [" + user.get().getName() + "] closed connection");
 		} else {

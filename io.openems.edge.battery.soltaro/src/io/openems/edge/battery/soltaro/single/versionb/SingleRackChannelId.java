@@ -474,7 +474,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 			.text("Alarm flag status charge over current")), //
 	ALARM_FLAG_STATUS_SYSTEM_OVER_VOLTAGE(Doc.of(Level.OK) //
 			.text("Alarm flag status system over voltage")), //
-	ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+	ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE(Doc.of(Level.OK) //
 			.text("Alarm flag status cell over voltage")), //
 	PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW(Doc.of(Level.OK) //
 			.text("Protect flag status discharge temperature low")), //

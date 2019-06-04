@@ -49,6 +49,13 @@ public interface OpenemsComponent {
 	public String id();
 
 	/**
+	 * Returns a human-readable name of this Component..
+	 * 
+	 * @return the human-readable name
+	 */
+	public String alias();
+
+	/**
 	 * Returns whether this component is enabled.
 	 * 
 	 * @return true if the component is enabled
@@ -125,8 +132,10 @@ public interface OpenemsComponent {
 	 * @param <T>       the Type of the Channel. See {@link Doc#getType()}
 	 * @param channelId the Channel-ID
 	 * @return the Channel
+	 * @throws IllegalArgumentException on error
 	 */
-	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) throws IllegalArgumentException {
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId)
+			throws IllegalArgumentException {
 		T channel = this.<T>channel(channelId.id());
 		return channel;
 	}

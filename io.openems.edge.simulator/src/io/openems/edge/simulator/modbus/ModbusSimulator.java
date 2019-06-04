@@ -45,7 +45,7 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Deactivate
@@ -105,4 +105,5 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 	public void removeProtocol(String sourceId) {
 		// ignore
 	}
+
 }

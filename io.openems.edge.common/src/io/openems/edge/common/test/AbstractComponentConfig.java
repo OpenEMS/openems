@@ -25,6 +25,10 @@ public class AbstractComponentConfig {
 		return this.id;
 	}
 
+	public String alias() {
+		return this.id;
+	}
+
 	public boolean enabled() {
 		return DEFAULT_ENABLED;
 	}
@@ -32,5 +36,5 @@ public class AbstractComponentConfig {
 	public String webconsole_configurationFactory_nameHint() {
 		return "";
 	}
-	
+
 }

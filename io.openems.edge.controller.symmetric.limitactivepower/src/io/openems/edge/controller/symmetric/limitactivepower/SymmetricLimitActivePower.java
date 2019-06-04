@@ -68,7 +68,7 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.essId = config.ess_id();
 		this.maxChargePower = config.maxChargePower() * -1;
 		this.maxDischargePower = config.maxDischargePower();

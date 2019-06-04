@@ -1,0 +1,5 @@
+= High-Load Timeslot
+
+Controls an energy storage system for a High-Load timeslot application (German "Hochlastzeitfenster").
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.highloadtimeslot[Source Code icon:github[]]

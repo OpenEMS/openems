@@ -10,7 +10,7 @@ Export-Package: \
 	io.openems.edge.ess.power.api
 Private-Package: io.openems.edge.ess.cluster
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
