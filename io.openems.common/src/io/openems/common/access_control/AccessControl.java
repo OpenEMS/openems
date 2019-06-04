@@ -4,7 +4,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.types.ChannelAddress;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public interface AccessControl {
 
@@ -23,11 +22,4 @@ public interface AccessControl {
 
     Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, TreeSet<ChannelAddress> channels, AccessMode... accessModes)
             throws AuthenticationException, ServiceNotAvailableException;
-
-
-
-    // TODO handle the visibility of those methods should actually be only package visible
-    void addRoles(Set<Role> users);
-
-    void addUser(User user);
 }

@@ -21,14 +21,16 @@ import java.util.Hashtable;
 public class AccessControlProviderLdap implements AccessControlProvider {
 
     private String path;
+    private int priority;
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext, ConfigLdap config) {
         this.path = path;
+        this.priority = config.priority();
     }
 
     @Override
-    public void initializeAccessControl(AccessControl accessControl) {
+    public void initializeAccessControl(AccessControlDataManager accessControlDataManager) {
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://" + path);
@@ -41,5 +43,10 @@ public class AccessControlProviderLdap implements AccessControlProvider {
         } catch (NamingException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public int priority() {
+        return this.priority;
     }
 }

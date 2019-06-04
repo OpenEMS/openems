@@ -5,26 +5,29 @@ import io.openems.common.types.ChannelAddress;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class AccessControlImpl implements AccessControl {
 
-    private final Set<User> users = new HashSet<>();
+    private final Logger log = LoggerFactory.getLogger(AccessControlImpl.class);
 
-    private final Set<Role> roles = new HashSet<>();
+    @Reference
+    AccessControlDataManager accessControlDataManager;
 
     @Reference(policy = ReferencePolicy.DYNAMIC, //
             policyOption = ReferencePolicyOption.GREEDY, //
             cardinality = ReferenceCardinality.MULTIPLE)
-    protected volatile List<AccessControlProvider> providers = new CopyOnWriteArrayList<>();
+    protected volatile List<AccessControlProvider> providers = new LinkedList<>();
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext) {
-       providers.forEach(p -> p.initializeAccessControl(this));
-
+        // first sort list after its priorities
+        Collections.sort(providers);
+        providers.forEach(p -> p.initializeAccessControl(accessControlDataManager));
     }
 
     @Deactivate
@@ -40,8 +43,8 @@ public class AccessControlImpl implements AccessControl {
      * @return
      * @throws AuthenticationException
      */
-    public RoleId login(String username, String password) throws AuthenticationException, ServiceNotAvailableException {
-        User matchingUser = users.stream().filter(
+    public RoleId login(String username, String password) throws AuthenticationException {
+        User matchingUser = accessControlDataManager.getUsers().stream().filter(
                 userNew -> (userNew.getUsername().equals(username) && userNew.getPassword().equals(password)))
                 .findFirst()
                 .orElseThrow(AuthenticationException::new);
@@ -49,7 +52,7 @@ public class AccessControlImpl implements AccessControl {
     }
 
     public void assertExecutePermission(RoleId roleId, String edgeId, String method)
-            throws AuthenticationException, ServiceNotAvailableException, AuthorizationException {
+            throws AuthenticationException, AuthorizationException {
         Role role = getRole(roleId);
         final ExecutePermission[] executePermission = new ExecutePermission[1];
         role.getJsonRpcPermissions(edgeId).ifPresent(permissions -> permissions.entrySet().stream()
@@ -61,14 +64,14 @@ public class AccessControlImpl implements AccessControl {
     }
 
     public Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, TreeSet<ChannelAddress> channels, AccessMode... accessModes)
-            throws AuthenticationException, ServiceNotAvailableException {
+            throws AuthenticationException {
         Role role = getRole(roleId);
         Set<ChannelAddress> retVal = new TreeSet<>();
         role.getChannelPermissions(edgeIdentifier).ifPresent((Map<ChannelAddress, AccessMode> map) -> {
             // remove all channels which are not even part of the configuration
             map.keySet().retainAll(channels);
 
-            // remove those channels for which the permission is not available
+            // remove those channels for which the permission is not set
             map.entrySet().removeIf((entry) -> !Arrays.asList(accessModes).contains(entry.getValue()));
             retVal.addAll(map.keySet());
         });
@@ -83,19 +86,9 @@ public class AccessControlImpl implements AccessControl {
      * @return
      * @throws AuthenticationException
      */
-    private Role getRole(RoleId roleId) throws AuthenticationException, ServiceNotAvailableException {
-        return this.roles.stream().filter(
+    private Role getRole(RoleId roleId) throws AuthenticationException {
+        return this.accessControlDataManager.getRoles().stream().filter(
                 (entry) -> Objects.equals(entry.getRoleId(), roleId))
                 .findFirst().orElseThrow(AuthenticationException::new);
-    }
-
-    @Override
-    public void addRoles(Set<Role> users) {
-        this.roles.addAll(users);
-    }
-
-    @Override
-    public void addUser(User user) {
-        this.users.add(user);
     }
 }
