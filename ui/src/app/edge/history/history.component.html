@@ -12,16 +12,18 @@
               </ion-button>
             </ion-col>
             <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="activePeriod === 'yesterday'" (click)="setPeriod('yesterday')">
+              <ion-button expand="block" [class.activated]="activePeriod === 'yesterday'"
+                (click)="setPeriod('yesterday')">
                 <span translate>Edge.History.Yesterday</span>
               </ion-button>
             </ion-col>
             <ion-col size="12" *ngIf="activePeriod !== 'otherPeriod'">
-              <ion-button expand="block" [class.activated]="activePeriod === 'otherPeriod'" (click)="clickOtherPeriod()"><span
-                  translate>Edge.History.OtherPeriod</span></ion-button>
+              <ion-button expand="block" [class.activated]="activePeriod === 'otherPeriod'"
+                (click)="clickOtherPeriod()"><span translate>Edge.History.OtherPeriod</span></ion-button>
             </ion-col>
             <ion-col size="12" *ngIf="activePeriod === 'otherPeriod'" style="text-align:center">
-              <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
+              <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange"
+                (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
             </ion-col>
           </ion-row>
         </ion-grid>
