@@ -57,7 +57,7 @@
                 <!-- one DC Charger -->
                 <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
                     <ng-container *ngFor="let component of chargerComponents">
-                        <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
+                        <table class="full_width">
                             <tr>
                                 <td style="width:20%"><span translate>General.ChargePower</span> DC</td>
                                 <td style="width:30%"></td>
@@ -151,8 +151,9 @@
             </ng-container>
         </ng-container>
     </ion-card-content>
-    <!-- more than one ESS Component -->
+    <!-- more than one ESS component -->
     <ng-container *ngIf="essComponents != null && essComponents.length > 1">
+        <!-- summary of all ESS components -->
         <ion-card-content *ngIf="edge.currentData | async as currentData">
             <ng-container *ngIf="currentData.summary.storage as sum">
                 <table class="full_width">
