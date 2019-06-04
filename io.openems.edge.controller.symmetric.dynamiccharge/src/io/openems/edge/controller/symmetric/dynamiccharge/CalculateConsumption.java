@@ -30,7 +30,6 @@ public class CalculateConsumption {
 	private LocalDate dateOfLastRun = null;
 	private static long chargebleConsumption;
 	private LocalDateTime currentHour = null;
-	private static long bufferAmountToCharge;
 	//private static long remainingConsumption;
 	private static long currentHourConsumption;
 	private static long demand_Till_Cheapest_Hour;
@@ -55,8 +54,8 @@ public class CalculateConsumption {
 	protected void run(ManagedSymmetricEss ess, SymmetricMeter meter, Config config, Sum sum) {
 
 		long production = sum.getProductionActiveEnergy().value().orElse(0L);
-		long consumption = sum.getConsumptionActiveEnergy().value().orElse(0L);
-		//long consumption = sum.getGridActivePower().value().orElse(0);
+		//long consumption = sum.getConsumptionActiveEnergy().value().orElse(0L);
+		long consumption = sum.getGridActivePower().value().orElse(0);
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
@@ -159,7 +158,7 @@ public class CalculateConsumption {
 				availableCapacity = (soc / 100) * nettCapacity;
 				Prices.houlryprices();
 				HourlyPrices = Prices.getHourlyPrices();
-				getCheapestHours(HourlyPrices.firstKey(), HourlyPrices.lastKey());
+				getCheapestHours(hourlyConsumption.firstKey().plusDays(1), hourlyConsumption.lastKey().plusDays(1));
 			}
 
 			// Resetting Values
@@ -215,21 +214,17 @@ public class CalculateConsumption {
 						} else {
 
 							if (chargebleConsumption > nettCapacity) {
-								bufferAmountToCharge = nettCapacity - maxApparentPower;
 								// remainingConsumption = chargebleConsumption - nettCapacity;
 								// System.out.println("getting into adjusting remaining charge: ");
 								// adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
 								// hourlyConsumption.lastKey().plusDays(1));
 								// hourlyConsumption.lastKey().plusDays(1));
-							} else {
-								bufferAmountToCharge = chargebleConsumption - maxApparentPower;
-							}
+							} 
 						}
 						cheapTimeStamp = lastCheapTimeStamp;
 						chargebleConsumption = maxApparentPower;
 					}
-					totalDemand = demand_Till_Cheapest_Hour + bufferAmountToCharge;
-					bufferAmountToCharge = 0;
+					totalDemand = totalDemand - chargebleConsumption - currentHourConsumption;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
 					getCheapestHours(HourlyPrices.firstKey(), cheapTimeStamp);
 				} else {

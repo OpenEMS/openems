@@ -34,7 +34,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
-	private static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
+	private static TreeMap<LocalDateTime, Long> StoragehargeSchedule = new TreeMap<LocalDateTime, Long>();
 	boolean executed = false;
 
 	@Reference
@@ -91,20 +91,20 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		// Hours and Amount of energy to charge in the form of TreeMap
 		if (CalculateConsumption.t0 != null) {
 			if (!executed && hourOfDay == 17 && !CalculateConsumption.chargeSchedule.isEmpty()) {
-				chargeSchedule = CalculateConsumption.chargeSchedule;
+				StoragehargeSchedule = CalculateConsumption.chargeSchedule;
 				executed = true;
 			}
 		}
 		if (CalculateConsumption.t1 != null) {
 			if (executed && hourOfDay == 9) {
-				chargeSchedule = null;
+				StoragehargeSchedule.clear();
 				executed = false;
 			}
 		}
 
 		// Charge Condition
-		if (!chargeSchedule.isEmpty()) {
-			for (Map.Entry<LocalDateTime, Long> entry : chargeSchedule.entrySet()) {
+		if (!StoragehargeSchedule.isEmpty()) {
+			for (Map.Entry<LocalDateTime, Long> entry : StoragehargeSchedule.entrySet()) {
 				if (now.getHour() == entry.getKey().getHour()) {
 
 					/*
