@@ -3,21 +3,27 @@
         <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="currentData.summary.storage as sum">
             <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
-                    <ng-container *ngIf="sum.soc < 20">
+                    <ng-container *ngIf="sum.soc < 20;else twoBars">
                         <img src="assets/img/storage_20.png">
                     </ng-container>
-                    <ng-container *ngIf="sum.soc < 40">
-                        <img src="assets/img/storage_40.png">
-                    </ng-container>
-                    <ng-container *ngIf="sum.soc < 60">
-                        <img src="assets/img/storage_60.png">
-                    </ng-container>
-                    <ng-container *ngIf="sum.soc < 80">
-                        <img src="assets/img/storage_20.png">
-                    </ng-container>
-                    <ng-container *ngIf="sum.soc <= 100">
+                    <ng-template #twoBars>
+                        <ng-container *ngIf="sum.soc < 40; else threeBars">
+                            <img src="assets/img/storage_40.png">
+                        </ng-container>
+                    </ng-template>
+                    <ng-template #threeBars>
+                        <ng-container *ngIf="sum.soc < 60; else fourBars">
+                            <img src="assets/img/storage_60.png">
+                        </ng-container>
+                    </ng-template>
+                    <ng-template #fourBars>
+                        <ng-container *ngIf="sum.soc < 80; else fiveBars">
+                            <img src="assets/img/storage_20.png">
+                        </ng-container>
+                    </ng-template>
+                    <ng-template #fiveBars>
                         <img src="assets/img/storage_100.png">
-                    </ng-container>
+                    </ng-template>
                 </ion-avatar>
                 <ion-label translate>General.StorageSystem</ion-label>
             </ion-item>
