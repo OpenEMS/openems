@@ -1,0 +1,18 @@
+{
+    "android": {
+        "debug": {
+            "keystore": "primus.keystore",
+            "storePassword": "Energydepot2018!",
+            "alias": "primus",
+            "password" : "Energydepot2018!",
+            "keystoreType": ""
+        },
+        "release": {
+            "keystore": "primus.keystore",
+            "storePassword": "Energydepot2018!",
+            "alias": "primus",
+            "password" : "Energydepot2018!",
+            "keystoreType": ""
+        }
+    }
+}
