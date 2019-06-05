@@ -47,7 +47,19 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "OpenEMS is offline!"
+        IsOffline: "hy-control is offline!",
+        PleaseLogin: "Please enter your access data or confirm to log in.",
+        Username: "Username/email",
+        Password: "Password",
+        LostPassword: "Password lost",
+        FormInvalid: "Please fill out the form completely",
+        Connecting: "Connecting...",
+        LoginWrong: "Wrong username / password.",
+        NotOnline: "The device is not connected.",
+        Type: "Type:",
+        ConnectedAs: "Connected as:",
+        MoreDevices: "There are more devices... Please adjust the filter.",
+        SaveLogin: "Save login data."
     },
     Edge: {
         Index: {
@@ -196,5 +208,16 @@ export const TRANSLATION = {
         LoggedIn: "Logged in.",
         AuthenticationFailed: "No Connection: Authentication failed.",
         Closed: "Connection closed."
+    },
+    Alerts: {
+        Error: "Error",
+        Default: "Something went wrong. Please try again.",
+        RetrievePwdHeader: "Lost password",
+        RetrievePwdMsg: "Please insert your email / username to set a new password.",
+        RetrievePwdPlaceholder: "email/username",
+        Cancel: "Cancel",
+        Send: "Send",
+        RetrievePwdSent: "A link to reset your password has been sent. Please check your email.",
+        RetrievePwdError: "An error occurd while retrieving your password. Please check your input and try again."
     }
 }

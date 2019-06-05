@@ -16,7 +16,7 @@
                                     language }}</option>
                             </select>
                         </ion-item>
-                        <ion-item>
+                        <ion-item *ngIf="env.backend === 'App'">
                             <ion-button (click)="clearLogin()" translate>Alerts.ClearLoginHeader</ion-button>
                         </ion-item>
                     </ion-list>

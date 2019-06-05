@@ -88,7 +88,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'OpenEMS UI';
+          this.currentPageTitle = 'hy-EMS UI';
         } else {
           this.currentPageTitle = currentPageTitle;
         }
