@@ -1,5 +1,5 @@
 = OpenEMS - Open Energy Management System
-ifndef::toc[x]
+ifndef::toc[]
 (c) 2019 OpenEMS Association e.V.
 Version 2019.3.0
 :sectnums:
@@ -11,7 +11,7 @@ Version 2019.3.0
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
-endif::toc[x]
+endif::toc[]
 
 include::introduction.adoc[leveloffset=+1]
 include::gettingstarted.adoc[leveloffset=+1]
