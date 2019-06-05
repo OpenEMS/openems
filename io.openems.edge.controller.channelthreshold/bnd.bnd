@@ -10,11 +10,13 @@ Private-Package:  \
 
 -includeresource: {readme.adoc}
 
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
-	slf4j.api
+	slf4j.api,\
+	io.openems.edge.ess.api;version=latest
 
 -testpath: ${testpath}
 

@@ -9,7 +9,7 @@ Export-Package:  \
 Private-Package:  \
 	io.openems.edge.scheduler.dailyscheduler
 
--includeresource: {readme.adoc}
+-includeresource: {readme.md}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\

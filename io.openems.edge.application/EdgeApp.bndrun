@@ -84,7 +84,8 @@
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;version='latest';id='io.openems.edge.scheduler.dailyscheduler',\
-	bnd.identity;version='latest';id='io.openems.edge.project.controller.karpfsee.emergencymode'
+	bnd.identity;version='latest';id='io.openems.edge.project.controller.karpfsee.emergencymode',\
+	bnd.identity;version='latest';id='io.openems.edge.meter.spanner.bhkw'
 -runbundles: \
 	com.google.gson;version='[2.8.5,2.8.6)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
@@ -181,6 +182,6 @@
 	io.openems.edge.ess.byd.container;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
-	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	io.openems.edge.project.controller.karpfsee.emergencymode;version=snapshot,\
-	io.openems.edge.scheduler.dailyscheduler;version=snapshot
+	io.openems.edge.scheduler.dailyscheduler;version=snapshot,\
+	io.openems.edge.meter.spanner.bhkw;version=snapshot

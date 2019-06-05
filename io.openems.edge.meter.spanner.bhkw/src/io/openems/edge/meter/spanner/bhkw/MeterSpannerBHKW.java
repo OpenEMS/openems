@@ -17,7 +17,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
@@ -76,35 +78,32 @@ public class MeterSpannerBHKW extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(370, Priority.HIGH, //
-						m(new UnsignedWordElement(370)) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) //
-								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(371),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(372),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+				new FC3ReadRegistersTask(382, Priority.HIGH, //
+//						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(370)))//								.build(), //
+//						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(371),
+//								ElementToChannelConverter.SCALE_FACTOR_2), //
+//						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(372),
+//								ElementToChannelConverter.SCALE_FACTOR_2), //
 //						m(BHKWChannelId.FREQUENCY_L1, new UnsignedWordElement(373),
 //								ElementToChannelConverter.SCALE_FACTOR_1), //
 //						m(BHKWChannelId.FREQUENCY_L2, new UnsignedWordElement(374),
 //								ElementToChannelConverter.SCALE_FACTOR_1), //
 //						m(BHKWChannelId.FREQUENCY_L3, new UnsignedWordElement(375),
 //								ElementToChannelConverter.SCALE_FACTOR_1), //
-						new DummyRegisterElement(373,375), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(376),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(377),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(378),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+//						new DummyRegisterElement(373,375), //
+//						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(376),
+//								ElementToChannelConverter.SCALE_FACTOR_2), //
+//						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(377),
+//								ElementToChannelConverter.SCALE_FACTOR_2), //
+//						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(378),
+//								ElementToChannelConverter.SCALE_FACTOR_2), //
 //						m(BHKWChannelId.COSPHI_L1, new SignedWordElement(379)), //
 //						m(BHKWChannelId.COSPHI_L2, new SignedWordElement(380)), //
 //						m(BHKWChannelId.COSPHI_L3, new SignedWordElement(381)), //
-						new DummyRegisterElement(379,381),//
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(382)), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(383)), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(384))) //
+//						new DummyRegisterElement(379,381),//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(382))) //
+//						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(384))) //
+//						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedwordElement(385))) //
 		);//
 	}
 

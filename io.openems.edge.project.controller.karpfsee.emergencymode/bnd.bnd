@@ -9,14 +9,15 @@ Private-Package: io.openems.edge.project.controller.karpfsee.emergencymode
 -includeresource: {readme.adoc}
 
 -buildpath: \
-		${buildpath},\
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
 	slf4j.api,\
 	com.google.guava,\
-	com.google.gson
+	com.google.gson,\
+	io.openems.edge.io.api;version=latest
 
 
 -testpath: \

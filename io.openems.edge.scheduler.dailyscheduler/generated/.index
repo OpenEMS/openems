@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.scheduler.dailyscheduler" increment="1559543431419">
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="io.openems.edge.scheduler.dailyscheduler" increment="1559563950010">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="osgi.identity" value="io.openems.edge.scheduler.dailyscheduler"/>
       <attribute name="type" value="osgi.bundle"/>
-      <attribute name="version" value="1.0.0.201906030630" type="Version"/>
+      <attribute name="version" value="1.0.0.201906031212" type="Version"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
-      <attribute name="bundle-version" value="1.0.0.201906030630" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201906031212" type="Version"/>
       <attribute name="osgi.wiring.bundle" value="io.openems.edge.scheduler.dailyscheduler"/>
     </capability>
     <capability namespace="osgi.wiring.host">
-      <attribute name="bundle-version" value="1.0.0.201906030630" type="Version"/>
+      <attribute name="bundle-version" value="1.0.0.201906031212" type="Version"/>
       <attribute name="osgi.wiring.host" value="io.openems.edge.scheduler.dailyscheduler"/>
     </capability>
     <capability namespace="osgi.wiring.package">
@@ -23,10 +23,10 @@
       <attribute name="objectClass" value="io.openems.edge.common.component.OpenemsComponent,io.openems.edge.scheduler.api.Scheduler" type="List&lt;String&gt;"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="size" value="12470" type="Long"/>
+      <attribute name="size" value="12588" type="Long"/>
       <attribute name="url" value="generated/io.openems.edge.scheduler.dailyscheduler.jar"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
-      <attribute name="osgi.content" value="AF599A3B28DE81673419EB66B85B735FCD51EFAAF1E914CE05828DE54889711E"/>
+      <attribute name="osgi.content" value="528324A602C38F7AB4E62AA52DFBFFABE3AC71A10C310E4512051D9A958CBF7A"/>
     </capability>
     <capability namespace="bndtools.workspace">
       <attribute name="bndtools.workspace" value="file:/C:/Users/hueseyin.sahutoglu/git/eclipse-workspace/develop-workspace"/>
