@@ -8,7 +8,7 @@ Export-Package: \
 	io.openems.edge.meter.symmetric.api
 Private-Package: io.openems.edge.meter.janitza.umg96rme
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.edge.common;version=latest,\

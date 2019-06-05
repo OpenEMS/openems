@@ -13,7 +13,7 @@ Private-Package: \
 	io.openems.edge.meter.socomec.dirisa10,\
 	io.openems.edge.meter.socomec.dirisb30
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

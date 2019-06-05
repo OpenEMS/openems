@@ -10,7 +10,7 @@ Export-Package:  io.openems.edge.controller.api
 Private-Package:  \
 	io.openems.edge.controller.io.alarm
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	${buildpath},\

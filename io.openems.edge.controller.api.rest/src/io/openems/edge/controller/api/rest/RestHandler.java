@@ -46,6 +46,7 @@ import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -87,8 +88,15 @@ public class RestHandler extends AbstractHandler {
 			case "jsonrpc":
 				this.handleJsonRpc(user, baseRequest, request, response);
 				break;
+
+			default:
+				throw new OpenemsException("Unknown REST endpoint: " + target);
+
 			}
 		} catch (OpenemsNamedException e) {
+			if (this.parent.isDebugModeEnabled()) {
+				this.parent.logError(this.log, "REST call failed: " + e.getMessage());
+			}
 			throw new IOException(e.getMessage());
 		}
 	}
@@ -134,7 +142,7 @@ public class RestHandler extends AbstractHandler {
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
-	private void handleRest(User user, List<String> targets, Request baseRequest, HttpServletRequest request,
+	private boolean handleRest(User user, List<String> targets, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.isEmpty()) {
 			throw new OpenemsException("Missing arguments to handle REST-request");
@@ -145,12 +153,15 @@ public class RestHandler extends AbstractHandler {
 
 		switch (thisTarget) {
 		case "channel":
-			this.handleChannel(user, remainingTargets, baseRequest, request, response);
-			break;
+			return this.handleChannel(user, remainingTargets, baseRequest, request, response);
+
+		default:
+			throw new OpenemsException("Unhandled REST target [" + thisTarget + "]");
+
 		}
 	}
 
-	private void handleChannel(User user, List<String> targets, Request baseRequest, HttpServletRequest request,
+	private boolean handleChannel(User user, List<String> targets, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws IOException, OpenemsNamedException {
 		if (targets.size() != 2) {
 			throw new OpenemsException("Missing arguments to handle Channel");
@@ -162,11 +173,13 @@ public class RestHandler extends AbstractHandler {
 		// call handler methods
 		switch (request.getMethod()) {
 		case "GET":
-			this.handleGet(user, channelAddress, baseRequest, request, response);
-			break;
+			return this.handleGet(user, channelAddress, baseRequest, request, response);
+
 		case "POST":
-			this.handlePost(user, channelAddress, baseRequest, request, response);
-			break;
+			return this.handlePost(user, channelAddress, baseRequest, request, response);
+
+		default:
+			throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
 		}
 	}
 
@@ -180,7 +193,7 @@ public class RestHandler extends AbstractHandler {
 	 * @param response       the result to be returned
 	 * @throws OpenemsNamedException
 	 */
-	private void handleGet(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
+	private boolean handleGet(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 
@@ -191,11 +204,16 @@ public class RestHandler extends AbstractHandler {
 		} catch (IllegalArgumentException e) {
 			this.parent.logWarn(this.log, e.getMessage());
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return;
+			return false;
 		}
 
 		JsonObject j = new JsonObject();
-		j.add("value", channel.value().asJson());
+		JsonElement value = channel.value().asJson();
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
+					+ channelAddress.toString() + "] value [" + value + "]");
+		}
+		j.add("value", value);
 		// type
 		OpenemsType type = channel.channelDoc().getType();
 		j.addProperty("type", type.toString().toLowerCase());
@@ -204,16 +222,17 @@ public class RestHandler extends AbstractHandler {
 				channel instanceof WriteChannel<?> ? true : false //
 		);
 
-		this.sendOkResponse(baseRequest, response, j);
+		return this.sendOkResponse(baseRequest, response, j);
 	}
 
-	private void sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
+	private boolean sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
 			throws OpenemsException {
 		try {
 			response.setContentType("application/json");
 			response.setStatus(HttpServletResponse.SC_OK);
 			baseRequest.setHandled(true);
 			response.getWriter().write(data.toString());
+			return true;
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to send Ok-Response: " + e.getMessage());
 		}
@@ -229,8 +248,8 @@ public class RestHandler extends AbstractHandler {
 	 * @param response       the result to be returned
 	 * @throws OpenemsNamedException
 	 */
-	private void handlePost(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
-			HttpServletResponse response) throws OpenemsNamedException {
+	private boolean handlePost(User user, ChannelAddress channelAddress, Request baseRequest,
+			HttpServletRequest request, HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP POST", Role.ADMIN);
 
 		// parse json
@@ -244,11 +263,16 @@ public class RestHandler extends AbstractHandler {
 			throw new OpenemsException("Value is missing");
 		}
 
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: POST Channel ["
+					+ channelAddress.toString() + "] value [" + jValue + "]");
+		}
+
 		// send request to apiworker
 		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, user,
 				new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
 
-		this.sendOkResponse(baseRequest, response, new JsonObject());
+		return this.sendOkResponse(baseRequest, response, new JsonObject());
 	}
 
 	/**
@@ -288,6 +312,11 @@ public class RestHandler extends AbstractHandler {
 
 		// parse json and add "jsonrpc" and "id" properties if missing
 		JsonObject json = RestHandler.parseJson(baseRequest);
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log,
+					"REST/JsonRpc call by User [" + user.getName() + "]: " + StringUtils.toShortString(json, 100));
+		}
+
 		if (!json.has("jsonrpc")) {
 			json.addProperty("jsonrpc", "2.0");
 		}

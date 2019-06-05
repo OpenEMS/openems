@@ -1,0 +1,5 @@
+= Symmetric Balancing Schedule
+
+Controls a symmetric energy storage system in self-consumption optimization mode. Allows the definition of a Schedule to set the target power on the grid meter. This Controller can be controlled using the OpenEMS Backend-to-Backend interface.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.balancingschedule[Source Code icon:github[]]
