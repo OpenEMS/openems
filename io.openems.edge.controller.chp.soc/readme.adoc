@@ -1,0 +1,5 @@
+= CHP control via State-of-Charge (SoC)
+
+Controls a CHP device. Signals the CHP to turn on when battery SoC is low; signal it to turn off when SoC is high.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.chp.soc[Source Code icon:github[]]

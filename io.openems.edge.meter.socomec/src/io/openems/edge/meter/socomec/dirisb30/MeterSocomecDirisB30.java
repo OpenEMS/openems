@@ -37,6 +37,11 @@ public class MeterSocomecDirisB30 extends AbstractOpenemsModbusComponent
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
+	/*
+	 * Invert power values
+	 */
+	private boolean invert = false;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -57,8 +62,9 @@ public class MeterSocomecDirisB30 extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
+		this.invert = config.invert();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
 
@@ -89,7 +95,7 @@ public class MeterSocomecDirisB30 extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x480C, Priority.LOW, //
-						cm(new UnsignedDoublewordElement(0x480C)) //
+						m(new UnsignedDoublewordElement(0x480C)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.build(), //
@@ -98,20 +104,32 @@ public class MeterSocomecDirisB30 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x4810),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						new DummyRegisterElement(0x4812, 0x4819), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0x481A)), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0x481C)), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x481E)), //
-						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0x4820))), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0x481A), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0x481C), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x481E), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0x4820), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(0x482C, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0x482C)), //
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0x482E)), //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0x482C), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0x482E), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
 						new DummyRegisterElement(0x4830, 0x4837), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0x4838)), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0x483A)), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0x483C)), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0x483E)), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0x4840)), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0x4842)) //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0x4838), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0x483A), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0x483C), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0x483E), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0x4840), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0x4842), //
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)) //
 				));
 	}
 

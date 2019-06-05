@@ -9,6 +9,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
@@ -46,6 +47,13 @@ public interface OpenemsComponent {
 	 * @return the unique ID
 	 */
 	public String id();
+
+	/**
+	 * Returns a human-readable name of this Component..
+	 * 
+	 * @return the human-readable name
+	 */
+	public String alias();
 
 	/**
 	 * Returns whether this component is enabled.
@@ -95,7 +103,7 @@ public interface OpenemsComponent {
 	 * Returns a Channel defined by its ChannelId string representation.
 	 * 
 	 * @param channelName the Channel-ID as a string
-	 * @param             <T> the expected typed Channel
+	 * @param <T>         the expected typed Channel
 	 * @throws IllegalArgumentException on error
 	 * @return the Channel or throw Exception
 	 */
@@ -121,11 +129,13 @@ public interface OpenemsComponent {
 	/**
 	 * Returns a Channel defined by its ChannelId.
 	 * 
-	 * @param           <T> the Type of the Channel. See {@link Doc#getType()}
+	 * @param <T>       the Type of the Channel. See {@link Doc#getType()}
 	 * @param channelId the Channel-ID
 	 * @return the Channel
+	 * @throws IllegalArgumentException on error
 	 */
-	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId) {
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId)
+			throws IllegalArgumentException {
 		T channel = this.<T>channel(channelId.id());
 		return channel;
 	}
@@ -153,8 +163,8 @@ public interface OpenemsComponent {
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(OpenemsComponent.class, 80) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //
 				.channel(0, ChannelId.STATE, ModbusType.UINT16) //
 				.build();
 	}

@@ -1,7 +1,8 @@
 package io.openems.edge.ess.streetscooter;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.ChannelId;
@@ -9,7 +10,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public enum StrtsctrChannelId implements ChannelId {
@@ -26,8 +26,10 @@ public enum StrtsctrChannelId implements ChannelId {
 
 	// BooleanWriteChannel
 	ICU_RUN(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(StrtsctrChannelId.DEBUG_ICU_RUN))), //
 	ICU_ENABLED(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(StrtsctrChannelId.DEBUG_ICU_ENABLED))), //
 
 	// IntegerReadChannel
@@ -121,6 +123,7 @@ public enum StrtsctrChannelId implements ChannelId {
 
 	// IntegerWriteChannel
 	INVERTER_SET_ACTIVE_POWER(new IntegerDoc() //
+			.accessMode(AccessMode.WRITE_ONLY) //
 			.unit(Unit.WATT) //
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(StrtsctrChannelId.DEBUG_INVERTER_SET_ACTIVE_POWER))), //
 

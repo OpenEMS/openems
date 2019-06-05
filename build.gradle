@@ -108,9 +108,75 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
 }
 
 /*
+ * Copies Bundle readme.adoc files to doc.
+ */
+task copyBundleReadmes() {
+    doLast {
+        // define target files
+        def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
+        def targetController = basePath + "edge/controller.adoc.d"
+        def targetScheduler = basePath + "edge/scheduler.adoc.d"
+        def targetNature = basePath + "edge/nature.adoc.d"
+        def targetBridge = basePath + "edge/bridge.adoc.d"
+        def targetDeviceService = basePath + "edge/device_service.adoc.d"
+
+        // initialize target files and directories
+        [targetController, targetScheduler, targetNature, targetBridge, targetDeviceService].each { target ->
+            delete fileTree(dir: target, include: '**/*.adoc') 
+            new File(target + "/_include.adoc").write('')
+        }
+
+        subprojects.each { proj ->
+            // in each subproject (= bundle)...
+            proj.file(".").listFiles().each { sourceFile ->
+                // find the 'readme.adoc' file
+                if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
+                    def bundle = sourceFile.getParentFile().getName()
+                    def target = null
+                    // evaluate the OpenEMS Component ('Backend' or 'Edge')
+                    if(bundle.startsWith("io.openems.edge.")) {
+                        // evaluate the bundle type (e.g. 'Controller')
+                        def edgeBundle = bundle.substring("io.openems.edge.".length())
+                        if(edgeBundle.endsWith(".api")) {
+                            target = targetNature
+                        } else if(edgeBundle.startsWith("controller.")) {
+                            target = targetController
+                        } else if(edgeBundle.startsWith("scheduler.")) {
+                            target = targetScheduler
+                        } else if(edgeBundle.startsWith("bridge.")) {
+                            target = targetBridge
+                        } else {
+                            target = targetDeviceService
+                        }
+                    }
+
+                    // could we exactly evaluate the bundle type and set the targetFile?
+                    if(target == null) {
+                        throw new Exception("Bundle type is unknown for " + bundle)
+                    }
+
+                    // copy the readme file to "target.d" folder
+                    copy {
+                        from (sourceFile.toPath())
+                        into (target)
+                        rename { fileName ->
+                           return bundle + ".adoc"
+                        }
+                    }
+
+                    // append content of source file to target file
+                    File targetFile = new File(target + "/_include.adoc")
+                    targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=1]\n")
+                }
+            }
+        }
+    }
+}
+
+/*
  * Build Antora docs
  */
-task buildAntoraDocs() {
+task buildAntoraDocs(dependsOn: copyBundleReadmes) {
     dependsOn ":doc:buildAntoraDocs"
     doLast {
         copy {
@@ -118,4 +184,4 @@ task buildAntoraDocs() {
             into "${buildDir}/www"
         }
     }
-}
+}	

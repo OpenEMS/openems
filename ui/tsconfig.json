@@ -1,6 +1,14 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "core-js/es7/reflect": [
+        "node_modules/core-js/proposals/reflect-metadata"
+      ],
+      "core-js/es6/*": [
+        "node_modules/core-js/es/*"
+      ]
+    },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,

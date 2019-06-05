@@ -1,10 +1,11 @@
 package io.openems.edge.common.sum;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -273,6 +274,7 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
+		// TODO rename to Actual_Energy
 		PRODUCTION_DC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		/**
@@ -298,8 +300,8 @@ public interface Sum extends OpenemsComponent {
 		}
 	}
 
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable() {
-		return ModbusSlaveNatureTable.of(Sum.class, 220) //
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(Sum.class, accessMode, 220) //
 				.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //
 				.channel(1, ChannelId.ESS_ACTIVE_POWER, ModbusType.FLOAT32) //
 				.float32Reserved(3) // ChannelId.ESS_MIN_ACTIVE_POWER

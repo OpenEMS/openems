@@ -35,7 +35,7 @@ public class OnRequestHandler implements Runnable {
 	public final void run() {
 		JsonrpcResponse response;
 		try {
-			CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.parent.getOnRequest().run(this.ws,
+			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.parent.getOnRequest().run(this.ws,
 					this.request);
 			// Get success response
 			response = responseFuture.get();

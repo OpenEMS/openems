@@ -5,6 +5,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.WriteChannel;
 
 public abstract class WriteObject {
@@ -62,7 +63,9 @@ public abstract class WriteObject {
 		this.onTimeoutCallbacks.forEach(callback -> callback.run());
 	}
 
-	public abstract void setNextWriteValue(WriteChannel<?> writeChannel) throws OpenemsException;
+	public abstract void setNextWriteValue(WriteChannel<?> writeChannel) throws OpenemsNamedException;
 
 	public abstract String valueToString();
+	
+	public abstract boolean isNull();
 }

@@ -65,7 +65,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		this.meterType = config.type();
 		this.invert = config.invert();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
 
@@ -103,7 +103,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(802, 807), //
-						cm(new FloatDoublewordElement(808)) //
+						m(new FloatDoublewordElement(808)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build(), //
@@ -113,13 +113,13 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(814, 859), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(860),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(862),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(864),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(866),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870),

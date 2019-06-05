@@ -16,11 +16,16 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -31,9 +36,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.AccessMode;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -50,7 +52,6 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.common.types.OpenemsType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -89,7 +90,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		int allowedCharge = this.getAllowedCharge().value().orElse(0);
 		int allowedDischarge = this.getAllowedDischarge().value().orElse(0);
@@ -124,7 +125,8 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate
@@ -137,49 +139,45 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(0x100, Priority.HIGH, //
 						m(RefuEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x100)), //
-						bm(new UnsignedWordElement(0x101))//
-								.m(RefuEss.ChannelId.STATE_0, 0) //
-								.m(RefuEss.ChannelId.STATE_1, 1) //
-								.m(RefuEss.ChannelId.STATE_2, 2) //
-								.m(RefuEss.ChannelId.STATE_3, 3) //
-								.m(RefuEss.ChannelId.STATE_4, 4) //
-								.m(RefuEss.ChannelId.STATE_5, 5) //
-								.m(RefuEss.ChannelId.STATE_6, 6) //
-								.m(RefuEss.ChannelId.STATE_7, 7) //
-								.m(RefuEss.ChannelId.STATE_8, 8) //
-								.m(RefuEss.ChannelId.STATE_9, 9, BitConverter.INVERT) //
-								.m(RefuEss.ChannelId.STATE_10, 10, BitConverter.INVERT) //
-								.build(), //
-						bm(new UnsignedWordElement(0x102))//
-								.m(RefuEss.ChannelId.STATE_11, 0, BitConverter.INVERT) //
-								.m(RefuEss.ChannelId.STATE_12, 1, BitConverter.INVERT) //
-								.m(RefuEss.ChannelId.STATE_13, 2, BitConverter.INVERT) //
-								.m(RefuEss.ChannelId.STATE_14, 3) //
-								.m(RefuEss.ChannelId.STATE_15, 4, BitConverter.INVERT) //
-								.build(), //
-						bm(new UnsignedWordElement(0x103))//
-								.m(RefuEss.ChannelId.INVERTER_STATE_0, 0) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_1, 1) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_2, 2) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_3, 3) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_7, 7) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_8, 8) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_9, 9) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_10, 10) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_11, 11) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_12, 12) //
-								.m(RefuEss.ChannelId.INVERTER_STATE_13, 13) //
-								.build(), //
+						m(new BitsWordElement(0x101, this) //
+								.bit(0, RefuEss.ChannelId.STATE_0) //
+								.bit(1, RefuEss.ChannelId.STATE_1) //
+								.bit(2, RefuEss.ChannelId.STATE_2) //
+								.bit(3, RefuEss.ChannelId.STATE_3) //
+								.bit(4, RefuEss.ChannelId.STATE_4) //
+								.bit(5, RefuEss.ChannelId.STATE_5) //
+								.bit(6, RefuEss.ChannelId.STATE_6) //
+								.bit(7, RefuEss.ChannelId.STATE_7) //
+								.bit(8, RefuEss.ChannelId.STATE_8) //
+								.bit(9, RefuEss.ChannelId.STATE_9, BitConverter.INVERT) //
+								.bit(10, RefuEss.ChannelId.STATE_10, BitConverter.INVERT)), //
+						m(new BitsWordElement(0x102, this) //
+								.bit(0, RefuEss.ChannelId.STATE_11, BitConverter.INVERT) //
+								.bit(1, RefuEss.ChannelId.STATE_12, BitConverter.INVERT) //
+								.bit(2, RefuEss.ChannelId.STATE_13, BitConverter.INVERT) //
+								.bit(3, RefuEss.ChannelId.STATE_14) //
+								.bit(4, RefuEss.ChannelId.STATE_15, BitConverter.INVERT)), //
+						m(new BitsWordElement(0x103, this) //
+								.bit(0, RefuEss.ChannelId.INVERTER_STATE_0) //
+								.bit(1, RefuEss.ChannelId.INVERTER_STATE_1) //
+								.bit(2, RefuEss.ChannelId.INVERTER_STATE_2) //
+								.bit(3, RefuEss.ChannelId.INVERTER_STATE_3) //
+								.bit(7, RefuEss.ChannelId.INVERTER_STATE_7) //
+								.bit(8, RefuEss.ChannelId.INVERTER_STATE_8) //
+								.bit(9, RefuEss.ChannelId.INVERTER_STATE_9) //
+								.bit(10, RefuEss.ChannelId.INVERTER_STATE_10) //
+								.bit(11, RefuEss.ChannelId.INVERTER_STATE_11) //
+								.bit(12, RefuEss.ChannelId.INVERTER_STATE_12) //
+								.bit(13, RefuEss.ChannelId.INVERTER_STATE_13)),
 						m(RefuEss.ChannelId.INVERTER_ERROR_CODE, new UnsignedWordElement(0x104)), //
-						bm(new UnsignedWordElement(0x105))//
-								.m(RefuEss.ChannelId.DCDC_STATE_0, 0) //
-								.m(RefuEss.ChannelId.DCDC_STATE_1, 1) //
-								.m(RefuEss.ChannelId.DCDC_STATE_2, 2) //
-								.m(RefuEss.ChannelId.DCDC_STATE_3, 3) //
-								.m(RefuEss.ChannelId.DCDC_STATE_7, 7) //
-								.m(RefuEss.ChannelId.DCDC_STATE_8, 8) //
-								.m(RefuEss.ChannelId.DCDC_STATE_9, 9) //
-								.build(), //
+						m(new BitsWordElement(0x105, this) //
+								.bit(0, RefuEss.ChannelId.DCDC_STATE_0) //
+								.bit(1, RefuEss.ChannelId.DCDC_STATE_1) //
+								.bit(2, RefuEss.ChannelId.DCDC_STATE_2) //
+								.bit(3, RefuEss.ChannelId.DCDC_STATE_3) //
+								.bit(7, RefuEss.ChannelId.DCDC_STATE_7) //
+								.bit(8, RefuEss.ChannelId.DCDC_STATE_8) //
+								.bit(9, RefuEss.ChannelId.DCDC_STATE_9)),
 						m(RefuEss.ChannelId.DCDC_ERROR_CODE, new UnsignedWordElement(0x106)), //
 						m(RefuEss.ChannelId.BATTERY_CURRENT_PCS, new SignedWordElement(0x107),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -237,167 +235,151 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 								new SignedDoublewordElement(0x126).wordOrder(WordOrder.LSWMSW)), //
 						m(RefuEss.ChannelId.BATTERY_DISCHARGE_ENERGY,
 								new SignedDoublewordElement(0x128).wordOrder(WordOrder.LSWMSW)), //
-						bm(new UnsignedWordElement(0x12A)) // for all: 0:Stop, 1:Operation
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_0, 0) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_1, 1) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_2, 2) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_3, 3) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_4, 4) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_5, 5) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_6, 6) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_7, 7) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_8, 8) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_9, 9) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_10, 10) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_11, 11) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_12, 12) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_13, 13) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_14, 14) //
-								.m(RefuEss.ChannelId.BATTERY_ON_GRID_STATE_15, 15) //
-								.build(), //
+						m(new BitsWordElement(0x12A, this) //
+								.bit(0, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_0) //
+								.bit(1, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_1) //
+								.bit(2, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_2) //
+								.bit(3, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_3) //
+								.bit(4, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_4) //
+								.bit(5, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_5) //
+								.bit(6, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_6) //
+								.bit(7, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_7) //
+								.bit(8, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_8) //
+								.bit(9, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_9) //
+								.bit(10, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_10) //
+								.bit(11, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_11) //
+								.bit(12, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_12) //
+								.bit(13, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_13) //
+								.bit(14, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_14) //
+								.bit(15, RefuEss.ChannelId.BATTERY_ON_GRID_STATE_15)),
 						m(RefuEss.ChannelId.BATTERY_HIGHEST_VOLTAGE, new UnsignedWordElement(0x12B)), //
 						m(RefuEss.ChannelId.BATTERY_LOWEST_VOLTAGE, new UnsignedWordElement(0x12C)), //
 						m(RefuEss.ChannelId.BATTERY_HIGHEST_TEMPERATURE, new SignedWordElement(0x12D)), //
 						m(RefuEss.ChannelId.BATTERY_LOWEST_TEMPERATURE, new SignedWordElement(0x12E)), //
 						m(RefuEss.ChannelId.BATTERY_STOP_REQUEST, new UnsignedWordElement(0x12F)), //
-						bm(new UnsignedWordElement(0x130))//
-								.m(RefuEss.ChannelId.STATE_16, 0) //
-								.m(RefuEss.ChannelId.STATE_17, 1) //
-								.m(RefuEss.ChannelId.STATE_18, 2) //
-								.m(RefuEss.ChannelId.STATE_19, 3) //
-								.m(RefuEss.ChannelId.STATE_20, 4) //
-								.m(RefuEss.ChannelId.STATE_21, 5) //
-								.m(RefuEss.ChannelId.STATE_22, 6) //
-								.m(RefuEss.ChannelId.STATE_23, 7) //
-								.m(RefuEss.ChannelId.STATE_24, 8) //
-								.m(RefuEss.ChannelId.STATE_25, 9) //
-								.m(RefuEss.ChannelId.STATE_26, 10) //
-								.m(RefuEss.ChannelId.STATE_27, 11) //
-								.m(RefuEss.ChannelId.STATE_28, 12) //
-								.m(RefuEss.ChannelId.STATE_29, 13) //
-								.m(RefuEss.ChannelId.STATE_30, 14) //
-								.build(), //
-						bm(new UnsignedWordElement(0x131))//
-								.m(RefuEss.ChannelId.STATE_31, 0) //
-								.m(RefuEss.ChannelId.STATE_32, 1) //
-								.m(RefuEss.ChannelId.STATE_33, 5) //
-								.m(RefuEss.ChannelId.STATE_34, 7) //
-								.build(),
-						bm(new UnsignedWordElement(0x132))//
-								.m(RefuEss.ChannelId.STATE_35, 0) //
-								.m(RefuEss.ChannelId.STATE_36, 1) //
-								.m(RefuEss.ChannelId.STATE_37, 2) //
-								.m(RefuEss.ChannelId.STATE_38, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x133))//
-								.m(RefuEss.ChannelId.STATE_39, 0) //
-								.m(RefuEss.ChannelId.STATE_40, 1) //
-								.m(RefuEss.ChannelId.STATE_41, 2) //
-								.m(RefuEss.ChannelId.STATE_42, 3) //
-								.build(),
+						m(new BitsWordElement(0x130, this) //
+								.bit(0, RefuEss.ChannelId.STATE_16) //
+								.bit(1, RefuEss.ChannelId.STATE_17) //
+								.bit(2, RefuEss.ChannelId.STATE_18) //
+								.bit(3, RefuEss.ChannelId.STATE_19) //
+								.bit(4, RefuEss.ChannelId.STATE_20) //
+								.bit(5, RefuEss.ChannelId.STATE_21) //
+								.bit(6, RefuEss.ChannelId.STATE_22) //
+								.bit(7, RefuEss.ChannelId.STATE_23) //
+								.bit(8, RefuEss.ChannelId.STATE_24) //
+								.bit(9, RefuEss.ChannelId.STATE_25) //
+								.bit(10, RefuEss.ChannelId.STATE_26) //
+								.bit(11, RefuEss.ChannelId.STATE_27) //
+								.bit(12, RefuEss.ChannelId.STATE_28) //
+								.bit(13, RefuEss.ChannelId.STATE_29) //
+								.bit(14, RefuEss.ChannelId.STATE_30)),
+						m(new BitsWordElement(0x131, this) //
+								.bit(0, RefuEss.ChannelId.STATE_31) //
+								.bit(1, RefuEss.ChannelId.STATE_32) //
+								.bit(5, RefuEss.ChannelId.STATE_33) //
+								.bit(7, RefuEss.ChannelId.STATE_34)),
+						m(new BitsWordElement(0x132, this) //
+								.bit(0, RefuEss.ChannelId.STATE_35) //
+								.bit(1, RefuEss.ChannelId.STATE_36) //
+								.bit(2, RefuEss.ChannelId.STATE_37) //
+								.bit(3, RefuEss.ChannelId.STATE_38)),
+						m(new BitsWordElement(0x133, this) //
+								.bit(0, RefuEss.ChannelId.STATE_39) //
+								.bit(1, RefuEss.ChannelId.STATE_40) //
+								.bit(2, RefuEss.ChannelId.STATE_41) //
+								.bit(3, RefuEss.ChannelId.STATE_42)),
 						new DummyRegisterElement(0x134), //
-						bm(new UnsignedWordElement(0x135))//
-								.m(RefuEss.ChannelId.STATE_43, 0) //
-								.m(RefuEss.ChannelId.STATE_44, 1) //
-								.m(RefuEss.ChannelId.STATE_45, 2) //
-								.m(RefuEss.ChannelId.STATE_46, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x136))//
-								.m(RefuEss.ChannelId.STATE_47, 0) //
-								.m(RefuEss.ChannelId.STATE_48, 1) //
-								.m(RefuEss.ChannelId.STATE_49, 2) //
-								.m(RefuEss.ChannelId.STATE_50, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x137))//
-								.m(RefuEss.ChannelId.STATE_51, 0) //
-								.m(RefuEss.ChannelId.STATE_52, 1) //
-								.m(RefuEss.ChannelId.STATE_53, 2) //
-								.m(RefuEss.ChannelId.STATE_54, 3) //
-								.m(RefuEss.ChannelId.STATE_55, 4) //
-								.m(RefuEss.ChannelId.STATE_56, 5) //
-								.m(RefuEss.ChannelId.STATE_57, 10) //
-								.m(RefuEss.ChannelId.STATE_58, 11) //
-								.m(RefuEss.ChannelId.STATE_59, 12) //
-								.m(RefuEss.ChannelId.STATE_60, 13) //
-								.build(),
-						bm(new UnsignedWordElement(0x138))//
-								.m(RefuEss.ChannelId.STATE_61, 0) //
-								.m(RefuEss.ChannelId.STATE_62, 1) //
-								.m(RefuEss.ChannelId.STATE_63, 2) //
-								.m(RefuEss.ChannelId.STATE_64, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x139))//
-								.m(RefuEss.ChannelId.STATE_65, 0) //
-								.m(RefuEss.ChannelId.STATE_66, 1) //
-								.m(RefuEss.ChannelId.STATE_67, 2) //
-								.m(RefuEss.ChannelId.STATE_68, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x13A))//
-								.m(RefuEss.ChannelId.STATE_69, 0) //
-								.m(RefuEss.ChannelId.STATE_70, 1) //
-								.m(RefuEss.ChannelId.STATE_71, 2) //
-								.m(RefuEss.ChannelId.STATE_72, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x13B))//
-								.m(RefuEss.ChannelId.STATE_73, 0) //
-								.m(RefuEss.ChannelId.STATE_74, 1) //
-								.m(RefuEss.ChannelId.STATE_75, 2) //
-								.m(RefuEss.ChannelId.STATE_76, 3) //
-								.build(),
-						bm(new UnsignedWordElement(0x13C))//
-								.m(RefuEss.ChannelId.STATE_77, 0) //
-								.m(RefuEss.ChannelId.STATE_78, 1) //
-								.m(RefuEss.ChannelId.STATE_79, 2) //
-								.m(RefuEss.ChannelId.STATE_80, 3) //
-								.build(),
+						m(new BitsWordElement(0x135, this) //
+								.bit(0, RefuEss.ChannelId.STATE_43) //
+								.bit(1, RefuEss.ChannelId.STATE_44) //
+								.bit(2, RefuEss.ChannelId.STATE_45) //
+								.bit(3, RefuEss.ChannelId.STATE_46)),
+						m(new BitsWordElement(0x136, this) //
+								.bit(0, RefuEss.ChannelId.STATE_47) //
+								.bit(1, RefuEss.ChannelId.STATE_48) //
+								.bit(2, RefuEss.ChannelId.STATE_49) //
+								.bit(3, RefuEss.ChannelId.STATE_50)),
+						m(new BitsWordElement(0x137, this) //
+								.bit(0, RefuEss.ChannelId.STATE_51) //
+								.bit(1, RefuEss.ChannelId.STATE_52) //
+								.bit(2, RefuEss.ChannelId.STATE_53) //
+								.bit(3, RefuEss.ChannelId.STATE_54) //
+								.bit(4, RefuEss.ChannelId.STATE_55) //
+								.bit(5, RefuEss.ChannelId.STATE_56) //
+								.bit(10, RefuEss.ChannelId.STATE_57) //
+								.bit(11, RefuEss.ChannelId.STATE_58) //
+								.bit(12, RefuEss.ChannelId.STATE_59) //
+								.bit(13, RefuEss.ChannelId.STATE_60)),
+						m(new BitsWordElement(0x138, this) //
+								.bit(0, RefuEss.ChannelId.STATE_61) //
+								.bit(1, RefuEss.ChannelId.STATE_62) //
+								.bit(2, RefuEss.ChannelId.STATE_63) //
+								.bit(3, RefuEss.ChannelId.STATE_64)),
+						m(new BitsWordElement(0x139, this) //
+								.bit(0, RefuEss.ChannelId.STATE_65) //
+								.bit(1, RefuEss.ChannelId.STATE_66) //
+								.bit(2, RefuEss.ChannelId.STATE_67) //
+								.bit(3, RefuEss.ChannelId.STATE_68)),
+						m(new BitsWordElement(0x13A, this) //
+								.bit(0, RefuEss.ChannelId.STATE_69) //
+								.bit(1, RefuEss.ChannelId.STATE_70) //
+								.bit(2, RefuEss.ChannelId.STATE_71) //
+								.bit(3, RefuEss.ChannelId.STATE_72)),
+						m(new BitsWordElement(0x13B, this) //
+								.bit(0, RefuEss.ChannelId.STATE_73) //
+								.bit(1, RefuEss.ChannelId.STATE_74) //
+								.bit(2, RefuEss.ChannelId.STATE_75) //
+								.bit(3, RefuEss.ChannelId.STATE_76)),
+						m(new BitsWordElement(0x13C, this) //
+								.bit(0, RefuEss.ChannelId.STATE_77) //
+								.bit(1, RefuEss.ChannelId.STATE_78) //
+								.bit(2, RefuEss.ChannelId.STATE_79) //
+								.bit(3, RefuEss.ChannelId.STATE_80)),
 						new DummyRegisterElement(0x13D), //
 						new DummyRegisterElement(0x13E), //
-						bm(new UnsignedWordElement(0x13F))//
-								.m(RefuEss.ChannelId.STATE_81, 2) //
-								.m(RefuEss.ChannelId.STATE_82, 3) //
-								.m(RefuEss.ChannelId.STATE_83, 4) //
-								.m(RefuEss.ChannelId.STATE_84, 6) //
-								.m(RefuEss.ChannelId.STATE_85, 9) //
-								.m(RefuEss.ChannelId.STATE_86, 10) //
-								.m(RefuEss.ChannelId.STATE_87, 11) //
-								.m(RefuEss.ChannelId.STATE_88, 12) //
-								.m(RefuEss.ChannelId.STATE_89, 13) //
-								.m(RefuEss.ChannelId.STATE_90, 14) //
-								.m(RefuEss.ChannelId.STATE_91, 15) //
-								.build(),
-						bm(new UnsignedWordElement(0x140))//
-								.m(RefuEss.ChannelId.STATE_92, 2) //
-								.m(RefuEss.ChannelId.STATE_93, 3) //
-								.m(RefuEss.ChannelId.STATE_94, 7) //
-								.m(RefuEss.ChannelId.STATE_95, 8) //
-								.m(RefuEss.ChannelId.STATE_96, 10) //
-								.m(RefuEss.ChannelId.STATE_97, 11) //
-								.m(RefuEss.ChannelId.STATE_98, 12) //
-								.m(RefuEss.ChannelId.STATE_99, 13) //
-								.m(RefuEss.ChannelId.STATE_100, 14) //
-								.build(),
+						m(new BitsWordElement(0x13F, this) //
+								.bit(2, RefuEss.ChannelId.STATE_81) //
+								.bit(3, RefuEss.ChannelId.STATE_82) //
+								.bit(4, RefuEss.ChannelId.STATE_83) //
+								.bit(6, RefuEss.ChannelId.STATE_84) //
+								.bit(9, RefuEss.ChannelId.STATE_85) //
+								.bit(10, RefuEss.ChannelId.STATE_86) //
+								.bit(11, RefuEss.ChannelId.STATE_87) //
+								.bit(12, RefuEss.ChannelId.STATE_88) //
+								.bit(13, RefuEss.ChannelId.STATE_89) //
+								.bit(14, RefuEss.ChannelId.STATE_90) //
+								.bit(15, RefuEss.ChannelId.STATE_91)),
+						m(new BitsWordElement(0x140, this) //
+								.bit(2, RefuEss.ChannelId.STATE_92) //
+								.bit(3, RefuEss.ChannelId.STATE_93) //
+								.bit(7, RefuEss.ChannelId.STATE_94) //
+								.bit(8, RefuEss.ChannelId.STATE_95) //
+								.bit(10, RefuEss.ChannelId.STATE_96) //
+								.bit(11, RefuEss.ChannelId.STATE_97) //
+								.bit(12, RefuEss.ChannelId.STATE_98) //
+								.bit(13, RefuEss.ChannelId.STATE_99) //
+								.bit(14, RefuEss.ChannelId.STATE_100)),
 						new DummyRegisterElement(0x141), //
 						new DummyRegisterElement(0x142), //
 						new DummyRegisterElement(0x143), //
 						new DummyRegisterElement(0x144), //
-						bm(new UnsignedWordElement(0x145)) // for all: 1:Stop, 0:Operation
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_0, 0) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_1, 1) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_2, 2) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_3, 3) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_4, 4) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_5, 5) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_6, 6) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_7, 7) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_8, 8) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_9, 9) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_10, 10) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_11, 11) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_12, 12) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_13, 13) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_14, 14) //
-								.m(RefuEss.ChannelId.BATTERY_CONTROL_STATE_15, 15) //
-								.build(), //
+						m(new BitsWordElement(0x145, this) //
+								.bit(0, RefuEss.ChannelId.BATTERY_CONTROL_STATE_0) //
+								.bit(1, RefuEss.ChannelId.BATTERY_CONTROL_STATE_1) //
+								.bit(2, RefuEss.ChannelId.BATTERY_CONTROL_STATE_2) //
+								.bit(3, RefuEss.ChannelId.BATTERY_CONTROL_STATE_3) //
+								.bit(4, RefuEss.ChannelId.BATTERY_CONTROL_STATE_4) //
+								.bit(5, RefuEss.ChannelId.BATTERY_CONTROL_STATE_5) //
+								.bit(6, RefuEss.ChannelId.BATTERY_CONTROL_STATE_6) //
+								.bit(7, RefuEss.ChannelId.BATTERY_CONTROL_STATE_7) //
+								.bit(8, RefuEss.ChannelId.BATTERY_CONTROL_STATE_8) //
+								.bit(9, RefuEss.ChannelId.BATTERY_CONTROL_STATE_9) //
+								.bit(10, RefuEss.ChannelId.BATTERY_CONTROL_STATE_10) //
+								.bit(11, RefuEss.ChannelId.BATTERY_CONTROL_STATE_11) //
+								.bit(12, RefuEss.ChannelId.BATTERY_CONTROL_STATE_12) //
+								.bit(13, RefuEss.ChannelId.BATTERY_CONTROL_STATE_13) //
+								.bit(14, RefuEss.ChannelId.BATTERY_CONTROL_STATE_14) //
+								.bit(15, RefuEss.ChannelId.BATTERY_CONTROL_STATE_15)),
 						m(RefuEss.ChannelId.ERROR_LOG_0, new UnsignedWordElement(0x146)), //
 						m(RefuEss.ChannelId.ERROR_LOG_1, new UnsignedWordElement(0x147)), //
 						m(RefuEss.ChannelId.ERROR_LOG_2, new UnsignedWordElement(0x148)), //
@@ -982,14 +964,14 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
-				AsymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
-				ModbusSlaveNatureTable.of(RefuEss.class, 300) //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(RefuEss.class, accessMode, 300) //
 						.build());
 	}
 }

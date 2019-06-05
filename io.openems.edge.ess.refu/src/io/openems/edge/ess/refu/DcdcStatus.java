@@ -1,6 +1,6 @@
 package io.openems.edge.ess.refu;
 
-import io.openems.edge.common.channel.OptionsEnum;
+import io.openems.common.types.OptionsEnum;
 
 public enum DcdcStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //

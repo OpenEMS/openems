@@ -6,8 +6,7 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 /**
  * Largely copied from
- * {@link com.ghgande.j2mod.modbus.procimg.SynchronizedAbstractRegister}
- *
+ * {@link com.ghgande.j2mod.modbus.procimg.SynchronizedAbstractRegister}.
  */
 public class MyRegister implements Register {
 

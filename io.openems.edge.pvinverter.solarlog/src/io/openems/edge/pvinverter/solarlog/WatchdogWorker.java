@@ -3,7 +3,7 @@ package io.openems.edge.pvinverter.solarlog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
 
 public class WatchdogWorker extends AbstractWorker {
@@ -22,7 +22,7 @@ public class WatchdogWorker extends AbstractWorker {
 	protected void forever() {
 		try {
 			this.parent.getWatchdogTagChannel().setNextWriteValue((int) System.currentTimeMillis());
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.log.error("Unable to set SolarLog WatchDogTag: " + e.getMessage());
 		}
 	}

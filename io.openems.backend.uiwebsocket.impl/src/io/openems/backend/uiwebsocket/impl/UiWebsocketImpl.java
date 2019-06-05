@@ -1,7 +1,9 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
+import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.uiwebsocket.api.UiWebsocket;
@@ -25,6 +28,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.session.Role;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Ui.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -99,6 +103,14 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		return wsData.send(request);
 	}
 
+	@Override
+	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+		List<WsData> wsDatas = this.getWsDatasForEdgeId(edgeId);
+		for (WsData wsData : wsDatas) {
+			wsData.send(notification);
+		}
+	}
+
 	/**
 	 * Gets the WebSocket connection attachment for a UI token.
 	 * 
@@ -118,4 +130,37 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		}
 		throw OpenemsError.BACKEND_NO_UI_WITH_TOKEN.exception(token);
 	}
+
+	/**
+	 * Gets the WebSocket connection attachments of all connections accessing an
+	 * Edge-ID.
+	 * 
+	 * @param edgeId the Edge-ID
+	 * @return the WsDatas; empty list if there are none
+	 */
+	private List<WsData> getWsDatasForEdgeId(String edgeId) {
+		List<WsData> result = new ArrayList<>();
+		Collection<WebSocket> connections = this.server.getConnections();
+		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
+			WebSocket websocket = iter.next();
+			WsData wsData = websocket.getAttachment();
+			// get attachment User-ID
+			Optional<String> userIdOpt = wsData.getUserId();
+			if (userIdOpt.isPresent()) {
+				String userId = userIdOpt.get();
+				// get BackendUser for User-ID
+				Optional<BackendUser> userOpt = this.metadata.getUser(userId);
+				if (userOpt.isPresent()) {
+					BackendUser user = userOpt.get();
+					Optional<Role> edgeRoleOpt = user.getEdgeRole(edgeId);
+					if (edgeRoleOpt.isPresent()) {
+						// User has access to this Edge-ID
+						result.add(wsData);
+					}
+				}
+			}
+		}
+		return result;
+	}
+
 }

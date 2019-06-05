@@ -7,12 +7,13 @@ Export-Package: \
 	io.openems.edge.meter.asymmetric.api,\
 	io.openems.edge.meter.symmetric.api
 Private-Package: \
+	io.openems.edge.meter.socomec.countise14,\
 	io.openems.edge.meter.socomec.dirisa14,\
 	io.openems.edge.meter.socomec.dirise24,\
 	io.openems.edge.meter.socomec.dirisa10,\
 	io.openems.edge.meter.socomec.dirisb30
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

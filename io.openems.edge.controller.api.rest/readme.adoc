@@ -1,0 +1,102 @@
+= REST-Api Controller
+
+A REST-Api for external access to OpenEMS Edge. This Controller provides access to Channels and JSON-RPC Requests from an external device via JSON/REST. 
+
+The default port for the server is *8084*; so the default base address for REST calls is `http://x:<PASSWORD>@<IP>:8084/rest`, where
+
+- `http` is the protocol
+- `x` is the user. Authentication in OpenEMS is via password only, so the username can be omitted.
+- `<PASSWORD>` is the user password. If no specific settings have been made, try 'user' or 'admin' here.
+- `8084` is the configured port
+
+A good way to test REST-Api calls is via the Chrome extension https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm[Restlet]
+
+For more information find the implementation  https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.rest[Source Code icon:github[]].
+
+Those are the available REST-Api endpoints:
+
+== Endpoint `/rest/channel/<Component-ID>/<Channel-ID>`
+
+- `Component-ID` is the ID of the Component, e.g. "_sum", "ess0", "meter0",...
+- `Channel-ID` is the ID of the Channel, e.g. "ActivePowerL1", "Soc",...
+
+=== GET
+
+Use a HTTP request with method `GET` to read the current value of a Channel.
+
+*Example:* To read the current state of charge of the battery, send a GET request to http://x:user@localhost:8084/rest/_sum/EssSoC. It returns a response like:
+```
+{
+  "value": 50
+}
+``` 
+
+=== POST
+
+Use a HTTP request with method `POST` to write a Channel.
+
+*Example:* To switch a Digital-Output or Relay on, send a POST request to http://x:user@localhost:8084/rest/io0/Relay1 with the following body:
+```
+{
+  "value": true
+}
+```
+
+== Endpoint '/jsonrpc'
+
+This allows remote procedure calls (RPC) using JSON-RPC. The JSON-RPC commands need to be sent as `POST` requests with the specified body.
+
+NOTE: JSON-RPC usually requires the properties 'id' and 'jsonrpc'. Those can be omitted here, as they are not required for HTTP POST calls.
+
+Following JSON-RPC commands are available:
+
+=== getEdgeConfig
+
+Gets the current configuration of the OpenEMS Edge.
+
+```
+{
+  "method": "getEdgeConfig",
+  "params": {}
+}
+```
+
+=== componentJsonApi
+
+Forwards a JSON-RPC payload to a given Component, identified by its Component-ID.
+
+==== getModbusProtocol
+
+Gets the currently active Modbus-TCP protocol definition from the Modbus-TCP-Api Controller with the ID "ctrlModbusTcp0".
+
+```
+{
+  "method":"componentJsonApi",
+  "params":{
+    "componentId":"ctrlApiModbusTcp0",
+    "payload":{
+      "method":"getModbusProtocol",
+      "params":{
+
+      }
+    }
+  }
+}
+```
+
+=== updateComponentConfig
+
+Updates a Component configuration.
+
+```
+{
+	"method": "updateComponentConfig",
+	"params": {
+		"componentId": "ctrlDebugLog0",
+		"properties": [{
+ 			"name": "enabled",
+			"value": true
+		}]
+	}
+}
+```

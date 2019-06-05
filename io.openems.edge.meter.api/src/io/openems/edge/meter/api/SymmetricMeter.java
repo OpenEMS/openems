@@ -1,13 +1,13 @@
 package io.openems.edge.meter.api;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -262,5 +262,14 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 */
 	default Channel<Integer> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	}
+	
+	/**
+	 * Gets the Current in [mA].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getCurrent(){
+		return this.channel(ChannelId.CURRENT);
 	}
 }

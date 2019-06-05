@@ -42,7 +42,7 @@ public class CsvDatasource extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.timeDelta = config.timeDelta();
 		this.realtime = config.realtime();

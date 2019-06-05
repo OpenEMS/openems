@@ -2,6 +2,7 @@ package io.openems.edge.common.taskmanager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -28,6 +29,7 @@ public class TasksManager<T extends ManagedTask> {
 	private final Queue<T> nextOnceTasks = new LinkedList<>();
 
 	private int nextTaskIndex = 0;
+	private EnumMap<Priority, Integer> nextTaskIndexPerPriority = new EnumMap<>(Priority.class);
 
 	@SafeVarargs
 	public TasksManager(T... tasks) {
@@ -41,6 +43,17 @@ public class TasksManager<T extends ManagedTask> {
 	 */
 	@SafeVarargs
 	public final synchronized void addTasks(T... tasks) {
+		for (T task : tasks) {
+			this.addTask(task);
+		}
+	}
+
+	/**
+	 * Adds multiple Tasks.
+	 * 
+	 * @param tasks an array of Tasks
+	 */
+	public void addTasks(List<T> tasks) {
 		for (T task : tasks) {
 			this.addTask(task);
 		}
@@ -88,6 +101,37 @@ public class TasksManager<T extends ManagedTask> {
 			this.nextOnceTasks.remove(task);
 			break;
 		}
+	}
+
+	/**
+	 * Clears all Tasks lists.
+	 */
+	public synchronized void clearAll() {
+		this.allTasks.clear();
+		this.prioHighTasks.clear();
+		this.prioLowTasks.clear();
+		this.nextLowTasks.clear();
+		this.prioOnceTasks.clear();
+		this.nextOnceTasks.clear();
+	}
+
+	/**
+	 * Get all tasks with the given Priority.
+	 * 
+	 * @param priority the Priority
+	 * @return a list of Tasks
+	 */
+	public synchronized List<T> getAllTasks(Priority priority) {
+		switch (priority) {
+		case HIGH:
+			return Collections.unmodifiableList(this.prioHighTasks);
+		case LOW:
+			return Collections.unmodifiableList(this.prioLowTasks);
+		case ONCE:
+			return Collections.unmodifiableList(this.prioOnceTasks);
+		}
+		assert true;
+		return new ArrayList<>();
 	}
 
 	/**
@@ -148,4 +192,38 @@ public class TasksManager<T extends ManagedTask> {
 		}
 		return this.allTasks.get(this.nextTaskIndex++);
 	}
+
+	/**
+	 * Gets one task that is lower than the given Priority sequentially.
+	 * 
+	 * @return the next task; null if there are no tasks with the given Priority
+	 */
+	public synchronized T getOneTask(Priority priority) {
+		List<T> tasks = this.getAllTasks(priority);
+		if (tasks.isEmpty()) {
+			return null;
+		}
+		Integer nextTaskIndex = this.nextTaskIndexPerPriority.get(priority);
+		if (nextTaskIndex == null) {
+			// start new
+			nextTaskIndex = 0;
+		}
+		// reached end of list -> start over?
+		if (nextTaskIndex > tasks.size() - 1) {
+			switch (priority) {
+			case HIGH:
+			case LOW:
+				// start over
+				nextTaskIndex = 0;
+				break;
+			case ONCE:
+				// do not start over
+				return null;
+			}
+		}
+
+		this.nextTaskIndexPerPriority.put(priority, nextTaskIndex + 1);
+		return tasks.get(nextTaskIndex);
+	}
+
 }

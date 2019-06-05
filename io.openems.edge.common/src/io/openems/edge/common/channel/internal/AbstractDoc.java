@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**

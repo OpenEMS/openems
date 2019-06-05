@@ -23,6 +23,7 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -30,7 +31,6 @@ import io.openems.common.session.User;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Level;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -47,6 +47,10 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.controller.api.core.WritePojo;
+import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxRequest;
+import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxResponse;
+import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
+import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolResponse;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -56,9 +60,9 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent, JsonApi {
 
-	public final static int UNIT_ID = 1;
-	public final static int DEFAULT_PORT = 502;
-	public final static int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
+	public static final int UNIT_ID = 1;
+	public static final int DEFAULT_PORT = 502;
+	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusTcpApi.class);
 
@@ -66,9 +70,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	private final MyProcessImage processImage;
 
 	/**
-	 * Holds the link between Modbus address and ModbusRecord
+	 * Holds the link between Modbus address and ModbusRecord.
 	 */
 	protected final TreeMap<Integer, ModbusRecord> records = new TreeMap<>();
+
+	/**
+	 * Holds the link between Modbus start address of a Component and the
+	 * Component-ID.
+	 */
+	protected final TreeMap<Integer, String> components = new TreeMap<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected Meta metaComponent = null;
@@ -101,9 +111,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	protected volatile Map<String, ModbusSlave> _components = new HashMap<>();
-	private String[] componentIds = new String[0];
-	private int port = ModbusTcpApi.DEFAULT_PORT;
-	private int maxConcurrentConnections = ModbusTcpApi.DEFAULT_MAX_CONCURRENT_CONNECTIONS;
+	private Config config = null;
 
 	public ModbusTcpApi() {
 		super(//
@@ -117,16 +125,14 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
 
 		// update filter for 'components'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Component", config.component_ids())) {
 			return;
 		}
 
-		this.port = config.port();
-		this.maxConcurrentConnections = config.maxConcurrentConnections();
-		this.componentIds = config.component_ids();
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
 
 		if (!this.isEnabled()) {
@@ -153,27 +159,28 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 
 	private final AbstractWorker startApiWorker = new AbstractWorker() {
 
-		private final static int DEFAULT_WAIT_TIME = 5000; // 5 seconds
+		private static final int DEFAULT_WAIT_TIME = 5000; // 5 seconds
 
 		private com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
 
 		@Override
 		protected void forever() {
+			int port = ModbusTcpApi.this.config.port();
 			if (this.slave == null) {
 				try {
 					// start new server
-					this.slave = ModbusSlaveFactory.createTCPSlave(ModbusTcpApi.this.port,
-							ModbusTcpApi.this.maxConcurrentConnections);
+					this.slave = ModbusSlaveFactory.createTCPSlave(port,
+							ModbusTcpApi.this.config.maxConcurrentConnections());
 					slave.addProcessImage(UNIT_ID, ModbusTcpApi.this.processImage);
 					slave.open();
 
-					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port ["
-							+ ModbusTcpApi.this.port + "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
+					ModbusTcpApi.this.logInfo(ModbusTcpApi.this.log, "Modbus/TCP Api started on port [" + port
+							+ "] with UnitId [" + ModbusTcpApi.UNIT_ID + "].");
 					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(false);
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
-					ModbusTcpApi.this.logError(ModbusTcpApi.this.log, "Unable to start Modbus/TCP Api on port ["
-							+ ModbusTcpApi.this.port + "]: " + e.getMessage());
+					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
+							"Unable to start Modbus/TCP Api on port [" + port + "]: " + e.getMessage());
 					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 				}
 
@@ -182,7 +189,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 				String error = slave.getError();
 				if (error != null) {
 					ModbusTcpApi.this.logError(ModbusTcpApi.this.log,
-							"Unable to start Modbus/TCP Api on port [" + ModbusTcpApi.this.port + "]: " + error);
+							"Unable to start Modbus/TCP Api on port [" + port + "]: " + error);
 					ModbusTcpApi.this.channel(ChannelId.UNABLE_TO_START).setNextValue(true);
 					this.slave = null;
 					// stop server
@@ -207,7 +214,7 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 		nextAddress = this.addMetaComponentToProcessImage(nextAddress);
 
 		// add remaining components; sorted by configured componentIds
-		for (String id : this.componentIds) {
+		for (String id : this.config.component_ids()) {
 			// find next component in order
 			ModbusSlave component = this._components.get(id);
 			if (component == null) {
@@ -221,14 +228,14 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	/**
-	 * Adds the Meta-Component to the Process Image
+	 * Adds the Meta-Component to the Process Image.
 	 * 
-	 * @param startAddress
-	 * @return
+	 * @param startAddress the start-address
+	 * @return the next start-address
 	 */
 	private int addMetaComponentToProcessImage(int startAddress) {
 		ModbusSlave component = this.metaComponent;
-		ModbusSlaveTable table = component.getModbusSlaveTable();
+		ModbusSlaveTable table = component.getModbusSlaveTable(this.config.accessMode());
 
 		// add the Component-Model Length
 		int nextAddress = this.addRecordToProcessImage(startAddress,
@@ -244,14 +251,15 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	/**
-	 * Adds a Component to the Process Image
+	 * Adds a Component to the Process Image.
 	 * 
-	 * @param startAddress
-	 * @param component
-	 * @return
+	 * @param startAddress the start-address
+	 * @param component    the OpenEMS Component
+	 * @return the next start-address
 	 */
 	private int addComponentToProcessImage(int startAddress, ModbusSlave component) {
-		ModbusSlaveTable table = component.getModbusSlaveTable();
+		this.components.put(startAddress, component.alias());
+		ModbusSlaveTable table = component.getModbusSlaveTable(this.config.accessMode());
 
 		// add the Component-ID and Component-Model Length
 		int nextAddress = this.addRecordToProcessImage(startAddress,
@@ -282,10 +290,11 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 	}
 
 	/**
-	 * Adds a Record to the process image at the given address
+	 * Adds a Record to the process image at the given address.
 	 * 
-	 * @param address
-	 * @param record
+	 * @param address   the address
+	 * @param record    the record
+	 * @param component the OpenEMS Component
 	 * @return the next address after this record
 	 */
 	private int addRecordToProcessImage(int address, ModbusRecord record, OpenemsComponent component) {
@@ -335,6 +344,11 @@ public class ModbusTcpApi extends AbstractOpenemsComponent implements Controller
 		switch (message.getMethod()) {
 		case GetModbusProtocolRequest.METHOD:
 			return CompletableFuture.completedFuture(new GetModbusProtocolResponse(message.getId(), this.records));
+
+		case GetModbusProtocolExportXlsxRequest.METHOD:
+			return CompletableFuture.completedFuture(
+					new GetModbusProtocolExportXlsxResponse(message.getId(), this.components, this.records));
+
 		}
 		return null;
 	}

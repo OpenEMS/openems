@@ -1,11 +1,15 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.AbstractModbusBridge;
@@ -17,8 +21,6 @@ import io.openems.edge.common.taskmanager.Priority;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link AbstractModbusElement} which have register addresses in the same
  * range.
- * 
- * @author stefan.feilmeier
  */
 public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTask {
 
@@ -31,13 +33,14 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		this.priority = priority;
 	}
 
-	public void executeQuery(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		T[] response;
 		try {
 			/*
 			 * First try
 			 */
 			response = this.readElements(bridge);
+
 		} catch (OpenemsException | ModbusException e) {
 			/*
 			 * Second try: with new connection
@@ -45,6 +48,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 			bridge.closeModbusConnection();
 			try {
 				response = this.readElements(bridge);
+
 			} catch (ModbusException e2) {
 				for (ModbusElement<?> elem : this.getElements()) {
 					if (!elem.isIgnored()) {
@@ -61,30 +65,60 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 					"Received message is too short. Expected [" + getLength() + "], got [" + response.length + "]");
 		}
 
-		fillElements(response);
+		this.fillElements(response);
+		return 1;
 	}
 
 	protected T[] readElements(AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
-		ModbusRequest request = getRequest();
+		ModbusRequest request = this.getRequest();
+		int unitId = this.getParent().getUnitId();
 		ModbusResponse response = Utils.getResponse(request, this.getParent().getUnitId(), bridge);
-		return handleResponse(response);
+
+		T[] result = this.handleResponse(response);
+
+		// debug output
+		switch (this.getLogVerbosity(bridge)) {
+		case READS_AND_WRITES:
+			;
+
+			bridge.logInfo(this.log, this.getActiondescription() //
+					+ " [" + unitId + ":" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
+					+ "]: " //
+					+ Arrays.stream(result).map(r -> {
+						if (r instanceof InputRegister) {
+							return String.format("%4s", Integer.toHexString(((InputRegister) r).getValue()))
+									.replace(' ', '0');
+						} else if (r instanceof Boolean) {
+							return ((Boolean) r) ? "x" : "-";
+						} else {
+							return r.toString();
+						}
+					}) //
+							.collect(Collectors.joining(" ")));
+			break;
+		case WRITES:
+		case NONE:
+			break;
+		}
+
+		return result;
 	}
 
 	protected void fillElements(T[] response) {
 		int position = 0;
 		for (ModbusElement<?> modbusElement : this.getElements()) {
-			if (!(isCorrectElementInstance(modbusElement))) {
-				doErrorLog(modbusElement);
+			if (!(this.isCorrectElementInstance(modbusElement))) {
+				this.doErrorLog(modbusElement);
 			} else {
 				try {
 					if (!modbusElement.isIgnored()) {
-						doElementSetInput(modbusElement, position, response);
+						this.doElementSetInput(modbusElement, position, response);
 					}
 				} catch (OpenemsException e) {
-					doWarnLog(e);
+					this.doWarnLog(e);
 				}
 			}
-			position = increasePosition(position, modbusElement);
+			position = this.increasePosition(position, modbusElement);
 		}
 	}
 
@@ -114,4 +148,5 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		log.error("A " + getRequiredElementName() + " is required for a " + getActiondescription() + "Task! Element ["
 				+ modbusElement + "]");
 	}
+
 }

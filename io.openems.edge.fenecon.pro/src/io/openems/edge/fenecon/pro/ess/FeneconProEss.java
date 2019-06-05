@@ -17,11 +17,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -29,6 +31,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -80,7 +83,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsException {
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
 		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
 		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
@@ -96,7 +99,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 
@@ -117,24 +121,43 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(ProChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
 						m(ProChannelId.WORK_MODE, new UnsignedWordElement(102)), //
 						new DummyRegisterElement(103), //
-						m(ProChannelId.TOTAL_BATTERY_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
-						m(ProChannelId.TOTAL_BATTERY_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
 						m(ProChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109)), //
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109), new ElementToChannelConverter(
+								// element -> channel
+								value -> {
+									// Set SoC to 100 % if battery is full and AllowedCharge is zero
+									if (value == null) {
+										return null;
+									}
+									int soc = (Integer) value;
+									IntegerReadChannel allowedCharge = this
+											.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
+									IntegerReadChannel allowedDischarge = this
+											.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
+											&& allowedDischarge.value().orElse(0) != 0) {
+										return 100;
+									} else {
+										return value;
+									}
+								}, //
+									// channel -> element
+								value -> value)), //
 						m(ProChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(ProChannelId.BATTERY_CURRENT, new SignedWordElement(111),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(ProChannelId.BATTERY_POWER, new SignedWordElement(112)), //
-						bm(new UnsignedWordElement(113))//
-								.m(ProChannelId.STATE_0, 0) //
-								.m(ProChannelId.STATE_1, 1) //
-								.m(ProChannelId.STATE_2, 2) //
-								.m(ProChannelId.STATE_3, 3) //
-								.m(ProChannelId.STATE_4, 4) //
-								.m(ProChannelId.STATE_5, 5) //
-								.m(ProChannelId.STATE_6, 6) //
-								.build(), //
+						m(new BitsWordElement(113, this) //
+								.bit(0, ProChannelId.STATE_0) //
+								.bit(1, ProChannelId.STATE_1) //
+								.bit(2, ProChannelId.STATE_2) //
+								.bit(3, ProChannelId.STATE_3) //
+								.bit(4, ProChannelId.STATE_4) //
+								.bit(5, ProChannelId.STATE_5) //
+								.bit(6, ProChannelId.STATE_6)), //
 						m(ProChannelId.PCS_OPERATION_STATE, new UnsignedWordElement(114)), //
 						new DummyRegisterElement(115, 117), //
 						m(ProChannelId.CURRENT_L1, new SignedWordElement(118),
@@ -169,210 +192,192 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(142)), //
 						new DummyRegisterElement(143, 149)), //
 				new FC3ReadRegistersTask(150, Priority.LOW, //
-						bm(new UnsignedWordElement(150))//
-								.m(ProChannelId.STATE_7, 0)//
-								.m(ProChannelId.STATE_8, 1)//
-								.m(ProChannelId.STATE_9, 2)//
-								.m(ProChannelId.STATE_10, 3)//
-								.m(ProChannelId.STATE_11, 4)//
-								.m(ProChannelId.STATE_12, 5)//
-								.m(ProChannelId.STATE_13, 6)//
-								.m(ProChannelId.STATE_14, 7)//
-								.m(ProChannelId.STATE_15, 8)//
-								.m(ProChannelId.STATE_16, 9)//
-								.m(ProChannelId.STATE_17, 10)//
-								.build(), //
-						bm(new UnsignedWordElement(151))//
-								.m(ProChannelId.STATE_18, 0)//
-								.build(), //
-
-						bm(new UnsignedWordElement(152))//
-								.m(ProChannelId.STATE_19, 0)//
-								.m(ProChannelId.STATE_20, 1)//
-								.m(ProChannelId.STATE_21, 2)//
-								.m(ProChannelId.STATE_22, 3)//
-								.m(ProChannelId.STATE_23, 4)//
-								.m(ProChannelId.STATE_24, 5)//
-								.m(ProChannelId.STATE_25, 6)//
-								.m(ProChannelId.STATE_26, 7)//
-								.m(ProChannelId.STATE_27, 8)//
-								.m(ProChannelId.STATE_28, 9)//
-								.m(ProChannelId.STATE_29, 10)//
-								.m(ProChannelId.STATE_30, 11)//
-								.m(ProChannelId.STATE_31, 12)//
-								.m(ProChannelId.STATE_32, 13)//
-								.m(ProChannelId.STATE_33, 14)//
-								.m(ProChannelId.STATE_34, 15)//
-								.build(), //
-
-						bm(new UnsignedWordElement(153))//
-								.m(ProChannelId.STATE_35, 0)//
-								.m(ProChannelId.STATE_36, 1)//
-								.m(ProChannelId.STATE_37, 2)//
-								.m(ProChannelId.STATE_38, 3)//
-								.m(ProChannelId.STATE_39, 4)//
-								.m(ProChannelId.STATE_40, 5)//
-								.m(ProChannelId.STATE_41, 6)//
-								.m(ProChannelId.STATE_42, 7)//
-								.m(ProChannelId.STATE_43, 8)//
-								.m(ProChannelId.STATE_44, 9)//
-								.m(ProChannelId.STATE_45, 10)//
-								.m(ProChannelId.STATE_46, 11)//
-								.m(ProChannelId.STATE_47, 12)//
-								.m(ProChannelId.STATE_48, 13)//
-								.m(ProChannelId.STATE_49, 14)//
-								.m(ProChannelId.STATE_50, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(154))//
-								.m(ProChannelId.STATE_51, 0)//
-								.m(ProChannelId.STATE_52, 1)//
-								.m(ProChannelId.STATE_53, 2)//
-								.m(ProChannelId.STATE_54, 3)//
-								.m(ProChannelId.STATE_55, 4)//
-								.m(ProChannelId.STATE_56, 5)//
-								.m(ProChannelId.STATE_57, 6)//
-								.m(ProChannelId.STATE_58, 7)//
-								.m(ProChannelId.STATE_59, 8)//
-								.m(ProChannelId.STATE_60, 9)//
-								.m(ProChannelId.STATE_61, 10)//
-								.m(ProChannelId.STATE_62, 11)//
-								.m(ProChannelId.STATE_63, 12)//
-								.build(), //
-						bm(new UnsignedWordElement(155))//
-								.m(ProChannelId.STATE_64, 0)//
-								.m(ProChannelId.STATE_65, 1)//
-								.m(ProChannelId.STATE_66, 2)//
-								.m(ProChannelId.STATE_67, 3)//
-								.m(ProChannelId.STATE_68, 4)//
-								.m(ProChannelId.STATE_69, 5)//
-								.m(ProChannelId.STATE_70, 6)//
-								.m(ProChannelId.STATE_71, 7)//
-								.m(ProChannelId.STATE_72, 8)//
-								.m(ProChannelId.STATE_73, 9)//
-								.m(ProChannelId.STATE_74, 10)//
-								.build(), //
-						bm(new UnsignedWordElement(156))//
-								.m(ProChannelId.STATE_75, 0)//
-								.build(), //
-						bm(new UnsignedWordElement(157))//
-								.m(ProChannelId.STATE_76, 0)//
-								.m(ProChannelId.STATE_77, 1)//
-								.m(ProChannelId.STATE_78, 2)//
-								.m(ProChannelId.STATE_79, 3)//
-								.m(ProChannelId.STATE_80, 4)//
-								.m(ProChannelId.STATE_81, 5)//
-								.m(ProChannelId.STATE_82, 6)//
-								.m(ProChannelId.STATE_83, 7)//
-								.m(ProChannelId.STATE_84, 8)//
-								.m(ProChannelId.STATE_85, 9)//
-								.m(ProChannelId.STATE_86, 10)//
-								.m(ProChannelId.STATE_87, 11)//
-								.m(ProChannelId.STATE_88, 12)//
-								.m(ProChannelId.STATE_89, 13)//
-								.m(ProChannelId.STATE_90, 14)//
-								.m(ProChannelId.STATE_91, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(158))//
-								.m(ProChannelId.STATE_92, 0)//
-								.m(ProChannelId.STATE_93, 1)//
-								.m(ProChannelId.STATE_94, 2)//
-								.m(ProChannelId.STATE_95, 3)//
-								.m(ProChannelId.STATE_96, 4)//
-								.m(ProChannelId.STATE_97, 5)//
-								.m(ProChannelId.STATE_98, 6)//
-								.m(ProChannelId.STATE_99, 7)//
-								.m(ProChannelId.STATE_100, 8)//
-								.m(ProChannelId.STATE_101, 9)//
-								.m(ProChannelId.STATE_102, 10)//
-								.m(ProChannelId.STATE_103, 11)//
-								.m(ProChannelId.STATE_104, 12)//
-								.m(ProChannelId.STATE_105, 13)//
-								.m(ProChannelId.STATE_106, 14)//
-								.m(ProChannelId.STATE_107, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(159))//
-								.m(ProChannelId.STATE_108, 0)//
-								.m(ProChannelId.STATE_109, 1)//
-								.m(ProChannelId.STATE_110, 2)//
-								.m(ProChannelId.STATE_111, 3)//
-								.m(ProChannelId.STATE_112, 4)//
-								.m(ProChannelId.STATE_113, 5)//
-								.m(ProChannelId.STATE_114, 6)//
-								.m(ProChannelId.STATE_115, 7)//
-								.m(ProChannelId.STATE_116, 8)//
-								.m(ProChannelId.STATE_117, 9)//
-								.m(ProChannelId.STATE_118, 10)//
-								.m(ProChannelId.STATE_119, 11)//
-								.m(ProChannelId.STATE_120, 12)//
-								.build(), //
-						bm(new UnsignedWordElement(160))//
-								.m(ProChannelId.STATE_121, 0)//
-								.m(ProChannelId.STATE_122, 1)//
-								.m(ProChannelId.STATE_123, 2)//
-								.m(ProChannelId.STATE_124, 3)//
-								.m(ProChannelId.STATE_125, 4)//
-								.m(ProChannelId.STATE_126, 5)//
-								.m(ProChannelId.STATE_127, 6)//
-								.m(ProChannelId.STATE_128, 7)//
-								.m(ProChannelId.STATE_129, 8)//
-								.m(ProChannelId.STATE_130, 9)//
-								.m(ProChannelId.STATE_131, 10)//
-								.build(), //
-						bm(new UnsignedWordElement(161))//
-								.m(ProChannelId.STATE_132, 0)//
-								.build(), //
-						bm(new UnsignedWordElement(162))//
-								.m(ProChannelId.STATE_133, 0)//
-								.m(ProChannelId.STATE_134, 1)//
-								.m(ProChannelId.STATE_135, 2)//
-								.m(ProChannelId.STATE_136, 3)//
-								.m(ProChannelId.STATE_137, 4)//
-								.m(ProChannelId.STATE_138, 5)//
-								.m(ProChannelId.STATE_139, 6)//
-								.m(ProChannelId.STATE_140, 7)//
-								.m(ProChannelId.STATE_141, 8)//
-								.m(ProChannelId.STATE_142, 9)//
-								.m(ProChannelId.STATE_143, 10)//
-								.m(ProChannelId.STATE_144, 11)//
-								.m(ProChannelId.STATE_145, 12)//
-								.m(ProChannelId.STATE_146, 13)//
-								.m(ProChannelId.STATE_147, 14)//
-								.m(ProChannelId.STATE_148, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(163))//
-								.m(ProChannelId.STATE_149, 0)//
-								.m(ProChannelId.STATE_150, 1)//
-								.m(ProChannelId.STATE_151, 2)//
-								.m(ProChannelId.STATE_152, 3)//
-								.m(ProChannelId.STATE_153, 4)//
-								.m(ProChannelId.STATE_154, 5)//
-								.m(ProChannelId.STATE_155, 6)//
-								.m(ProChannelId.STATE_156, 7)//
-								.m(ProChannelId.STATE_157, 8)//
-								.m(ProChannelId.STATE_158, 9)//
-								.m(ProChannelId.STATE_159, 10)//
-								.m(ProChannelId.STATE_160, 11)//
-								.m(ProChannelId.STATE_161, 12)//
-								.m(ProChannelId.STATE_162, 13)//
-								.m(ProChannelId.STATE_163, 14)//
-								.m(ProChannelId.STATE_164, 15)//
-								.build(), //
-						bm(new UnsignedWordElement(164))//
-								.m(ProChannelId.STATE_165, 0)//
-								.m(ProChannelId.STATE_166, 1)//
-								.m(ProChannelId.STATE_167, 2)//
-								.m(ProChannelId.STATE_168, 3)//
-								.m(ProChannelId.STATE_169, 4)//
-								.m(ProChannelId.STATE_170, 5)//
-								.m(ProChannelId.STATE_171, 6)//
-								.m(ProChannelId.STATE_172, 7)//
-								.m(ProChannelId.STATE_173, 8)//
-								.m(ProChannelId.STATE_174, 9)//
-								.m(ProChannelId.STATE_175, 10)//
-								.m(ProChannelId.STATE_176, 11)//
-								.m(ProChannelId.STATE_177, 12)//
-								.build()//
-				), //
+						m(new BitsWordElement(150, this) //
+								.bit(0, ProChannelId.STATE_7) //
+								.bit(1, ProChannelId.STATE_8) //
+								.bit(2, ProChannelId.STATE_9) //
+								.bit(3, ProChannelId.STATE_10) //
+								.bit(4, ProChannelId.STATE_11) //
+								.bit(5, ProChannelId.STATE_12) //
+								.bit(6, ProChannelId.STATE_13) //
+								.bit(7, ProChannelId.STATE_14) //
+								.bit(8, ProChannelId.STATE_15) //
+								.bit(9, ProChannelId.STATE_16) //
+								.bit(10, ProChannelId.STATE_17)),
+						m(new BitsWordElement(151, this) //
+								.bit(0, ProChannelId.STATE_18)),
+						m(new BitsWordElement(152, this) //
+								.bit(0, ProChannelId.STATE_19) //
+								.bit(1, ProChannelId.STATE_20) //
+								.bit(2, ProChannelId.STATE_21) //
+								.bit(3, ProChannelId.STATE_22) //
+								.bit(4, ProChannelId.STATE_23) //
+								.bit(5, ProChannelId.STATE_24) //
+								.bit(6, ProChannelId.STATE_25) //
+								.bit(7, ProChannelId.STATE_26) //
+								.bit(8, ProChannelId.STATE_27) //
+								.bit(9, ProChannelId.STATE_28) //
+								.bit(10, ProChannelId.STATE_29) //
+								.bit(11, ProChannelId.STATE_30) //
+								.bit(12, ProChannelId.STATE_31) //
+								.bit(13, ProChannelId.STATE_32) //
+								.bit(14, ProChannelId.STATE_33) //
+								.bit(15, ProChannelId.STATE_34)),
+						m(new BitsWordElement(153, this) //
+								.bit(0, ProChannelId.STATE_35) //
+								.bit(1, ProChannelId.STATE_36) //
+								.bit(2, ProChannelId.STATE_37) //
+								.bit(3, ProChannelId.STATE_38) //
+								.bit(4, ProChannelId.STATE_39) //
+								.bit(5, ProChannelId.STATE_40) //
+								.bit(6, ProChannelId.STATE_41) //
+								.bit(7, ProChannelId.STATE_42) //
+								.bit(8, ProChannelId.STATE_43) //
+								.bit(9, ProChannelId.STATE_44) //
+								.bit(10, ProChannelId.STATE_45) //
+								.bit(11, ProChannelId.STATE_46) //
+								.bit(12, ProChannelId.STATE_47) //
+								.bit(13, ProChannelId.STATE_48) //
+								.bit(14, ProChannelId.STATE_49) //
+								.bit(15, ProChannelId.STATE_50)),
+						m(new BitsWordElement(154, this) //
+								.bit(0, ProChannelId.STATE_51) //
+								.bit(1, ProChannelId.STATE_52) //
+								.bit(2, ProChannelId.STATE_53) //
+								.bit(3, ProChannelId.STATE_54) //
+								.bit(4, ProChannelId.STATE_55) //
+								.bit(5, ProChannelId.STATE_56) //
+								.bit(6, ProChannelId.STATE_57) //
+								.bit(7, ProChannelId.STATE_58) //
+								.bit(8, ProChannelId.STATE_59) //
+								.bit(9, ProChannelId.STATE_60) //
+								.bit(10, ProChannelId.STATE_61) //
+								.bit(11, ProChannelId.STATE_62) //
+								.bit(12, ProChannelId.STATE_63)),
+						m(new BitsWordElement(155, this) //
+								.bit(0, ProChannelId.STATE_64) //
+								.bit(1, ProChannelId.STATE_65) //
+								.bit(2, ProChannelId.STATE_66) //
+								.bit(3, ProChannelId.STATE_67) //
+								.bit(4, ProChannelId.STATE_68) //
+								.bit(5, ProChannelId.STATE_69) //
+								.bit(6, ProChannelId.STATE_70) //
+								.bit(7, ProChannelId.STATE_71) //
+								.bit(8, ProChannelId.STATE_72) //
+								.bit(9, ProChannelId.STATE_73) //
+								.bit(10, ProChannelId.STATE_74)),
+						m(new BitsWordElement(156, this) //
+								.bit(0, ProChannelId.STATE_75)),
+						m(new BitsWordElement(157, this) //
+								.bit(0, ProChannelId.STATE_76) //
+								.bit(1, ProChannelId.STATE_77) //
+								.bit(2, ProChannelId.STATE_78) //
+								.bit(3, ProChannelId.STATE_79) //
+								.bit(4, ProChannelId.STATE_80) //
+								.bit(5, ProChannelId.STATE_81) //
+								.bit(6, ProChannelId.STATE_82) //
+								.bit(7, ProChannelId.STATE_83) //
+								.bit(8, ProChannelId.STATE_84) //
+								.bit(9, ProChannelId.STATE_85) //
+								.bit(10, ProChannelId.STATE_86) //
+								.bit(11, ProChannelId.STATE_87) //
+								.bit(12, ProChannelId.STATE_88) //
+								.bit(13, ProChannelId.STATE_89) //
+								.bit(14, ProChannelId.STATE_90) //
+								.bit(15, ProChannelId.STATE_91)),
+						m(new BitsWordElement(158, this) //
+								.bit(0, ProChannelId.STATE_92) //
+								.bit(1, ProChannelId.STATE_93) //
+								.bit(2, ProChannelId.STATE_94) //
+								.bit(3, ProChannelId.STATE_95) //
+								.bit(4, ProChannelId.STATE_96) //
+								.bit(5, ProChannelId.STATE_97) //
+								.bit(6, ProChannelId.STATE_98) //
+								.bit(7, ProChannelId.STATE_99) //
+								.bit(8, ProChannelId.STATE_100) //
+								.bit(9, ProChannelId.STATE_101) //
+								.bit(10, ProChannelId.STATE_102) //
+								.bit(11, ProChannelId.STATE_103) //
+								.bit(12, ProChannelId.STATE_104) //
+								.bit(13, ProChannelId.STATE_105) //
+								.bit(14, ProChannelId.STATE_106) //
+								.bit(15, ProChannelId.STATE_107)),
+						m(new BitsWordElement(159, this) //
+								.bit(0, ProChannelId.STATE_108) //
+								.bit(1, ProChannelId.STATE_109) //
+								.bit(2, ProChannelId.STATE_110) //
+								.bit(3, ProChannelId.STATE_111) //
+								.bit(4, ProChannelId.STATE_112) //
+								.bit(5, ProChannelId.STATE_113) //
+								.bit(6, ProChannelId.STATE_114) //
+								.bit(7, ProChannelId.STATE_115) //
+								.bit(8, ProChannelId.STATE_116) //
+								.bit(9, ProChannelId.STATE_117) //
+								.bit(10, ProChannelId.STATE_118) //
+								.bit(11, ProChannelId.STATE_119) //
+								.bit(12, ProChannelId.STATE_120)),
+						m(new BitsWordElement(160, this) //
+								.bit(0, ProChannelId.STATE_121) //
+								.bit(1, ProChannelId.STATE_122) //
+								.bit(2, ProChannelId.STATE_123) //
+								.bit(3, ProChannelId.STATE_124) //
+								.bit(4, ProChannelId.STATE_125) //
+								.bit(5, ProChannelId.STATE_126) //
+								.bit(6, ProChannelId.STATE_127) //
+								.bit(7, ProChannelId.STATE_128) //
+								.bit(8, ProChannelId.STATE_129) //
+								.bit(9, ProChannelId.STATE_130) //
+								.bit(10, ProChannelId.STATE_131)),
+						m(new BitsWordElement(161, this) //
+								.bit(0, ProChannelId.STATE_132)),
+						m(new BitsWordElement(162, this) //
+								.bit(0, ProChannelId.STATE_133) //
+								.bit(1, ProChannelId.STATE_134) //
+								.bit(2, ProChannelId.STATE_135) //
+								.bit(3, ProChannelId.STATE_136) //
+								.bit(4, ProChannelId.STATE_137) //
+								.bit(5, ProChannelId.STATE_138) //
+								.bit(6, ProChannelId.STATE_139) //
+								.bit(7, ProChannelId.STATE_140) //
+								.bit(8, ProChannelId.STATE_141) //
+								.bit(9, ProChannelId.STATE_142) //
+								.bit(10, ProChannelId.STATE_143) //
+								.bit(11, ProChannelId.STATE_144) //
+								.bit(12, ProChannelId.STATE_145) //
+								.bit(13, ProChannelId.STATE_146) //
+								.bit(14, ProChannelId.STATE_147) //
+								.bit(15, ProChannelId.STATE_148)),
+						m(new BitsWordElement(163, this) //
+								.bit(0, ProChannelId.STATE_149) //
+								.bit(1, ProChannelId.STATE_150) //
+								.bit(2, ProChannelId.STATE_151) //
+								.bit(3, ProChannelId.STATE_152) //
+								.bit(4, ProChannelId.STATE_153) //
+								.bit(5, ProChannelId.STATE_154) //
+								.bit(6, ProChannelId.STATE_155) //
+								.bit(7, ProChannelId.STATE_156) //
+								.bit(8, ProChannelId.STATE_157) //
+								.bit(9, ProChannelId.STATE_158) //
+								.bit(10, ProChannelId.STATE_159) //
+								.bit(11, ProChannelId.STATE_160) //
+								.bit(12, ProChannelId.STATE_161) //
+								.bit(13, ProChannelId.STATE_162) //
+								.bit(14, ProChannelId.STATE_163) //
+								.bit(15, ProChannelId.STATE_164)),
+						m(new BitsWordElement(164, this) //
+								.bit(0, ProChannelId.STATE_165) //
+								.bit(1, ProChannelId.STATE_166) //
+								.bit(2, ProChannelId.STATE_167) //
+								.bit(3, ProChannelId.STATE_168) //
+								.bit(4, ProChannelId.STATE_169) //
+								.bit(5, ProChannelId.STATE_170) //
+								.bit(6, ProChannelId.STATE_171) //
+								.bit(7, ProChannelId.STATE_172) //
+								.bit(8, ProChannelId.STATE_173) //
+								.bit(9, ProChannelId.STATE_174) //
+								.bit(10, ProChannelId.STATE_175) //
+								.bit(11, ProChannelId.STATE_176) //
+								.bit(12, ProChannelId.STATE_177))), //
 				new FC16WriteRegistersTask(200, //
 						m(ProChannelId.SET_WORK_STATE, new UnsignedWordElement(200))), //
 				new FC16WriteRegistersTask(206, //
@@ -528,20 +533,20 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 					this.getSetupModeChannel().setNextWriteValue(SetupMode.OFF);
 				}
 			}
-		} catch (OpenemsException e) {
+		} catch (OpenemsNamedException e) {
 			this.logError(log, "Unable to activate Remote-Mode: " + e.getMessage());
 		}
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable() {
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(), //
-				SymmetricEss.getModbusSlaveNatureTable(), //
-				AsymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(), //
-				ManagedAsymmetricEss.getModbusSlaveNatureTable(), //
-				ModbusSlaveNatureTable.of(FeneconProEss.class, 300) //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedAsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(FeneconProEss.class, accessMode, 300) //
 						.build());
 	}
 

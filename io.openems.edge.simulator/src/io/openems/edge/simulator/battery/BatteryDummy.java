@@ -43,7 +43,7 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.disChargeMinVoltage = config.disChargeMinVoltage();
 		this.chargeMaxVoltage = config.chargeMaxVoltage();
 		this.disChargeMaxCurrent = config.disChargeMaxCurrent();
@@ -79,6 +79,8 @@ public class BatteryDummy extends AbstractOpenemsComponent implements Battery, O
 		this.getVoltage().setNextValue(this.voltage);
 		this.getMinCellVoltage().setNextValue(this.minCellVoltage);
 		this.getMaxCellVoltage().setNextValue(this.minCellVoltage);
+		
+		this.getReadyForWorking().setNextValue(true);
 	}
 
 }

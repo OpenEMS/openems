@@ -21,20 +21,20 @@ public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements 
 
 	@Override
 	protected BitVector getBitVector(ModbusResponse response) {
-			ReadInputDiscretesResponse readInputDiscretesResponse = (ReadInputDiscretesResponse) response;
-			return readInputDiscretesResponse.getDiscretes();		
+		ReadInputDiscretesResponse readInputDiscretesResponse = (ReadInputDiscretesResponse) response;
+		return readInputDiscretesResponse.getDiscretes();
 	}
-	
+
 	@Override
-	protected String getActiondescription() {		
-		return "FC2 Read Coils";
+	protected String getActiondescription() {
+		return "FC2ReadCoils";
 	}
 
 	@Override
 	protected String getExpectedInputClassname() {
 		return "ReadInputDiscretesResponse";
 	}
-	
+
 	@Override
 	protected ModbusRequest getRequest() {
 		return new ReadInputDiscretesRequest(getStartAddress(), getLength());

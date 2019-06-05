@@ -70,8 +70,8 @@ public class FeneconMiniGridMeter extends AbstractOpenemsModbusComponent impleme
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm,
+				"Modbus", config.modbus_id());
 	}
 
 	@Deactivate

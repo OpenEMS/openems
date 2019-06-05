@@ -1,0 +1,34 @@
+<ng-container *ngIf="state">
+    <ion-header>
+        <ion-toolbar class="ion-justify-content-center" color="primary">
+            <ion-title>{{ alias }}</ion-title>
+            <ion-buttons slot="end">
+                <ion-button (click)="cancel()">
+                    <ion-icon name="close"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ion-list>
+            <ion-radio-group (ionChange)="setValue($event)">
+                <ion-item>
+                    <ion-label>Einschalten</ion-label>
+                    <ion-radio slot="start" value="on" [checked]="state == 'on'">
+                    </ion-radio>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label>Ausschalten</ion-label>
+                    <ion-radio slot="start" value="off" [checked]="state == 'off'">
+                    </ion-radio>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label>Nicht steuern</ion-label>
+                    <ion-radio slot="start" value="disable" [checked]="state == 'disabled'"></ion-radio>
+                </ion-item>
+            </ion-radio-group>
+        </ion-list>
+    </ion-content>
+</ng-container>

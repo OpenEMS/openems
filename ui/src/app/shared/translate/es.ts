@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Rendimiento",
         StorageSystem: "Almacenamiento",
         History: "Historia",
+        Live: 'Live',
         NoValue: "Sin valor",
         Soc: "Cargo",
         Percentage: "Por ciento",
@@ -29,12 +30,16 @@ export const TRANSLATION = {
             Friday: "Viernes",
             Saturday: "Sábado",
             Sunday: "Domingo"
-        }
+        },
+        ReportValue: "Reportar datos corruptos"
     },
     Menu: {
         Index: "Visión general",
         AboutUI: "Sobre OpenEMS-UI",
-        Settings: 'Configuración general',
+        GeneralSettings: 'Configuración general',
+        EdgeSettings: 'Configuración FEMS',
+        Menu: 'Menú',
+        Overview: 'estudio FEMS',
         Logout: 'Desuscribirse'
     },
     Index: {
@@ -87,6 +92,7 @@ export const TRANSLATION = {
                     CarFull: "El carro esta lleno",
                     EnergieSinceBeginning: "Energía desde el inicio de la carga.",
                     ChargeMode: "Modo de carga",
+                    ActivateCharging: "Activar la estación de carga.",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
                         Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
@@ -96,8 +102,9 @@ export const TRANSLATION = {
                         Name: "Carga optimizada",
                         ShortName: "Optimizado",
                         Info: "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
-                        MinInfo: "Si desea evitar que el automóvil se cargue con poca memoria por la noche, se puede establecer una carga mínima.",
-                        MinCharging: "Garantía de carga mínima?"
+                        MinInfo: "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
+                        MinCharging: "Garantía de carga mínima?",
+                        ChargingPriority: "Dependiendo de la priorización, el componente seleccionado se cargará primero"
                     },
                     ForceChargeMode: {
                         Name: "Carga forzada",
@@ -129,6 +136,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Ejecutar simulaciones",
                 Log: "Registro",
                 LiveLog: "Protocolos de sistema de vida",
+                AddComponents: "Instalar componentes",
+                AdjustComponents: "Configurar componentes",
                 ManualControl: "Control manual",
                 DataStorage: "Almacenamiento de datos"
             },

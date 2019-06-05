@@ -65,7 +65,7 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent implemen
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(102, Priority.HIGH, //
-						cm(new FloatDoublewordElement(19000)) //
+						m(new FloatDoublewordElement(19000)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build(), //

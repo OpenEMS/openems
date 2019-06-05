@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,22 +19,18 @@ export class IndexComponent {
 
   public env = environment;
   public form: FormGroup;
-  private filter: string = '';
+  public filter: string = '';
+  public filteredEdges: Edge[] = [];
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  private filteredEdges: Edge[] = [];
   private slice: number = 20;
 
   constructor(
     public websocket: Websocket,
     public utils: Utils,
-    private translate: TranslateService,
-    private formBuilder: FormBuilder,
     private router: Router,
-    private service: Service) {
-    this.form = this.formBuilder.group({
-      "password": this.formBuilder.control('user')
-    });
+    private service: Service,
+    private route: ActivatedRoute) {
 
     //Forwarding to device index if there is only 1 edge
     service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
@@ -47,6 +43,10 @@ export class IndexComponent {
       }
       this.updateFilteredEdges();
     })
+  }
+
+  ngOnInit() {
+    this.service.setCurrentComponent('', this.route);
   }
 
   updateFilteredEdges() {
@@ -80,12 +80,11 @@ export class IndexComponent {
       .map(edgeId => allEdges[edgeId]);
   }
 
-  doLogin() {
-    let password: string = this.form.value['password'];
+  doLogin(password: string) {
     let request = new AuthenticateWithPasswordRequest({ password: password });
     this.websocket.sendRequest(request).then(response => {
       this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
-    }).then(reason => {
+    }).catch(reason => {
       console.error("Error on Login", reason);
     })
   }

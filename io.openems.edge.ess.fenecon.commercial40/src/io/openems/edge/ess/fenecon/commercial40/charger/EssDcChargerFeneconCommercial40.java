@@ -1,6 +1,5 @@
 package io.openems.edge.ess.fenecon.commercial40.charger;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -15,6 +14,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -27,12 +27,10 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
 
@@ -46,8 +44,6 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 
 	// private final Logger log =
 	// LoggerFactory.getLogger(EssDcChargerFeneconCommercial40.class);
-
-	private AtomicReference<EssFeneconCommercial40> ess = new AtomicReference<EssFeneconCommercial40>(null);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -89,16 +85,17 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setEss(ManagedSymmetricEss ess) {
-		if (ess instanceof EssFeneconCommercial40) {
-			this.ess.set((EssFeneconCommercial40) ess);
-		}
-	}
+	private EssFeneconCommercial40 ess;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), this.ess.get().getUnitId(), this.cm, "Modbus",
-				this.ess.get().getModbusBridgeId());
+		super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
+				this.ess.getModbusBridgeId());
+
+		// update filter for 'Ess'
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
 	}
 
 	@Deactivate

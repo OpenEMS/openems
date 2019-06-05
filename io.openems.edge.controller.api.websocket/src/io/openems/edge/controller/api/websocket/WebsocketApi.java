@@ -27,6 +27,7 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Doc;
@@ -54,7 +55,8 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	public static final int DEFAULT_PORT = 8075;
 
-	private final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker();
+
 	private final SystemLogHandler systemLogHandler;
 
 	protected WebsocketServer server = null;
@@ -98,7 +100,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (!this.isEnabled()) {
 			// abort if disabled
 			return;
@@ -189,7 +191,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	public void configurationEvent(ConfigurationEvent event) {
 		EdgeConfig config = this.componentManager.getEdgeConfig();
 		EdgeConfigNotification message = new EdgeConfigNotification(config);
-		this.server.broadcastMessage(message);
+		this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
 	}
 
 	/**

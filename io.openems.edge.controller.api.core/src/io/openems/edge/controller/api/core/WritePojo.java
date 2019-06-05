@@ -1,6 +1,6 @@
 package io.openems.edge.controller.api.core;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.WriteChannel;
 
 /**
@@ -16,13 +16,18 @@ public class WritePojo extends WriteObject {
 	}
 
 	@Override
-	public void setNextWriteValue(WriteChannel<?> writeChannel) throws OpenemsException {
+	public void setNextWriteValue(WriteChannel<?> writeChannel) throws OpenemsNamedException {
 		writeChannel.setNextWriteValueFromObject(this.value);
 	}
 
 	@Override
 	public String valueToString() {
-		return this.value.toString();
+		return String.valueOf(this.value);
+	}
+
+	@Override
+	public boolean isNull() {
+		return this.value == null;
 	}
 
 }

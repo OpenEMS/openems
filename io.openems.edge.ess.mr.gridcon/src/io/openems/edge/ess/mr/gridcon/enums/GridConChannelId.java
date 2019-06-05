@@ -1,7 +1,9 @@
 package io.openems.edge.ess.mr.gridcon.enums;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.AccessMode;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.ChannelId;
@@ -10,8 +12,6 @@ import io.openems.edge.common.channel.FloatDoc;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.Level;
-import io.openems.edge.common.channel.Unit;
 
 /**
  * This enum holds every possible channel id for a gridcon.
@@ -137,81 +137,94 @@ public enum GridConChannelId implements ChannelId {
 	DCDC_MEASUREMENTS_RESERVE_1(Doc.of(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 	DCDC_MEASUREMENTS_RESERVE_2(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)),
 
-	COMMAND_CONTROL_WORD_PLAY_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_PLAY(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_PLAY_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_PLAY(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_CONTROL_WORD_PLAY_DEBUG))),
-
-	COMMAND_CONTROL_WORD_READY_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_READY(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_READY_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_READY(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_CONTROL_WORD_READY_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ACKNOWLEDGE_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ACKNOWLEDGE(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_ACKNOWLEDGE_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ACKNOWLEDGE(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE_DEBUG))),
-
-	COMMAND_CONTROL_WORD_STOP_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_STOP(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_STOP_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_STOP(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_CONTROL_WORD_STOP_DEBUG))),
-
-	COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL_DEBUG))),
-
-	COMMAND_CONTROL_WORD_SYNC_APPROVAL_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_SYNC_APPROVAL(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_SYNC_APPROVAL_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_SYNC_APPROVAL(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING(
-			new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
-					.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-							GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING_DEBUG))),
-
-	COMMAND_CONTROL_WORD_MODE_SELECTION_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_MODE_SELECTION(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING_DEBUG))),
+	COMMAND_CONTROL_WORD_MODE_SELECTION_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_MODE_SELECTION(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION_DEBUG))),
-
-	COMMAND_CONTROL_WORD_TRIGGER_SIA_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_TRIGGER_SIA(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_TRIGGER_SIA_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_TRIGGER_SIA(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_TRIGGER_SIA_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION(
-			new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
-					.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-							GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_HARMONIC_COMPENSATION_DEBUG))),
+	COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_1_SD_CARD_PARAMETER_SET_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_2_SD_CARD_PARAMETER_SET_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_3_SD_CARD_PARAMETER_SET_DEBUG))),
-
-	COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-	COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET(new BooleanDoc().unit(Unit.ON_OFF).accessMode(AccessMode.READ_WRITE) //
+	COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
 			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_WORD_ID_4_SD_CARD_PARAMETER_SET_DEBUG))),
-
-	COMMAND_CONTROL_WORD_DISABLE_IPU_4(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_3(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_2(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)),
-	COMMAND_CONTROL_WORD_DISABLE_IPU_1(Doc.of(OpenemsType.FLOAT).unit(Unit.ON_OFF)), //
-
-	COMMAND_ERROR_CODE_FEEDBACK_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_4(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4_DEBUG))),
+	COMMAND_CONTROL_WORD_DISABLE_IPU_3_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_3(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3_DEBUG))),
+	COMMAND_CONTROL_WORD_DISABLE_IPU_2_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_2(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2_DEBUG))),
+	COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
+	COMMAND_CONTROL_WORD_DISABLE_IPU_1(new BooleanDoc() //
+			.accessMode(AccessMode.READ_WRITE) //
+			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
+					GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1_DEBUG))),
+	COMMAND_ERROR_CODE_FEEDBACK_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
 	COMMAND_ERROR_CODE_FEEDBACK(new IntegerDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK_DEBUG))),
@@ -252,12 +265,12 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.COMMAND_CONTROL_PARAMETER_P_REF_DEBUG))),
 
-	COMMAND_TIME_SYNC_DATE_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	COMMAND_TIME_SYNC_DATE_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
 	COMMAND_TIME_SYNC_DATE(new IntegerDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_TIME_SYNC_DATE_DEBUG))),
 
-	COMMAND_TIME_SYNC_TIME_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
+	COMMAND_TIME_SYNC_TIME_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE)), //
 	COMMAND_TIME_SYNC_TIME(new IntegerDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(GridConChannelId.COMMAND_TIME_SYNC_TIME_DEBUG))),
@@ -275,7 +288,7 @@ public enum GridConChannelId implements ChannelId {
 					GridConChannelId.CONTROL_PARAMETER_U_Q_DROOP_T1_MAIN_DEBUG))),
 
 	CONTROL_PARAMETER_F_P_DRROP_MAIN_DEBUG(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
-	CONTROL_PARAMETER_F_P_DRROP_MAIN(new FloatDoc() //
+	CONTROL_PARAMETER_F_P_DROOP_MAIN(new FloatDoc() //
 			.accessMode(AccessMode.READ_WRITE)
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.CONTROL_PARAMETER_F_P_DRROP_MAIN_DEBUG))),
@@ -500,14 +513,14 @@ public enum GridConChannelId implements ChannelId {
 			.onInit(new FloatWriteChannel.MirrorToDebugChannel(
 					GridConChannelId.INVERTER_3_CONTROL_P_MAX_CHARGE_DEBUG))),
 
-	DCDC_CONTROL_DC_VOLTAGE_SETPOINT(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT)),
-	DCDC_CONTROL_WEIGHT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_WEIGHT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_WEIGHT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)), //
-	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE)),
+	DCDC_CONTROL_DC_VOLTAGE_SETPOINT(Doc.of(OpenemsType.FLOAT).unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)),
+	DCDC_CONTROL_WEIGHT_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_WEIGHT_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_WEIGHT_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_A(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_B(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_I_REF_STRING_C(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
+	DCDC_CONTROL_STRING_CONTROL_MODE(Doc.of(OpenemsType.FLOAT).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)),
 
 	STATE_CYCLE_ERROR(Doc.of(Level.FAULT));
 

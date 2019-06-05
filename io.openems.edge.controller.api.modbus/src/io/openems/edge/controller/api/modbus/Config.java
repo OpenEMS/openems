@@ -3,16 +3,27 @@ package io.openems.edge.controller.api.modbus;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+import io.openems.common.channel.AccessMode;
+
+@ObjectClassDefinition(//
 		name = "Controller Api Modbus/TCP", //
 		description = "This controller provides a Modbus/TCP api.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlApiModbusTcp0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Port", description = "Port on which the server should listen.")
 	int port() default ModbusTcpApi.DEFAULT_PORT;
+
+	@AttributeDefinition(name = "Access-Mode", description = "Only allow access to Read-Only/Read-Write/Write-Only channels.")
+	AccessMode accessMode() default AccessMode.READ_WRITE;
 
 	@AttributeDefinition(name = "Component-IDs", description = "Components that should be made available via Modbus.")
 	String[] component_ids() default { "_sum" };

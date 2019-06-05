@@ -1,0 +1,5 @@
+= Api Websocket
+
+Provides a JSON/REST implementation via HTTP Websocket for OpenEMS Edge. It provides access to Channels and JSON-RPC Requests from an external device via Websocket. This Controller is used for local connection of OpenEMS UI.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.websocket[Source Code icon:github[]]

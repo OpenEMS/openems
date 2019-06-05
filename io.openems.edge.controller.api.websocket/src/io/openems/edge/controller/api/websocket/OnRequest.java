@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
+import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
@@ -53,7 +53,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
@@ -87,7 +87,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleEdgeRpcRequest(WsData wsData, EdgeUser user,
+	private CompletableFuture<EdgeRpcResponse> handleEdgeRpcRequest(WsData wsData, EdgeUser user,
 			EdgeRpcRequest edgeRpcRequest) throws OpenemsNamedException {
 		JsonrpcRequest request = edgeRpcRequest.getPayload();
 
@@ -126,6 +126,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			resultFuture = this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
 			break;
 
+		case SetChannelValueRequest.METHOD:
+			resultFuture = this.handleSetChannelValueRequest(user, SetChannelValueRequest.from(request));
+			break;
+
 		case ComponentJsonApiRequest.METHOD:
 			resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
 			break;
@@ -136,20 +140,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 
-		// Get Response
-		JsonrpcResponseSuccess result;
-		try {
-			result = resultFuture.get();
-		} catch (InterruptedException | ExecutionException e) {
-			if (e.getCause() instanceof OpenemsNamedException) {
-				throw (OpenemsNamedException) e.getCause();
-			} else {
-				throw OpenemsError.GENERIC.exception(e.getMessage());
-			}
-		}
-
 		// Wrap reply in EdgeRpcResponse
-		return CompletableFuture.completedFuture(new EdgeRpcResponse(edgeRpcRequest.getId(), result));
+		CompletableFuture<EdgeRpcResponse> result = new CompletableFuture<EdgeRpcResponse>();
+		resultFuture.thenAccept(r -> {
+			result.complete(new EdgeRpcResponse(edgeRpcRequest.getId(), r));
+		});
+		return result;
 	}
 
 	/**
@@ -299,6 +295,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				getEdgeConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
+	}
+
+	/**
+	 * Handles a SetChannelValueRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the SetChannelValueRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(EdgeUser user,
+			SetChannelValueRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
+
+		return this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, user, request);
 	}
 
 	/**

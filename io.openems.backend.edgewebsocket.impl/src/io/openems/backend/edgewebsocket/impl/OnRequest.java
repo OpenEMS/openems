@@ -22,7 +22,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		this.parent.logWarn(this.log, "Unhandled Request: " + request);
 		throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());

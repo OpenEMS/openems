@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -22,7 +23,6 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -57,7 +57,7 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
 
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 	}
 
@@ -75,8 +75,6 @@ public class MeterCarloGavazziEm300 extends AbstractOpenemsModbusComponent
 				.unit(Unit.VOLT_AMPERE)), //
 		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
-		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIHERTZ)), //
 		REACTIVE_ENERGY_POSITIVE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS)), //
 		REACTIVE_ENERGY_NEGATIVE(Doc.of(OpenemsType.INTEGER) //
