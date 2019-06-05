@@ -15,6 +15,7 @@ import { EdgeModule } from './edge/edge.module';
 // components
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 
 // services
 import { Language } from './shared/translate/language';
@@ -23,8 +24,6 @@ import { Language } from './shared/translate/language';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localDE from '@angular/common/locales/de';
-import { PopoverPage } from './shared/popover/popover.component';
-import { PopoverPageModule } from './shared/popover/popover.module';
 import { SettingsModule } from './settings/settings.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
 import { RouteReuseStrategy } from '@angular/router';
@@ -32,8 +31,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
-import { EvcsModalPageModule } from './edge/index/widget/evcs/evcs-modal/evcs-modal.module';
-
+import { EvcsModalPageModule } from './edge/live/widgets/evcs/evcs-modal/evcs-modal.module';
 
 import { HttpClientModule } from '@angular/common/http';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
@@ -43,9 +41,10 @@ import { HttpModule } from '@angular/http';
 @NgModule({
   declarations: [
     AppComponent,
-    RepeatTypeComponent
+    RepeatTypeComponent,
+    SystemLogComponent
   ],
-  entryComponents: [PopoverPage],
+  entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -66,7 +65,6 @@ import { HttpModule } from '@angular/http';
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),
-    PopoverPageModule,
     env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
     HttpModule
   ],

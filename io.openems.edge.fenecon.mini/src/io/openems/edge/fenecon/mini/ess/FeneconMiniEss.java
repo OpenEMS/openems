@@ -16,6 +16,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -24,6 +25,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -65,8 +67,8 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm,
+				"Modbus", config.modbus_id());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 	}
@@ -105,12 +107,14 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(3000, Priority.LOW, //
-						m(EssChannelId.BECU1_CHARGE_CURRENT, new UnsignedWordElement(3000)), //
-						m(EssChannelId.BECU1_DISCHARGE_CURRENT, new UnsignedWordElement(3001)), //
-						m(EssChannelId.BECU1_VOLT, new UnsignedWordElement(3002)), //
-						m(EssChannelId.BECU1_CURRENT, new UnsignedWordElement(3003)), //
-						m(EssChannelId.BECU1_SOC, new UnsignedWordElement(3004))), //
-				new FC3ReadRegistersTask(3005, Priority.LOW, //
+						m(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(3000),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(3001), //
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssChannelId.BECU1_TOTAL_CURRENT, new UnsignedWordElement(3003)), //
+						m(EssChannelId.BECU1_SOC, new UnsignedWordElement(3004)), //
 						m(new BitsWordElement(3005, this) //
 								.bit(0, EssChannelId.STATE_1) //
 								.bit(1, EssChannelId.STATE_2) //
@@ -168,15 +172,18 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 								.bit(12, EssChannelId.STATE_51) //
 								.bit(13, EssChannelId.STATE_52)), //
 						m(EssChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
-						new DummyRegisterElement(3010, 3011), //
-						m(EssChannelId.BECU1_MIN_VOLT_NO, new UnsignedWordElement(3012)), //
-						m(EssChannelId.BECU1_MIN_VOLT, new UnsignedWordElement(3013)), //
-						m(EssChannelId.BECU1_MAX_VOLT_NO, new UnsignedWordElement(3014)), //
-						m(EssChannelId.BECU1_MAX_VOLT, new UnsignedWordElement(3015)), // ^
-						m(EssChannelId.BECU1_MIN_TEMP_NO, new UnsignedWordElement(3016)), //
-						m(EssChannelId.BECU1_MIN_TEMP, new UnsignedWordElement(3017)), //
-						m(EssChannelId.BECU1_MAX_TEMP_NO, new UnsignedWordElement(3018)), //
-						m(EssChannelId.BECU1_MAX_TEMP, new UnsignedWordElement(3019))), //
+						m(EssChannelId.BECU1_NOMINAL_CAPACITY, new UnsignedWordElement(3010)), //
+						m(EssChannelId.BECU1_CURRENT_CAPACITY, new UnsignedWordElement(3011)), //
+						m(EssChannelId.BECU1_MINIMUM_VOLTAGE_NO, new UnsignedWordElement(3012)), //
+						m(EssChannelId.BECU1_MINIMUM_VOLTAGE, new UnsignedWordElement(3013)), //
+						m(EssChannelId.BECU1_MAXIMUM_VOLTAGE_NO, new UnsignedWordElement(3014)), //
+						m(EssChannelId.BECU1_MAXIMUM_VOLTAGE, new UnsignedWordElement(3015)), // ^
+						m(EssChannelId.BECU1_MINIMUM_TEMPERATURE_NO, new UnsignedWordElement(3016)), //
+						m(EssChannelId.BECU1_MINIMUM_TEMPERATURE, new UnsignedWordElement(3017),
+								new ElementToChannelOffsetConverter(-40)), //
+						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE_NO, new UnsignedWordElement(3018)), //
+						m(EssChannelId.BECU1_MAXIMUM_TEMPERATURE, new UnsignedWordElement(3019),
+								new ElementToChannelOffsetConverter(-40))),
 
 				new FC3ReadRegistersTask(3200, Priority.LOW, //
 						m(EssChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
@@ -311,7 +318,29 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 								.bit(12, EssChannelId.STATE_141) //
 								.bit(13, EssChannelId.STATE_142) //
 								.bit(14, EssChannelId.STATE_143)),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812)) //
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812), new ElementToChannelConverter(
+								// element -> channel
+								value -> {
+									// Set SoC to 100 % if battery is full and AllowedCharge is zero
+									if (value == null) {
+										return null;
+									}
+									int soc = (Integer) value;
+									IntegerReadChannel allowedCharge = this
+											.channel(EssChannelId.BECU1_CHARGE_CURRENT_LIMIT);
+									IntegerReadChannel allowedDischarge = this
+											.channel(EssChannelId.BECU1_DISCHARGE_CURRENT_LIMIT);
+									System.out.println(allowedCharge.value().toString() + ", "
+											+ allowedDischarge.value().toString());
+									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
+											&& allowedDischarge.value().orElse(0) != 0) {
+										return 100;
+									} else {
+										return value;
+									}
+								}, //
+									// channel -> element
+								value -> value)) //
 				), //
 
 				new FC3ReadRegistersTask(30166, Priority.LOW, //

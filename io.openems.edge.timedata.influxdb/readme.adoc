@@ -1,0 +1,5 @@
+= InfluxDB
+
+Persists all data of OpenEMS Edge Channels to an InfluxDB timeseries database.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timedata.influxdb[Source Code icon:github[]]

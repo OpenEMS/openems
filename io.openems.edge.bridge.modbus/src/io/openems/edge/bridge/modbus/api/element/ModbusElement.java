@@ -62,6 +62,8 @@ public interface ModbusElement<T> {
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
 	 * set.
+	 * 
+	 * @param callback the callback
 	 */
 	public void onSetNextWrite(Consumer<Optional<T>> callback);
 

@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Power",
         StorageSystem: "Storage System",
         History: "History",
+        Live: 'Live',
         NoValue: "No value",
         Soc: "State of charge",
         Percentage: "Percentage",
@@ -34,8 +35,11 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Index",
-        AboutUI: "About hy-control-UI",
-        Settings: 'General Settings',
+        AboutUI: "About OpenEMS UI",
+        GeneralSettings: 'General Settings',
+        EdgeSettings: 'FEMS Settings',
+        Menu: 'Menu',
+        Overview: 'FEMS Overview',
         Logout: 'Sign Out'
     },
     Index: {
@@ -43,19 +47,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "hy-control is offline!",
-        PleaseLogin: "Please enter your access data or confirm to log in.",
-        Username: "Username/email",
-        Password: "Password",
-        LostPassword: "Password lost",
-        FormInvalid: "Please fill out the form completely",
-        Connecting: "Connecting...",
-        LoginWrong: "Wrong username / password.",
-        NotOnline: "The device is not connected.",
-        Type: "Type:",
-        ConnectedAs: "Connected as:",
-        MoreDevices: "There are more devices... Please adjust the filter.",
-        SaveLogin: "Save login data."
+        IsOffline: "OpenEMS is offline!"
     },
     Edge: {
         Index: {
@@ -100,6 +92,7 @@ export const TRANSLATION = {
                     CarFull: "Car is full",
                     EnergieSinceBeginning: "Energy since the begin of charge",
                     ChargeMode: "Charge Mode",
+                    ActivateCharging: "Activate the charging station",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",
@@ -110,7 +103,12 @@ export const TRANSLATION = {
                         ShortName: "Optimized",
                         Info: "In this mode, the load of the car is adjusted to the current production and consumption.",
                         MinInfo: "If you want to prevent that the car is not charging at the night, you could set a minimum charge.",
-                        MinCharging: "Guarantee minimum charge?"
+                        MinCharging: "Guarantee minimum charge?",
+                        ChargingPriority: {
+                            Info: "Depending on the prioritization, the selected component will be loaded first",
+                            Car: "Car",
+                            Storage: "Storage"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Force charging",
@@ -131,8 +129,7 @@ export const TRANSLATION = {
             LastWeek: "Last week",
             LastMonth: "Last month",
             LastYear: "Last year",
-            Go: "Go!",
-            Cumulative: "Cumulated data"
+            Go: "Go!"
         },
         Config: {
             Index: {
@@ -143,6 +140,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Execute simulations",
                 Log: "Log",
                 LiveLog: "Live system log",
+                AddComponents: "Install components",
+                AdjustComponents: "Configure components",
                 ManualControl: "Manual control",
                 DataStorage: "Data Storage"
             },
@@ -197,16 +196,5 @@ export const TRANSLATION = {
         LoggedIn: "Logged in.",
         AuthenticationFailed: "No Connection: Authentication failed.",
         Closed: "Connection closed."
-    },
-    Alerts: {
-        Error: "Error",
-        Default: "Something went wrong. Please try again.",
-        RetrievePwdHeader: "Lost password",
-        RetrievePwdMsg: "Please insert your email / username to set a new password.",
-        RetrievePwdPlaceholder: "email/username",
-        Cancel: "Cancel",
-        Send: "Send",
-        RetrievePwdSent: "A link to reset your password has been sent. Please check your email.",
-        RetrievePwdError: "An error occurd while retrieving your password. Please check your input and try again."
     }
 }

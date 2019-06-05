@@ -6,7 +6,7 @@ Export-Package: io.openems.edge.io.api
 Private-Package: \
 	io.openems.edge.wago
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

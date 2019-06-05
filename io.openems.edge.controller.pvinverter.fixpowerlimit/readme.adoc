@@ -1,0 +1,5 @@
+= PV-Inverter Fix Power Limit
+
+Sets a fixed power limit for PV-Inverter production.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.pvinverter.fixpowerlimit[Source Code icon:github[]]

@@ -14,7 +14,6 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.metadata.api.BackendUser;
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -27,6 +26,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
+import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
@@ -143,6 +143,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case DeleteComponentConfigRequest.METHOD:
 			resultFuture = this.handleDeleteComponentConfigRequest(edgeId, user,
 					DeleteComponentConfigRequest.from(request));
+			break;
+
+		case SetChannelValueRequest.METHOD:
+			resultFuture = this.handleSetChannelValueRequest(edgeId, user, SetChannelValueRequest.from(request));
 			break;
 
 		case ComponentJsonApiRequest.METHOD:
@@ -271,12 +275,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(String edgeId, User user,
-			CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
+			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(CreateComponentConfigRequest.METHOD, Role.INSTALLER);
-
-		// wrap original request inside ComponentJsonApiRequest
-		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, createComponentConfigRequest);
 
 		return this.parent.edgeWebsocket.send(edgeId, user, request);
 	}
@@ -291,12 +291,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(String edgeId, User user,
-			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast(UpdateComponentConfigRequest.METHOD, Role.INSTALLER);
-
-		// wrap original request inside ComponentJsonApiRequest
-		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, updateComponentConfigRequest);
+			UpdateComponentConfigRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast(UpdateComponentConfigRequest.METHOD, Role.OWNER);
 
 		return this.parent.edgeWebsocket.send(edgeId, user, request);
 	}
@@ -311,12 +307,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(String edgeId, User user,
-			DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
+			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
 
-		// wrap original request inside ComponentJsonApiRequest
-		String componentId = OpenemsConstants.COMPONENT_MANAGER_ID;
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(componentId, deleteComponentConfigRequest);
+		return this.parent.edgeWebsocket.send(edgeId, user, request);
+	}
+
+	/**
+	 * Handles a SetChannelValueRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the SetChannelValueRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(String edgeId, User user,
+			SetChannelValueRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
 
 		return this.parent.edgeWebsocket.send(edgeId, user, request);
 	}

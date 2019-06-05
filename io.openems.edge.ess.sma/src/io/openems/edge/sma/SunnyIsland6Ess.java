@@ -76,7 +76,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);

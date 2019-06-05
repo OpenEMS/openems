@@ -15,7 +15,7 @@ Private-Package: \
 	io.openems.edge.kostal.piko.ess,\
 	io.openems.edge.kostal.piko.gridmeter
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

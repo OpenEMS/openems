@@ -1,0 +1,5 @@
+= ESS Cluster
+
+Combines multiple energy storage systems (ESS) to one common ESS. This way every Controller can easily work with multiple ESS in parallel. Distribution of power requests to each ESS is controlled via the https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.core/src/io/openems/edge/ess/core/power[Power-Class icon:github[]].
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.cluster[Source Code icon:github[]]

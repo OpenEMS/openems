@@ -31,6 +31,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -98,7 +99,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 
@@ -122,7 +124,27 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(104)), //
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(106)), //
 						m(ProChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109)), //
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(109), new ElementToChannelConverter(
+								// element -> channel
+								value -> {
+									// Set SoC to 100 % if battery is full and AllowedCharge is zero
+									if (value == null) {
+										return null;
+									}
+									int soc = (Integer) value;
+									IntegerReadChannel allowedCharge = this
+											.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
+									IntegerReadChannel allowedDischarge = this
+											.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
+											&& allowedDischarge.value().orElse(0) != 0) {
+										return 100;
+									} else {
+										return value;
+									}
+								}, //
+									// channel -> element
+								value -> value)), //
 						m(ProChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(ProChannelId.BATTERY_CURRENT, new SignedWordElement(111),

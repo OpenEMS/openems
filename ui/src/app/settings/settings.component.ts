@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
 import { LanguageTag, Language } from '../shared/translate/language';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Service, Edge } from '../shared/shared';
 import { Alerts } from '../shared/service/alerts';
 
 @Component({
@@ -13,11 +14,14 @@ export class SettingsComponent {
 
   public env = environment;
 
+  public edge: Edge = null
   public readonly languages: LanguageTag[];
   public currentLanguage: LanguageTag;
 
   constructor(
     public translate: TranslateService,
+    private service: Service,
+    private route: ActivatedRoute,
     private alerts: Alerts,
   ) {
     this.languages = Language.getLanguageTags();
@@ -31,6 +35,12 @@ export class SettingsComponent {
   public setLanguage(language: LanguageTag): void {
     this.currentLanguage = language;
     this.translate.use(language);
+  }
+
+  ngOnInit() {
+    this.service.setCurrentComponent(this.translate.instant('Menu.GeneralSettings'), this.route).then(edge => {
+      this.edge = edge
+    });
   }
 
   public clearLogin() {

@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Žádná hodnota",
         Soc: "Stav nabití",
         Percentage: "Procentuální vyjádření",
@@ -33,8 +34,11 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Přehled",
-        AboutUI: "About hy-control-UI",
-        Settings: 'Obecné Nastavení',
+        AboutUI: "About OpenEMS UI",
+        GeneralSettings: 'Obecné Nastavení',
+        EdgeSettings: 'FEMS Obecné Nastavení',
+        Menu: 'Menu',
+        Overview: 'FEMS Overvire',
         Logout: 'Odhlásit'
     },
     Index: {
@@ -42,7 +46,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
         ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
-        IsOffline: "hy-control je ve stavu offline!"
+        IsOffline: "OpenEMS je ve stavu offline!"
     },
     Edge: {
         Index: {
@@ -85,6 +89,7 @@ export const TRANSLATION = {
                     CarFull: "Auto je plné",
                     EnergieSinceBeginning: "Energie od začátku nabíjení",
                     ChargeMode: "režim načítání",
+                    ActivateCharging: "Aktivujte nabíjecí stanici",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
@@ -94,8 +99,13 @@ export const TRANSLATION = {
                         Name: "Optimalizované zatížení",
                         ShortName: "optimalizované",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
-                        MinInfo: "Chcete-li zabránit nabíjení vozu při nízké paměti v noci, můžete nastavit minimální nabíjení.",
-                        MinCharging: "Garance minimálního poplatku?"
+                        MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
+                        MinCharging: "Garance minimálního poplatku?",
+                        ChargingPriority: {
+                            Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
+                            Car: "Car",
+                            Storage: "Storage"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
@@ -127,6 +137,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Zahájit simulaci",
                 Log: "Log",
                 LiveLog: "Live log systému",
+                AddComponents: "Komponenten installieren",
+                AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuální ovládání",
                 DataStorage: "Ukládání dat"
             },
@@ -167,14 +179,12 @@ export const TRANSLATION = {
         }
     },
     About: {
-        UI: "Uživatelské rozhraní pro hy-control a OpenEMS",
-        Developed: "Toto uživatelské rozhraní bylo vyvinuto společností KACO new energy jako open-source software.",
-        Fenecon: "Více o společnosti KACO new energy",
-        Fems: "Více o hy-control",
+        UI: "Uživatelské rozhraní pro OpenEMS",
+        Developed: "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Aktuální verze",
-        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš hy-control tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from hy-control-Team
+        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Zvolte jazyk:"
     },
     Notifications: {

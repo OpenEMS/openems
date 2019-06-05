@@ -30,7 +30,9 @@ export module DefaultTypes {
       dischargeActivePowerDC: number,
       maxDischargeActivePower?: number,
       powerRatio: number,
-      maxApparentPower: number
+      maxApparentPower: number,
+      effectiveChargePower: number,
+      effectiveDischargePower: number,
     }, production: {
       powerRatio: number,
       hasDC: boolean,
