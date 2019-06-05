@@ -4,7 +4,7 @@
 <ion-button [class.underline]="service.activePeriod === 'yesterday'" (click)="service.setPeriod('yesterday')">
     <span translate>Edge.History.Yesterday</span>
 </ion-button>
-<ion-button (click)="presentPopover()" [class.underline]="service.activePeriod === 'otherPeriod'"
+<ion-button (click)="presentPopover($event)" [class.underline]="service.activePeriod === 'otherPeriod'"
     (click)="service.clickOtherPeriod()">
     <span translate>Edge.History.OtherPeriod</span>
 </ion-button>

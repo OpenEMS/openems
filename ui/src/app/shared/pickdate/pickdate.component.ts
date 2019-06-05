@@ -4,7 +4,7 @@ import { PopoverController } from '@ionic/angular';
 import { IMyDateRangeModel, IMyDate } from 'mydaterangepicker';
 import { isSameDay, subDays, format, getYear, getMonth, getDate } from 'date-fns/esm';
 import { TranslateService } from '@ngx-translate/core';
-import { PickDatePopoverComponent } from './pickdate-modal/pickdate-popover.component';
+import { PickDatePopoverComponent } from './popover/popover.component';
 
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
@@ -120,13 +120,9 @@ export class PickDateComponent {
         const popover = await this.popoverController.create({
             component: PickDatePopoverComponent,
             event: ev,
-            translucent: true,
-            cssClass: 'position: relative;'
+            translucent: false,
+            cssClass: 'pickdate-popover'
         });
         return await popover.present();
-    }
-
-    check() {
-        console.log("passed")
     }
 }

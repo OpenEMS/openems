@@ -55,7 +55,6 @@ import { Language } from './translate/language';
       loader: { provide: TranslateLoader, useClass: Language }
     }),
   ],
-  entryComponents: [],
   declarations: [
     // pipes
     KeysPipe,

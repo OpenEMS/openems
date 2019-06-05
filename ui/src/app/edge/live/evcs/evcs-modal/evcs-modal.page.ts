@@ -35,7 +35,6 @@ export class EvcsModalPage implements OnInit {
 
   ngOnInit() {
     this.getScreenSize();
-    this.edge.currentData
   }
 
   cancel() {

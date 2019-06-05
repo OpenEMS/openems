@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Platform, ToastController, MenuController, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import { Platform, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
@@ -32,8 +32,6 @@ export class AppComponent {
     public service: Service,
     public router: Router,
     public toastController: ToastController,
-    public menu: MenuController,
-    public actionSheetController: ActionSheetController,
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
