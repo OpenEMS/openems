@@ -11,9 +11,10 @@
 @import '~@ionic/angular/css/flex-utils.css';
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 
+//252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content{
-     width: 252px;
-     position: center;
+    width: 252px;
+    position: center;
 }
 
 mat-card.single {
