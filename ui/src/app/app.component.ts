@@ -116,7 +116,7 @@ export class AppComponent {
     let file = urlArray.pop();
 
     // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
-    if ((file == 'history' || file == 'live') && urlArray.length == 3) {
+    if ((file == 'history' || file == 'live') && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
       this.backUrl = false;
       return;
     } else {

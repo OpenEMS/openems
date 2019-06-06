@@ -102,7 +102,7 @@
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-backend-dev-live.ts"
+                  "with": "src/environments/openems-backend.ts"
                 }
               ],
               "baseHref": "/primus-dev/",
