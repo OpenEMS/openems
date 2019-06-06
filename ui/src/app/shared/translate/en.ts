@@ -47,7 +47,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "hy-control is offline!",
+        IsOffline: "hy-EMS is offline!",
         PleaseLogin: "Please enter your access data or confirm to log in.",
         Username: "Username/email",
         Password: "Password",
