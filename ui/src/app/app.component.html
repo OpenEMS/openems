@@ -19,36 +19,20 @@
       </ng-container>
     </ion-toolbar>
 
-
-
     <ng-container *ngIf="isEdgeIndexPage && service.currentEdge | async as edge">
       <ion-toolbar color="primary">
         <ion-segment>
-          <ng-container *ngIf="isEdgeLivePage; else liveNotChecked">
-            <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/live">
-              <ion-label translate>General.Live</ion-label>
-            </ion-segment-button>
-          </ng-container>
-          <ng-template #liveNotChecked>
-            <ion-segment-button value="Live" routerLink="/device/{{ edge.id }}/live">
-              <ion-label translate>General.Live</ion-label>
-            </ion-segment-button>
-          </ng-template>
-          <ng-container *ngIf="isEdgeHistoryPage; else historyNotChecked">
-            <ion-segment-button checked value="History" routerLink="/device/{{ edge.id }}/history">
-              <ion-label translate>General.History</ion-label>
-            </ion-segment-button>
-          </ng-container>
-          <ng-template #historyNotChecked>
-            <ion-segment-button value="History" routerLink="/device/{{ edge.id }}/history">
-              <ion-label translate>General.History</ion-label>
-            </ion-segment-button>
-          </ng-template>
+          <ion-segment-button [checked]="isEdgeLivePage" value="Live" routerLink="/device/{{ edge.id }}/live">
+            <ion-label translate>General.Live</ion-label>
+          </ion-segment-button>
+          <ion-segment-button [checked]="!isEdgeLivePage" value="History" routerLink="/device/{{ edge.id }}/history">
+            <ion-label translate>General.History</ion-label>
+          </ion-segment-button>
         </ion-segment>
       </ion-toolbar>
     </ng-container>
 
-    <ng-container *ngIf="isEdgeHistoryPage && service.currentEdge | async as edge">
+    <ng-container *ngIf="!isEdgeLivePage && service.currentEdge | async as edge">
       <ion-toolbar color="primary">
         <ion-buttons slot="end">
           <pickdate></pickdate>

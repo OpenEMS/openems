@@ -23,9 +23,8 @@ export class PickDateComponent {
         public popoverController: PopoverController,
     ) { }
 
-
     ngOnInit() {
-        this.service.setPeriod('today')
+        this.setPeriod('today')
     }
 
     ngOnDestroy() { }
@@ -40,7 +39,6 @@ export class PickDateComponent {
     }
 
     public onDateRangeChanged(event: IMyDateRangeModel) {
-        console.log("ONDATERANGECHANGED")
         let fromDate = event.beginJsDate;
         let toDate = event.endJsDate;
         if (isSameDay(fromDate, toDate)) {

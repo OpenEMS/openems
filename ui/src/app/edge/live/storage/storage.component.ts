@@ -19,7 +19,7 @@ export class StorageComponent {
         public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
-        public modalController: ModalController,
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -40,7 +40,7 @@ export class StorageComponent {
     }
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await this.modalCtrl.create({
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge

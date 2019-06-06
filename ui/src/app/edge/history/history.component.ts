@@ -25,7 +25,7 @@ export class HistoryComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: Service,
+    public service: Service,
   ) { }
 
   ngOnInit() {

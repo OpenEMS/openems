@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Platform, ToastController } from '@ionic/angular';
+import { Platform, ToastController, MenuController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
@@ -19,7 +19,6 @@ export class AppComponent {
   public enableSideMenu: boolean;
   public isEdgeIndexPage: boolean = false;
   public isEdgeLivePage: boolean = false;
-  public isEdgeHistoryPage: boolean = false;
   public isSystemLogEnabled: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -32,6 +31,7 @@ export class AppComponent {
     public service: Service,
     public router: Router,
     public toastController: ToastController,
+    public menu: MenuController
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -71,7 +71,6 @@ export class AppComponent {
     this.updateEnableSideMenu(url);
     this.updateIsEdgeIndexPage(url);
     this.updateIsEdgeLivePage(url);
-    this.updateIsEdgeHistoryPage(url);
   }
 
   updateEnableSideMenu(url: string) {
@@ -153,18 +152,6 @@ export class AppComponent {
       this.isEdgeLivePage = true;
     } else {
       this.isEdgeLivePage = false;
-    }
-  }
-
-  updateIsEdgeHistoryPage(url: string) {
-    let urlArray = url.split('/');
-    let file = urlArray.pop();
-
-    // Enable Segment Navigation for Edge-Index-Page
-    if (file == 'history' && urlArray.length == 3) {
-      this.isEdgeHistoryPage = true;
-    } else {
-      this.isEdgeHistoryPage = false;
     }
   }
 
