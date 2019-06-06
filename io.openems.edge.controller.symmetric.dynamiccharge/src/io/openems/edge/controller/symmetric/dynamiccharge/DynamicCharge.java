@@ -34,8 +34,9 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
-	private static TreeMap<LocalDateTime, Long> StoragehargeSchedule = new TreeMap<LocalDateTime, Long>();
-	boolean executed = false;
+	private TreeMap<LocalDateTime, Long> StoragehargeSchedule = new TreeMap<LocalDateTime, Long>();
+	private boolean executed = false;
+	private boolean readonly = false;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -68,6 +69,8 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+
+		this.readonly = config.readonly();
 	}
 
 	@Deactivate
@@ -89,34 +92,38 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		this.calculateTotalConsumption.run(ess, gridMeter, config, sum);
 
 		// Hours and Amount of energy to charge in the form of TreeMap
-		if (CalculateConsumption.t0 != null) {
-			if (!executed && hourOfDay == 17 && !CalculateConsumption.chargeSchedule.isEmpty()) {
-				StoragehargeSchedule = CalculateConsumption.chargeSchedule;
+		if (this.calculateTotalConsumption.getT0() != null) {
+			if (!executed && hourOfDay == 17 && !this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
+				this.StoragehargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
 				executed = true;
 			}
 		}
-		if (CalculateConsumption.t1 != null) {
+
+		if (this.calculateTotalConsumption.getT1() != null) {
 			if (executed && hourOfDay == 9) {
-				StoragehargeSchedule.clear();
+				this.StoragehargeSchedule.clear();
 				executed = false;
 			}
 		}
 
 		// Charge Condition
-		if (!StoragehargeSchedule.isEmpty()) {
-			for (Map.Entry<LocalDateTime, Long> entry : StoragehargeSchedule.entrySet()) {
+		if (!this.StoragehargeSchedule.isEmpty()) {
+			for (Map.Entry<LocalDateTime, Long> entry : this.StoragehargeSchedule.entrySet()) {
 				if (now.getHour() == entry.getKey().getHour()) {
 
 					/*
 					 * Actual condition to charge the ESS
 					 */
-					System.out.println("Charging");
-					long power = entry.getValue();
-					int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
-							(int) power);
-					ess.addPowerConstraintAndValidate("SymmetricFixActivePower", Phase.ALL, Pwr.ACTIVE,
-							Relationship.EQUALS, calculatedPower);
+					if (this.readonly) {
+						System.out.println("Charging");
+						long power = entry.getValue();
+						int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
+								(int) power);
+						ess.addPowerConstraintAndValidate("SymmetricDynamicChargePower", Phase.ALL, Pwr.ACTIVE,
+								Relationship.EQUALS, calculatedPower);
 
+					}
+					log.info("Mock up Charging: " + entry.getValue());
 				}
 
 			}
