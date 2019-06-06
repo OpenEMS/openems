@@ -56,7 +56,8 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	public static final int DEFAULT_PORT = 8075;
 
-	private final ApiWorker apiWorker = new ApiWorker();
+	protected final ApiWorker apiWorker = new ApiWorker();
+
 	private final SystemLogHandler systemLogHandler;
 
 	protected WebsocketServer server = null;
@@ -105,7 +106,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (!this.isEnabled()) {
 			// abort if disabled
 			return;

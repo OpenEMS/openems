@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
 import io.openems.edge.common.user.EdgeUser;
 
@@ -62,11 +63,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		}
 		wsData.setSessionToken(token);
 
-		// if we are here, automatic authentication was not possible -> notify client
-		// TODO // send authentication notification
-		// AuthenticateWithSessionIdNotification notification = new
-		// AuthenticateWithSessionIdNotification(
-		// token, Utils.getEdgeMetadata(user.getRoleId()));
+		if (!wsData.getUser().isPresent()) {
+			// automatic authentication was not possible -> notify client
+			this.parent.server.sendMessage(ws, new AuthenticateWithSessionIdFailedNotification());
+		}
 	}
 
 }

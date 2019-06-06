@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.common.access_control.AccessControl;
 import io.openems.common.access_control.RoleId;
+import io.openems.common.channel.Level;
 import io.openems.common.utils.FileUtils;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
@@ -216,7 +217,8 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
                             "", // Product-Type
                             new EdgeConfig(), // Config
                             null, // State of Charge
-                            null // IPv4
+                            null, // IPv4
+                            Level.OK
                     ));
 
                     // handle the permitted channels for the current user's edge

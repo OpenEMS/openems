@@ -14,7 +14,7 @@ Export-Package: \
 Require-Capability: \
 	compile-only
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

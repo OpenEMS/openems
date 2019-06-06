@@ -13,18 +13,18 @@ public abstract class AbstractScheduler extends AbstractOpenemsComponent impleme
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	protected void activate(ComponentContext context, String id, boolean enabled, int cycleTime) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int cycleTime) {
 		if (cycleTime < 1) {
 			this.cycleTime = Scheduler.DEFAULT_CYCLE_TIME;
 		} else {
 			this.cycleTime = cycleTime;
 		}
-		super.activate(context, id, enabled);
+		super.activate(context, id, alias, enabled);
 	}
 
 	@Override
-	protected void activate(ComponentContext context, String id, boolean enabled) {
-		this.activate(context, id, enabled, Scheduler.DEFAULT_CYCLE_TIME);
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+		this.activate(context, id, alias, enabled, Scheduler.DEFAULT_CYCLE_TIME);
 	}
 
 	@Override

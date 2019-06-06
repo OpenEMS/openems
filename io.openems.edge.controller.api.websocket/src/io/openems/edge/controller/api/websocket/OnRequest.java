@@ -28,6 +28,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
+import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
@@ -122,6 +123,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
             case GetEdgeConfigRequest.METHOD:
                 resultFuture = this.handleGetEdgeConfigRequest(wsData, user, GetEdgeConfigRequest.from(request));
                 break;
+
+		case SetChannelValueRequest.METHOD:
+			resultFuture = this.handleSetChannelValueRequest(user, SetChannelValueRequest.from(request));
+			break;
 
             case ComponentJsonApiRequest.METHOD:
                 resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
@@ -309,6 +314,21 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
                 getEdgeConfigRequest);
 
         return this.handleComponentJsonApiRequest(user, request);
+	}
+
+	/**
+	 * Handles a SetChannelValueRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the SetChannelValueRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(EdgeUser user,
+			SetChannelValueRequest request) throws OpenemsNamedException {
+		user.assertRoleIsAtLeast(SetChannelValueRequest.METHOD, Role.ADMIN);
+
+		return this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, user, request);
     }
 
     /**

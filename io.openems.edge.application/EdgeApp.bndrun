@@ -177,4 +177,6 @@
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
-	io.openems.edge.ess.byd.container;version=snapshot
+	io.openems.edge.ess.byd.container;version=snapshot,\
+	io.openems.wrapper.fastexcel;version=snapshot,\
+	io.openems.wrapper.opczip;version=snapshot

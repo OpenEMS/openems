@@ -6,7 +6,7 @@ Export-Package: io.openems.edge.controller.api
 Private-Package:  \
 	io.openems.edge.controller.api.websocket
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
     org.java-websocket:Java-WebSocket;version=1.3,\

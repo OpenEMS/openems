@@ -1,0 +1,5 @@
+= Debug Log
+
+Constantly shows the most important values of all Components on the console. This is often activated by default to be able to track the running system easily.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.debug.log[Source Code icon:github[]]

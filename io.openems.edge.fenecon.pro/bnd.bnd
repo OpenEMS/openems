@@ -13,7 +13,7 @@ Private-Package: \
 	io.openems.edge.fenecon.pro.ess,\
 	io.openems.edge.fenecon.pro.pvmeter
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

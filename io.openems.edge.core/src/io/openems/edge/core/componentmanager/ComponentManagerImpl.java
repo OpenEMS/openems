@@ -5,6 +5,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.Manifest;
@@ -113,7 +114,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
-        super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, true);
+		super.activate(componentContext, OpenemsConstants.COMPONENT_MANAGER_ID, "Component-Manager", true);
 
         this.bundleContext = bundleContext;
 
@@ -216,7 +217,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
         // Update Configuration
         try {
             this.applyConfiguration(user, config, properties);
-        } catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
             throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
         }
@@ -330,73 +331,116 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
     public EdgeConfig getEdgeConfig() {
         EdgeConfig result = new EdgeConfig();
 
-        // get configurations that have an 'id' property -> OpenEMS Components
+		/*
+		 * Create Components-Map with Component-ID -> Configuration
+		 */
+		Map<String, Configuration> componentsMap = new HashMap<>();
+
         try {
-            Configuration[] configs = this.cm.listConfigurations("(id=*)");
-            for (Configuration config : configs) {
+			// get configurations that have an 'id' property -> OpenEMS Components
+			Configuration[] configurations = this.cm.listConfigurations("(id=*)");
+
+			// Add configurations from ConfigurationAdmin
+			for (Configuration config : configurations) {
                 Dictionary<String, Object> properties = config.getProperties();
                 String componentId = properties.get("id").toString();
+				componentsMap.put(componentId, config);
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			this.logWarn(this.log,
+					"Unable to list configurations " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+		// Add all remaining components, like singletons without ConfigurationAdmin
+		// configuration (=null)
+		for (OpenemsComponent component : this.components) {
+			String componentId = component.id();
+			if (!componentsMap.containsKey(componentId)) {
+				componentsMap.put(component.id(), null);
+			}
+		}
+		// Add myself
+		componentsMap.put(this.id(), null);
+
+		/*
+		 * Create EdgeConfig from Components-Map
+		 */
+		for (Entry<String, Configuration> componentEntry : componentsMap.entrySet()) {
+			String componentId = componentEntry.getKey();
+			String alias = componentId;
+			boolean isEnabled = false; // defaults to true
+			TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
+			String factoryPid = "";
+
+			Configuration config = componentEntry.getValue();
+			if (config != null) {
+				Dictionary<String, Object> properties = config.getProperties();
                 // get Factory-PID
-                Object factoryPid = config.getFactoryPid();
-                if (factoryPid == null) {
-                    this.logWarn(this.log, "Component [" + componentId + "] has no Factory-PID");
-                    continue;
+				if (config.getFactoryPid() != null) {
+					factoryPid = config.getFactoryPid().toString();
                 }
+
+				// get Alias
+				if (properties.get("alias") != null) {
+					alias = properties.get("alias").toString();
+				}
+
                 // get configuration properties
-                TreeMap<String, JsonElement> propertyMap = new TreeMap<>();
                 Enumeration<String> keys = properties.keys();
                 while (keys.hasMoreElements()) {
                     String key = keys.nextElement();
                     if (!this.ignorePropertyKey(key)) {
-                        propertyMap.put(key, JsonUtils.getAsJsonElement(properties.get(key)));
+						propertyMap.put(key, getPropertyAsJsonElement(properties.get(key)));
                     }
                 }
-                // get Channels
-                TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
-                try {
-                    OpenemsComponent component = this.getComponent(componentId);
-                    for (Channel<?> channel : component.channels()) {
-                        io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
-                        Doc doc = channelId.doc();
-                        ChannelDetail detail = null;
-                        switch (doc.getChannelCategory()) {
-                            case ENUM: {
-                                Map<String, JsonElement> values = new HashMap<>();
-                                EnumDoc d = (EnumDoc) doc;
-                                for (OptionsEnum option : d.getOptions()) {
-                                    values.put(option.getName(), new JsonPrimitive(option.getValue()));
-                                }
-                                detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
-                                break;
-                            }
-                            case OPENEMS_TYPE:
-                                detail = new ChannelDetailOpenemsType();
-                                break;
-                            case STATE:
-                                StateChannelDoc d = (StateChannelDoc) doc;
-                                Level level = d.getLevel();
-                                detail = new ChannelDetailState(level);
-                                break;
-                        }
-                        channelMap.put(channelId.id(), new EdgeConfig.Component.Channel(//
-                                doc.getType(), //
-                                doc.getAccessMode(), //
-                                doc.getUnit(), //
-                                detail //
-                        ));
-                    }
-                } catch (OpenemsNamedException e) {
-                    // Component not found. Ignore and return empty Channel-Map
-                    this.logWarn(this.log, e.getMessage());
-                }
+			}
 
-                result.addComponent(componentId,
-                        new EdgeConfig.Component(factoryPid.toString(), propertyMap, channelMap));
-            }
-        } catch (IOException | InvalidSyntaxException e) {
-            this.logWarn(this.log,
-                    "Unable to list configurations " + e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
+			// get Alias and Channels
+			TreeMap<String, EdgeConfig.Component.Channel> channelMap = new TreeMap<>();
+			try {
+				OpenemsComponent component = this.getComponent(componentId);
+				isEnabled = component.isEnabled();
+				alias = component.alias();
+				for (Channel<?> channel : component.channels()) {
+					io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
+					Doc doc = channelId.doc();
+					ChannelDetail detail = null;
+					switch (doc.getChannelCategory()) {
+					case ENUM: {
+						Map<String, JsonElement> values = new HashMap<>();
+						EnumDoc d = (EnumDoc) doc;
+						for (OptionsEnum option : d.getOptions()) {
+							values.put(option.getName(), new JsonPrimitive(option.getValue()));
+						}
+						detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values);
+						break;
+					}
+					case OPENEMS_TYPE:
+						detail = new ChannelDetailOpenemsType();
+						break;
+					case STATE:
+						StateChannelDoc d = (StateChannelDoc) doc;
+						Level level = d.getLevel();
+						detail = new ChannelDetailState(level);
+						break;
+					}
+					channelMap.put(channelId.id(), new EdgeConfig.Component.Channel(//
+							channelId.id(), //
+							doc.getType(), //
+							doc.getAccessMode(), //
+							doc.getText(), //
+							doc.getUnit(), //
+							detail //
+					));
+				}
+			} catch (OpenemsNamedException e) {
+				// Component not found. Ignore and return empty Channel-Map
+				this.logWarn(this.log, e.getMessage());
+			}
+
+			// Create EdgeConfig.Component and add it to Result
+			result.addComponent(componentId,
+					new EdgeConfig.Component(componentId, alias, isEnabled, factoryPid, propertyMap, channelMap));
+		}
 
         final Bundle[] bundles = this.bundleContext.getBundles();
         for (Bundle bundle : bundles) {
@@ -425,7 +469,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
                         // Get Natures implemented by this Factory-PID
                         String[] natures = this.getNatures(bundle, manifest, factoryPid);
                         // Add Factory to config
-                        result.addFactory(factoryPid, EdgeConfig.Factory.create(objectClassDefinition, natures));
+					result.addFactory(factoryPid,
+							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
                 }
             }
         }
@@ -530,6 +575,27 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
             default:
                 return false;
         }
+	}
+
+	/**
+	 * Gets a component Property as JsonElement. Uses some more techniques to find
+	 * the proper type than {@link JsonUtils#getAsJsonElement(Object)}.
+	 * 
+	 * @param value the property value
+	 * @return the value as JsonElement
+	 */
+	private static JsonElement getPropertyAsJsonElement(Object valueObj) {
+		if (valueObj != null && valueObj instanceof String) {
+			String value = (String) valueObj;
+			// find boolean
+			if (value.equalsIgnoreCase("true")) {
+				return new JsonPrimitive(true);
+			} else if (value.equalsIgnoreCase("false")) {
+				return new JsonPrimitive(false);
+			}
+		}
+		// falback to JsonUtils
+		return JsonUtils.getAsJsonElement(valueObj);
     }
 
     @Override

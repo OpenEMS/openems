@@ -26,7 +26,9 @@ export class CurrentData {
                 dischargeActivePowerDC: null,
                 maxDischargeActivePower: null,
                 powerRatio: null,
-                maxApparentPower: null
+                maxApparentPower: null,
+                effectiveChargePower: null,
+                effectiveDischargePower: null,
             }, production: {
                 hasDC: false,
                 powerRatio: null,
@@ -46,35 +48,6 @@ export class CurrentData {
                 activePower: null
             }
         };
-
-        {
-            /*
-             * Storage
-             * > 0 => Discharge
-             * < 0 => Charge
-             */
-            result.storage.soc = c['_sum/EssSoc'];
-            const essActivePower: number = c['_sum/EssActivePower'];
-            result.storage.maxApparentPower = c['_sum/MaxApparentPower'];
-            if (!result.storage.maxApparentPower) {
-                result.storage.maxApparentPower = 5000;
-            }
-            result.storage.chargeActivePowerDC = c['_sum/ProductionDcActualPower'];
-            if (essActivePower == null) {
-                // keep 'null'
-            } else if (essActivePower > 0) {
-                result.storage.chargeActivePowerAC = 0;
-                result.storage.dischargeActivePowerAC = essActivePower;
-                // TODO: should consider DC-Power of ratio
-                result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
-            } else {
-                result.storage.chargeActivePowerAC = Utils.multiplySafely(essActivePower, -1);
-                result.storage.dischargeActivePowerAC = 0;
-                result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
-            }
-            result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
-            result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC;
-        }
 
         {
             /*
@@ -119,9 +92,57 @@ export class CurrentData {
 
         {
             /*
+             * Storage
+             * > 0 => Discharge
+             * < 0 => Charge
+             */
+            result.storage.soc = c['_sum/EssSoc'];
+            const essActivePower: number = c['_sum/EssActivePower'];
+            result.storage.maxApparentPower = c['_sum/EssMaxApparentPower'];
+
+            if (!result.storage.maxApparentPower) {
+                result.storage.maxApparentPower = 5000;
+            }
+            result.storage.chargeActivePowerDC = c['_sum/ProductionDcActualPower'];
+            if (essActivePower == null) {
+                // keep 'null'
+            } else if (essActivePower > 0) {
+                result.storage.chargeActivePowerAC = null;
+                result.storage.dischargeActivePowerAC = essActivePower;
+                // TODO: should consider DC-Power of ratio
+                result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
+            } else {
+                result.storage.chargeActivePowerAC = Utils.multiplySafely(essActivePower, -1);
+                result.storage.dischargeActivePowerAC = null;
+                result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
+
+            }
+            result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
+            result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC;
+
+            let effectivePower;
+            if (result.storage.chargeActivePowerAC == null && result.storage.dischargeActivePowerAC == null && result.production.activePowerDC == null) {
+                effectivePower = null;
+            } else {
+                effectivePower = Utils.subtractSafely(
+                    Utils.subtractSafely(
+                        Utils.orElse(result.storage.dischargeActivePowerAC, 0), result.storage.chargeActivePowerAC
+                    ), result.production.activePowerDC);
+            }
+            if (effectivePower != null) {
+                if (effectivePower > 0) {
+                    result.storage.effectiveDischargePower = effectivePower;
+                } else {
+                    result.storage.effectiveChargePower = effectivePower * -1;
+                }
+            }
+        }
+
+        {
+            /*
              * Consumption
              */
-            result.consumption.activePower = Utils.orElse(c['_sum/ConsumptionActivePower'], 0);
+            result.consumption.activePower = c['_sum/ConsumptionActivePower'];
             let consumptionMaxActivePower = c['_sum/ConsumptionMaxActivePower'];
             if (!consumptionMaxActivePower) {
                 consumptionMaxActivePower = 10000;

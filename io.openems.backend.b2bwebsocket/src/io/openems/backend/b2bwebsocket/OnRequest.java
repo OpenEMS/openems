@@ -3,6 +3,7 @@ package io.openems.backend.b2bwebsocket;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import io.openems.backend.metadata.api.IntersectChannels;
 import io.openems.common.jsonrpc.request.*;
@@ -46,7 +47,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
             throws OpenemsException, OpenemsNamedException {
         WsData wsData = ws.getAttachment();
-        BackendUser user = wsData.assertUser();
+		BackendUser user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
         switch (request.getMethod()) {
 
@@ -193,7 +194,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         for (String edgeId : request.getEdgeIds()) {
             // assure read permissions of this User for this Edge.
             user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);
-            request.removeEdgeId(edgeId);
         }
 
         SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();

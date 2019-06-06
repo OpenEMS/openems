@@ -1,6 +1,10 @@
 package io.openems.backend.b2bwebsocket;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError;
@@ -10,7 +14,7 @@ import io.openems.common.websocket.SubscribedChannelsWorker;
 public class WsData extends io.openems.common.websocket.WsData {
 
 	private final SubscribedChannelsWorker worker;
-	private BackendUser user = null;
+	private CompletableFuture<BackendUser> user = new CompletableFuture<BackendUser>();
 
 	public WsData(B2bWebsocket parent) {
 		this.worker = new SubscribedChannelsWorkerMultipleEdges(parent, this);
@@ -22,26 +26,25 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public void setUser(BackendUser user) {
-		this.user = user;
+		this.user.complete(user);
 	}
 
-	public Optional<BackendUser> getUser() {
-		return Optional.ofNullable(user);
+	// TODO Use "Future<User>" in all bundles to avoid authenticated failed errors
+	// if the websocket had not been fully opened before the first JSON-RPC Request
+	public CompletableFuture<BackendUser> getUser() {
+		return this.user;
 	}
 
-	/**
-	 * Gets the authenticated User or throws an Exception if User is not
-	 * authenticated.
-	 * 
-	 * @return the User
-	 * @throws OpenemsNamedException if User is not authenticated
-	 */
-	public BackendUser assertUser() throws OpenemsNamedException {
-		Optional<BackendUser> userOpt = this.getUser();
-		if (!userOpt.isPresent()) {
-			OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("");
+	public BackendUser getUserWithTimeout(long timeout, TimeUnit unit) throws OpenemsNamedException {
+		try {
+			return this.user.get(timeout, unit);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("UNKNOWN");
 		}
-		return userOpt.get();
+	}
+
+	public Optional<BackendUser> getUserOpt() {
+		return Optional.ofNullable(this.user.getNow(null));
 	}
 
 	/**

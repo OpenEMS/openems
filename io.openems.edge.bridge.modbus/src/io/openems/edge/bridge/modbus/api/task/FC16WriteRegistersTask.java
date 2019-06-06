@@ -57,16 +57,17 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	}
 
 	@Override
-	public void execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
+		int noOfWrittenRegisters = 0;
 		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
 		// Execute combined writes
 		for (CombinedWriteRegisters write : writes) {
+			Register[] registers = write.getRegisters();
 			try {
 				/*
 				 * First try
 				 */
-				this.writeMultipleRegisters(bridge, this.getParent().getUnitId(), write.startAddress,
-						write.getRegisters());
+				this.writeMultipleRegisters(bridge, this.getParent().getUnitId(), write.startAddress, registers);
 			} catch (OpenemsException | ModbusException e) {
 				/*
 				 * Second try: with new connection
@@ -79,7 +80,9 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 					throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 				}
 			}
+			noOfWrittenRegisters += registers.length;
 		}
+		return noOfWrittenRegisters;
 	}
 
 	private void writeMultipleRegisters(AbstractModbusBridge bridge, int unitId, int startAddress, Register[] registers)
