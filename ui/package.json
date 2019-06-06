@@ -56,7 +56,7 @@
     "hammerjs": "2.0.8",
     "intl": "^1.2.5",
     "mydaterangepicker": "^4.2.1",
-    "ng2-charts": "^2.2.4",
+    "ng2-charts": "2.2.3",
     "ng2-cookies": "^1.0.12",
     "ngx-loading": "^3.0.1",
     "node-sass": "^4.12.0",
