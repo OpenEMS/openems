@@ -13,9 +13,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.backend.timedata.api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.backend.timedata.influx.provider"/>
 	<classpathentry kind="lib" path="lib/jts-1.14.jar" sourcepath="lib/jts-1.14-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jts-1.14-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>

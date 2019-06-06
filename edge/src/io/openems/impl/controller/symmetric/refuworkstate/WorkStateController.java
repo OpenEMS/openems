@@ -140,25 +140,20 @@ public class WorkStateController extends Controller {
 					errorOccured = System.currentTimeMillis();
 				}
 				ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
-				if (errorOccured != null && errorOccured <= System.currentTimeMillis() - 30 * 1000
-						&& lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000) {
+				if (errorOccured != null && errorOccured <= System.currentTimeMillis() - 30 * 1000 // errorhandling since 30 seconds
+						&& lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000) { // last reset more than 2 hours
 					currentState = State.RESETERRORON;
 					errorOccured = null;
 				}
 				break;
 			case GOSTART:
 				log.info("Go Start");
-				systemstate.setValue(2L);
-				if (start.value()) {
-					if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
-						ess.setWorkState.pushWriteFromLabel(EssNature.START);
-					} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
-						currentState = State.START;
-					} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
-						currentState = State.ERROR;
-					} else {
-						currentState = State.STOP;
-					}
+				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
+					ess.setWorkState.pushWriteFromLabel(EssNature.START);
+				} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+					currentState = State.START;
+				} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
+					currentState = State.ERROR;
 				} else {
 					currentState = State.STOP;
 				}

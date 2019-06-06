@@ -39,7 +39,6 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.security.User;
-import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -56,6 +55,7 @@ import io.openems.core.utilities.LinuxCommand;
 import io.openems.core.utilities.api.ApiWorker;
 import io.openems.core.utilities.api.WriteJsonObject;
 import io.openems.core.utilities.api.WriteObject;
+import io.openems.impl.persistence.influxdb.TimedataService;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...

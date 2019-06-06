@@ -34,7 +34,7 @@ public class ModbusTcpApiController extends Controller {
 
 	private Optional<ModbusSlave> slaveOpt = Optional.empty();
 	private final ApiWorker apiWorker = new ApiWorker();
-	private final MyProcessImage processImage = new MyProcessImage(UNIT_ID, apiWorker);
+	private final MyProcessImage processImage = new MyProcessImage(apiWorker);
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*

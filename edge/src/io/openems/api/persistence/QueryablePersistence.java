@@ -24,9 +24,9 @@ import java.util.Optional;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.impl.persistence.influxdb.TimedataService;
 
 public abstract class QueryablePersistence extends Persistence implements TimedataService {
 	@Override

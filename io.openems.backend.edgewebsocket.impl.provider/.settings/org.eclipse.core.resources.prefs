@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/backend/edgewebsocket/impl/provider/EdgeWebsocket.java=UTF-8
-encoding//src/io/openems/backend/edgewebsocket/impl/provider/package-info.java=UTF-8
-encoding//test/io/openems/backend/edgewebsocket/provider/ProviderImplTest.java=UTF-8
-encoding//test/io/openems/backend/edgewebsocket/provider/package-info.java=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/debug.bndrun=UTF-8
-encoding/io.openems.backend.edgewebsocket.provider.bndrun=UTF-8
-encoding/readme.md=UTF-8

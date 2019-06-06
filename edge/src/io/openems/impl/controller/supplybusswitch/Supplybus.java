@@ -88,16 +88,16 @@ public class Supplybus {
 				try {
 					loads.get(i).pushWrite(0L);
 				} catch (WriteChannelException e) {
-					log.warn("Failed to set loadState.", e);
+					logWarn("Failed to set loadState: " + e.getMessage());
 				}
 			}
 		}
 		StringBuilder sb = new StringBuilder(state.toString());
-		if(activeEss != null) {
+		if (activeEss != null) {
 			sb.append(" ");
 			sb.append(activeEss.id());
 		}
-		log.info(sb.toString());
+		logInfo(sb.toString());
 		switch (state) {
 		case CONNECTED: {
 			Ess active;
@@ -109,14 +109,15 @@ public class Supplybus {
 					// check if ess is empty
 					if ((active.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))
 							&& active.soc.value() < active.minSoc.value())
-							|| active.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))|| active.systemState.labelOptional().equals(Optional.of(EssNature.STOP))) {
+							|| active.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))
+							|| active.systemState.labelOptional().equals(Optional.of(EssNature.STOP))) {
 						state = State.DISCONNECTING;
 					} else {
 						if (supplybusOnIndication != null) {
 							try {
 								supplybusOnIndication.pushWrite(1L);
 							} catch (WriteChannelException e) {
-								log.error("can't set supplybusOnIndication", e);
+								logError("can't set supplybusOnIndication: " + e.getMessage());
 							}
 						}
 					}
@@ -133,7 +134,7 @@ public class Supplybus {
 					try {
 						supplybusOnIndication.pushWrite(1L);
 					} catch (WriteChannelException e) {
-						log.error("can't set supplybusOnIndication", e);
+						logError("can't set supplybusOnIndication: " + e.getMessage());
 					}
 				}
 				// connect all loads after ess connected and started
@@ -142,7 +143,7 @@ public class Supplybus {
 						state = State.CONNECTED;
 					}
 				} catch (WriteChannelException e) {
-					log.warn("Can't start load.", e);
+					logWarn("Can't start load: " + e.getMessage());
 				}
 			} else {
 				if (lastTimeDisconnected + switchDelay <= System.currentTimeMillis()) {
@@ -178,14 +179,14 @@ public class Supplybus {
 					lastTimeDisconnected = System.currentTimeMillis();
 					state = State.CONNECTING;
 				} else {
-					log.error("no ess to connect");
+					logError("no ess to connect");
 				}
 			}
 			if (supplybusOnIndication != null) {
 				try {
 					supplybusOnIndication.pushWrite(0L);
 				} catch (WriteChannelException e) {
-					log.error("can't set supplybusOnIndication", e);
+					logError("can't set supplybusOnIndication: " + e.getMessage());
 				}
 			}
 		}
@@ -205,18 +206,18 @@ public class Supplybus {
 								active.standby();
 							}
 						} catch (SupplyBusException e) {
-							log.error("get Active Ess failed!", e);
+							logError("get Active Ess failed: " + e.getMessage());
 						}
 						if (supplybusOnIndication != null) {
 							try {
 								supplybusOnIndication.pushWrite(0L);
 							} catch (WriteChannelException e) {
-								log.error("can't set supplybusOnIndication", e);
+								logError("can't set supplybusOnIndication: " + e.getMessage());
 							}
 						}
 					}
 				} catch (WriteChannelException e) {
-					log.warn("Can't stop load!", e);
+					logWarn("Can't stop load: " + e.getMessage());
 				}
 			}
 		}
@@ -264,7 +265,8 @@ public class Supplybus {
 			try {
 				entry.getValue().pushWrite(false);
 			} catch (WriteChannelException e) {
-				log.error("Failed to write disconnect command to digital output " + entry.getValue().address(), e);
+				logError("Failed to write disconnect command to digital output " + entry.getValue().address() + ": "
+						+ e.getMessage());
 			}
 		}
 		if (activeEss != null) {
@@ -303,11 +305,12 @@ public class Supplybus {
 				try {
 					sOn.pushWrite(true);
 				} catch (WriteChannelException e) {
-					log.error("Failed to write connect command to digital output " + sOn.address(), e);
+					logError("Failed to write connect command to digital output " + sOn.address() + ": "
+							+ e.getMessage());
 				}
 			}
 		} catch (SupplyBusException e) {
-			log.error("can't connect ess", e);
+			logError("can't connect ess: " + e.getMessage());
 		}
 	}
 
@@ -336,7 +339,7 @@ public class Supplybus {
 					largestSoc = ess;
 				}
 			} catch (InvalidValueException e) {
-				log.error("failed to read soc of " + ess.id(), e);
+				logError("failed to read soc of " + ess.id() + ": " + e.getMessage());
 			}
 		}
 		return largestSoc;
@@ -349,11 +352,15 @@ public class Supplybus {
 			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))
 					|| ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))
 					|| ess.getActiveSupplybus() != null) {
+				logInfo("Ess [" + ess.id() + "] is unusable. GridMode ["
+						+ ess.gridMode.labelOptional().orElse("UNDEFINED") + "] SystemState ["
+						+ ess.systemState.labelOptional().orElse("UNDEFINED") + "] ActiveSupplybus ["
+						+ ess.getActiveSupplybus() + "]");
 				iter.remove();
 			}
 		}
-		if(esss.size()==0) {
-			log.error("No OnGrid Ess!");
+		if (esss.size() == 0) {
+			logError("No OnGrid Ess!");
 		}
 		return esss;
 	}
@@ -403,6 +410,18 @@ public class Supplybus {
 			}
 		}
 		return false;
+	}
+
+	private void logInfo(String message) {
+		this.log.info(this.name + ": " + message);
+	}
+
+	private void logWarn(String message) {
+		this.log.warn(this.name + ": " + message);
+	}
+
+	private void logError(String message) {
+		this.log.error(this.name + ": " + message);
 	}
 
 }

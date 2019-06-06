@@ -45,7 +45,6 @@ import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.QueryablePersistence;
-import io.openems.backend.timedata.influx.InfluxdbUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.ChannelEnum;
@@ -209,8 +208,8 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	}
 
 	@Override
-	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution) throws io.openems.common.exceptions.OpenemsException {
+	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution) throws io.openems.common.exceptions.OpenemsException {
 		Optional<InfluxDB> influxdbOpt = getInfluxDB();
 		if (!influxdbOpt.isPresent()) {
 			throw new OpenemsException("InfluxDB is not available");
@@ -219,8 +218,8 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		if (!databaseOpt.isPresent()) {
 			throw new OpenemsException("InfluxDB database is not available");
 		}
-		return InfluxdbUtils.queryHistoricData(influxdbOpt.get(), databaseOpt.get(), edgeIdOpt, fromDate,
-				toDate, channels, resolution);
+		return InfluxdbUtils.queryHistoricData(influxdbOpt.get(), databaseOpt.get(), edgeIdOpt, fromDate, toDate,
+				channels, resolution);
 	}
 
 	@Override

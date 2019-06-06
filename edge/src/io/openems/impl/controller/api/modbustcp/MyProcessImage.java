@@ -35,11 +35,9 @@ public class MyProcessImage implements ProcessImage {
 	private final NavigableMap<Integer, ChannelRegisterMap> registerMaps = new TreeMap<>();
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());;
-	private final int unitId;
 	private final ApiWorker apiWorker;
 
-	protected MyProcessImage(int unitId, ApiWorker apiWorker) {
-		this.unitId = unitId;
+	protected MyProcessImage(ApiWorker apiWorker) {
 		this.apiWorker = apiWorker;
 	}
 
@@ -64,12 +62,6 @@ public class MyProcessImage implements ProcessImage {
 	/*
 	 * Implementations of ProcessImage
 	 */
-
-	@Override
-	public int getUnitID() {
-		return this.unitId;
-	}
-
 	@Override
 	public synchronized DigitalOut[] getDigitalOutRange(int offset, int count) throws IllegalAddressException {
 		// TODO implement getDigitalOutRange
@@ -241,5 +233,11 @@ public class MyProcessImage implements ProcessImage {
 		IllegalAddressException error = new IllegalAddressException(message);
 		log.error(error.getMessage());
 		throw error;
+	}
+
+	@Override
+	public int getUnitID() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

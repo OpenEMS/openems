@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<repository xmlns="http://www.osgi.org/xmlns/repository/v1.0.0" name="Distro" increment="1559841759771">
+  <resource>
+    <capability namespace="osgi.identity">
+      <attribute name="osgi.identity" value="org.osgi:osgi.enroute.pom.distro"/>
+      <attribute name="type" value="application/java-archive"/>
+      <attribute name="version" value="2.1.0.SNAPSHOT" type="Version"/>
+    </capability>
+    <capability namespace="bnd.info">
+      <attribute name="name" value="org.osgi:osgi.enroute.pom.distro:2.1.0-SNAPSHOT"/>
+      <attribute name="from" value="org.osgi:osgi.enroute.pom.distro:2.1.0-SNAPSHOT"/>
+      <attribute name="error" value="java.lang.reflect.InvocationTargetException"/>
+      <attribute name="version" value="0.0.0" type="Version"/>
+    </capability>
+  </resource>
+</repository>

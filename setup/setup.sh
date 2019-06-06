@@ -100,7 +100,12 @@ elif [ ! -e $FILE_FINISHED_2 ]; then
 
 	FEMS=$(head -n 2 $FILE_DEVICES | tail -n 1 | cut -d ";" -f 1)
 	PASSWORD=$(head -n 2 $FILE_DEVICES | tail -n 1 | cut -d ";" -f 2)
-
+	APIKEY=$(head -n 2 $FILE_DEVICES | tail -n 1 | cut -d ";" -f 3)
+	CHOICE=$(cat $FILE_CHOICE)
+	
+	echo "# Write Apikey into /etc/fems"
+	echo "apikey=${APIKEY}" > /etc/fems
+	
 	echo "# Set password for user fems"
 	echo "fems:${PASSWORD}" | /usr/sbin/chpasswd
 
@@ -116,32 +121,31 @@ elif [ ! -e $FILE_FINISHED_2 ]; then
 	/usr/bin/aptitude update
 
 	echo "# Apply choice $CHOICE"
-	CHOICE=$(cat $FILE_CHOICE)
-	APIKEY=$(head -n 2 $FILE_DEVICES | tail -n 1 | cut -d ";" -f 3)
-	
 	if [ "$CHOICE" == "FENECON DESS" ]; then
 
-		aptitude install fems-dess fems-fenecononlinemonitoring influxdb grafana --assume-yes
+		echo "deb http://deb.debian.org/debian jessie main contrib non-free" > /etc/apt/sources.list.d/jessie.list
+		wget http://ftp.de.debian.org/debian/pool/main/t/tzdata/tzdata_2018e-0+deb8u1_all.deb
+		dpkg -i tzdata_2018e-0+deb8u1_all.deb
+		apt-get remove openjdk-8-jre-headless
+		apt-get -o Dpkg::Options::="--force-overwrite" install fems
+		aptitude install fems-dess fems-fenecononlinemonitoring influxdb grafana --assume-yes || true
+		systemctl start fems-openhab
+		systemctl enable fems-openhab
 
+	elif [ "$CHOICE" == "FENECON Pro Hybrid 10-Serie" ]; then
+		
+		aptitude install openems-core openems-core-fems --assume-yes
+		
 	else
-		if [ "$CHOICE" == "FENECON Pro Hybrid 10-Serie" ]; then
 		
-			aptitude install openems-core openems-core-fems --assume-yes
+		aptitude install openems openems-fems openems-ui influxdb grafana --assume-yes
 		
-		else
-		
-			aptitude install openems openems-fems openems-ui influxdb grafana --assume-yes
-		
-			FILE_CONFIG="/etc/openems.d/config.json"
-			echo "# Create $FILE_CONFIG"
-			cp "${BASE_PATH}/templates/${CHOICE}.json" "$FILE_CONFIG"
-			sed "s/\"###FEMS_ID###\"/${FEMS:4}/" "$FILE_CONFIG" --in-place
-			sed "s/###APIKEY###/$APIKEY/" "$FILE_CONFIG" --in-place
-		fi
-
-		echo "# Write Apikey into /etc/fems"
-		echo "apikey=${APIKEY}" > /etc/fems
-
+		FILE_CONFIG="/etc/openems.d/config.json"
+		echo "# Create $FILE_CONFIG"
+		cp "${BASE_PATH}/templates/${CHOICE}.json" "$FILE_CONFIG"
+		sed "s/\"###FEMS_ID###\"/${FEMS:4}/" "$FILE_CONFIG" --in-place
+		sed "s/###APIKEY###/$APIKEY/" "$FILE_CONFIG" --in-place
+	
 	fi
 
 	echo "# fems-autoupdate fems"
