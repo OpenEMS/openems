@@ -154,7 +154,6 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 	@Override
 	public List<Controller> getControllers() {
 		this.sortedControllers.clear();
-		this.sortedControllers.addAll(alwaysRunningControllers);
 
 		LocalTime currentTime = LocalTime.now();
 
@@ -163,12 +162,13 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 		if (!(this.contollersSchedule.isEmpty())) {
 
 			if (this.contollersSchedule.lowerEntry(currentTime).getValue() == null) {
-				log.warn("No controllers specified to run");
+				log.warn("No controllers specified in config Json field");
 			} else {
 
 				this.sortedControllers.addAll(this.contollersSchedule.lowerEntry(currentTime).getValue());
 			}
 		}
+		this.sortedControllers.addAll(alwaysRunningControllers);
 		return this.sortedControllers;
 
 	}
