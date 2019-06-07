@@ -83,8 +83,8 @@
 	bnd.identity;id='io.openems.edge.scheduler.dailyscheduler',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
-	bnd.identity;id='io.openems.edge.timedata.influxdb',\
-	bnd.identity;version='latest';id='io.openems.edge.scheduler.dailyscheduler'
+	bnd.identity;id='io.openems.edge.timedata.influxdb'
+
 -runbundles: \
 	com.google.gson;version='[2.8.5,2.8.6)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
@@ -181,4 +181,12 @@
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
+	io.openems.edge.ess.byd.container;version=snapshot,\
+	io.openems.wrapper.fastexcel;version=snapshot,\
+	io.openems.wrapper.opczip;version=snapshot
 	io.openems.edge.ess.byd.container;version=snapshot
+=======
+	io.openems.edge.ess.byd.container;version=snapshot,\
+	io.openems.wrapper.fastexcel;version=snapshot,\
+	io.openems.wrapper.opczip;version=snapshot
+>>>>>>> origin/develop

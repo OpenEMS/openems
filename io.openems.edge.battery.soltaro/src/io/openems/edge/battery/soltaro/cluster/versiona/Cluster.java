@@ -22,6 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
@@ -43,6 +44,8 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -52,7 +55,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class Cluster extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler {
+public class Cluster extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
@@ -90,7 +93,7 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 	void activate(ComponentContext context, Config config) {
 		log.info("Cluster.activate()");
 		this.config = config;
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
 		this.modbusBridgeId = config.modbus_id();
@@ -203,9 +206,9 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
-			stopSystem();
+			this.stopSystem();
 			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-			setStateMachineState(State.ERRORDELAY);
+			this.setStateMachineState(State.ERRORDELAY);
 			break;
 		case ERRORDELAY:
 			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
@@ -271,6 +274,10 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 		case PENDING:
 			this.stopSystem();
 			this.setStateMachineState(State.OFF);
+			break;
+		case ERROR_CELL_VOLTAGES_DRIFT:
+			this.stopSystem();
+			this.setStateMachineState(State.UNDEFINED);
 			break;
 		}
 		this.getReadyForWorking().setNextValue(readyForWorking);
@@ -2531,4 +2538,12 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 
 		this.channel(Battery.ChannelId.SOC).setNextValue(soc);
 	}
+	
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Battery.getModbusSlaveNatureTable(accessMode) //
+		);
+	}	
 }

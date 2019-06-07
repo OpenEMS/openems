@@ -87,7 +87,7 @@ public class LimitTotalDischargeController extends AbstractOpenemsComponent impl
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();

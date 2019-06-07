@@ -24,18 +24,18 @@ import io.openems.common.exceptions.OpenemsException;
  */
 public class OdooWriteWorker {
 
-	private final static int UPDATE_INTERVAL_IN_SECONDS = 60;
+	private static final int UPDATE_INTERVAL_IN_SECONDS = 60;
 
 	private final Logger log = LoggerFactory.getLogger(OdooWriteWorker.class);
 	private final Odoo parent;
 
 	/**
-	 * Holds the scheduled task
+	 * Holds the scheduled task.
 	 */
 	private ScheduledFuture<?> future = null;
 
 	/**
-	 * Executor for subscriptions task
+	 * Executor for subscriptions task.
 	 */
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
@@ -84,7 +84,7 @@ public class OdooWriteWorker {
 			if (ids.length > 0) {
 				try {
 					OdooUtils.write(odooCredentials, Odoo.ODOO_MODEL, ids,
-							new FieldValue(Field.EdgeDevice.LAST_MESSAGE, time));
+							new FieldValue<String>(Field.EdgeDevice.LAST_MESSAGE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastMessage: " + e.getMessage());
 				}
@@ -99,7 +99,7 @@ public class OdooWriteWorker {
 			if (ids.length > 0) {
 				try {
 					OdooUtils.write(odooCredentials, Odoo.ODOO_MODEL, ids,
-							new FieldValue(Field.EdgeDevice.LAST_UPDATE, time));
+							new FieldValue<String>(Field.EdgeDevice.LAST_UPDATE, time));
 				} catch (OpenemsException e) {
 					log.error("Unable to write lastUpdate: " + e.getMessage());
 				}

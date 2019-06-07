@@ -1,0 +1,5 @@
+= Fixed Order
+
+Takes a list of Component IDs and returns the Controllers statically sorted by this order.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.scheduler.fixedorder[Source Code icon:github[]]

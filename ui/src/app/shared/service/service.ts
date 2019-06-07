@@ -2,7 +2,7 @@ import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Cookie } from 'ng2-cookies';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
@@ -12,6 +12,7 @@ import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
 import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
 import { ToastController } from '@ionic/angular';
+import { format } from 'date-fns';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -19,6 +20,16 @@ export class Service implements ErrorHandler {
   public static readonly TIMEOUT = 15_000;
 
   public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
+
+  /**
+   * Holds the currenty selected Page Title.
+   */
+  public currentPageTitle: string;
+
+  /**
+   * Holds the current Activated Route
+   */
+  private currentActivatedRoute: ActivatedRoute = null;
 
   /**
    * Holds the currently selected Edge.
@@ -44,6 +55,13 @@ export class Service implements ErrorHandler {
     translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang(LanguageTag.DE);
+    // initialize history period
+    this.DEFAULT_HISTORY_PERIOD = {
+      from: new Date(),
+      to: new Date(),
+      text: this.translate.instant('Edge.History.Today') + ", " + format(new Date(), this.translate.instant('General.DateFormat'))
+    };
+    this.historyPeriod = this.DEFAULT_HISTORY_PERIOD;
   }
 
   /**
@@ -106,46 +124,62 @@ export class Service implements ErrorHandler {
   /**
    * Parses the route params and sets the current edge
    */
-  public setCurrentEdge(activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
+      // Set the currentPageTitle only once per ActivatedRoute
+      if (this.currentActivatedRoute != activatedRoute) {
+        if (currentPageTitle == null || currentPageTitle.trim() === '') {
+          this.currentPageTitle = 'OpenEMS UI';
+        } else {
+          this.currentPageTitle = currentPageTitle;
+        }
+      }
+      this.currentActivatedRoute = activatedRoute;
+
+      // Get Edge-ID. If not existing -> resolve null
       let route = activatedRoute.snapshot;
       let edgeId = route.params["edgeId"];
+      if (edgeId == null) {
+        resolve(null);
+      }
+
+      let subscription: Subscription = null;
+      let onError = () => {
+        if (subscription != null) {
+          subscription.unsubscribe();
+        }
+        setCurrentEdge.apply(null);
+        // redirect to index
+        this.router.navigate(['/index']);
+      }
 
       let timeout = setTimeout(() => {
-        if (edgeId != null) {
-          // Timeout: redirect to index
-          this.router.navigate(['/index']);
-        }
-        subscription.unsubscribe();
-        setCurrentEdge.apply(null);
+        console.error("Timeout while setting current edge");
+        //  onError();
       }, Service.TIMEOUT);
 
       let setCurrentEdge = (edge: Edge) => {
-        if (edge != null) {
-          if (edge != this.currentEdge.value) {
+        clearTimeout(timeout);
+        if (edge != this.currentEdge.value) {
+          if (edge != null) {
             edge.markAsCurrentEdge(this.websocket);
           }
-        }
-        if (edge != this.currentEdge.value) {
           this.currentEdge.next(edge);
         }
         resolve(edge);
       }
 
-      let subscription = this.edges
+      subscription = this.edges
         .pipe(
           filter(edges => edgeId in edges),
           first(),
           map(edges => edges[edgeId])
         )
         .subscribe(edge => {
-          clearTimeout(timeout);
           setCurrentEdge(edge);
-
         }, error => {
-          clearTimeout(timeout);
           console.error("Error while setting current edge: ", error);
-          setCurrentEdge(null);
+          onError();
         })
     });
   }
@@ -244,4 +278,12 @@ export class Service implements ErrorHandler {
     });
     toast.present();
   }
+
+  public DEFAULT_HISTORY_PERIOD: DefaultTypes.HistoryPeriod;
+
+  /**
+   * Currently selected history period
+   */
+  public historyPeriod: DefaultTypes.HistoryPeriod;
+
 }

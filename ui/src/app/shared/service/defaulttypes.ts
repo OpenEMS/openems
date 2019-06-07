@@ -30,7 +30,9 @@ export module DefaultTypes {
       dischargeActivePowerDC: number,
       maxDischargeActivePower?: number,
       powerRatio: number,
-      maxApparentPower: number
+      maxApparentPower: number,
+      effectiveChargePower: number,
+      effectiveDischargePower: number,
     }, production: {
       powerRatio: number,
       hasDC: boolean,
@@ -58,6 +60,12 @@ export module DefaultTypes {
     message: string;
     code?: number,
     params?: string[]
+  }
+
+  export interface HistoryPeriod {
+    from: Date,
+    to: Date,
+    text: string
   }
 
 }

@@ -1,0 +1,5 @@
+= Detailed Debug Log
+
+Constantly shows the values of all Channels of a Component on the console. Primarily used for developing and debugging. 
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.debug.detailedlog[Source Code icon:github[]]

@@ -21,7 +21,7 @@ public class DummySymmetricPvInverter extends AbstractOpenemsComponent implement
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, true);
+		super.activate(null, id, "", true);
 	}
 
 }

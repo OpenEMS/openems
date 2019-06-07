@@ -1,0 +1,5 @@
+= Channel-Threshold
+
+Generic Controller that sets a digital output according to the value of given Channel - e.g. turn a Relay on, when battery state of charge is above a given threshold.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.channelthreshold[Source Code icon:github[]]

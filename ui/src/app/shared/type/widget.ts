@@ -5,7 +5,8 @@ export enum WidgetNature {
 
 export enum WidgetFactory {
     'Controller.Api.ModbusTcp',
-    'Controller.ChannelThreshold'
+    'Controller.ChannelThreshold',
+    'Controller.Io.FixDigitalOutput'
 }
 
 export class Widget {
