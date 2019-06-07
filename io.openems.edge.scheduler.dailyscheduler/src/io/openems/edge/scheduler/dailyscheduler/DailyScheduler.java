@@ -40,7 +40,7 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 	private final Logger log = LoggerFactory.getLogger(DailyScheduler.class);
 
 	private final List<Controller> sortedControllers = new ArrayList<>();
-	private final List<Controller> alwaysRunningControllers = new ArrayList<>();
+	private final List<Controller> listOfControllers = new ArrayList<>();
 
 	private final TreeMap<LocalTime, List<Controller>> contollersSchedule = new TreeMap<>();
 
@@ -50,22 +50,19 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 	private String[] controllersIds = new String[0];
 
-//	@Reference
-//	protected ConfigurationAdmin cm;
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(enabled=true)")
 	protected synchronized void addController(Controller controller) throws OpenemsNamedException {
 		if (controller != null && controller.id() != null) {
 			this._controllers.put(controller.id(), controller);
 		}
-		this.updateSortedControllers();
+		this.updateControllers();
 	}
 
 	protected synchronized void removeController(Controller controller) throws OpenemsNamedException {
 		if (controller != null && controller.id() != null) {
 			this._controllers.remove(controller.id(), controller);
 		}
-		this.updateSortedControllers();
+		this.updateControllers();
 	}
 
 	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -95,54 +92,52 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 		super.activate(context, config.id(), config.enabled(), config.cycleTime());
 		this.controllersIdsJson = config.controllers_ids_json();
 		this.controllersIds = config.controllers_ids();
-		this.updateSortedControllers();
+		this.updateControllers();
 	}
 
-	private synchronized void updateSortedControllers() throws OpenemsNamedException {
-		this.alwaysRunningControllers.clear();
-		this.sortedControllers.clear();
+	/**
+	 * Adds Controllers using the order of controller_ids and controllers_ids_json
+	 * Config property
+	 */
 
+	private synchronized void updateControllers() throws OpenemsNamedException {
+		this.listOfControllers.clear();
+
+		// Controllers that are activated always.
 		for (String id : this.controllersIds) {
 			Controller alwaysRunningController = this._controllers.get(id);
 			if (alwaysRunningController == null) {
 				log.warn("Required Controller [" + id + "] is not available.");
 			} else {
-				this.alwaysRunningControllers.add(alwaysRunningController);
+				this.listOfControllers.add(alwaysRunningController);
 			}
 		}
+
+		// Controllers that are activated for a given time based on the Json input.
 		if (this.controllersIdsJson != null && !(this.controllersIdsJson.isEmpty())) {
 			try {
-
 				JsonArray controllerTime = JsonUtils.getAsJsonArray(JsonUtils.parse(this.controllersIdsJson));
 				if (controllerTime != null) {
 					for (JsonElement element : controllerTime) {
-
 						LocalTime Time = LocalTime.parse(JsonUtils.getAsString(element, "time"));
 						JsonArray JsonControllers = JsonUtils.getAsJsonArray(element, "controller");
-						List<Controller> listOfControllers = new ArrayList<>();
+						List<Controller> listOfControllersJson = new ArrayList<>();
 
 						for (JsonElement Jsonid : JsonControllers) {
-
 							Controller controller = this._controllers.get(JsonUtils.getAsString(Jsonid));
-
 							if (controller == null) {
 								this.contollersSchedule.put(Time, null);
 							} else {
-
-								listOfControllers.add(controller);
-
-								this.contollersSchedule.put(Time, listOfControllers);
+								listOfControllersJson.add(controller);
+								this.contollersSchedule.put(Time, listOfControllersJson);
 							}
 						}
-
 					}
 				}
-
 			} catch (NullPointerException e) {
 				throw new OpenemsException("Unable to set values [" + controllersIds + "] " + e.getMessage());
 			}
 		}
-
 	}
 
 	@Deactivate
@@ -151,6 +146,11 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 		super.deactivate();
 	}
 
+	/**
+	 * returns the Controllers from both lists of controllers based on given time in
+	 * a day.
+	 */
+
 	@Override
 	public List<Controller> getControllers() {
 		this.sortedControllers.clear();
@@ -158,19 +158,17 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 		LocalTime currentTime = LocalTime.now();
 
 		// returns all the controllers that are activated at given time.
-
 		if (!(this.contollersSchedule.isEmpty())) {
-
-			if (this.contollersSchedule.lowerEntry(currentTime).getValue() == null) {
-				log.warn("No controllers specified in config Json field");
-			} else {
-
-				this.sortedControllers.addAll(this.contollersSchedule.lowerEntry(currentTime).getValue());
+			if (this.contollersSchedule.lowerEntry(currentTime) != null) {
+				if (this.contollersSchedule.lowerEntry(currentTime).getValue() == null) {
+					log.warn("No controllers specified in config Json field");
+				} else {
+					System.out.println(this.contollersSchedule.lowerEntry(currentTime).getValue());
+					this.sortedControllers.addAll(this.contollersSchedule.lowerEntry(currentTime).getValue());
+				}
 			}
 		}
-		this.sortedControllers.addAll(alwaysRunningControllers);
+		this.sortedControllers.addAll(listOfControllers);
 		return this.sortedControllers;
-
 	}
-
 }
