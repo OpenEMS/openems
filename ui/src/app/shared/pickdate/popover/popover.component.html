@@ -10,7 +10,7 @@
 </ion-header>
 
 <div class="no-scroll">
-    <my-date-range-picker [options]="service.dateRangePickerOptions" [(ngModel)]="service.dateRange"
-        (dateRangeChanged)="service.onDateRangeChanged($event)">
+    <my-date-range-picker [options]="dateService.dateRangePickerOptions" [(ngModel)]="dateService.dateRange"
+        (dateRangeChanged)="dateService.onDateRangeChanged($event)">
     </my-date-range-picker>
 </div>

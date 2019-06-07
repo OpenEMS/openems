@@ -1,19 +1,22 @@
 import { Component } from '@angular/core';
-import { Service } from '../../shared';
 import { PopoverController } from '@ionic/angular';
+import { DateService } from '../../service/date.service';
 
 @Component({
     selector: 'pickdatepopover',
     templateUrl: './popover.component.html'
 })
+
+
 export class PickDatePopoverComponent {
 
     constructor(
-        public service: Service,
-        public popoverController: PopoverController
+        public popoverController: PopoverController,
+        public dateService: DateService
     ) { }
 
     ngOnInit() { }
 
     ngOnDestroy() { }
+
 }

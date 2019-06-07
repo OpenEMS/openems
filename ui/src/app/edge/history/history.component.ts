@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns';
-import { IMyDate, IMyDateRange, IMyDateRangeModel, IMyDrpOptions } from 'mydaterangepicker';
 import { Edge, Service } from '../../shared/shared';
+import { DateService } from 'src/app/shared/service/date.service';
 
-type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
 @Component({
   selector: 'history',
@@ -26,6 +23,7 @@ export class HistoryComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     public service: Service,
+    public dateService: DateService
   ) { }
 
   ngOnInit() {
