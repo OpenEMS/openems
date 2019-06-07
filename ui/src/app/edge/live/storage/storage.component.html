@@ -3,7 +3,7 @@
         <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="currentData.summary.storage as sum">
             <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
-                    <ng-container *ngIf="sum.soc < 20;else twoBars">
+                    <ng-container *ngIf="sum.soc < 20; else twoBars">
                         <img src="assets/img/storage_20.png">
                     </ng-container>
                     <ng-template #twoBars>

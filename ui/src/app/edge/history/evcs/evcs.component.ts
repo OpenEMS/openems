@@ -2,6 +2,7 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -13,8 +14,7 @@ import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET,
 })
 export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private fromDate: Date;
-  @Input() private toDate: Date;
+  @Input() private period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -53,7 +53,7 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
 
   private updateChart() {
     this.loading = true;
-    this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
+    this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels

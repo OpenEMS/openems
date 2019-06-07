@@ -6,6 +6,7 @@ import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/res
 import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from '../shared';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 @Component({
   selector: 'channelthreshold',
@@ -13,8 +14,7 @@ import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET,
 })
 export class ChannelthresholdComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 
-  @Input() private fromDate: Date;
-  @Input() private toDate: Date;
+  @Input() private period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -61,7 +61,7 @@ export class ChannelthresholdComponent extends AbstractHistoryChart implements O
 
   private updateChart() {
     this.loading = true;
-    this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
+    this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels

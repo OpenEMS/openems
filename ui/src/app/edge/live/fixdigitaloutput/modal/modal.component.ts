@@ -17,7 +17,7 @@ export class ModalComponent implements OnInit {
 
   constructor(
     public websocket: Websocket,
-    private modalCtrl: ModalController,
+    public modalCtrl: ModalController,
     private service: Service
   ) { }
 

@@ -18,13 +18,11 @@ export class StorageModalComponent implements OnInit {
     public chargerComponents: EdgeConfig.Component[] = null;
     public outputChannel: ChannelAddress[] = null;
 
-
     constructor(
         public service: Service,
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
-
     ) { }
 
     ngOnInit() {

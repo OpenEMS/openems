@@ -3,7 +3,7 @@
 
     <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
       <ion-col size="12" size-md="5" size-lg="4" size-xl="3" no-padding>
-        <kwh [fromDate]="service.fromDate" [toDate]="service.toDate"></kwh>
+        <kwh [period]="service.historyPeriod"></kwh>
       </ion-col>
     </ion-col>
 
@@ -13,7 +13,7 @@
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
           <ion-label>
             <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span>
-              {{ service.activePeriodText }}
+              {{ service.historyPeriod.text }}
             </ion-card-title>
           </ion-label>
         </ion-item>
@@ -22,12 +22,12 @@
           <ion-grid no-padding>
             <ion-row [style.height]="socChartHeight">
               <ion-col size="12">
-                <soc [fromDate]="service.fromDate" [toDate]="service.toDate"></soc>
+                <soc [period]="service.historyPeriod"></soc>
               </ion-col>
             </ion-row>
             <ion-row [style.height]="energyChartHeight">
               <ion-col size="12">
-                <energy [fromDate]="service.fromDate" [toDate]="service.toDate"></energy>
+                <energy [period]="service.historyPeriod"></energy>
               </ion-col>
             </ion-row>
 
@@ -35,20 +35,20 @@
 
               <ion-row *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px">
                 <ion-col size="12">
-                  <evcs [fromDate]="service.fromDate" [toDate]="service.toDate"></evcs>
+                  <evcs [period]="service.historyPeriod"></evcs>
                 </ion-col>
               </ion-row>
 
               <ion-row *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
                 style.height="150px">
                 <ion-col size="12">
-                  <channelthreshold [fromDate]="service.fromDate" [toDate]="service.toDate"></channelthreshold>
+                  <channelthreshold [period]="service.historyPeriod"></channelthreshold>
                 </ion-col>
               </ion-row>
 
               <ion-row *ngSwitchCase="'Controller.ChannelThreshold'" style.height="150px">
                 <ion-col size="12">
-                  <channelthreshold [fromDate]="service.fromDate" [toDate]="service.toDate"></channelthreshold>
+                  <channelthreshold [period]="service.historyPeriod"></channelthreshold>
                 </ion-col>
               </ion-row>
 

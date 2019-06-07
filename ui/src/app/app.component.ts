@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Platform, ToastController } from '@ionic/angular';
+import { Platform, ToastController, MenuController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
@@ -17,9 +17,7 @@ export class AppComponent {
   public env = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public isEdgeIndexPage: boolean = false;
-  public isEdgeLivePage: boolean = false;
-  public isEdgeHistoryPage: boolean = false;
+  public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -32,6 +30,7 @@ export class AppComponent {
     public service: Service,
     public router: Router,
     public toastController: ToastController,
+    public menu: MenuController
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -69,9 +68,7 @@ export class AppComponent {
   updateUrl(url: string) {
     this.updateBackUrl(url);
     this.updateEnableSideMenu(url);
-    this.updateIsEdgeIndexPage(url);
-    this.updateIsEdgeLivePage(url);
-    this.updateIsEdgeHistoryPage(url);
+    this.updateCurrentPage(url);
   }
 
   updateEnableSideMenu(url: string) {
@@ -132,39 +129,19 @@ export class AppComponent {
     this.backUrl = backUrl;
   }
 
-  updateIsEdgeIndexPage(url: string) {
+  updateCurrentPage(url: string) {
     let urlArray = url.split('/');
     let file = urlArray.pop();
 
     // Enable Segment Navigation for Edge-Index-Page
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
-      this.isEdgeIndexPage = true;
+      if (file == 'history') {
+        this.currentPage = 'IndexHistory';
+      } else {
+        this.currentPage = 'IndexLive';
+      }
     } else {
-      this.isEdgeIndexPage = false;
-    }
-  }
-
-  updateIsEdgeLivePage(url: string) {
-    let urlArray = url.split('/');
-    let file = urlArray.pop();
-
-    // Enable Segment Navigation for Edge-Index-Page
-    if (file == 'live' && urlArray.length == 3) {
-      this.isEdgeLivePage = true;
-    } else {
-      this.isEdgeLivePage = false;
-    }
-  }
-
-  updateIsEdgeHistoryPage(url: string) {
-    let urlArray = url.split('/');
-    let file = urlArray.pop();
-
-    // Enable Segment Navigation for Edge-Index-Page
-    if (file == 'history' && urlArray.length == 3) {
-      this.isEdgeHistoryPage = true;
-    } else {
-      this.isEdgeHistoryPage = false;
+      this.currentPage = 'Other';
     }
   }
 

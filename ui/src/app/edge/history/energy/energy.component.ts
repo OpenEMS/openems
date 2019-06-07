@@ -2,6 +2,7 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -13,8 +14,7 @@ import { ChartOptions, Data, Dataset, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET,
 })
 export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
-  @Input() private fromDate: Date;
-  @Input() private toDate: Date;
+  @Input() private period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -81,7 +81,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   private updateChart() {
     this.loading = true;
-    this.queryHistoricTimeseriesData(this.fromDate, this.toDate).then(response => {
+    this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(config => {
 

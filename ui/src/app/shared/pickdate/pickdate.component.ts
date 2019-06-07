@@ -1,59 +1,49 @@
-import { Component } from '@angular/core';
-import { Service } from '../shared';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { IMyDateRangeModel, IMyDate } from 'mydaterangepicker';
-import { isSameDay, subDays, format, getYear, getMonth, getDate } from 'date-fns/esm';
 import { TranslateService } from '@ngx-translate/core';
+import { addDays, format, getDate, getMonth, getYear, isSameDay, subDays } from 'date-fns/esm';
+import { IMyDate, IMyDateRange, IMyDateRangeModel } from 'mydaterangepicker';
+import { Service } from '../shared';
 import { PickDatePopoverComponent } from './popover/popover.component';
+import { DefaultTypes } from '../service/defaulttypes';
 
-
-type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
+type PeriodString = 'today' | 'yesterday' | 'otherPeriod';
 
 @Component({
     selector: 'pickdate',
     templateUrl: './pickdate.component.html'
 })
-
-
 export class PickDateComponent {
+
+    public readonly TODAY = new Date();
+    public readonly YESTERDAY = subDays(new Date(), 1);
+    public readonly TOMORROW = addDays(new Date(), 1);
+
+    public activePeriod: PeriodString = 'today';
+    public dateRange: IMyDateRange;
 
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public popoverController: PopoverController,
+        public popoverCtrl: PopoverController,
     ) { }
 
-
     ngOnInit() {
-        this.service.setPeriod('today')
+        this.updateActivePeriod();
     }
 
     ngOnDestroy() { }
 
-
-    public clickOtherPeriod() {
-        if (this.service.activePeriod === 'otherPeriod') {
-            this.setPeriod("today");
+    private updateActivePeriod(): PeriodString {
+        let period = this.service.historyPeriod;
+        if (isSameDay(period.from, this.TODAY) && isSameDay(period.to, this.TODAY)) {
+            this.activePeriod = 'today';
+        } else if (isSameDay(period.from, this.YESTERDAY) && isSameDay(period.to, this.YESTERDAY)) {
+            this.activePeriod = 'yesterday';
         } else {
-            this.setPeriod("otherPeriod", this.service.YESTERDAY, this.service.TODAY);
+            this.activePeriod = 'otherPeriod';
         }
-    }
-
-    public onDateRangeChanged(event: IMyDateRangeModel) {
-        console.log("ONDATERANGECHANGED")
-        let fromDate = event.beginJsDate;
-        let toDate = event.endJsDate;
-        if (isSameDay(fromDate, toDate)) {
-            // only one day selected
-            if (isSameDay(this.service.TODAY, fromDate)) {
-                this.setPeriod("today");
-                return;
-            } else if (isSameDay(this.service.YESTERDAY, fromDate)) {
-                this.setPeriod("yesterday");
-                return;
-            }
-        }
-        this.setPeriod("otherPeriod", fromDate, toDate);
+        return this.activePeriod;
     }
 
     /**
@@ -64,29 +54,18 @@ export class PickDateComponent {
      * @param to
      */
     public setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
-        this.service.activePeriod = period;
         switch (period) {
             case "yesterday": {
-                let yesterday = subDays(new Date(), 1);
-                this.setDateRange(yesterday, yesterday);
-                this.service.activePeriodText = this.translate.instant('Edge.History.Yesterday') + ", " + format(yesterday, this.translate.instant('General.DateFormat'));
-                break;
-            }
-            case "otherPeriod":
-                if (fromDate > toDate) {
-                    toDate = fromDate;
-                }
-                this.setDateRange(fromDate, toDate);
-                this.service.activePeriodText = this.translate.instant('General.PeriodFromTo', {
-                    value1: format(fromDate, this.translate.instant('General.DateFormat')),
-                    value2: format(toDate, this.translate.instant('General.DateFormat'))
+                this.setDateRange({
+                    from: this.YESTERDAY,
+                    to: this.YESTERDAY,
+                    text: this.translate.instant('Edge.History.Yesterday') + ", " + format(this.YESTERDAY, this.translate.instant('General.DateFormat'))
                 });
                 break;
+            }
             case "today":
             default:
-                let today = new Date();
-                this.setDateRange(today, today);
-                this.service.activePeriodText = this.translate.instant('Edge.History.Today') + ", " + format(today, this.translate.instant('General.DateFormat'));
+                this.setDateRange(this.service.DEFAULT_HISTORY_PERIOD);
                 break;
         }
     }
@@ -97,13 +76,9 @@ export class PickDateComponent {
      * @param fromDate the starting date
      * @param toDate   the end date
      */
-    public setDateRange(fromDate: Date, toDate: Date) {
-        this.service.fromDate = fromDate;
-        this.service.toDate = toDate;
-        this.service.dateRange = {
-            beginDate: this.toIMyDate(fromDate),
-            endDate: this.toIMyDate(toDate)
-        }
+    public setDateRange(period: DefaultTypes.HistoryPeriod) {
+        this.service.historyPeriod = period;
+        this.updateActivePeriod();
     }
 
     /**
@@ -117,12 +92,15 @@ export class PickDateComponent {
     }
 
     async presentPopover(ev: any) {
-        const popover = await this.popoverController.create({
+        const popover = await this.popoverCtrl.create({
             component: PickDatePopoverComponent,
             event: ev,
             translucent: false,
             cssClass: 'pickdate-popover'
         });
-        return await popover.present();
+        await popover.present();
+        const { data } = await popover.onDidDismiss();
+        this.setDateRange(data);
+        return;
     }
 }
