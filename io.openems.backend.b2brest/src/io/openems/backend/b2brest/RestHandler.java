@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -46,7 +48,9 @@ import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
 import io.openems.common.types.ChannelAddress;
@@ -235,6 +239,10 @@ public class RestHandler extends AbstractHandler {
 			return this.handleSetGridConnScheduleRequest(user, request.getId(),
 					SetGridConnScheduleRequest.from(request));
 
+		case QueryHistoricTimeseriesDataRequest.METHOD:
+			String edgeid = request.getParams().get("edgeid").getAsString();
+			return this.handleQueryHistoricDataRequest(edgeid, QueryHistoricTimeseriesDataRequest.from(request));
+
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -324,5 +332,28 @@ public class RestHandler extends AbstractHandler {
 			result.complete(new GenericJsonrpcResponseSuccess(messageId, r.toJsonObject()));
 		});
 		return result;
+	}
+
+	/**
+	 * Handles a QueryHistoricDataRequest.
+	 * 
+	 * @param edgeId  the Edge-ID
+	 * @param user    the User - no specific level required
+	 * @param request the QueryHistoricDataRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId,
+			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
+
+		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
+		data = this.parent.timeData.queryHistoricData(//
+				edgeId, //
+				request.getFromDate(), //
+				request.getToDate(), //
+				request.getChannels());
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
 	}
 }
