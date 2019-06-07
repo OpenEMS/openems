@@ -16,13 +16,9 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -48,8 +44,7 @@ public class MeterSpannerBHKW extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				ChannelId.values()//
-		);
+				BHKWChannelId.values());
 		AsymmetricMeter.initializePowerSumChannels(this);
 	}
 
@@ -78,46 +73,46 @@ public class MeterSpannerBHKW extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(370, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(370),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
+				new FC3ReadRegistersTask(371, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(371),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
+				new FC3ReadRegistersTask(372, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(372),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
+				new FC3ReadRegistersTask(373, Priority.LOW, //
+						m(BHKWChannelId.FREQUENCY_L1, new UnsignedDoublewordElement(373),
+								ElementToChannelConverter.SCALE_FACTOR_1)), //
+				new FC3ReadRegistersTask(374, Priority.LOW, //
+						m(BHKWChannelId.FREQUENCY_L2, new UnsignedDoublewordElement(374),
+								ElementToChannelConverter.SCALE_FACTOR_1)), //
+				new FC3ReadRegistersTask(375, Priority.LOW, //
+						m(BHKWChannelId.FREQUENCY_L3, new UnsignedDoublewordElement(375),
+								ElementToChannelConverter.SCALE_FACTOR_1)), //
+				new FC3ReadRegistersTask(376, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(376),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
+				new FC3ReadRegistersTask(377, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(377),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
+				new FC3ReadRegistersTask(378, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(378),
+								ElementToChannelConverter.SCALE_FACTOR_2)), //
+				new FC3ReadRegistersTask(379, Priority.LOW, //
+						m(BHKWChannelId.COSPHI_L1, new SignedDoublewordElement(379))), //
+				new FC3ReadRegistersTask(380, Priority.LOW, //
+						m(BHKWChannelId.COSPHI_L2, new SignedDoublewordElement(380))), //
+				new FC3ReadRegistersTask(381, Priority.LOW, //
+						m(BHKWChannelId.COSPHI_L3, new SignedDoublewordElement(381))), //
 				new FC3ReadRegistersTask(382, Priority.HIGH, //
-//						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(370)))//								.build(), //
-//						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(371),
-//								ElementToChannelConverter.SCALE_FACTOR_2), //
-//						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(372),
-//								ElementToChannelConverter.SCALE_FACTOR_2), //
-//						m(BHKWChannelId.FREQUENCY_L1, new UnsignedWordElement(373),
-//								ElementToChannelConverter.SCALE_FACTOR_1), //
-//						m(BHKWChannelId.FREQUENCY_L2, new UnsignedWordElement(374),
-//								ElementToChannelConverter.SCALE_FACTOR_1), //
-//						m(BHKWChannelId.FREQUENCY_L3, new UnsignedWordElement(375),
-//								ElementToChannelConverter.SCALE_FACTOR_1), //
-//						new DummyRegisterElement(373,375), //
-//						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(376),
-//								ElementToChannelConverter.SCALE_FACTOR_2), //
-//						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(377),
-//								ElementToChannelConverter.SCALE_FACTOR_2), //
-//						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(378),
-//								ElementToChannelConverter.SCALE_FACTOR_2), //
-//						m(BHKWChannelId.COSPHI_L1, new SignedWordElement(379)), //
-//						m(BHKWChannelId.COSPHI_L2, new SignedWordElement(380)), //
-//						m(BHKWChannelId.COSPHI_L3, new SignedWordElement(381)), //
-//						new DummyRegisterElement(379,381),//
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(382))) //
-//						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(384))) //
-//						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedwordElement(385))) //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(382))), //
+				new FC3ReadRegistersTask(383, Priority.HIGH, //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(383))), //
+				new FC3ReadRegistersTask(384, Priority.HIGH, //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(384)))//
 		);//
-	}
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 
 	@Override
