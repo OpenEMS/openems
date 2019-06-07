@@ -32,7 +32,7 @@
       </ion-toolbar>
     </ng-container>
 
-    <ng-container *ngIf="!isEdgeLivePage && service.currentEdge | async as edge">
+    <ng-container *ngIf="!isEdgeLivePage && isEdgeIndexPage && service.currentEdge | async as edge">
       <ion-toolbar color="primary">
         <ion-buttons slot="end">
           <pickdate></pickdate>
