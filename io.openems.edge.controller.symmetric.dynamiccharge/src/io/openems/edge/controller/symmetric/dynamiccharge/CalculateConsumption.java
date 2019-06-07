@@ -39,7 +39,7 @@ public class CalculateConsumption {
 	private static float minPrice = Float.MAX_VALUE;
 	private static LocalDateTime cheapTimeStamp = null;
 
-	public static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
+	private static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
 	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
 	private static TreeMap<LocalDateTime, Long> hourlyConsumption = new TreeMap<LocalDateTime, Long>();
 
@@ -67,7 +67,7 @@ public class CalculateConsumption {
 		LocalDateTime now = LocalDateTime.now();
 
 		log.info("totalDemand: " + totalDemand + " t0: " + t0 + " t1: " + t1 + " total Consumption: " + totalConsumption
-				+ " currenthour: " + currentHour);
+				+ " currenthour: " + hourlyConsumption.lastKey());
 
 		switch (currentState) {
 		case PRODUCTION_LOWER_THAN_CONSUMPTION:
@@ -77,15 +77,25 @@ public class CalculateConsumption {
 
 				// First time of the day when production > consumption.
 				// Avoids the fluctuations and shifts to next state only the next day.
-				if ((production > consumption || now.getHour() >= config.Max_Morning_hour())
-						&& dateOfT0.isBefore(nowDate)) {
-					log.info(production + " is greater than " + consumption
-							+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
-					this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
+				/*
+				 * if ((production > consumption || now.getHour() >= config.Max_Morning_hour())
+				 * && dateOfT0.isBefore(nowDate)) { log.info(production + " is greater than " +
+				 * consumption +
+				 * " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION"
+				 * ); this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION; }
+				 */
+
+				// to avoid Bug (production value in night or minus consumption value)
+				if ((now.getHour() >= config.Max_Morning_hour()) && dateOfT0.isBefore(nowDate)) {
+					if (production > consumption || now.getHour() > config.Max_Morning_hour()) {
+						log.info(production + " is greater than " + consumption
+								+ " so switching the state from PRODUCTION LOWER THAN CONSUMPTION to PRODUCTION EXCEEDING CONSUMPTION");
+						this.currentState = State.PRODUCTION_EXCEEDED_CONSUMPTION;
+					}
 				}
 
 				// Detects the switching of hour
-				else if (now.getHour() == currentHour.plusHours(1).getHour()) {
+				if (now.getHour() == currentHour.plusHours(1).getHour()) {
 					log.info(" Switching of the hour detected and updating " + " [ " + currentHour + " ] ");
 					this.totalConsumption = (consumptionEnergy - currentConsumption)
 							- (productionEnergy - currentProduction);
@@ -120,7 +130,7 @@ public class CalculateConsumption {
 				log.info("Resetting Values during " + now);
 				t0 = null;
 				chargeSchedule = null;
-				
+
 				this.dateOfLastRun = nowDate;
 				log.info("dateOfLastRun " + dateOfLastRun);
 			}
