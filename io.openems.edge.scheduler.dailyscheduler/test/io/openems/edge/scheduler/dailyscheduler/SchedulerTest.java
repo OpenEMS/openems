@@ -13,7 +13,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
-public class schedulerTest {
+public class SchedulerTest {
 
 	private final TreeMap<LocalTime, List<String>> contollersList = new TreeMap<>();
 

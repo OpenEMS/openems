@@ -1,18 +1,18 @@
-Bundle-Name: OpenEMS Edge Scheduler DailyScheduler
+Bundle-Name: OpenEMS Edge Scheduler Daily
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-Description: \
 	Daily scheduler of the controllers
 
-Export-Package:  \
-	io.openems.edge.scheduler.dailyscheduler.api;-provide=true
+Export-Package: io.openems.edge.scheduler.api
 
 Private-Package:  \
 	io.openems.edge.scheduler.dailyscheduler
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+-buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
 	io.openems.edge.common;version=latest,\
@@ -24,4 +24,3 @@ Private-Package:  \
 
 javac.source: 1.8
 javac.target: 1.8
-

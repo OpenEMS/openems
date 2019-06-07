@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +25,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -34,21 +34,17 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Scheduler.DailyScheduler", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-
 public class DailyScheduler extends AbstractScheduler implements Scheduler, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DailyScheduler.class);
 
-	private final List<Controller> sortedControllers = new ArrayList<>();
-	private final List<Controller> listOfControllers = new ArrayList<>();
+	private final List<Controller> alwaysRunControllers = new ArrayList<>();
 
 	private final TreeMap<LocalTime, List<Controller>> contollersSchedule = new TreeMap<>();
 
 	private Map<String, Controller> _controllers = new ConcurrentHashMap<>();
 
-	private String controllersIdsJson = new String();
-
-	private String[] controllersIds = new String[0];
+	private Config config = null;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(enabled=true)")
 	protected synchronized void addController(Controller controller) throws OpenemsNamedException {
@@ -89,60 +85,54 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.enabled(), config.cycleTime());
-		this.controllersIdsJson = config.controllers_ids_json();
-		this.controllersIds = config.controllers_ids();
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.cycleTime());
+		this.config = config;
 		this.updateControllers();
 	}
 
 	/**
-	 * Adds Controllers using the order of controller_ids and controllers_ids_json
-	 * Config property
+	 * Adds Controllers using the order of alwaysRunControllers_ids and
+	 * controllerTimes Config property
 	 */
-
 	private synchronized void updateControllers() throws OpenemsNamedException {
-		this.listOfControllers.clear();
-
 		// Controllers that are activated always.
-		for (String id : this.controllersIds) {
-			Controller alwaysRunningController = this._controllers.get(id);
-			if (alwaysRunningController == null) {
-				log.warn("Required Controller [" + id + "] is not available.");
+		this.alwaysRunControllers.clear();
+		for (String id : this.config.alwaysRunControllers_ids()) {
+			Controller alwaysRunontroller = this._controllers.get(id);
+			if (alwaysRunontroller == null) {
+				this.logWarn(this.log, "Required Controller [" + id + "] is not available.");
 			} else {
-				this.listOfControllers.add(alwaysRunningController);
+				this.alwaysRunControllers.add(alwaysRunontroller);
 			}
 		}
 
 		// Controllers that are activated for a given time based on the Json input.
-		if (this.controllersIdsJson != null && !(this.controllersIdsJson.isEmpty())) {
-			try {
-				JsonArray controllerTime = JsonUtils.getAsJsonArray(JsonUtils.parse(this.controllersIdsJson));
-				if (controllerTime != null) {
-					for (JsonElement element : controllerTime) {
-						LocalTime Time = LocalTime.parse(JsonUtils.getAsString(element, "time"));
-						JsonArray JsonControllers = JsonUtils.getAsJsonArray(element, "controller");
-						List<Controller> listOfControllersJson = new ArrayList<>();
+		if (this.config.controllerTimes() == null || this.config.controllerTimes().isEmpty()) {
+			return;
+		}
 
-						for (JsonElement Jsonid : JsonControllers) {
-							Controller controller = this._controllers.get(JsonUtils.getAsString(Jsonid));
-							if (controller == null) {
-								this.contollersSchedule.put(Time, null);
-							} else {
-								listOfControllersJson.add(controller);
-								this.contollersSchedule.put(Time, listOfControllersJson);
-							}
-						}
+		this.contollersSchedule.clear();
+		JsonArray controllerTimes = JsonUtils.getAsJsonArray(JsonUtils.parse(this.config.controllerTimes()));
+		if (controllerTimes != null) {
+			for (JsonElement controllerPeriod : controllerTimes) {
+				LocalTime time = LocalTime.parse(JsonUtils.getAsString(controllerPeriod, "time"));
+				JsonArray controllerIds = JsonUtils.getAsJsonArray(controllerPeriod, "controllers");
+
+				List<Controller> controllers = new ArrayList<>();
+				for (JsonElement controllerId : controllerIds) {
+					Controller controller = this._controllers.get(JsonUtils.getAsString(controllerId));
+					if (controller != null) {
+						controllers.add(controller);
 					}
 				}
-			} catch (NullPointerException e) {
-				throw new OpenemsException("Unable to set values [" + controllersIds + "] " + e.getMessage());
+				this.contollersSchedule.put(time, controllers);
 			}
 		}
+
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		this.sortedControllers.clear();
 		super.deactivate();
 	}
 
@@ -153,22 +143,18 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 
 	@Override
 	public List<Controller> getControllers() {
-		this.sortedControllers.clear();
-
+		List<Controller> result = new ArrayList<>();
 		LocalTime currentTime = LocalTime.now();
 
 		// returns all the controllers that are activated at given time.
 		if (!(this.contollersSchedule.isEmpty())) {
-			if (this.contollersSchedule.lowerEntry(currentTime) != null) {
-				if (this.contollersSchedule.lowerEntry(currentTime).getValue() == null) {
-					log.warn("No controllers specified in config Json field");
-				} else {
-					System.out.println(this.contollersSchedule.lowerEntry(currentTime).getValue());
-					this.sortedControllers.addAll(this.contollersSchedule.lowerEntry(currentTime).getValue());
-				}
+			Entry<LocalTime, List<Controller>> lowerEntry = this.contollersSchedule.lowerEntry(currentTime);
+			if (lowerEntry != null) {
+				result.addAll(lowerEntry.getValue());
 			}
 		}
-		this.sortedControllers.addAll(listOfControllers);
-		return this.sortedControllers;
+
+		result.addAll(this.alwaysRunControllers);
+		return result;
 	}
 }
