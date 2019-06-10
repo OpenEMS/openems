@@ -177,27 +177,29 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
           if ('_sum/EssActivePower' in result.data) {
             /*
-            * Storage Charge
+             * Storage Charge
              */
-            let chargeData = result.data['_sum/EssActivePower'].map(value => {
+            let effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+              return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+            });
+            let chargeData = effectivePower.map(value => {
               if (value == null) {
                 return null
               } else if (value < 0) {
-                return value / -1000; // convert to kW and invert value
+                return value / -1000; // convert to kW;
               } else {
                 return 0;
               }
             });
             datasets.push({
-              label: this.translate.instant('General.ChargePower') + " AC",
+              label: this.translate.instant('General.ChargePower'),
               data: chargeData,
-              hidden: true
+              hidden: false
             });
-
             /*
-            * Storage Discharge
-            */
-            let dischargeData = result.data['_sum/EssActivePower'].map(value => {
+             * Storage Discharge
+             */
+            let dischargeData = effectivePower.map(value => {
               if (value == null) {
                 return null
               } else if (value > 0) {
@@ -209,7 +211,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             datasets.push({
               label: this.translate.instant('General.DischargePower'),
               data: dischargeData,
-              hidden: true
+              hidden: false
             });
           }
 
@@ -243,7 +245,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           // Grid
           new ChannelAddress('_sum', 'GridActivePower'),
           // Production
-          new ChannelAddress('_sum', 'ProductionActivePower'),
+          new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'),
           // Consumption
           new ChannelAddress('_sum', 'ConsumptionActivePower')
         ]);
