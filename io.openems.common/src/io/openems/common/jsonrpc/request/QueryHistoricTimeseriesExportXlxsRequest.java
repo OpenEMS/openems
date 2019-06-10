@@ -17,19 +17,19 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
-public class GetHistoryDataExportXlxsRequest extends JsonrpcRequest {
+public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "getHistoryDataExportXlsx";
+	public final static String METHOD = "queryHistoricTimeseriesExportXlxs";
 
 	private final static DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	public static GetHistoryDataExportXlxsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+	public static QueryHistoricTimeseriesExportXlxsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();		
 		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
 		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		GetHistoryDataExportXlxsRequest result = new GetHistoryDataExportXlxsRequest(r.getId(), fromDate, toDate);
+		QueryHistoricTimeseriesExportXlxsRequest result = new QueryHistoricTimeseriesExportXlxsRequest(r.getId(), fromDate, toDate);
 
 		JsonArray datachannels = JsonUtils.getAsJsonArray(p, "dataChannels");
 		for (JsonElement channel : datachannels) {
@@ -51,7 +51,7 @@ public class GetHistoryDataExportXlxsRequest extends JsonrpcRequest {
 	private final TreeSet<ChannelAddress> dataChannels = new TreeSet<>();
 	private final TreeSet<ChannelAddress> energyChannels = new TreeSet<>();
 
-	public GetHistoryDataExportXlxsRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate)
+	public QueryHistoricTimeseriesExportXlxsRequest(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate)
 			throws OpenemsNamedException {
 		super(id, METHOD);
 

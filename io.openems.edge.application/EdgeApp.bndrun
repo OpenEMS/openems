@@ -40,6 +40,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
+	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
@@ -185,5 +186,5 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[1.10.2,1.10.3)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.10.2,1.10.3)',\
 	com.sun.jna;version='[5.3.1,5.3.2)',\
-	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
-	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot
+	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
+	io.openems.edge.controller.evcs.fixactivepower;version=snapshot

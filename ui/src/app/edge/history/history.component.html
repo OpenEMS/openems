@@ -2,24 +2,15 @@
   <ion-row>
 
     <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
-      <ion-col size="12" size-md="5" size-lg="4" size-xl="3" no-padding>
-        <kwh [period]="service.historyPeriod"></kwh>
-      </ion-col>
+      <kwh [period]="service.historyPeriod"></kwh>
     </ion-col>
-
-    <ion-card-content>
-      <ion-button (click)="getDataIntoXlxs()">Download Data</ion-button>
-    </ion-card-content>
 
     <ion-col size="12" size-md="9" size-lg="10" size-xl="9">
       <ion-card>
         <ion-item color="light" lines="full">
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label>
-            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span>
-              {{ service.historyPeriod.text }}
-            </ion-card-title>
-          </ion-label>
+          <ion-label text-wrap><span translate>Edge.History.SelectedPeriod</span>
+            {{ service.historyPeriod.text }}</ion-label>
         </ion-item>
 
         <ion-card-content>
@@ -62,6 +53,12 @@
         </ion-card-content>
       </ion-card>
     </ion-col>
-
   </ion-row>
+
+  <ion-row>
+    <ion-row size="3">
+      <export></export>
+    </ion-row>
+  </ion-row>
+
 </ion-grid>

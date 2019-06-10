@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.websocket;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -10,7 +11,6 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.common.OpenemsConstants;
@@ -26,9 +26,9 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.jsonrpc.request.GetHistoryDataExportXlxsRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
@@ -37,7 +37,6 @@ import io.openems.common.jsonrpc.response.AuthenticateWithPasswordResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
-import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesExportXlsxResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
@@ -111,10 +110,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case QueryHistoricTimeseriesEnergyRequest.METHOD:
 			resultFuture = this.handleQueryHistoricEnergyRequest(QueryHistoricTimeseriesEnergyRequest.from(request));
 			break;
-			
-		case GetHistoryDataExportXlxsRequest.METHOD:
-			resultFuture = this.handleHistoryDataExportXlsx(user, GetHistoryDataExportXlxsRequest.from(request));
-			break;	
+
+		case QueryHistoricTimeseriesExportXlxsRequest.METHOD:
+			resultFuture = this.handleQueryHistoricTimeseriesExportXlxsRequest(user,
+					QueryHistoricTimeseriesExportXlxsRequest.from(request));
+			break;
 
 		case CreateComponentConfigRequest.METHOD:
 			resultFuture = this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
@@ -139,7 +139,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case ComponentJsonApiRequest.METHOD:
 			resultFuture = this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
 			break;
-		
 
 		// TODO: to be implemented: UI Logout
 
@@ -179,25 +178,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
 				wsData.getSessionToken(), Utils.getEdgeMetadata(user.getRole())));
 	}
-		
-	/**
-	 * Handles a QueryHistoryDataExportXlsxRequest.
-	 * 
-	 * @param user    the User
-	 * @param request the GetHistoryDataExportXlxsRequest
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
 
-	private CompletableFuture<JsonrpcResponseSuccess> handleHistoryDataExportXlsx(EdgeUser user,
-			GetHistoryDataExportXlxsRequest request) throws OpenemsNamedException {
-		Map<ChannelAddress, JsonElement> dataChannels = this.parent.getTimedata().exportHistoryData(request);
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> energyChannels = this.parent.getTimedata()
-				.exportEnergyData(request);
-		return CompletableFuture.completedFuture(
-				new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), request.getFromDate(), request.getToDate(), dataChannels, energyChannels));
-	}
-	
 	/**
 	 * Handles a SubscribeChannelsRequest.
 	 * 
@@ -227,11 +208,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(EdgeUser user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricData(//
-				null, /* ignore Edge-ID */
-				request.getFromDate(), //
-				request.getToDate(), //
-				request.getChannels());
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
+				.queryHistoricData(//
+						null, /* ignore Edge-ID */
+						request.getFromDate(), //
+						request.getToDate(), //
+						request.getChannels());
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
@@ -252,6 +234,20 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
+	}
+
+	/**
+	 * Handles a QueryHistoricTimeseriesExportXlxsRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the QueryHistoricTimeseriesExportXlxsRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(EdgeUser user,
+			QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
+		return CompletableFuture.completedFuture(this.parent.getTimedata()
+				.handleQueryHistoricTimeseriesExportXlxsRequest(null /* ignore Edge-ID */, request));
 	}
 
 	/**
