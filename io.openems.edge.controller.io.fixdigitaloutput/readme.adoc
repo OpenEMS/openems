@@ -1,0 +1,5 @@
+= IO Fix Digital Output
+
+Sets a digital output statically ON or OFF.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.fixdigitaloutput[Source Code icon:github[]]

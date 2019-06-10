@@ -1,0 +1,5 @@
+= Symmetric Fix Reactive Power
+
+Sets a fixed reactive power for a symmetric energy storage system.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.fixreactivepower[Source Code icon:github[]]

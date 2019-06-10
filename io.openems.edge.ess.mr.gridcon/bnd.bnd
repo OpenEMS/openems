@@ -10,7 +10,7 @@ Private-Package: \
 	io.openems.edge.ess.mr.gridcon.enums,\
 	io.openems.edge.ess.mr.gridcon.writeutils
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

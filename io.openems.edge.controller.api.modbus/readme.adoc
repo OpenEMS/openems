@@ -1,0 +1,5 @@
+= Api Modbus
+
+Provides a Modbus-Slave implementation for OpenEMS Edge. It provides access to Channels from an external device via Modbus/TCP.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.modbus[Source Code icon:github[]]

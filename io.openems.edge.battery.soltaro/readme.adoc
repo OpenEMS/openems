@@ -1,0 +1,6 @@
+= Soltaro Battery Rack
+
+Implemented Natures::
+- Battery
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.soltaro[Source Code icon:github[]]
