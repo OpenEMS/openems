@@ -11,7 +11,7 @@
 
 A OpenEMS Edge Controller holds the actual business logic or the actual algorithm that controls hardware. The logic of each active Controller is executed regularly on every Cycle, i.e. once per second.
 
-include::controller.adoc.d/_include.adoc[]
+include::controller.adoc.d/_include.adoc[leveloffset=+0]
 
 // TODO
 //=== Developing a Controller

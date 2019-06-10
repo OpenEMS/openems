@@ -40,7 +40,6 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -67,8 +66,6 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
 	
-	private static final int PENDING_TIME_SECONDS = 15;
-
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
 
 	private Config config;
@@ -89,7 +86,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	// indicates that system is stopping; during that time no commands should be
 	// sent
 	private boolean isStopping = false;
-	
+
 	private LocalDateTime pendingTimestamp;
 
 	public SingleRack() {
@@ -227,18 +224,18 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			} else if (!this.isSystemRunning()) {
 				this.setStateMachineState(State.UNDEFINED);
 			} else {
-				// if minimal cell voltage is lower than configured minimal cell voltage, then
-				// force system to charge
-				IntegerReadChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE);
-				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
-				if (minCellVoltageOpt.isPresent()) {
-					int minCellVoltage = minCellVoltageOpt.get();
-					if (minCellVoltage < this.config.minimalCellVoltage()) {
-						// set the discharge current negative to force the system to charge
-						// TODO check if this is working!
-						this.getDischargeMaxCurrent().setNextValue((-1) * this.getChargeMaxCurrent().value().get());
-					}
-				}
+//				// if minimal cell voltage is lower than configured minimal cell voltage, then
+//				// force system to charge
+//				IntegerReadChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE);
+//				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
+//				if (minCellVoltageOpt.isPresent()) {
+//					int minCellVoltage = minCellVoltageOpt.get();
+//					if (minCellVoltage < this.config.minimalCellVoltage()) {
+//						// set the discharge current negative to force the system to charge
+//						// TODO check if this is working!
+//						this.getDischargeMaxCurrent().setNextValue((-1) * this.getChargeMaxCurrent().value().get());
+//					}
+//				}
 				readyForWorking = true;
 				this.setStateMachineState(State.RUNNING);
 			}
@@ -267,18 +264,21 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			if (this.pendingTimestamp == null) {
 				this.pendingTimestamp = LocalDateTime.now();
 			}
-			if (this.pendingTimestamp.plusSeconds(PENDING_TIME_SECONDS).isBefore(LocalDateTime.now())) {
-				// System state could not be determined, stop and start it 
+			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
+				// System state could not be determined, stop and start it
 				this.pendingTimestamp = null;
 				this.stopSystem();
 				this.setStateMachineState(State.OFF);
 			} else {
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
+					this.pendingTimestamp = null;
 				} else if (this.isSystemStopped()) {
 					this.setStateMachineState(State.OFF);
+					this.pendingTimestamp = null;
 				} else if (this.isSystemRunning()) {
 					this.setStateMachineState(State.RUNNING);
+					this.pendingTimestamp = null;
 				}
 			}
 			break;
