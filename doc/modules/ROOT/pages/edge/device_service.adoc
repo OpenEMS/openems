@@ -12,7 +12,7 @@
 
 For the following devices driver implementations are available in OpenEMS Edge.
 
-include::device_service.adoc.d/_include.adoc[]
+include::device_service.adoc.d/_include.adoc[leveloffset=+0]
 
 == KACO blueplanet hybrid 10.0 TL3
 
