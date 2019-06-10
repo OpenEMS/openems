@@ -3,6 +3,7 @@ import { cmp } from 'semver-compare-multi';
 import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
 import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
@@ -18,7 +19,6 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
-import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 
 export class Edge {
 
@@ -110,7 +110,7 @@ export class Edge {
    * @param websocket the Websocket
    */
   public subscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    return this.sendRequest(websocket, new SubscribeSystemLogRequest(true));
+    return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: true }));
   }
 
   /**
@@ -119,7 +119,7 @@ export class Edge {
    * @param websocket the Websocket
    */
   public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    return this.sendRequest(websocket, new SubscribeSystemLogRequest(false));
+    return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: false }));
   }
 
   /**
@@ -210,7 +210,7 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    let wrap = new EdgeRpcRequest(this.id, request);
+    let wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
         if (env.debugMode) {
