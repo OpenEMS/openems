@@ -38,6 +38,8 @@ export class KwhComponent implements OnInit, OnChanges {
   updateValues() {
     this.queryEnergy(this.period.from, this.period.to).then(response => {
       this.data = response.result.data;
+    }).catch(reason => {
+      console.error(reason); // TODO error message
     });
   };
 
