@@ -49,13 +49,13 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 					new Label("Ladezustand [%]", null)) //
 			.put("_sum/EssActivePower", //
 					new Label("Speicher Be-/Entladung [W]",
-							"Positive Werte für Entladung, negative für Beladung. Bei DC-gekoppelten Speichersystemen wird die PV-Leistung hier ebenfalls erfasst.")) //
+							"Positive Werte fÃ¼r Entladung, negative fÃ¼r Beladung. Bei DC-gekoppelten Speichersystemen wird die PV-Leistung hier ebenfalls erfasst.")) //
 			.put("_sum/ConsumptionActivePower", //
 					new Label("Verbrauch [W]",
 							"Dieser Wert wird nicht direkt gemessen, sondern errechnet sich aus Speicher Be-/Entladung, Netzbezug/-einspeisung und Erzeugung.")) //
 			.put("_sum/GridActivePower", //
 					new Label("Netzbezug-/einspeisung [W]",
-							"Positive Werte für Netzbezug, negative für Netzeinspeisung.")) //
+							"Positive Werte fÃ¼r Netzbezug, negative fÃ¼r Netzeinspeisung.")) //
 			.put("_sum/ProductionActivePower", //
 					new Label("Erzeugung [W]", null)) //
 			.build();
