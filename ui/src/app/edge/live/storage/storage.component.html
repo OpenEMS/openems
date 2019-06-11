@@ -1,0 +1,67 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="currentData.summary.storage as sum">
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <ng-container *ngIf="sum.soc < 20; else twoBars">
+                        <img src="assets/img/storage_20.png">
+                    </ng-container>
+                    <ng-template #twoBars>
+                        <ng-container *ngIf="sum.soc < 40; else threeBars">
+                            <img src="assets/img/storage_40.png">
+                        </ng-container>
+                    </ng-template>
+                    <ng-template #threeBars>
+                        <ng-container *ngIf="sum.soc < 60; else fourBars">
+                            <img src="assets/img/storage_60.png">
+                        </ng-container>
+                    </ng-template>
+                    <ng-template #fourBars>
+                        <ng-container *ngIf="sum.soc < 80; else fiveBars">
+                            <img src="assets/img/storage_20.png">
+                        </ng-container>
+                    </ng-template>
+                    <ng-template #fiveBars>
+                        <img src="assets/img/storage_100.png">
+                    </ng-template>
+                </ion-avatar>
+                <ion-label translate>General.StorageSystem</ion-label>
+            </ion-item>
+            <ion-card-content>
+                <ion-grid no-padding>
+                    <table class="full_width">
+                        <tr class="underline">
+                            <td style="width:65%" translate>General.Soc</td>
+                            <td style="width:25%" class="align_right">{{ sum.soc | number:'1.0-0' }}</td>
+                            <td style="width:10%">&nbsp;%</td>
+                        </tr>
+                        <tr>
+                            <td style="width:65%" translate>General.ChargePower</td>
+                            <ng-container *ngIf="sum.effectiveChargePower != null; else empty">
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.effectiveChargePower | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                        <tr>
+                            <td style="width:65%" translate>General.DischargePower</td>
+                            <ng-container *ngIf="sum.effectiveDischargePower != null; else empty">
+                                <td style="width:25%" class="align_right">
+                                    {{ sum.effectiveDischargePower | number:'1.0-0' }}</td>
+                                <td style="width:10%">&nbsp;W</td>
+                            </ng-container>
+                            <ng-template #empty>
+                                <td style="width:25%" class="align_right">-</td>
+                                <td style="width:10%"></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ng-container>
+</ng-container>

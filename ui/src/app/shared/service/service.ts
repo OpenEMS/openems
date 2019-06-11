@@ -12,6 +12,7 @@ import { Role } from '../type/role';
 import { DefaultTypes } from './defaulttypes';
 import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
 import { ToastController } from '@ionic/angular';
+import { format } from 'date-fns';
 
 @Injectable()
 export class Service implements ErrorHandler {
@@ -54,6 +55,13 @@ export class Service implements ErrorHandler {
     translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang(LanguageTag.DE);
+    // initialize history period
+    this.DEFAULT_HISTORY_PERIOD = {
+      from: new Date(),
+      to: new Date(),
+      text: this.translate.instant('Edge.History.Today') + ", " + format(new Date(), this.translate.instant('General.DateFormat'))
+    };
+    this.historyPeriod = this.DEFAULT_HISTORY_PERIOD;
   }
 
   /**
@@ -270,4 +278,12 @@ export class Service implements ErrorHandler {
     });
     toast.present();
   }
+
+  public DEFAULT_HISTORY_PERIOD: DefaultTypes.HistoryPeriod;
+
+  /**
+   * Currently selected history period
+   */
+  public historyPeriod: DefaultTypes.HistoryPeriod;
+
 }

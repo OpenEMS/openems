@@ -17,7 +17,7 @@ export class AppComponent {
   public env = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public isEdgeIndexPage: boolean = false;
+  public currentPage: 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -30,7 +30,7 @@ export class AppComponent {
     public service: Service,
     public router: Router,
     public toastController: ToastController,
-    public menu: MenuController,
+    public menu: MenuController
   ) {
     // this.initializeApp();
     service.setLang(LanguageTag.DE);
@@ -68,7 +68,7 @@ export class AppComponent {
   updateUrl(url: string) {
     this.updateBackUrl(url);
     this.updateEnableSideMenu(url);
-    this.updateIsEdgeIndexPage(url);
+    this.updateCurrentPage(url);
   }
 
   updateEnableSideMenu(url: string) {
@@ -129,15 +129,19 @@ export class AppComponent {
     this.backUrl = backUrl;
   }
 
-  updateIsEdgeIndexPage(url: string) {
+  updateCurrentPage(url: string) {
     let urlArray = url.split('/');
     let file = urlArray.pop();
 
     // Enable Segment Navigation for Edge-Index-Page
     if ((file == 'history' || file == 'live') && urlArray.length == 3) {
-      this.isEdgeIndexPage = true;
+      if (file == 'history') {
+        this.currentPage = 'IndexHistory';
+      } else {
+        this.currentPage = 'IndexLive';
+      }
     } else {
-      this.isEdgeIndexPage = false;
+      this.currentPage = 'Other';
     }
   }
 

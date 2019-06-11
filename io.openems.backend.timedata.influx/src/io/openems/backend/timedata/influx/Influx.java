@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -208,7 +209,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	}
 
 	@Override
-	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
@@ -218,7 +219,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));

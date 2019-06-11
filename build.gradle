@@ -166,7 +166,7 @@ task copyBundleReadmes() {
 
                     // append content of source file to target file
                     File targetFile = new File(target + "/_include.adoc")
-                    targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=1]\n")
+                    targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
                 }
             }
         }
