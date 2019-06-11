@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -346,7 +347,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
 
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> data;
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data;
 		data = this.parent.timeData.queryHistoricData(//
 				edgeId, //
 				request.getFromDate(), //
