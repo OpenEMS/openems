@@ -20,7 +20,7 @@ public class CalculateConsumption {
 	@SuppressWarnings("unused")
 	private DynamicCharge dynamicCharge;
 	private static int soc;
-	private static long totalDemand;
+	private static long totalDemand = 0;
 	private static long nettCapacity;
 	private LocalDate dateOfT0 = null;
 	private long totalConsumption = 0;
@@ -56,18 +56,23 @@ public class CalculateConsumption {
 	private State currentState = State.PRODUCTION_LOWER_THAN_CONSUMPTION;
 
 	protected void run(ManagedSymmetricEss ess, SymmetricMeter meter, Config config, Sum sum) {
+		
 
 		int production = sum.getProductionActivePower().value().orElse(0);
 		int consumption = sum.getConsumptionActivePower().value().orElse(0);
+//		long production = sum.getProductionActiveEnergy().value().orElse(0L);
+//		long consumption = sum.getConsumptionActiveEnergy().value().orElse(0L);
 		long productionEnergy = sum.getProductionActiveEnergy().value().orElse(0L);
 		long consumptionEnergy = sum.getConsumptionActiveEnergy().value().orElse(0L);
-		// long consumption = sum.getGridActivePower().value().orElse(0);
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
 
-		log.info("totalDemand: " + totalDemand + " t0: " + t0 + " t1: " + t1 + " total Consumption: " + totalConsumption
-				+ " currenthour: " + hourlyConsumption.lastKey());
+		log.info("totalDemand: " + totalDemand + " t0: " + t0 + " t1: " + t1 + "current Hour: " + currentHour);
+		
+		if(!hourlyConsumption.isEmpty()) {
+			log.info("first Key: " + hourlyConsumption.firstKey() + " last Key: " + hourlyConsumption.lastKey());
+		}
 
 		switch (currentState) {
 		case PRODUCTION_LOWER_THAN_CONSUMPTION:
@@ -163,6 +168,7 @@ public class CalculateConsumption {
 
 			// avoids the initial run
 			if (dateOfLastRun != null) {
+				log.info("Entering Calculations: ");
 				t1 = null;
 				soc = ess.getSoc().value().orElse(0);
 				nettCapacity = ess.getNetCapacity().value().orElse(0);
@@ -170,9 +176,14 @@ public class CalculateConsumption {
 				availableCapacity = (soc / 100) * nettCapacity;
 				Prices.houlryprices();
 				HourlyPrices = Prices.getHourlyPrices();
+				/*totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
+						hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();*/
 				totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
 						hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();
+				log.info(hourlyConsumption.firstKey() + " ] " + " [ " + hourlyConsumption.lastKey() + " ] ");
+				log.info(" Getting schedule: ");
 				getChargeSchedule(hourlyConsumption.firstKey().plusDays(1), hourlyConsumption.lastKey().plusDays(1));
+				// hourlyConsumption.clear();
 			}
 
 			// Resetting Values
@@ -188,8 +199,7 @@ public class CalculateConsumption {
 		// function to find the minimum priceHour
 		cheapHour(start, end);
 
-		demand_Till_Cheapest_Hour = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
-				cheapTimeStamp);
+		demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp);
 		currentHourConsumption = hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
 
 		/*
@@ -212,7 +222,7 @@ public class CalculateConsumption {
 					if (chargebleConsumption > maxApparentPower) {
 						LocalDateTime lastCheapTimeStamp = cheapTimeStamp;
 						float lastMinPrice = minPrice;
-						cheapHour(cheapTimeStamp.plusHours(1), hourlyConsumption.lastKey().plusDays(1));
+						cheapHour(cheapTimeStamp.plusHours(1), end.plusDays(1));
 
 						if (minPrice < lastMinPrice) {
 							// remainingConsumption = chargebleConsumption - maxApparentPower;
@@ -236,10 +246,10 @@ public class CalculateConsumption {
 					}
 					totalDemand = totalDemand - chargebleConsumption - currentHourConsumption;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
-					getChargeSchedule(hourlyConsumption.firstKey().plusDays(1), cheapTimeStamp);
+					getChargeSchedule(start, cheapTimeStamp);
 				} else {
 					totalDemand = totalDemand - currentHourConsumption;
-					getChargeSchedule(hourlyConsumption.firstKey().plusDays(1), cheapTimeStamp);
+					getChargeSchedule(start, cheapTimeStamp);
 				}
 			}
 		}
