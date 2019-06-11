@@ -1,2 +1,2 @@
 :moduledir: ..
-include::{moduledir}/_attributes.adoc[]
+include::{moduledir}/_attributes.adoc[leveloffset=+0]

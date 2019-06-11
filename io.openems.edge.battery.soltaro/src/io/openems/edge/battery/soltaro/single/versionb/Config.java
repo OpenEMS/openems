@@ -45,6 +45,10 @@ import io.openems.edge.battery.soltaro.BatteryState;
 
 	@AttributeDefinition(name = "Watchdog", description = "Watchdog timeout in seconds")
 	int watchdog() default 60;
+	
+	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determinated e.g. in case of reading errors")
+	int pendingTolerance() default 15;
+	
 
 	@AttributeDefinition(name = "SoC Low Alarm", description = "Sets the value for BMS SoC protection (0..100)", min = "0", max = "100")
 	int SoCLowAlarm() default 0;
