@@ -6,6 +6,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -109,24 +111,23 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
     }
 
     @Override
-    public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(
-            String edgeId,
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
             ZonedDateTime fromDate,
             ZonedDateTime toDate,
             Set<ChannelAddress> channels, int resolution) {
-        TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> retVal = TreeBasedTable.create();
+        TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> retVal = new TreeMap<>();
         for (Entry<ZonedDateTime, Map<ChannelAddress, JsonElement>> entry : historicData.rowMap().entrySet()) {
             entry.getValue().entrySet().stream().filter(
                     e -> channels.contains(e.getKey())).findFirst().ifPresent(
-                            en -> retVal.put(entry.getKey(), en.getKey(), en.getValue()));
+                            en -> retVal.put(entry.getKey(), new TreeMap<>(entry.getValue())));
         }
         return retVal;
     }
 
     @Override
-    public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
                                                                 ZonedDateTime toDate, Set<ChannelAddress> channels) {
-        Map<ChannelAddress, JsonElement> retVal = new HashMap<>(historicEnergy);
+        TreeMap<ChannelAddress, JsonElement> retVal = new TreeMap<>(historicEnergy);
         retVal.entrySet().retainAll(channels);
         return retVal;
     }

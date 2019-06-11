@@ -5,22 +5,20 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { IonicModule, IonInfiniteScroll } from '@ionic/angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { ToasterModule, ToasterService } from 'angular2-toaster';
 import 'hammerjs';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 import { ChartsModule } from 'ng2-charts';
 import { NgxLoadingModule } from 'ngx-loading';
-import { SocComponent } from '../edge/history/chart/soc/soc.component';
+import { SocComponent } from '../edge/history/soc/soc.component';
 import { appRoutingProviders } from './../app-routing.module';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyIonicModule } from '@ngx-formly/ionic';
-import { KwhComponent } from '../edge/history/kwh/kwh.component';
 
 /*
  * Components
  */
-import { MyMaterialModule } from './material.module';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
@@ -35,6 +33,8 @@ import { SignPipe } from './pipe/sign/sign.pipe';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { PickDateComponent } from './pickdate/pickdate.component';
+import { Language } from './translate/language';
 
 @NgModule({
   imports: [
@@ -43,13 +43,15 @@ import { Websocket } from './service/websocket';
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
     NgxLoadingModule,
     MyDateRangePickerModule,
     ToasterModule,
+    TranslateModule.forRoot({
+      loader: { provide: TranslateLoader, useClass: Language }
+    }),
   ],
   declarations: [
     // pipes
@@ -60,6 +62,7 @@ import { Websocket } from './service/websocket';
     HasclassPipe,
     // components
     SocComponent,
+    PickDateComponent,
   ],
   exports: [
     // pipes
@@ -74,7 +77,6 @@ import { Websocket } from './service/websocket';
     CommonModule,
     FormsModule,
     IonicModule,
-    MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
     ReactiveFormsModule,
@@ -83,9 +85,10 @@ import { Websocket } from './service/websocket';
     ToasterModule,
     FormlyModule,
     FormlyIonicModule,
+    NgxLoadingModule,
     // components
     SocComponent,
-    NgxLoadingModule,
+    PickDateComponent,
   ],
   providers: [
     Utils,

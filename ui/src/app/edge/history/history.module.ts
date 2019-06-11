@@ -1,19 +1,23 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
-import { WidgetModule } from './chart/widget/widget.module';
 import { HistoryComponent } from './history.component';
-import { EnergyComponent } from './chart/energy/energy.component';
+import { EnergyComponent } from './energy/energy.component';
 import { KwhComponent } from './kwh/kwh.component';
+import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
+import { EvcsComponent } from './evcs/evcs.component';
+import { ExportComponent } from './export/export.component';
 
 @NgModule({
   imports: [
     SharedModule,
-    WidgetModule
   ],
   declarations: [
     HistoryComponent,
     EnergyComponent,
-    KwhComponent
+    KwhComponent,
+    ChannelthresholdComponent,
+    EvcsComponent,
+    ExportComponent
   ]
 })
 export class HistoryModule { }

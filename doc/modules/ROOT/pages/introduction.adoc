@@ -27,8 +27,8 @@ The OpenEMS software architecture was designed to leverage some features that ar
  * Modern web-based real-time user interface
 
 == OpenEMS UI Screenshots
-image::ui-screenshots.png[]
-image::ui-screenshots2.png[]
+image::ui-screenshots.png[OpenEMS UI Screenshots]
+image::ui-screenshots2.png[OpenEMS UI Screenshots]
 
 == System architecture
 

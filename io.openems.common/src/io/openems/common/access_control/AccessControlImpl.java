@@ -22,7 +22,7 @@ public class AccessControlImpl implements AccessControl {
     @Reference(policy = ReferencePolicy.DYNAMIC, //
             policyOption = ReferencePolicyOption.GREEDY, //
             cardinality = ReferenceCardinality.MULTIPLE)
-    protected volatile List<AccessControlProvider> providers = new LinkedList<>();
+    private volatile List<AccessControlProvider> providers = new LinkedList<>();
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext) {
