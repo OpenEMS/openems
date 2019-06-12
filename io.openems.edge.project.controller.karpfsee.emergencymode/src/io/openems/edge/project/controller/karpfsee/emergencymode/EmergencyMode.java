@@ -92,6 +92,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	 */
 	private State state = State.UNDEFINED;
 	private State previousState = State.UNDEFINED;
+	private GridMode previousGridState = GridMode.UNDEFINED;
 	private int currentActivePower = 0;
 
 	/**
@@ -125,14 +126,15 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			/*
 			 * Grid-Mode is undefined -> wait till we have some clear information
 			 */
+			this.previousGridState = GridMode.UNDEFINED;
 			break;
 		case OFF_GRID:
 			/*
-			 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Run Off-Grid
-			 * Process
+			 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Run
+			 * Off-Grid Process
 			 */
 
-			if (!isBlockHeatPowerPlantStopped()) {
+			if (!isBlockHeatPowerPlantStopped() && (this.previousGridState == GridMode.ON_GRID)) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}
 
@@ -145,6 +147,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				break;
 			}
 			this.handleOffGridState(ess);
+			this.previousGridState = GridMode.OFF_GRID;
 			break;
 
 		case ON_GRID:
@@ -152,6 +155,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			 * On-Grid Mode -> Activate only On grid Mode and let BHKW runs
 			 */
 			this.handleOnGridState();
+			this.previousGridState = GridMode.ON_GRID;
 			break;
 		}
 	}
