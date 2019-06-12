@@ -19,7 +19,6 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 /*
  * Components
  */
-import { MyMaterialModule } from './material.module';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
@@ -44,7 +43,6 @@ import { Language } from './translate/language';
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
@@ -79,7 +77,6 @@ import { Language } from './translate/language';
     CommonModule,
     FormsModule,
     IonicModule,
-    MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
     ReactiveFormsModule,

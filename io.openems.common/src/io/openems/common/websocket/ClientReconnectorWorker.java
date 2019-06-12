@@ -4,8 +4,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-import org.java_websocket.WebSocket.READYSTATE;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.enums.ReadyState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			return;
 		}
 
-		if (ws.getReadyState() == READYSTATE.OPEN) {
+		if (ws.getReadyState() == ReadyState.OPEN) {
 			return;
 		}
 
