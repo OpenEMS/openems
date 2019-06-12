@@ -13,7 +13,7 @@ Physical hardware is abstracted in OpenEMS Edge using _Natures_. A Nature define
 
 Technically Natures are implemented as OSGi API Bundles.
 
-include::nature.adoc.d/_include.adoc[]
+include::nature.adoc.d/_include.adoc[leveloffset=+0]
 
 // TODO
 //=== Developing a Nature

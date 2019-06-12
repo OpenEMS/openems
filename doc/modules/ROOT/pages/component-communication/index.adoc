@@ -29,22 +29,22 @@ The information on this page is useful to understand the internal communication 
 
 NOTE: On opening of the websocket connection to Edge/Backend, the UI is authenticated using an existing token.
 
-image::authenticateWithSessionId.png[]
+image::authenticateWithSessionId.png[authenticateWithSessionId]
 
 == Authenticate UI to Edge using password
 
-image::authenticateWithPassword.png[]
+image::authenticateWithPassword.png[authenticateWithPassword]
 == Subscribe to Channels
 
 NOTE: Allows a Component to subscribe on certain Channel values. The latest Channel values are then periodically sent.
 
-image:subscribeChannels+currentData.png[]
+image:subscribeChannels+currentData.png[subscribeChannels+currentData]
 
 == Subscribe to System-Log
 
 NOTE: Sends the log output of Edge to UI via Backend.
 
-image:subscribeSystemLog.png[]
+image:subscribeSystemLog.png[subscribeSystemLog]
 
 
 == Store channel data in Time-Series database

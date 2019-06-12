@@ -14,7 +14,7 @@ A OpenEMS Edge Scheduler plans the execution of Controllers. It defines...
 - which Controllers are executed
 - in which priority the Controllers are executed
 
-include::scheduler.adoc.d/_include.adoc[]
+include::scheduler.adoc.d/_include.adoc[leveloffset=+0]
 
 // TODO
 //== Developing a Scheduler
