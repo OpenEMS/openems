@@ -4,11 +4,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -25,7 +25,6 @@ import org.influxdb.dto.QueryResult.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -146,8 +145,13 @@ public class InfluxConnector {
 	 * @return a map between ChannelAddress and value
 	 * @throws OpenemsException on error
 	 */
-	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<ChannelAddress, JsonElement>();
+		}
+
 		// Prepare query string
 		StringBuilder b = new StringBuilder("SELECT ");
 		b.append(InfluxConnector.toChannelAddressStringEnergy(channels));
@@ -167,7 +171,7 @@ public class InfluxConnector {
 		QueryResult queryResult = executeQuery(query);
 
 		// Prepare result
-		Map<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
+		SortedMap<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
 				fromDate.getZone());
 
 		return result;
@@ -184,9 +188,9 @@ public class InfluxConnector {
 	 * @return
 	 * @throws OpenemsException on error
 	 */
-	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
-			throws OpenemsNamedException {
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
+			int resolution) throws OpenemsNamedException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(InfluxConnector.toChannelAddressStringData(channels));
@@ -208,7 +212,7 @@ public class InfluxConnector {
 		QueryResult queryResult = this.executeQuery(query.toString());
 
 		// Prepare result
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> result = InfluxConnector
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
 				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
 
 		return result;
@@ -221,9 +225,9 @@ public class InfluxConnector {
 	 * @return
 	 * @throws OpenemsException on error
 	 */
-	private static TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> convertHistoricDataQueryResult(
+	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertHistoricDataQueryResult(
 			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
-		TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> table = TreeBasedTable.create();
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 		for (Result result : queryResult.getResults()) {
 			List<Series> seriess = result.getSeries();
 			if (seriess != null) {
@@ -239,6 +243,7 @@ public class InfluxConnector {
 
 					// add all data
 					for (List<Object> values : series.getValues()) {
+						SortedMap<ChannelAddress, JsonElement> tableRow = new TreeMap<>();
 						// get timestamp
 						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) values.get(0)).doubleValue());
 						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, timezone);
@@ -254,8 +259,9 @@ public class InfluxConnector {
 							} else {
 								value = new JsonPrimitive(valueObj.toString());
 							}
-							table.put(timestamp, address, value);
+							tableRow.put(address, value);
 						}
+						table.put(timestamp, tableRow);
 					}
 				}
 			}
@@ -270,9 +276,9 @@ public class InfluxConnector {
 	 * @return
 	 * @throws OpenemsException on error
 	 */
-	private static Map<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query, QueryResult queryResult,
-			ZoneId timezone) throws OpenemsNamedException {
-		Map<ChannelAddress, JsonElement> map = new HashMap<>();
+	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query,
+			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
+		SortedMap<ChannelAddress, JsonElement> map = new TreeMap<>();
 		for (Result result : queryResult.getResults()) {
 			List<Series> seriess = result.getSeries();
 			if (seriess != null) {

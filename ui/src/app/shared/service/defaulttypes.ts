@@ -62,4 +62,10 @@ export module DefaultTypes {
     params?: string[]
   }
 
+  export interface HistoryPeriod {
+    from: Date,
+    to: Date,
+    text: string
+  }
+
 }

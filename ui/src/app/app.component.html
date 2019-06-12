@@ -19,17 +19,29 @@
       </ng-container>
     </ion-toolbar>
 
-    <ng-container *ngIf="isEdgeIndexPage && service.currentEdge | async as edge">
-      <ion-toolbar color="primary">
-        <ion-segment>
-          <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/live">
-            <ion-label translate>General.Live</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="History" routerLink="/device/{{ edge.id }}/history">
-            <ion-label translate>General.History</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </ion-toolbar>
+    <ng-container *ngIf="service.currentEdge | async as edge">
+      <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
+        <ion-toolbar color="primary">
+          <ion-segment>
+            <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
+              routerLink="/device/{{ edge.id }}/live">
+              <ion-label translate>General.Live</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [checked]="currentPage == 'IndexHistory'" value="History"
+              routerLink="/device/{{ edge.id }}/history">
+              <ion-label translate>General.History</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-toolbar>
+      </ng-container>
+
+      <ng-container *ngIf="currentPage == 'IndexHistory'">
+        <ion-toolbar color="secondary">
+          <ion-buttons slot="start">
+            <pickdate></pickdate>
+          </ion-buttons>
+        </ion-toolbar>
+      </ng-container>
     </ng-container>
   </ion-header>
 

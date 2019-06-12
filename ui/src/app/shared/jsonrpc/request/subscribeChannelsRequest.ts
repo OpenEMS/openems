@@ -26,12 +26,14 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     static METHOD: string = "subscribeChannels";
 
     public constructor(
-        public readonly channels: ChannelAddress[]
+        private channels: ChannelAddress[]
     ) {
         super(SubscribeChannelsRequest.METHOD, {
             count: SubscribeChannelsRequest.lastCount++,
             channels: JsonRpcUtils.channelsToStringArray(channels)
         });
+        // delete local fields, otherwise they are sent with the JSON-RPC Request
+        delete this.channels;
     }
 
 }

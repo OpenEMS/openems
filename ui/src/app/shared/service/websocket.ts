@@ -8,14 +8,13 @@ import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, J
 import { AuthenticateWithSessionIdFailedNotification } from '../jsonrpc/notification/authenticatedWithSessionIdFailedNotification';
 import { AuthenticateWithSessionIdNotification } from '../jsonrpc/notification/authenticatedWithSessionIdNotification';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification';
-import { EdgeRpcResponse } from '../jsonrpc/response/edgeRpcResponse';
+import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { DefaultTypes } from './defaulttypes';
 import { Service } from './service';
 import { WsData } from './wsdata';
-import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
-import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
-import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 
 @Injectable()
 export class Websocket {
@@ -326,7 +325,7 @@ export class Websocket {
       let edge = edges[edgeId];
       edge.handleSystemLogNotification(message);
     } else {
-      this.sendRequest(new SubscribeSystemLogRequest(false));
+      this.sendRequest(new SubscribeSystemLogRequest({ subscribe: false }));
     }
   }
 
