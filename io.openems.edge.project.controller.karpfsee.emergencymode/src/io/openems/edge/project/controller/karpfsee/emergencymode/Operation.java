@@ -4,8 +4,10 @@ import io.openems.common.types.OptionsEnum;
 
 enum Operation implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	SET_ZERO(0, "Set Zero"), //
-	SET_ONE(1, "Set One");
+	START(0, "START"), //
+	STOP(1, "STOP"),//
+	ON(2, "ON"),//
+	OFF(3, "OFF");
 
 	private final int value;
 	private final String name;
