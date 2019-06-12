@@ -56,13 +56,10 @@ public class Prices {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public static TreeMap<LocalDateTime, Float> getHourlyPrices() {
-
 		return HourlyPrices;
-
 	}
 
 }

@@ -56,21 +56,18 @@ public class CalculateConsumption {
 	private State currentState = State.PRODUCTION_LOWER_THAN_CONSUMPTION;
 
 	protected void run(ManagedSymmetricEss ess, SymmetricMeter meter, Config config, Sum sum) {
-		
 
 		int production = sum.getProductionActivePower().value().orElse(0);
 		int consumption = sum.getConsumptionActivePower().value().orElse(0);
-//		long production = sum.getProductionActiveEnergy().value().orElse(0L);
-//		long consumption = sum.getConsumptionActiveEnergy().value().orElse(0L);
 		long productionEnergy = sum.getProductionActiveEnergy().value().orElse(0L);
 		long consumptionEnergy = sum.getConsumptionActiveEnergy().value().orElse(0L);
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
 
-		log.info("totalDemand: " + totalDemand + " t0: " + t0 + " t1: " + t1 + "current Hour: " + currentHour);
-		
-		if(!hourlyConsumption.isEmpty()) {
+		log.info("totalDemand: " + totalDemand + " t0: " + t0 + " t1: " + t1 + " current Hour: " + currentHour);
+
+		if (!hourlyConsumption.isEmpty()) {
 			log.info("first Key: " + hourlyConsumption.firstKey() + " last Key: " + hourlyConsumption.lastKey());
 		}
 
@@ -176,19 +173,24 @@ public class CalculateConsumption {
 				availableCapacity = (soc / 100) * nettCapacity;
 				Prices.houlryprices();
 				HourlyPrices = Prices.getHourlyPrices();
-				/*totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
-						hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();*/
+				/*
+				 * totalDemand =
+				 * calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
+				 * hourlyConsumption.lastKey().plusDays(1)) +
+				 * hourlyConsumption.lastEntry().getValue();
+				 */
 				totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
 						hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();
-				log.info(hourlyConsumption.firstKey() + " ] " + " [ " + hourlyConsumption.lastKey() + " ] ");
+				log.info(" [ " + hourlyConsumption.firstKey() + " ] " + " [ " + hourlyConsumption.lastKey() + " ] ");
 				log.info(" Getting schedule: ");
-				getChargeSchedule(hourlyConsumption.firstKey().plusDays(1), hourlyConsumption.lastKey().plusDays(1));
-				// hourlyConsumption.clear();
+				getChargeSchedule(HourlyPrices.firstKey(), HourlyPrices.lastKey());
+
 			}
 
 			// Resetting Values
 			log.info(production + "is lesser than" + consumption
 					+ "so switching the state from PRODUCTION DROPPED BELOW CONSUMPTION to PRODUCTION LOWER THAN CONSUMPTION");
+			hourlyConsumption.clear();
 			this.currentState = State.PRODUCTION_LOWER_THAN_CONSUMPTION;
 			break;
 		}
@@ -212,7 +214,7 @@ public class CalculateConsumption {
 			// if the battery doesn't has sufficient energy!
 
 			if (availableCapacity >= demand_Till_Cheapest_Hour) {
-				getCheapestHoursIfBatterySufficient(cheapTimeStamp, HourlyPrices.lastKey());
+				getCheapestHoursIfBatterySufficient(cheapTimeStamp.plusHours(1), end);
 			} else {
 				chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour - currentHourConsumption;
 				// bufferAmountToCharge = 0;
@@ -222,7 +224,7 @@ public class CalculateConsumption {
 					if (chargebleConsumption > maxApparentPower) {
 						LocalDateTime lastCheapTimeStamp = cheapTimeStamp;
 						float lastMinPrice = minPrice;
-						cheapHour(cheapTimeStamp.plusHours(1), end.plusDays(1));
+						cheapHour(cheapTimeStamp.plusHours(1), end);
 
 						if (minPrice < lastMinPrice) {
 							// remainingConsumption = chargebleConsumption - maxApparentPower;
@@ -234,11 +236,10 @@ public class CalculateConsumption {
 						} else {
 
 							if (chargebleConsumption > nettCapacity) {
-								// remainingConsumption = chargebleConsumption - nettCapacity;
-								// System.out.println("getting into adjusting remaining charge: ");
-								// adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-								// hourlyConsumption.lastKey().plusDays(1));
-								// hourlyConsumption.lastKey().plusDays(1));
+//								 remainingConsumption = chargebleConsumption - nettCapacity;
+//								 System.out.println("getting into adjusting remaining charge: ");
+//								 adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
+//								 hourlyConsumption.lastKey().plusDays(1));
 							}
 						}
 						cheapTimeStamp = lastCheapTimeStamp;

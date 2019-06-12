@@ -34,7 +34,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
-	private TreeMap<LocalDateTime, Long> StoragehargeSchedule = new TreeMap<LocalDateTime, Long>();
+	private TreeMap<LocalDateTime, Long> StorageChargeSchedule = new TreeMap<LocalDateTime, Long>();
 	private boolean executed = false;
 	private boolean readonly = false;
 
@@ -94,41 +94,39 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		// Hours and Amount of energy to charge in the form of TreeMap
 		if (this.calculateTotalConsumption.getT0() != null) {
 			if (!executed && hourOfDay == 17 && !this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
-				this.StoragehargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
+				this.StorageChargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
 				executed = true;
 			}
 		}
 
 		if (this.calculateTotalConsumption.getT1() != null) {
 			if (executed && hourOfDay == 9) {
-				this.StoragehargeSchedule.clear();
+				this.StorageChargeSchedule.clear();
 				executed = false;
 			}
 		}
 
 		// Charge Condition
-		if (!this.StoragehargeSchedule.isEmpty()) {
-			for (Map.Entry<LocalDateTime, Long> entry : this.StoragehargeSchedule.entrySet()) {
+		if (!this.StorageChargeSchedule.isEmpty()) {
+			for (Map.Entry<LocalDateTime, Long> entry : this.StorageChargeSchedule.entrySet()) {
 				if (now.getHour() == entry.getKey().getHour()) {
 
 					/*
 					 * Actual condition to charge the ESS
 					 */
-					if (this.readonly) {
+
+					if (!this.readonly) {
 						System.out.println("Charging");
 						long power = entry.getValue();
 						int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
 								(int) power);
 						ess.addPowerConstraintAndValidate("SymmetricDynamicChargePower", Phase.ALL, Pwr.ACTIVE,
 								Relationship.EQUALS, calculatedPower);
-
 					}
-					log.info("Mock up Charging: " + entry.getValue());
+					log.info("Mock up Charging: " + " [ " + entry.getValue() + " ] " + " [ "+ entry.getKey() + " ] ");
 				}
-
 			}
 		}
-
 	}
 
 }
