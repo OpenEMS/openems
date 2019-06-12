@@ -10,7 +10,7 @@
         </ion-item>
 
         <ion-card-content>
-          <form (ngSubmit)="doLogin(password.value)">
+          <form (ngSubmit)="doLogin(password.value, username.value)">
             <div padding>
               <ion-item>
                 <ion-text text-wrap color="medium">
@@ -18,8 +18,12 @@
                 </ion-text>
               </ion-item>
               <ion-item>
+                <ion-label position="floating">Benutzer</ion-label>
+                <ion-input #username required type="text" placeholder="Benutzer"></ion-input>
+              </ion-item>
+              <ion-item>
                 <ion-label position="floating">Passwort</ion-label>
-                <ion-input #password required type="password" placeholder="Passwort" value="user"></ion-input>
+                <ion-input #password required type="password" placeholder="Passwort"></ion-input>
               </ion-item>
               <ion-button float-right type="submit">
                 <ion-icon slot="icon-only" name="log-in"></ion-icon>

@@ -194,7 +194,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         // activate SubscribedChannelsWorker
         SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
         worker.clearAll();
-        worker.handleSubscribeChannelsRequest(user.getRole(), request.getCount(), permittedChannels, edgeId);
+        worker.handleSubscribeChannelsRequest(request.getCount(), permittedChannels, edgeId);
 
         // JSON-RPC response
         return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

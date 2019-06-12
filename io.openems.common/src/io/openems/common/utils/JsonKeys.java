@@ -4,11 +4,13 @@ public enum JsonKeys {
 
     ID("id"),
     USERS("users"),
+    USER_NAME("username"),
     ROLE("role"),
     ROLES("roles"),
     USER_ID("userId"),
     NAME("name"),
     PASSWORD("password"),
+    SALT("salt"),
     EMAIL("email"),
     DESCRIPTION("description"),
     PERMISSION("permission"),

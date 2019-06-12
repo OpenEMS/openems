@@ -168,13 +168,14 @@ public class AccessControlProviderJson implements AccessControlProvider {
 
     private void handleUsers(JsonObject jsonUsers, AccessControlDataManager accessControlDataManager) throws OpenemsError.OpenemsNamedException {
         for (Map.Entry<String, JsonElement> userJson : jsonUsers.entrySet()) {
-            io.openems.common.access_control.User newUser = new io.openems.common.access_control.User();
-            newUser.setId(userJson.getKey());
-            newUser.setUsername(JsonUtils.getAsString(userJson.getValue(), NAME.value()));
-            newUser.setDescription(JsonUtils.getAsString(userJson.getValue(), DESCRIPTION.value()));
-            newUser.setPassword(JsonUtils.getAsString(userJson.getValue(), PASSWORD.value()));
-            newUser.setEmail(JsonUtils.getAsString(userJson.getValue(), EMAIL.value()));
-            newUser.setRoleId(new RoleId(JsonUtils.getAsString(userJson.getValue(), ROLE.value())));
+            String userId = userJson.getKey();
+            String username = JsonUtils.getAsString(userJson.getValue(), NAME.value());
+            String description = JsonUtils.getAsString(userJson.getValue(), DESCRIPTION.value());
+            String passwordBase64 = JsonUtils.getAsString(userJson.getValue(), PASSWORD.value());
+            String saltBase64 = JsonUtils.getAsString(userJson.getValue(), SALT.value());
+            String email = JsonUtils.getAsString(userJson.getValue(), EMAIL.value());
+            RoleId roleId = new RoleId(JsonUtils.getAsString(userJson.getValue(), ROLE.value()));
+            User newUser = new User(userId, username, description, email, passwordBase64, saltBase64, roleId);
             accessControlDataManager.addUser(newUser);
         }
     }

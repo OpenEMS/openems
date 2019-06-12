@@ -17,7 +17,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
-import io.openems.common.session.User;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
@@ -69,14 +68,13 @@ public class ApiWorker {
 	/**
 	 * Adds a value via JSON-RPC SetChannelValueRequest.
 	 * 
-	 * @param user    the authenticated User
 	 * @param request the Request
 	 * @return success
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(ComponentManager componentManager,
-			User user, SetChannelValueRequest request) throws IllegalArgumentException, OpenemsNamedException {
+																				  SetChannelValueRequest request) throws IllegalArgumentException, OpenemsNamedException {
 		// check for writable channel
 		Channel<?> channel = componentManager.getChannel(request.getChannelAddress());
 		if (!(channel instanceof WriteChannel<?>)) {

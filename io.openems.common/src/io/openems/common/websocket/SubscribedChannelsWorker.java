@@ -1,7 +1,6 @@
 package io.openems.common.websocket;
 
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
 public abstract class SubscribedChannelsWorker {
@@ -44,11 +42,10 @@ public abstract class SubscribedChannelsWorker {
 
 	/**
 	 * Applies a SubscribeChannelsRequest.
-	 *  @param role    the Role - no specific level required
 	 * @param requestCount the count of the request
 	 * @param permittedChannels the permitted channels
 	 */
-	public synchronized void handleSubscribeChannelsRequest(Role role, int requestCount, Set<ChannelAddress> permittedChannels, String edgeId) {
+	public synchronized void handleSubscribeChannelsRequest(int requestCount, Set<ChannelAddress> permittedChannels, String edgeId) {
 		// TODO comment in again
 		// if (this.lastRequestCount < requestCount) {
 			this.setChannels(permittedChannels, edgeId);

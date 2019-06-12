@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.common.session.Role;
+import io.openems.common.access_control.RoleId;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
@@ -20,7 +20,7 @@ public class EdgeMetadata {
 	 *   "comment": String,
 	 *   "producttype: String,
 	 *   "version: String,
-	 *   "role: "admin" | "installer" | "owner" | "guest",
+	 *   "roleId: "admin" | "installer" | "owner" | "guest",
 	 *   "isOnline: boolean
 	 * }]
 	 * </pre>
@@ -40,16 +40,16 @@ public class EdgeMetadata {
 	private final String comment;
 	private final String producttype;
 	private final SemanticVersion version;
-	private final Role role;
+	private final RoleId roleId;
 	private final boolean isOnline;
 
-	public EdgeMetadata(String id, String comment, String producttype, SemanticVersion version, Role role,
-			boolean isOnline) {
+	public EdgeMetadata(String id, String comment, String producttype, SemanticVersion version, RoleId roleId,
+						boolean isOnline) {
 		this.id = id;
 		this.comment = comment;
 		this.producttype = producttype;
 		this.version = version;
-		this.role = role;
+		this.roleId = roleId;
 		this.isOnline = isOnline;
 	}
 
@@ -59,7 +59,7 @@ public class EdgeMetadata {
 				.addProperty("comment", this.comment) //
 				.addProperty("producttype", this.producttype) //
 				.addProperty("version", this.version.toString()) //
-				.add("role", this.role.asJson()) //
+				.addProperty("roleId", this.roleId != null ? this.roleId.toString() : null) //
 				.addProperty("isOnline", this.isOnline) //
 				.build();
 	}

@@ -75,8 +75,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		List<EdgeMetadata> metadatas = new ArrayList<>();
 		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
 			String edgeId = edgeRole.getKey();
-			Role role = edgeRole.getValue();
-			Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
+            Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
 				Edge e = edgeOpt.get();
 				metadatas.add(new EdgeMetadata(//
@@ -84,7 +83,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 						e.getComment(), // Comment
 						e.getProducttype(), // Product-Type
 						e.getVersion(), // Version
-						role, // Role
+						roleId, // Role
 						e.isOnline() // Online-State
 				));
 			}

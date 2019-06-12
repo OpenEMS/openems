@@ -3,8 +3,6 @@ package io.openems.edge.controller.api.websocket;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.access_control.RoleId;
 import io.openems.edge.common.user.EdgeUser;
 
@@ -18,6 +16,9 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	private UUID sessionToken = null;
 
+	/**
+	 * TODO remove when the change to RoleId has been done
+	 */
 	private Optional<EdgeUser> user = Optional.empty();
 
 	private RoleId roleId;
@@ -52,22 +53,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	public Optional<EdgeUser> getUser() {
 		return user;
-	}
-
-	/**
-	 * Throws an exception if the User is not authenticated.
-	 * 
-	 * @param resource a resource identifier; used for the exception
-	 * @return the current Role
-	 * @throws OpenemsNamedException if the current Role privileges are less
-	 */
-	public EdgeUser assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
-		if (this.getUser().isPresent()) {
-			return this.getUser().get();
-		} else {
-			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
-					.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
-		}
 	}
 
 	/**

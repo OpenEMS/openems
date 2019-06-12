@@ -1,29 +1,7 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import io.openems.common.access_control.AccessControl;
-import org.java_websocket.WebSocket;
-import org.ops4j.pax.logging.spi.PaxAppender;
-import org.ops4j.pax.logging.spi.PaxLoggingEvent;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-
+import io.openems.common.access_control.RoleId;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -40,6 +18,21 @@ import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
+import org.java_websocket.WebSocket;
+import org.ops4j.pax.logging.spi.PaxAppender;
+import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -67,6 +60,11 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 */
 	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
 
+	/**
+	 * TODO remove one of those two when the time has come
+	 */
+	protected final Map<UUID, RoleId> sessionTokensNew = new ConcurrentHashMap<>();
+
 	String edgeIdentifier;
 
 	@Reference
@@ -85,7 +83,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 		;
 		private final Doc doc;
 
-		private ChannelId(Doc doc) {
+		ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 

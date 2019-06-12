@@ -269,8 +269,8 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// send request to apiworker
-		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager, user,
-				new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
+		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.componentManager,
+                new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
 
 		return this.sendOkResponse(baseRequest, response, new JsonObject());
 	}
@@ -485,8 +485,8 @@ public class RestHandler extends AbstractHandler {
 
 		// call JsonApi
 		JsonApi jsonApi = (JsonApi) component;
-		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
-				request.getPayload());
+		CompletableFuture<JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(
+				user, request.getPayload());
 
 		// handle null response
 		if (responseFuture == null) {

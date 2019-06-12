@@ -46,7 +46,7 @@ public class AccessControlImpl implements AccessControl {
      */
     public RoleId login(String username, String password) throws AuthenticationException {
         User matchingUser = accessControlDataManager.getUsers().stream().filter(
-                userNew -> (userNew.getUsername().equals(username) && userNew.getPassword().equals(password)))
+                userNew -> (userNew.getUsername().equals(username) && userNew.validatePlainPassword(password)))
                 .findFirst()
                 .orElseThrow(AuthenticationException::new);
         return matchingUser.getRoleId();
