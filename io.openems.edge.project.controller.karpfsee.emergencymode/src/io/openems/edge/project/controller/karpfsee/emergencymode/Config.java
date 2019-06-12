@@ -15,6 +15,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	/*
+	 * Ess
+	 */
+	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess.")
+	String ess_id();
+	
+	/*
 	 * WAGO
 	 */
 	// Permission Signal Bock Heat Power Plant Relay Output 2/1
@@ -44,18 +50,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Hysteresis", description = "The hysteresis is applied to low and high threshold to avoid continuous switching")
 	int hysteresis();
-
-	/*
-	 * Meters
-	 */
-	@AttributeDefinition(name = "Meter ID", description = "Id of Meter")
-	String meter_id();
-
-	/*
-	 * Ess
-	 */
-	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess.")
-	String ess_id();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Emergency Mode [{id}]";
 }
