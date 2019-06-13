@@ -12,24 +12,30 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.sinexcel.enums.FalseTrue;
 
 public enum SinexcelChannelId implements ChannelId {
 	SUNSPEC_DID_0103(Doc.of(OpenemsType.INTEGER)), //
 	SET_INTERN_DC_RELAY(Doc.of(OpenemsType.INTEGER) //
 			.accessMode(AccessMode.WRITE_ONLY) //
 			.unit(Unit.NONE)),
-	SETDATA_MOD_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SETDATA_MOD_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SETDATA_GRID_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
-	SETDATA_GRID_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.accessMode(AccessMode.WRITE_ONLY) //
-			.unit(Unit.ON_OFF)),
+
+	MOD_ON_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	MOD_OFF_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	CLEAR_FAILURE_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	ON_GRID_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	OFF_GRID_CMD(Doc.of(FalseTrue.values()) //
+			.accessMode(AccessMode.READ_WRITE)), //
+
+	SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+			.accessMode(AccessMode.READ_WRITE)), //
+	SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+			.accessMode(AccessMode.READ_WRITE)), //
+
 	SET_ANTI_ISLANDING(Doc.of(OpenemsType.INTEGER) //
 			.accessMode(AccessMode.WRITE_ONLY) //
 			.unit(Unit.ON_OFF)),
@@ -113,14 +119,6 @@ public enum SinexcelChannelId implements ChannelId {
 			.onInit(new IntegerWriteChannel.MirrorToDebugChannel(SinexcelChannelId.DEBUG_EN_LIMIT))), //
 	ANTI_ISLANDING(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.ON_OFF)),
-	MOD_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	MOD_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	GRID_ON_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
-	GRID_OFF_CMD(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.ON_OFF)), //
 	FREQUENCY(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.HERTZ)), //
 	TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
@@ -374,9 +372,7 @@ public enum SinexcelChannelId implements ChannelId {
 	STATE_73(Doc.of(Level.FAULT) //
 			.text("BUS start fails")), //
 	STATE_74(Doc.of(Level.WARNING) //
-			.text("DC OCP")), //
-	STATE_UNABLE_TO_SET_BATTERY_RANGES(Doc.of(Level.FAULT) //
-			.text("Unable to set battery ranges")); //
+			.text("DC OCP"));
 
 	private final Doc doc;
 
