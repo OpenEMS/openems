@@ -55,7 +55,7 @@
     </ion-col>
   </ion-row>
 
-  <ion-row>
+  <ion-row *ngIf="edge && edge.isVersionAtLeast('2018.8')">
     <ion-row size="3">
       <export></export>
     </ion-row>
