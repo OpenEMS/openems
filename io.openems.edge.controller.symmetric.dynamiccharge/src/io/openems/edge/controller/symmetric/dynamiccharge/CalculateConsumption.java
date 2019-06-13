@@ -33,14 +33,14 @@ public class CalculateConsumption {
 	private LocalDate dateOfLastRun = null;
 	private static long chargebleConsumption;
 	private LocalDateTime currentHour = null;
-	// private static long remainingConsumption;
+	private static long remainingConsumption;
 	private static long currentHourConsumption;
 	private static long demand_Till_Cheapest_Hour;
 	private static float minPrice = Float.MAX_VALUE;
 	private static LocalDateTime cheapTimeStamp = null;
 
 	private static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
-	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
+	private static TreeMap<LocalDateTime, Float> hourlyPrices = new TreeMap<LocalDateTime, Float>();
 	private static TreeMap<LocalDateTime, Long> hourlyConsumption = new TreeMap<LocalDateTime, Long>();
 
 	public CalculateConsumption(DynamicCharge dynamicCharge) {
@@ -101,7 +101,7 @@ public class CalculateConsumption {
 					log.info(" Switching of the hour detected and updating " + " [ " + currentHour + " ] ");
 					this.totalConsumption = (consumptionEnergy - currentConsumption)
 							- (productionEnergy - currentProduction);
-					hourlyConsumption.put(currentHour, totalConsumption);
+					hourlyConsumption.put(currentHour.withNano(0).withMinute(0).withSecond(0), totalConsumption);
 					this.currentConsumption = consumptionEnergy;
 					this.currentProduction = productionEnergy;
 					currentHour = now;
@@ -122,7 +122,7 @@ public class CalculateConsumption {
 				// This is the first time of the day that "production > consumption".
 				this.totalConsumption = (consumptionEnergy - currentConsumption)
 						- (productionEnergy - currentProduction);
-				hourlyConsumption.put(currentHour, totalConsumption);
+				hourlyConsumption.put(now.withNano(0).withMinute(0).withSecond(0), totalConsumption);
 				totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
 						hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();
 				t1 = now;
@@ -172,19 +172,15 @@ public class CalculateConsumption {
 				maxApparentPower = ess.getMaxApparentPower().value().orElse(0);
 				availableCapacity = (soc / 100) * nettCapacity;
 				Prices.houlryprices();
-				HourlyPrices = Prices.getHourlyPrices();
-				/*
-				 * totalDemand =
-				 * calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
-				 * hourlyConsumption.lastKey().plusDays(1)) +
-				 * hourlyConsumption.lastEntry().getValue();
-				 */
+				hourlyPrices = Prices.getHourlyPrices();
+				for (Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
+					System.out.println("Time: " + entry.getKey() + " Price: " + entry.getValue());
+				}
 				totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
 						hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();
 				log.info(" [ " + hourlyConsumption.firstKey() + " ] " + " [ " + hourlyConsumption.lastKey() + " ] ");
 				log.info(" Getting schedule: ");
-				getChargeSchedule(HourlyPrices.firstKey(), HourlyPrices.lastKey());
-
+				getChargeSchedule(hourlyPrices.firstKey(), hourlyConsumption.lastKey().plusDays(1));
 			}
 
 			// Resetting Values
@@ -197,11 +193,13 @@ public class CalculateConsumption {
 	}
 
 	private static void getChargeSchedule(LocalDateTime start, LocalDateTime end) {
-
+		
+		System.out.println("Enetered Charge Schedule: ");
 		// function to find the minimum priceHour
 		cheapHour(start, end);
-
+		System.out.println("Cheap hours is calculated");
 		demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp);
+		System.out.println("demand_Till_Cheapest_Hour is calculated");
 		currentHourConsumption = hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
 
 		/*
@@ -217,8 +215,6 @@ public class CalculateConsumption {
 				getCheapestHoursIfBatterySufficient(cheapTimeStamp.plusHours(1), end);
 			} else {
 				chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour - currentHourConsumption;
-				// bufferAmountToCharge = 0;
-
 				if (chargebleConsumption > 0) {
 
 					if (chargebleConsumption > maxApparentPower) {
@@ -227,25 +223,25 @@ public class CalculateConsumption {
 						cheapHour(cheapTimeStamp.plusHours(1), end);
 
 						if (minPrice < lastMinPrice) {
-							// remainingConsumption = chargebleConsumption - maxApparentPower;
-							chargebleConsumption = maxApparentPower;
-							chargeSchedule.put(lastCheapTimeStamp, maxApparentPower);
+							remainingConsumption = chargebleConsumption - maxApparentPower;
 							System.out.println("getting into adjusting remaining charge: ");
-							// adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-							// hourlyConsumption.lastKey().plusDays(1));
+							adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
+									hourlyConsumption.lastKey().plusDays(1), remainingConsumption, maxApparentPower);
 						} else {
 
 							if (chargebleConsumption > nettCapacity) {
-//								 remainingConsumption = chargebleConsumption - nettCapacity;
-//								 System.out.println("getting into adjusting remaining charge: ");
-//								 adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
-//								 hourlyConsumption.lastKey().plusDays(1));
+								remainingConsumption = chargebleConsumption - nettCapacity;
+								System.out.println("getting into adjusting remaining charge: ");
+								adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
+										hourlyConsumption.lastKey().plusDays(1), remainingConsumption, nettCapacity);
 							}
 						}
 						cheapTimeStamp = lastCheapTimeStamp;
 						chargebleConsumption = maxApparentPower;
 					}
-					totalDemand = totalDemand - chargebleConsumption - currentHourConsumption;
+					totalDemand = totalDemand - chargebleConsumption - currentHourConsumption - remainingConsumption;
+					remainingConsumption = 0;
+					// totalDemand = totalDemand - chargebleConsumption - currentHourConsumption;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
 					getChargeSchedule(start, cheapTimeStamp);
 				} else {
@@ -268,26 +264,27 @@ public class CalculateConsumption {
 			if ((chargebleConsumption > allowedConsumption)) {
 
 				if ((chargebleConsumption > maxApparentPower)) {
-					// remainingConsumption = chargebleConsumption - maxApparentPower;
+					remainingConsumption = chargebleConsumption - maxApparentPower;
 					chargebleConsumption = maxApparentPower;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
-					availableCapacity += maxApparentPower;
 				} else {
-					// remainingConsumption = chargebleConsumption - allowedConsumption;
+					remainingConsumption = chargebleConsumption - allowedConsumption;
 					chargebleConsumption = allowedConsumption;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
-					availableCapacity += allowedConsumption;
 				}
-				// adjustRemainigConsumption(cheapTimeStamp.plusHours(1),
-				// hourlyConsumption.lastKey().plusDays(1));
+				totalDemand = totalDemand - chargebleConsumption - availableCapacity - currentHourConsumption - remainingConsumption;
+				availableCapacity += chargebleConsumption;
+				adjustRemainigConsumption(cheapTimeStamp.plusHours(1), hourlyConsumption.lastKey().plusDays(1),
+						remainingConsumption, availableCapacity);
 			} else {
 				if ((chargebleConsumption > maxApparentPower)) {
-					// remainingConsumption = chargebleConsumption - maxApparentPower;
+					remainingConsumption = chargebleConsumption - maxApparentPower;
 					chargebleConsumption = maxApparentPower;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
+					totalDemand = totalDemand - chargebleConsumption - availableCapacity - currentHourConsumption - remainingConsumption;
 					availableCapacity += maxApparentPower;
-					// adjustRemainigConsumption(cheapTimeStamp.plusHours(1),
-					// hourlyConsumption.lastKey().plusDays(1));
+					adjustRemainigConsumption(cheapTimeStamp.plusHours(1), hourlyConsumption.lastKey().plusDays(1),
+							remainingConsumption, availableCapacity);
 				} else {
 					totalDemand = totalDemand - chargebleConsumption - availableCapacity - currentHourConsumption;
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
@@ -296,16 +293,45 @@ public class CalculateConsumption {
 		}
 	}
 
+	private static void adjustRemainigConsumption(LocalDateTime start, LocalDateTime end, long remainingConsumption,
+			long availableCapacity) {
+
+		cheapHour(start, end);
+		
+		demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp.minusDays(1));
+		availableCapacity -= demand_Till_Cheapest_Hour;
+
+		long allowedConsumption = nettCapacity - availableCapacity;
+
+		if (allowedConsumption > 0) {
+			if (remainingConsumption > allowedConsumption) {
+				chargebleConsumption = allowedConsumption;
+				remainingConsumption -= allowedConsumption;
+				availableCapacity += allowedConsumption;
+				chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
+				adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption, availableCapacity);
+			} else {
+				chargebleConsumption = remainingConsumption;
+				chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
+			}
+			
+		}
+		/*long currentConsumption = hourlyConsumption.higherEntry(cheapTimeStamp.minusDays(1)).getValue();
+		availableCapacity -= currentConsumption;
+		adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption, availableCapacity);*/
+	}
+
 	private static void cheapHour(LocalDateTime start, LocalDateTime end) {
 		minPrice = Float.MAX_VALUE;
 
 		// Calculates the cheapest price hour within certain Hours.
-		for (Map.Entry<LocalDateTime, Float> entry : HourlyPrices.subMap(start, end).entrySet()) {
+		for (Map.Entry<LocalDateTime, Float> entry : hourlyPrices.subMap(start, end).entrySet()) {
 			if (entry.getValue() < minPrice) {
 				cheapTimeStamp = entry.getKey();
 				minPrice = entry.getValue();
 			}
 		}
+		System.out.println("cheapTimeStamp: " + cheapTimeStamp);
 	}
 
 	private static long calculateDemandTillThishour(LocalDateTime start, LocalDateTime end) {
@@ -323,11 +349,9 @@ public class CalculateConsumption {
 		return chargeSchedule;
 	}
 
-	protected LocalDateTime getT0() {
-		return t0;
-	}
-
-	protected LocalDateTime getT1() {
-		return t1;
-	}
+	/*
+	 * protected LocalDateTime getT0() { return t0; }
+	 * 
+	 * protected LocalDateTime getT1() { return t1; }
+	 */
 }

@@ -34,7 +34,7 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 
 	private final Logger log = LoggerFactory.getLogger(DynamicCharge.class);
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
-	private TreeMap<LocalDateTime, Long> StorageChargeSchedule = new TreeMap<LocalDateTime, Long>();
+	private TreeMap<LocalDateTime, Long> storageChargeSchedule = new TreeMap<LocalDateTime, Long>();
 	private boolean executed = false;
 	private boolean readonly = false;
 
@@ -92,23 +92,38 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		this.calculateTotalConsumption.run(ess, gridMeter, config, sum);
 
 		// Hours and Amount of energy to charge in the form of TreeMap
-		if (this.calculateTotalConsumption.getT0() != null) {
-			if (!executed && hourOfDay == 17 && !this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
-				this.StorageChargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
+		if (!executed && hourOfDay == config.Max_Evening_hour()) {
+			if(!this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
+				this.storageChargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
+				executed = true;
+			}
+		}
+		
+		if (!executed && hourOfDay == config.Max_Morning_hour()) {
+			if(!this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
+				this.storageChargeSchedule.clear();
+				executed = false;
+			}
+		}
+		
+		
+		/*if (this.calculateTotalConsumption.getT0() != null) {
+			if (!executed && hourOfDay == config.Max_Evening_hour() && !this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
+				this.storageChargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
 				executed = true;
 			}
 		}
 
 		if (this.calculateTotalConsumption.getT1() != null) {
-			if (executed && hourOfDay == 9) {
-				this.StorageChargeSchedule.clear();
+			if (executed && hourOfDay == config.Max_Morning_hour()) {
+				this.storageChargeSchedule.clear();
 				executed = false;
 			}
-		}
+		}*/
 
 		// Charge Condition
-		if (!this.StorageChargeSchedule.isEmpty()) {
-			for (Map.Entry<LocalDateTime, Long> entry : this.StorageChargeSchedule.entrySet()) {
+		if (!this.storageChargeSchedule.isEmpty()) {
+			for (Map.Entry<LocalDateTime, Long> entry : this.storageChargeSchedule.entrySet()) {
 				if (now.getHour() == entry.getKey().getHour()) {
 
 					/*
@@ -128,5 +143,4 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 			}
 		}
 	}
-
 }

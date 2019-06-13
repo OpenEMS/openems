@@ -6,13 +6,15 @@ import java.util.Map.Entry;
 
 
 public class Main {
-	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
+	private static TreeMap<LocalDateTime, Float> hourlyPrices = new TreeMap<LocalDateTime, Float>();
 
 	public static void main(String[] args) {
-		PricesTest.houlryPrices();
-		HourlyPrices = PricesTest.getHourlyPrices();
+		PricesTest.houlryPricesTest();
+		hourlyPrices = PricesTest.getHourlyPricesTest();
 		
-		for (Entry<LocalDateTime, Float> entry : HourlyPrices.entrySet()) {
+		
+		
+		for (Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
 			System.out.println("Time: " + entry.getKey() + " Price: " + entry.getValue());
 		}
 	}

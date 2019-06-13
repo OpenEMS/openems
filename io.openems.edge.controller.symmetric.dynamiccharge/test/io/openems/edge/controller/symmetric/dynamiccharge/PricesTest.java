@@ -22,12 +22,12 @@ public class PricesTest {
 	private static LocalDateTime startTimeStamp = null;
 	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
 
-	public static void houlryPrices() {
+	public static void houlryPricesTest() {
 
 		try {
 
 			OkHttpClient client = new OkHttpClient();
-			Request request = new Request.Builder().url("https://api.awattar.com/v1/marketdata?")
+			Request request = new Request.Builder().url("https://api.awattar.com/v1/marketdata?start=1560348000000")
 					.header("Authorization", Credentials.basic("ak_7YTR42jBwtnk5kXuMZRYEju8hvj918H0", "")).build();
 			Response response = null;
 
@@ -59,7 +59,7 @@ public class PricesTest {
 
 	}
 
-	public static TreeMap<LocalDateTime, Float> getHourlyPrices() {
+	public static TreeMap<LocalDateTime, Float> getHourlyPricesTest() {
 
 		return HourlyPrices;
 
