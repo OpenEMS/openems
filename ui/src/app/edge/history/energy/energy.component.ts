@@ -83,147 +83,147 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
-        this.service.getConfig().then(config => {
+        // this.service.getConfig().then(config => {
 
-          let result = (response as QueryHistoricTimeseriesDataResponse).result;
+        let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-          // convert labels
-          let labels: Date[] = [];
-          for (let timestamp of result.timestamps) {
-            labels.push(new Date(timestamp));
-          }
-          this.labels = labels;
+        // convert labels
+        let labels: Date[] = [];
+        for (let timestamp of result.timestamps) {
+          labels.push(new Date(timestamp));
+        }
+        this.labels = labels;
 
-          // convert datasets
-          let datasets = [];
+        // convert datasets
+        let datasets = [];
+        /*
+                if (!edge.isVersionAtLeast('2018.8')) {
+                  this.convertDeprecatedData(config, result.data); // TODO deprecated
+                }
+        */
+        if ('_sum/ProductionActivePower' in result.data) {
+          /*
+          * Production
+          */
+          let productionData = result.data['_sum/ProductionActivePower'].map(value => {
+            if (value == null) {
+              return null
+            } else {
+              return value / 1000; // convert to kW
+            }
+          });
+          datasets.push({
+            label: this.translate.instant('General.Production'),
+            data: productionData,
+            hidden: false
+          });
+        }
 
-          if (!edge.isVersionAtLeast('2018.8')) {
-            this.convertDeprecatedData(config, result.data); // TODO deprecated
-          }
+        if ('_sum/GridActivePower' in result.data) {
+          /*
+           * Buy From Grid
+           */
+          let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
+            if (value == null) {
+              return null
+            } else if (value > 0) {
+              return value / 1000; // convert to kW
+            } else {
+              return 0;
+            }
+          });
+          datasets.push({
+            label: this.translate.instant('General.GridBuy'),
+            data: buyFromGridData,
+            hidden: false
+          });
 
-          if ('_sum/ProductionActivePower' in result.data) {
-            /*
-            * Production
-            */
-            let productionData = result.data['_sum/ProductionActivePower'].map(value => {
-              if (value == null) {
-                return null
-              } else {
-                return value / 1000; // convert to kW
-              }
-            });
-            datasets.push({
-              label: this.translate.instant('General.Production'),
-              data: productionData,
-              hidden: false
-            });
-          }
+          /*
+          * Sell To Grid
+          */
+          let sellToGridData = result.data['_sum/GridActivePower'].map(value => {
+            if (value == null) {
+              return null
+            } else if (value < 0) {
+              return value / -1000; // convert to kW and invert value
+            } else {
+              return 0;
+            }
+          });
+          datasets.push({
+            label: this.translate.instant('General.GridSell'),
+            data: sellToGridData,
+            hidden: false
+          });
+        }
 
-          if ('_sum/GridActivePower' in result.data) {
-            /*
-             * Buy From Grid
-             */
-            let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
-              if (value == null) {
-                return null
-              } else if (value > 0) {
-                return value / 1000; // convert to kW
-              } else {
-                return 0;
-              }
-            });
-            datasets.push({
-              label: this.translate.instant('General.GridBuy'),
-              data: buyFromGridData,
-              hidden: false
-            });
+        if ('_sum/ConsumptionActivePower' in result.data) {
+          /*
+          * Consumption
+           */
+          let consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
+            if (value == null) {
+              return null
+            } else {
+              return value / 1000; // convert to kW
+            }
+          });
+          datasets.push({
+            label: this.translate.instant('General.Consumption'),
+            data: consumptionData,
+            hidden: false
+          });
+        }
 
-            /*
-            * Sell To Grid
-            */
-            let sellToGridData = result.data['_sum/GridActivePower'].map(value => {
-              if (value == null) {
-                return null
-              } else if (value < 0) {
-                return value / -1000; // convert to kW and invert value
-              } else {
-                return 0;
-              }
-            });
-            datasets.push({
-              label: this.translate.instant('General.GridSell'),
-              data: sellToGridData,
-              hidden: false
-            });
-          }
+        if ('_sum/EssActivePower' in result.data) {
+          /*
+           * Storage Charge
+           */
+          let effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+            return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+          });
+          let chargeData = effectivePower.map(value => {
+            if (value == null) {
+              return null
+            } else if (value < 0) {
+              return value / -1000; // convert to kW;
+            } else {
+              return 0;
+            }
+          });
+          datasets.push({
+            label: this.translate.instant('General.ChargePower'),
+            data: chargeData,
+            hidden: false
+          });
+          /*
+           * Storage Discharge
+           */
+          let dischargeData = effectivePower.map(value => {
+            if (value == null) {
+              return null
+            } else if (value > 0) {
+              return value / 1000; // convert to kW
+            } else {
+              return 0;
+            }
+          });
+          datasets.push({
+            label: this.translate.instant('General.DischargePower'),
+            data: dischargeData,
+            hidden: false
+          });
+        }
 
-          if ('_sum/ConsumptionActivePower' in result.data) {
-            /*
-            * Consumption
-             */
-            let consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
-              if (value == null) {
-                return null
-              } else {
-                return value / 1000; // convert to kW
-              }
-            });
-            datasets.push({
-              label: this.translate.instant('General.Consumption'),
-              data: consumptionData,
-              hidden: false
-            });
-          }
+        this.datasets = datasets;
 
-          if ('_sum/EssActivePower' in result.data) {
-            /*
-             * Storage Charge
-             */
-            let effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-              return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
-            });
-            let chargeData = effectivePower.map(value => {
-              if (value == null) {
-                return null
-              } else if (value < 0) {
-                return value / -1000; // convert to kW;
-              } else {
-                return 0;
-              }
-            });
-            datasets.push({
-              label: this.translate.instant('General.ChargePower'),
-              data: chargeData,
-              hidden: false
-            });
-            /*
-             * Storage Discharge
-             */
-            let dischargeData = effectivePower.map(value => {
-              if (value == null) {
-                return null
-              } else if (value > 0) {
-                return value / 1000; // convert to kW
-              } else {
-                return 0;
-              }
-            });
-            datasets.push({
-              label: this.translate.instant('General.DischargePower'),
-              data: dischargeData,
-              hidden: false
-            });
-          }
+        this.loading = false;
 
-          this.datasets = datasets;
-
-          this.loading = false;
-
-        }).catch(reason => {
-          console.error(reason); // TODO error message
-          this.initializeChart();
-          return;
-        });
+        /* }).catch(reason => {
+           console.error(reason); // TODO error message
+           this.initializeChart();
+           return;
+         });*/
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();

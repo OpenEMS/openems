@@ -172,7 +172,7 @@ export class Service implements ErrorHandler {
           first()
         ).toPromise()
           .then(config => resolve(config))
-          .catch(reason => reject(reason));
+          .catch(reason => { console.error(reason), reject(reason) });
       })
         .catch(reason => reject(reason));
     });
