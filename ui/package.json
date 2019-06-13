@@ -78,7 +78,7 @@
     "ts-node": "~8.2.0",
     "tslint": "~5.17.0",
     "typescript": "~3.1.6",
-    "webpack": "^4.33.0"
+    "webpack": "^4.34.0"
   },
   "description": "OpenEMS UI",
   "cordova": {
