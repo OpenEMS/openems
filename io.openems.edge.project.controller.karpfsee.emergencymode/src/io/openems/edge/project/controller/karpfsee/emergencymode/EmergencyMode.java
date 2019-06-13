@@ -39,8 +39,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	private ChannelAddress msrHeatingSystemController;
 	private ChannelAddress blockHeatPowerPlantPermissionSignal;
 	private ChannelAddress inputChannelAddress;
-	private int lowThreshold = 0;
-	private int highThreshold = 0;
+	private int threshold = 0;
 	private int hysteresis = 0;
 	private Clock clock;
 	private static final int WAIT_FOR_SYSTEM_RESTART = 5;
@@ -76,8 +75,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		this.msrHeatingSystemController = ChannelAddress.fromString(config.msrHeatingSystemController());
 		this.blockHeatPowerPlantPermissionSignal = ChannelAddress
 				.fromString(config.blockHeatPowerPlantPermissionSignal());
-		this.lowThreshold = config.lowThreshold();
-		this.highThreshold = config.highThreshold();
+		this.threshold = config.highThreshold();
 		this.hysteresis = config.hysteresis();
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 	}
@@ -99,10 +97,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	 * Should the hysteresis be applied on passing high threshold?
 	 */
 	private boolean applyHighHysteresis = true;
-	/**
-	 * Should the hysteresis be applied on passing low threshold?
-	 */
-	private boolean applyLowHysteresis = true;
 
 	private ChargeState getChargeState(EssFeneconCommercial40Impl ess) throws OpenemsNamedException {
 		ess = this.componentManager.getComponent(this.config.ess_id());
@@ -122,18 +116,19 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		EssFeneconCommercial40Impl ess = this.componentManager.getComponent(this.config.ess_id());
 
 		switch (this.getGridMode()) {
+		/*
+		 * Grid-Mode is undefined -> wait till we have some clear information
+		 */
 		case UNDEFINED:
-			/*
-			 * Grid-Mode is undefined -> wait till we have some clear information
-			 */
 			this.previousGridState = GridMode.UNDEFINED;
 			break;
-		case OFF_GRID:
-			/*
-			 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Run
-			 * Off-Grid Process
-			 */
 
+		/*
+		 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Run
+		 * Off-Grid Process
+		 */
+		case OFF_GRID:
+			this.previousGridState = GridMode.OFF_GRID;
 			if (!isBlockHeatPowerPlantStopped() && (this.previousGridState == GridMode.ON_GRID)) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}
@@ -142,27 +137,26 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				return;
 			}
 			lastSwitchOffgridPv = LocalDateTime.now(this.clock);
-			SystemState systemState = ess.channel(EssFeneconCommercial40Impl.ChannelId.SYSTEM_STATE).value().asEnum();
-			if (systemState != SystemState.START) {
-				break;
-			}
+//			SystemState systemState = ess.channel(EssFeneconCommercial40Impl.ChannelId.SYSTEM_STATE).value().asEnum();
+//			if (systemState != SystemState.START) {
+//				break;
+//			}
 			this.handleOffGridState(ess);
-			this.previousGridState = GridMode.OFF_GRID;
 			break;
 
 		case ON_GRID:
+			this.previousGridState = GridMode.ON_GRID;
 			/*
 			 * On-Grid Mode -> Activate only On grid Mode and let BHKW runs
 			 */
 			this.handleOnGridState();
-			this.previousGridState = GridMode.ON_GRID;
 			break;
 		}
 	}
 
 	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
 		if (isBlockHeatPowerPlantStopped()) {
-			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.START);
+			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 		}
 		if (isMsrHeatingSystemControllerOff()) {
 			this.setOutput(this.msrHeatingSystemController, Operation.OFF);
@@ -197,51 +191,18 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		 */
 		switch (this.state) {
 		case UNDEFINED:
-			if (value < this.lowThreshold) {
-				this.state = State.BELOW_LOW;
-			} else if (value > this.highThreshold) {
-				this.state = State.ABOVE_HIGH;
-			} else {
-				this.state = State.BETWEEN_LOW_AND_HIGH;
-			}
-			break;
 
-		case BELOW_LOW:
-			/*
-			 * Value is smaller than the low threshold -> always OFF
-			 */
-			if (value >= this.lowThreshold) {
-				this.state = State.PASS_LOW_COMING_FROM_BELOW;
+			if (value > this.threshold) {
+				this.state = State.ABOVE_HIGH;
 				break;
 			}
 
-			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.START);
-			this.previousState = State.BELOW_LOW;
-			break;
-
-		case PASS_LOW_COMING_FROM_BELOW:
-			/*
-			 * Value just passed the low threshold coming from below -> turn ON
-			 */
-			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.START);
-			this.applyLowHysteresis = true;
-			this.state = State.BETWEEN_LOW_AND_HIGH;
-			this.previousState = State.PASS_LOW_COMING_FROM_BELOW;
-			break;
-
-		case BETWEEN_LOW_AND_HIGH:
-			/*
-			 * Value is between low and high threshold -> always OFF
-			 */
 			// evaluate if hysteresis is necessary
-			if (value >= this.lowThreshold + hysteresis) {
-				this.applyLowHysteresis = false; // do not apply low hysteresis anymore
-			}
-			if (value < this.highThreshold - hysteresis) {
+			if (value < this.threshold - hysteresis) {
 				this.applyHighHysteresis = false; // do not apply high hysteresis anymore
 			}
 
-			if (value >= this.highThreshold) {
+			if (value >= this.threshold) {
 				this.applyHighHysteresis = false;
 			}
 			if (this.previousState == State.PASS_HIGH_COMING_FROM_ABOVE && applyHighHysteresis) {
@@ -253,33 +214,16 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				break;
 			}
 			/*
-			 * Check LOW threshold
-			 */
-			if (applyLowHysteresis) {
-				if (value <= this.lowThreshold - hysteresis) {
-					// pass low with hysteresis
-					this.state = State.PASS_LOW_COMING_FROM_ABOVE;
-					break;
-				}
-			} else {
-				if (value <= this.lowThreshold) {
-					// pass low, not applying hysteresis
-					this.state = State.PASS_LOW_COMING_FROM_ABOVE;
-					break;
-				}
-			}
-
-			/*
 			 * Check HIGH threshold
 			 */
 			if (applyHighHysteresis) {
-				if (value >= this.highThreshold + hysteresis) {
+				if (value >= this.threshold + hysteresis) {
 					// pass high with hysteresis
 					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
 					break;
 				}
 			} else {
-				if (value >= this.highThreshold) {
+				if (value >= this.threshold) {
 					// pass high, not applying hysteresis
 					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
 					break;
@@ -288,22 +232,13 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 
 			// Default: not switching the State -> always OFF
 			if (isBlockHeatPowerPlantStopped()) {
-				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.START);
+				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 			}
 			break;
 
 		case PASS_HIGH_COMING_FROM_BELOW:
 			this.state = State.ABOVE_HIGH;
 			this.previousState = State.PASS_HIGH_COMING_FROM_BELOW;
-			break;
-
-		case PASS_LOW_COMING_FROM_ABOVE:
-			/*
-			 * Value just passed the low threshold from above -> turn OFF
-			 */
-			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.START);
-			this.state = State.BELOW_LOW;
-			this.previousState = State.PASS_LOW_COMING_FROM_ABOVE;
 			break;
 
 		case PASS_HIGH_COMING_FROM_ABOVE:
@@ -314,12 +249,12 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}
 			this.applyHighHysteresis = true;
-			this.state = State.BETWEEN_LOW_AND_HIGH;
+			this.state = State.UNDEFINED;
 			this.previousState = State.PASS_HIGH_COMING_FROM_ABOVE;
 			break;
 
 		case ABOVE_HIGH:
-			if (value <= this.highThreshold) {
+			if (value <= this.threshold) {
 				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
 			}
 			this.previousState = State.ABOVE_HIGH;
@@ -407,7 +342,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		case STOP:
 			switchedOutput = this.setOutput(channel, true);
 			break;
-		case START:
+		case RUN:
 			switchedOutput = this.setOutput(channel, false);
 			break;
 		case OFF:

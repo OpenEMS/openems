@@ -42,9 +42,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Input Channel", description = "Address of the input channel. If the value of this channel is within a configured threshold, the output channel is switched ON.")
 	String inputChannelAddress();
 
-	@AttributeDefinition(name = "Low threshold", description = "Low boundary of the threshold")
-	int lowThreshold();
-
 	@AttributeDefinition(name = "High threshold", description = "High boundary of the threshold")
 	int highThreshold();
 
