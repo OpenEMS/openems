@@ -11,7 +11,8 @@ Export-Package: \
 	io.openems.edge.meter.api
  
  Private-Package: \
- 	io.openems.edge.ess.sinexcel
+ 	io.openems.edge.ess.sinexcel,\
+ 	io.openems.edge.ess.sinexcel.enums
  
 -includeresource: {readme.adoc}
  
