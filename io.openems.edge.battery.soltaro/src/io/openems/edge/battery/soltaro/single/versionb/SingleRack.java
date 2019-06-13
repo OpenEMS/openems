@@ -256,10 +256,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 		case ERROR_CELL_VOLTAGES_DRIFT:
 			// Reset the system
 			IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
+			IntegerWriteChannel sleepChannel = this.channel(SingleRackChannelId.SLEEP);
 			try {
 				resetChannel.setNextWriteValue(SYSTEM_RESET);				
+				sleepChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
-				System.out.println("Error while trying to reset the system!");
+				System.out.println("Error while trying to sleep / reset the system!");
 			}
 			this.setStateMachineState(State.UNDEFINED);				
 			break;
