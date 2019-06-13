@@ -372,9 +372,7 @@ public enum SinexcelChannelId implements ChannelId {
 	STATE_73(Doc.of(Level.FAULT) //
 			.text("BUS start fails")), //
 	STATE_74(Doc.of(Level.WARNING) //
-			.text("DC OCP")), //
-	STATE_UNABLE_TO_SET_BATTERY_RANGES(Doc.of(Level.FAULT) //
-			.text("Unable to set battery ranges")); //
+			.text("DC OCP"));
 
 	private final Doc doc;
 

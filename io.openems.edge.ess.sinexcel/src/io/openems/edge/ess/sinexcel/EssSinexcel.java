@@ -150,31 +150,39 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Sets the Battery Ranges. Executed on TOPIC_CYCLE_AFTER_PROCESS_IMAGE.
+	 * 
+	 * @throws OpenemsNamedException
 	 */
-	private void setBatteryRanges() {
+	private void setBatteryRanges() throws OpenemsNamedException {
 		if (battery == null) {
 			return;
 		}
+
 		int disMaxA = battery.getDischargeMaxCurrent().value().orElse(0);
 		int chaMaxA = battery.getChargeMaxCurrent().value().orElse(0);
 		int disMinV = battery.getDischargeMinVoltage().value().orElse(0);
 		int chaMaxV = battery.getChargeMaxVoltage().value().orElse(0);
 
-		IntegerWriteChannel setDisMinV = this.channel(SinexcelChannelId.DIS_MIN_V);
-		IntegerWriteChannel setChaMaxV = this.channel(SinexcelChannelId.CHA_MAX_V);
-		IntegerWriteChannel setDisMaxV = this.channel(SinexcelChannelId.DIS_MAX_A);
-		IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHA_MAX_A);
-		try {
-			setChaMaxA.setNextWriteValue(chaMaxA * 10);
-			setDisMaxV.setNextWriteValue(disMaxA * 10);
-			setDisMinV.setNextWriteValue(disMinV * 10);
-			setChaMaxV.setNextWriteValue(chaMaxV * 10);
-
-			this.channel(SinexcelChannelId.STATE_UNABLE_TO_SET_BATTERY_RANGES).setNextValue(false);
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, "Unable to set battery ranges: " + e.getMessage());
-			this.channel(SinexcelChannelId.STATE_UNABLE_TO_SET_BATTERY_RANGES).setNextValue(false);
+		{
+			IntegerWriteChannel setDisMaxA = this.channel(SinexcelChannelId.DIS_MAX_A);
+			setDisMaxA.setNextWriteValue(disMaxA * 10);
 		}
+		{
+			IntegerWriteChannel setChaMaxA = this.channel(SinexcelChannelId.CHA_MAX_A);
+			setChaMaxA.setNextWriteValue(chaMaxA * 10);
+		}
+		{
+			IntegerWriteChannel setDisMinV = this.channel(SinexcelChannelId.DIS_MIN_V);
+			setDisMinV.setNextWriteValue(disMinV * 10);
+		}
+		{
+			IntegerWriteChannel setChaMaxV = this.channel(SinexcelChannelId.CHA_MAX_V);
+			setChaMaxV.setNextWriteValue(chaMaxV * 10);
+		}
+
+		final double EFFICIENCY_FACTOR = 0.9;
+		this.getAllowedCharge().setNextValue(chaMaxA * chaMaxV * -1 * EFFICIENCY_FACTOR);
+		this.getAllowedDischarge().setNextValue(disMaxA * disMinV * EFFICIENCY_FACTOR);
 	}
 
 	/**
@@ -701,8 +709,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 //		boolean island = faultIslanding();
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.setBatteryRanges();
 			try {
+				this.setBatteryRanges();
 				this.doHandlingSlowFloatVoltage();
 			} catch (OpenemsNamedException e) {
 				this.logError(this.log, "EventHandler failed: " + e.getMessage());
