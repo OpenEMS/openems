@@ -1,0 +1,11 @@
+= SMA SunnyIsland 6.0H
+
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+- AsymmetricEss
+- ManagedAsymmetricEss
+- SinglePhaseEss
+- ManagedSinglePhaseEss
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.sma[Source Code icon:github[]]

@@ -1,0 +1,19 @@
+= Nature
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+Physical hardware is abstracted in OpenEMS Edge using _Natures_. A Nature defines a set of characteristics and attributes which need to be provided by each OpenEMS component that implements it. These characteristics are defined by Channels. For example an implementation of an `Ess` (Energy Storage System), needs to provide an `Soc`-Channel (State of charge of the battery).
+
+Technically Natures are implemented as OSGi API Bundles.
+
+include::nature.adoc.d/_include.adoc[leveloffset=+0]
+
+// TODO
+//=== Developing a Nature

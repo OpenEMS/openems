@@ -20,10 +20,12 @@ export class EdgeRpcRequest extends JsonrpcRequest {
     static METHOD: string = "edgeRpc";
 
     public constructor(
-        public readonly edgeId: string,
-        public readonly payload: JsonrpcRequest
+        public readonly params: {
+            edgeId: string,
+            payload: JsonrpcRequest
+        }
     ) {
-        super(EdgeRpcRequest.METHOD, { edgeId: edgeId, payload: payload });
+        super(EdgeRpcRequest.METHOD, params);
     }
 
 }

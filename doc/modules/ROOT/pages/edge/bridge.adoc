@@ -1,0 +1,17 @@
+= Bridge
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+To simplify the implementation of hardware that is connected via certain standardized physical connection layers and protocols, those are implemented as Bridges. 
+
+include::bridge.adoc.d/_include.adoc[leveloffset=+0]
+
+// TODO
+//=== Developing a Bridge

@@ -5,7 +5,7 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.controller.api
 Private-Package: io.openems.edge.controller.debug.detailedlog
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

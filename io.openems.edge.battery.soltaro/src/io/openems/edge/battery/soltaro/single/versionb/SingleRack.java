@@ -78,8 +78,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
 	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
-	private static final int PENDING_TIME_SECONDS = 15;
-
+	
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -197,17 +196,17 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);				
 			}
 			else {
-				// if minimal cell voltage is lower than configured minimal cell voltage, then force system to charge
-				IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
-				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
-				if (minCellVoltageOpt.isPresent()) {
-					int minCellVoltage =  minCellVoltageOpt.get();
-					if (minCellVoltage < this.config.minimalCellVoltage()) {
-						// set the discharge current negative to force the system to charge
-						// TODO check if this is working!
-						this.getDischargeMaxCurrent().setNextValue( (-1) * this.getChargeMaxCurrent().value().get() );
-					}
-				}		
+//				// if minimal cell voltage is lower than configured minimal cell voltage, then force system to charge
+//				IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
+//				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
+//				if (minCellVoltageOpt.isPresent()) {
+//					int minCellVoltage =  minCellVoltageOpt.get();
+//					if (minCellVoltage < this.config.minimalCellVoltage()) {
+//						// set the discharge current negative to force the system to charge
+//						// TODO check if this is working!
+//						this.getDischargeMaxCurrent().setNextValue( (-1) * this.getChargeMaxCurrent().value().get() );
+//					}
+//				}		
 				this.setStateMachineState(State.RUNNING);
 				readyForWorking = true;
 			}
@@ -236,7 +235,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			if (this.pendingTimestamp == null) {
 				this.pendingTimestamp = LocalDateTime.now();
 			}
-			if (this.pendingTimestamp.plusSeconds(PENDING_TIME_SECONDS).isBefore(LocalDateTime.now())) {
+			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
 				// System state could not be determined, stop and start it 
 				this.pendingTimestamp = null;
 				this.stopSystem();
@@ -244,10 +243,13 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			} else {
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
+					this.pendingTimestamp = null;
 				} else if (this.isSystemStopped()) {
 					this.setStateMachineState(State.OFF);
+					this.pendingTimestamp = null;
 				} else if (this.isSystemRunning()) {
 					this.setStateMachineState(State.RUNNING);
+					this.pendingTimestamp = null;
 				}
 			}
 			break;

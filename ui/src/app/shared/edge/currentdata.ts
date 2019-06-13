@@ -115,7 +115,6 @@ export class CurrentData {
                 result.storage.chargeActivePowerAC = Utils.multiplySafely(essActivePower, -1);
                 result.storage.dischargeActivePowerAC = null;
                 result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
-
             }
             result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
             result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC;
