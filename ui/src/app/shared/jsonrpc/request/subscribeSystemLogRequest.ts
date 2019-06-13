@@ -23,11 +23,11 @@ export class SubscribeSystemLogRequest extends JsonrpcRequest {
     static METHOD: string = "subscribeSystemLog";
 
     public constructor(
-        public readonly subscribe: boolean
+        public readonly params: {
+            subscribe: boolean
+        }
     ) {
-        super(SubscribeSystemLogRequest.METHOD, {
-            subscribe: subscribe
-        });
+        super(SubscribeSystemLogRequest.METHOD, params);
     }
 
 }

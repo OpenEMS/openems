@@ -446,6 +446,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				
+				
+				// Racks die abgeschalten sind dürfen nicht berücksichtigt werden
+				//--> Gewichtung auf 0
+				
+				
 				if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
 					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
 					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
@@ -507,12 +513,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 		}
 		
-		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
-		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
-		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
-		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
-		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
-		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
+//		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
+//		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
+//		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
+//		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
+//		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
+//		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
 		
 		Map<GridConChannelId, Float> map = new HashMap<>();
 		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, (float) weightA);

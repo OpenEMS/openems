@@ -2,11 +2,10 @@ package io.openems.common.jsonrpc.response;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.UUID;
 
-import com.google.common.collect.Table;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -44,13 +43,14 @@ public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
 		}
 	}
 
-	private final Table<ZonedDateTime, ChannelAddress, JsonElement> table;
+	private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table;
 
-	public QueryHistoricTimeseriesDataResponse(Table<ZonedDateTime, ChannelAddress, JsonElement> table) {
+	public QueryHistoricTimeseriesDataResponse(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
 		this(UUID.randomUUID(), table);
 	}
 
-	public QueryHistoricTimeseriesDataResponse(UUID id, Table<ZonedDateTime, ChannelAddress, JsonElement> table) {
+	public QueryHistoricTimeseriesDataResponse(UUID id,
+			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
 		super(id);
 		this.table = table;
 	}
@@ -60,18 +60,26 @@ public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
 		JsonObject result = new JsonObject();
 
 		JsonArray timestamps = new JsonArray();
-		for (ZonedDateTime timestamp : table.rowKeySet()) {
+		for (ZonedDateTime timestamp : table.keySet()) {
 			timestamps.add(timestamp.format(DateTimeFormatter.ISO_INSTANT));
 		}
 		result.add("timestamps", timestamps);
 
 		JsonObject data = new JsonObject();
-		for (Entry<ChannelAddress, Map<ZonedDateTime, JsonElement>> entry : table.columnMap().entrySet()) {
-			JsonArray channelData = new JsonArray();
-			for (JsonElement value : entry.getValue().values()) {
-				channelData.add(value);
+		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : table.entrySet()) {
+			for (Entry<ChannelAddress, JsonElement> colEntry : rowEntry.getValue().entrySet()) {
+				String channelAddress = colEntry.getKey().toString();
+				JsonElement value = colEntry.getValue();
+				JsonElement channelValuesElement = data.get(channelAddress);
+				JsonArray channelValues;
+				if (channelValuesElement != null) {
+					channelValues = channelValuesElement.getAsJsonArray();
+				} else {
+					channelValues = new JsonArray();
+				}
+				channelValues.add(value);
+				data.add(channelAddress, channelValues);
 			}
-			data.add(entry.getKey().toString(), channelData);
 		}
 		result.add("data", data);
 
