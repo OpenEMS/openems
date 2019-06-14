@@ -28,8 +28,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.user.complete(user);
 	}
 
-	// TODO Use "Future<User>" in all bundles to avoid authenticated failed errors
-	// if the websocket had not been fully opened before the first JSON-RPC Request
 	public CompletableFuture<BackendUser> getUser() {
 		return this.user;
 	}
