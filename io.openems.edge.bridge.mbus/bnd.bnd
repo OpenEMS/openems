@@ -1,0 +1,29 @@
+#
+# io.openems.edge.bridge.mbus PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-Description: \
+	OpenEMS Edge Bridge M-Bus
+
+Export-Package: \
+	io.openems.edge.bridge.mbus.api;-provide=true,\
+	io.openems.edge.bridge.mbus,\
+	io.openems.edge.bridge.mbus.api.task
+
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	org.openmuc.jmbus;version=3.2,\
+	org.openmuc.jrxtx;version=1.0
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
+Import-Package: *

@@ -1,0 +1,13 @@
+#
+# io.openems.edge.bridge.mbus DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.bridge.mbus.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
