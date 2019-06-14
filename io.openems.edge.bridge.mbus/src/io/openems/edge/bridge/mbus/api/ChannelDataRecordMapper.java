@@ -33,7 +33,7 @@ public class ChannelDataRecordMapper {
 	}
 
 
-
+io.openems.edge.ess.sinexcel/bin_test/.gitignore
 	public List<ChannelRecord> getChannelDataRecordsList() {
 		return channelDataRecordsList;
 	}
@@ -47,8 +47,6 @@ public class ChannelDataRecordMapper {
 		if(dataType == null) {
 			if(data.getDataRecords().size() > index && index >= 0) {
 				channel.setNextValue(data.getDataRecords().get(index).getScaledDataValue());
-				System.out.println("DataType: Data");
-				System.out.println(channel.value());
 			}
 			
 			return;
@@ -56,18 +54,12 @@ public class ChannelDataRecordMapper {
 		switch(dataType) {
 		case Manufacturer:
 			channel.setNextValue(data.getSecondaryAddress().getManufacturerId());
-			System.out.println("DataType: Manufacturer");
-			System.out.println(channel.value());
 			break;
 		case DeviceId:
 			channel.setNextValue(data.getSecondaryAddress().getDeviceId());
-			System.out.println("DataType: DeviceId");
-			System.out.println(channel.value());
 			break;
 		case MeterType:
 			channel.setNextValue(data.getSecondaryAddress().getDeviceType());
-			System.out.println("DataType: MeterType");
-			System.out.println(channel.value());
 			break;
 		default:
 			break;
