@@ -24,16 +24,30 @@ public class AccessControlImpl implements AccessControl {
             cardinality = ReferenceCardinality.MULTIPLE)
     private volatile List<AccessControlProvider> providers = new LinkedList<>();
 
+    private final List<AccessControlProvider> initializedProviders = new LinkedList<>();
+
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext) {
         // first sort list after its priorities
-        Collections.sort(providers);
-        providers.forEach(p -> p.initializeAccessControl(accessControlDataManager));
+        initializeProviders();
     }
 
     @Deactivate
     void deactivate() {
+    }
 
+    /**
+     * TODO this method is probably not neccessary with correct use of OSGi. providers must be injected before the activate
+     * has been called and this stuff needs to be done then once in activate()
+     */
+    private void initializeProviders() {
+        providers.removeAll(initializedProviders);
+        Collections.sort(providers);
+        providers.forEach(p -> {
+            p.initializeAccessControl(accessControlDataManager);
+            initializedProviders.add(p);
+        });
+        providers.clear();
     }
 
     /**
@@ -45,6 +59,7 @@ public class AccessControlImpl implements AccessControl {
      * @throws AuthenticationException
      */
     public RoleId login(String username, String password) throws AuthenticationException {
+        initializeProviders();
         User matchingUser = accessControlDataManager.getUsers().stream().filter(
                 userNew -> (userNew.getUsername().equals(username) && userNew.validatePlainPassword(password)))
                 .findFirst()
@@ -54,22 +69,23 @@ public class AccessControlImpl implements AccessControl {
 
     public void assertExecutePermission(RoleId roleId, String edgeId, String method)
             throws AuthenticationException, AuthorizationException {
+        initializeProviders();
         Role role = getRole(roleId);
         final ExecutePermission[] executePermission = new ExecutePermission[1];
-        role.getJsonRpcPermissions(edgeId).ifPresent(permissions -> permissions.entrySet().stream()
-                .filter(e -> e.getKey().equals(method)).findFirst()
-                .ifPresent(entry -> executePermission[0] = entry.getValue()));
-        if (executePermission[0] != null && !ExecutePermission.ALLOW.equals(executePermission[0])) {
+        role.getJsonRpcPermissionsWithInheritance(edgeId).entrySet().stream().filter(e -> e.getKey().equals(method)).findFirst()
+                .ifPresent(entry -> executePermission[0] = entry.getValue());
+        if (executePermission[0] == null || !ExecutePermission.ALLOW.equals(executePermission[0])) {
             throw new AuthorizationException();
         }
     }
 
     public Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, Set<ChannelAddress> requestedChannels, AccessMode... accessModes)
             throws AuthenticationException {
+        initializeProviders();
         Role role = getRole(roleId);
         Map<ChannelAddress, AccessMode> allowedChannels = role.getChannelPermissionsWithInheritance(edgeIdentifier);
-            // remove all channels which are not even part of the configuration
-            // requestedChannels.retainAll(allowedChannels.keySet());
+        // remove all channels which are not even part of the configuration
+        // requestedChannels.retainAll(allowedChannels.keySet());
         return allowedChannels.entrySet().stream()
                 .filter(entry -> requestedChannels.contains(entry.getKey()) && Arrays.asList(accessModes).contains(entry.getValue()))
                 .map(Map.Entry::getKey).collect(Collectors.toCollection(TreeSet::new));

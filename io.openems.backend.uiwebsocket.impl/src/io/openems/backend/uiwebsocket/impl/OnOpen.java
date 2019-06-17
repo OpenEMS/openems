@@ -43,7 +43,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		Optional<String> sessionIdOpt = io.openems.common.websocket.OnOpen.getFieldFromHandshakeCookie(handshake,
 				"session_id");
 
-		RoleId roleId = this.parent.metadata.authenticate2("Kartoffelsalat3000", "user");
+		RoleId roleId = this.parent.accessControl.login("Kartoffelsalat3000", "user");
 		wsData.setRoleId(roleId);
 		try {
 			if (sessionIdOpt.isPresent()) {

@@ -45,9 +45,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
     private String path = "";
     private AtomicInteger sessionId = new AtomicInteger(0);
 
-    @Reference
-    private AccessControl accessControl;
-
     public UserBased() {
         super("Metadata.UserBased");
     }
@@ -99,7 +96,8 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
 
     @Override
     public RoleId authenticate2(String userName, String password) throws OpenemsException {
-        return accessControl.login(userName, password);
+        // return accessControl.login(userName, password);
+        return null;
     }
 
     @Override
