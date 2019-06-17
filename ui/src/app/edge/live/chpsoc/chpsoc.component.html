@@ -1,0 +1,46 @@
+<ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="edge.currentData | async as currentData">
+        <ion-card>
+            <ion-item lines="full" color="light">
+                <ion-avatar slot="start">
+                    <ion-icon name="flame" style="font-size: 40px" font></ion-icon>
+                </ion-avatar>
+                <ion-label translate>CHP</ion-label>
+            </ion-item>
+            <ion-card-content>
+                <ion-grid no-padding>
+                    <table class="full_width">
+                        <tr class="underline">
+                            <td style="width:65%" translate>Low Threshold</td>
+                            <td style="width:25%" class="align_right">
+                                {{ lowThreshold  }}</td>
+                            <td style="width:10%">&nbsp;%</td>
+                        </tr>
+                        <tr class="underline" *ngIf="currentData.channel[inputChannel] as value">
+                            <td style="width:65%" translate>State of Charge</td>
+                            <td style="width:25%" class="align_right">
+                                {{ value | number:'1.0-0'}}</td>
+                            <td style="width:10%">&nbsp;%</td>
+                        </tr>
+                        <tr class="underline">
+                            <td style="width:65%" translate>High Threshold</td>
+                            <td style="width:25%" class="align_right">
+                                {{ highThresold  }}</td>
+                            <td style="width:10%">&nbsp;%</td>
+                        </tr>
+                        <tr class="underline">
+                            <td style="width:65%" translate>Signal</td>
+                            <td style="width:25%" class="align_right">
+                                <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help"></ion-icon>
+                                <ion-icon *ngIf="currentData.channel[outputChannel] == 1" name="radio-button-on">
+                                </ion-icon>
+                                <ion-icon *ngIf="currentData.channel[outputChannel] == 0" name="radio-button-off">
+                                </ion-icon>
+                        </tr>
+                    </table>
+                </ion-grid>
+            </ion-card-content>
+
+        </ion-card>
+    </ng-container>
+</ng-container>
