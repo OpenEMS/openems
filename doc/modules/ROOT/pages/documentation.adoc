@@ -45,24 +45,13 @@ To build the docs, clone the OpenEMS Repository (preferably xref:gettingstarted.
 [NOTE]
 ====
 NodeJS has to be installed
-
-Gradle has to be installed
 ====
 
-
-.Install Antora via npm
-
-Open Terminal and type:
-====
-`npm install -g @antora/cli`
-
-`npm install -g @antora/site-generator-default`
-====
 
 .Build the documents:
-Go to the https://github.com/OpenEMS/openems/tree/develop/[root directory icon:external-link[]] and type
+Open the integrated terminal, change to the https://github.com/OpenEMS/openems/tree/develop/[root directory icon:external-link[]] and type
 ====
-`gradle buildAntoraDocs`
+`gradlew buildAntoraDocs`
 ====
 
 Docs should be building.. the finished HTML Folder can be found in your local 'build' folder (inside your https://github.com/OpenEMS/openems/tree/develop/doc/build[repository build folder icon:external-link[]])
