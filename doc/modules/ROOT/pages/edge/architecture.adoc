@@ -32,7 +32,7 @@ The output phase takes the results from the process phase and applies it - e.g. 
 
 == Scheduler and Controller
 
-During the 'process' phase different algorithms (Controllers) might try to access the same resources - e.g. two Controllers try to switch the same digital output. It is therefor necessary to prioritize their execution and restrict access according to priority.
+During the 'process' phase different algorithms (Controllers) might try to access the same resources - e.g. two Controllers try to switch the same digital output. It is therefore necessary to prioritize their execution and restrict access according to priority.
 
 OpenEMS Edge uses Scheduler implementations to receive a sorted list of Controllers. The Controllers are then executed in order. Later executed Controllers are not allowed to overwrite a previously written result. 
 
