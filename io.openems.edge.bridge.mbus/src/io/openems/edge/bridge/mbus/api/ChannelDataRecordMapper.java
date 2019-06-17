@@ -22,18 +22,14 @@ public class ChannelDataRecordMapper {
 		
 	}
 	
-	
 	public VariableDataStructure getData() {
 		return data;
 	}
-
 
 	public void setData(VariableDataStructure data) {
 		this.data = data;
 	}
 
-
-io.openems.edge.ess.sinexcel/bin_test/.gitignore
 	public List<ChannelRecord> getChannelDataRecordsList() {
 		return channelDataRecordsList;
 	}
