@@ -55,16 +55,6 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	protected WebsocketServer server = null;
 
-	/**
-	 * Stores valid session tokens for authentication via Cookie.
-	 */
-	protected final Map<UUID, EdgeUser> sessionTokens = new ConcurrentHashMap<>();
-
-	/**
-	 * TODO remove one of those two when the time has come
-	 */
-	protected final Map<UUID, RoleId> sessionTokensNew = new ConcurrentHashMap<>();
-
 	String edgeIdentifier;
 
 	@Reference

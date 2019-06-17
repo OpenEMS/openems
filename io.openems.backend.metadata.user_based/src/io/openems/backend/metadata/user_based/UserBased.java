@@ -64,43 +64,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
     }
 
     @Override
-    public BackendUser authenticate() throws OpenemsNamedException {
-        // TODO remove this method
-        return userMap.get("user0");
-    }
-
-    public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-        Optional<Entry<BackendUser, String>> entryOpt = this.userPasswordMapping.entrySet().stream().filter(
-                entry -> entry.getKey().getId().equals(username)).findFirst();
-        final BackendUser[] user = {null};
-        entryOpt.ifPresent(entry -> {
-            if (entry.getValue().equals("Password")) {
-                userPasswordMapping.put(entry.getKey(), String.valueOf(this.sessionId.incrementAndGet()));
-                user[0] = entry.getKey();
-            }
-        });
-        if (user[0] != null) {
-            return user[0];
-        } else {
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-    }
-
-    @Override
-    public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
-        if (this.sessionIdUserMap.containsKey(sessionId)) {
-            return this.sessionIdUserMap.get(sessionId);
-        }
-        throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-    }
-
-    @Override
-    public RoleId authenticate2(String userName, String password) throws OpenemsException {
-        // return accessControl.login(userName, password);
-        return null;
-    }
-
-    @Override
     public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
         Optional<Optional<Entry<String, Edge>>> edgeId = Optional.of(this.edges.entrySet().stream().filter(
                 e -> e.getValue().getApikey().equals(apikey)).findFirst());

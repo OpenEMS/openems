@@ -112,7 +112,9 @@ public class RestHandler extends AbstractHandler {
 						String username = credentials.substring(0, p).trim();
 						String password = credentials.substring(p + 1).trim();
 						// authenticate using username & password
-						return this.parent.metadata.authenticate(username, password);
+						// TODO handle dat case
+						//return this.parent.metadata.authenticate(username, password);
+						return null;
 					}
 				}
 			}

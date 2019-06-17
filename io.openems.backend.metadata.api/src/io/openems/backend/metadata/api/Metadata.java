@@ -26,41 +26,6 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 public interface Metadata {
 
     /**
-     * Authenticates a User without any information.
-     *
-     * <p>
-     * This is only useful for Dummy-Implementations. By default authentication is
-     * denied in this case.
-     *
-     * @return the User
-     * @throws OpenemsNamedException on error
-     */
-    default BackendUser authenticate() throws OpenemsNamedException {
-        throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-    }
-
-    /**
-     * Authenticates the User by username and password.
-     *
-     * @param username the Username
-     * @param password the Password
-     * @return the User
-     * @throws OpenemsNamedException on error
-     */
-    BackendUser authenticate(String username, String password) throws OpenemsNamedException;
-
-    RoleId authenticate2(String userName, String password) throws OpenemsException;
-
-    /**
-     * Authenticates the User by a Session-ID.
-     *
-     * @param sessionId the Session-ID
-     * @return the User
-     * @throws OpenemsNamedException on error
-     */
-    BackendUser authenticate(String sessionId) throws OpenemsNamedException;
-
-    /**
      * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
      *
      * @param apikey the API-Key

@@ -43,11 +43,12 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 			String username = values[0];
 			String password = values[1];
-			BackendUser user = this.parent.metadata.authenticate(username, password);
 
-			WsData wsData = ws.getAttachment();
-			wsData.setUser(user);
-			this.parent.logInfo(this.log, "User [" + user.getName() + "] logged in");
+			// TODO handle dat case
+			// BackendUser user = this.parent.metadata.authenticate(username, password);
+			// WsData wsData = ws.getAttachment();
+			// wsData.setUser(user);
+			//this.parent.logInfo(this.log, "User [" + user.getName() + "] logged in");
 
 		} catch (OpenemsNamedException e) {
 			ws.close();

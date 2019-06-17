@@ -264,7 +264,9 @@ export class Websocket {
             if (env.production) {
                 window.location.href = '/web/login?redirect=/m/index';
             } else {
-                console.info('would redirect...');
+                // TODO works now but refactor is necessary
+                // console.info('would redirect...');
+                this.router.navigate(['/index']);
             }
         } else if (env.backend === 'OpenEMS Edge') {
             this.router.navigate(['/index']);

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,6 +26,8 @@ public class AccessControlImpl implements AccessControl {
     private volatile List<AccessControlProvider> providers = new LinkedList<>();
 
     private final List<AccessControlProvider> initializedProviders = new LinkedList<>();
+
+    private final Map<UUID, RoleId> sessionTokens = new ConcurrentHashMap<>();
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext) {
@@ -67,6 +70,30 @@ public class AccessControlImpl implements AccessControl {
         return matchingUser.getRoleId();
     }
 
+    public RoleId login(UUID sessionId) throws AuthenticationException {
+        return sessionTokens.entrySet().stream()
+                .filter(e -> e.getKey().equals(sessionId))
+                .map(Map.Entry::getValue)
+                .findFirst().orElseThrow(AuthenticationException::new);
+    }
+
+    public UUID createSession(RoleId roleId) throws AuthenticationException {
+        initializeProviders();
+
+        // call for making sure the roleId is existing
+        getRole(roleId);
+        UUID sessionId;
+        Optional<Map.Entry<UUID, RoleId>> entry = this.sessionTokens.entrySet().stream().filter((e) -> e.getValue().equals(roleId)).findAny();
+        if (entry.isPresent()) {
+            this.log.info("Creating a new Session for role (" + entry.get().getValue() + ") did not work since a valid session is already up");
+            sessionId = entry.get().getKey();
+        } else {
+            sessionId = UUID.randomUUID();
+            this.sessionTokens.put(sessionId, roleId);
+        }
+        return sessionId;
+    }
+
     public void assertExecutePermission(RoleId roleId, String edgeId, String method)
             throws AuthenticationException, AuthorizationException {
         initializeProviders();
@@ -89,6 +116,11 @@ public class AccessControlImpl implements AccessControl {
         return allowedChannels.entrySet().stream()
                 .filter(entry -> requestedChannels.contains(entry.getKey()) && Arrays.asList(accessModes).contains(entry.getValue()))
                 .map(Map.Entry::getKey).collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    @Override
+    public Set<String> getEdgeIds(RoleId roleId) throws AuthenticationException {
+        return this.getRole(roleId).getEdgeIds();
     }
 
     /**

@@ -3,7 +3,7 @@
     <ion-col size="12" size-md="6" size-lg="4">
 
       <!-- Waiting for authentication -->
-      <ion-card *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
+      <ion-card *ngIf="(env.backend === 'OpenEMS Edge' || env.backend === 'OpenEMS Backend') && websocket.status == 'waiting for authentication'">
         <ion-item color="primary" lines="full">
           <ion-icon slot="start" name="contact"></ion-icon>
           <ion-label>Login</ion-label>
@@ -14,7 +14,7 @@
             <div padding>
               <ion-item>
                 <ion-text text-wrap color="medium">
-                  Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.
+                  Bitte geben Sie ihren Benutzernamen und ihr Passwort ein.
                 </ion-text>
               </ion-item>
               <ion-item>

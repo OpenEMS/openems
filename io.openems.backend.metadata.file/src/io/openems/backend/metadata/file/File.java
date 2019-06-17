@@ -85,26 +85,6 @@ public class File extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public BackendUser authenticate() throws OpenemsException {
-		return this.user;
-	}
-
-	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		return this.authenticate();
-	}
-
-	@Override
-	public RoleId authenticate2(String userName, String password) throws OpenemsException {
-		return null;
-	}
-
-	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsException {
-		return this.authenticate();
-	}
-
-	@Override
 	public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
 		this.refreshData();
 		for (Entry<String, Edge> entry : this.edges.entrySet()) {

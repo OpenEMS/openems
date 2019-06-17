@@ -33,10 +33,6 @@ public class Role {
         this.parents = parents;
     }
 
-    public Set<Role> getParents() {
-        return parents;
-    }
-
     public void setParents(Set<Role> parents) {
         this.parents = parents;
     }
@@ -69,6 +65,27 @@ public class Role {
         return this.jsonRpcPermissions.entrySet().stream()
                 .filter(entry -> entry.getKey().equals(edgeId))
                 .map(Map.Entry::getValue).findFirst();
+    }
+
+    /**
+     * Gets all edgeIds on which the this role has at least access on one channel or one execution
+     * @return the edges
+     */
+    public Set<String> getEdgeIds() {
+        Set<String> retVal = new HashSet<>();
+        Stack<Role> parentsToGo = new Stack<>();
+        parentsToGo.push(this);
+
+        while(!parentsToGo.isEmpty()) {
+            Role parent = parentsToGo.pop();
+
+            // add the parents of the parents
+            parent.parents.forEach(parentsToGo::push);
+            retVal.addAll(parent.jsonRpcPermissions.keySet());
+            retVal.addAll(parent.jsonRpcPermissions.keySet());
+        }
+
+        return retVal;
     }
 
     public Map<String, ExecutePermission> getJsonRpcPermissionsWithInheritance(String edgeId) {

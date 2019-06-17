@@ -59,33 +59,6 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	}
 
 	@Override
-	public BackendUser authenticate() throws OpenemsException {
-		int id = this.nextUserId.incrementAndGet();
-		String userId = "user" + id;
-		BackendUser user = new BackendUser(userId, "User #" + id);
-		for (String edgeId : this.edges.keySet()) {
-			user.addEdgeRole(edgeId, Role.ADMIN);
-		}
-		this.users.put(userId, user);
-		return user;
-	}
-
-	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		return this.authenticate();
-	}
-
-	@Override
-	public RoleId authenticate2(String userName, String password) throws OpenemsException {
-		return null;
-	}
-
-	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsException {
-		return this.authenticate();
-	}
-
-	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
 		Optional<Edge> edgeOpt = this.edges.values().stream() //
 				.filter(edge -> apikey.equals(edge.getApikey())) //

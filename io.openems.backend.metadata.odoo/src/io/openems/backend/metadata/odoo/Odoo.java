@@ -279,49 +279,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 		});
 	}
 
-	@Override
-	public BackendUser authenticate(String username, String password) throws OpenemsNamedException {
-		AuthenticateWithUsernameAndPasswordRequest request = new AuthenticateWithUsernameAndPasswordRequest(
-				this.odooCredentials.getDatabase(), username, password);
-		JsonrpcResponseSuccess origResponse = OdooUtils
-				.sendJsonrpcRequest(this.odooCredentials.getUrl() + "/web/session/authenticate", request);
-		AuthenticateWithUsernameAndPasswordResponse response = AuthenticateWithUsernameAndPasswordResponse
-				.from(origResponse);
-		return this.authenticate(response.getSessionId());
-	}
-
-	@Override
-	public RoleId authenticate2(String userName, String password) throws OpenemsException {
-		return null;
-	}
-
-	/**
-	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.
-	 *
-	 * @param sessionId the Session-ID
-	 * @return the BackendUser
-	 * @throws OpenemsException on error
-	 */
-	@Override
-	public BackendUser authenticate(String sessionId) throws OpenemsNamedException {
-		EmptyRequest request = new EmptyRequest();
-		String charset = "US-ASCII";
-		String query;
-		try {
-			query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
-		} catch (UnsupportedEncodingException e) {
-			throw OpenemsError.GENERIC.exception(e.getMessage());
-		}
-		JsonrpcResponseSuccess origResponse = OdooUtils
-				.sendJsonrpcRequest(this.odooCredentials.getUrl() + "/openems_backend/info?" + query, request);
-
-		AuthenticateWithSessionIdResponse response = AuthenticateWithSessionIdResponse.from(origResponse, sessionId,
-				this.edges);
-		MyUser user = response.getUser();
-		this.users.put(user.getId(), user);
-		return user;
-	}
-
 	/**
 	 * Writes one field to Odoo.
 	 * 

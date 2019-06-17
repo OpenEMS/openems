@@ -156,7 +156,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         EdgeUser user = userOpt.get();
         wsData.setUser(user);
         wsData.setRoleId(roleId);
-        this.parent.sessionTokens.put(wsData.getSessionToken(), user);
+        // this.parent.sessionTokens.put(wsData.getSessionToken(), user);
         // TODO unset on logout!
         return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
                 wsData.getSessionToken(), Utils.getEdgeMetadata(roleId)));
@@ -171,8 +171,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
             throw(e);
         }
 
+        UUID sessionToken = this.parent.accessControl.createSession(roleId);
+        wsData.setSessionToken(sessionToken);
+
         wsData.setRoleId(roleId);
-        this.parent.sessionTokensNew.put(wsData.getSessionToken(), roleId);
         // TODO unset on logout!
         return CompletableFuture.completedFuture(new AuthenticateWithUsernameAndPasswordResponse(request.getId(),
                 wsData.getSessionToken(), Utils.getEdgeMetadata(roleId)));
