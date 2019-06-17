@@ -3,6 +3,7 @@ package io.openems.edge.controller.symmetric.dynamiccharge;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -36,7 +37,6 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 	private final CalculateConsumption calculateTotalConsumption = new CalculateConsumption(this);
 	private TreeMap<LocalDateTime, Long> storageChargeSchedule = new TreeMap<LocalDateTime, Long>();
 	private boolean executed = false;
-	private boolean readonly = false;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -70,7 +70,6 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
-		this.readonly = config.readonly();
 	}
 
 	@Deactivate
@@ -88,38 +87,31 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter_id());
 		Sum sum = this.componentManager.getComponent(OpenemsConstants.SUM_ID);
 
+		//HourlyConsumption is calculated
 		log.info("Calculating the required consumption to charge ");
 		this.calculateTotalConsumption.run(ess, gridMeter, config, sum);
 
 		// Hours and Amount of energy to charge in the form of TreeMap
 		if (!executed && hourOfDay == config.Max_Evening_hour()) {
-			if(!this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
+			if (!this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
+				System.out.println("Not Empty");
 				this.storageChargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
+
+				for (Entry<LocalDateTime, Long> entry : this.storageChargeSchedule.entrySet()) {
+					System.out.println("Time: " + entry.getKey() + " Charge: " + entry.getValue());
+				}
 				executed = true;
-			}
-		}
-		
-		if (!executed && hourOfDay == config.Max_Morning_hour()) {
-			if(!this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
-				this.storageChargeSchedule.clear();
-				executed = false;
-			}
-		}
-		
-		
-		/*if (this.calculateTotalConsumption.getT0() != null) {
-			if (!executed && hourOfDay == config.Max_Evening_hour() && !this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
-				this.storageChargeSchedule = this.calculateTotalConsumption.getChargeSchedule();
-				executed = true;
+			} else {
+				System.out.println("Empty");
 			}
 		}
 
-		if (this.calculateTotalConsumption.getT1() != null) {
-			if (executed && hourOfDay == config.Max_Morning_hour()) {
+		if (executed && hourOfDay == config.Max_Morning_hour()) {
+			if (!this.calculateTotalConsumption.getChargeSchedule().isEmpty()) {
 				this.storageChargeSchedule.clear();
 				executed = false;
 			}
-		}*/
+		}
 
 		// Charge Condition
 		if (!this.storageChargeSchedule.isEmpty()) {
@@ -130,15 +122,13 @@ public class DynamicCharge extends AbstractOpenemsComponent implements Controlle
 					 * Actual condition to charge the ESS
 					 */
 
-					if (!this.readonly) {
-						System.out.println("Charging");
-						long power = entry.getValue();
-						int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
-								(int) power);
-						ess.addPowerConstraintAndValidate("SymmetricDynamicChargePower", Phase.ALL, Pwr.ACTIVE,
-								Relationship.EQUALS, calculatedPower);
-					}
-					log.info("Mock up Charging: " + " [ " + entry.getValue() + " ] " + " [ "+ entry.getKey() + " ] ");
+					System.out.println("Charging");
+					long power = entry.getValue() * -1;
+					int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE,
+							(int) power);
+					ess.addPowerConstraintAndValidate("SymmetricDynamicChargePower", Phase.ALL, Pwr.ACTIVE,
+							Relationship.EQUALS, calculatedPower);
+					log.info("Charging: " + " [ " + entry.getValue() + " ] ");
 				}
 			}
 		}

@@ -32,7 +32,7 @@ public class App {
 
 		for (int i = 0; i < 17; i++) {
 
-			hourlyConsumption.put(now.plusHours(i), (long) (400 + (150 * i)));
+			hourlyConsumption.put(now.plusHours(i), (long) (700 + (150 * i)));
 		}
 
 		for (Entry<LocalDateTime, Float> entry : HourlyPrices.entrySet()) {

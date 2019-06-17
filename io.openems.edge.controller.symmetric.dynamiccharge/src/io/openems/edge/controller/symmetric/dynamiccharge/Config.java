@@ -17,8 +17,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 	
-	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode and disables the charging of the battery")
-	boolean readonly() default false;
+	/*@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode and disables the charging of the battery")
+	boolean readonly() default false;*/
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();

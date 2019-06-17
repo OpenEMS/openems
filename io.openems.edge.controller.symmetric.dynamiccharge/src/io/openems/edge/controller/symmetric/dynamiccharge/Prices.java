@@ -19,15 +19,14 @@ import okhttp3.Response;
 public class Prices {
 
 	private static LocalDateTime startTimeStamp = null;
-	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
+	private static TreeMap<LocalDateTime, Float> hourlyPrices = new TreeMap<LocalDateTime, Float>();
 
-	public static void houlryprices() {
+	public static void houlryPrices() {
 
 		try {
 
 			OkHttpClient client = new OkHttpClient();
-			Request request = new Request.Builder()
-					.url("https://api.awattar.com/v1/marketdata?")
+			Request request = new Request.Builder().url("https://api.awattar.com/v1/marketdata")
 					.header("Authorization", Credentials.basic("ak_7YTR42jBwtnk5kXuMZRYEju8hvj918H0", "")).build();
 			Response response = null;
 
@@ -49,17 +48,15 @@ public class Prices {
 				float marketPrice = jsonelement.get("marketprice").getAsFloat();
 				long start_Timestamp = jsonelement.get("start_timestamp").getAsLong();
 				startTimeStamp = LocalDateTime.ofInstant(Instant.ofEpochMilli(start_Timestamp), ZoneId.systemDefault());
-				HourlyPrices.put(startTimeStamp, marketPrice);
-
+				hourlyPrices.put(startTimeStamp, marketPrice);
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static TreeMap<LocalDateTime, Float> getHourlyPrices() {
-		return HourlyPrices;
+		return hourlyPrices;
 	}
 
 }
