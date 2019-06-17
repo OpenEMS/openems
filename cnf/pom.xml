@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>27.1-jre</version>
+			<version>28.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.7</version>
+			<version>0.10.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>
