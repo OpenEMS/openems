@@ -1,4 +1,4 @@
-package io.openems.edge.project.controller.karpfsee.emergencymode;
+package io.openems.edge.project.hofgutkarpfsee;
 
 import io.openems.edge.common.channel.Doc;
 

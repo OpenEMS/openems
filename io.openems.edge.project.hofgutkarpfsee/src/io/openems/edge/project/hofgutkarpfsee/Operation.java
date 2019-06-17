@@ -1,17 +1,18 @@
-package io.openems.edge.project.controller.karpfsee.emergencymode;
+package io.openems.edge.project.hofgutkarpfsee;
 
 import io.openems.common.types.OptionsEnum;
 
-enum State implements OptionsEnum {
+enum Operation implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	PASS_HIGH_COMING_FROM_BELOW(0, "Pass High Coming From Below"), //
-	PASS_HIGH_COMING_FROM_ABOVE(1, "Pass High Coming From Above"), //
-	ABOVE_HIGH(2, "Above High");
-	
+	RUN(0, "START"), //
+	STOP(1, "STOP"),//
+	ON(2, "ON"),//
+	OFF(3, "OFF");
+
 	private final int value;
 	private final String name;
 
-	private State(int value, String name) {
+	private Operation(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

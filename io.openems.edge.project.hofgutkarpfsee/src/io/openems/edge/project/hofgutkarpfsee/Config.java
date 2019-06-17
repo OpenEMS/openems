@@ -1,4 +1,4 @@
-package io.openems.edge.project.controller.karpfsee.emergencymode;
+package io.openems.edge.project.hofgutkarpfsee;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

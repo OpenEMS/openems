@@ -1,0 +1,14 @@
+#
+# io.openems.edge.project.hofgutkarpfsee LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		io.openems.edge.project.hofgutkarpfsee.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.project.hofgutkarpfsee.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}

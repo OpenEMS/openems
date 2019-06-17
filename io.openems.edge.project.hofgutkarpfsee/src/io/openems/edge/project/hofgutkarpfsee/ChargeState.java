@@ -1,18 +1,16 @@
-package io.openems.edge.project.controller.karpfsee.emergencymode;
+package io.openems.edge.project.hofgutkarpfsee;
 
 import io.openems.common.types.OptionsEnum;
 
-enum Operation implements OptionsEnum {
+enum ChargeState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	RUN(0, "START"), //
-	STOP(1, "STOP"),//
-	ON(2, "ON"),//
-	OFF(3, "OFF");
-
+	DISCHARGE(0, "Discharge"), //
+	CHARGE(1, "Charge");
+	
 	private final int value;
 	private final String name;
 
-	private Operation(int value, String name) {
+	private ChargeState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
