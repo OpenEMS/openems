@@ -30,7 +30,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40Impl;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.EmergencyMode", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "EmergencyMode", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EmergencyMode extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private Config config;
@@ -80,6 +80,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

@@ -1,0 +1,68 @@
+= Emergency Mode Controller
+:imagesdir: ../assets/images
+:sectnumlevels: 0
+:toc:
+:toclevels: 0
+
+OpenEMS provides 
+
+==  Configuration 
+
+Component-ID Unique ID of this Component (id), e.g. "ctrlEmergencMode0", "ctrlEmergencMode1"
+
+Alias Human-readable name of this Component; defaults to Component-ID (alias)
+
+* `Block Heat Power Plant Permission Signal` ; default configuration has set as DigitalOutputM1C1. Which means its first channel of first module of Wago.
+
+* `MSR Heating System Controller` ; default configuration has set as DigitalOutputM1C2. Which means its second channel of first module of Wago.
+    
+* `On Grid Indication Controller`  ; default configuration has set as DigitalOutputM2C1. Which means, its first channel of second module of Wago.
+
+* `Off Grid Indication Controller` ; default configuration has set as DigitalOutputM2C2. Which means its second channel of second of Wago.
+
+* `Low Threshold` ; low boundary of the threshold
+
+* `High Threshold`; high boundary of the threshold
+
+* `Hysteresis` ; The hysteresis is applied to low and high threshold to avoid continuous switching
+
+* `Terms: Boundary/Interval` ; To decide where take part in condtion of applying Hysterissis. 
+
+	=> It's called out of the boundary if soc is lower than subtraction of Threshold and hysterissis.
+	=> It's called inside of the boundary if soc is higher than subtraction of Threshold and hysterissis.   
+
+==  Needs A Headline
+
+Controller will be in process based on Grid Mode of the inverter and under the consideration of state of charge. 
+
+* **Grid Mode variations** ; On-Grid, Off-Grid, Undefined
+
+* **States according to Soc level** ; 
+
+	* `UNDEFINED`; Unknown state on first start.
+
+    Conditions;
+
+    * `PASS_HIGH_COMING_FROM_BELOW`; Value just passed the high threshold. Last value was lower. Soc inside of the Boundary. And, this could only happen while system is "charging".
+
+		To Do: Keep BHKW runs. 
+
+	* `PASS_HIGH_COMING_FROM_ABOVE` ; Value is bigger than the high threshold. Inside of the boundary. And, this could only happen while system is "discharging".
+
+		To Do: Keep BHKW 
+
+	* `ABOVE_HIGH`;  Value is bigger than the high threshold.
+    * `` 
+
+
+
+
+
+
+
+
+
+
+
+
+
