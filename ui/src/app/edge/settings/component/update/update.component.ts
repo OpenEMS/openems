@@ -41,10 +41,11 @@ export class ComponentUpdateComponent implements OnInit {
       let component = config.components[componentId];
       this.factory = config.factories[component.factoryId];
       let fields: FormlyFieldConfig[] = [];
-      let model = {
-        id: componentId
-      };
+      let model = {};
       for (let property of this.factory.properties) {
+        if (property.id === 'id') {
+          continue; // ignore Component-ID
+        }
         let property_id = property.id.replace('.', '_');
         let field: FormlyFieldConfig = {
           key: property_id,

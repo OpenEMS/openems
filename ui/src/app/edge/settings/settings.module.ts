@@ -6,6 +6,7 @@ import { ComponentInstallComponent } from './component/install/install.component
 import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
 import { SettingsComponent } from './settings.component';
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { SettingsComponent } from './settings.component';
     ComponentInstallIndexComponent,
     ComponentInstallComponent,
     ComponentUpdateIndexComponent,
-    ComponentUpdateComponent
+    ComponentUpdateComponent,
+    ProfileComponent
   ]
 })
 export class SettingsModule { }
