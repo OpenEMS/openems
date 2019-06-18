@@ -1,0 +1,3 @@
+= M-Bus
+
+M-Bus is a widely used standard for fieldbus communication. This bundle enables connection to M-Bus devices like meters.
