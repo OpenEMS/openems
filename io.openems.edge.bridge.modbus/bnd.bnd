@@ -16,7 +16,7 @@ Export-Package: \
 	io.openems.edge.common;version=latest,\
 	com.google.gson,\
 	com.google.guava,\
-	com.ghgande.j2mod;version=2.5.2,\
+	com.ghgande.j2mod;version=2.5.5,\
 	slf4j.api
 
 -testpath: ${testpath}
