@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -17,6 +18,7 @@ import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
@@ -36,10 +38,10 @@ public class SingleRack {
 	private static final String KEY_CHARGE_INDICATION = "CHARGE_INDICATION";
 	private static final String KEY_SOC = "SOC";
 	private static final String KEY_SOH = "SOH";
-	private static final String KEY_MAX_CELL_VOLTAGE_ID = "MAX_CELL_VOLTAGE_ID";
-	private static final String KEY_MAX_CELL_VOLTAGE = "MAX_CELL_VOLTAGE";
-	private static final String KEY_MIN_CELL_VOLTAGE_ID = "MIN_CELL_VOLTAGE_ID";
-	private static final String KEY_MIN_CELL_VOLTAGE = "MIN_CELL_VOLTAGE";
+	public static final String KEY_MAX_CELL_VOLTAGE_ID = "MAX_CELL_VOLTAGE_ID";
+	public static final String KEY_MAX_CELL_VOLTAGE = "MAX_CELL_VOLTAGE";
+	public static final String KEY_MIN_CELL_VOLTAGE_ID = "MIN_CELL_VOLTAGE_ID";
+	public static final String KEY_MIN_CELL_VOLTAGE = "MIN_CELL_VOLTAGE";
 	private static final String KEY_MAX_CELL_TEMPERATURE_ID = "MAX_CELL_TEMPERATURE_ID";
 	private static final String KEY_MAX_CELL_TEMPERATURE = "MAX_CELL_TEMPERATURE";
 	private static final String KEY_MIN_CELL_TEMPERATURE_ID = "MIN_CELL_TEMPERATURE_ID";
@@ -84,6 +86,8 @@ public class SingleRack {
 	private static final String KEY_FAILURE_LTC6803 = "FAILURE_LTC6803";
 	private static final String KEY_FAILURE_CONNECTOR_WIRE = "FAILURE_CONNECTOR_WIRE";
 	private static final String KEY_FAILURE_SAMPLING_WIRE = "FAILURE_SAMPLING_WIRE";
+	public static final String KEY_RESET = "RESET";
+	public static final String KEY_SLEEP = "SLEEP";
 
 	private static final String VOLTAGE = "VOLTAGE";
 	private static final String BATTERY = "BATTERY";
@@ -117,6 +121,10 @@ public class SingleRack {
 		return channelMap.values();
 	}
 
+	public Channel<?> getChannel(String key) {
+		return channelMap.get(key);
+	}
+	
 	public int getSoC() {
 		@SuppressWarnings("unchecked")
 		Optional<Integer> socOpt = (Optional<Integer>) this.channelMap.get(KEY_SOC).value().asOptional();
@@ -214,6 +222,9 @@ public class SingleRack {
 		channels.put(KEY_FAILURE_LTC6803, parent.addChannel(channelIds.get(KEY_FAILURE_LTC6803)));
 		channels.put(KEY_FAILURE_CONNECTOR_WIRE, parent.addChannel(channelIds.get(KEY_FAILURE_CONNECTOR_WIRE)));
 		channels.put(KEY_FAILURE_SAMPLING_WIRE, parent.addChannel(channelIds.get(KEY_FAILURE_SAMPLING_WIRE)));
+		
+		channels.put(KEY_RESET, parent.addChannel(channelIds.get(KEY_RESET)));
+		channels.put(KEY_SLEEP, parent.addChannel(channelIds.get(KEY_SLEEP)));
 
 		// Cell voltages
 		for (int i = 0; i < this.numberOfSlaves; i++) {
@@ -350,6 +361,9 @@ public class SingleRack {
 		this.addEntry(map, KEY_FAILURE_LTC6803, Doc.of(Level.FAULT).text("LTC6803 fault")); // Bit 2
 		this.addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, Doc.of(Level.FAULT).text("connector wire fault")); // Bit 1
 		this.addEntry(map, KEY_FAILURE_SAMPLING_WIRE, Doc.of(Level.FAULT).text("sampling wire fault")); // Bit 0
+		
+		this.addEntry(map, KEY_SLEEP, Doc.of(OpenemsType.INTEGER)); 
+		this.addEntry(map, KEY_RESET, Doc.of(OpenemsType.INTEGER)); 
 
 		// Cell voltages formatted like: "RACK_1_BATTERY_000_VOLTAGE"
 		for (int i = 0; i < this.numberOfSlaves; i++) {
@@ -446,6 +460,14 @@ public class SingleRack {
 						.bit(12, channelIds.get(KEY_FAILURE_INITIALIZATION))//
 				) //
 		));
+		
+		//Reset and sleep
+		tasks.add(new FC6WriteRegisterTask(this.addressOffset + 0x0004, //
+				parent.map(channelIds.get(KEY_RESET), getUWE(0x0004)
+		)));
+		tasks.add(new FC6WriteRegisterTask(this.addressOffset + 0x001D, //
+				parent.map(channelIds.get(KEY_SLEEP), getUWE(0x001D)
+		)));
 
 		int MAX_ELEMENTS_PER_TASK = 100;
 

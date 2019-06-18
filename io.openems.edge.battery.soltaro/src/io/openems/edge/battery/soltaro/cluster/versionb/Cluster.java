@@ -26,6 +26,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
 import io.openems.edge.battery.soltaro.ModuleParameters;
+import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.ContactorControl;
 import io.openems.edge.battery.soltaro.cluster.versionb.Enums.RackUsage;
@@ -44,6 +45,7 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -70,7 +72,10 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private static final int ADDRESS_OFFSET_RACK_4 = 0x5000;
 	private static final int ADDRESS_OFFSET_RACK_5 = 0x6000;
 	private static final int OFFSET_CONTACTOR_CONTROL = 0x10;
-	
+
+	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
+	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
+
 	// Helper that holds general information about single racks, independent if they
 	// are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
@@ -92,6 +97,12 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	// this timestamp is used to wait a certain time if system state could no be
 	// determined at once
 	private LocalDateTime pendingTimestamp;
+
+	private Map<Integer, Double> lastMinCellVoltages = new HashMap<>();
+	private Map<Integer, Double> lastMaxCellVoltages = new HashMap<>();
+	
+	private ResetState resetState = ResetState.NONE;
+
 
 	public Cluster() {
 		super(//
@@ -213,6 +224,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 					readyForWorking = true;
 					this.setStateMachineState(State.RUNNING);
 				}
+			} else if (this.isCellVoltagesDrift()) {
+				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);
 			} else {
 				this.setStateMachineState(State.UNDEFINED);
 			}
@@ -260,11 +273,31 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
-			this.stopSystem();
-			this.setStateMachineState(State.OFF);
+			this.handleCellDrift(); 
 			break;
 		}
 		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+	
+	private void handleCellDrift() {
+		// To reset the cell drift phenomenon, first sleep and then reset the system 		
+		switch(this.resetState) {
+		case NONE:
+			this.resetState = ResetState.SLEEP;
+			break;
+		case SLEEP:
+			this.sleepSystem();
+			this.resetState = ResetState.RESET;
+			break;
+		case RESET:
+			this.resetSystem();
+			this.resetState = ResetState.FINISHED;
+			break;
+		case FINISHED:
+			this.resetState = ResetState.NONE;
+			this.setStateMachineState(State.UNDEFINED);
+			break;
+		}
 	}
 
 	private boolean isError() {
@@ -336,11 +369,121 @@ public class Cluster extends AbstractOpenemsModbusComponent
 		return b && !isSystemRunning() && !isSystemStopped();
 	}
 
+	/*
+	 * This function tries to find out if cell voltages has been drifted away see
+	 * \doc\cell_drift.png If this phenomenon has happened, a system reset is
+	 * necessary
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean isCellVoltagesDrift() {
+		boolean hasDrifted = false;
+
+		for (SingleRack r : this.racks.values()) {
+
+			Optional<Integer> maxCellVoltageOpt = (Optional<Integer>) r.getChannel(SingleRack.KEY_MAX_CELL_VOLTAGE)
+					.getNextValue().asOptional();
+			Optional<Integer> minCellVoltageOpt = (Optional<Integer>) r.getChannel(SingleRack.KEY_MIN_CELL_VOLTAGE)
+					.getNextValue().asOptional();
+
+			if (!maxCellVoltageOpt.isPresent() || !minCellVoltageOpt.isPresent()) {
+				continue; // no new values, comparison not possible
+			}
+
+			double currentMaxCellVoltage = maxCellVoltageOpt.get();
+			double currentMinCellVoltage = minCellVoltageOpt.get();
+
+
+			if (!lastMaxCellVoltages.containsKey(r.getRackNumber())) {
+				lastMaxCellVoltages.put(r.getRackNumber(), Double.MIN_VALUE);
+			}
+
+			if (!lastMinCellVoltages.containsKey(r.getRackNumber())) {
+				lastMinCellVoltages.put(r.getRackNumber(), Double.MIN_VALUE);
+			}
+
+			double lastMaxCellVoltage = lastMaxCellVoltages.get(r.getRackNumber());
+			double lastMinCellVoltage = lastMinCellVoltages.get(r.getRackNumber());
+
+			if (lastMaxCellVoltage == Double.MIN_VALUE || lastMinCellVoltage == Double.MIN_VALUE) {
+				// Not all values has been set yet, check is not possible
+				lastMaxCellVoltage = currentMaxCellVoltage;
+				lastMinCellVoltage = currentMinCellVoltage;
+
+				lastMaxCellVoltages.put(r.getRackNumber(), lastMaxCellVoltage);
+				lastMinCellVoltages.put(r.getRackNumber(), lastMinCellVoltage);
+
+				continue;
+			}
+			double deltaMax = lastMaxCellVoltage - currentMaxCellVoltage;
+			double deltaMin = lastMinCellVoltage - currentMinCellVoltage;
+			double deltaMinMax = currentMaxCellVoltage - currentMinCellVoltage;
+
+			// Store current values to map
+			lastMaxCellVoltages.put(r.getRackNumber(), currentMaxCellVoltage);
+			lastMinCellVoltages.put(r.getRackNumber(), currentMinCellVoltage);
+
+			if (deltaMax < 0 && deltaMin > 0) { // max cell rises, min cell falls
+				// at least one of them changes faster than typically
+				if (deltaMinMax > MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT && //
+						(Math.abs(deltaMax) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT
+								|| Math.abs(deltaMin) > MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT)) {
+
+					// If cells are neighbours then there is a drift error
+					Optional<Integer> minCellVoltageIdOpt = (Optional<Integer>) r
+							.getChannel(SingleRack.KEY_MIN_CELL_VOLTAGE_ID).getNextValue().asOptional();
+					Optional<Integer> maxCellVoltageIdOpt = (Optional<Integer>) r
+							.getChannel(SingleRack.KEY_MAX_CELL_VOLTAGE_ID).getNextValue().asOptional();
+
+					if (!minCellVoltageIdOpt.isPresent() || !maxCellVoltageIdOpt.isPresent()) {
+						hasDrifted = hasDrifted || false;
+					}
+
+					int minCellVoltageId = minCellVoltageIdOpt.get();
+					int maxCellVoltageId = maxCellVoltageIdOpt.get();
+
+					if (Math.abs(minCellVoltageId - maxCellVoltageId) == 1) {
+						hasDrifted = true;
+					}
+
+				}
+
+			}
+		}
+
+		return hasDrifted;
+	}
+
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value() //
 				+ "|Discharge:" + this.getDischargeMinVoltage().value() + ";" + this.getDischargeMaxCurrent().value() //
 				+ "|Charge:" + this.getChargeMaxVoltage().value() + ";" + this.getChargeMaxCurrent().value();
+	}
+
+	private void sleepSystem() {
+		// Write sleep and reset to all racks
+		for (SingleRack rack : this.racks.values()) {
+			IntegerWriteChannel sleepChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_SLEEP);			
+			try {
+				sleepChannel.setNextWriteValue(0x1);
+			} catch (OpenemsNamedException e) {
+				log.error("Error while trying to sleep the system!");
+			}
+			this.setStateMachineState(State.UNDEFINED);
+		}
+	}
+	
+	private void resetSystem() {
+		// Write sleep and reset to all racks
+		for (SingleRack rack : this.racks.values()) {
+			IntegerWriteChannel resetChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_RESET);
+			try {
+				resetChannel.setNextWriteValue(0x1);
+			} catch (OpenemsNamedException e) {
+				log.error("Error while trying to reset the system!");
+			}
+			this.setStateMachineState(State.UNDEFINED);
+		}
 	}
 
 	private void startSystem() {

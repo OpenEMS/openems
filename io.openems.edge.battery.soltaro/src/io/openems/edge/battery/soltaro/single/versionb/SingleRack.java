@@ -30,6 +30,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
+import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
@@ -100,8 +101,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private int DELAY_AUTO_ID_SECONDS = 5;
 	private int DELAY_AFTER_CONFIGURING_FINISHED = 5;
 
+	// Remind last min and max cell voltages to register a cell drift
 	private double lastMinCellVoltage = Double.MIN_VALUE;
 	private double lastMaxCellVoltage = Double.MIN_VALUE;
+	private ResetState resetState = ResetState.NONE;
 	
 	private LocalDateTime pendingTimestamp;
 
@@ -254,20 +257,52 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
-			// Reset the system
-			IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
-			IntegerWriteChannel sleepChannel = this.channel(SingleRackChannelId.SLEEP);
-			try {
-				resetChannel.setNextWriteValue(SYSTEM_RESET);				
-				sleepChannel.setNextWriteValue(0x1);
-			} catch (OpenemsNamedException e) {
-				System.out.println("Error while trying to sleep / reset the system!");
-			}
-			this.setStateMachineState(State.UNDEFINED);				
-			break;
+			this.handleCellDrift();
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+
+	private void handleCellDrift() {
+		// To reset the cell drift phenomenon, first sleep and then reset the system 		
+		switch(this.resetState) {
+		case NONE:
+			this.resetState = ResetState.SLEEP;
+			break;
+		case SLEEP:
+			this.sleepSystem();
+			this.resetState = ResetState.RESET;
+			break;
+		case RESET:
+			this.resetSystem();
+			this.resetState = ResetState.FINISHED;
+			break;
+		case FINISHED:
+			this.resetState = ResetState.NONE;
+			this.setStateMachineState(State.UNDEFINED);
+			break;
+		}
+	}
+
+	private void resetSystem() {
+
+		IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
+		try {
+			resetChannel.setNextWriteValue(SYSTEM_RESET);				
+		} catch (OpenemsNamedException e) {
+			System.out.println("Error while trying to reset the system!");
+		}
+	}
+
+	private void sleepSystem() {
+
+		IntegerWriteChannel sleepChannel = this.channel(SingleRackChannelId.SLEEP);
+		try {
+			sleepChannel.setNextWriteValue(0x1);
+		} catch (OpenemsNamedException e) {
+			System.out.println("Error while trying to sleep the system!");
+		}
+		
 	}
 
 	/*
