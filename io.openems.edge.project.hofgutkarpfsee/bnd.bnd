@@ -5,7 +5,9 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.controller.api
 	
-Private-Package: io.openems.edge.project.hofgutkarpfsee
+Private-Package: \
+	io.openems.edge.project.hofgutkarpfsee
+	
 -includeresource: {readme.adoc}
 
 -buildpath: \
@@ -19,8 +21,8 @@ Private-Package: io.openems.edge.project.hofgutkarpfsee
 	com.google.gson,\
 	io.openems.edge.io.api;version=latest,\
 	io.openems.edge.ess.fenecon.commercial40;version=latest,\
-	io.openems.edge.bridge.modbus;version=latest
+	io.openems.edge.bridge.modbus;version=latest,\
+	osgi.enroute.base.api;version=2.1
 
 -testpath: ${testpath}
 
--sub: *.bnd
