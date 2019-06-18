@@ -1,68 +1,64 @@
 <ion-grid>
   <ion-row>
 
-    <!-- TODO: move date selection to modal view -->
     <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
-      <ion-card>
-        <ion-grid>
-          <ion-row>
-            <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="activePeriod === 'today'" (click)="setPeriod('today')">
-                <span translate>Edge.History.Today</span>
-              </ion-button>
-            </ion-col>
-            <ion-col size="12" size-sm="6">
-              <ion-button expand="block" [class.activated]="activePeriod === 'yesterday'"
-                (click)="setPeriod('yesterday')">
-                <span translate>Edge.History.Yesterday</span>
-              </ion-button>
-            </ion-col>
-            <ion-col size="12" *ngIf="activePeriod !== 'otherPeriod'">
-              <ion-button expand="block" [class.activated]="activePeriod === 'otherPeriod'"
-                (click)="clickOtherPeriod()"><span translate>Edge.History.OtherPeriod</span></ion-button>
-            </ion-col>
-            <ion-col size="12" *ngIf="activePeriod === 'otherPeriod'" style="text-align:center">
-              <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange"
-                (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-card>
-      <ion-col size="12">
-        <kwh [fromDate]="fromDate" [toDate]="toDate"></kwh>
-      </ion-col>
+      <kwh [period]="service.historyPeriod"></kwh>
     </ion-col>
 
     <ion-col size="12" size-md="9" size-lg="10" size-xl="9">
       <ion-card>
-        <ion-item>
+        <ion-item color="light" lines="full">
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label>
-            <ion-card-title text-wrap><span translate>Edge.History.SelectedPeriod</span> {{ activePeriodText }}
-            </ion-card-title>
-          </ion-label>
+          <ion-label text-wrap><span translate>Edge.History.SelectedPeriod</span>
+            {{ service.historyPeriod.text }}</ion-label>
         </ion-item>
 
         <ion-card-content>
           <ion-grid no-padding>
-
             <ion-row [style.height]="socChartHeight">
               <ion-col size="12">
-                <soc [fromDate]="fromDate" [toDate]="toDate"></soc>
+                <soc [period]="service.historyPeriod"></soc>
               </ion-col>
             </ion-row>
             <ion-row [style.height]="energyChartHeight">
               <ion-col size="12">
-                <energy [fromDate]="fromDate" [toDate]="toDate"></energy>
+                <energy [period]="service.historyPeriod"></energy>
               </ion-col>
             </ion-row>
 
-            <widget [fromDate]="fromDate" [toDate]="toDate"></widget>
+            <ng-container *ngFor="let name of widgetNames" [ngSwitch]="name">
+
+              <ion-row *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px">
+                <ion-col size="12">
+                  <evcs [period]="service.historyPeriod"></evcs>
+                </ion-col>
+              </ion-row>
+
+              <ion-row *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
+                style.height="150px">
+                <ion-col size="12">
+                  <channelthreshold [period]="service.historyPeriod"></channelthreshold>
+                </ion-col>
+              </ion-row>
+
+              <ion-row *ngSwitchCase="'Controller.ChannelThreshold'" style.height="150px">
+                <ion-col size="12">
+                  <channelthreshold [period]="service.historyPeriod"></channelthreshold>
+                </ion-col>
+              </ion-row>
+
+            </ng-container>
           </ion-grid>
 
         </ion-card-content>
       </ion-card>
     </ion-col>
-
   </ion-row>
+
+  <ion-row *ngIf="edge && edge.isVersionAtLeast('2018.8')">
+    <ion-row size="3">
+      <export></export>
+    </ion-row>
+  </ion-row>
+
 </ion-grid>

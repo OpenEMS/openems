@@ -2,9 +2,9 @@ Bundle-Name: opczip
 Bundle-Description: Open Package Container ZIP64 streaming implementation
 Bundle-DocURL: https://github.com/rzymek/opczip
 Bundle-License: https://opensource.org/licenses/Apache-2.0
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.2
 
-Include-Resource: @opczip-1.0.0.jar
+Include-Resource: @opczip-1.0.2.jar
 
 -dsannotations: *
 

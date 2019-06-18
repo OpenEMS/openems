@@ -10,6 +10,6 @@
 	com.squareup.okhttp3:logging-interceptor;version=3.13.1,\
 	com.squareup.retrofit2:converter-moshi;version=2.5.0,\
 	com.squareup.retrofit2:retrofit;version=2.5.0,\
-	org.dhatim:fastexcel;version=0.10,\
-	com.github.rzymek:opczip;version=1.0
+	org.dhatim:fastexcel;version=0.10.8,\
+	com.github.rzymek:opczip;version=1.0.2
 	
