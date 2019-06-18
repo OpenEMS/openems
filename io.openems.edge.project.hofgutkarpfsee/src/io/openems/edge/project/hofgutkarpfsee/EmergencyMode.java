@@ -41,29 +41,30 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	private ChannelAddress inputChannelAddress;
 	private int threshold = 0;
 	private int hysteresis = 0;
-	private Clock clock;
-	private static final int WAIT_FOR_SYSTEM_RESTART = 5;
+//	private Clock clock;
+//	private static final int WAIT_FOR_SYSTEM_RESTART = 10;
 
 	@Reference
 	protected ComponentManager componentManager;
 
-	private LocalDateTime lastSwitchOffgridPv = LocalDateTime.MIN;
+//	private LocalDateTime lastSwitchOffgridPv = LocalDateTime.MIN;
 	private final Logger log = LoggerFactory.getLogger(EmergencyMode.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public EmergencyMode() {
-		this(Clock.systemDefaultZone());
-	}
+//	public EmergencyMode() {
+//		this(Clock.systemDefaultZone());
+//	}
 
-	protected EmergencyMode(Clock clock) {
+	// Clock clock
+	public EmergencyMode() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ThisChannelId.values() //
 		);
-		this.clock = clock;
+//		this.clock = clock;
 	}
 
 	@Activate
@@ -75,7 +76,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		this.msrHeatingSystemController = ChannelAddress.fromString(config.msrHeatingSystemController());
 		this.blockHeatPowerPlantPermissionSignal = ChannelAddress
 				.fromString(config.blockHeatPowerPlantPermissionSignal());
-		this.threshold = config.highThreshold();
+		this.threshold = config.threshold();
 		this.hysteresis = config.hysteresis();
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 	}
@@ -115,7 +116,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	@Override
 	public void run() throws OpenemsNamedException {
 		EssFeneconCommercial40Impl ess = this.componentManager.getComponent(this.config.ess_id());
-
 		switch (this.getGridMode()) {
 		/*
 		 * Grid-Mode is undefined -> wait till we have some clear information
@@ -125,7 +125,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			break;
 
 		/*
-		 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Run
+		 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Let it Run
 		 * Off-Grid Process
 		 */
 		case OFF_GRID:
@@ -134,23 +134,24 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}
 
-			if (this.lastSwitchOffgridPv.isAfter(LocalDateTime.now(this.clock).minusSeconds(WAIT_FOR_SYSTEM_RESTART))) {
-				return;
-			}
-			lastSwitchOffgridPv = LocalDateTime.now(this.clock);
-//			SystemState systemState = ess.channel(EssFeneconCommercial40Impl.ChannelId.SYSTEM_STATE).value().asEnum();
-//			if (systemState != SystemState.START) {
-//				break;
+//			if (this.lastSwitchOffgridPv.isAfter(LocalDateTime.now(this.clock).minusSeconds(WAIT_FOR_SYSTEM_RESTART))) {
+//				return;
 //			}
+//			lastSwitchOffgridPv = LocalDateTime.now(this.clock);
+			// TODO
+			SystemState systemState = ess.channel(EssFeneconCommercial40Impl.ChannelId.SYSTEM_STATE).value().asEnum();
+			if (systemState != SystemState.START) {
+				break;
+			}
 			this.handleOffGridState(ess);
 			break;
 
 		case ON_GRID:
-			this.previousGridState = GridMode.ON_GRID;
 			/*
 			 * On-Grid Mode -> Activate only On grid Mode and let BHKW runs
 			 */
 			this.handleOnGridState();
+			this.previousGridState = GridMode.ON_GRID;
 			break;
 		}
 	}
@@ -159,14 +160,14 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		if (isBlockHeatPowerPlantStopped()) {
 			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 		}
-		if (isMsrHeatingSystemControllerOff()) {
+		if (isMsrHeatingSystemControllerOn()) {
 			this.setOutput(this.msrHeatingSystemController, Operation.OFF);
 		}
 
-		if (!isOnGridIndicationControllerOff()) {
+		if (!isOnGridIndicationControllerOn()) {
 			this.setOutput(this.onGridIndicationController, Operation.ON);
 		}
-		if (isOffGridIndicationControllerOff()) {
+		if (isOffGridIndicationControllerOn()) {
 			this.setOutput(this.offGridIndicationController, Operation.OFF);
 		}
 	}
@@ -262,40 +263,36 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			break;
 		}
-		if (this.isOnGridIndicationControllerOff()) {
+		if (this.isOnGridIndicationControllerOn()) {
 			this.setOutput(this.onGridIndicationController, Operation.OFF);
 		}
-		if (!this.isMsrHeatingSystemControllerOff()) {
+		if (!this.isMsrHeatingSystemControllerOn()) {
 			this.setOutput(this.msrHeatingSystemController, Operation.ON);
 		}
-		if (!this.isOffGridIndicationControllerOff()) {
+		if (!this.isOffGridIndicationControllerOn()) {
 			this.setOutput(this.offGridIndicationController, Operation.ON);
 		}
 
 	}
 
-	/* Off == Set_Zero */
-	private boolean isOnGridIndicationControllerOff() throws IllegalArgumentException, OpenemsNamedException {
+	private boolean isOnGridIndicationControllerOn() throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel onGridIndicationController = this.componentManager
 				.getChannel(this.onGridIndicationController);
 		return onGridIndicationController.value().orElse(false);
 	}
 
-	/* Off == Set_Zero */
-	private boolean isOffGridIndicationControllerOff() throws IllegalArgumentException, OpenemsNamedException {
+	private boolean isOffGridIndicationControllerOn() throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel offGridIndicationController = this.componentManager
 				.getChannel(this.offGridIndicationController);
 		return offGridIndicationController.value().orElse(false);
 	}
 
-	/* Off == Set_Zero */
-	private boolean isMsrHeatingSystemControllerOff() throws IllegalArgumentException, OpenemsNamedException {
+	private boolean isMsrHeatingSystemControllerOn() throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel msrHeatingSystemController = this.componentManager
 				.getChannel(this.msrHeatingSystemController);
 		return msrHeatingSystemController.value().orElse(false);
 	}
 
-	/* Stopped == Set_One */
 	private boolean isBlockHeatPowerPlantStopped() throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel blockHeatPowerPlantPermissionSignal = this.componentManager
 				.getChannel(this.blockHeatPowerPlantPermissionSignal);

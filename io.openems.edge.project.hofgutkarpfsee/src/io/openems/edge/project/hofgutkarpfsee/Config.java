@@ -43,7 +43,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String inputChannelAddress();
 
 	@AttributeDefinition(name = "High threshold", description = "High boundary of the threshold")
-	int highThreshold();
+	int threshold();
 
 	@AttributeDefinition(name = "Hysteresis", description = "The hysteresis is applied to low and high threshold to avoid continuous switching")
 	int hysteresis();
