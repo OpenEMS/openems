@@ -125,12 +125,12 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			break;
 
 		/*
-		 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Let it Run
-		 * Off-Grid Process
+		 * Off-Grid Mode -> wait till BHKW stop and System Restart. After that; Let it
+		 * Run Off-Grid Process
 		 */
 		case OFF_GRID:
 			this.previousGridState = GridMode.OFF_GRID;
-			if (!isBlockHeatPowerPlantStopped() && (this.previousGridState == GridMode.ON_GRID)) {
+			if (!isBlockHeatPowerPlantStopped() && (this.previousGridState != GridMode.OFF_GRID)) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}
 
@@ -215,9 +215,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
 				break;
 			}
-			/*
-			 * Check HIGH threshold
-			 */
 			if (applyHighHysteresis) {
 				if (value >= this.threshold + hysteresis) {
 					// pass high with hysteresis
@@ -232,7 +229,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				}
 			}
 
-			// Default: not switching the State -> always OFF
 			if (isBlockHeatPowerPlantStopped()) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 			}
@@ -244,9 +240,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			break;
 
 		case PASS_HIGH_COMING_FROM_ABOVE:
-			/*
-			 * Value just passed the high threshold coming from above -> turn ON
-			 */
 			if (!isBlockHeatPowerPlantStopped()) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}

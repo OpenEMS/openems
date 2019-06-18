@@ -33,26 +33,114 @@ Alias Human-readable name of this Component; defaults to Component-ID (alias)
 
 ==  Needs A Headline
 
-Controller will be in process based on Grid Mode of the inverter and under the consideration of state of charge. 
+Controller will be in process based on "Grid Mode" of the inverter and under the consideration of "state of charge". 
 
-* **Grid Mode variations** ; On-Grid, Off-Grid, Undefined
+* **Grid Mode variations** ; 
+
+	*`Undefined`: Grid-Mode is undefined -> Needs to wait till gets clear information.
+
+	* `On-Grid`: Grid-Mode is On-Grid ->
+	
+		To Do: 	Keep Block Heat Power Plant ( BHKW )	=> RUN.
+				MSR Heating System Controller 			=> OFF.
+				On Grid Indication Controller 			=> ON.
+				Off Grid Indication Controller			=> OFF.
+	
+	* `Off-Grid`: Grid-Mode is Off-Grid ->
+
+		To Do: 	As soon as the system switches to Off-grid mode, BHKW must be stopped and waited until the system restarts. 
+				Once the system has entered the START mode: It should assess the Soc level and decide which state it is in, and also whether or not hysteresis is to be administered.
+
 
 * **States according to Soc level** ; 
 
-	* `UNDEFINED`; Unknown state on first start.
+	* `UNDEFINED`: Unknown state on first start.
 
-    Conditions;
+      To Do: if (value > this.threshold) {
+				this.state = State.ABOVE_HIGH;
+				break;
+			}
 
-    * `PASS_HIGH_COMING_FROM_BELOW`; Value just passed the high threshold. Last value was lower. Soc inside of the Boundary. And, this could only happen while system is "charging".
+			// evaluate if hysteresis is necessary
+			if (value < this.threshold - hysteresis) {
+				this.applyHighHysteresis = false; // do not apply high hysteresis anymore
+			}
 
-		To Do: Keep BHKW runs. 
+			if (value >= this.threshold) {
+				this.applyHighHysteresis = false;
+			}
+			if (this.previousState == State.PASS_HIGH_COMING_FROM_ABOVE && applyHighHysteresis) {
+				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
+				break;
+			}
+			if (this.getChargeState(ess) == ChargeState.DISCHARGE && applyHighHysteresis) {
+				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
+				break;
+			}
+			if (applyHighHysteresis) {
+				if (value >= this.threshold + hysteresis) {
+					// pass high with hysteresis
+					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
+					break;
+				}
+			} else {
+				if (value >= this.threshold) {
+					// pass high, not applying hysteresis
+					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
+					break;
+				}
+			}
 
-	* `PASS_HIGH_COMING_FROM_ABOVE` ; Value is bigger than the high threshold. Inside of the boundary. And, this could only happen while system is "discharging".
+			if (isBlockHeatPowerPlantStopped()) {
+				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
+			}
+			break;
 
-		To Do: Keep BHKW 
+		case PASS_HIGH_COMING_FROM_BELOW:
+			this.state = State.ABOVE_HIGH;
+			this.previousState = State.PASS_HIGH_COMING_FROM_BELOW;
+			break;
 
-	* `ABOVE_HIGH`;  Value is bigger than the high threshold.
-    * `` 
+		case PASS_HIGH_COMING_FROM_ABOVE:
+			if (!isBlockHeatPowerPlantStopped()) {
+				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
+			}
+			this.applyHighHysteresis = true;
+			this.state = State.UNDEFINED;
+			this.previousState = State.PASS_HIGH_COMING_FROM_ABOVE;
+			break;
+
+		case ABOVE_HIGH:
+			if (value <= this.threshold) {
+				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
+			}
+			this.previousState = State.ABOVE_HIGH;
+			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
+			break;
+		}
+		if (this.isOnGridIndicationControllerOn()) {
+			this.setOutput(this.onGridIndicationController, Operation.OFF);
+		}
+		if (!this.isMsrHeatingSystemControllerOn()) {
+			this.setOutput(this.msrHeatingSystemController, Operation.ON);
+		}
+		if (!this.isOffGridIndicationControllerOn()) {
+			this.setOutput(this.offGridIndicationController, Operation.ON);
+		}
+
+    * `PASS_THRESHOLD_COMING_FROM_BELOW`: Value just passed the  threshold. Last value was lower. Soc inside of the Boundary. And, this could only happen while system is "charging".
+
+		To Do:	 Allow BHKW to run until Soc reach the threshold level. 
+				 Stop BHKW when Soc get to Threshold.
+
+	* `PASS_THRESHOLD_COMING_FROM_ABOVE`: Value is bigger than the threshold. Inside of the boundary. And, this could only happen while system is "discharging".
+
+		To Do:  Stop BHKW till Soc reach lowest boundary level.
+				Let it Run BHKW when Soc get out of boundary.
+
+	* `ABOVE_THRESHOLD`:  Value is bigger than the threshold.
+
+		To Do:  Stop BHKW.  
 
 
 
