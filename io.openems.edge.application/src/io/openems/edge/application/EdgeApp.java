@@ -16,6 +16,7 @@ import com.google.common.base.Strings;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.OpenemsConstants;
+import io.openems.edge.common.component.ComponentManager;
 
 @Component(immediate = true)
 public class EdgeApp {
@@ -49,9 +50,12 @@ public class EdgeApp {
 			log4j.put("log4j.logger.io.openems.edge.ess.streetscooter", "DEBUG");
 			log4j.put("log4j.logger.io.openems.edge.ess.power", "INFO");
 			config.update(log4j);
+			
 		} catch (IOException | SecurityException e) {
 			e.printStackTrace();
 		}
+		
+		PreConfig.initConfig(cm);
 
 		// Announce Operating System that OpenEMS Edge started
 		if(SDNotify.isAvailable()) {

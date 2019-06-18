@@ -1,0 +1,191 @@
+package io.openems.edge.application;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.List;
+
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
+
+public class PreConfig {
+
+	private final Logger log = LoggerFactory.getLogger(PreConfig.class);
+
+	protected static void initConfig(ConfigurationAdmin cm) {
+
+		Configuration factory;
+
+		Configuration[] configs;
+		try {
+			configs = cm.listConfigurations("(id=scheduler0)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Scheduler.AllAlphabetically", null);
+
+				Hashtable<String, Object> scheduler = new Hashtable<>();
+				scheduler.put("enabled", true);
+				scheduler.put("cycleTime", 1000);
+				scheduler.put("id", "scheduler0");
+				scheduler.put("alias", "");
+				String[] ids = { "" };
+				scheduler.put("controllers.ids", ids);
+				factory.update(scheduler);
+			} else {
+				System.out.println("Scheduler already active");
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			configs = cm.listConfigurations("(id=influx0)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Timedata.InfluxDB", null);
+
+				Hashtable<String, Object> influx = new Hashtable<>();
+				influx.put("enabled", true);
+				influx.put("dataset", "db");
+				influx.put("id", "influx0");
+				influx.put("alias", "");
+				influx.put("ip", "localhost");
+				influx.put("isReadOnly", false);
+				influx.put("port", 8086);
+				influx.put("retentionPolicy", "autogen");
+				influx.put("username", "root");
+				factory.update(influx);
+			} else {
+				System.out.println("Scheduler already active");
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			configs = cm.listConfigurations("(service.pid=Core.User)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.getConfiguration("Core.User", null);
+				Hashtable<String, Object> coreuser = new Hashtable<>();
+				factory.update(coreuser);
+			}
+
+		} catch (IOException | InvalidSyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		try {
+			configs = cm.listConfigurations("(id=ctrlApiWebsocket0)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Controller.Api.Websocket", null);
+
+				Hashtable<String, Object> websocket = new Hashtable<>();
+				websocket.put("enabled", true);
+				websocket.put("apiTimeout", 60);
+				websocket.put("id", "ctrlApiWebsocket0");
+				websocket.put("alias", "");
+				websocket.put("port", 8085);
+				factory.update(websocket);
+			} else {
+				System.out.println("Scheduler already active");
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			configs = cm.listConfigurations("(id=ctrlDebugLog0)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Controller.Debug.Log", null);
+				Hashtable<String, Object> debug = new Hashtable<>();
+				debug.put("enabled", true);
+				debug.put("alias", "");
+				debug.put("id", "ctrlDebugLog0");
+				factory.update(debug);
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			configs = cm.listConfigurations("(&(id=kacoCore0)(service.factoryPid=Kaco.BlueplanetHybrid10.Core))");
+
+			if (configs == null || configs.length == 0) {
+
+				// Create Kaco Core
+				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Core", null);
+
+				Hashtable<String, Object> core = new Hashtable<>();
+				core.put("enabled", true);
+				core.put("serialnumber", "");
+				core.put("id", "kacoCore0");
+				core.put("alias", "");
+				core.put("userkey", "user");
+				factory.update(core);
+
+				// Create ESS
+				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Ess", null);
+
+				Hashtable<String, Object> ess = new Hashtable<>();
+				ess.put("activateSurplusFeedIn", true);
+				ess.put("alias", "");
+				ess.put("core.id", "kacoCore0");
+				ess.put("enabled", true);
+				ess.put("id", "ess0");
+				ess.put("maxP", 3000);
+				ess.put("readOnly", true);
+				ess.put("selfRegulationDeactivated", false);
+
+				factory.update(ess);
+
+				// Create GridMeter
+				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.GridMeter", null);
+
+				Hashtable<String, Object> grid = new Hashtable<>();
+				grid.put("enabled", true);
+				grid.put("core.id", "kacoCore0");
+				grid.put("id", "meter0");
+				grid.put("alias", "");
+				factory.update(grid);
+
+				// Create PVMeter
+				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.PVMeter", null);
+
+				Hashtable<String, Object> pv = new Hashtable<>();
+				pv.put("enabled", true);
+				pv.put("core.id", "kacoCore0");
+				pv.put("id", "pv0");
+				pv.put("alias", "");
+				factory.update(pv);
+
+			} else {
+				System.out.println("Kaco already active");
+			}
+
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void initConfig(ComponentManager compm) {
+		List<OpenemsComponent> components = compm.getComponents();
+		System.out.println(components.toArray().toString());
+
+	}
+
+}
