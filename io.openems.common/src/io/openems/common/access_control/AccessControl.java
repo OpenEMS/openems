@@ -1,21 +1,24 @@
 package io.openems.common.access_control;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import javafx.util.Pair;
 
 import java.util.*;
 
 public interface AccessControl {
 
     /**
-     * Logs in the user depending on the given username and password and returns the roleId
+     * Logs in the user depending on the given username and password and returns the roleId. Also it is
+     * creating a new session for the given role id. The access control itself stores the session information
      *
      * @param username the username
      * @param password the password
      * @return the roleId
      * @throws AuthenticationException
      */
-    RoleId login(String username, String password) throws AuthenticationException, ServiceNotAvailableException;
+    Pair<UUID, RoleId> login(String username, String password) throws AuthenticationException;
 
     /**
      * Logs in the user with the given session id and returns the roleId
@@ -27,13 +30,13 @@ public interface AccessControl {
     RoleId login(UUID sessionId) throws AuthenticationException;
 
     /**
-     * This method can be called for creating a new session for a given role id. The access control itself stores the
-     * session information
-     * @param roleId the role id
-     * @return
+     * Logs out the user and removes the corresponding session tokens
+     * @param token the role id for the role to log out
      * @throws AuthenticationException
      */
-    UUID createSession(RoleId roleId) throws AuthenticationException;
+    void logout(UUID token) throws OpenemsException;
+
+    String getUsernameForToken(UUID token);
 
     /**
      * This method checks if the given role id has the permission for the given edge to execute the given method

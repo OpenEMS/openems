@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.access_control.AccessControl;
+import io.openems.common.access_control.AuthenticationException;
+import io.openems.common.access_control.RoleId;
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -142,26 +144,18 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @param edgeId the Edge-ID
 	 * @return the WsDatas; empty list if there are none
 	 */
-	private List<WsData> getWsDatasForEdgeId(String edgeId) {
+	private List<WsData> getWsDatasForEdgeId(String edgeId) throws AuthenticationException {
 		List<WsData> result = new ArrayList<>();
 		Collection<WebSocket> connections = this.server.getConnections();
 		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
 			WebSocket websocket = iter.next();
 			WsData wsData = websocket.getAttachment();
 			// get attachment User-ID
-			Optional<String> userIdOpt = wsData.getUserId();
-			if (userIdOpt.isPresent()) {
-				String userId = userIdOpt.get();
-				// get BackendUser for User-ID
-				Optional<BackendUser> userOpt = this.metadata.getUser(userId);
-				if (userOpt.isPresent()) {
-					BackendUser user = userOpt.get();
-					Optional<Role> edgeRoleOpt = user.getEdgeRole(edgeId);
-					if (edgeRoleOpt.isPresent()) {
-						// User has access to this Edge-ID
-						result.add(wsData);
-					}
-				}
+			RoleId roleId = wsData.getRoleId();
+			// TODO test gets called from edge
+			if (!this.accessControl.getEdgeIds(roleId).isEmpty()) {
+				// User has access to this Edge-ID
+				result.add(wsData);
 			}
 		}
 		return result;

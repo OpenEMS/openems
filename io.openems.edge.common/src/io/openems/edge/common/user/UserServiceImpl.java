@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import io.openems.common.access_control.AccessControl;
-import io.openems.common.access_control.AuthenticationException;
-import io.openems.common.access_control.RoleId;
-import io.openems.common.access_control.ServiceNotAvailableException;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -66,21 +63,6 @@ public class UserServiceImpl implements UserService {
         }
         // Try authenticating with password only
         return authenticate(password);
-    }
-
-    @Override
-    public RoleId authenticate2(String password) {
-        return this.authenticate2("Kartoffelsalat3000", password);
-    }
-
-    @Override
-    public RoleId authenticate2(String username, String password) {
-        try {
-            return accessControl.login(username, password);
-        } catch (ServiceNotAvailableException | AuthenticationException e) {
-            this.log.info("Authentication did not succeed", e);
-        }
-        return null;
     }
 
     @Override

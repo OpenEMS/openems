@@ -58,21 +58,6 @@ public interface Metadata {
         }
     }
 
-    /**
-     * Gets the User for the given User-ID.
-     *
-     * @param userId the User-ID
-     * @return the User, or Empty
-     */
-    Optional<BackendUser> getUser(String userId);
-
-    /**
-     * Gets all Edges.
-     *
-     * @return collection of Edges.
-     */
-    Collection<Edge> getAllEdges();
-
 	/**
 	 * Helper method for creating a String of all active State-Channels by Level.
 	 * 

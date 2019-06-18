@@ -1,7 +1,5 @@
 package io.openems.backend.metadata.dummy;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.openems.common.access_control.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -23,9 +20,6 @@ import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.StringUtils;
@@ -110,16 +104,6 @@ public class Dummy extends AbstractOpenemsBackendComponent implements Metadata {
 	public Optional<Edge> getEdge(String edgeId) {
 		Edge edge = this.edges.get(edgeId);
 		return Optional.ofNullable(edge);
-	}
-
-	@Override
-	public Optional<BackendUser> getUser(String userId) {
-		return Optional.ofNullable(this.users.get(userId));
-	}
-
-	@Override
-	public Collection<Edge> getAllEdges() {
-		return Collections.unmodifiableCollection(this.edges.values());
 	}
 
 	public static Optional<Integer> parseNumberFromName(String name) {

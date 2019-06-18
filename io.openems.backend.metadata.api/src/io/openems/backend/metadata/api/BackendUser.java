@@ -1,13 +1,11 @@
 package io.openems.backend.metadata.api;
 
-import java.nio.channels.Channel;
-import java.util.*;
-
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.session.User;
-import io.openems.common.types.ChannelAddress;
+
+import java.util.*;
 
 /**
  * Represents a Backend-User within Metadata Service.
@@ -18,7 +16,6 @@ public class BackendUser {
     private final String name;
     private final String sessionId;
     private final NavigableMap<String, Role> edgeRoles = new TreeMap<>();
-    private final Map<String, List<ChannelAddress>> edgeChannels = new HashMap<>();
 
     public BackendUser(String id, String name) {
         this(id, name, "NO_SESSION_ID");
@@ -86,15 +83,6 @@ public class BackendUser {
         }
         return thisRole.isAtLeast(role);
     }
-
-    public List<ChannelAddress> getChannels(String edgeId) {
-        return this.edgeChannels.get(edgeId);
-    }
-
-    public void addEdgeChannel(String edgeId, List<ChannelAddress> edgeChannels) {
-        this.edgeChannels.put(edgeId, edgeChannels);
-    }
-
     /**
      * Throws an exception if the current Role is equal or more privileged than the
      * given Role.

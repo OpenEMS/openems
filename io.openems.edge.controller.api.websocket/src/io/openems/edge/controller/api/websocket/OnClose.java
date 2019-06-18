@@ -11,27 +11,22 @@ import io.openems.edge.common.user.EdgeUser;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
 
-	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final WebsocketApi parent;
+    private final Logger log = LoggerFactory.getLogger(OnClose.class);
+    private final WebsocketApi parent;
 
-	public OnClose(WebsocketApi parent) {
-		this.parent = parent;
-	}
+    public OnClose(WebsocketApi parent) {
+        this.parent = parent;
+    }
 
-	@Override
-	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
-		// get websocket attachment
-		WsData wsData = ws.getAttachment();
-		Optional<EdgeUser> user = wsData.getUser();
+    @Override
+    public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
+        WsData wsData = ws.getAttachment();
+        if (wsData.getSessionToken() != null) {
+            String userName = this.parent.accessControl.getUsernameForToken(wsData.getSessionToken());
+            this.parent.logInfo(this.log, "User [" + userName + "] disconnected.");
+        }
 
-		// print log message
-		String logMessage;
-		if (user.isPresent()) {
-			logMessage = "User [" + user.get() + "] closed websocket connection.";
-		} else {
-			logMessage = "Unknown User [" + wsData.getSessionToken() + "] closed websocket connection.";
-		}
-		this.parent.logInfo(this.log, logMessage);
-	}
+        wsData.dispose();
+    }
 
 }

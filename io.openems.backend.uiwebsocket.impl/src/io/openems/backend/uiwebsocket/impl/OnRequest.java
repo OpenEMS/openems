@@ -13,6 +13,7 @@ import io.openems.common.jsonrpc.request.*;
 import io.openems.common.jsonrpc.response.*;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
 import io.openems.common.websocket.SubscribedChannelsWorker;
+import javafx.util.Pair;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,21 +62,19 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     }
 
     private CompletableFuture<? extends JsonrpcResponseSuccess> handleAuthenticateWithUsernameAndPasswordRequest(WsData wsData, AuthenticateWithUsernameAndPasswordRequest request) throws OpenemsException {
-        RoleId roleId;
+        Pair<UUID, RoleId> tokenRolePair;
         try {
-            roleId = this.parent.accessControl.login(request.getUsername(), request.getPassword());
-        } catch (AuthenticationException | ServiceNotAvailableException e) {
+            tokenRolePair = this.parent.accessControl.login(request.getUsername(), request.getPassword());
+        } catch (AuthenticationException e) {
             wsData.setRoleId(null);
             throw (e);
         }
 
-        wsData.setRoleId(roleId);
-        UUID token = this.parent.accessControl.createSession(roleId);
-
+        wsData.setRoleId(tokenRolePair.getValue());
         // generate token
-        wsData.setToken(token);
+        wsData.setToken(tokenRolePair.getKey());
 
-        Set<String> edgeIds = this.parent.accessControl.getEdgeIds(roleId);
+        Set<String> edgeIds = this.parent.accessControl.getEdgeIds(tokenRolePair.getValue());
         List<EdgeMetadata> metadatas = new ArrayList<>();
         for (String edgeId : edgeIds) {
             Optional<Edge> edgeOpt = this.parent.metadata.getEdge(edgeId);
@@ -86,7 +85,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
                         e.getComment(), // Comment
                         e.getProducttype(), // Product-Type
                         e.getVersion(), // Version
-                        roleId, // Role
+                        tokenRolePair.getValue(), // Role
                         e.isOnline() // Online-State
                 ));
             }
@@ -94,32 +93,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
         // TODO unset on logout!
         return CompletableFuture.completedFuture(new AuthenticateWithUsernameAndPasswordResponse(request.getId(),
-                token, metadatas));
+                tokenRolePair.getKey(), metadatas));
     }
 
-
-    /**
-     * Gets the authenticated User or throws an Exception if User is not
-     * authenticated.
-     *
-     * @param wsData  the WebSocket attachment
-     * @param request the JsonrpcRequest
-     * @return the User
-     * @throws OpenemsNamedException if User is not authenticated
-     */
-    private BackendUser assertUser(WsData wsData, JsonrpcRequest request) throws OpenemsNamedException {
-        Optional<String> userIdOpt = wsData.getUserId();
-        if (!userIdOpt.isPresent()) {
-            throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
-                    .exception("User-ID is empty. Ignoring request [" + request.getMethod() + "]");
-        }
-        Optional<BackendUser> userOpt = this.parent.metadata.getUser(userIdOpt.get());
-        if (!userOpt.isPresent()) {
-            throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("User with ID [" + userIdOpt.get()
-                    + "] is unknown. Ignoring request [" + request.getMethod() + "]");
-        }
-        return userOpt.get();
-    }
 
     /**
      * Handles an EdgeRpcRequest.

@@ -10,7 +10,7 @@
 
 -runee: JavaSE-1.8
 
--runsystempackages: sun.misc, com.sun.net.httpserver
+-runsystempackages: sun.misc, com.sun.net.httpserver, javafx.util
 
 -runrequires: \
     osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.simulated)',\

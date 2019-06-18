@@ -1,14 +1,10 @@
 package io.openems.backend.metadata.odoo;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.openems.common.access_control.RoleId;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -24,14 +20,8 @@ import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithSessionIdResponse;
-import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordRequest;
-import io.openems.backend.metadata.odoo.jsonrpc.AuthenticateWithUsernameAndPasswordResponse;
-import io.openems.backend.metadata.odoo.jsonrpc.EmptyRequest;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
@@ -307,16 +297,6 @@ public class Odoo extends AbstractOpenemsBackendComponent implements Metadata {
 	@Override
 	public Optional<Edge> getEdge(String edgeId) {
 		return Optional.ofNullable(this.edges.getEdgeFromEdgeId(edgeId));
-	}
-
-	@Override
-	public Optional<BackendUser> getUser(String userId) {
-		return Optional.ofNullable(this.users.get(userId));
-	}
-
-	@Override
-	public Collection<Edge> getAllEdges() {
-		return this.edges.getAllEdges();
 	}
 
 }

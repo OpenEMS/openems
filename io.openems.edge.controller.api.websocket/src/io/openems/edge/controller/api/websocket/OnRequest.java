@@ -11,6 +11,7 @@ import io.openems.common.access_control.ServiceNotAvailableException;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.request.*;
 import io.openems.common.jsonrpc.response.*;
+import javafx.util.Pair;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
     private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
                                                                                             AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
         Optional<EdgeUser> userOpt = this.parent.userService.authenticate(request.getPassword());
-        RoleId roleId = this.parent.userService.authenticate2(request.getPassword());
         if (!userOpt.isPresent()) {
             wsData.unsetUser();
             throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -155,29 +155,28 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
         // authentication successful
         EdgeUser user = userOpt.get();
         wsData.setUser(user);
-        wsData.setRoleId(roleId);
+        // TODO set when access control gets used
+        wsData.setRoleId(null);
         // this.parent.sessionTokens.put(wsData.getSessionToken(), user);
         // TODO unset on logout!
         return CompletableFuture.completedFuture(new AuthenticateWithPasswordResponse(request.getId(),
-                wsData.getSessionToken(), Utils.getEdgeMetadata(roleId)));
+                wsData.getSessionToken(), Utils.getEdgeMetadata(null)));
     }
 
     private CompletableFuture<? extends JsonrpcResponseSuccess> handleAuthenticateWithUsernameAndPasswordRequest(WsData wsData, AuthenticateWithUsernameAndPasswordRequest request) throws OpenemsException {
-        RoleId roleId;
+        Pair<UUID, RoleId> sessionRolePair;
         try {
-            roleId = this.parent.accessControl.login(request.getUsername(), request.getPassword());
-        } catch (AuthenticationException | ServiceNotAvailableException e) {
+            sessionRolePair = this.parent.accessControl.login(request.getUsername(), request.getPassword());
+        } catch (AuthenticationException e) {
             wsData.setRoleId(null);
             throw(e);
         }
 
-        UUID sessionToken = this.parent.accessControl.createSession(roleId);
-        wsData.setSessionToken(sessionToken);
-
-        wsData.setRoleId(roleId);
+        wsData.setSessionToken(sessionRolePair.getKey());
+        wsData.setRoleId(sessionRolePair.getValue());
         // TODO unset on logout!
         return CompletableFuture.completedFuture(new AuthenticateWithUsernameAndPasswordResponse(request.getId(),
-                wsData.getSessionToken(), Utils.getEdgeMetadata(roleId)));
+                wsData.getSessionToken(), Utils.getEdgeMetadata(sessionRolePair.getValue())));
     }
 
 

@@ -10,7 +10,7 @@
 
 -runee: JavaSE-1.8
 
--runsystempackages: sun.misc
+-runsystempackages: sun.misc, javafx.util
 
 -runrequires: \
 	bnd.identity;id='org.apache.felix.http.jetty',\

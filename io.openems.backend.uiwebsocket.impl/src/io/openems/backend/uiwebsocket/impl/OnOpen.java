@@ -77,7 +77,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
                 this.parent.server.sendMessage(ws, notification);
 
                 // log
-                this.parent.logInfo(this.log, "Role [" + roleId + "] logged in by token");
+                this.parent.logInfo(this.log, "User [" + this.parent.accessControl.getUsernameForToken(token)+ "] logged in by token");
             } catch (IllegalArgumentException e) {
                 this.parent.logWarn(this.log, "Cookie Token [" + cookieToken + "] is not a UUID: " + e.getMessage());
             } catch (AuthenticationException e) {

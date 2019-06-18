@@ -47,22 +47,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return userId;
 	}
 
-	/**
-	 * Gets the authenticated User.
-	 * 
-	 * @param metadata the Metadata service
-	 * @return the User or Optional.Empty if the User was not authenticated or it is
-	 *         not available from Metadata service
-	 */
-	public synchronized Optional<BackendUser> getUser(Metadata metadata) {
-		Optional<String> userId = this.getUserId();
-		if (userId.isPresent()) {
-			Optional<BackendUser> user = metadata.getUser(userId.get());
-			return user;
-		}
-		return Optional.empty();
-	}
-
 	public void setToken(UUID token) {
 		this.token = Optional.ofNullable(token);
 	}

@@ -3,8 +3,6 @@ package io.openems.backend.metadata.user_based;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.common.access_control.AccessControl;
-import io.openems.common.access_control.RoleId;
 import io.openems.common.channel.Level;
 import io.openems.common.utils.FileUtils;
 import io.openems.backend.metadata.api.BackendUser;
@@ -12,10 +10,8 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.IntersectChannels;
 import io.openems.backend.metadata.api.Metadata;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonKeys;
@@ -81,16 +77,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         return Optional.ofNullable(edge);
     }
 
-    @Override
-    public Optional<BackendUser> getUser(String userId) {
-        return Optional.of(this.userMap.get(userId));
-    }
-
-    @Override
-    public synchronized Collection<Edge> getAllEdges() {
-        return Collections.unmodifiableCollection(this.edges.values());
-    }
-
     /**
      * This method checks whether the requested channels are available for the user with the given user id
      * @param userId the requesting user
@@ -101,39 +87,9 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
      */
     @Override
     public TreeSet<ChannelAddress> checkChannels(String userId, String edgeId, TreeSet<ChannelAddress> requestedChannels) throws OpenemsException {
-        if (!this.getUser(userId).isPresent()) {
-            throw new OpenemsException("There is no user with id (" + userId + ")");
-        }
-        BackendUser user = checkPermissionAndThrow(userId, edgeId);
-
-        // the user also has the permission to access the edge
-        List<ChannelAddress> permittedChannels = user.getChannels(edgeId);
-        if (permittedChannels == null || permittedChannels.isEmpty()) {
-            // Seems like there is an edge configured without any channels which may get accessed
-            return new TreeSet<>();
-        }
-
-        TreeSet<ChannelAddress> retVal = new TreeSet<>(permittedChannels);
-        retVal.retainAll(requestedChannels);
-        return retVal;
+        // TODO remove
+        return requestedChannels;
     }
-
-    /**
-     * Checks whether the user is permitted to access the given edge
-     * @param userId id of user
-     * @param edgeId if of edge
-     * @return the requested user
-     * @throws OpenemsException gets thrown if the permission is missing
-     */
-    private BackendUser checkPermissionAndThrow(String userId, String edgeId) throws OpenemsException {
-        // there is a user configured for the given userId
-        BackendUser user = this.getUser(userId).get();
-        if (user.getEdgeRoles().get(edgeId) != null && !user.getEdgeRoles().get(edgeId).isAtLeast(Role.GUEST)) {
-            throw new OpenemsException("User (" + userId + ") does not have the permission to access the edge (" + edgeId + ")");
-        }
-        return user;
-    }
-
 
     /**
      * In case there is a path for a configuration file configured, this method extracts the JSON-encoded information
@@ -166,9 +122,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
                 // handle the connected edges
                 for (JsonElement jEdge : JsonUtils.getAsJsonArray(jUser, JsonKeys.EDGES.value())) {
                     String edgeId = JsonUtils.getAsString(jEdge, JsonKeys.EDGE_ID.value());
-                    JsonArray permittedChannels = JsonUtils.getAsJsonArray(jEdge, JsonKeys.PERMITTED_CHANNELS.value());
-                    // TODO handle the permissions of the user
-                    user.addEdgeRole(edgeId, Role.ADMIN);
                     edges.add(new Edge(//
                             edgeId,
                             JsonUtils.getAsString(jEdge, JsonKeys.API_KEY.value()), //
@@ -181,16 +134,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
                             null, // IPv4
                             Level.OK
                     ));
-
-                    // handle the permitted channels for the current user's edge
-                    List<ChannelAddress> addresses = new ArrayList<>();
-                    for (JsonElement channel : permittedChannels) {
-                        addresses.add(new ChannelAddress(
-                                JsonUtils.getAsString(channel, JsonKeys.COMPONENT_ID.value()),
-                                JsonUtils.getAsString(channel, JsonKeys.CHANNEL_ID.value())));
-                    }
-
-                    user.addEdgeChannel(edgeId, addresses);
                 }
             }
         } catch (OpenemsNamedException e) {

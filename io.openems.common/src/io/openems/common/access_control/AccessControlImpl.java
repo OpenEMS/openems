@@ -1,7 +1,9 @@
 package io.openems.common.access_control;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import javafx.util.Pair;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
@@ -15,9 +17,9 @@ import java.util.stream.Collectors;
 @Component
 public class AccessControlImpl implements AccessControl {
 
-    private final Logger log = LoggerFactory.getLogger(AccessControlImpl.class);
 
     @Reference
+    private
     AccessControlDataManager accessControlDataManager;
 
     @Reference(policy = ReferencePolicy.DYNAMIC, //
@@ -25,9 +27,13 @@ public class AccessControlImpl implements AccessControl {
             cardinality = ReferenceCardinality.MULTIPLE)
     private volatile List<AccessControlProvider> providers = new LinkedList<>();
 
+    private final Logger log = LoggerFactory.getLogger(AccessControlImpl.class);
+
     private final List<AccessControlProvider> initializedProviders = new LinkedList<>();
 
     private final Map<UUID, RoleId> sessionTokens = new ConcurrentHashMap<>();
+
+    private final Map<UUID, User> activeUsers = new HashMap<>();
 
     @Activate
     void activate(ComponentContext componentContext, BundleContext bundleContext) {
@@ -39,49 +45,14 @@ public class AccessControlImpl implements AccessControl {
     void deactivate() {
     }
 
-    /**
-     * TODO this method is probably not neccessary with correct use of OSGi. providers must be injected before the activate
-     * has been called and this stuff needs to be done then once in activate()
-     */
-    private void initializeProviders() {
-        providers.removeAll(initializedProviders);
-        Collections.sort(providers);
-        providers.forEach(p -> {
-            p.initializeAccessControl(accessControlDataManager);
-            initializedProviders.add(p);
-        });
-        providers.clear();
-    }
-
-    /**
-     * Logs in the user with the role depending on the given roleId and returns the roleId again
-     *
-     * @param username
-     * @param password
-     * @return
-     * @throws AuthenticationException
-     */
-    public RoleId login(String username, String password) throws AuthenticationException {
+    @Override
+    public Pair<UUID, RoleId> login(String username, String password) throws AuthenticationException {
         initializeProviders();
         User matchingUser = accessControlDataManager.getUsers().stream().filter(
                 userNew -> (userNew.getUsername().equals(username) && userNew.validatePlainPassword(password)))
                 .findFirst()
                 .orElseThrow(AuthenticationException::new);
-        return matchingUser.getRoleId();
-    }
-
-    public RoleId login(UUID sessionId) throws AuthenticationException {
-        return sessionTokens.entrySet().stream()
-                .filter(e -> e.getKey().equals(sessionId))
-                .map(Map.Entry::getValue)
-                .findFirst().orElseThrow(AuthenticationException::new);
-    }
-
-    public UUID createSession(RoleId roleId) throws AuthenticationException {
-        initializeProviders();
-
-        // call for making sure the roleId is existing
-        getRole(roleId);
+        RoleId roleId = matchingUser.getRoleId();
         UUID sessionId;
         Optional<Map.Entry<UUID, RoleId>> entry = this.sessionTokens.entrySet().stream().filter((e) -> e.getValue().equals(roleId)).findAny();
         if (entry.isPresent()) {
@@ -90,10 +61,37 @@ public class AccessControlImpl implements AccessControl {
         } else {
             sessionId = UUID.randomUUID();
             this.sessionTokens.put(sessionId, roleId);
+
+            // remember the new logged in user
+            this.activeUsers.put(sessionId, matchingUser);
         }
-        return sessionId;
+
+        return new Pair<>(sessionId, roleId);
     }
 
+    @Override
+    public RoleId login(UUID sessionId) throws AuthenticationException {
+        return sessionTokens.entrySet().stream()
+                .filter(e -> e.getKey().equals(sessionId))
+                .map(Map.Entry::getValue)
+                .findFirst().orElseThrow(AuthenticationException::new);
+    }
+
+    @Override
+    public void logout(UUID token) throws OpenemsException {
+        if (this.sessionTokens.remove(token) == null) {
+            throw new OpenemsException("Inconsistency in AccessControl! Role with token (" + token + ") wants to logout but has not been logged in before");
+        }
+    }
+
+    @Override
+    public String getUsernameForToken(UUID token) {
+        final String[] retVal = new String[1];
+        this.activeUsers.entrySet().stream().filter(e -> e.getKey().equals(token)).findAny().ifPresent(e -> retVal[0] = e.getValue().getUsername());
+        return retVal[0];
+    }
+
+    @Override
     public void assertExecutePermission(RoleId roleId, String edgeId, String method)
             throws AuthenticationException, AuthorizationException {
         initializeProviders();
@@ -106,6 +104,7 @@ public class AccessControlImpl implements AccessControl {
         }
     }
 
+    @Override
     public Set<ChannelAddress> intersectAccessPermission(RoleId roleId, String edgeIdentifier, Set<ChannelAddress> requestedChannels, AccessMode... accessModes)
             throws AuthenticationException {
         initializeProviders();
@@ -134,5 +133,19 @@ public class AccessControlImpl implements AccessControl {
         return this.accessControlDataManager.getRoles().stream().filter(
                 (entry) -> Objects.equals(entry.getRoleId(), roleId))
                 .findFirst().orElseThrow(AuthenticationException::new);
+    }
+
+    /**
+     * TODO this method is probably not neccessary with correct use of OSGi. providers must be injected before the activate
+     * has been called and this stuff needs to be done then once in activate()
+     */
+    private void initializeProviders() {
+        providers.removeAll(initializedProviders);
+        Collections.sort(providers);
+        providers.forEach(p -> {
+            p.initializeAccessControl(accessControlDataManager);
+            initializedProviders.add(p);
+        });
+        providers.clear();
     }
 }
