@@ -37,7 +37,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String ownerSalt() default "b3duZXI=";
 
 	@AttributeDefinition(name = "Guest: password", description = "hashed password for User 'guest'", type = AttributeType.PASSWORD)
-	String guestPassword() default "IcIzJSOvNM1PvQ8v5ypFvPoTZyHw3Knob+zi7d+WspU=";
+	//String guestPassword() default "IcIzJSOvNM1PvQ8v5ypFvPoTZyHw3Knob+zi7d+WspU=";
+	String guestPassword() default "4kuqLj6/irqTxJLiHKDPA4oPc5aY8Pd7F9AYC2EpOyQ="; //'guest'
 
 	@AttributeDefinition(name = "Guest: salt", description = "salt for User 'guest'", type = AttributeType.PASSWORD)
 	String guestSalt() default "dXNlcg==";
