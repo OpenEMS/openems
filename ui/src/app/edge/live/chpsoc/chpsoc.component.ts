@@ -13,26 +13,30 @@ export class ChpSocComponent {
     @Input() private componentId: string;
 
     private edge: Edge = null;
-    private inputChannel: ChannelAddress = null;
-    private outputChannel: ChannelAddress = null;
-    private lowThreshold: number;
-    private highThresold: number;
+
+    public controller: EdgeConfig.Component = null;
+    public inputChannel: ChannelAddress = null;
+    public outputChannel: ChannelAddress = null;
+    public lowThreshold: number;
+    public highThresold: number;
 
     constructor(
-        private service: Service,
+        public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
-        // Subscribe to CurrentData
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
-                this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-                this.inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-                this.lowThreshold = config.getComponentProperties(this.componentId)['lowThreshold'];
-                this.highThresold = config.getComponentProperties(this.componentId)['highThreshold'];
+                this.controller = config.components[this.componentId];
+                this.outputChannel = ChannelAddress.fromString(
+                    this.controller.properties['outputChannelAddress']);
+                this.inputChannel = ChannelAddress.fromString(
+                    this.controller.properties['inputChannelAddress']);
+                this.lowThreshold = this.controller.properties['lowThreshold'];
+                this.highThresold = this.controller.properties['highThreshold'];
                 edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
                     this.outputChannel,
                     this.inputChannel
@@ -43,7 +47,7 @@ export class ChpSocComponent {
 
     ngOnDestroy() {
         if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, ChpsocComponent.SELECTOR + this.componentId);
+            this.edge.unsubscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId);
         }
     }
 }

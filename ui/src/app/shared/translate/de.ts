@@ -71,8 +71,8 @@ export const TRANSLATION = {
             },
             Widgets: {
                 CHP: {
-                    LowThreshold: "Niedriger Schwellenwert",
-                    HighThreshold: "hoher Schwellenwert"
+                    LowThreshold: "Unterer Schwellenwert",
+                    HighThreshold: "Oberer Schwellenwert"
                 },
                 EVCS: {
                     ChargingStation: "Ladestation",

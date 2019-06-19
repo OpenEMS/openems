@@ -1,20 +1,17 @@
-<ng-container *ngIf="service.currentEdge | async as edge">
+<ng-container *ngIf="controller && service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
         <ion-card>
             <ion-item lines="full" color="light">
-                <ion-avatar slot="start">
-                    <ion-icon name="flame" size="large" font></ion-icon>
-                    <!--style="font-size: 40px"-->
-                </ion-avatar>
-                <ion-label>CHP</ion-label>
+                <ion-icon slot="start" size="large" color="primary" name="flame"></ion-icon>
+                <ion-label>{{ controller.alias }}</ion-label>
             </ion-item>
             <ion-card-content>
                 <ion-grid no-padding>
                     <table class="full_width">
                         <tr class="underline">
-                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.LowThreshold</td>
+                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.HighThreshold</td>
                             <td style="width:25%" class="align_right">
-                                {{ lowThreshold  }}</td>
+                                {{ highThresold  }}</td>
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
                         <tr class="underline" *ngIf="currentData.channel[inputChannel] as value">
@@ -24,9 +21,9 @@
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
                         <tr class="underline">
-                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.HighThreshold</td>
+                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.LowThreshold</td>
                             <td style="width:25%" class="align_right">
-                                {{ highThresold  }}</td>
+                                {{ lowThreshold  }}</td>
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
                         <tr class="underline">
@@ -38,6 +35,7 @@
                                 <ion-icon *ngIf="currentData.channel[outputChannel] == 0" name="radio-button-off">
                                 </ion-icon>
                             </td>
+                            <td style="width:10%">&nbsp;</td>
                         </tr>
                     </table>
                 </ion-grid>
