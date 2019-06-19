@@ -6,25 +6,25 @@
                     <ion-icon name="flame" size="large" font></ion-icon>
                     <!--style="font-size: 40px"-->
                 </ion-avatar>
-                <ion-label translate>CHP</ion-label>
+                <ion-label>CHP</ion-label>
             </ion-item>
             <ion-card-content>
                 <ion-grid no-padding>
                     <table class="full_width">
                         <tr class="underline">
-                            <td style="width:65%" translate>Low Threshold</td>
+                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.LowThreshold</td>
                             <td style="width:25%" class="align_right">
                                 {{ lowThreshold  }}</td>
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
                         <tr class="underline" *ngIf="currentData.channel[inputChannel] as value">
-                            <td style="width:65%" translate>State of Charge</td>
+                            <td style="width:65%" translate>General.Soc</td>
                             <td style="width:25%" class="align_right">
                                 {{ value | number:'1.0-0'}}</td>
                             <td style="width:10%">&nbsp;%</td>
                         </tr>
                         <tr class="underline">
-                            <td style="width:65%" translate>High Threshold</td>
+                            <td style="width:65%" translate>Edge.Index.Widgets.CHP.HighThreshold</td>
                             <td style="width:25%" class="align_right">
                                 {{ highThresold  }}</td>
                             <td style="width:10%">&nbsp;%</td>

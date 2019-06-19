@@ -3,21 +3,20 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../s
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-    selector: ChpsocComponent.SELECTOR,
+    selector: ChpSocComponent.SELECTOR,
     templateUrl: './chpsoc.component.html'
 })
-export class ChpsocComponent {
+export class ChpSocComponent {
 
-    private static readonly SELECTOR = "chpSoc";
+    private static readonly SELECTOR = "chpsoc";
 
     @Input() private componentId: string;
 
-    public edge: Edge = null;
-    public controller: EdgeConfig.Component = null;
-    public inputChannel: ChannelAddress = null;
-    public outputChannel: ChannelAddress = null;
-    public lowThreshold: number;
-    public highThresold: number;
+    private edge: Edge = null;
+    private inputChannel: ChannelAddress = null;
+    private outputChannel: ChannelAddress = null;
+    private lowThreshold: number;
+    private highThresold: number;
 
     constructor(
         private service: Service,
@@ -32,9 +31,9 @@ export class ChpsocComponent {
             this.service.getConfig().then(config => {
                 this.outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
                 this.inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-                this.lowThreshold = (config.getComponentProperties(this.componentId)['lowThreshold']);
-                this.highThresold = (config.getComponentProperties(this.componentId)['highThreshold']);
-                edge.subscribeChannels(this.websocket, ChpsocComponent.SELECTOR + this.componentId, [
+                this.lowThreshold = config.getComponentProperties(this.componentId)['lowThreshold'];
+                this.highThresold = config.getComponentProperties(this.componentId)['highThreshold'];
+                edge.subscribeChannels(this.websocket, ChpSocComponent.SELECTOR + this.componentId, [
                     this.outputChannel,
                     this.inputChannel
                 ]);
