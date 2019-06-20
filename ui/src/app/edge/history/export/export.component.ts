@@ -33,6 +33,7 @@ export class ExportComponent implements OnInit {
    */
   public exportToXlxs() {
     this.service.getCurrentEdge().then(edge => {
+      // TODO the order of these channels should be reflected in the excel file
       let dataChannels = [
         new ChannelAddress('_sum', 'EssActivePower'),
         // Grid

@@ -3,27 +3,17 @@
         <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="currentData.summary.storage as sum">
             <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
-                    <ng-container *ngIf="sum.soc < 20; else twoBars">
-                        <img src="assets/img/storage_20.png">
-                    </ng-container>
+                    <img *ngIf="sum.soc < 20; else twoBars" src="assets/img/storage_20.png" />
                     <ng-template #twoBars>
-                        <ng-container *ngIf="sum.soc < 40; else threeBars">
-                            <img src="assets/img/storage_40.png">
-                        </ng-container>
+                        <img *ngIf="sum.soc < 40; else threeBars" src="assets/img/storage_40.png" />
                     </ng-template>
                     <ng-template #threeBars>
-                        <ng-container *ngIf="sum.soc < 60; else fourBars">
-                            <img src="assets/img/storage_60.png">
-                        </ng-container>
+                        <img *ngIf="sum.soc < 60; else fourBars" src="assets/img/storage_60.png" />
                     </ng-template>
                     <ng-template #fourBars>
-                        <ng-container *ngIf="sum.soc < 80; else fiveBars">
-                            <img src="assets/img/storage_20.png">
-                        </ng-container>
+                        <img *ngIf="sum.soc < 80; else fiveBars" src="assets/img/storage_80.png" />
                     </ng-template>
-                    <ng-template #fiveBars>
-                        <img src="assets/img/storage_100.png">
-                    </ng-template>
+                    <ng-template #fiveBars><img src="assets/img/storage_100.png" /></ng-template>
                 </ion-avatar>
                 <ion-label translate>General.StorageSystem</ion-label>
             </ion-item>

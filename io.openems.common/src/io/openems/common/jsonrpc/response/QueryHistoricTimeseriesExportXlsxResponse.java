@@ -32,13 +32,32 @@ import io.openems.common.types.ChannelAddress;
  */
 public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResponse {
 
-	private final static ImmutableMap<String, String> LABELS = ImmutableMap.<String, String>builder() //
-			.put("datetime", "Date/Time") //
-			.put("_sum/EssSoc", "Ladezustand [%]") //
-			.put("_sum/EssActivePower", "Speicher Be-/Entladung [W]") //
-			.put("_sum/ConsumptionActivePower", "Verbrauch [W]") //
-			.put("_sum/GridActivePower", "Netzbezug-/einspeisung [W]") //
-			.put("_sum/ProductionActivePower", "Erzeugung [W]") //
+	private static class Label {
+		protected final String title;
+		protected final String comment;
+
+		protected Label(String title, String comment) {
+			this.title = title;
+			this.comment = comment;
+		}
+	}
+
+	private final static ImmutableMap<String, Label> LABELS = ImmutableMap.<String, Label>builder() //
+			.put("datetime", //
+					new Label("Date/Time", null)) //
+			.put("_sum/EssSoc", //
+					new Label("Ladezustand [%]", null)) //
+			.put("_sum/EssActivePower", //
+					new Label("Speicher Be-/Entladung [W]",
+							"Positive Werte für Entladung, negative für Beladung. Bei DC-gekoppelten Speichersystemen wird die PV-Leistung hier ebenfalls erfasst.")) //
+			.put("_sum/ConsumptionActivePower", //
+					new Label("Verbrauch [W]",
+							"Dieser Wert wird nicht direkt gemessen, sondern errechnet sich aus Speicher Be-/Entladung, Netzbezug/-einspeisung und Erzeugung.")) //
+			.put("_sum/GridActivePower", //
+					new Label("Netzbezug-/einspeisung [W]",
+							"Positive Werte für Netzbezug, negative für Netzeinspeisung.")) //
+			.put("_sum/ProductionActivePower", //
+					new Label("Erzeugung [W]", null)) //
 			.build();
 
 	public QueryHistoricTimeseriesExportXlsxResponse(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate,
@@ -124,14 +143,18 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 	public static void initializeDataHeader(Worksheet worksheet, int row,
 			SortedMap<ChannelAddress, JsonElement> channelsMap) {
 		int col = 0;
-		worksheet.value(row, col++, LABELS.get("datetime"));
+		worksheet.value(row, col++, LABELS.get("datetime").title);
 		for (Entry<ChannelAddress, JsonElement> entry : channelsMap.entrySet()) {
 			String key = entry.getKey().toString();
-			String label = LABELS.get(key);
+			Label label = LABELS.get(key);
 			if (label == null) {
-				label = key.toString();
+				label = new Label(key.toString(), null);
 			}
-			worksheet.value(row, col++, label);
+			worksheet.value(row, col, label.title);
+			if (label.comment != null) {
+				worksheet.comment(row, col, label.comment);
+			}
+			col++;
 		}
 //		worksheet.style(0, 0).bold().fillColor(Color.GRAY5).borderStyle("thin").wrapText(true);
 	}

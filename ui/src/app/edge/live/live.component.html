@@ -50,6 +50,10 @@
               <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
             </ion-col>
 
+            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="6">
+              <chpsoc [componentId]="widget.componentId"></chpsoc>
+            </ion-col>
+
           </ng-container>
 
           <ion-col size="12" size-lg="12">
