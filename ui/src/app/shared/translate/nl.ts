@@ -65,6 +65,10 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Lage drempelwaarde",
+                    HighThreshold: "hoge drempel"
+                },
                 EVCS: {
                     ChargingStation: "Laadstation",
                     Status: "Staat",
