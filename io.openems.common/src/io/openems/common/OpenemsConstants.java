@@ -30,14 +30,14 @@ public class OpenemsConstants {
 	/**
 	 * The additional version string
 	 */
-	// public final static String VERSION_STRING = "";
-	public final static String VERSION_STRING = "SNAPSHOT";
+	public final static String VERSION_STRING = "";
+	// public final static String VERSION_STRING = "SNAPSHOT";
 
 	/**
 	 * The complete version as a SemanticVersion.
 	 * 
 	 * <p>
-	 * Use toString()-method to get something like "2018.10.0-SNAPSHOT"
+	 * Use toString()-method to get something like "2019.5.0-SNAPSHOT"
 	 */
 	public final static SemanticVersion VERSION = new SemanticVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 			VERSION_STRING);

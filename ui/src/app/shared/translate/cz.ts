@@ -65,6 +65,10 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Nízký práh",
+                    HighThreshold: "vysoký práh"
+                },
                 EVCS: {
                     ChargingStation: "Nabíjecí stanice",
                     Status: "Postavení",

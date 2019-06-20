@@ -13,6 +13,7 @@ import { InfoComponent } from './info/info.component';
 import { ModalComponent as FixDigitalOutputModalComponent } from './fixdigitaloutput/modal/modal.component';
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
+import { ChpSocComponent } from './chpsoc/chpsoc.component';
 
 @NgModule({
   imports: [
@@ -33,7 +34,8 @@ import { StorageModalComponent } from './storage/modal/modal.component';
     InfoComponent,
     FixDigitalOutputComponent,
     FixDigitalOutputModalComponent,
-    StorageModalComponent
+    StorageModalComponent,
+    ChpSocComponent
   ]
 })
 export class LiveModule { }
