@@ -13,14 +13,12 @@ import io.openems.common.jsonrpc.request.*;
 import io.openems.common.jsonrpc.response.*;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
 import io.openems.common.websocket.SubscribedChannelsWorker;
-import javafx.util.Pair;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;

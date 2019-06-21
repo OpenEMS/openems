@@ -6,12 +6,12 @@ import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.access_control.AuthenticationException;
+import io.openems.common.access_control.Pair;
 import io.openems.common.access_control.RoleId;
 import io.openems.common.access_control.ServiceNotAvailableException;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.request.*;
 import io.openems.common.jsonrpc.response.*;
-import javafx.util.Pair;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
