@@ -8,7 +8,6 @@ import io.openems.common.utils.FileUtils;
 import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Edge.State;
-import io.openems.backend.metadata.api.IntersectChannels;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -31,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Metadata.UserBased", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class UserBased extends AbstractOpenemsBackendComponent implements Metadata, IntersectChannels {
+public class UserBased extends AbstractOpenemsBackendComponent implements Metadata {
 
     private final Logger log = LoggerFactory.getLogger(UserBased.class);
     private final Map<String, BackendUser> sessionIdUserMap = new HashMap<>();
@@ -75,20 +74,6 @@ public class UserBased extends AbstractOpenemsBackendComponent implements Metada
         this.refreshData();
         Edge edge = this.edges.get(edgeId);
         return Optional.ofNullable(edge);
-    }
-
-    /**
-     * This method checks whether the requested channels are available for the user with the given user id
-     * @param userId the requesting user
-     * @param edgeId the id of the edge of the channels
-     * @param requestedChannels the requested channels
-     * @return all permitted channels
-     * @throws OpenemsException gets thrown in case the user is not permitted of accessing the edge
-     */
-    @Override
-    public TreeSet<ChannelAddress> checkChannels(String userId, String edgeId, TreeSet<ChannelAddress> requestedChannels) throws OpenemsException {
-        // TODO remove
-        return requestedChannels;
     }
 
     /**

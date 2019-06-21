@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.openems.backend.metadata.api.IntersectChannels;
 import io.openems.common.jsonrpc.request.*;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.websocket.SubscribedChannelsWorker;
@@ -104,15 +103,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
     private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, String edgeId, User user, SubscribeChannelsRequest request) {
         TreeSet<ChannelAddress> permittedChannels = new TreeSet<>();
-        if (this.parent.metadata instanceof IntersectChannels) {
-                try {
-                    permittedChannels.addAll(((IntersectChannels) this.parent.metadata).checkChannels(user.getId(), edgeId, request.getChannels()));
-                } catch (OpenemsException e) {
-                    e.printStackTrace();
-                }
-        } else {
-            permittedChannels.addAll(request.getChannels());
-        }
+        permittedChannels.addAll(request.getChannels());
 
         // activate SubscribedChannelsWorker
         SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
