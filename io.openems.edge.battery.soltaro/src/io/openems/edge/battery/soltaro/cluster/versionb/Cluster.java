@@ -100,9 +100,13 @@ public class Cluster extends AbstractOpenemsModbusComponent
 
 	private Map<Integer, Double> lastMinCellVoltages = new HashMap<>();
 	private Map<Integer, Double> lastMaxCellVoltages = new HashMap<>();
-	
-	private ResetState resetState = ResetState.NONE;
 
+	private ResetState resetState = ResetState.NONE;
+	
+	private LocalDateTime handleOneCellDriftHandlingStarted = null;
+	private int handleOneCellDriftHandlingCounter = 0;
+	private static final int SECONDS_TOLERANCE_CELL_DRIFT = 15 * 60;
+	
 
 	public Cluster() {
 		super(//
@@ -226,6 +230,8 @@ public class Cluster extends AbstractOpenemsModbusComponent
 				}
 			} else if (this.isCellVoltagesDrift()) {
 				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);
+			} else if (this.isOneCellDrifting()) {
+				this.setStateMachineState(State.ONE_CELL_DRIFTING);
 			} else {
 				this.setStateMachineState(State.UNDEFINED);
 			}
@@ -273,15 +279,18 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
-			this.handleCellDrift(); 
+			this.handleCellDrift();
+			break;
+		case ONE_CELL_DRIFTING:
+			this.handleOneCellDrifting();
 			break;
 		}
 		this.getReadyForWorking().setNextValue(readyForWorking);
 	}
-	
+
 	private void handleCellDrift() {
-		// To reset the cell drift phenomenon, first sleep and then reset the system 		
-		switch(this.resetState) {
+		// To reset the cell drift phenomenon, first sleep and then reset the system
+		switch (this.resetState) {
 		case NONE:
 			this.resetState = ResetState.SLEEP;
 			break;
@@ -298,6 +307,49 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			this.setStateMachineState(State.UNDEFINED);
 			break;
 		}
+	}
+
+	private void handleOneCellDrifting() {
+		if (this.handleOneCellDriftHandlingStarted == null) {	
+			this.handleOneCellDriftHandlingStarted = LocalDateTime.now();			
+		}
+		
+		if (this.resetState == ResetState.NONE) {
+			handleOneCellDriftHandlingCounter++; // only increase one time per reset cycle
+		}
+		
+		this.handleCellDrift();
+		
+		
+		if (this.handleOneCellDriftHandlingCounter > 5 && this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isAfter(LocalDateTime.now())) {
+			this.setStateMachineState(State.ERROR);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean isOneCellDrifting() {
+		/*
+		 * If voltage of one cell is going down immediately(Cell Voltage Low) and the
+		 * other cells do not (Cell diff high) that's an indicator for this error
+		 */
+
+		for (SingleRack r : this.racks.values()) {
+
+			Optional<Boolean> cellVoltLowOpt = (Optional<Boolean>) r
+					.getChannel(SingleRack.KEY_ALARM_LEVEL_1_CELL_VOLTAGE_LOW).getNextValue().asOptional();
+			Optional<Boolean> cellDiffHighOpt = (Optional<Boolean>) r
+					.getChannel(SingleRack.KEY_ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH).getNextValue().asOptional();
+
+			if (!cellVoltLowOpt.isPresent() || !cellDiffHighOpt.isPresent()) {
+				continue;
+			}
+
+			if (cellVoltLowOpt.get() && cellDiffHighOpt.get()) {
+				return true;
+			}
+		}
+		return false;
+
 	}
 
 	private boolean isError() {
@@ -392,7 +444,6 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			double currentMaxCellVoltage = maxCellVoltageOpt.get();
 			double currentMinCellVoltage = minCellVoltageOpt.get();
 
-
 			if (!lastMaxCellVoltages.containsKey(r.getRackNumber())) {
 				lastMaxCellVoltages.put(r.getRackNumber(), Double.MIN_VALUE);
 			}
@@ -463,7 +514,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 	private void sleepSystem() {
 		// Write sleep and reset to all racks
 		for (SingleRack rack : this.racks.values()) {
-			IntegerWriteChannel sleepChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_SLEEP);			
+			IntegerWriteChannel sleepChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_SLEEP);
 			try {
 				sleepChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
@@ -472,7 +523,7 @@ public class Cluster extends AbstractOpenemsModbusComponent
 			this.setStateMachineState(State.UNDEFINED);
 		}
 	}
-	
+
 	private void resetSystem() {
 		// Write sleep and reset to all racks
 		for (SingleRack rack : this.racks.values()) {
