@@ -41,6 +41,8 @@ include::io.openems.edge.meter.janitza.umg96rme.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.microcare.sdm630.adoc[leveloffset=+1]
 
+include::io.openems.edge.meter.pqplus.umd97.adoc[leveloffset=+1]
+
 include::io.openems.edge.meter.socomec.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.virtual.adoc[leveloffset=+1]
