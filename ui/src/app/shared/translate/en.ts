@@ -80,6 +80,10 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Low Threshold",
+                    HighThreshold: "High Threshold"
+                },
                 EVCS: {
                     ChargingStation: "Charging Station",
                     Status: "Status",
