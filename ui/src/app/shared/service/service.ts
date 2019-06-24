@@ -6,7 +6,7 @@ import { DefaultTypes } from './defaulttypes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
-import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
+import { Widget, WidgetNature, WidgetFactory } from '../shared';
 import { ToastController } from '@ionic/angular';
 import { Edge, EdgeConfig } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
@@ -96,7 +96,7 @@ export class Service implements ErrorHandler {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'hy-EMS UI';
+          this.currentPageTitle = 'hy-control UI';
         } else {
           this.currentPageTitle = currentPageTitle;
         }

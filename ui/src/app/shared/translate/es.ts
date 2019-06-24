@@ -37,9 +37,9 @@ export const TRANSLATION = {
         Index: "Visión general",
         AboutUI: "Sobre OpenEMS-UI",
         GeneralSettings: 'Configuración general',
-        EdgeSettings: 'Configuración hy-ems',
+        EdgeSettings: 'Configuración hy-control',
         Menu: 'Menú',
-        Overview: 'estudio hy-ems',
+        Overview: 'estudio hy-control',
         Logout: 'Desuscribirse'
     },
     Index: {

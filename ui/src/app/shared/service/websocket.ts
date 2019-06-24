@@ -13,7 +13,7 @@ import { EdgeRpcNotification } from '../jsonrpc/notification/edgeRpcNotification
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { DefaultTypes } from './defaulttypes';
-import { Service } from './service';
+import { Service } from '../shared';
 import { WsData } from './wsdata';
 
 @Injectable()

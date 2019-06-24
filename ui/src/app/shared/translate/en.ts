@@ -37,9 +37,9 @@ export const TRANSLATION = {
         Index: "Index",
         AboutUI: "About OpenEMS UI",
         GeneralSettings: 'General Settings',
-        EdgeSettings: 'hy-ems Settings',
+        EdgeSettings: 'hy-control Settings',
         Menu: 'Menu',
-        Overview: 'hy-ems Overview',
+        Overview: 'hy-control Overview',
         Logout: 'Sign Out'
     },
     Index: {
@@ -47,7 +47,7 @@ export const TRANSLATION = {
         ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
         ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
-        IsOffline: "hy-EMS is offline!",
+        IsOffline: "hy-control is offline!",
         PleaseLogin: "Please enter your access data or confirm to log in.",
         Username: "Username/email",
         Password: "Password",

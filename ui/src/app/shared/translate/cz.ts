@@ -36,9 +36,9 @@ export const TRANSLATION = {
         Index: "Přehled",
         AboutUI: "About OpenEMS UI",
         GeneralSettings: 'Obecné Nastavení',
-        EdgeSettings: 'hy-ems Obecné Nastavení',
+        EdgeSettings: 'hy-control Obecné Nastavení',
         Menu: 'Menu',
-        Overview: 'hy-ems Overvire',
+        Overview: 'hy-control Overvire',
         Logout: 'Odhlásit'
     },
     Index: {
