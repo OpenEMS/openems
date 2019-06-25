@@ -72,58 +72,59 @@ export class SocComponent extends AbstractHistoryChart implements OnInit, OnChan
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getCurrentEdge().then(edge => {
-        this.service.getConfig().then(config => {
-          let result = response.result;
+        /* this.service.getConfig().then(config => {*/
+        let result = response.result;
 
-          // convert labels
-          let labels: Date[] = [];
-          for (let timestamp of result.timestamps) {
-            labels.push(new Date(timestamp));
-          }
-          this.labels = labels;
+        // convert labels
+        let labels: Date[] = [];
+        for (let timestamp of result.timestamps) {
+          labels.push(new Date(timestamp));
+        }
+        this.labels = labels;
 
-          // show Component-ID if there is more than one Channel
-          let showComponentId = Object.keys(result.data).length > 1 ? true : false;
+        // show Component-ID if there is more than one Channel
+        let showComponentId = Object.keys(result.data).length > 1 ? true : false;
 
-          // convert datasets
-          let datasets = [];
+        // convert datasets
+        let datasets = [];
 
-          if (!edge.isVersionAtLeast('2018.8')) {
-            this.convertDeprecatedData(config, result.data); // TODO deprecated
-          }
+        /*
+        if (!edge.isVersionAtLeast('2018.8')) {
+          this.convertDeprecatedData(config, result.data); // TODO deprecated
+        }
+*/
+        if ('_sum/EssSoc' in result.data) {
+          /*
+          * State-of-charge
+          */
+          datasets.push({
+            label: this.translate.instant('General.Soc'),
+            data: result.data['_sum/EssSoc'],
+            hidden: false
+          });
+        }
 
-          if ('_sum/EssSoc' in result.data) {
-            /*
-            * State-of-charge
-            */
-            datasets.push({
-              label: this.translate.instant('General.Soc'),
-              data: result.data['_sum/EssSoc'],
-              hidden: false
-            });
-          }
+        for (let channel in result.data) {
 
-          for (let channel in result.data) {
+          let data = result.data[channel].map(value => {
+            if (value == null) {
+              return null
+            } else if (value > 100 || value < 0) {
+              return null;
+            } else {
+              return value;
+            }
+          });
 
-            let data = result.data[channel].map(value => {
-              if (value == null) {
-                return null
-              } else if (value > 100 || value < 0) {
-                return null;
-              } else {
-                return value;
-              }
-            });
-
-          }
-          this.datasets = datasets;
-          this.loading = false;
-
-        }).catch(reason => {
-          console.error(reason); // TODO error message
-          this.initializeChart();
-          return;
-        });
+        }
+        this.datasets = datasets;
+        this.loading = false;
+        /*
+      }).catch(reason => {
+        console.error(reason); // TODO error message
+        this.initializeChart();
+        return;
+      });*/
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();

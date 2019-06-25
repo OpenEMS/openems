@@ -16,7 +16,7 @@ export class HistoryComponent implements OnInit {
   public widgetNames: string[] = [];
 
   // holds the current Edge
-  protected edge: Edge = null;
+  public edge: Edge = null;
 
   constructor(
     public service: Service,
