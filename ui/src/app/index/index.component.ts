@@ -42,7 +42,7 @@ export class IndexComponent {
     private service: Service,
     private route: ActivatedRoute) {
     this.form = this.formBuilder.group({
-      "password": this.formBuilder.control('user')
+      "password": this.formBuilder.control('guest')
     });
 
     this.wpForm = this.wpformBuilder.group({
