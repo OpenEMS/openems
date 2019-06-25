@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.gson.JsonArray;
@@ -27,7 +26,7 @@ public class PricesTest {
 		try {
 
 			OkHttpClient client = new OkHttpClient();
-			Request request = new Request.Builder().url("https://api.awattar.com/v1/marketdata")
+			Request request = new Request.Builder().url("https://api.awattar.com/v1/marketdata?start=1560866400000")
 					.header("Authorization", Credentials.basic("ak_7YTR42jBwtnk5kXuMZRYEju8hvj918H0", "")).build();
 			Response response = null;
 

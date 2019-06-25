@@ -41,6 +41,7 @@ public class Prices {
 			JsonParser parser = new JsonParser();
 			JsonObject jsonObject = (JsonObject) parser.parse(jsonData);
 			JsonArray data = (JsonArray) jsonObject.get("data");
+			hourlyPrices.clear();
 
 			for (JsonElement element : data) {
 				JsonObject jsonelement = (JsonObject) element;

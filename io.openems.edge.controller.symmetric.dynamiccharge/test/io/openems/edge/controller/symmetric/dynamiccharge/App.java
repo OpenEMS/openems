@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class App {
-	private static TreeMap<LocalDateTime, Float> HourlyPrices = new TreeMap<LocalDateTime, Float>();
+	private static TreeMap<LocalDateTime, Float> hourlyPrices = new TreeMap<LocalDateTime, Float>();
 	private static TreeMap<LocalDateTime, Long> hourlyConsumption = new TreeMap<LocalDateTime, Long>();
 	public static TreeMap<LocalDateTime, Long> chargeSchedule = new TreeMap<LocalDateTime, Long>();
 	private static float minPrice = Float.MAX_VALUE;
@@ -19,34 +19,47 @@ public class App {
 	private static long nettCapacity = 12000;
 	private static long maxApparentPower = 9000;
 	private static long totalDemand;
-	private static long bufferAmountToCharge = 0;
 	private static long remainingConsumption;
 	private static long currentHourConsumption;
+	private static long availableEnergy;
+	private static long soc;
 
 	public static void main(String[] args) {
 
-		PricesTest.houlryPricesTest();
-		HourlyPrices = PricesTest.getHourlyPricesTest();
+		LocalDateTime now = LocalDateTime.of(2019, 6, 17, 16, 0);
 
-		LocalDateTime now = LocalDateTime.of(2019, 6, 11, 16, 0);
+		for (int i = 0; i < 16; i++) {
 
-		for (int i = 0; i < 17; i++) {
-
-			hourlyConsumption.put(now.plusHours(i), (long) (700 + (150 * i)));
+			hourlyConsumption.put(now.plusHours(i), (long) (2000 + (150 * i)));
 		}
 
-		for (Entry<LocalDateTime, Float> entry : HourlyPrices.entrySet()) {
-			System.out.println("Time: " + entry.getKey() + " Price: " + entry.getValue());
+		if (!hourlyConsumption.isEmpty()) {
+			System.out.println(
+					"first Key: " + hourlyConsumption.firstKey() + " last Key: " + hourlyConsumption.lastKey());
 		}
 
 		for (Entry<LocalDateTime, Long> entry : hourlyConsumption.entrySet()) {
 			System.out.println("Time: " + entry.getKey() + " Consumption: " + entry.getValue());
 		}
 
-		totalDemand = (calculateDemandTillThishour(hourlyConsumption.firstKey(), hourlyConsumption.lastKey()))
-				+ hourlyConsumption.lastEntry().getValue();
-		System.out.println("total Consumption: " + totalDemand);
-		getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), HourlyPrices.lastKey());
+		totalDemand = (calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
+				hourlyConsumption.lastKey().plusDays(1))) + hourlyConsumption.lastEntry().getValue();
+
+		System.out.println(" [ " + nettCapacity + " ] " + " [ " + maxApparentPower + " ] " + " [ " + availableCapacity
+				+ " ] " + " [ " + totalDemand + " ] ");
+
+		PricesTest.houlryPricesTest();
+		hourlyPrices = PricesTest.getHourlyPricesTest();
+		for (Entry<LocalDateTime, Float> entry : hourlyPrices.entrySet()) {
+			System.out.println("Time: " + entry.getKey() + " Price: " + entry.getValue());
+		}
+		totalDemand = calculateDemandTillThishour(hourlyConsumption.firstKey().plusDays(1),
+				hourlyConsumption.lastKey().plusDays(1)) + hourlyConsumption.lastEntry().getValue();
+		System.out.println(" [ " + hourlyConsumption.firstKey() + " ] " + " [ " + hourlyConsumption.lastKey() + " ] ");
+		System.out.println(" Getting schedule: ");
+		chargeSchedule.clear();
+		
+		getChargeSchedule(hourlyPrices.firstKey(), hourlyConsumption.lastKey().plusDays(1), availableCapacity, totalDemand);
 
 		for (Entry<LocalDateTime, Long> entry : chargeSchedule.entrySet()) {
 			System.out.println("Time: " + entry.getKey() + " Consumption: " + entry.getValue());
@@ -54,178 +67,216 @@ public class App {
 
 	}
 
-	private static void getCheapestHoursIfBatteryNotSufficient(LocalDateTime start, LocalDateTime end) {
+	private static void getChargeSchedule(LocalDateTime start, LocalDateTime end, long availableEnergy, long totalDemand) {
 
+		System.out.println("Enetered Charge Schedule: ");
+		System.out.println("totalDemand: " + totalDemand);
 		// function to find the minimum priceHour
 		cheapHour(start, end);
-		System.out.println("Cheap Price: " + minPrice);
-		System.out.println("total Demand: " + totalDemand);
+		availableCapacity = availableEnergy;
+		System.out.println("availableCapacity: " + availableCapacity);
+		demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp);
+		System.out.println("demand_Till_Cheapest_Hour" + demand_Till_Cheapest_Hour);
 		currentHourConsumption = hourlyConsumption.ceilingEntry(cheapTimeStamp.minusDays(1)).getValue();
-		demand_Till_Cheapest_Hour = calculateDemandTillThishour(hourlyConsumption.firstKey(),
-				cheapTimeStamp.minusDays(1));
+		System.out.println("currentHourConsumption" + currentHourConsumption);
+		
+
 		/*
 		 * Calculates the amount of energy that needs to be charged during the cheapest
 		 * price hours.
 		 */
+
 		if (totalDemand > 0) {
-			// if the battery has sufficient energy!
+
+			// if the battery doesn't has sufficient energy!
 			if (availableCapacity >= demand_Till_Cheapest_Hour) {
-				System.out.println("entering second loop ");
-				getCheapestHoursIfBatterySufficient(cheapTimeStamp, HourlyPrices.lastKey());
+				System.out.println("availableCapacity " + availableCapacity + "is greater than "
+						+ "demand_Till_Cheapest_Hour" + demand_Till_Cheapest_Hour);
+				getCheapestHoursIfBatterySufficient(cheapTimeStamp.plusHours(1), end, availableEnergy, totalDemand);
 			} else {
-
-				// if the battery doesn't has sufficient energy!
-
-				System.out.println("greater than 0 ");
-				System.out.println(currentHourConsumption);
+				System.out.println("availableCapacity " + availableCapacity + "is less than "
+						+ "demand_Till_Cheapest_Hour" + demand_Till_Cheapest_Hour);
 				chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour - currentHourConsumption;
-				// bufferAmountToCharge = 0;
-				System.out.println("chargebleConsumption: " + chargebleConsumption);
-
+				System.out.println("chargebleConsumption " + chargebleConsumption);
 				if (chargebleConsumption > 0) {
-					System.out.println("greater than 0 ");
 
 					if (chargebleConsumption > maxApparentPower) {
-
+						System.out.println("chargebleConsumption " + chargebleConsumption + "is greater than "
+								+ "maxApparentPower" + maxApparentPower);
 						LocalDateTime lastCheapTimeStamp = cheapTimeStamp;
-						float lasttMinPrice = minPrice;
-						cheapHour(cheapTimeStamp.plusHours(1), hourlyConsumption.lastKey().plusDays(1));
+						System.out.println("lastCheapTimeStamp " + lastCheapTimeStamp);
 
-						if (minPrice < lasttMinPrice) {
+						cheapHour(start, cheapTimeStamp);
+						float firstMinPrice = minPrice;
+						System.out.println("firstMinPrice " + firstMinPrice);
+
+						cheapHour(lastCheapTimeStamp.plusHours(1), end);
+						System.out.println("minPrice " + minPrice);
+
+						if (minPrice < firstMinPrice) {
 							remainingConsumption = chargebleConsumption - maxApparentPower;
 							System.out.println("getting into adjusting remaining charge: ");
+							availableCapacity = maxApparentPower;
 							adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
 									hourlyConsumption.lastKey().plusDays(1), remainingConsumption, maxApparentPower);
 						} else {
-							System.out.println("entering else:");
-
 							if (chargebleConsumption > nettCapacity) {
 								remainingConsumption = chargebleConsumption - nettCapacity;
 								System.out.println("getting into adjusting remaining charge: ");
-								System.out.println(remainingConsumption);
+								availableCapacity = nettCapacity;
 								adjustRemainigConsumption(lastCheapTimeStamp.plusHours(1),
 										hourlyConsumption.lastKey().plusDays(1), remainingConsumption, nettCapacity);
 							}
-
 						}
+//						cheapHour(lastCheapTimeStamp.plusHours(1), end);
+//						demand_Till_Cheapest_Hour = calculateDemandTillThishour(lastCheapTimeStamp.plusHours(1), cheapTimeStamp);
+//						getCheapestHoursIfBatterySufficient(cheapTimeStamp.plusHours(1), end, availableCapacity, remainingConsumption);
 						cheapTimeStamp = lastCheapTimeStamp;
 						chargebleConsumption = maxApparentPower;
 					}
+					System.out.println("chargebleConsumption " + chargebleConsumption + "is less than "
+							+ "maxApparentPower" + maxApparentPower);
 					totalDemand = totalDemand - chargebleConsumption - currentHourConsumption - remainingConsumption;
+					System.out.println("totalDemand " + totalDemand);
 					remainingConsumption = 0;
+					// totalDemand = totalDemand - chargebleConsumption - currentHourConsumption;
+					System.out.println("Putting into schedule " + cheapTimeStamp + chargebleConsumption);
 					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
-					System.out.println("tota Demand: " + totalDemand + "chargebleConsumption: " + chargebleConsumption);
-					System.out.println(totalDemand);
-					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
-					getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), cheapTimeStamp);
+					getChargeSchedule(start, cheapTimeStamp, availableEnergy, totalDemand);
 				} else {
-					System.out.println("Not Scheduling ");
-					totalDemand = totalDemand - currentHourConsumption;
-					System.out.println("tota Demand: " + totalDemand);
-					getCheapestHoursIfBatteryNotSufficient(HourlyPrices.firstKey(), cheapTimeStamp);
+					System.out.println("Not greater than 0 ");
+					totalDemand -= currentHourConsumption;
+					getChargeSchedule(start, cheapTimeStamp, availableEnergy, totalDemand);
 				}
 			}
 		}
 	}
 
-	private static void getCheapestHoursIfBatterySufficient(LocalDateTime start, LocalDateTime end) {
+	private static void getCheapestHoursIfBatterySufficient(LocalDateTime start, LocalDateTime end, long availbleEnergy, long remainingConsumption) {
 
-		availableCapacity -= demand_Till_Cheapest_Hour; // This will be the capacity during cheapest hour.
-		long allowedConsumption = nettCapacity - availableCapacity;
-		currentHourConsumption = hourlyConsumption.ceilingEntry(cheapTimeStamp.minusDays(1)).getValue();
-		// totalDemand -= demand_Till_Cheapest_Hour;
-		System.out.println(availableCapacity + " " + demand_Till_Cheapest_Hour);
-		System.out.println(chargeSchedule.firstKey());
-		chargebleConsumption = totalDemand - availableCapacity - currentHourConsumption;
+		long totalDemand = remainingConsumption;
+		if (totalDemand > 0) {
 
-		System.out.println(chargebleConsumption);
-		System.out.println(currentHourConsumption);
+			long availableCapacity = availbleEnergy;
+			availableCapacity -= demand_Till_Cheapest_Hour; // This will be the capacity during cheapest hour.
+			System.out.println("availableCapacity: " + availableCapacity);
+			long allowedConsumption = nettCapacity - availableCapacity;
+			System.out.println("allowedConsumption: " + allowedConsumption);
+			currentHourConsumption = hourlyConsumption.ceilingEntry(cheapTimeStamp.minusDays(1)).getValue();
 
-		if (chargebleConsumption > 0) {
-			System.out.println("greater than 0: ");
+			if (allowedConsumption > 0) {
+				chargebleConsumption = totalDemand - demand_Till_Cheapest_Hour - currentHourConsumption;
+				System.out.println("chargebleConsumption: " + chargebleConsumption);
 
-			if ((chargebleConsumption > allowedConsumption)) {
-
-				if ((chargebleConsumption > maxApparentPower)) {
-					chargeSchedule.put(cheapTimeStamp, maxApparentPower);
-					remainingConsumption = chargebleConsumption - maxApparentPower;
-					availableCapacity += maxApparentPower;
-
-				} else {
-					remainingConsumption = chargebleConsumption - allowedConsumption;
-					chargeSchedule.put(cheapTimeStamp, allowedConsumption);
-					availableCapacity += allowedConsumption;
+				if (chargebleConsumption > 0) {
+					if (chargebleConsumption > allowedConsumption) {
+						System.out.println("chargebleConsumption > allowedConsumption ");
+						if (allowedConsumption > maxApparentPower) {
+							System.out.println("allowedConsumption > maxApparentPower ");
+							remainingConsumption = chargebleConsumption - maxApparentPower;
+							System.out.println("remainingConsumption: " + remainingConsumption);
+							chargebleConsumption = maxApparentPower;
+							System.out.println("Putting into schedule: " + chargebleConsumption);
+						} else {
+							remainingConsumption = chargebleConsumption - allowedConsumption;
+							System.out.println("remainingConsumption: " + remainingConsumption);
+							chargebleConsumption = allowedConsumption;
+						}
+					} else {
+						if (chargebleConsumption > maxApparentPower) {
+							remainingConsumption = chargebleConsumption - maxApparentPower;
+							System.out.println("remainingConsumption: " + remainingConsumption);
+							chargebleConsumption = maxApparentPower;
+						}
+					}
+					System.out.println("Putting into schedule " + cheapTimeStamp + chargebleConsumption);
+					chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
+					totalDemand = remainingConsumption;
+					System.out.println("totalDemand " + totalDemand);
+					availableCapacity += chargebleConsumption;
 				}
-				// adjustRemainigConsumption(cheapTimeStamp, lastTimeStamp,
-				// remainingConsumption, availableCapacity);
-			} else {
-				if ((chargebleConsumption > maxApparentPower)) {
-					chargeSchedule.put(cheapTimeStamp, maxApparentPower);
-					remainingConsumption = chargebleConsumption - maxApparentPower;
-					availableCapacity += maxApparentPower;
-				}
-				System.out.println("putting in schedule: " + chargebleConsumption);
-				totalDemand = totalDemand - chargebleConsumption - availableCapacity - currentHourConsumption;
-				System.out.println("totalDemand: " + totalDemand);
-				chargeSchedule.put(cheapTimeStamp, chargebleConsumption);
+			}else {
+				availableCapacity -= currentHourConsumption;
+				System.out.println("availableCapacity: " + availableCapacity);
 			}
+			cheapHour(start, end.minusHours(1));
+			demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp);
+			System.out.println("demand_Till_Cheapest_Hour: " + demand_Till_Cheapest_Hour + " " +cheapTimeStamp);
+			totalDemand = totalDemand - demand_Till_Cheapest_Hour - currentHourConsumption;
+			System.out.println("totalDemand: " + totalDemand);
+			getCheapestHoursIfBatterySufficient(cheapTimeStamp.plusHours(1), end, availableCapacity, totalDemand);
 		}
 	}
 
 	private static void adjustRemainigConsumption(LocalDateTime start, LocalDateTime end, long remainingConsumption,
 			long availableCapacity) {
 
-		cheapHour(start, end);
-		long currentConsumption = hourlyConsumption.ceilingEntry(cheapTimeStamp.minusDays(1)).getValue();
-		demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp.minusDays(1));
-		System.out.println("demand_Till_Cheapest_Hour "+ demand_Till_Cheapest_Hour);
-		availableCapacity -= demand_Till_Cheapest_Hour;
-		System.out.println("availableCapacity "+ availableCapacity);
+		if (!start.isEqual(end)) {
+			System.out.println(start + "------- " + end);
+			cheapHour(start, end);
 
-		long allowedConsumption = nettCapacity - availableCapacity;
-		System.out.println("allowedConsumption "+ allowedConsumption);
-		System.out.println("remainingConsumption "+ remainingConsumption);
+			demand_Till_Cheapest_Hour = calculateDemandTillThishour(start, cheapTimeStamp);
+			System.out.println("demand_Till_Cheapest_Hour: " + demand_Till_Cheapest_Hour);
+			long currentConsumption = hourlyConsumption.ceilingEntry(cheapTimeStamp.minusDays(1)).getValue();
+			System.out.println("currentConsumption: " + currentConsumption);
+			availableCapacity -= demand_Till_Cheapest_Hour;
+			System.out.println("availableCapacity: " + availableCapacity);
 
-		if (allowedConsumption > 0) {
-			if (remainingConsumption > allowedConsumption) {
-				//chargebleConsumption = allowedConsumption;
-				remainingConsumption -= allowedConsumption;
-				availableCapacity = availableCapacity + allowedConsumption - currentConsumption;
-				chargeSchedule.put(cheapTimeStamp, allowedConsumption);
-				adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption, availableCapacity);
+			long allowedConsumption = nettCapacity - availableCapacity;
+			System.out.println("allowedConsumption: " + allowedConsumption);
+			System.out.println("remainingConsumption: " + remainingConsumption);
+
+			if (allowedConsumption > 0) {
+				if (remainingConsumption > allowedConsumption) {
+					System.out.println("remainingConsumption > allowedConsumption: ");
+					// chargebleConsumption = allowedConsumption;
+					remainingConsumption -= allowedConsumption;
+					availableCapacity += allowedConsumption;
+					System.out.println("availableCapacity: " + availableCapacity);
+					System.out.println("Putting into Schedule: " + allowedConsumption);
+					chargeSchedule.put(cheapTimeStamp, allowedConsumption);
+					adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption,
+							availableCapacity);
+				} else {
+					// chargebleConsumption = remainingConsumption;
+					System.out.println("Putting into Schedule: " + remainingConsumption);
+					chargeSchedule.put(cheapTimeStamp, remainingConsumption);
+				}
+
 			} else {
-				//chargebleConsumption = remainingConsumption;
-				chargeSchedule.put(cheapTimeStamp, remainingConsumption);
+				availableCapacity -= currentConsumption;
+				System.out.println("Avoiding Schedule: ");
+				System.out.println(cheapTimeStamp.plusHours(1) + "------- " + end);
+				adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption, availableCapacity);
 			}
-		}else {
-			
-			availableCapacity -= currentConsumption;
-			adjustRemainigConsumption(cheapTimeStamp.plusHours(1), end, remainingConsumption, availableCapacity);
 		}
-		
 	}
 
 	private static void cheapHour(LocalDateTime start, LocalDateTime end) {
 		minPrice = Float.MAX_VALUE;
 
 		// Calculates the cheapest price hour within certain Hours.
-		for (Map.Entry<LocalDateTime, Float> entry : HourlyPrices.subMap(start, end).entrySet()) {
+		for (Map.Entry<LocalDateTime, Float> entry : hourlyPrices.subMap(start, end).entrySet()) {
 			if (entry.getValue() < minPrice) {
 				cheapTimeStamp = entry.getKey();
 				minPrice = entry.getValue();
 			}
 		}
-		System.out.println(cheapTimeStamp + " " + minPrice);
+		System.out.println("cheapTimeStamp: " + cheapTimeStamp);
 	}
 
 	private static long calculateDemandTillThishour(LocalDateTime start, LocalDateTime end) {
 		long demand = 0;
 		for (Entry<LocalDateTime, Long> entry : hourlyConsumption.entrySet()) {
-			if ((entry.getKey().isEqual(start) || entry.getKey().isAfter(start)) && entry.getKey().isBefore(end)) {
+			if ((entry.getKey().plusDays(1).isEqual(start) || entry.getKey().plusDays(1).isAfter(start))
+					&& entry.getKey().plusDays(1).isBefore(end)) {
 				demand += entry.getValue();
 			}
 		}
-		System.out.println("demand Till cheap Hour: " + demand);
 		return demand;
+	}
+
+	protected TreeMap<LocalDateTime, Long> getChargeSchedule() {
+		return chargeSchedule;
 	}
 }
