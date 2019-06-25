@@ -163,7 +163,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (this.isActivePowerAllowed) {
 			return new Constraint[] { this.createPowerConstraint("Reactive power is not allowed", Phase.ALL,
 					Pwr.REACTIVE, Relationship.EQUALS, 0) };
