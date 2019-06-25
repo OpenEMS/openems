@@ -1,8 +1,16 @@
 package io.openems.edge.application;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.Hashtable;
 import java.util.List;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -124,6 +132,102 @@ public class PreConfig {
 			configs = cm.listConfigurations("(&(id=kacoCore0)(service.factoryPid=Kaco.BlueplanetHybrid10.Core))");
 
 			if (configs == null || configs.length == 0) {
+				
+				// Energy Depot Start
+
+				Configuration[] oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.EdCom)");
+
+				if (oldconfigs != null) {
+
+					Configuration edcom = oldconfigs[0];
+					edcom.delete();
+					
+				}
+				
+				
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.CenturioEss)");
+
+				if (oldconfigs != null) {
+
+					Configuration ess = oldconfigs[0];
+					ess.delete();
+					
+				}
+
+				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.CenturioPVMeter)");
+
+				if (oldconfigs != null) {
+
+					Configuration pvmeter = oldconfigs[0];
+					pvmeter.delete();
+					
+				}
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.Vectis)");
+
+				if (oldconfigs != null) {
+
+					Configuration vectis = oldconfigs[0];
+					vectis.delete();
+					
+				}
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=EnergyDepot.CenturioMeter)");
+
+				if (oldconfigs != null) {
+
+					Configuration gridmeter = oldconfigs[0];
+					gridmeter.delete();
+					
+				}
+				
+				//Energy Depot End
+				
+				// Old Kaco Start
+				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpCom)");
+
+				if (oldconfigs != null) {
+
+					Configuration bpCom = oldconfigs[0];
+					bpCom.delete();
+					
+				}
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpEss)");
+
+				if (oldconfigs != null) {
+
+					Configuration bpEss = oldconfigs[0];
+					bpEss.delete();
+					
+				}
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpPVMeter)");
+
+				if (oldconfigs != null) {
+
+					Configuration bpPV = oldconfigs[0];
+					bpPV.delete();
+				}
+				
+				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.hy-switch)");
+
+				if (oldconfigs != null) {
+
+					Configuration hyswitch = oldconfigs[0];
+					hyswitch.delete();
+					
+				}
+				oldconfigs = cm.listConfigurations("(service.factoryPid=KACO.bpGridMeter)");
+
+				if (oldconfigs != null) {
+
+					Configuration bpgridMeter = oldconfigs[0];
+					bpgridMeter.delete();
+				}
+				// old Kaco End
+				
 
 				// Create Kaco Core
 				factory = cm.createFactoryConfiguration("Kaco.BlueplanetHybrid10.Core", null);

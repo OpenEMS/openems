@@ -121,7 +121,6 @@
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
-	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.dailyscheduler;version=snapshot,\
@@ -155,5 +154,6 @@
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
-	javax.jmdns;version='[3.5.5,3.5.6)'
+	javax.jmdns;version='[3.5.5,3.5.6)',\
+	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot
 -resolve: auto
