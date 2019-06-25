@@ -13,7 +13,7 @@
 
 The OpenEMS Documentation is built with https://antora.org/[Antora icon:external-link[]].
 
-OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are seperated on two different repositories.
+OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are separated on two different repositories.
 
 The https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true[UI icon:external-link[]] was slightly modified to fit our needs.
 
@@ -30,7 +30,7 @@ You will see the changes you have made after our frequent Docs - Update.
 
 == Add a page
 
-To add a page, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc#_download_the_source_code[Source Tree]) and open it with a Code Editor (prefably xref:gettingstarted.adoc#_setup_visual_studio_code_for_openems_ui[Visual Studio Code]).
+To add a page, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc#_download_the_source_code[Source Tree]) and open it with a Code Editor (preferably xref:gettingstarted.adoc#_setup_visual_studio_code_for_openems_ui[Visual Studio Code]).
 
 1. Go to https://github.com/OpenEMS/openems/tree/develop/doc/modules/ROOT/pages[doc/modules/ROOT/pages icon:external-link[]] and create a .adoc file with the desired name.
 
@@ -40,28 +40,21 @@ To add a page, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc
 
 == Build Docs
 
-To build the docs, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc#_download_the_source_code[Source Tree]) and open it with a Code Editor (prefably xref:gettingstarted.adoc#_setup_visual_studio_code_for_openems_ui[Visual Studio Code]).
+To build the docs, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc#_download_the_source_code[Source Tree]) and open it with a Code Editor (preferably xref:gettingstarted.adoc#_setup_visual_studio_code_for_openems_ui[Visual Studio Code]).
 
-NOTE: NodeJS has to be installed
-
-.Install Antora via npm
-
-Open Terminal and type:
+[NOTE]
 ====
-npm i -g @antora/cli
-
-npm i -g @antora/site-generator-default
+NodeJS has to be installed
 ====
 
-.Run Antora
 
-Go to https://github.com/OpenEMS/openems/tree/develop/doc/build[doc/build icon:external-link[]] and type
+.Build the documents:
+Open the integrated terminal, change to the https://github.com/OpenEMS/openems/tree/develop/[root directory icon:external-link[]] and type
 ====
-antora site.yml
+`gradlew buildAntoraDocs`
 ====
+
 Docs should be building.. the finished HTML Folder can be found in your local 'build' folder (inside your https://github.com/OpenEMS/openems/tree/develop/doc/build[repository build folder icon:external-link[]])
-
-TIP: If your data isn't updating properly or not building, try antora site.yml --pull to reset the cache
 
 NOTE: If you want to build your own docs with Antora see https://fabianfnc.github.io/bocs/[this guide icon:external-link[]] 
 

@@ -13,6 +13,7 @@ import { IndexComponent as EdgeComponentInstallIndexComponentComponent } from '.
 import { ComponentInstallComponent as EdgeComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
 import { IndexComponent as EdgeComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
 import { ComponentUpdateComponent as EdgeComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
+import { ProfileComponent as EdgeProfileComponent } from './edge/settings/profile/profile.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -32,6 +33,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeComponentInstallComponentComponent },
   { path: 'device/:edgeId/settings/component.update', component: EdgeComponentUpdateIndexComponentComponent },
   { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeComponentUpdateComponentComponent },
+  { path: 'device/:edgeId/settings/profile', component: EdgeProfileComponent },
 
 ];
 

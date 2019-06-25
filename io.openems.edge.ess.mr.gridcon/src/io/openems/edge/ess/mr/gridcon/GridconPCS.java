@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -312,7 +313,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (this.stateMachine.getState() != StateMachine.State.ONGRID) {
 			return new Constraint[] {
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),

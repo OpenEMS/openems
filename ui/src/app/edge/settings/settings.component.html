@@ -1,14 +1,28 @@
 <ion-grid *ngIf="edge">
   <ion-row justify-content-left>
 
-    <ion-col size="12" size-sm="6">
+    <ion-col size="12" size-sm="4">
       <ion-card>
         <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-icon slot="start" size="large" color="primary" name="today"></ion-icon>
+          <ion-label>Anlagenprofil</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/profile">
+            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="12" size-sm="4">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="list"></ion-icon>
           <ion-label translate>Edge.Config.Index.Log</ion-label>
         </ion-item>
         <ion-card-content>
-          <ion-item translate>Edge.Config.Index.LiveLog</ion-item>
+          <!-- <ion-item translate>Edge.Config.Index.LiveLog</ion-item> -->
           <ion-button float-right routerLink="/device/{{ edge.id }}/settings/systemlog">
             <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
           </ion-button>
@@ -16,10 +30,10 @@
       </ion-card>
     </ion-col>
 
-    <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
+    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
       <ion-card>
         <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-icon slot="start" size="large" color="primary" name="switch"></ion-icon>
           <ion-label translate>Edge.Config.Index.AdjustComponents</ion-label>
         </ion-item>
         <ion-card-content>
@@ -30,10 +44,10 @@
       </ion-card>
     </ion-col>
 
-    <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
+    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
       <ion-card>
         <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-icon slot="start" size="large" color="primary" name="add"></ion-icon>
           <ion-label translate>Edge.Config.Index.AddComponents</ion-label>
         </ion-item>
         <ion-card-content>
@@ -44,10 +58,10 @@
       </ion-card>
     </ion-col>
 
-    <ion-col size="12" size-sm="6" *ngIf="edge.roleIsAtLeast('admin')">
+    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
       <ion-card>
         <ion-item lines="full" color="light">
-          <ion-icon slot="start" size="large" color="primary" name="stats"></ion-icon>
+          <ion-icon slot="start" size="large" color="primary" name="eye"></ion-icon>
           <!-- TODO translate -->
           <ion-label>Channels</ion-label>
         </ion-item>
