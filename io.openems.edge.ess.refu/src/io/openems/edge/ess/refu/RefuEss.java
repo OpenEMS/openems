@@ -20,6 +20,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -934,7 +935,7 @@ public class RefuEss extends AbstractOpenemsModbusComponent implements Symmetric
 		super.logError(log, message);
 	}
 
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		SystemState systemState = this.channel(ChannelId.SYSTEM_STATE).value().asEnum();
 		switch (systemState) {
 		case ERROR:
