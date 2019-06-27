@@ -407,8 +407,13 @@ public class EdgeConfig {
 					case "webconsole.configurationFactory.nameHint":
 						// ignore ID
 						break;
+					case "alias":
+						// Set alias as not-required. If no alias is given it falls back to id.
+						properties.add(Property.from(ad, false));
+						break;
 					default:
 						properties.add(Property.from(ad, isRequired));
+						break;
 					}
 				}
 			}
