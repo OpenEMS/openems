@@ -53,19 +53,15 @@ export class PickDateComponent {
      * @param from
      * @param to
      */
-    public setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
+    public setPeriod(period: PeriodString) {
         switch (period) {
             case "yesterday": {
-                this.setDateRange({
-                    from: this.YESTERDAY,
-                    to: this.YESTERDAY,
-                    text: this.translate.instant('Edge.History.Yesterday') + ", " + format(this.YESTERDAY, this.translate.instant('General.DateFormat'))
-                });
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.YESTERDAY, this.YESTERDAY));
                 break;
             }
             case "today":
             default:
-                this.setDateRange(this.service.DEFAULT_HISTORY_PERIOD);
+                this.setDateRange(new DefaultTypes.HistoryPeriod(this.TODAY, this.TODAY));
                 break;
         }
     }
