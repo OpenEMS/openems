@@ -1,7 +1,5 @@
 package io.openems.edge.project.hofgutkarpfsee;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -203,10 +201,10 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			if (value < this.threshold - hysteresis) {
 				this.applyHighHysteresis = false; // do not apply high hysteresis anymore
 			}
-
 			if (value >= this.threshold) {
 				this.applyHighHysteresis = false;
 			}
+
 			if (this.previousState == State.PASS_HIGH_COMING_FROM_ABOVE && applyHighHysteresis) {
 				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
 				break;

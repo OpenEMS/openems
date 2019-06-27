@@ -20,6 +20,21 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
 	boolean readOnlyMode() default false;
 
+	@AttributeDefinition(name = "Surplus min soc", description = "The required Soc to start surplus feed-in.")
+	int surplusMinSoc() default 0;
+
+	@AttributeDefinition(name = "Surplus Off Time", description = "The time to stop grid feed in.")
+	String surplusOffTime() default "17:00:00";
+
+	@AttributeDefinition(name = "Target Grid Setpoint", description = "The target setpoint for grid. Positive for buy-from-grid; negative for sell-to-grid.")
+	int targetGridSetpoint() default 0;
+	
+	@AttributeDefinition(name = "Grid Meter Id", description = "Grid Meter Id")
+	String meter_id() default "meter0";
+	
+	@AttributeDefinition(name = "Commercial DC Charger Id", description = "Commercial DC Charger Id")
+	String charger_id() default "charger0";
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";
 
