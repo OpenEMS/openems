@@ -11,8 +11,12 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Streams;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -29,6 +33,8 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 public class Data {
+
+	private final Logger log = LoggerFactory.getLogger(Data.class);
 
 	private final PowerComponent parent;
 
@@ -110,7 +116,7 @@ public class Data {
 	}
 
 	public void addSimpleConstraint(String description, String essId, Phase phase, Pwr pwr, Relationship relationship,
-			double value) {
+			double value) throws OpenemsException {
 		this.constraints.add(this.createSimpleConstraint(description, essId, phase, pwr, relationship, value));
 	}
 
@@ -118,7 +124,7 @@ public class Data {
 		return coefficients;
 	}
 
-	public Coefficient getCoefficient(String essId, Phase phase, Pwr pwr) {
+	public Coefficient getCoefficient(String essId, Phase phase, Pwr pwr) throws OpenemsException {
 		return this.coefficients.of(essId, phase, pwr);
 	}
 
@@ -126,8 +132,9 @@ public class Data {
 	 * Gets Constraints for all Inverters.
 	 * 
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> getConstraintsForAllInverters() {
+	public List<Constraint> getConstraintsForAllInverters() throws OpenemsException {
 		return this.getConstraintsWithoutDisabledInverters(Collections.emptyList());
 	}
 
@@ -136,8 +143,9 @@ public class Data {
 	 * 
 	 * @param enabledInverters Collection of enabled inverters
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> getConstraintsForInverters(Collection<Inverter> enabledInverters) {
+	public List<Constraint> getConstraintsForInverters(Collection<Inverter> enabledInverters) throws OpenemsException {
 		List<Inverter> disabledInverters = new ArrayList<>(this.inverters);
 		disabledInverters.removeAll(enabledInverters);
 		return getConstraintsWithoutDisabledInverters(disabledInverters);
@@ -148,8 +156,10 @@ public class Data {
 	 * 
 	 * @param disabledInverters Collection of disabled inverters
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters) {
+	public List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters)
+			throws OpenemsException {
 		return Streams.concat(//
 				this.createDisableConstraintsForInactiveInverters(disabledInverters).stream(),
 				this.createGenericEssConstraints().stream(), //
@@ -166,8 +176,10 @@ public class Data {
 	 * 
 	 * @param inverters Collection of inverters
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> createDisableConstraintsForInactiveInverters(Collection<Inverter> inverters) {
+	public List<Constraint> createDisableConstraintsForInactiveInverters(Collection<Inverter> inverters)
+			throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (Inverter inv : inverters) {
 			String essId = inv.getEssId();
@@ -185,8 +197,9 @@ public class Data {
 	 * MaxApparentPower.
 	 * 
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> createGenericEssConstraints() {
+	public List<Constraint> createGenericEssConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (String essId : this.essIds) {
 			ManagedSymmetricEss ess = this.parent.getEss(essId);
@@ -232,12 +245,20 @@ public class Data {
 	 */
 	public List<Constraint> createStaticEssConstraints() {
 		List<Constraint> result = new ArrayList<>();
+		boolean isFailed = false;
 		for (String essId : this.essIds) {
 			ManagedSymmetricEss ess = this.parent.getEss(essId);
-			for (Constraint c : ess.getStaticConstraints()) {
-				result.add(c);
+			try {
+				for (Constraint c : ess.getStaticConstraints()) {
+					result.add(c);
+				}
+			} catch (OpenemsException e) {
+				this.parent.logError(this.log,
+						"Setting static contraints for Ess [" + essId + "] failed: " + e.getMessage());
+				isFailed = true;
 			}
 		}
+		this.parent.channel(PowerComponent.ChannelId.STATIC_CONSTRAINTS_FAILED).setNextValue(isFailed);
 		return result;
 	}
 
@@ -245,8 +266,9 @@ public class Data {
 	 * Creates Constraints for Cluster, e.g. ClusterL1 = ess1_L1 + ess2_L1 + ...
 	 * 
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> createClusterConstraints() {
+	public List<Constraint> createClusterConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (String essId : this.essIds) {
 			ManagedSymmetricEss ess = this.parent.getEss(essId);
@@ -280,8 +302,10 @@ public class Data {
 	 * 
 	 * @param disabledInverters Collection of disabled inverters
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> createSumOfPhasesConstraints(Collection<Inverter> disabledInverters) {
+	public List<Constraint> createSumOfPhasesConstraints(Collection<Inverter> disabledInverters)
+			throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (String essId : this.essIds) {
 			for (Pwr pwr : Pwr.values()) {
@@ -303,8 +327,9 @@ public class Data {
 	 * Creates Constraints for SymmetricEss, e.g. L1 = L2 = L3.
 	 * 
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> createSymmetricEssConstraints() {
+	public List<Constraint> createSymmetricEssConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (String essId : this.essIds) {
 			ManagedSymmetricEss ess = this.parent.getEss(essId);
@@ -359,8 +384,9 @@ public class Data {
 	 * @param relationship the Relationship between P and value
 	 * @param value        the value
 	 * @return Constraint
+	 * @throws OpenemsException
 	 */
-	public Constraint createPConstraint(Relationship relationship, int value) {
+	public Constraint createPConstraint(Relationship relationship, int value) throws OpenemsException {
 		List<LinearCoefficient> cos = new ArrayList<>();
 		for (Inverter inverter : this.inverters) {
 			cos.add(new LinearCoefficient(this.coefficients.of(inverter.getEssId(), inverter.getPhase(), Pwr.ACTIVE),
@@ -379,9 +405,10 @@ public class Data {
 	 * @param relationship the Relationshipt
 	 * @param value        the value
 	 * @return Constraints
+	 * @throws OpenemsException
 	 */
 	public Constraint createSimpleConstraint(String description, String essId, Phase phase, Pwr pwr,
-			Relationship relationship, double value) {
+			Relationship relationship, double value) throws OpenemsException {
 		return new Constraint(description, //
 				new LinearCoefficient[] { //
 						new LinearCoefficient(this.coefficients.of(essId, phase, pwr), 1) //
@@ -394,8 +421,9 @@ public class Data {
 	 * phases.
 	 * 
 	 * @return List of Constraints
+	 * @throws OpenemsException
 	 */
-	public List<Constraint> createSinglePhaseEssConstraints() {
+	public List<Constraint> createSinglePhaseEssConstraints() throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (Inverter inv : inverters) {
 			if (inv instanceof DummyInverter) {
