@@ -163,6 +163,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			setDisMinV.setNextWriteValue(disMinV * 10);
 			setChaMaxV.setNextWriteValue(chaMaxV * 10);
 
+			this.getCapacity().setNextValue(battery.getCapacity().value().get());
+			
 			this.channel(SinexcelChannelId.STATE_UNABLE_TO_SET_BATTERY_RANGES).setNextValue(false);
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Unable to set battery ranges: " + e.getMessage());

@@ -71,6 +71,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
 
 	protected final static int MAX_APPARENT_POWER = 40000;
+	protected final static int NET_CAPACITY = 40000;
 
 	private final static int UNIT_ID = 100;
 	private final static int MIN_REACTIVE_POWER = -10000;
@@ -92,6 +93,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
+		this.getCapacity().setNextValue(NET_CAPACITY);
 	}
 
 	@Override
