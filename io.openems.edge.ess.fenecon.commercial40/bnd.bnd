@@ -8,8 +8,7 @@ Export-Package: \
 	io.openems.edge.ess.symmetric.api,\
 	io.openems.edge.ess.power.symmetric,\
 	io.openems.edge.ess.power.api,\
-	io.openems.edge.ess.dccharger.api
-Private-Package: \
+	io.openems.edge.ess.dccharger.api,\
 	io.openems.edge.ess.fenecon.commercial40,\
 	io.openems.edge.ess.fenecon.commercial40.charger
 

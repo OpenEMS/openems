@@ -1,6 +1,9 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -43,6 +46,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -52,6 +56,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -77,8 +82,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private final static int MIN_REACTIVE_POWER = -10000;
 	private final static int MAX_REACTIVE_POWER = 10000;
 
-	private String modbusBridgeId;
-	private boolean readOnlyMode = false;
+	private Config config;
+	private EssDcChargerFeneconCommercial40 charger = null;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference
 	private Power power;
@@ -98,7 +106,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		if (this.readOnlyMode) {
+		if (this.config.readOnlyMode()) {
 			return;
 		}
 
@@ -117,8 +125,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
-		this.modbusBridgeId = config.modbus_id();
-		this.readOnlyMode = config.readOnlyMode();
+		this.config = config;
 	}
 
 	@Deactivate
@@ -127,7 +134,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	public String getModbusBridgeId() {
-		return modbusBridgeId;
+		return this.config.modbus_id();
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -699,6 +706,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.unit(Unit.MILLIVOLT)), //
 		CELL_224_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
+		SURPLUS_FEED_IN_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
 
 		// StateChannels
 		STATE_0(Doc.of(Level.WARNING) //
@@ -1575,20 +1584,73 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsException {
-		if (this.readOnlyMode) {
+		// Read-Only-Mode
+		if (this.config.readOnlyMode()) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
 			};
-		} else {
-			return new Constraint[] {
-					// ReactivePower limitations
-					this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
-							Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER),
-					this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
-							Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
 		}
+
+		// Reactive Power constraints
+		List<Constraint> result = new ArrayList<>();
+		result.add(this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
+				Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER));
+		result.add(this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
+				Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER));
+
+		// Activate Surplus-Feed-In?
+		result.addAll(this.getSurplusFeedInConstraints());
+
+		return result.toArray(new Constraint[result.size()]);
 	}
+
+	/**
+	 * Gets Constraints for Surplus-Feed-In; empty list if no Constraints are added.
+	 * 
+	 * @return list of Constraints
+	 * @throws OpenemsException
+	 */
+	private List<Constraint> getSurplusFeedInConstraints() throws OpenemsException {
+		if (this.lastSurplusFeedInActivated == null
+				|| this.lastSurplusFeedInActivated.isBefore(LocalDateTime.now().minusMinutes(10))) {
+			if (
+			// Is a Charger set? (i.e. is this a Commercial 40-40 DC)
+			this.charger == null
+					// Is Surplus Feed-In not activated?
+					|| !this.config.activateSurplusFeedIn()
+					// Is battery not full?
+					|| this.getAllowedCharge().value().orElse(0) < this.config.surplusAllowedChargePowerLimit()
+					// Is time before 'Surplus Off Time'?
+					|| LocalTime.now().isAfter(LocalTime.parse(this.config.surplusOffTime()))
+					// Is PV producing?
+					|| Math.max(//
+							// InputVoltage 0
+							((IntegerReadChannel) this.charger
+									.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC0_INPUT_VOLTAGE)).value()
+											.orElse(0), //
+							// InputVoltage 1
+							((IntegerReadChannel) this.charger
+									.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC1_INPUT_VOLTAGE)).value()
+											.orElse(0) //
+					) < 250_000) {
+				this.lastSurplusFeedInActivated = null;
+				this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(0);
+				return new ArrayList<>();
+			}
+		}
+		// Active Surplus feed-in
+		int surplusFeedInPower = this.charger.getActualPower().value().orElse(0);
+
+		List<Constraint> result = new ArrayList<>();
+		result.add(this.createPowerConstraint("Enforce Surplus Feed-In", Phase.ALL, Pwr.ACTIVE,
+				Relationship.GREATER_OR_EQUALS, surplusFeedInPower));
+		this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(surplusFeedInPower);
+		this.lastSurplusFeedInActivated = LocalDateTime.now();
+		return result;
+	}
+
+	private LocalDateTime lastSurplusFeedInActivated = null;
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -1597,6 +1659,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	@Override
+	public void setCharger(EssDcChargerFeneconCommercial40 charger) {
+		this.charger = charger;
 	}
 
 }

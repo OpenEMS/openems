@@ -20,6 +20,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
 	boolean readOnlyMode() default false;
 
+	@AttributeDefinition(name = "Feed surplus power to the Grid", description = "Feeds surplus power to the grid. Only applies if Read-Only mode is deactivated.")
+	boolean activateSurplusFeedIn() default false;
+
+	@AttributeDefinition(name = "Surplus Allowed-Charge-Power limit", description = "Allowed to start surplus after Charge-Power limit. (Needs to set negative)")
+	int surplusAllowedChargePowerLimit() default -8000;
+
+	@AttributeDefinition(name = "Surplus Off Time", description = "The time to stop grid feed in.")
+	String surplusOffTime() default "17:00:00";
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id() default "modbus0";
 
