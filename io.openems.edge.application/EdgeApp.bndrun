@@ -152,10 +152,11 @@
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	javax.jmdns;version='[3.5.5,3.5.6)',\
-	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot
-	com.google.guava;version='[28.0.0,28.0.1)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
-	com.ghgande.j2mod;version='[2.5.5,2.5.6)'
+	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
+	com.google.guava;version='[28.0.0,28.0.1)',\
+	io.openems.edge.ess.sma;version=snapshot,\
+	io.openems.edge.fenecon.dess;version=snapshot
 	
 -resolve: auto
 
