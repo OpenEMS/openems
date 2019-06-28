@@ -1,4 +1,5 @@
-import { Role } from '../type/role'
+import { TranslateService } from '@ngx-translate/core';
+import { format, isSameDay } from 'date-fns';
 
 export module DefaultTypes {
 
@@ -62,10 +63,27 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export interface HistoryPeriod {
-    from: Date,
-    to: Date,
-    text: string
-  }
+  export class HistoryPeriod {
 
+    constructor(
+      public from: Date = new Date(),
+      public to: Date = new Date(),
+    ) { }
+
+    public getText(translate: TranslateService): string {
+      if (!isSameDay(this.from, this.to)) {
+        return translate.instant(
+          'General.PeriodFromTo', {
+            value1: format(this.from, translate.instant('General.DateFormat')),
+            value2: format(this.to, translate.instant('General.DateFormat'))
+          })
+      }
+      else if (!isSameDay(this.from, new Date())) {
+        return translate.instant('Edge.History.Yesterday') + ", " + format(this.from, translate.instant('General.DateFormat'));
+      }
+      else {
+        return translate.instant('Edge.History.Today') + ", " + format(new Date(), translate.instant('General.DateFormat'));
+      }
+    }
+  }
 }

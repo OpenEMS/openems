@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Edge, Service } from '../../shared/shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'history',
@@ -20,6 +21,7 @@ export class HistoryComponent implements OnInit {
 
   constructor(
     public service: Service,
+    public translate: TranslateService,
     private route: ActivatedRoute
   ) { }
 

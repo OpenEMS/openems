@@ -36,9 +36,9 @@ export const TRANSLATION = {
         Index: "Přehled",
         AboutUI: "About OpenEMS UI",
         GeneralSettings: 'Obecné Nastavení',
-        EdgeSettings: 'hy-control Obecné Nastavení',
+        EdgeSettings: 'hy-control Předvolby',
         Menu: 'Menu',
-        Overview: 'hy-control Overvire',
+        Overview: 'hy-control Přehled',
         Logout: 'Odhlásit'
     },
     Index: {
@@ -57,7 +57,9 @@ export const TRANSLATION = {
                 ReactivePower: "Jalový výkon",
                 ActivePower: "Činný výkon",
                 GridMeter: "Elektroměr - Odběr",
-                ProductionMeter: "Elektroměr - Výroba"
+                ProductionMeter: "Elektroměr - Výroba",
+                StorageDischarge: "baterie výtok",
+                StorageCharge: "baterie nakládání"
             },
             Energytable: {
                 Title: "Tabulka hodnot",
@@ -130,7 +132,8 @@ export const TRANSLATION = {
             LastWeek: "Poslední týden",
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
-            Go: "Jdi!"
+            Go: "Jdi!",
+            Export: "stáhnout jako soubor programu Excel"
         },
         Config: {
             Index: {

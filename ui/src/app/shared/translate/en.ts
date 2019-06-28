@@ -145,7 +145,8 @@ export const TRANSLATION = {
             LastWeek: "Last week",
             LastMonth: "Last month",
             LastYear: "Last year",
-            Go: "Go!"
+            Go: "Go!",
+            Export: "download as excel file"
         },
         Config: {
             Index: {
