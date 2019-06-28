@@ -96,7 +96,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	/**
 	 * Should the hysteresis be applied on passing high threshold?
 	 */
-	private boolean applyHighHysteresis = true;
+	private boolean applyHysteresis = true;
 
 	private ChargeState getChargeState(EssFeneconCommercial40Impl ess) throws OpenemsNamedException {
 		ess = this.componentManager.getComponent(this.config.ess_id());
@@ -191,57 +191,41 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		 */
 		switch (this.state) {
 		case UNDEFINED:
-
-			if (value > this.threshold) {
+			if (value >= this.threshold) {
+				this.applyHysteresis = false;
 				this.state = State.ABOVE_THRESHOLD;
 				break;
 			}
 
 			// evaluate if hysteresis is necessary
 			if (value < this.threshold - hysteresis) {
-				this.applyHighHysteresis = false; // do not apply high hysteresis anymore
-			}
-			if (value >= this.threshold) {
-				this.applyHighHysteresis = false;
+				this.applyHysteresis = false; // do not apply high hysteresis anymore
 			}
 
-			if (this.previousState == State.PASS_THRESHOLD_COMING_FROM_ABOVE && applyHighHysteresis) {
+			if (this.previousState == State.PASS_THRESHOLD_COMING_FROM_ABOVE && applyHysteresis) {
 				this.state = State.PASS_THRESHOLD_COMING_FROM_ABOVE;
 				break;
 			}
-			if (this.getChargeState(ess) == ChargeState.DISCHARGE && applyHighHysteresis) {
+			if (this.getChargeState(ess) == ChargeState.DISCHARGE && applyHysteresis) {
 				this.state = State.PASS_THRESHOLD_COMING_FROM_ABOVE;
 				break;
 			}
-			if (applyHighHysteresis) {
-				if (value >= this.threshold + hysteresis) {
-					// pass high with hysteresis
-					this.state = State.PASS_THRESHOLD_COMING_FROM_BELOW;
-					break;
-				}
-			} else {
-				if (value >= this.threshold) {
-					// pass high, not applying hysteresis
-					this.state = State.PASS_THRESHOLD_COMING_FROM_BELOW;
-					break;
-				}
-			}
+			
+			this.state = State.BELOW_THRESHOLD;
+			break;
 
+		case BELOW_THRESHOLD:
+			this.previousState = State.BELOW_THRESHOLD;
 			if (isBlockHeatPowerPlantStopped()) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 			}
-			break;
-
-		case PASS_THRESHOLD_COMING_FROM_BELOW:
-			this.state = State.ABOVE_THRESHOLD;
-			this.previousState = State.PASS_THRESHOLD_COMING_FROM_BELOW;
 			break;
 
 		case PASS_THRESHOLD_COMING_FROM_ABOVE:
 			if (!isBlockHeatPowerPlantStopped()) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			}
-			this.applyHighHysteresis = true;
+			this.applyHysteresis = true;
 			this.state = State.UNDEFINED;
 			this.previousState = State.PASS_THRESHOLD_COMING_FROM_ABOVE;
 			break;

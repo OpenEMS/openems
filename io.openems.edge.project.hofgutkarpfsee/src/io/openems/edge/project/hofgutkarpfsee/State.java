@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	PASS_THRESHOLD_COMING_FROM_BELOW(0, "Pass Threshold Coming From Below"), //
+	BELOW_THRESHOLD(0, "Below Threshold"), //
 	PASS_THRESHOLD_COMING_FROM_ABOVE(1, "Pass Threshold Coming From Above"), //
 	ABOVE_THRESHOLD(2, "Above Threshold");
 	

@@ -45,12 +45,12 @@
 
 	... And at the end of this state, if none of the condition supplied and BHKW was stopped, BHKW will get a RUN signal.
 
-    .. `PASS_THRESHOLD_COMING_FROM_BELOW`: Value just passed the  threshold. Last value was lower. Soc inside of the Boundary. And, this could only happen while system is "charging".
+    .. `PASS_LOWER_LEVEL_OF_BOUNDARY_COMING_FROM_BELOW`: Value just passed the  threshold. Last value was lower. Soc inside of the Boundary. And, this could only happen while system is "charging".
 
 		To Do:	 Allow BHKW to run until Soc reach the threshold level. 
 				 Stop BHKW when Soc get to Threshold.
 
-	.. `PASS_THRESHOLD_COMING_FROM_ABOVE`: Value is bigger than the threshold. Inside of the boundary. And, this could only happen while system is "discharging".
+	.. `_COMING_FROM_ABOVE`: Value is bigger than the threshold. Inside of the boundary. And, this could only happen while system is "discharging".
 
 		To Do:  Stop BHKW till Soc reach lowest boundary level.
 				Let it Run BHKW when Soc get out of boundary.

@@ -1554,10 +1554,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 
 	private LocalDateTime lastDefineWorkState = null;
 
-	private long surplus = 0L;
-	private boolean surplusOn = false;
-	private int calculatedPower;
-
 	private void defineWorkState() {
 		/*
 		 * Set ESS in running mode
