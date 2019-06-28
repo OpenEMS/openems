@@ -18,8 +18,8 @@
 
 	.. `On-Grid`: Grid-Mode is On-Grid ->
 
-	[cols=2*,options="header"]
-	.Switch state will be as given below in On-Grid Mode.
+[cols=2*,options="header"]
+.Switch state will be as given below in On-Grid Mode.
 |===
 		|Keep Block Heat Power Plant ( BHKW ),|RUN
 		|MSR Heating System Controller,|OFF
