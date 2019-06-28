@@ -1650,7 +1650,10 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		result.add(this.createPowerConstraint("Enforce Surplus Feed-In", Phase.ALL, Pwr.ACTIVE,
 				Relationship.GREATER_OR_EQUALS, surplusFeedInPower));
 		this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(surplusFeedInPower);
-		this.lastSurplusFeedInActivated = LocalDateTime.now();
+
+		if (this.lastSurplusFeedInActivated == null) {
+			this.lastSurplusFeedInActivated = LocalDateTime.now();
+		}
 		return result;
 	}
 
