@@ -1,8 +1,9 @@
 = Emergency Mode Controller
-
+	
  Main idea is to control Block Heat Power Plant(BHKW) RUN/STOP state, MSR Heating System, ON-Off Grid Indication Controller via sending a signal to WAGO fieldbus. Controller will be in process based on "Grid Mode" of the inverter and under the consideration of "state of charge" (soc).
-
-. **Grid Mode variations**:
+ 
+ 
+. **Grid Mode variations**
 
 	.. `Undefined`: Grid-Mode is undefined -> Needs to wait till gets clear information.
 
@@ -23,8 +24,7 @@
 		|Off Grid Indication Controller,|OFF
 		|===
 
-
-. **States according to Soc level**: 
+. **States according to Soc level**
 
 	.. `UNDEFINED`: Unknown state on first start. At the beginning, after getting in Off-Grid Mode havent decide yet on which situtation needs to be switches. So that following condtions will check. 
 
