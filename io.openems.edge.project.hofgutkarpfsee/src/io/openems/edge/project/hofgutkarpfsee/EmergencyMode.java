@@ -249,11 +249,13 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		case ABOVE_THRESHOLD:
 			if (value <= this.threshold) {
 				this.state = State.PASS_THRESHOLD_COMING_FROM_ABOVE;
+				break;
 			}
 			this.previousState = State.ABOVE_THRESHOLD;
 			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			break;
 		}
+
 		if (this.isOnGridIndicationControllerOn()) {
 			this.setOutput(this.onGridIndicationController, Operation.OFF);
 		}
