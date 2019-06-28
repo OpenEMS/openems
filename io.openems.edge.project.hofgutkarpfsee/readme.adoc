@@ -31,7 +31,7 @@
 
 	.. `UNDEFINED`: Unknown state on first start. At the beginning, after getting in Off-Grid Mode havent decide yet on which situtation needs to be switches. So that following condtions will check. 
 
-    ... First of all it checks whether soc is bigger than or not. If soc bigger than the threshold, State needs to be ABOVE_HIGH and break here. And, next steps needs to handle in ABOVE_HIGH state.
+    ... First of all it checks whether soc is bigger than or not. If soc bigger than the threshold, State needs to be ABOVE_THRESHOLD and break here. And, next steps needs to handle in ABOVE_THRESHOLD state.
 
 	... Secondly, it evaluates if hysteresis is necessary while comparing between soc and difference between threshold and hysteresis. If soc is smaller than the subtraction of threshold and hysteresis will not apply hysteresis.
 
@@ -57,7 +57,8 @@
 
 	..  `ABOVE_THRESHOLD`:  Value is bigger than the threshold.
 
-		To Do:  Stop BHKW.  
+		To Do:  Stop BHKW. 
+
 
 		
 == Configuration 
@@ -74,13 +75,13 @@ Alias Human-readable name of this Component: Defaults to Component-ID (alias)
 
 * `Off Grid Indication Controller`: Default configuration has set as DigitalOutputM2C2. Which means its second channel of second of Wago.
 
-* `Threshold` ; 
+* `Threshold`:
 
-* `Hysteresis` ; The hysteresis is applied to threshold to avoid continuous switching.
+* `Hysteresis`: The hysteresis is applied to threshold to avoid continuous switching.
 
 == Terms 
 
-* `Boundary/Interval` ; To decide where take part in condtion of applying Hysterissis. 
+* `Boundary/Interval`: To decide where take part in condtion of applying Hysterissis. 
 
 	... It's called out of the boundary if soc is lower than subtraction of Threshold and hysterissis.
 	... It's called inside of the boundary if soc is higher than subtraction of Threshold and hysterissis.
