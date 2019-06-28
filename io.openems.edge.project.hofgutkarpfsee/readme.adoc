@@ -31,7 +31,7 @@
 
 	.. `UNDEFINED`: Unknown state on first start. At the beginning, after getting in Off-Grid Mode havent decide yet on which situtation needs to be switches. So that following condtions will check. 
 
-    ... First of all it checks whether soc is bigger than or not. If soc bigger than the threshold, State needs to be ABOVE_THRESHOLD and break here. And, next steps needs to handle in ABOVE_THRESHOLD state.
+    ... First of all it checks whether soc is bigger than threshold or not. If soc bigger than the threshold, State needs to be ABOVE_THRESHOLD and break here. And, next steps needs to handle in ABOVE_THRESHOLD state.
 
 	... Secondly, it evaluates if hysteresis is necessary while comparing between soc and difference between threshold and hysteresis. If soc is smaller than the subtraction of threshold and hysteresis will not apply hysteresis.
 
