@@ -11,12 +11,13 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -31,8 +32,10 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -50,6 +53,9 @@ import io.openems.edge.ess.power.api.Relationship;
 public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
+	private final Logger log = LoggerFactory.getLogger(EssFeneconBydContainer.class);
+
+	private static final int MAX_APPARENT_POWER = 100_000;
 	private static final int UNIT_ID = 100;
 	private boolean readonly = false;
 
@@ -66,6 +72,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
+		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(EssFeneconBydContainer.MAX_APPARENT_POWER);
+		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(GridMode.ON_GRID);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -139,7 +147,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsException {
+	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		// Handle Read-Only mode -> no charge/discharge
 		if (this.readonly) {
 			return new Constraint[] { //
@@ -151,13 +159,28 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		// System is not running -> no charge/discharge
 		SystemWorkmode systemWorkmode = this.channel(ChannelId.SYSTEM_WORKMODE).value().asEnum(); //
 		SystemWorkstate systemWorkstate = this.channel(ChannelId.SYSTEM_WORKSTATE).value().asEnum();//
-		if (systemWorkmode != SystemWorkmode.PQ_MODE || systemWorkstate != SystemWorkstate.RUNNING) {
+
+		if (systemWorkmode != SystemWorkmode.PQ_MODE) {			
 			return new Constraint[] { //
-					this.createPowerConstraint("WorkMode+State invalid", //
+					this.createPowerConstraint("WorkMode invalid", //
 							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
-					this.createPowerConstraint("WorkMode+State invalid", //
+					this.createPowerConstraint("WorkMode invalid", //
 							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
+		
+		if (systemWorkstate != SystemWorkstate.RUNNING) {
+			this.logInfo(this.log, "System is currently in ["+systemWorkstate.getName() 
+			+ "] state. Setting it to RUNNING. Not applying Power.");
+			EnumWriteChannel setSystemWorkstateChannel = this.channel(ChannelId.SET_SYSTEM_WORKSTATE);
+			setSystemWorkstateChannel.setNextWriteValue(SetSystemWorkstate.RUN);
+
+			return new Constraint[] { //
+					this.createPowerConstraint("WorkState invalid", //
+							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
+					this.createPowerConstraint("WorkState invalid", //
+							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
+		}
+
 		// TODO set the positive and negative power limit in Constraints
 		// IntegerReadChannel posReactivePowerLimit =
 		// this.channel(ChannelId.POSITIVE_REACTIVE_POWER_LIMIT);//
@@ -921,17 +944,18 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				m(EssFeneconBydContainer.ChannelId.CONTAINER_RUN_NUMBER, new UnsignedWordElement(0x38A9))),
 				new FC16WriteRegistersTask(0x0500,
 						m(EssFeneconBydContainer.ChannelId.SET_SYSTEM_WORKSTATE, new UnsignedWordElement(0x0500)),
-						m(EssFeneconBydContainer.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(EssFeneconBydContainer.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
-				new FC16WriteRegistersTask(0x0601, //
-						m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x0601))));
+						m(EssFeneconBydContainer.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501)),
+						m(EssFeneconBydContainer.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502))));
+		// new FC16WriteRegistersTask(0x0601, //
+		// m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new
+		// UnsignedWordElement(0x0601))));
 	}
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().value().asString() //
+		return "State:" + this.channel(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE).value().asOptionString()
+				+ "|Mode:" + this.channel(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE).value().asOptionString()
+				+ "|SoC:" + this.getSoc().value().asString() //
 				+ "|L:" + this.getActivePower().value().asString() //
 				+ "|Allowed:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
