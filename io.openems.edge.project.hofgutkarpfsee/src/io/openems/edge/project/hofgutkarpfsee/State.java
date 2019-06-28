@@ -4,9 +4,9 @@ import io.openems.common.types.OptionsEnum;
 
 enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	PASS_HIGH_COMING_FROM_BELOW(0, "Pass High Coming From Below"), //
-	PASS_HIGH_COMING_FROM_ABOVE(1, "Pass High Coming From Above"), //
-	ABOVE_HIGH(2, "Above High");
+	PASS_THRESHOLD_COMING_FROM_BELOW(0, "Pass Threshold Coming From Below"), //
+	PASS_THRESHOLD_COMING_FROM_ABOVE(1, "Pass Threshold Coming From Above"), //
+	ABOVE_THRESHOLD(2, "Above Threshold");
 	
 	private final int value;
 	private final String name;
