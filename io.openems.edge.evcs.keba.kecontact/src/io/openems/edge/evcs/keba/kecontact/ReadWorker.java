@@ -114,7 +114,7 @@ public class ReadWorker extends AbstractWorker {
 	 * @param receivedAMessage return value from the ReadHandler   
 	 */
 	private void currentCommunication(boolean receivedAMessage) {
-		this.parent.channel(KebaChannelId.ChargingStation_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+		this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
 	}
 	
 }

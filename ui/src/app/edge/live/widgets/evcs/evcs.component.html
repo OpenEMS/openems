@@ -1,7 +1,7 @@
-<ion-card button (click)="presentModal()" *ngIf="edge">
+<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-    <ion-item>
+    <ion-item lines="full" color="light">
       <ion-avatar>
         <ion-img src="assets/img/evcs.png"></ion-img>
       </ion-avatar>
@@ -11,7 +11,7 @@
     </ion-item>
 
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
-      <ion-card-content>
+      <ion-card-content *ngIf="chargingStations">
         <table class="full_width">
           <ng-container *ngIf="chargingStations.length > 1 ">
             <tr>
@@ -33,14 +33,25 @@
             </td>
             <td style="width:15%"></td>
             <td style="width:45%" class="align_right">
-              {{ currentChargingPower()  | number:'1.0-0' }} W
+              {{ currentChargingPower() | number:'1.0-0' }} W
             </td>
           </tr>
-          <tr>
-            <td style="width: 50%" translate>Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+          <tr *ngIf="evcsCollection.length>0">
+            <td style="width:50%">
+              Maximaler Stromfluss (Netz):
+            </td>
             <td style="width:15%"></td>
             <td style="width:45%" class="align_right">
-              {{ currentEnergySession() | number:'1.0-0' }} Wh
+              {{ evcsCollection[0].properties.gridCurrentLimit | number:'1.0-0' }} A
+            </td>
+          </tr>
+          <tr *ngIf="evcsCollection.length>0">
+            <td style="width:50%">
+              Maximaler Stromfluss (Manuell):
+            </td>
+            <td style="width:15%"></td>
+            <td style="width:45%" class="align_right">
+              {{ evcsCollection[0].properties.manualCurrentLimit | number:'1.0-0' }} A
             </td>
           </tr>
         </table>

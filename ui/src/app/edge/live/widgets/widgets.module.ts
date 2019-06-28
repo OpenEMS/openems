@@ -9,6 +9,9 @@ import { GridComponent } from './grid/grid.component';
 import { ProductionComponent } from './production/production.component';
 import { ConsumptionComponent } from './consumption/consumption.component';
 import { InfoComponent } from './info/info.component';
+import { ModalComponent as EvcsModalComponent } from './evcs/evcs-modal/evcs-modal.page';
+import { EvcsChart } from './evcs/evcs-modal/evcs-chart/evcs.chart';
+import { ControlledAssymetricEvcs } from './evcs/evcs-modal/evcs-controlledAC';
 
 @NgModule({
   imports: [
@@ -23,10 +26,16 @@ import { InfoComponent } from './info/info.component';
     GridComponent,
     ConsumptionComponent,
     ProductionComponent,
-    InfoComponent
+    InfoComponent,
+    EvcsModalComponent,
+    ControlledAssymetricEvcs,
+    EvcsChart
   ],
   exports: [
     WidgetsComponent
+  ],
+  entryComponents: [
+    EvcsModalComponent
   ]
 })
 export class WidgetsModule { }

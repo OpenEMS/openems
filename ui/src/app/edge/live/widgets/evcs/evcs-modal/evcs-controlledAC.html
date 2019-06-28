@@ -1,0 +1,214 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title>Ladestation</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="cancel()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <ng-container *ngIf="componentId">
+        <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+            <ion-label style="width: 100%">
+                <ng-container *ngIf="controller.properties['evcs.id'] as evcs_id">
+                    <ion-label class="normalFontSize" *ngIf="currentData[evcs_id + '/State'] != 3">
+                        <ion-item padding-bottom padding-top class="normalFontSize" lines="full">
+                            <table class="full_width">
+                                <tr>
+                                    <td style="width:50%" translate>
+                                        Edge.Index.Widgets.EVCS.ActivateCharging
+                                    </td>
+                                    <td style="width:50%" class="align_right">
+                                        <ion-toggle class="swiper-no-swiping" class="align_right"
+                                            (click)="enableOrDisableCharging($event, currentController)"
+                                            [checked]="currentController.properties.enabledCharging">
+                                        </ion-toggle>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%" translate>
+                                        Edge.Index.Widgets.EVCS.ChargingPower
+                                    </td>
+                                    <td style="width:50%" class="align_right">
+                                        {{ outputPowerOrState(currentData[evcs_id + "/ChargePower"] | number:'1.0-0',
+                                                    currentData[evcs_id + "/Status"], 
+                                                    currentData[evcs_id + "/Plug"]) }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 50%" translate>
+                                        Edge.Index.Widgets.EVCS.EnergieSinceBeginning</td>
+                                    <td style="width:50%" class="align_right">
+                                        {{ (currentData[evcs_id + "/EnergySession"] * 0.1) | number:'1.0-0' }}
+                                        Wh
+                                    </td>
+                                </tr>
+                            </table>
+                        </ion-item>
+                        <ion-item class="normalFontSize" lines="none">
+                            <table class="full_width" text-wrap>
+                                <tr>
+                                    <td colspan="3" style="width: 90%">
+                                        <ion-segment (ionChange)="updateChargeMode($event, currentController)"
+                                            value={{currentController.properties.chargeMode}}>
+
+                                            <ion-segment-button value="EXCESS_POWER">
+                                                <ion-item lines="none">
+                                                    <ion-icon style="width:40px" name="sunny">
+                                                    </ion-icon>
+
+                                                    <ion-label translate>
+                                                        Edge.Index.Widgets.EVCS.OptimizedChargeMode.ShortName
+                                                    </ion-label>
+                                                </ion-item>
+                                            </ion-segment-button>
+
+                                            <ion-segment-button value="FORCE_CHARGE">
+                                                <ion-item lines="none">
+                                                    <ion-img style="width:30px" src="assets/img/gridStorage.png">
+                                                    </ion-img>
+                                                    <ion-label translate>
+                                                        Edge.Index.Widgets.EVCS.ForceChargeMode.ShortName
+                                                    </ion-label>
+                                                </ion-item>
+                                            </ion-segment-button>
+                                        </ion-segment>
+                                    </td>
+                                    <td style="width: 10%">
+                                        <ion-icon style="text-align: right; font-size: 20px" style="cursor: pointer"
+                                            name="information-circle-outline" (click)="displayInfo = !displayInfo">
+                                        </ion-icon>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="displayInfo" style="margin-top: 10px;">
+                                    <td style="width: 45%">
+                                        <ion-label translate text-wrap>
+                                            Edge.Index.Widgets.EVCS.OptimizedChargeMode.Info
+                                        </ion-label>
+                                    </td>
+                                    <td style="width: 5%"></td>
+                                    <td style="width: 50%" colspan="2">
+                                        <ion-label translate text-wrap>
+                                            Edge.Index.Widgets.EVCS.ForceChargeMode.Info
+                                        </ion-label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </ion-item>
+                        <ion-item>
+                            <table class="full_width" text-wrap>
+                                <!--Excess Power settings-->
+                                <tr *ngIf="currentController.properties.chargeMode == 'EXCESS_POWER'"
+                                    style="margin-top: 20px;">
+                                    <td>
+                                        <table>
+                                            <tr>
+                                                <td width="50%" translate>
+                                                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.MinCharging
+                                                </td>
+                                                <td width="50%" style="text-align: right;">
+                                                    <ion-toggle class="swiper-no-swiping" style="margin: 2px;"
+                                                        (ionChange)="allowMinimumChargePower($event, currentController)"
+                                                        [checked]="currentController.properties.defaultChargeMinPower != 0">
+                                                    </ion-toggle>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ion-range class="swiper-no-swiping"
+                                            style="z-index: 10000; page-break-inside: auto"
+                                            *ngIf="currentController.properties.defaultChargeMinPower != 0"
+                                            (ionChange)="updateDefaultMinPower($event, currentController)"
+                                            min="{{ formatNumber(currentData[evcs_id + '/MinimumPower']) }}"
+                                            max="{{ formatNumber(currentData[evcs_id + '/MaximumPower']) }}"
+                                            color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
+                                            value="{{currentController.properties.defaultChargeMinPower}}">
+                                            <ion-label slot="start">
+                                                {{ formatNumber(currentData[evcs_id + '/MinimumPower']) | number:'1.0-0'}}
+                                                &nbsp;W
+                                            </ion-label>
+                                            <ion-label slot="end">
+                                                {{ formatNumber(currentData[evcs_id + '/MaximumPower']) | number:'1.0-0'}}&nbsp;W
+                                            </ion-label>
+                                        </ion-range>
+
+                                        <table class="ion-justify-content-center">
+                                            <tr>
+                                                <td width="50%">Priorisierung:</td>
+                                                <td width="50%">
+                                                    <ion-segment ion-width="50%"
+                                                        (ionChange)="priorityChanged($event, currentController)"
+                                                        value="{{currentController.properties.priority}}">
+                                                        <ion-segment-button ion-margin="0px" ion-padding="0px"
+                                                            value="CAR">
+                                                            <ion-label lines="none">Auto</ion-label>
+                                                        </ion-segment-button>
+                                                        <ion-segment-button ion-margin="0px" ion-padding="0px"
+                                                            value="STORAGE">
+                                                            <ion-label lines="none">Speicher</ion-label>
+                                                        </ion-segment-button>
+                                                    </ion-segment>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <br>
+                                        <ion-label style="border-radius: 5px;" translate>
+                                            Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.Info
+                                        </ion-label>
+                                    </td>
+                                </tr>
+                                <!--Force Charge settings-->
+                                <tr *ngIf="currentController.properties.chargeMode == 'FORCE_CHARGE'">
+                                    <td>
+                                        <table>
+                                            <tr>
+                                                <td width="50%" translate>
+                                                    Edge.Index.Widgets.EVCS.ForceChargeMode.MaxCharging
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ion-range class="swiper-no-swiping"
+                                            (ionChange)="updateForceMinPower($event, currentController)"
+                                            min="{{ formatNumber(currentData[evcs_id + '/MinimumPower']) }}"
+                                            max="{{ formatNumber(currentData[evcs_id + '/MaximumPower']) }}"
+                                            color="dark" pin="true" style="padding-top: 8px;" step="100" debounce="1000"
+                                            value="{{currentController.properties.forceChargeMinPower}}">
+                                            <ion-label slot="start">
+                                                {{ formatNumber(currentData[evcs_id + '/MinimumPower']) | number:'1.0-0'}}&nbsp;W
+                                            </ion-label>
+                                            <ion-label slot="end">
+                                                {{ formatNumber(currentData[evcs_id + '/MaximumPower']) | number:'1.0-0'}}&nbsp;W
+                                            </ion-label>
+                                        </ion-range>
+                                        <ion-label translate text-wrap>
+                                            Edge.Index.Widgets.EVCS.ForceChargeMode.MaxChargingDetails
+                                        </ion-label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </ion-item>
+                    </ion-label>
+                    <ion-item class="normalFontSize" style="padding-top: 20px"
+                        *ngIf="currentData[evcs_id + '/State'] == 3">
+                        <tr>
+                            <td translate>
+                                Edge.Index.Widgets.EVCS.NoConnection.Description
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <ul>
+                                    <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1</li>
+                                    <ul>
+                                        <li translate>Edge.Index.Widgets.EVCS.NoConnection.Help1_1</li>
+                                    </ul>
+                                </ul>
+                            </td>
+                        </tr>
+                    </ion-item>
+                </ng-container>
+            </ion-label>
+        </ng-container>
+    </ng-container>
+</ion-content>

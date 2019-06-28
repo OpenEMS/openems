@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket, Widget } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
-import { EvcsModalPage } from './evcs-modal/evcs-modal.page';
+import { ModalComponent } from './evcs-modal/evcs-modal.page';
 import { componentFactoryName } from '@angular/compiler';
 import { filter, first } from 'rxjs/operators';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
@@ -18,13 +18,12 @@ export class EvcsComponent {
 
   private static readonly SELECTOR = "evcs";
 
-
-  @Input() private componentId: string;
-
   public edge: Edge = null;
   public controllers: EdgeConfig.Component[] = null;
-  public chargingStations = [];
+  public evcsCollection: EdgeConfig.Component[] = null;
+  public chargingStations: EdgeConfig.Component[] = [];
   public channelAdresses = [];
+  public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
   constructor(
     private service: Service,
@@ -35,7 +34,6 @@ export class EvcsComponent {
   ) { }
 
   ngOnInit() {
-
     // Subscribe to CurrentData
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
@@ -43,18 +41,23 @@ export class EvcsComponent {
       this.getConfig().then(config => {
 
         let nature = 'io.openems.edge.evcs.api.Evcs';
-        for (let componentId of config.getComponentIdsImplementingNature(nature)) {
-          this.chargingStations.push({ name: nature, componentId: componentId })
-          this.fillChannelAdresses(componentId);
+        for (let component of config.getComponentsImplementingNature(nature)) {
+          this.chargingStations.push(component);
+          this.fillChannelAdresses(component.id);
         }
-
         this.edge.subscribeChannels(this.websocket, EvcsComponent.SELECTOR, this.channelAdresses);
-
-      });
-
-      // Gets the Controller for the given EVCS-Component.
-      this.service.getConfig().then(config => {
         this.controllers = config.getComponentsByFactory("Controller.Evcs");
+        this.evcsCollection = config.getComponentsByFactory("Controller.EvcsCollection");
+
+        //Initialise the Map with all evcss
+        this.chargingStations.forEach(evcs => {
+          this.evcsMap[evcs.id] = null;
+        });
+
+        //Adds the controllers to the each charging stations 
+        this.controllers.forEach(controller => {
+          this.evcsMap[controller.properties['evcs.id']] = controller;
+        });
       });
     });
   }
@@ -76,54 +79,54 @@ export class EvcsComponent {
   private fillChannelAdresses(componentId: string) {
     this.channelAdresses.push(
       new ChannelAddress(componentId, 'ChargePower'),
-      new ChannelAddress(componentId, 'HardwarePowerLimit'),
+      new ChannelAddress(componentId, 'MaximumHardwarePower'),
+      new ChannelAddress(componentId, 'MinimumHardwarePower'),
+      new ChannelAddress(componentId, 'MaximumPower'),
       new ChannelAddress(componentId, 'Phases'),
       new ChannelAddress(componentId, 'Plug'),
       new ChannelAddress(componentId, 'Status'),
       new ChannelAddress(componentId, 'State'),
       new ChannelAddress(componentId, 'EnergySession'),
-      new ChannelAddress(componentId, 'MinimumPower'),
-      new ChannelAddress(componentId, 'MaximumPower')
+      new ChannelAddress(componentId, 'Alias')
     )
   }
 
   ngOnDestroy() {
     if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR + this.componentId);
+      this.edge.unsubscribeChannels(this.websocket, EvcsComponent.SELECTOR);
     }
   }
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: EvcsModalPage,
+      component: ModalComponent,
       componentProps: {
-        controllers: this.controllers,
         edge: this.edge,
-        chargingStations: this.chargingStations
+        evcsMap: this.evcsMap,
+        evcsCollection: this.evcsCollection
       }
     });
     return await modal.present();
   }
 
-  currentEnergySession(): number {
-    let sum = this.sumOfChannel("EnergySession");
-    return sum * 0.1;
-  }
-
+  //TODO: Do it in the edge component
   currentChargingPower(): number {
     return this.sumOfChannel("ChargePower");
   }
 
-  //TODO: Do it in the edge component
   private sumOfChannel(channel: String): number {
 
     let sum = 0;
     this.chargingStations.forEach(station => {
-      let channelValue = this.edge.currentData.value.channel[station.componentId + "/" + channel];
+      let channelValue = this.edge.currentData.value.channel[station.id + "/" + channel];
       if (channelValue != null) {
         sum += channelValue;
       };
     });
     return sum;
   }
+}
+
+export interface IHash {
+  [evcsId: string]: any;
 }

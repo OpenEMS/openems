@@ -12,7 +12,9 @@ Export-Package: io.openems.edge.controller.api
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.evcs.api;version=latest,\
-	io.openems.edge.evcs.keba.kecontact;version=latest
+	io.openems.edge.evcs.keba.kecontact;version=latest,\
+	com.google.guava,\
+	com.google.gson
 
 -testpath: ${testpath}
 

@@ -113,3 +113,4 @@ export class EvcsComponent extends AbstractHistoryChart implements OnInit, OnCha
   }
 
 }
+

@@ -8,7 +8,7 @@ import { Service, Widget, WidgetNature } from '../../../shared/shared';
 })
 export class WidgetsComponent {
 
-  private static readonly SELECTOR = "widget";
+  private static readonly SELECTOR = "widgets";
 
   public widgets: Widget[] = [];
   public evcsWidgets: number = 0;

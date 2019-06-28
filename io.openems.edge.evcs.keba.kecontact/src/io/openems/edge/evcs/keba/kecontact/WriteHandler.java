@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
 
 /**
  * Handles writes. Called in every cycle
@@ -33,7 +33,6 @@ public class WriteHandler implements Runnable {
 	@Override
 	public void run() {
 		this.setDisplay();
-		this.setEnabled();
 		this.setPower();
 	}
 
@@ -53,7 +52,7 @@ public class WriteHandler implements Runnable {
 	private void setDisplay() {
 		// FIXME this (and all other functions) should use
 		// "channel.getNextWriteValueAndReset()"
-		WriteChannel<String> channel = this.parent.channel(Evcs.ChannelId.SET_DISPLAY_TEXT);
+		WriteChannel<String> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_DISPLAY_TEXT);
 		Optional<String> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 			String display = valueOpt.get();
@@ -72,32 +71,7 @@ public class WriteHandler implements Runnable {
 		}
 	}
 
-	private Boolean lastEnabled = null;
 	private LocalDateTime nextEnabledWrite = LocalDateTime.MIN;
-
-	/**
-	 * SetEnabled is never used because it causes several errors that doesn't make sense
-	 * If the charging station will be activated, all seems to work, but no charging is possible.
-	 * 
-	 * 
-	 * Sets the enabled state from SET_ENABLED channel
-	 */
-	private void setEnabled() {
-		WriteChannel<Boolean> channel = this.parent.channel(Evcs.ChannelId.SET_ENABLED);
-		Optional<Boolean> valueOpt = channel.getNextWriteValueAndReset();
-		if (valueOpt.isPresent()) {
-			Boolean enabled = valueOpt.get();
-			if (!enabled.equals(this.lastEnabled) || this.nextEnabledWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log,
-						"Setting KEBA KeContact state to [" + (enabled ? "enabled" : "disabled") + "]");
-				boolean sentSuccessfully = parent.send("ena " + (enabled ? "1" : "0"));
-				if (sentSuccessfully) {
-					this.nextEnabledWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
-					this.lastEnabled = enabled;
-				}
-			}
-		}
-	}
 
 	private Integer lastCurrent = null;
 	private LocalDateTime nextCurrentWrite = LocalDateTime.MIN;
@@ -110,11 +84,17 @@ public class WriteHandler implements Runnable {
 	 * the DIP-switch settings and the used cable of the charging station.
 	 */
 	private void setPower() {
-		if(this.nextEnabledWrite.isAfter(LocalDateTime.now())) {
+		if (this.nextEnabledWrite.isAfter(LocalDateTime.now())) {
 			return;
 		}
-		
-		WriteChannel<Integer> channel = this.parent.channel(Evcs.ChannelId.SET_CHARGE_POWER);
+
+		Channel<Boolean> communicationChannel = this.parent.channel(KebaChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
+		boolean communicationFailed = communicationChannel.value().orElse(true);
+		if (communicationFailed) {
+			return;
+		}
+
+		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
 
@@ -122,11 +102,12 @@ public class WriteHandler implements Runnable {
 			Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
 			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
 
-			// limits the charging value because KEBA knows only values between 6000 and 63000
-			if(current>63000) {
+			// limits the charging value because KEBA knows only values between 6000 and
+			// 63000
+			if (current > 63000) {
 				current = 63000;
 			}
-			
+
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 				this.parent.logInfo(this.log, "Setting KEBA KeContact current to [" + current
 						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");

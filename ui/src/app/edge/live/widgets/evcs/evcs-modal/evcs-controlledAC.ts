@@ -9,54 +9,26 @@ type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
 
 @Component({
-  selector: 'evcs-modal',
-  templateUrl: './evcs-modal.page.html'
+  selector: 'evcs-controlledAC',
+  templateUrl: './evcs-controlledAC.html'
 })
-export class ModalComponent implements OnInit {
+export class ControlledAssymetricEvcs implements OnInit {
 
+  @Input() private controller: string;
   @Input() edge: Edge;
-  @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
-  @Input() evcsCollection: EdgeConfig.Component[];
 
   public currChargingPower: number
   public chargeState: ChargeState;
   private chargePlug: ChargePlug;
-  public env = environment;
-  public channelAdresses = [];
-  public swiperIndex: number = 0;
-  public slideOpts = {
-    noSwiping: true,
-    noSwipingSelector: 'ion-range, ion-toggle',
-    initialSlide: 0,
-    speed: 1000,
-  };
-  public firstEvcs: string;
-  public lastEvcs: string;
-  public currentEvcs: string;
-  public evcsLength: number;
 
   constructor(
     protected service: Service,
     public websocket: Websocket,
     public router: Router,
     protected translate: TranslateService,
-    private modalCtrl: ModalController
   ) { }
 
   ngOnInit() {
-    // Todo: do something like this in html
-    this.evcsLength = 0;
-    for (let evcs in this.evcsMap) {
-      if (this.evcsLength == 0) {
-        this.firstEvcs = evcs;
-      }
-      this.lastEvcs = evcs;
-      this.evcsLength++;
-    }
-  }
-
-  cancel() {
-    this.modalCtrl.dismiss();
   }
 
   /**  
@@ -178,7 +150,7 @@ export class ModalComponent implements OnInit {
 
     let newMinChargePower = 0;
     if (oldMinChargePower == null || oldMinChargePower == 0) {
-      newMinChargePower = phases != undefined ? 1400 * phases : 4200;
+      newMinChargePower = phases != undefined ? 4000 * phases : 4000;
     }
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
@@ -228,9 +200,7 @@ export class ModalComponent implements OnInit {
       this.chargeState = state;
       this.chargePlug = plug;
 
-      if (this.chargePlug == null) {
-        return "0 W";
-      } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+      if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
         return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
       }
 
@@ -273,24 +243,6 @@ export class ModalComponent implements OnInit {
     } else {
       return i;
     }
-  }
-
-  //TODO: Do it in the edge component
-  currentChargingPower(): number {
-    return this.sumOfChannel("ChargePower");
-  }
-
-  private sumOfChannel(channel: String): number {
-
-    let sum = 0;/*
-    this.evcsMap.forEach(station => {
-      let channelValue = this.edge.currentData.value.channel[station.id + "/" + channel];
-      if (channelValue != null) {
-        sum += channelValue;
-      };
-    });
-    */
-    return sum;
   }
 }
 

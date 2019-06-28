@@ -31,7 +31,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment as env } from '../environments/environment';
 import { FormlyModule } from '@ngx-formly/core';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
-import { EvcsModalPageModule } from './edge/live/widgets/evcs/evcs-modal/evcs-modal.module';
 
 @NgModule({
   declarations: [
@@ -55,7 +54,6 @@ import { EvcsModalPageModule } from './edge/live/widgets/evcs/evcs-modal/evcs-mo
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,
-    EvcsModalPageModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: Language }
     }),

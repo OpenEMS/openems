@@ -1,0 +1,13 @@
+#
+# io.openems.edge.controller.evcs.collection DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.controller.evcs.collection.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

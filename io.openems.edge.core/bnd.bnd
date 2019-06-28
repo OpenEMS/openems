@@ -8,7 +8,8 @@ Private-Package: \
 	io.openems.edge.core.cycle,\
 	io.openems.edge.core.componentmanager
 	
--buildpath: ${buildpath},\
+-buildpath: \
+	${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.controller.api;version=latest,\
@@ -17,9 +18,11 @@ Private-Package: \
 	io.openems.edge.scheduler.api;version=latest,\
 	com.google.gson,\
 	slf4j.api,\
-	io.openems.wrapper.sdnotify;version=latest
+	io.openems.wrapper.sdnotify;version=latest,\
+	io.openems.edge.evcs.api;version=latest
 
 -testpath: ${testpath}
 
 javac.source: 1.8
 javac.target: 1.8
+Import-Package: *

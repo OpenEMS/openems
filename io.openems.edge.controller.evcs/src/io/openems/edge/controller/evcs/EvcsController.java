@@ -2,6 +2,7 @@ package io.openems.edge.controller.evcs;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,6 +27,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 
 @Designate(ocd = Config.class, factory = true)
@@ -56,7 +58,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	protected ConfigurationAdmin cm;
 
 	@Reference
-	private Sum sum;
+	protected Sum sum;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CHARGE_MODE(Doc.of(ChargeMode.values()) //
@@ -126,7 +128,17 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		Evcs evcs = this.componentManager.getComponent(this.evcsId);
+		ManagedEvcs evcs = this.componentManager.getComponent(this.evcsId);
+
+		Optional<Integer> maxChargePower = evcs.getMaximumPower().value().asOptional();
+
+		// If a maximum charge power is defined.
+		// The calculated charge power must be lower then this
+		if (maxChargePower.isPresent()) {
+			if (maxChargePower.get() < 1380) {
+				return;
+			}
+		}
 
 		// Executes only if charging is enabled
 		if (!this.enabledCharging) {
@@ -139,10 +151,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			return;
 		}
 
-		// Channel<Integer> phases = evcs.channel("Phases");
-
 		int nextChargePower = 0;
 		int nextMinPower = 0;
+
 		switch (this.chargeMode) {
 		case EXCESS_POWER:
 
@@ -176,18 +187,29 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			nextChargePower = nextMinPower;
 		}
 
-		// set charge power
-		evcs.setChargePower().setNextWriteValue(nextChargePower);
+		System.out.println("EVCS Controller hat folgenden Wert berechnet: " + nextChargePower);
+		// Charge not more then the maximum if there is one present
+		if (maxChargePower.isPresent()) {
+			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
+
+		} else {
+			// set charge power
+			evcs.setChargePower().setNextWriteValue(nextChargePower);
+		}
 		lastRun = LocalDateTime.now();
+
 	}
 
-	
-	/* Only for testing
-	 int[] exampleDataPV = { 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000,
-			19000, 20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000 };
-	int consumption = 5000;
-	int counter = 0;
-	*/
+	/**
+	 * Olde Version wich is depending on the max HW
+	 * 
+	 * // Charge not more then the maximum if there is one present if
+	 * (maxChargePower.isPresent()) { if (maxChargePower.get() < nextChargePower) {
+	 * nextChargePower = maxChargePower.get(); } }
+	 * 
+	 * // set charge power evcs.setChargePower().setNextWriteValue(nextChargePower);
+	 * lastRun = LocalDateTime.now();
+	 */
 
 	/**
 	 * Calculates the next charging power, depending on the current PV production
@@ -199,24 +221,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	private int nextChargePower_PvMinusConsumtion() throws OpenemsNamedException {
 		int nextChargePower;
 
-		Evcs evcs = this.componentManager.getComponent(this.evcsId);
+		ManagedEvcs evcs = this.componentManager.getComponent(this.evcsId);
 
 		int buyFromGrid = this.sum.getGridActivePower().value().orElse(0);
 		int essDischarge = this.sum.getEssActivePower().value().orElse(0);
 		int evcsCharge = evcs.getChargePower().value().orElse(0);
-		
 
-		/* Only for testing
-		 
-		 if (counter > exampleDataPV.length - 1) { counter = 0; } 
-		 buyFromGrid = 0;
-		 essDischarge = (consumption + evcsCharge) - exampleDataPV[counter]; 
-		 counter++;
-		 */
-		
 		nextChargePower = evcsCharge - buyFromGrid - essDischarge;
 
-		Channel<Integer> minChannel = evcs.channel(Evcs.ChannelId.MINIMUM_POWER);
+		Channel<Integer> minChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 		if (nextChargePower < minChannel.value().orElse(0)) { /* charging under 6A isn't possible */
 			nextChargePower = 0;
 		}
