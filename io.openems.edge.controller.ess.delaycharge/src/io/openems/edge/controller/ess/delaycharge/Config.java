@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
 
-	@AttributeDefinition(name = "Target hour", description = "Charging to 100 % SoC is delayed till this hour of the day, e.g. 15 for 3 pm.")
+	@AttributeDefinition(name = "Target hour", description = "Charging to 100 % SoC is delayed till this hour of the day, e.g. 15 for 3 pm. Local timezone of this device is applied - likely UTC.")
 	int targetHour() default 15;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Ess Delay Charge [{id}]";
