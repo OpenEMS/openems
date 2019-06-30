@@ -5,6 +5,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -12,6 +15,7 @@ import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -20,9 +24,11 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(//
 		name = "Meter.Discovergy", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE) //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
+		})
 public class MeterDiscovergy extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -48,7 +54,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 			DiscovergyApi api = new DiscovergyApi(config.email(), config.password());
 			this.apiClient = new DiscovergyApiClient(api);
 
-			this.worker = new DiscovergyWorker(this, apiClient, config.refreshPeriod(), config.meterId());
+			this.worker = new DiscovergyWorker(this, apiClient, config.meterId());
 			this.worker.activate(config.id());
 			this.worker.triggerNextRun();
 		}
@@ -80,6 +86,18 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return this.meterType;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.worker.triggerNextRun();
+			break;
+		}
 	}
 
 	@Override

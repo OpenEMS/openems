@@ -32,8 +32,5 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Discovergy MeterId", description = "Internal MeterId. If not provided, the first meter is taken", required = false)
 	String meterId() default "";
 
-	@AttributeDefinition(name = "Refresh period", description = "Distance between two consequtive calls to the my.discovergy.com API in [ms].")
-	int refreshPeriod() default 5000;
-
 	String webconsole_configurationFactory_nameHint() default "Meter Discovergy [{id}]";
 }

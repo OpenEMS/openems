@@ -10,14 +10,13 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.worker.AbstractWorker;
+import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.meter.discovergy.MeterDiscovergy.ChannelId;
 
-public class DiscovergyWorker extends AbstractWorker {
+public class DiscovergyWorker extends AbstractCycleWorker {
 
 	private final Logger log = LoggerFactory.getLogger(DiscovergyWorker.class);
 	private final MeterDiscovergy parent;
-	private final int cycleTime;
 	private final DiscovergyApiClient apiClient;
 
 	/**
@@ -25,9 +24,8 @@ public class DiscovergyWorker extends AbstractWorker {
 	 */
 	private String meterId = null;
 
-	public DiscovergyWorker(MeterDiscovergy parent, DiscovergyApiClient apiClient, int cycleTime, String meterId) {
+	public DiscovergyWorker(MeterDiscovergy parent, DiscovergyApiClient apiClient, String meterId) {
 		this.parent = parent;
-		this.cycleTime = cycleTime;
 		this.apiClient = apiClient;
 		if (!meterId.trim().isEmpty()) {
 			this.meterId = meterId;
@@ -45,7 +43,7 @@ public class DiscovergyWorker extends AbstractWorker {
 		boolean restApiFailed = true;
 
 		try {
-			// Asserts that there we have a valid MeterId
+			// Asserts that we have a valid MeterId
 			this.assertMeterId();
 
 			// Retrieve Channel-Values
@@ -90,11 +88,6 @@ public class DiscovergyWorker extends AbstractWorker {
 			return;
 		}
 		throw new OpenemsException("No Meters available.");
-	}
-
-	@Override
-	protected int getCycleTime() {
-		return this.cycleTime;
 	}
 
 }
