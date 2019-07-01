@@ -81,7 +81,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             return "storage_40.png"
         } else if (this.socValue < 60) {
             return "storage_60.png"
-        } else if (this.socValue < 86) {
+        } else if (this.socValue < 80) {
             return "storage_80.png"
         } else {
             return "storage_100.png"

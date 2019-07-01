@@ -26,7 +26,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -273,8 +272,9 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	 * Applies the power constraint on the Ess
 	 * 
 	 * @param activePower
+	 * @throws OpenemsException
 	 */
-	private void applyPower(ManagedSymmetricEss ess, int activePower) {
+	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
 		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, activePower);
 		if (calculatedPower != activePower) {
@@ -282,13 +282,9 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		}
 
 		// set result
-		try {
-			ess.addPowerConstraintAndValidate("HighLoadTimeslot P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-					calculatedPower); //
-			ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
-		} catch (PowerException e) {
-			this.logError(this.log, e.getMessage());
-		}
+		ess.addPowerConstraintAndValidate("HighLoadTimeslot P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
+				calculatedPower); //
+		ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
 	}
 
 }

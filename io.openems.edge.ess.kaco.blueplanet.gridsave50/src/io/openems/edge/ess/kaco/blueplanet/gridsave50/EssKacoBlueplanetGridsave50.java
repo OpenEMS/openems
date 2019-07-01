@@ -163,7 +163,7 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (this.isActivePowerAllowed) {
 			return new Constraint[] { this.createPowerConstraint("Reactive power is not allowed", Phase.ALL,
 					Pwr.REACTIVE, Relationship.EQUALS, 0) };
@@ -316,15 +316,20 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			this.getBatterySocChannel().setNextWriteValue(batSoC);
 			this.getBatterySohChannel().setNextWriteValue(batSoH);
 			this.getBatteryTempChannel().setNextWriteValue(batTemp);
+
+			this.getCapacity().setNextValue(battery.getCapacity().value().get());
 		} catch (OpenemsNamedException e) {
 			log.error("Error during setBatteryRanges, " + e.getMessage());
 		}
 	}
 
-	@Override
 	public String debugLog() {
-		return "State:" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString() //
-				+ ",L:" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString(); //
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|Allowed:" //
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";" //
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
+				+ "|" + this.channel(ChannelId.CURRENT_STATE).value().asOptionString();
 	}
 
 	@Override

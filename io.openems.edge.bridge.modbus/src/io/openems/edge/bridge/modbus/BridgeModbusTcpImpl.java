@@ -112,7 +112,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 				this._connection.connect();
 			} catch (Exception e) {
 				throw new OpenemsException(
-						"Connection to [" + this.getIpAddress().getHostAddress() + "] failed: " + e.getMessage(), e);
+						"Connection to [" + this.getIpAddress().getHostAddress() + "] failed: " + e.getMessage());
 			}
 			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
 		}

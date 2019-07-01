@@ -37,6 +37,7 @@
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.dischargelimitconsideringcellvoltage',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
+	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
 	bnd.identity;id='io.openems.edge.controller.ess.onefullcycle',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
@@ -75,6 +76,7 @@
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
+	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.janitza.umg96rme',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.pqplus.umd97',\
@@ -187,4 +189,10 @@
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	com.google.guava;version='[28.0.0,28.0.1)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
-	com.ghgande.j2mod;version='[2.5.5,2.5.6)'
+	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
+	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
+	io.openems.edge.meter.discovergy;version=snapshot,\
+	com.fasterxml.jackson.core.jackson-annotations;version='[2.9.0,2.9.1)',\
+	com.fasterxml.jackson.core.jackson-core;version='[2.9.9,2.9.10)',\
+	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
+	com.github.scribejava.core;version='[6.6.3,6.6.4)'

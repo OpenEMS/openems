@@ -24,6 +24,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -70,6 +71,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
 
 	protected final static int MAX_APPARENT_POWER = 40000;
+	protected final static int NET_CAPACITY = 40000;
 
 	private final static int UNIT_ID = 100;
 	private final static int MIN_REACTIVE_POWER = -10000;
@@ -91,6 +93,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				ManagedSymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
+		this.getCapacity().setNextValue(NET_CAPACITY);
 	}
 
 	@Override
@@ -1571,7 +1574,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (this.readOnlyMode) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //

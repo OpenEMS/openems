@@ -3,6 +3,7 @@ package io.openems.edge.ess.power.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public interface Power {
@@ -23,8 +24,9 @@ public interface Power {
 	 * 
 	 * @param constraint
 	 * @throws PowerException
+	 * @throws OpenemsException
 	 */
-	public Constraint addConstraintAndValidate(Constraint constraint) throws PowerException;
+	public Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException;
 
 	/**
 	 * Creates a simple constraint
@@ -36,9 +38,10 @@ public interface Power {
 	 * @param relationship
 	 * @param value
 	 * @return
+	 * @throws OpenemsException
 	 */
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			Relationship relationship, double value);
+			Relationship relationship, double value) throws OpenemsException;
 
 	/**
 	 * Removes a Constraint.
@@ -65,8 +68,9 @@ public interface Power {
 	 * @param phase
 	 * @param pwr
 	 * @return
+	 * @throws OpenemsException
 	 */
-	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
+	Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException;
 
 	/**
 	 * Adjusts the given value so that it fits into Min/MaxPower.
