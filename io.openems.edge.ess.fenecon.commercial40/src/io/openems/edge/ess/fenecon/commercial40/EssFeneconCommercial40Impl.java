@@ -258,6 +258,45 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.unit(Unit.DEGREE_CELSIUS)), //
 		TRANSFORMER_TEMPERATURE_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STRING_TOTAL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_STRING_TOTAL_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BATTERY_STRING_SOH(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)), //
+		BATTERY_STRING_AVG_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STRING_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BATTERY_STRING_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		BATTERY_STRING_CYCLES(Doc.of(OpenemsType.INTEGER)), //
+		BATTERY_STRING_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)), //
+		BATTERY_STRING_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)), //
+		BATTERY_STRING_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)), //
+		BATTERY_STRING_MAX_CELL_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BATTERY_STRING_MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_STRING_MAX_CELL_VOLTAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STRING_MIN_CELL_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BATTERY_STRING_MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_STRING_MIN_CELL_VOLTAGE_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STRING_MAX_CELL_TEMPERATURE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BATTERY_STRING_MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STRING_MAX_CELL_TEMPERATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
+		BATTERY_STRING_MIN_CELL_TEMPERATURE_NO(Doc.of(OpenemsType.INTEGER)), //
+		BATTERY_STRING_MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_STRING_MIN_CELL_TEMPERATURE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT)), //
 		CELL_1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
 		CELL_2_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -1526,8 +1565,57 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40Impl.ChannelId.CELL_222_VOLTAGE, new UnsignedWordElement(0x15DD)),
 						m(EssFeneconCommercial40Impl.ChannelId.CELL_223_VOLTAGE, new UnsignedWordElement(0x15DE)),
 						m(EssFeneconCommercial40Impl.ChannelId.CELL_224_VOLTAGE, new UnsignedWordElement(0x15DF))),
-				new FC3ReadRegistersTask(0x1402, Priority.LOW, //
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x1402))));
+				new FC3ReadRegistersTask(0x1400, Priority.LOW, //
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_TOTAL_VOLTAGE,
+								new UnsignedWordElement(0x1400), ElementToChannelConverter.SCALE_FACTOR_2),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_TOTAL_CURRENT,
+								new SignedWordElement(0x1401), ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x1402)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_SOH, new UnsignedWordElement(0x1403)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_AVG_TEMPERATURE,
+								new SignedWordElement(0x1404)),
+						new DummyRegisterElement(0x1405),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_CHARGE_CURRENT_LIMIT,
+								new UnsignedWordElement(0x1406), ElementToChannelConverter.SCALE_FACTOR_2),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_DISCHARGE_CURRENT_LIMIT,
+								new UnsignedWordElement(0x1407), ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(0x1408, 0x1409),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_CYCLES,
+								new UnsignedDoublewordElement(0x140A).wordOrder(WordOrder.LSWMSW)),
+						new DummyRegisterElement(0x140C, 0x1417),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0x1418).wordOrder(WordOrder.LSWMSW)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0x141A).wordOrder(WordOrder.LSWMSW)),
+						new DummyRegisterElement(0x141C, 0x141F),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_POWER, new SignedWordElement(0x1420),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(0x1421, 0x142F),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MAX_CELL_VOLTAGE_NO,
+								new UnsignedWordElement(0x1430)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MAX_CELL_VOLTAGE,
+								new UnsignedWordElement(0x1431)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MAX_CELL_VOLTAGE_TEMPERATURE,
+								new SignedWordElement(0x1432)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MIN_CELL_VOLTAGE_NO,
+								new UnsignedWordElement(0x1433)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MIN_CELL_VOLTAGE,
+								new UnsignedWordElement(0x1434)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MIN_CELL_VOLTAGE_TEMPERATURE,
+								new SignedWordElement(0x1435)),
+						new DummyRegisterElement(0x1436, 0x1439),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MAX_CELL_TEMPERATURE_NO,
+								new UnsignedWordElement(0x143A)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MAX_CELL_TEMPERATURE,
+								new SignedWordElement(0x143B)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MAX_CELL_TEMPERATURE_VOLTAGE,
+								new SignedWordElement(0x143C)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MIN_CELL_TEMPERATURE_NO,
+								new UnsignedWordElement(0x143D)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MIN_CELL_TEMPERATURE,
+								new SignedWordElement(0x143E)),
+						m(EssFeneconCommercial40Impl.ChannelId.BATTERY_STRING_MIN_CELL_TEMPERATURE_VOLTAGE,
+								new SignedWordElement(0x143F))));
 	}
 
 	@Override
@@ -1613,7 +1701,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	 */
 	private List<Constraint> getSurplusFeedInConstraints() throws OpenemsException {
 		if (this.lastSurplusFeedInActivated == null
-				|| this.lastSurplusFeedInActivated.isBefore(LocalDateTime.now().minusMinutes(10))) {
+				|| this.lastSurplusFeedInActivated.isBefore(LocalDateTime.now().minusMinutes(30))) {
 			if (
 			// Is a Charger set? (i.e. is this a Commercial 40-40 DC)
 			this.charger == null
