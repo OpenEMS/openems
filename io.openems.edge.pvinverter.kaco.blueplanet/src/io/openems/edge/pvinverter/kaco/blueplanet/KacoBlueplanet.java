@@ -55,6 +55,7 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	private final ModbusProtocol modbusProtocol;
+	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this);
 
 	public KacoBlueplanet() {
 		super(//
@@ -63,7 +64,7 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 				SymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
+		this.getActivePowerLimit().onSetNextWrite(this.setPvLimitHandler);
 
 		this.modbusProtocol = new ModbusProtocol(this);
 		this.modbusProtocol.addTasks(//
@@ -99,29 +100,6 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 
 		});
 	}
-
-	private final CheckedConsumer<Integer> setPvLimit = (power) -> {
-		int pLimitPerc = (int) (power / 15_000.0 * 100.0 /* percent */ * 10.0 /* scale factor */);
-
-		// keep percentage in range [0, 100]
-		if (pLimitPerc > 1000) {
-			pLimitPerc = 1000; 
-		}
-		if (pLimitPerc < 1) {
-			pLimitPerc = 1;
-		}
-
-		IntegerWriteChannel wMaxLimPctChannel = this.channel(ChannelId.W_MAX_LIM_PCT);
-		this.logInfo(this.log, "Apply new limit: " + pLimitPerc / 10. + " %");
-		wMaxLimPctChannel.setNextWriteValue(pLimitPerc);
-
-		// Is limitation enabled?
-		IntegerWriteChannel wMaxLimEnaChannel = this.channel(ChannelId.W_MAX_LIM_ENA);
-		if (wMaxLimEnaChannel.value().orElse(0) == 0) {
-			this.logInfo(this.log, "Enabling W MAX LIM");
-			wMaxLimEnaChannel.setNextWriteValue(1);
-		}
-	};
 
 	/**
 	 * Validates that this device complies to SunSpec specification.
@@ -170,6 +148,11 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().value().asString();
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

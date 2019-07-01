@@ -87,9 +87,12 @@ public class SellToGridLimit extends AbstractOpenemsComponent implements Control
 		SymmetricPvInverter pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		/*
-		 * Calculates required charge/discharge power
-		 */
+		// No PV production -> stop early
+		if (pvInverter.getActivePower().value().orElse(Integer.MAX_VALUE) <= 0) {
+			return;
+		}
+
+		// Calculates required charge/discharge power
 		int calculatedPower = this.calculateRequiredPower(pvInverter, meter);
 
 		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math.abs(
@@ -110,9 +113,7 @@ public class SellToGridLimit extends AbstractOpenemsComponent implements Control
 		// store lastSetLimit
 		this.lastSetLimit = calculatedPower;
 
-		/*
-		 * set result
-		 */
+		// set result
 		pvInverter.getActivePowerLimit().setNextWriteValue(calculatedPower);
 	}
 }
