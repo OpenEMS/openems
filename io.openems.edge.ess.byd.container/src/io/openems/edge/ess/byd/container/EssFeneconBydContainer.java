@@ -169,8 +169,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		}
 		
 		if (systemWorkstate != SystemWorkstate.RUNNING) {
-			this.logInfo(this.log, "System is currently in ["+systemWorkstate.getName() 
-			+ "] state. Setting it to RUNNING. Not applying Power.");
+			//this.logInfo(this.log, "System is currently in ["+systemWorkstate.getName() 
+			//+ "] state. Setting it to RUNNING. Not applying Power.");
 			EnumWriteChannel setSystemWorkstateChannel = this.channel(ChannelId.SET_SYSTEM_WORKSTATE);
 			setSystemWorkstateChannel.setNextWriteValue(SetSystemWorkstate.RUN);
 
