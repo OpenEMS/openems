@@ -10,24 +10,38 @@
       <ion-buttons slot="start" *ngIf="enableSideMenu">
         <ion-menu-button autoHide="false"></ion-menu-button>
       </ion-buttons>
-      <ion-buttons slot="end" *ngIf="env.debugMode">
-        <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
-          <ion-icon name="bug"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+      <ng-container *ngIf="service.currentEdge | async as edge">
+        <ion-buttons slot="end" *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
+          <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
+            <ion-icon name="bug"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ng-container>
     </ion-toolbar>
 
-    <ng-container *ngIf="isEdgeIndexPage && service.currentEdge | async as edge">
-      <ion-toolbar color="primary">
-        <ion-segment>
-          <ion-segment-button checked value="Live" routerLink="/device/{{ edge.id }}/live">
-            <ion-label translate>General.Live</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="History" routerLink="/device/{{ edge.id }}/history">
-            <ion-label translate>General.History</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </ion-toolbar>
+    <ng-container *ngIf="service.currentEdge | async as edge">
+      <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
+        <ion-toolbar color="primary">
+          <ion-segment>
+            <ion-segment-button [checked]="currentPage == 'IndexLive'" value="Live"
+              routerLink="/device/{{ edge.id }}/live">
+              <ion-label translate>General.Live</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [checked]="currentPage == 'IndexHistory'" value="History"
+              routerLink="/device/{{ edge.id }}/history">
+              <ion-label translate>General.History</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-toolbar>
+      </ng-container>
+
+      <ng-container *ngIf="currentPage == 'IndexHistory'">
+        <ion-toolbar color="secondary">
+          <ion-buttons slot="end">
+            <pickdate></pickdate>
+          </ion-buttons>
+        </ion-toolbar>
+      </ng-container>
     </ng-container>
   </ion-header>
 
@@ -95,7 +109,7 @@
     <router-outlet id="content"></router-outlet>
     <!-- TODO use ion-router-outlet once it does not break anymore the screen width <ion-router-outlet></ion-router-outlet> -->
 
-    <systemLog *ngIf="isSystemLogEnabled">isSystemLogEnabled</systemLog>
+    <systemLog *ngIf="isSystemLogEnabled"></systemLog>
 
   </ion-content>
 </ion-app>

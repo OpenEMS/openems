@@ -42,6 +42,9 @@ import io.openems.edge.battery.soltaro.BatteryState;
 
 	@AttributeDefinition(name = "Max Start Time", description = "Max Time in seconds allowed for starting the system")
 	int maxStartTime() default 20;
+	
+	@AttributeDefinition(name = "Pending Tolerance", description = "time in seconds, that is waited if system status cannot be determinated e.g. in case of reading errors")
+	int pendingTolerance() default 15;
 
 	@AttributeDefinition(name = "Start Not Successful Delay Time", description = "Sets the delay time in seconds how long the system should be stopped if it was not able to start")
 	int startUnsuccessfulDelay() default 3600;

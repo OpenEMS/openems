@@ -70,6 +70,10 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Unterer Schwellenwert",
+                    HighThreshold: "Oberer Schwellenwert"
+                },
                 EVCS: {
                     ChargingStation: "Ladestation",
                     Status: "Status",
@@ -133,7 +137,8 @@ export const TRANSLATION = {
             LastWeek: "Letzte Woche",
             LastMonth: "Letzter Monat",
             LastYear: "Letztes Jahr",
-            Go: "Los!"
+            Go: "Los!",
+            Export: "Download als EXCEL-Datei"
         },
         Config: {
             Index: {

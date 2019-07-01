@@ -48,12 +48,14 @@ export class Service implements ErrorHandler {
   constructor(
     private router: Router,
     public translate: TranslateService,
-    private toaster: ToastController
+    private toaster: ToastController,
   ) {
     // add language
     translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang(LanguageTag.DE);
+    // initialize history period
+    this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
   }
 
   /**
@@ -117,9 +119,9 @@ export class Service implements ErrorHandler {
    * Parses the route params and sets the current edge
    */
   public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // Set the currentPageTitle only once per ActivatedRoute
-      if (this.currentActivatedRoute == activatedRoute) {
+      if (this.currentActivatedRoute != activatedRoute) {
         if (currentPageTitle == null || currentPageTitle.trim() === '') {
           this.currentPageTitle = 'OpenEMS UI';
         } else {
@@ -233,7 +235,7 @@ export class Service implements ErrorHandler {
    * Defines the widgets that should be shown.
    */
   public getWidgets(): Promise<Widget[]> {
-    return new Promise<Widget[]>((resolve, reject) => {
+    return new Promise<Widget[]>((resolve) => {
       this.getConfig().then(config => {
         let widgets = [];
         for (let nature of Object.values(WidgetNature).filter(v => typeof v === 'string')) {
@@ -270,4 +272,9 @@ export class Service implements ErrorHandler {
     });
     toast.present();
   }
+
+  /**
+   * Currently selected history period
+   */
+  public historyPeriod: DefaultTypes.HistoryPeriod;
 }

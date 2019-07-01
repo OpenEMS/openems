@@ -27,6 +27,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.BatteryState;
+import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -39,6 +40,7 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -58,31 +60,34 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	// Default values for the battery ranges
 	public static final int DISCHARGE_MIN_V = 696;
 	public static final int CHARGE_MAX_V = 854;
-	public static final int DISCHARGE_MAX_A = 20;
-	public static final int CHARGE_MAX_A = 20;
+	public static final int DISCHARGE_MAX_A = 0;
+	public static final int CHARGE_MAX_A = 0;
 
 	protected final static int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
-
-	private static final int SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS = 3;
-	private static final int MAX_TIME_FOR_INITIALIZATION_IN_SECONDS = 30;
-
+	
 	private final Logger log = LoggerFactory.getLogger(SingleRack.class);
+
+	private Config config;
 
 	private String modbusBridgeId;
 	private BatteryState batteryState;
+	private State state = State.UNDEFINED;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	// timer variable to avoid that commands are sent to fast
-	private LocalDateTime lastCommandSent = LocalDateTime.now();
-
-	private LocalDateTime timeForSystemInitialization = null;
+	// If an error has occurred, this indicates the time when next action could be
+	// done
+	private LocalDateTime errorDelayIsOver = null;
+	private int unsuccessfulStarts = 0;
+	private LocalDateTime startAttemptTime = null;
 
 	// indicates that system is stopping; during that time no commands should be
 	// sent
 	private boolean isStopping = false;
+
+	private LocalDateTime pendingTimestamp;
 
 	public SingleRack() {
 		super(//
@@ -103,6 +108,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
@@ -122,16 +128,13 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 
 			switch (cc) {
 			case CONNECTION_INITIATING:
-				timeForSystemInitialization = LocalDateTime.now();
 				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
 				break;
 			case CUT_OFF:
-				timeForSystemInitialization = null;
 				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(false);
 				isStopping = false;
 				break;
 			case ON_GRID:
-				timeForSystemInitialization = null;
 				this.channel(Battery.ChannelId.READY_FOR_WORKING).setNextValue(true);
 				break;
 			default:
@@ -154,16 +157,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleBatteryState() {
-		// Avoid that commands are written to fast to the battery rack
-		if (lastCommandSent.plusSeconds(SECURITY_INTERVAL_FOR_COMMANDS_IN_SECONDS).isAfter(LocalDateTime.now())) {
-			return;
-		} else {
-			lastCommandSent = LocalDateTime.now();
-		}
-
 		switch (this.batteryState) {
 		case DEFAULT:
-			checkSystemState();
+			handleStateMachine();
 			break;
 		case OFF:
 			stopSystem();
@@ -176,33 +172,175 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	private void checkSystemState() {
+	private void handleStateMachine() {
+		log.info("SingleRack.handleStateMachine(): State: " + this.getStateMachineState());
+		boolean readyForWorking = false;
+		switch (this.getStateMachineState()) {
+		case ERROR:
+			stopSystem();
+			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
+			setStateMachineState(State.ERRORDELAY);
+			break;
 
-		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
-
-		ContactorControl cc = contactorControlChannel.value().asEnum();
-
-		if (cc == ContactorControl.CONNECTION_INITIATING) {
-			if (timeForSystemInitialization == null || timeForSystemInitialization
-					.plusSeconds(MAX_TIME_FOR_INITIALIZATION_IN_SECONDS).isAfter(LocalDateTime.now())) {
-				return;
-			} else {
-				// Maybe battery hung up in precharge mode...stop system, it will be restarted
-				// automatically
-				this.channel(ChannelId.PRECHARGE_TAKING_TOO_LONG).setNextValue(true);
-				stopSystem();
-				return;
+		case ERRORDELAY:
+			if (LocalDateTime.now().isAfter(errorDelayIsOver)) {
+				errorDelayIsOver = null;
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+				} else {
+					this.setStateMachineState(State.OFF);
+				}
 			}
-		}
-		if (cc == ContactorControl.CUT_OFF) {
-			startSystem();
-			return;
+			break;
+		case INIT:
+			if (this.isSystemRunning()) {
+				this.setStateMachineState(State.RUNNING);
+				unsuccessfulStarts = 0;
+				startAttemptTime = null;
+			} else {
+				if (startAttemptTime.plusSeconds(config.maxStartTime()).isBefore(LocalDateTime.now())) {
+					startAttemptTime = null;
+					unsuccessfulStarts++;
+					this.stopSystem();
+					this.setStateMachineState(State.STOPPING);
+					if (unsuccessfulStarts >= config.maxStartAppempts()) {
+						errorDelayIsOver = LocalDateTime.now().plusSeconds(config.startUnsuccessfulDelay());
+						this.setStateMachineState(State.ERRORDELAY);
+						unsuccessfulStarts = 0;
+					}
+				}
+			}
+			break;
+		case OFF:
+			log.debug("in case 'OFF'; try to start the system");
+			this.startSystem();
+			log.debug("set state to 'INIT'");
+			this.setStateMachineState(State.INIT);
+			startAttemptTime = LocalDateTime.now();
+			break;
+		case RUNNING:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else if (!this.isSystemRunning()) {
+				this.setStateMachineState(State.UNDEFINED);
+			} else {
+//				// if minimal cell voltage is lower than configured minimal cell voltage, then
+//				// force system to charge
+//				IntegerReadChannel minCellVoltageChannel = this.channel(Battery.ChannelId.MIN_CELL_VOLTAGE);
+//				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
+//				if (minCellVoltageOpt.isPresent()) {
+//					int minCellVoltage = minCellVoltageOpt.get();
+//					if (minCellVoltage < this.config.minimalCellVoltage()) {
+//						// set the discharge current negative to force the system to charge
+//						// TODO check if this is working!
+//						this.getDischargeMaxCurrent().setNextValue((-1) * this.getChargeMaxCurrent().value().get());
+//					}
+//				}
+				readyForWorking = true;
+				this.setStateMachineState(State.RUNNING);
+			}
+			break;
+		case STOPPING:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else {
+				if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+				}
+			}
+			break;
+		case UNDEFINED:
+			if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
+			} else if (this.isSystemRunning()) {
+				this.setStateMachineState(State.RUNNING);
+			} else if (this.isSystemStatePending()) {
+				this.setStateMachineState(State.PENDING);
+			}
+			break;
+		case PENDING:
+			if (this.pendingTimestamp == null) {
+				this.pendingTimestamp = LocalDateTime.now();
+			}
+			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
+				// System state could not be determined, stop and start it
+				this.pendingTimestamp = null;
+				this.stopSystem();
+				this.setStateMachineState(State.OFF);
+			} else {
+				if (this.isError()) {
+					this.setStateMachineState(State.ERROR);
+					this.pendingTimestamp = null;
+				} else if (this.isSystemStopped()) {
+					this.setStateMachineState(State.OFF);
+					this.pendingTimestamp = null;
+				} else if (this.isSystemRunning()) {
+					this.setStateMachineState(State.RUNNING);
+					this.pendingTimestamp = null;
+				}
+			}
+			break;
+		case ERROR_CELL_VOLTAGES_DRIFT:
+			// not able to handle in version A
+			this.setStateMachineState(State.UNDEFINED);
+			break;
 		}
 
-		if (cc == ContactorControl.ON_GRID) {
-			// TODO: Implement error handling or prevention on system temperature errors/
-			// low voltage/...
-		}
+		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+
+	private boolean isError() {
+		return isAlarmLevel2Error();
+	}
+
+	private boolean isAlarmLevel2Error() {
+		return (readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
+				|| readValueFromBooleanChannel(ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
+	}
+
+	private boolean isSystemRunning() {
+		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		ContactorControl cc = contactorControlChannel.value().asEnum();
+		return cc == ContactorControl.ON_GRID;
+	}
+
+	private boolean isSystemStopped() {
+		EnumReadChannel contactorControlChannel = this.channel(ChannelId.BMS_CONTACTOR_CONTROL);
+		ContactorControl cc = contactorControlChannel.value().asEnum();
+		return cc == ContactorControl.CUT_OFF;
+	}
+
+	/**
+	 * Checks whether system has an undefined state
+	 */
+	private boolean isSystemStatePending() {
+		return !isSystemRunning() && !isSystemStopped();
+	}
+
+	private boolean readValueFromBooleanChannel(ChannelId channelId) {
+		StateChannel r = this.channel(channelId);
+		Optional<Boolean> bOpt = r.value().asOptional();
+		return bOpt.isPresent() && bOpt.get();
+	}
+
+	public State getStateMachineState() {
+		return state;
+	}
+
+	public void setStateMachineState(State state) {
+		this.state = state;
+		this.channel(ChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
 	public String getModbusBridgeId() {
@@ -945,7 +1083,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		FAILURE_SAMPLING_WIRE(Doc.of(Level.FAULT) //
 				.text("sampling wire fault")), //
 		PRECHARGE_TAKING_TOO_LONG(Doc.of(Level.FAULT) //
-				.text("precharge time was too long"));
+				.text("precharge time was too long")), //
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		;
 
 		private final Doc doc;
 
@@ -1021,7 +1162,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 								.bit(5, SingleRack.ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH) //
 								.bit(6, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH) //
 								.bit(7, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW) //
-								.bit(12,SingleRack.ChannelId.ALARM_LEVEL_2_INSULATION_LOW) //
+								.bit(12, SingleRack.ChannelId.ALARM_LEVEL_2_INSULATION_LOW) //
 								.bit(14, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
 								.bit(15, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
 						), //

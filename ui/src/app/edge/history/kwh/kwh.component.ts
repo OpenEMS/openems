@@ -1,10 +1,11 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { ChannelAddress, Edge, Service, Utils } from '../../../shared/shared';
-import { Cumulated, QueryHistoricTimeseriesEnergyResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { QueryHistoricTimeseriesEnergyRequest } from '../../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest'
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { QueryHistoricTimeseriesEnergyRequest } from '../../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
+import { Cumulated, QueryHistoricTimeseriesEnergyResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChannelAddress, Edge, Service } from '../../../shared/shared';
 
 @Component({
   selector: 'kwh',
@@ -12,8 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class KwhComponent implements OnInit, OnChanges {
 
-  @Input() private fromDate: Date;
-  @Input() private toDate: Date;
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   public data: Cumulated = null;
   public values: any;
@@ -31,14 +31,15 @@ export class KwhComponent implements OnInit, OnChanges {
     });
   }
 
-
   ngOnChanges() {
     this.updateValues();
   };
 
   updateValues() {
-    this.queryEnergy(this.fromDate, this.toDate).then(response => {
+    this.queryEnergy(this.period.from, this.period.to).then(response => {
       this.data = response.result.data;
+    }).catch(reason => {
+      console.error(reason); // TODO error message
     });
   };
 
@@ -92,7 +93,7 @@ export class KwhComponent implements OnInit, OnChanges {
    * 
    * @param date the date to format as unix-milliseconds
    */
-  private toUnix(date: Date): number {
+  public toUnix(date: Date): number {
     return date.getTime();
   }
 
@@ -101,7 +102,7 @@ export class KwhComponent implements OnInit, OnChanges {
    * 
    * @param date the date to process
    */
-  private startOfDay(date: Date): Date {
+  public startOfDay(date: Date): Date {
     return new Date(date.getUTCFullYear(), date.getMonth(), date.getDate());
   }
 
@@ -111,7 +112,7 @@ export class KwhComponent implements OnInit, OnChanges {
    * 
    * @param date the date to process
    */
-  private endOfDay(date: Date): Date {
+  public endOfDay(date: Date): Date {
     return new Date(date.getUTCFullYear(), date.getMonth(), date.getDate(), 24);
   }
 

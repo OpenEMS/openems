@@ -1,0 +1,5 @@
+= Symmetric Limit Active Power
+
+Limits the allowed active power for charging and discharging of a symmetric energy storage system.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.limitactivepower[Source Code icon:github[]]

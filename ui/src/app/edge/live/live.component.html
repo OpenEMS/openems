@@ -1,13 +1,67 @@
 <ion-grid *ngIf="edge">
   <ion-row justify-content-center>
+    <!-- Widgets -->
+
     <!-- Energymonitor -->
     <ion-col size="12" size-md="8" size-lg="4">
       <energymonitor></energymonitor>
     </ion-col>
 
-    <!-- Widgets -->
-    <ion-col size="12" size-md="8" size-lg="4">
-      <widgets></widgets>
+    <ion-col size="12" size-md="8" size-lg="6">
+      <ion-grid no-padding>
+        <ion-row>
+          <!-- Regular Widgets -->
+          <ion-col size="12" size-lg="6" no-padding>
+            <storage></storage>
+          </ion-col>
+
+          <ion-col size="12" size-lg="6" no-padding>
+            <grid></grid>
+          </ion-col>
+
+          <ion-col size="12" size-lg="6">
+            <production></production>
+          </ion-col>
+
+          <ion-col size="12" size-lg="6">
+            <consumption></consumption>
+          </ion-col>
+
+          <!-- Widgets depending on the configuration of the OpenEMS Edge -->
+          <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
+
+            <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
+              <evcs [componentId]="widget.componentId"></evcs>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp'" size="12">
+              <modbusapi [componentId]="widget.componentId"></modbusapi>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'" size="6">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="6">
+              <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="6">
+              <fixdigitaloutput [componentId]="widget.componentId"></fixdigitaloutput>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="6">
+              <chpsoc [componentId]="widget.componentId"></chpsoc>
+            </ion-col>
+
+          </ng-container>
+
+          <!-- <ion-col size="12" size-lg="12">
+            <info></info>
+          </ion-col> -->
+
+        </ion-row>
+      </ion-grid>
     </ion-col>
   </ion-row>
 </ion-grid>

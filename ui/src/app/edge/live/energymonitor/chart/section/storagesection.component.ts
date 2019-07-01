@@ -48,11 +48,12 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             super.updateSectionData(
                 sum.storage.effectiveDischargePower,
                 sum.storage.powerRatio,
-                Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower));
+                Utils.multiplySafely(
+                    Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1));
 
         } else {
             this.name = this.translate.instant('Edge.Index.Energymonitor.Storage')
-            super.updateSectionData(0, 0, 0);
+            super.updateSectionData(null, null, null);
         }
 
         this.socValue = sum.storage.soc;
@@ -80,7 +81,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             return "storage_40.png"
         } else if (this.socValue < 60) {
             return "storage_60.png"
-        } else if (this.socValue < 86) {
+        } else if (this.socValue < 80) {
             return "storage_80.png"
         } else {
             return "storage_100.png"

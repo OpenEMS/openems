@@ -5,7 +5,7 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.edge.evcs.api
 Require-Capability: compile-only
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.edge.common;version=latest,\
