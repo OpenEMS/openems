@@ -1,0 +1,9 @@
+= KACO blueplanet PV inverter
+
+Implementation of the KACO SunSpec model for the blueplanet series PV inverters.
+
+Implemented Natures::
+- SymmetricPvInverter
+- SymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.kaco.blueplanet[Source Code icon:github[]]

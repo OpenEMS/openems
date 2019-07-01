@@ -227,14 +227,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private void calculateBatteryData() {
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
+		int capacity = 0;
 		for (Battery battery : this.getBatteries()) {
 			allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0)
 					* -1;
 			allowedDischarge += battery.getVoltage().value().orElse(0)
 					* battery.getDischargeMaxCurrent().value().orElse(0);
+			capacity += battery.getCapacity().value().orElse(0);
 		}
 		this.getAllowedCharge().setNextValue(allowedCharge);
 		this.getAllowedDischarge().setNextValue(allowedDischarge);
+		this.getCapacity().setNextValue(capacity);
 	}
 
 	/**

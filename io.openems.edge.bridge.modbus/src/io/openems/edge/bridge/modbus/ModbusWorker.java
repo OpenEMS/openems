@@ -109,9 +109,10 @@ class ModbusWorker extends AbstractImmediateWorker {
 		LongReadChannel executionDurationChannel = this.parent.channel(BridgeModbus.ChannelId.EXECUTION_DURATION);
 		executionDurationChannel.setNextValue(totalDuration);
 
-		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
+		// Set CYCLE_TIME_IS_TOO_SHORT state-channel if more than one cycle is required;
+		// but only if SlaveCommunicationFailed-Channel is not set
 		StateChannel cycleTimeIsTooShortChannel = this.parent.channel(BridgeModbus.ChannelId.CYCLE_TIME_IS_TOO_SHORT);
-		if (noOfRequiredCycles > 1) {
+		if (noOfRequiredCycles > 1 && !this.parent.getSlaveCommunicationFailedChannel().value().orElse(false)) {
 			cycleTimeIsTooShortChannel.setNextValue(true);
 		} else {
 			cycleTimeIsTooShortChannel.setNextValue(false);

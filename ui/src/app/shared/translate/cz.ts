@@ -34,11 +34,11 @@ export const TRANSLATION = {
     },
     Menu: {
         Index: "Přehled",
-        AboutUI: "About FEMS",
-        Settings: 'Obecné Nastavení',
-        EdgeSettings: 'FEMS Obecné Nastavení',
+        AboutUI: "About OpenEMS UI",
+        GeneralSettings: 'Obecné Nastavení',
+        EdgeSettings: 'FEMS Předvolby',
         Menu: 'Menu',
-        Overview: 'FEMS Overvire',
+        Overview: 'FEMS Přehled',
         Logout: 'Odhlásit'
     },
     Index: {
@@ -57,7 +57,9 @@ export const TRANSLATION = {
                 ReactivePower: "Jalový výkon",
                 ActivePower: "Činný výkon",
                 GridMeter: "Elektroměr - Odběr",
-                ProductionMeter: "Elektroměr - Výroba"
+                ProductionMeter: "Elektroměr - Výroba",
+                StorageDischarge: "baterie výtok",
+                StorageCharge: "baterie nakládání"
             },
             Energytable: {
                 Title: "Tabulka hodnot",
@@ -125,12 +127,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Zvolené období: ",
             OtherPeriod: "Další období",
             Period: "Období",
+            SelectedDay: "{{value}}",
             Today: "Dnes",
             Yesterday: "Včera",
             LastWeek: "Poslední týden",
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
-            Go: "Jdi!"
+            Go: "Jdi!",
+            Export: "stáhnout jako soubor programu Excel"
         },
         Config: {
             Index: {

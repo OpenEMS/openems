@@ -9,8 +9,8 @@
       <ion-card>
         <ion-item color="light" lines="full">
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label text-wrap><span translate>Edge.History.SelectedPeriod</span>
-            {{ service.historyPeriod.text }}</ion-label>
+          <ion-label text-wrap *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
+            {{ service.historyPeriod.getText(translate) }}</ion-label>
         </ion-item>
 
         <ion-card-content>

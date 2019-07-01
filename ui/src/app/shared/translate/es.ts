@@ -124,12 +124,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Período seleccionado: ",
             OtherPeriod: "Otro período",
             Period: "Período",
+            SelectedDay: "{{value}}",
             Today: "Hoy",
             Yesterday: "Ayer",
             LastWeek: "La semana pasada",
             LastMonth: "El me pasado",
             LastYear: "El año pasado",
-            Go: "Nwo!"
+            Go: "Nwo!",
+            Export: "descargar como archivo de excel"
         },
         Config: {
             Index: {
