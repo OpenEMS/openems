@@ -129,6 +129,7 @@ export const TRANSLATION = {
             SelectedPeriod: "Zvolené období: ",
             OtherPeriod: "Další období",
             Period: "Období",
+            SelectedDay: "{{value}}",
             Today: "Dnes",
             Yesterday: "Včera",
             LastWeek: "Poslední týden",
