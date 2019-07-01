@@ -121,6 +121,7 @@ export const TRANSLATION = {
             SelectedPeriod: "Geselecteerde periode: ",
             OtherPeriod: "Andere periode",
             Period: "Periode",
+            SelectedDay: "{{value}}",
             Today: "Vandaag",
             Yesterday: "Gisteren",
             LastWeek: "Vorige week",
