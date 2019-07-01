@@ -1,6 +1,7 @@
 = Emergency Mode Controller
 	
- Main idea is to control Block Heat Power Plant(BHKW) RUN/STOP state, MSR Heating System, ON-Off Grid Indication Controller via sending a signal to WAGO fieldbus. Controller will be in process based on "Grid Mode" of the inverter and under the consideration of "state of charge" (soc).
+ Main idea is to control Block Heat Power Plant(BHKW) RUN/STOP state, MSR Heating System, ON-Off Grid Indication Controller via sending a signal to WAGO fieldbus. 
+ Controller will be in process based on "Grid Mode" of the inverter and under the consideration of "state of charge" (soc).
  
  
 == Logic And Discussed Situations 
@@ -12,7 +13,7 @@
 
 	.. `Off-Grid`: Grid-Mode is Off-Grid ->
 
-	... As soon as the system switches to Off-grid mode, BHKW must be stopped and waited until the system restarts. 
+	... As soon as it is detected as Off-grid mode, BHKW must be stopped and waited until the system restarts. 
 	... Once the system has entered the START mode: It should assess the Soc level and decide which state it is in, and also whether or not hysteresis is to be administered.
 	... A detailed states documentation will follow in **States according to Soc level** section.
 
