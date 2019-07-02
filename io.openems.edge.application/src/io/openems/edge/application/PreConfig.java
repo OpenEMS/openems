@@ -27,6 +27,22 @@ public class PreConfig {
 
 	protected static void initConfig(ConfigurationAdmin cm) {
 
+		char[] password = { 'g', 'u', 'e', 's', 't' };
+
+		try {
+			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+			byte[] salt = Base64.getDecoder().decode("dXNlcg==");
+
+			PBEKeySpec spec = new PBEKeySpec(password, salt, 10, 256);
+			SecretKey key = skf.generateSecret(spec);
+			byte[] res = key.getEncoded();
+
+			System.out.println("PASSWORT: " + Base64.getEncoder().encodeToString(res));
+
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new RuntimeException(e);
+		}
+
 		Configuration factory;
 
 		Configuration[] configs;
