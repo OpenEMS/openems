@@ -1,5 +1,7 @@
 package io.openems.edge.project.hofgutkarpfsee;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -39,8 +41,10 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	private ChannelAddress inputChannelAddress;
 	private int threshold = 0;
 	private int hysteresis = 0;
-//	private Clock clock;
-//	private static final int WAIT_FOR_SYSTEM_RESTART = 10;
+	private Clock clock;
+	private static final int WAIT_FOR_SYSTEM_RESTART = 2;
+	private LocalDateTime lastSwitchStartMode = LocalDateTime.MIN;
+	private boolean executed = false;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -51,18 +55,18 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	@Reference
 	protected ConfigurationAdmin cm;
 
-//	public EmergencyMode() {
-//		this(Clock.systemDefaultZone());
-//	}
+	public EmergencyMode() {
+		this(Clock.systemDefaultZone());
+	}
 
 	// Clock clock
-	public EmergencyMode() {
+	public EmergencyMode(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ThisChannelId.values() //
 		);
-//		this.clock = clock;
+		this.clock = clock;
 	}
 
 	@Activate
@@ -90,7 +94,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	 */
 	private State state = State.UNDEFINED;
 	private State previousState = State.UNDEFINED;
-	private GridMode previousGridState = GridMode.UNDEFINED;
 	private int currentActivePower = 0;
 
 	/**
@@ -101,7 +104,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	private ChargeState getChargeState(EssFeneconCommercial40Impl ess) throws OpenemsNamedException {
 		ess = this.componentManager.getComponent(this.config.ess_id());
 		this.currentActivePower = ess.getActivePower().value().orElse(0);
-
 		if ((this.currentActivePower > 0)) {
 			return ChargeState.DISCHARGE;
 		} else if ((this.currentActivePower < 0)) {
@@ -119,7 +121,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		 * Grid-Mode is undefined -> wait till we have some clear information
 		 */
 		case UNDEFINED:
-			this.previousGridState = GridMode.UNDEFINED;
+			this.setOutput(blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			break;
 
 		/*
@@ -127,20 +129,18 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		 * Run Off-Grid Process
 		 */
 		case OFF_GRID:
-			this.previousGridState = GridMode.OFF_GRID;
-			if (!isBlockHeatPowerPlantStopped() && (this.previousGridState != GridMode.OFF_GRID)) {
-				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
-			}
-
-//			if (this.lastSwitchOffgridPv.isAfter(LocalDateTime.now(this.clock).minusSeconds(WAIT_FOR_SYSTEM_RESTART))) {
-//				return;
-//			}
-//			lastSwitchOffgridPv = LocalDateTime.now(this.clock);
-			// TODO
 			SystemState systemState = ess.channel(EssFeneconCommercial40Impl.ChannelId.SYSTEM_STATE).value().asEnum();
+			if (this.lastSwitchStartMode.isAfter(LocalDateTime.now(this.clock).minusSeconds(WAIT_FOR_SYSTEM_RESTART))) {
+				return;
+			}
+			lastSwitchStartMode = LocalDateTime.now(this.clock);
+
 			if (systemState != SystemState.START) {
+				this.setOutput(blockHeatPowerPlantPermissionSignal, Operation.STOP);
 				break;
 			}
+
+//			this.lastSwitchOffGridMode.getMinute();
 			this.handleOffGridState(ess);
 			break;
 
@@ -149,7 +149,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			 * On-Grid Mode -> Activate only On grid Mode and let BHKW runs
 			 */
 			this.handleOnGridState();
-			this.previousGridState = GridMode.ON_GRID;
 			break;
 		}
 	}
@@ -162,16 +161,28 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			this.setOutput(this.msrHeatingSystemController, Operation.OFF);
 		}
 
-		if (!isOnGridIndicationControllerOn()) {
-			this.setOutput(this.onGridIndicationController, Operation.ON);
-		}
 		if (isOffGridIndicationControllerOn()) {
 			this.setOutput(this.offGridIndicationController, Operation.OFF);
 		}
+
+		if (!isOnGridIndicationControllerOn()) {
+			this.setOutput(this.onGridIndicationController, Operation.ON);
+		}
+
 	}
 
 	private void handleOffGridState(EssFeneconCommercial40Impl ess)
 			throws IllegalArgumentException, OpenemsNamedException {
+
+		if (this.isOnGridIndicationControllerOn()) {
+			this.setOutput(this.onGridIndicationController, Operation.OFF);
+		}
+		if (!this.isMsrHeatingSystemControllerOn()) {
+			this.setOutput(this.msrHeatingSystemController, Operation.ON);
+		}
+		if (!this.isOffGridIndicationControllerOn()) {
+			this.setOutput(this.offGridIndicationController, Operation.ON);
+		}
 
 		/*
 		 * Check if all parameters are available
@@ -210,7 +221,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				this.state = State.PASS_THRESHOLD_COMING_FROM_ABOVE;
 				break;
 			}
-			
+
 			this.state = State.BELOW_THRESHOLD;
 			break;
 
@@ -239,17 +250,6 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
 			break;
 		}
-
-		if (this.isOnGridIndicationControllerOn()) {
-			this.setOutput(this.onGridIndicationController, Operation.OFF);
-		}
-		if (!this.isMsrHeatingSystemControllerOn()) {
-			this.setOutput(this.msrHeatingSystemController, Operation.ON);
-		}
-		if (!this.isOffGridIndicationControllerOn()) {
-			this.setOutput(this.offGridIndicationController, Operation.ON);
-		}
-
 	}
 
 	private boolean isOnGridIndicationControllerOn() throws IllegalArgumentException, OpenemsNamedException {
@@ -280,8 +280,10 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	 * Gets the Grid-Mode of ESS.
 	 * 
 	 * @return the Grid-Mode
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
 	 */
-	private GridMode getGridMode() {
+	private GridMode getGridMode() throws IllegalArgumentException, OpenemsNamedException {
 		SymmetricEss ess;
 		try {
 			ess = this.componentManager.getComponent(this.config.ess_id());
@@ -290,8 +292,13 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		}
 		GridMode essGridMode = ess.getGridMode().value().asEnum();
 		if ((essGridMode == GridMode.ON_GRID)) {
+			this.executed = false;
 			return GridMode.ON_GRID;
 		} else if ((essGridMode == GridMode.OFF_GRID)) {
+			if (!executed) {
+				this.setOutput(blockHeatPowerPlantPermissionSignal, Operation.STOP);
+				this.executed = true;
+			}
 			return GridMode.OFF_GRID;
 		} else {
 			return GridMode.UNDEFINED;
