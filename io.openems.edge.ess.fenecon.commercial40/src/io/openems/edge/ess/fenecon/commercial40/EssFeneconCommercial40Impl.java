@@ -1065,7 +1065,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(0x0101, Priority.LOW, //
+				new FC3ReadRegistersTask(0x0101, Priority.HIGH, //
 						m(EssFeneconCommercial40Impl.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101)),
 						m(EssFeneconCommercial40Impl.ChannelId.CONTROL_MODE, new UnsignedWordElement(0x0102)),
 						new DummyRegisterElement(0x0103), // WorkMode: RemoteDispatch
@@ -1084,8 +1084,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 										}
 									}
 									return GridMode.UNDEFINED;
-								})),
-						new DummyRegisterElement(0x0107), //
+								}))),
+				new FC3ReadRegistersTask(0x0108, Priority.LOW, //
 						m(EssFeneconCommercial40Impl.ChannelId.PROTOCOL_VERSION, new UnsignedWordElement(0x0108)),
 						m(EssFeneconCommercial40Impl.ChannelId.SYSTEM_MANUFACTURER, new UnsignedWordElement(0x0109)),
 						m(EssFeneconCommercial40Impl.ChannelId.SYSTEM_TYPE, new UnsignedWordElement(0x010A)),
