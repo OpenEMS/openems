@@ -254,6 +254,7 @@ public class PreConfig {
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
 				core.put("userkey", "user");
+				core.put("master", true);
 				factory.update(core);
 
 				// Create ESS
