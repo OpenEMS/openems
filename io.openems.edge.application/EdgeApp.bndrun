@@ -6,7 +6,7 @@
 
 -runproperties: \
 	org.osgi.service.http.port=8080,\
-	felix.cm.dir=c:/openems-config
+	felix.cm.dir=/etc/openems.d/
 
 -runee: JavaSE-1.8
 
@@ -155,8 +155,9 @@
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	com.google.guava;version='[28.0.0,28.0.1)',\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
-	io.openems.edge.ess.mr.gridcon;version=snapshot,\
-	io.openems.edge.meter.virtual;version=snapshot
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
+	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
+	io.openems.edge.meter.microcare.sdm630;version=snapshot
 	
 -resolve: auto
 
