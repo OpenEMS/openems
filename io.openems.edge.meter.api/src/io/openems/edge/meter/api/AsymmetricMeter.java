@@ -196,7 +196,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(SymmetricMeter.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(AsymmetricMeter.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //
@@ -206,9 +206,9 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.channel(12, ChannelId.VOLTAGE_L1, ModbusType.FLOAT32) //
 				.channel(14, ChannelId.VOLTAGE_L2, ModbusType.FLOAT32) //
 				.channel(16, ChannelId.VOLTAGE_L3, ModbusType.FLOAT32) //
-				.channel(16, ChannelId.CURRENT_L1, ModbusType.FLOAT32) //
-				.channel(18, ChannelId.CURRENT_L2, ModbusType.FLOAT32) //
-				.channel(20, ChannelId.CURRENT_L3, ModbusType.FLOAT32) //
+				.channel(18, ChannelId.CURRENT_L1, ModbusType.FLOAT32) //
+				.channel(20, ChannelId.CURRENT_L2, ModbusType.FLOAT32) //
+				.channel(22, ChannelId.CURRENT_L3, ModbusType.FLOAT32) //
 				.build();
 	}
 	
