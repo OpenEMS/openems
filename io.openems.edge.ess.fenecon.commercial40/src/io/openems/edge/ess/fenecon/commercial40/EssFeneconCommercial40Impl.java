@@ -1,9 +1,6 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -27,7 +24,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -82,8 +78,9 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private final static int MIN_REACTIVE_POWER = -10000;
 	private final static int MAX_REACTIVE_POWER = 10000;
 
+	protected EssDcChargerFeneconCommercial40 charger = null;
+
 	private Config config;
-	private EssDcChargerFeneconCommercial40 charger = null;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -745,8 +742,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				.unit(Unit.MILLIVOLT)), //
 		CELL_224_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //
-		SURPLUS_FEED_IN_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
 
 		// StateChannels
 		STATE_0(Doc.of(Level.WARNING) //
@@ -1671,7 +1666,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsException {
+	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		// Read-Only-Mode
 		if (this.config.readOnlyMode()) {
 			return new Constraint[] { //
@@ -1681,67 +1676,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		}
 
 		// Reactive Power constraints
-		List<Constraint> result = new ArrayList<>();
-		result.add(this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
-				Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER));
-		result.add(this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
-				Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER));
-
-		// Activate Surplus-Feed-In?
-		result.addAll(this.getSurplusFeedInConstraints());
-
-		return result.toArray(new Constraint[result.size()]);
+		return new Constraint[] { //
+				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
+						Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER), //
+				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
+						Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
 	}
-
-	/**
-	 * Gets Constraints for Surplus-Feed-In; empty list if no Constraints are added.
-	 * 
-	 * @return list of Constraints
-	 * @throws OpenemsException
-	 */
-	private List<Constraint> getSurplusFeedInConstraints() throws OpenemsException {
-		if (this.lastSurplusFeedInActivated == null
-				|| this.lastSurplusFeedInActivated.isBefore(LocalDateTime.now().minusMinutes(30))) {
-			if (
-			// Is a Charger set? (i.e. is this a Commercial 40-40 DC)
-			this.charger == null
-					// Is Surplus Feed-In not activated?
-					|| !this.config.activateSurplusFeedIn()
-					// Is battery not full?
-					|| this.getAllowedCharge().value().orElse(0) < this.config.surplusAllowedChargePowerLimit()
-					// Is time before 'Surplus Off Time'?
-					|| LocalTime.now().isAfter(LocalTime.parse(this.config.surplusOffTime()))
-					// Is PV producing?
-					|| Math.max(//
-							// InputVoltage 0
-							((IntegerReadChannel) this.charger
-									.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC0_INPUT_VOLTAGE)).value()
-											.orElse(0), //
-							// InputVoltage 1
-							((IntegerReadChannel) this.charger
-									.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC1_INPUT_VOLTAGE)).value()
-											.orElse(0) //
-					) < 250_000) {
-				this.lastSurplusFeedInActivated = null;
-				this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(0);
-				return new ArrayList<>();
-			}
-		}
-		// Active Surplus feed-in
-		int surplusFeedInPower = this.charger.getActualPower().value().orElse(0);
-
-		List<Constraint> result = new ArrayList<>();
-		result.add(this.createPowerConstraint("Enforce Surplus Feed-In", Phase.ALL, Pwr.ACTIVE,
-				Relationship.GREATER_OR_EQUALS, surplusFeedInPower));
-		this.channel(ChannelId.SURPLUS_FEED_IN_POWER).setNextValue(surplusFeedInPower);
-
-		if (this.lastSurplusFeedInActivated == null) {
-			this.lastSurplusFeedInActivated = LocalDateTime.now();
-		}
-		return result;
-	}
-
-	private LocalDateTime lastSurplusFeedInActivated = null;
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -1755,6 +1695,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	@Override
 	public void setCharger(EssDcChargerFeneconCommercial40 charger) {
 		this.charger = charger;
+	}
+
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 
 }

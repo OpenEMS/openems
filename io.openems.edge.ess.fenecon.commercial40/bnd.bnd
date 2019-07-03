@@ -3,6 +3,7 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
+	io.openems.edge.controller.api,\
 	io.openems.edge.ess.symmetric.readonly.api,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
@@ -12,6 +13,9 @@ Export-Package: \
 	io.openems.edge.ess.fenecon.commercial40,\
 	io.openems.edge.ess.fenecon.commercial40.charger
 
+Private-Package: \
+	io.openems.edge.ess.fenecon.commercial40.surplusfeedin
+
 -includeresource: {readme.adoc}
 
 -buildpath: \
@@ -19,6 +23,7 @@ Export-Package: \
 	io.openems.common;version=latest,\
 	io.openems.edge.bridge.modbus;version=latest,\
 	io.openems.edge.common;version=latest,\
+	io.openems.edge.controller.api;version=latest,\
 	io.openems.edge.ess.api;version=latest,\
 	slf4j.api,\
 	com.google.guava
