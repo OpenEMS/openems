@@ -57,7 +57,7 @@ public enum OpenemsError {
 	JSON_NO_OBJECT_MEMBER(5003, "JSON [%s] is not a JSON-Object"), //
 	JSON_NO_PRIMITIVE(5004, "JSON [%s] is not a JSON-Primitive"), //
 	JSON_NO_PRIMITIVE_MEMBER(5005, "JSON [%s] is not a JSON-Primitive"), //
-	JSON_NO_ARRAY(5006, "JSON [%s:%s] is not JSON-Array"), //
+	JSON_NO_ARRAY(5006, "JSON [%s] is not JSON-Array"), //
 	JSON_NO_ARRAY_MEMBER(5007, "JSON [%s:%s] is not JSON-Array"), //
 	JSON_NO_DATE_MEMBER(5008, "JONS [%s:%s] is not a Date. Error: %s"), //
 	JSON_NO_STRING(5009, "JSON [%s] is not a String"), //
