@@ -155,9 +155,8 @@
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	com.google.guava;version='[28.0.0,28.0.1)',\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
-	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
-	io.openems.edge.meter.microcare.sdm630;version=snapshot
+	io.openems.edge.ess.mr.gridcon;version=snapshot,\
+	io.openems.edge.fenecon.mini;version=snapshot,\
+	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot
 	
 -resolve: auto
-
