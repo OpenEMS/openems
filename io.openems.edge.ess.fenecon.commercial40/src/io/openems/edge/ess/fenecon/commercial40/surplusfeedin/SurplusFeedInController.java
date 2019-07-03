@@ -36,7 +36,6 @@ import io.openems.edge.ess.power.api.Relationship;
 public class SurplusFeedInController extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private static final int GOING_DEACTIVATED_MINUTES = 15;
-	private static final int MINIMAL_POWER = 1000;
 
 	private final Logger log = LoggerFactory.getLogger(SurplusFeedInController.class);
 
@@ -121,7 +120,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 				this.setState(StateMachine.GOING_DEACTIVATED);
 				this.startedGoingDeactivated = LocalDateTime.now();
 			}
-			int power = Math.max(charger.getActualPower().value().orElse(0), MINIMAL_POWER);
+			int power = charger.getActualPower().value().orElse(0) + config.increasePower();
 			this.setSurplusFeedInPower(ess, power);
 			break;
 		}
@@ -133,7 +132,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 			int pvPower = charger.getActualPower().value().orElse(0);
 			double factor = DoubleUtils.normalize(goingDeactivatedSinceMinutes, 0, GOING_DEACTIVATED_MINUTES, 0, 1,
 					true);
-			int power = Math.max((int) (pvPower * factor), MINIMAL_POWER);
+			int power = Math.max((int) (pvPower * factor), config.increasePower());
 			this.setSurplusFeedInPower(ess, power);
 
 			if (goingDeactivatedSinceMinutes > GOING_DEACTIVATED_MINUTES) {
