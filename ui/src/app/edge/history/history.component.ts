@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service } from '../../shared/shared';
+import { Edge, Service, Widgets } from '../../shared/shared';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'history',
@@ -12,14 +13,15 @@ export class HistoryComponent implements OnInit {
   public socChartHeight: string = "250px";
   public energyChartHeight: string = "250px";
 
-  // holds the Edge dependend Widget names
-  public widgetNames: string[] = [];
+  // holds the Widgets
+  public widgets: Widgets = null;
 
   // holds the current Edge
   protected edge: Edge = null;
 
   constructor(
     public service: Service,
+    public translate: TranslateService,
     private route: ActivatedRoute
   ) { }
 
@@ -27,14 +29,8 @@ export class HistoryComponent implements OnInit {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
-    this.service.getWidgets().then(widgets => {
-      let result: string[] = [];
-      for (let widget of widgets) {
-        if (!result.includes(widget.name.toString())) {
-          result.push(widget.name.toString());
-        }
-      }
-      this.widgetNames = result;
+    this.service.getConfig().then(config => {
+      this.widgets = config.widgets;
     });
   }
 

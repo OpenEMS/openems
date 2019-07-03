@@ -38,7 +38,7 @@
     "chart.js": "^2.8.0",
     "classlist.js": "^1.1.20150312",
     "core-js": "^3.1.4",
-    "d3": "5.9.2",
+    "d3": "5.9.7",
     "date-fns": "^2.0.0-alpha.36",
     "file-saver": "^2.0.2",
     "hammerjs": "2.0.8",
@@ -78,7 +78,7 @@
     "ts-node": "~8.2.0",
     "tslint": "~5.18.0",
     "typescript": "~3.1.6",
-    "webpack": "^4.35.0"
+    "webpack": "^4.35.2"
   },
   "description": "OpenEMS UI",
   "cordova": {

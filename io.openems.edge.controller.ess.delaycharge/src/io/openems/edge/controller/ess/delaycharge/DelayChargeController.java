@@ -106,6 +106,12 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 
 		// calculate charge power limit
 		int limit = remainingCapacity / remainingTime * -1;
+		
+		// reduce limit to MaxApparentPower to avoid very high values in the last
+		// seconds
+		limit = Math.min(limit, ess.getMaxApparentPower().value().orElse(0));
+		
+		// set ActiveLimit channel
 		setChannels(State.ACTIVE_LIMIT, limit * -1);
 
 		// Set limitation for ChargePower
@@ -114,7 +120,6 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 
 	private int currentSecondOfDay() {
 		LocalDateTime now = LocalDateTime.now(this.clock);
-		System.out.println(now);
 		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
 	}
 
