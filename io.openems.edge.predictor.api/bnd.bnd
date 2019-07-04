@@ -1,0 +1,23 @@
+Bundle-Name: OpenEMS Edge Predictor Api
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: 				\
+	This project contains an Predictor API, which must implemented when by all Different Predictor.
+
+
+Export-Package:  io.openems.edge.predictor.api
+	
+
+-includeresource: {readme.adoc}
+
+-buildpath: ${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	slf4j.api
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
+

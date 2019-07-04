@@ -1,0 +1,13 @@
+#
+# io.openems.edge.predictor.persistant.model DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.predictor.persistant.model.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

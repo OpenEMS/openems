@@ -1,0 +1,8 @@
+# io.openems.edge.predictor.api
+
+${Bundle-Description}
+
+## Example
+
+## References
+

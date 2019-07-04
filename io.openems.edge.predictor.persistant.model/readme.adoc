@@ -1,0 +1,8 @@
+# io.openems.edge.predictor.persistant.model Provider
+
+${Bundle-Description}
+
+## Example
+
+## References
+
