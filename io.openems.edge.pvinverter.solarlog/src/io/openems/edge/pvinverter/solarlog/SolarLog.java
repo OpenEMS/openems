@@ -191,9 +191,11 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	@Override
 	public void setActivePowerLimit(int activePowerWatt) throws OpenemsNamedException {
 
-		System.out.println(" ---> SET ACTIVE POWER LIMIT IS CALLED !!! <----");
-
 		int pLimitPerc = (int) ((double) activePowerWatt / (double) this.maxActivePower * 100.0);
+		
+		this.channel(ChannelId.LIMIT_POWER_USER_ENTERED).setNextValue(activePowerWatt);
+		this.channel(ChannelId.MAX_ACTIVE_POWER_FROM_SOLAR_LOG).setNextValue(this.maxActivePower);
+		this.channel(ChannelId.PERCENT).setNextValue(pLimitPerc);
 
 		// keep percentage in range [0, 100]
 		if (pLimitPerc > 100) {
@@ -210,7 +212,6 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 		pLimitPercCh.setNextWriteValue(pLimitPerc);
 		pLimitTypeCh.setNextWriteValue(PLimitType.FIXED_LIMIT);
-		System.out.println("Power Limit Type  :  " + pLimitTypeCh.getNextValue().asEnum());
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -239,8 +240,13 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		TOTAL_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS)),
 		TOTAL_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
-
+				.unit(Unit.WATT_HOURS_BY_WATT_PEAK)), //
+		PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)), //
+		MAX_ACTIVE_POWER_FROM_SOLAR_LOG(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)), //
+		LIMIT_POWER_USER_ENTERED(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)), //
 		// PV
 		P_LIMIT_TYPE(Doc.of(PLimitType.values()) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
