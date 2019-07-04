@@ -33,15 +33,14 @@ export class HistoryComponent implements OnInit {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
-    // Are we connected to OpenEMS Edge and is a timedata service available?
-    if (environment.backend == 'OpenEMS Edge') {
-      this.service.getConfig().then(config => {
-        if (config.getComponentsImplementingNature('io.openems.edge.timedata.api.Timedata').filter(c => c.isEnabled).length == 0) {
-          this.isTimedataAvailable = false;
-        }
-        this.widgets = config.widgets;
-      });
-    }
+    this.service.getConfig().then(config => {
+      this.widgets = config.widgets;
+      // Are we connected to OpenEMS Edge and is a timedata service available?
+      if (environment.backend == 'OpenEMS Edge'
+        && config.getComponentsImplementingNature('io.openems.edge.timedata.api.Timedata').filter(c => c.isEnabled).length == 0) {
+        this.isTimedataAvailable = false;
+      }
+    });
   }
 
   updateOnWindowResize() {

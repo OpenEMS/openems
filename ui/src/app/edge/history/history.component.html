@@ -12,7 +12,6 @@
           <ion-label text-wrap *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
             {{ service.historyPeriod.getText(translate) }}</ion-label>
         </ion-item>
-
         <ion-card-content *ngIf="widgets">
           <ion-grid no-padding>
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
