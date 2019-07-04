@@ -28,6 +28,7 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40Impl;
+import io.openems.edge.ess.fenecon.commercial40.SystemState;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "EmergencyMode", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)

@@ -107,11 +107,14 @@ public class MeterSpannerBHKW extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(381, Priority.LOW, //
 						m(BHKWChannelId.COSPHI_L3, new SignedDoublewordElement(381))), //
 				new FC3ReadRegistersTask(382, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(382))), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(382),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 				new FC3ReadRegistersTask(383, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(383))), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(383),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 				new FC3ReadRegistersTask(384, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(384)))//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(384),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2))//
 		);//
 	}
 
