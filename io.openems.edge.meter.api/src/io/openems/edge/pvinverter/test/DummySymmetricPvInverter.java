@@ -1,5 +1,6 @@
 package io.openems.edge.pvinverter.test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -22,6 +23,12 @@ public class DummySymmetricPvInverter extends AbstractOpenemsComponent implement
 			channel.nextProcessImage();
 		}
 		super.activate(null, id, true);
+	}
+
+	@Override
+	public void setActivePowerLimit(int activePowerWatt) throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

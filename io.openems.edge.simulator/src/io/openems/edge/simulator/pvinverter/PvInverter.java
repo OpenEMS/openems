@@ -19,6 +19,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -110,6 +111,8 @@ public class PvInverter extends AbstractOpenemsComponent
 		this.getActivePower().setNextValue(simulatedActivePower);
 	}
 
+
+
 	@Override
 	public String debugLog() {
 		return this.getActivePower().value().asString();
@@ -118,5 +121,11 @@ public class PvInverter extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
+	}
+
+	@Override
+	public void setActivePowerLimit(int activePowerWatt)  throws OpenemsNamedException {
+		
+		
 	}
 }

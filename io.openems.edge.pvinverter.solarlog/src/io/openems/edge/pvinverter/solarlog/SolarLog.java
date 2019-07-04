@@ -188,6 +188,31 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		}
 	};
 
+	@Override
+	public void setActivePowerLimit(int activePowerWatt) throws OpenemsNamedException {
+
+		System.out.println(" ---> SET ACTIVE POWER LIMIT IS CALLED !!! <----");
+
+		int pLimitPerc = (int) ((double) activePowerWatt / (double) this.maxActivePower * 100.0);
+
+		// keep percentage in range [0, 100]
+		if (pLimitPerc > 100) {
+			pLimitPerc = 100;
+		}
+		if (pLimitPerc < 0) {
+			pLimitPerc = 0;
+		}
+
+		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
+		EnumWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
+
+		System.out.println("Writing limit to channel: " + pLimitPerc);
+
+		pLimitPercCh.setNextWriteValue(pLimitPerc);
+		pLimitTypeCh.setNextWriteValue(PLimitType.FIXED_LIMIT);
+		System.out.println("Power Limit Type  :  " + pLimitTypeCh.getNextValue().asEnum());
+	}
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS)), //

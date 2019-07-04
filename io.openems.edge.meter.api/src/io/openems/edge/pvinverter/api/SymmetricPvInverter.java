@@ -2,6 +2,7 @@ package io.openems.edge.pvinverter.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -62,4 +63,6 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 	default IntegerWriteChannel getActivePowerLimit() {
 		return this.channel(ChannelId.ACTIVE_POWER_LIMIT);
 	}
+
+	void setActivePowerLimit(int activePowerWatt)  throws OpenemsNamedException;
 }
