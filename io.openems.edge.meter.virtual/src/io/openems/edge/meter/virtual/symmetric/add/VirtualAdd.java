@@ -62,6 +62,7 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.meterType = config.type();
 	}
 
 	@Deactivate
