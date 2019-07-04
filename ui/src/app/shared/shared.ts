@@ -5,4 +5,4 @@ export { Websocket } from "./service/websocket";
 export { Utils } from "./service/utils";
 export { ChannelAddress } from "./type/channeladdress";
 export { SystemLog } from "./type/systemlog";
-export { Widget, WidgetFactory, WidgetNature } from "./type/widget";
+export { Widgets, Widget, WidgetFactory, WidgetNature } from "./type/widget";
