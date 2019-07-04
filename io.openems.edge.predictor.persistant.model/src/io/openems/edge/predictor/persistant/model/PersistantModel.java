@@ -35,7 +35,7 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 
 	private final Logger log = LoggerFactory.getLogger(PersistantModel.class);
 
-	private Config config;
+	//private Config config;
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -52,17 +52,20 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 	}
 
 	LocalDateTime start = LocalDateTime.now();
-	LocalDateTime end = LocalDateTime.now().plusHours(12);
-
+	LocalDateTime end = LocalDateTime.now().plusMinutes(24);
+	TreeMap<LocalDateTime, Long> prediousDayConsumption = new TreeMap<LocalDateTime, Long>();
 	
 	@Override
 	public TreeMap<LocalDateTime, Long> getPrediction(LocalDateTime start, LocalDateTime end) {
 
-//		TreeMap<LocalDateTime, Long> hourlyConsumption = worker.getHourlyConsumption();
-//		if (hourlyConsumption)
-		TreeMap<LocalDateTime, Long> dummy = new TreeMap<LocalDateTime, Long>();
-		dummy.put(LocalDateTime.now(), new Long(100));
-		return dummy;
+
+		prediousDayConsumption = DataCollectorWorker.getPreviosDayPred();
+		if (prediousDayConsumption.isEmpty()) {
+			System.out.println("Prediction is not calculated yet");
+		}else {
+			System.out.println(prediousDayConsumption.toString());
+		}		
+		return prediousDayConsumption;
 	}
 
 	@Activate
@@ -87,6 +90,11 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 				worker.triggerNextRun();
 
 		}
+	}
+	
+	@Override
+	public String debugLog() {
+		return "Predicted --->: " + prediousDayConsumption.toString();
 	}
 
 }
