@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -41,9 +40,10 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 	@Reference
 	protected ComponentManager componentManager;
 	
+	@Reference
+	protected Sum sum;
 	
-
-	private final DataCollectorWorker worker = new DataCollectorWorker(this);
+	private DataCollectorWorker worker = new DataCollectorWorker(this);;
 
 	public PersistantModel() {
 		super(//
@@ -55,11 +55,9 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 	LocalDateTime end = LocalDateTime.now().plusHours(12);
 
 	
-	
-
 	@Override
 	public TreeMap<LocalDateTime, Long> getPrediction(LocalDateTime start, LocalDateTime end) {
-		
+
 //		TreeMap<LocalDateTime, Long> hourlyConsumption = worker.getHourlyConsumption();
 //		if (hourlyConsumption)
 		TreeMap<LocalDateTime, Long> dummy = new TreeMap<LocalDateTime, Long>();
@@ -69,7 +67,7 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.alias(), config.id(), config.enabled());
+		super.activate(context, config.alias(), config.id(), config.enabled());		
 		this.worker.activate(this.id());
 	}
 
@@ -85,15 +83,9 @@ public class PersistantModel extends AbstractOpenemsComponent implements Predict
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			try {
-				Sum sum = this.componentManager.getComponent(OpenemsConstants.SUM_ID);
-				worker.calculateConsumption(sum);
-			} catch (OpenemsNamedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+				worker.triggerNextRun();
+
 		}
 	}
 

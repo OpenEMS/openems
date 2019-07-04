@@ -4,19 +4,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.TreeMap;
 
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.sum.Sum;
 
+public class DataCollectorWorker extends AbstractCycleWorker {
 
-public class DataCollectorWorker extends AbstractWorker {
-	
 	private final Logger log = LoggerFactory.getLogger(DataCollectorWorker.class);
-	
+
 	private final PersistantModel parent;
-	
+
 	private LocalDate dateOfT0 = null;
 	private long totalConsumption = 0;
 	private long currentConsumption = 0;
@@ -25,36 +26,36 @@ public class DataCollectorWorker extends AbstractWorker {
 	private static LocalDateTime t1 = null;
 	private LocalDate dateOfLastRun = null;
 	private LocalDateTime currentHour = null;
-	
-	private int Max_Morning_hour = 5; 
+
+	private int Max_Morning_hour = 5;
 	private int Max_Evening_hour = 17;
-			
 
 	private static TreeMap<LocalDateTime, Long> hourlyConsumption = new TreeMap<LocalDateTime, Long>();
-	
-	
+
 	public static TreeMap<LocalDateTime, Long> getHourlyConsumption() {
 		return hourlyConsumption;
 	}
-
 
 	public static void setHourlyConsumption(TreeMap<LocalDateTime, Long> hourlyConsumption) {
 		DataCollectorWorker.hourlyConsumption = hourlyConsumption;
 	}
 
-
+	
+	
 	public DataCollectorWorker(PersistantModel parent) {
 		this.parent = parent;
 	}
+
 	private enum State {
 
 		PRODUCTION_LOWER_THAN_CONSUMPTION, PRODUCTION_DROPPED_BELOW_CONSUMPTION, PRODUCTION_HIGHER_THAN_CONSUMPTION,
 		PRODUCTION_EXCEEDED_CONSUMPTION
 	}
+
 	private State currentState = State.PRODUCTION_LOWER_THAN_CONSUMPTION;
-	
-	public void calculateConsumption(Sum sum){
-		
+
+	public void calculateConsumption(Sum sum) {
+
 		int production = sum.getProductionActivePower().value().orElse(0);
 		int consumption = sum.getConsumptionActivePower().value().orElse(0);
 		long productionEnergy = sum.getProductionActiveEnergy().value().orElse(0L);
@@ -62,8 +63,6 @@ public class DataCollectorWorker extends AbstractWorker {
 
 		LocalDate nowDate = LocalDate.now();
 		LocalDateTime now = LocalDateTime.now();
-
-
 
 		if (!hourlyConsumption.isEmpty()) {
 			log.info("first Key: " + hourlyConsumption.firstKey() + " last Key: " + hourlyConsumption.lastKey());
@@ -119,7 +118,6 @@ public class DataCollectorWorker extends AbstractWorker {
 				// reset values
 				log.info("Resetting Values during " + now);
 				t0 = null;
-				
 
 				this.dateOfLastRun = nowDate;
 				log.info("dateOfLastRun " + dateOfLastRun);
@@ -165,23 +163,15 @@ public class DataCollectorWorker extends AbstractWorker {
 		}
 
 	}
-	
 
 	@Override
-	protected void forever() throws Throwable {		
-		
+	protected void forever() throws Throwable {
+		calculateConsumption(parent.sum);
 	}
-	
-	
+
 	@Override
 	public void triggerNextRun() {
 		super.triggerNextRun();
-	}
-
-	@Override
-	protected int getCycleTime() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 }
