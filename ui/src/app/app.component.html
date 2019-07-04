@@ -96,8 +96,7 @@
             <ion-label translate>Menu.GeneralSettings</ion-label>
           </ion-item>
           <nav *ngIf="(service.currentEdge | async) as edge">
-            <ion-item lines="inset" *ngIf="edge.roleIsAtLeast('owner')" routerLink="/device/{{ edge.id }}/settings"
-              (click)="menu.close()">
+            <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
               <ion-label translate>Menu.EdgeSettings</ion-label>
             </ion-item>
           </nav>

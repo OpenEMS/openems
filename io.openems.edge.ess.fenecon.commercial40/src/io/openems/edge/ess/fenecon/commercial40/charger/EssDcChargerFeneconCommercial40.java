@@ -96,10 +96,13 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
+		
+		this.ess.setCharger(this);
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.ess.setCharger(null);
 		super.deactivate();
 	}
 

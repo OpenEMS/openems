@@ -12,13 +12,16 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.CheckedConsumer;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -32,39 +35,41 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "PV-Inverter.KACO.blueplanet", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		})
 public class KacoBlueplanet extends AbstractOpenemsModbusComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final static int UNIT_ID = 1;
-
-	private final Logger log = LoggerFactory.getLogger(KacoBlueplanet.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	private final ModbusProtocol modbusProtocol;
-	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this);
+	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
+			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
 	public KacoBlueplanet() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				SymmetricPvInverter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this.getActivePowerLimit().onSetNextWrite(this.setPvLimitHandler);
+		this.getMaxApparentPower().setNextValue(15_000); // TODO read from SunSpec
 
 		this.modbusProtocol = new ModbusProtocol(this);
 		this.modbusProtocol.addTasks(//
@@ -94,10 +99,6 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			System.out.println("Is SunSpec? " + isSunSpec);
-
-			// TODO: finde start-adressen von allen SunSpec Blöcken und speichere sie in
-			// einer BiMap<Integer, Integer> = SunSpec-ID <-> Start-Adresse
-
 		});
 	}
 
@@ -141,6 +142,21 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			try {
+				this.setPvLimitHandler.run();
+
+				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(false);
+			} catch (OpenemsNamedException e) {
+				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(true);
+			}
+			break;
+		}
+	}
+
+	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
 	}
@@ -160,7 +176,9 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.PERCENT)), //
 		W_MAX_LIM_ENA(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
+				.text("PV-Limit failed"));
 		;
 
 		private final Doc doc;
