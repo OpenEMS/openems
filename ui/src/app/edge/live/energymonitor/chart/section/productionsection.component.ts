@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Utils } from '../../../../../shared/shared';
+import { Service, Utils } from '../../../../../shared/shared';
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { WidgetClass } from 'src/app/shared/type/widget';
 
 @Component({
     selector: '[productionsection]',
@@ -10,8 +11,11 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 })
 export class ProductionSectionComponent extends AbstractSection {
 
-    constructor(translate: TranslateService) {
-        super('General.Production', "up", "#008DD2", translate);
+    constructor(
+        translate: TranslateService,
+        service: Service
+    ) {
+        super('General.Production', "up", "#008DD2", translate, service, "Production");
     }
 
     protected getStartAngle(): number {
