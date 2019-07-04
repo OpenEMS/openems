@@ -18,7 +18,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.SellToGridLimit", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -75,7 +75,7 @@ public class SellToGridLimit extends AbstractOpenemsComponent implements Control
 	 * @return the required power
 	 * @throws InvalidValueException
 	 */
-	private int calculateRequiredPower(SymmetricPvInverter pvInverter, SymmetricMeter meter)
+	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter)
 			throws InvalidValueException {
 		return meter.getActivePower().value().getOrError() /* current buy-from/sell-to grid */
 				+ pvInverter.getActivePower().value().getOrError() /* current charge/discharge Ess */
@@ -84,13 +84,8 @@ public class SellToGridLimit extends AbstractOpenemsComponent implements Control
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		SymmetricPvInverter pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
+		ManagedSymmetricPvInverter pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
-
-		// No PV production -> stop early
-		if (pvInverter.getActivePower().value().orElse(Integer.MAX_VALUE) <= 0) {
-			return;
-		}
 
 		// Calculates required charge/discharge power
 		int calculatedPower = this.calculateRequiredPower(pvInverter, meter);
@@ -109,7 +104,6 @@ public class SellToGridLimit extends AbstractOpenemsComponent implements Control
 				calculatedPower = newLimit;
 			}
 		}
-
 		// store lastSetLimit
 		this.lastSetLimit = calculatedPower;
 

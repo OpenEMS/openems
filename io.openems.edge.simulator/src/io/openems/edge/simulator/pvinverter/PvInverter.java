@@ -26,7 +26,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
@@ -34,7 +34,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class PvInverter extends AbstractOpenemsComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -76,7 +76,7 @@ public class PvInverter extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				SymmetricPvInverter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
