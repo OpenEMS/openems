@@ -63,6 +63,7 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 				SinglePhaseEss.ChannelId.values(), //
 				EssChannelId.values() //
 		);
+		this.getCapacity().setNextValue(3_000);
 	}
 
 	@Activate

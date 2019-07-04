@@ -31,6 +31,19 @@ public interface SymmetricEss extends OpenemsComponent {
 		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT)),
 		/**
+		 * Capacity.
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 * 
+		 * @since 2019.5.0
+		 */
+		CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS)),
+		/**
 		 * Grid-Mode.
 		 * 
 		 * <ul>
@@ -131,6 +144,15 @@ public interface SymmetricEss extends OpenemsComponent {
 	 */
 	default Channel<Integer> getSoc() {
 		return this.channel(ChannelId.SOC);
+	}
+
+	/**
+	 * Gets the (usable) capacity of the Battery in [Wh].
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getCapacity() {
+		return this.channel(ChannelId.CAPACITY);
 	}
 
 	/**

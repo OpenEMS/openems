@@ -38,12 +38,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "PV-Inverter.Solarlog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class SolarLog extends AbstractOpenemsModbusComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent {
 
 	// Solar-Log requires the watchdog to be triggered every 300 seconds
 	private static final int WATCHDOG_SECONDS = 150;
@@ -61,11 +61,11 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				SymmetricPvInverter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 
-		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
+		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit); // TODO this should happen in ON_WRITE event
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

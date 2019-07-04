@@ -7,28 +7,32 @@
       <energymonitor></energymonitor>
     </ion-col>
 
-    <ion-col size="12" size-md="8" size-lg="6">
+    <ion-col *ngIf="widgets" size="12" size-md="8" size-lg="6">
       <ion-grid no-padding>
         <ion-row>
           <!-- Regular Widgets -->
-          <ion-col size="12" size-lg="6" no-padding>
-            <storage></storage>
-          </ion-col>
+          <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
-          <ion-col size="12" size-lg="6" no-padding>
-            <grid></grid>
-          </ion-col>
+            <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6">
+              <storage></storage>
+            </ion-col>
 
-          <ion-col size="12" size-lg="6">
-            <production></production>
-          </ion-col>
+            <ion-col *ngSwitchCase="'Grid'" size="12" size-lg="6">
+              <grid></grid>
+            </ion-col>
 
-          <ion-col size="12" size-lg="6">
-            <consumption></consumption>
-          </ion-col>
+            <ion-col *ngSwitchCase="'Production'" size="12" size-lg="6">
+              <production></production>
+            </ion-col>
+
+            <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="6">
+              <consumption></consumption>
+            </ion-col>
+
+          </ng-container>
 
           <!-- Widgets depending on the configuration of the OpenEMS Edge -->
-          <ng-container *ngFor="let widget of widgets" [ngSwitch]="widget.name">
+          <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
             <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12">
               <evcs [componentId]="widget.componentId"></evcs>
@@ -56,9 +60,9 @@
 
           </ng-container>
 
-          <ion-col size="12" size-lg="12">
+          <!-- <ion-col size="12" size-lg="12">
             <info></info>
-          </ion-col>
+          </ion-col> -->
 
         </ion-row>
       </ion-grid>

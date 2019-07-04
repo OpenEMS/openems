@@ -1,6 +1,8 @@
 import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
+import { Service } from 'src/app/shared/shared';
+import { WidgetClass } from 'src/app/shared/type/widget';
 
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
@@ -116,6 +118,7 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
 
+    protected isEnabled: boolean = false;
     protected valueText: string = "";
     protected valueText2: string = "";
     protected innerRadius: number = 0;
@@ -131,10 +134,19 @@ export abstract class AbstractSection {
         protected direction: "left" | "right" | "down" | "up" = "left",
         public color: string,
         protected translate: TranslateService,
+        service: Service,
+        widgetClass: string
     ) {
         this.sectionId = translateName;
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
+        service.getConfig().then(config => {
+            config.widgets.classes.forEach(clazz => {
+                if (clazz.toString() === widgetClass) {
+                    this.isEnabled = true;
+                }
+            });
+        });
     }
 
     /**
@@ -185,6 +197,10 @@ export abstract class AbstractSection {
      * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
      */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+        if (!this.isEnabled) {
+            return;
+        }
+
         // TODO smoothly resize the arc
         this.valueText = this.getValueText(valueAbsolute);
 
