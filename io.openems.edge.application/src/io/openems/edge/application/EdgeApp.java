@@ -55,7 +55,7 @@ public class EdgeApp {
 			e.printStackTrace();
 		}
 		
-		PreConfig.initConfig(cm);
+		
 
 		// Announce Operating System that OpenEMS Edge started
 		if(SDNotify.isAvailable()) {
@@ -91,6 +91,8 @@ public class EdgeApp {
 		// e.printStackTrace();
 		// }
 		// }).start();
+		
+		PreConfig.initConfig(cm);
 	}
 
 	@Deactivate
