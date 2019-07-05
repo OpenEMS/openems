@@ -36,14 +36,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * Wait between two consecutive switches of Q1/Q2 or Q3/Q4.
 	 */
 	private static final int WAIT_FOR_RELAY_SWITCH_SECONDS = 10;
-	/**
-	 * Limit for PV in Off-Grid.
-	 */
-	private static final int OFFGRID_PV_LIMIT = 35_000;
-	/**
-	 * If PV power is above OFFGRID_PV_LIMIT_FAULT in Off-Grid -> disconnect PV.
-	 */
-	private static final int OFFGRID_PV_LIMIT_FAULT = 37_000;
 
 	private final Logger log = LoggerFactory.getLogger(EmergencyClusterMode.class);
 	private final Clock clock;
@@ -210,6 +202,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		this.setOutput(this.q2Ess2SupplyUps, Operation.CLOSE);
 		this.setOutput(this.q3PvOffGrid, Operation.OPEN);
 		this.setOutput(this.q4PvOnGrid, Operation.CLOSE);
+		this.NolimitPvInOngrid();
 	}
 
 	private enum PvConnected {
@@ -280,6 +273,25 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			break;
 		}
 	}
+	
+
+	/**
+	 * Don't Limit PV production in On-Grid.
+	 * 
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
+	 */
+	private void NolimitPvInOngrid() throws IllegalArgumentException, OpenemsNamedException {
+		SymmetricPvInverter pvInverter;
+		try {
+			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
+			//TODO 137500 needs to be read from registers
+			pvInverter.setActivePowerLimit(137500);
+		} catch (OpenemsNamedException e) {
+			// ignore
+		}
+	}
+	
 
 	/**
 	 * Limit PV production in Off-Grid to 35.000 W.
@@ -289,17 +301,15 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 */
 	private void limitPvInOffgrid() throws IllegalArgumentException, OpenemsNamedException {
 		SymmetricPvInverter pvInverter;
-
 		int power = Integer.MAX_VALUE;
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
-			pvInverter.getActivePowerLimit().setNextWriteValue(OFFGRID_PV_LIMIT);
-
+			pvInverter.setActivePowerLimit(this.config.OFFGRID_PV_LIMIT());
 			power = pvInverter.getActivePower().value().orElse(Integer.MAX_VALUE);
 		} catch (OpenemsNamedException e) {
 			// ignore
 		}
-		if (power > OFFGRID_PV_LIMIT_FAULT) {
+		if (power > this.config.OFFGRID_PV_LIMIT_FAULT()) {
 			// Limit did not work: disconnect PV
 			this.setOutput(q3PvOffGrid, Operation.OPEN);
 		}

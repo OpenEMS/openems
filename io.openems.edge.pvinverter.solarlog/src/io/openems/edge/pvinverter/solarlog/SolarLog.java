@@ -208,8 +208,6 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
 		EnumWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
 
-		System.out.println("Writing limit to channel: " + pLimitPerc);
-
 		pLimitPercCh.setNextWriteValue(pLimitPerc);
 		pLimitTypeCh.setNextWriteValue(PLimitType.FIXED_LIMIT);
 	}

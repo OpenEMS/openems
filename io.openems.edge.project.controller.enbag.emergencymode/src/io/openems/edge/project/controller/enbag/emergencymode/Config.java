@@ -40,10 +40,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String q4ChannelAddress();
 
 	/*
-	 * Meters
+	 * PV Limitation values
 	 */
-	@AttributeDefinition(name = "PV-Meter-ID", description = "ID of the PV-Meter.")
-	String pvMeter_id();
+//	String pvMeter_id();
+	@AttributeDefinition(name = "OFFGRID_PV_LIMIT", description = " Limit for PV in Off-Grid.")
+	int OFFGRID_PV_LIMIT() default 35000;
+
+	@AttributeDefinition(name = "OFFGRID_PV_LIMIT_FAULT", description = "If PV power is above OFFGRID_PV_LIMIT_FAULT in Off-Grid -> disconnect PV.")
+	int OFFGRID_PV_LIMIT_FAULT() default 37000;
 
 	/*
 	 * Ess
