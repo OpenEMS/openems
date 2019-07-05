@@ -30,6 +30,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.VirtualMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Virtual.Symmetric.Add", //
@@ -37,7 +38,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE//
 ) //
-public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent, EventHandler {
+public class VirtualAdd extends AbstractOpenemsComponent
+		implements VirtualMeter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(VirtualAdd.class);
 
@@ -62,6 +64,7 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.meterType = config.type();
 	}
 
 	@Deactivate
@@ -133,6 +136,11 @@ public class VirtualAdd extends AbstractOpenemsComponent implements SymmetricMet
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().value().asString();
+	}
+
+	@Override
+	public boolean addToSum() {
+		return this.config.addToSum();
 	}
 
 }
