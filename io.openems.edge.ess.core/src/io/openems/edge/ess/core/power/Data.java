@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Streams;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -252,7 +253,7 @@ public class Data {
 				for (Constraint c : ess.getStaticConstraints()) {
 					result.add(c);
 				}
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				this.parent.logError(this.log,
 						"Setting static contraints for Ess [" + essId + "] failed: " + e.getMessage());
 				isFailed = true;
