@@ -99,10 +99,6 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			System.out.println("Is SunSpec? " + isSunSpec);
-
-			// TODO: finde start-adressen von allen SunSpec Blöcken und speichere sie in
-			// einer BiMap<Integer, Integer> = SunSpec-ID <-> Start-Adresse
-
 		});
 	}
 
