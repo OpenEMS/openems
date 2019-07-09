@@ -46,6 +46,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
+	bnd.identity;id='io.openems.edge.controller.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixactivepower',\
@@ -83,6 +84,7 @@
 	bnd.identity;id='io.openems.edge.meter.socomec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
+	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.dailyscheduler',\
@@ -198,5 +200,10 @@
 	com.fasterxml.jackson.core.jackson-core;version='[2.9.9,2.9.10)',\
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
 	com.github.scribejava.core;version='[6.6.3,6.6.4)',\
+<<<<<<< HEAD
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.persistant.model;version=snapshot
+=======
+	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
+	io.openems.edge.controller.selltogridlimit;version=snapshot
+>>>>>>> 223830d7ab83c185466278e42b7a022cfb77976a
