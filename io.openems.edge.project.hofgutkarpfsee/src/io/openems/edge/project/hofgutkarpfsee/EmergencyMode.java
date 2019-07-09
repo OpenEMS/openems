@@ -20,6 +20,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -65,7 +66,8 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				ThisChannelId.values() //
+				ThisChannelId.values(), //
+				ChannelId.values()//
 		);
 		this.clock = clock;
 	}
@@ -117,6 +119,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	@Override
 	public void run() throws OpenemsNamedException {
 		EssFeneconCommercial40Impl ess = this.componentManager.getComponent(this.config.ess_id());
+		this.setDebugVlauesofWagoChannels();
 		switch (this.getGridMode()) {
 		/*
 		 * Grid-Mode is undefined -> wait till we have some clear information
@@ -154,10 +157,61 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 		}
 	}
 
+	private enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		DEBUG_DIGITAL_OUTPUT_BHKW(Doc.of(OpenemsType.INTEGER)), //
+		DEBUG_DIGITAL_OUTPUT_MSR(Doc.of(OpenemsType.INTEGER)), //
+		DEBUG_DIGITAL_OUTPUT_ON(Doc.of(OpenemsType.INTEGER)), //
+		DEBUG_DIGITAL_OUTPUT_OFF(Doc.of(OpenemsType.INTEGER));//
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
+	public void setDebugVlauesofWagoChannels() throws IllegalArgumentException, OpenemsNamedException {
+		boolean m1c1 = this.isBlockHeatPowerPlantStopped();
+		if (m1c1) {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_BHKW).setNextValue(1);
+		} else {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_BHKW).setNextValue(0);
+		}
+
+		boolean m1c2 = this.isMsrHeatingSystemControllerOn();
+		if (m1c2) {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_MSR).setNextValue(1);
+		} else {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_MSR).setNextValue(0);
+		}
+
+		boolean m2c1 = this.isOnGridIndicationControllerOn();
+		if (m2c1) {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_ON).setNextValue(1);
+		} else {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_ON).setNextValue(0);
+		}
+
+		boolean m2c2 = this.isOffGridIndicationControllerOn();
+		if (m2c2) {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_OFF).setNextValue(1);
+		} else {
+			this.channel(ChannelId.DEBUG_DIGITAL_OUTPUT_OFF).setNextValue(0);
+		}
+	}
+
 	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
+
 		if (isBlockHeatPowerPlantStopped()) {
 			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 		}
+
 		if (isMsrHeatingSystemControllerOn()) {
 			this.setOutput(this.msrHeatingSystemController, Operation.OFF);
 		}
@@ -223,14 +277,18 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 				break;
 			}
 
-			this.state = State.BELOW_THRESHOLD;
+			if (applyHysteresis) {
+				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
+			}
+			this.state = State.BELOW_THRESHOLD_AND_HYSTERESIS;
 			break;
 
-		case BELOW_THRESHOLD:
-			this.previousState = State.BELOW_THRESHOLD;
+		case BELOW_THRESHOLD_AND_HYSTERESIS:
+			this.previousState = State.BELOW_THRESHOLD_AND_HYSTERESIS;
 			if (isBlockHeatPowerPlantStopped()) {
 				this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.RUN);
 			}
+			this.state = State.UNDEFINED;
 			break;
 
 		case PASS_THRESHOLD_COMING_FROM_ABOVE:
@@ -249,6 +307,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			}
 			this.previousState = State.ABOVE_THRESHOLD;
 			this.setOutput(this.blockHeatPowerPlantPermissionSignal, Operation.STOP);
+			this.state = State.UNDEFINED;
 			break;
 		}
 	}
