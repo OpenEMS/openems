@@ -73,10 +73,10 @@ public class EmergencyModeTest {
 			return this.q4ChannelAddress;
 		}
 
-		@Override
-		public String pvMeter_id() {
-			return this.pvMeter_id;
-		}
+//		@Override
+//		public String pvMeter_id() {
+//			return this.pvMeter_id;
+//		}
 
 		@Override
 		public String ess2_id() {
@@ -91,6 +91,18 @@ public class EmergencyModeTest {
 		@Override
 		public int pvSufficientPower() {
 			return 20_000;
+		}
+
+		@Override
+		public int OFFGRID_PV_LIMIT() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public int OFFGRID_PV_LIMIT_FAULT() {
+			// TODO Auto-generated method stub
+			return 0;
 		}
 
 	}
