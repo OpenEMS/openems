@@ -1,34 +1,33 @@
 package io.openems.edge.predictor.persistant.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.TreeMap;
 
-import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.common.worker.AbstractWorker;
+
 import io.openems.edge.common.sum.Sum;
 
 public class DataCollectorWorker extends AbstractCycleWorker {
 
-	private final Logger log = LoggerFactory.getLogger(DataCollectorWorker.class);
+//  private final Logger log = LoggerFactory.getLogger(DataCollectorWorker.class);
 
 	private final PersistantModel parent;
 
-	private LocalDate dateOfT0 = null;
-	private long totalConsumption = 0;
-	private long currentConsumption = 0;
-	private long currentProduction = 0;
-	private static LocalDateTime t0 = null;
-	private static LocalDateTime t1 = null;
-	private LocalDate dateOfLastRun = null;
-	private LocalDateTime currentHour = null;
-
-	private int Max_Morning_hour = 5;
-	private int Max_Evening_hour = 17;
+//	private LocalDate dateOfT0 = null;
+//	private long totalConsumption = 0;
+//	private long currentConsumption = 0;
+//	private long currentProduction = 0;
+//	private static LocalDateTime t0 = null;
+//	private static LocalDateTime t1 = null;
+//	private LocalDate dateOfLastRun = null;
+//	private LocalDateTime currentHour = null;
+//
+//	private int Max_Morning_hour = 5;
+//	private int Max_Evening_hour = 17;
 
 	private static TreeMap<LocalDateTime, Long> PreviosDayPred = new TreeMap<LocalDateTime, Long>();
 	

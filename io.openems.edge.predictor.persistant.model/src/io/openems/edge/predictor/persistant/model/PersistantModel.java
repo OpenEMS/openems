@@ -13,10 +13,9 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -33,7 +32,7 @@ import io.openems.edge.predictor.api.Predictor;
 )
 public class PersistantModel extends AbstractOpenemsComponent implements Predictor, OpenemsComponent, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(PersistantModel.class);
+	//private final Logger log = LoggerFactory.getLogger(PersistantModel.class);
 
 	//private Config config;
 
