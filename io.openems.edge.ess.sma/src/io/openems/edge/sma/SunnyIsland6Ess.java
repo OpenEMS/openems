@@ -58,8 +58,6 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 	public SunnyIsland6Ess() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				ManagedAsymmetricEss.ChannelId.values(), //
 				SinglePhaseEss.ChannelId.values(), //

@@ -334,7 +334,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @return the Constraints
 	 * @throws OpenemsException on error
 	 */
-	public default Constraint[] getStaticConstraints() throws OpenemsException {
+	public default Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		return Power.NO_CONSTRAINTS;
 	}
 
