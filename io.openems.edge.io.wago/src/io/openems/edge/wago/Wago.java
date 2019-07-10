@@ -159,6 +159,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 	 * @return a list of FieldbusModules
 	 */
 	private List<FieldbusModule> parseXml(Document doc) {
+		FieldbusModuleFactory factory = new FieldbusModuleFactory();
 		List<FieldbusModule> result = new ArrayList<>();
 		Element wagoElement = doc.getDocumentElement();
 		int inputOffset = 0;
@@ -190,8 +191,7 @@ public class Wago extends AbstractOpenemsModbusComponent implements DigitalOutpu
 				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
 			}
 			// Create FieldbusModule instance using factory method
-			FieldbusModule module = FieldbusModule.of(this, moduleArtikelnr, moduleType, kanals, inputOffset,
-					outputOffset);
+			FieldbusModule module = factory.of(this, moduleArtikelnr, moduleType, kanals, inputOffset, outputOffset);
 			inputOffset += module.getInputCoils();
 			outputOffset += module.getOutputCoils();
 			result.add(module);
