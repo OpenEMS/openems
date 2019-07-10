@@ -26,14 +26,15 @@ public abstract class AbstractOpenemsSunspecComponent extends AbstractOpenemsMod
 		this.modbusProtocol = new ModbusProtocol(this);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+	@Override
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
-		super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
-
 		// Start the SunSpec read procedure...
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			System.out.println("Is SunSpec? " + isSunSpec);
 		});
+
+		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
