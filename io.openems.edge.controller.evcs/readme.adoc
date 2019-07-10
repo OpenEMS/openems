@@ -1,0 +1,5 @@
+= EVCS
+
+Controls an Electric Vehicle Charging Station (EVCS) in different modes, like "Force-Charge" and "Surplus Energy Charging".
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.evcs[Source Code icon:github[]]

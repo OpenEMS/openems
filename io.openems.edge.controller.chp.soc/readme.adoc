@@ -1,0 +1,45 @@
+= CHP control via State-of-Charge (SoC)
+
+Controls a CHP device. Signals the CHP to turn 'ON' when battery SoC is low; signal it to turn 'OFF' when SoC is high. This controller needs four parameters,
+
+
+* State of Charge(Soc) of the ESS.
+* Low Threshold(LT) Soc
+* High Threshold(HT) Soc
+* Output channel to signal.
+
+The Soc of the Ess is compared with the LT and HT, and The following operations or state change is performed.
+
+- If the Soc is less-than("<") LT, signal is sent to the Output channel which eventually turns the CHP device 'ON'.
+- If the Soc is greater-than(">") HT, signal is sent to the Output channel which turns the CHP device 'OFF'.
+- Any other conditions the there is no change in the State of the CHP device. 
+
+  
+  
+
+== Configuration
+
+- `Component-ID` Unique ID of this Component (id), e.g. "ctrlIoAlarm0", "ctrlIoAlarm1"
+- `Alias` Human-readable name of this Component; defaults to Component-ID (alias)
+- `Input Channels` Addresses of the input State-Channels (inputChannelAddress), This is a array of input state channels.
+- `Output Channel` Channel address of the Digital Output that should be switched (outputChannelAddress)
+- `Low Threshold` Low boundary of the threshold
+- `High Threshold` High boundary of the threshold
+
+
+
+== Example Configuration
+
+- `Component-ID` : ctrlChpSoc0
+- `Alias` : myChpCtrl
+- `Input Channels` : _sum/EssSoc
+- `Output Channel` : io0/Relay1
+- `Low Threshold` 25
+- `High Threshold` 75
+
+NOTE: _sum/EssSoc - represents the Soc channel of the ESS0, 
+io0/relay1 - represents the relay 1 of the relay board.
+
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.chp.soc[Source Code icon:github[]]

@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class Coefficients {
 
 	private final List<Coefficient> coefficients = new CopyOnWriteArrayList<>();
@@ -25,14 +27,14 @@ public class Coefficients {
 		this.noOfCoefficients = index;
 	}
 
-	public Coefficient of(String essId, Phase phase, Pwr pwr) {
+	public Coefficient of(String essId, Phase phase, Pwr pwr) throws OpenemsException {
 		for (Coefficient c : this.coefficients) {
 			if (Objects.equals(c.essId, essId) && c.phase == phase && c.pwr == pwr) {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException("Coefficient for [" + essId + "," + phase + "," + pwr
-				+ "] was not found. Forgot to call initialize()?");
+		throw new OpenemsException("Coefficient for [" + essId + "," + phase + "," + pwr
+				+ "] was not found. Ess-Power is not (yet) fully initialized.");
 	}
 
 	public List<Coefficient> getAll() {

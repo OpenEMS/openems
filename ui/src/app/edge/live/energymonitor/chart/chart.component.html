@@ -1,0 +1,36 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div #energymonitorChart fxLayout fxFlex fxLayout="wrap column" fxLayoutAlign="center center">
+  <svg style.width="{{ width }}px" style.height="{{ height }}px">
+    <!-- !graphic -->
+    <svg:g [attr.transform]="translation">
+      <svg:g consumptionsection></svg:g>
+      <svg:g gridsection></svg:g>
+      <svg:g productionsection></svg:g>
+      <svg:g storagesection></svg:g>
+    </svg:g>
+  </svg>
+
+  <!-- legend -->
+  <ion-grid fxHide fxShow.xs no-padding>
+    <ion-row>
+      <ion-col offset="2">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <svg style="width:20px; height:20px; background-color:#009846"></svg> {{ storageSection?.name }}
+            </ion-col>
+            <ion-col size="6">
+              <svg style="width:20px; height:20px; background-color:#000000"></svg> {{ gridSection?.name }}
+            </ion-col>
+            <ion-col size="6">
+              <svg style="width:20px; height:20px; background-color:#008dd2"></svg> {{ productionSection?.name }}
+            </ion-col>
+            <ion-col size="6">
+              <svg style="width:20px; height:20px; background-color:#fdc507"></svg> {{ consumptionSection?.name }}
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</div>

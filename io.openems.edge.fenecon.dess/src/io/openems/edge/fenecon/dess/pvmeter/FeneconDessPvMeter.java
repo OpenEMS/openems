@@ -72,8 +72,8 @@ public class FeneconDessPvMeter extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID, this.cm,
+				"Modbus", config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 

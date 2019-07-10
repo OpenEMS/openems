@@ -10,7 +10,7 @@ Export-Package: \
 Private-Package:  \
 	io.openems.edge.pvinverter.solarlog
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\

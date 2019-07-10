@@ -9,14 +9,14 @@ Export-Package: \
 	io.openems.edge.bridge.modbus.api.facade,\
 	io.openems.edge.bridge.modbus
 
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
 
 -buildpath: ${buildpath},\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	com.google.gson,\
 	com.google.guava,\
-	com.ghgande.j2mod;version=2.5.2,\
+	com.ghgande.j2mod;version=2.5.5,\
 	slf4j.api
 
 -testpath: ${testpath}

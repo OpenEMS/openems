@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Vermogen",
         StorageSystem: "Batterij",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Geen waarde",
         Soc: "Laadstatus",
         Percentage: "Procent",
@@ -34,7 +35,10 @@ export const TRANSLATION = {
     Menu: {
         Index: "Overzicht",
         AboutUI: "Over OpenEMS UI",
-        Settings: 'Algemene instellingen',
+        GeneralSettings: 'Algemene instellingen',
+        EdgeSettings: 'FEMS instellingen',
+        Menu: 'Menu',
+        Overview: 'FEMS overzicht',
         Logout: 'Uitloggen'
     },
     Index: {
@@ -61,6 +65,10 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Lage drempelwaarde",
+                    HighThreshold: "hoge drempel"
+                },
                 EVCS: {
                     ChargingStation: "Laadstation",
                     Status: "Staat",
@@ -85,6 +93,7 @@ export const TRANSLATION = {
                     CarFull: "Auto is vol",
                     EnergieSinceBeginning: "Energie sinds het begin van de lading",
                     ChargeMode: "laadmodus",
+                    ActivateCharging: "Activeer het laadstation",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
@@ -94,8 +103,9 @@ export const TRANSLATION = {
                         Name: "Geoptimaliseerd laden",
                         ShortName: "geoptimaliseerde",
                         Info: "In deze modus wordt de belasting van de auto aangepast aan de huidige productie en het huidige verbruik.",
-                        MinInfo: "Als u wilt voorkomen dat de auto 's nachts in het lage geheugen wordt geladen, kan een minimale lading worden ingesteld.",
-                        MinCharging: "Minimale vergoeding betalen?"
+                        MinInfo: "Als u wilt voorkomen dat de auto 's nachts niet oplaadt, kunt u een minimale lading instellen.",
+                        MinCharging: "Minimale vergoeding betalen?",
+                        ChargingPriority: "Afhankelijk van de prioriteit, wordt het geselecteerde onderdeel eerst geladen"
                     },
                     ForceChargeMode: {
                         Name: "Gedwongen laden",
@@ -111,12 +121,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Geselecteerde periode: ",
             OtherPeriod: "Andere periode",
             Period: "Periode",
+            SelectedDay: "{{value}}",
             Today: "Vandaag",
             Yesterday: "Gisteren",
             LastWeek: "Vorige week",
             LastMonth: "Vorige maand",
             LastYear: "Vorig jaar",
-            Go: "Ga!"
+            Go: "Ga!",
+            Export: "download als Excel-bestand"
         },
         Config: {
             Index: {
@@ -127,6 +139,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulatie uitvoeren",
                 Log: "Log",
                 LiveLog: "Live System log",
+                AddComponents: "Componenten installeren",
+                AdjustComponents: "Componenten configureren",
                 ManualControl: "Handmatige bediening",
                 DataStorage: "Gegevensopslag"
             },

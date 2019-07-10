@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
@@ -34,27 +35,39 @@ public class ApparentPowerConstraintFactory {
 		this.parent = parent;
 	}
 
-	public List<Constraint> getConstraints(String essId, Phase phase, double apparentPower) {
+	public List<Constraint> getConstraints(String essId, Phase phase, double apparentPower) throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
-		double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
-		Point p1 = this.getPointOnCircle(apparentPower, 0);
 
-		for (double degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
-			Point p2 = this.getPointOnCircle(apparentPower, degree);
+		if (apparentPower > 0) {
+			// Calculate 'Apparent-Power Circle'
+			double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
+			Point p1 = this.getPointOnCircle(apparentPower, 0);
 
-			Relationship relationship;
-			if (Math.floor(degree) <= 180) {
-				relationship = Relationship.GREATER_OR_EQUALS;
-			} else {
-				relationship = Relationship.LESS_OR_EQUALS;
+			for (double degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
+				Point p2 = this.getPointOnCircle(apparentPower, degree);
+
+				Relationship relationship;
+				if (Math.floor(degree) <= 180) {
+					relationship = Relationship.GREATER_OR_EQUALS;
+				} else {
+					relationship = Relationship.LESS_OR_EQUALS;
+				}
+
+				Constraint constraint = this.getConstraintThroughPoints(essId, phase, p1, p2, relationship);
+				result.add(constraint);
+
+				// set p2 -> p1 for next loop
+				p1 = p2;
 			}
 
-			Constraint constraint = this.getConstraintThroughPoints(essId, phase, p1, p2, relationship);
-			result.add(constraint);
-
-			// set p2 -> p1 for next loop
-			p1 = p2;
+		} else {
+			// Add Active-/Reactive-Power = 0 constraints
+			result.add(this.parent.createSimpleConstraint(essId + ": Max Apparent Power", essId, phase, Pwr.ACTIVE,
+					Relationship.EQUALS, 0));
+			result.add(this.parent.createSimpleConstraint(essId + ": Max Apparent Power", essId, phase, Pwr.REACTIVE,
+					Relationship.EQUALS, 0));
 		}
+
 		return result;
 	}
 
@@ -63,7 +76,7 @@ public class ApparentPowerConstraintFactory {
 	}
 
 	private Constraint getConstraintThroughPoints(String essId, Phase phase, Point p1, Point p2,
-			Relationship relationship) {
+			Relationship relationship) throws OpenemsException {
 		/**
 		 * Build the LinearConstraint.
 		 * 

@@ -68,7 +68,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 		this.isOn = config.isOn();
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Deactivate

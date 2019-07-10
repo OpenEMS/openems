@@ -3,6 +3,7 @@ import { cmp } from 'semver-compare-multi';
 import { environment as env } from '../../../environments';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
 import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
@@ -18,7 +19,6 @@ import { Role } from '../type/role';
 import { SystemLog } from '../type/systemlog';
 import { CurrentData } from './currentdata';
 import { EdgeConfig } from './edgeconfig';
-import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
 
 export class Edge {
 
@@ -41,7 +41,7 @@ export class Edge {
   public systemLog: Subject<SystemLog> = new Subject<SystemLog>();
 
   // holds config
-  public config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(new EdgeConfig());
+  private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
 
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
@@ -51,7 +51,7 @@ export class Edge {
    * @param websocket the Websocket connection
    */
   public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
-    if (!this.config.value.isValid()) {
+    if (this.config.value == null || !this.config.value.isValid()) {
       this.refreshConfig(websocket);
     }
     return this.config;
@@ -61,9 +61,7 @@ export class Edge {
    * Called by Service, when this Edge is set as currentEdge.
    */
   public markAsCurrentEdge(websocket: Websocket): void {
-    if (this.config.value == null) {
-      this.refreshConfig(websocket);
-    }
+    this.getConfig(websocket);
   }
 
   /**
@@ -73,11 +71,11 @@ export class Edge {
     let request = new GetEdgeConfigRequest();
     this.sendRequest(websocket, request).then(response => {
       let edgeConfigResponse = response as GetEdgeConfigResponse;
-      this.config.next(new EdgeConfig(edgeConfigResponse.result));
+      this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
     }).catch(reason => {
       console.warn("refreshConfig got error", reason)
       // TODO error
-      this.config.next(new EdgeConfig());
+      this.config.next(new EdgeConfig(this));
     });
   }
 
@@ -88,9 +86,9 @@ export class Edge {
    * @param id        a unique ID for this subscription (e.g. the component selector)
    * @param channels  the subscribed Channel-Adresses
    */
-  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): Promise<JsonrpcResponseSuccess> {
+  public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
     this.subscribedChannels[id] = channels;
-    return this.sendSubscribeChannels(websocket);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
@@ -99,9 +97,9 @@ export class Edge {
    * @param websocket the Websocket
    * @param id        the unique ID for this subscription
    */
-  public unsubscribeChannels(websocket: Websocket, id: string): Promise<JsonrpcResponseSuccess> {
+  public unsubscribeChannels(websocket: Websocket, id: string): void {
     delete this.subscribedChannels[id];
-    return this.sendSubscribeChannels(websocket);
+    this.sendSubscribeChannels(websocket);
   }
 
   /**
@@ -110,7 +108,7 @@ export class Edge {
    * @param websocket the Websocket
    */
   public subscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    return this.sendRequest(websocket, new SubscribeSystemLogRequest(true));
+    return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: true }));
   }
 
   /**
@@ -119,7 +117,7 @@ export class Edge {
    * @param websocket the Websocket
    */
   public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    return this.sendRequest(websocket, new SubscribeSystemLogRequest(false));
+    return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: false }));
   }
 
   /**
@@ -127,21 +125,30 @@ export class Edge {
    * 
    * @param websocket the Websocket
    */
-  private sendSubscribeChannels(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    // merge channels from currentDataSubscribes
-    let channels: ChannelAddress[] = [];
-    for (let componentId in this.subscribedChannels) {
-      channels.push.apply(channels, this.subscribedChannels[componentId]);
+  private sendSubscribeChannels(websocket: Websocket): void {
+    // make sure to send not faster than every 100 ms
+    if (this.subscribeChannelsTimeout == null) {
+      this.subscribeChannelsTimeout = setTimeout(() => {
+        // reset subscribeChannelsTimeout
+        this.subscribeChannelsTimeout = null;
+
+        // merge channels from currentDataSubscribes
+        let channels: ChannelAddress[] = [];
+        for (let componentId in this.subscribedChannels) {
+          channels.push.apply(channels, this.subscribedChannels[componentId]);
+        }
+        let request = new SubscribeChannelsRequest(channels);
+        this.sendRequest(websocket, request);
+      }, 100);
     }
-    let request = new SubscribeChannelsRequest(channels);
-    return this.sendRequest(websocket, request);
   }
+  private subscribeChannelsTimeout: any = null;
 
   /**
    * Handles a EdgeConfigNotification
    */
   public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
-    this.config.next(new EdgeConfig(message.params));
+    this.config.next(new EdgeConfig(this, message.params));
   }
 
   /**
@@ -201,7 +208,7 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest(ws: Websocket, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    let wrap = new EdgeRpcRequest(this.id, request);
+    let wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
         if (env.debugMode) {
@@ -264,5 +271,14 @@ export class Edge {
 	 */
   public roleIsAtLeast(role: Role | string): boolean {
     return Role.isAtLeast(this.role, role);
+  }
+
+  /**
+   * Gets the Role of the Edge as a human-readable string.
+   * 
+   * @returns the name of the role
+   */
+  public getRoleString(): string {
+    return Role[this.role].toLowerCase();
   }
 }

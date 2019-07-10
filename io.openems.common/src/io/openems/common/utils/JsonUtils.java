@@ -23,7 +23,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.channel.Level;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -49,15 +48,46 @@ public class JsonUtils {
 		return jPrimitive.getAsBoolean();
 	}
 
-	@SuppressWarnings("unchecked")
+	public static Optional<Boolean> getAsOptionalBoolean(JsonElement element, String memberName) {
+		try {
+			return Optional.of(getAsBoolean(element, memberName));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
 	public static <E extends Enum<E>> E getAsEnum(Class<E> enumType, JsonElement jElement, String memberName)
 			throws OpenemsNamedException {
 		String element = getAsString(jElement, memberName);
 		try {
-			return (E) Enum.valueOf(Level.class, element);
+			return (E) Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
-			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, jElement.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
 		}
+	}
+
+	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
+			String memberName) {
+		Optional<String> elementOpt = getAsOptionalString(jElement, memberName);
+		if (!elementOpt.isPresent()) {
+			return Optional.empty();
+		}
+		try {
+			return Optional.ofNullable((E) Enum.valueOf(enumType, elementOpt.get()));
+		} catch (IllegalArgumentException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static int getAsInt(JsonElement jElement) throws OpenemsNamedException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsInt();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Integer.parseInt(string);
+		}
+		throw OpenemsError.JSON_NO_INTEGER.exception(jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
 	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsNamedException {
@@ -121,7 +151,7 @@ public class JsonUtils {
 		// optional
 		if (value instanceof Optional<?>) {
 			if (!((Optional<?>) value).isPresent()) {
-				return null;
+				return JsonNull.INSTANCE;
 			} else {
 				value = ((Optional<?>) value).get();
 			}
@@ -151,13 +181,58 @@ public class JsonUtils {
 			 * JsonElement
 			 */
 			return (JsonElement) value;
-		} else if (value instanceof Long[]) {
+		} else if (value instanceof boolean[]) {
 			/*
-			 * Long-Array
+			 * boolean-Array
 			 */
 			JsonArray js = new JsonArray();
-			for (Long l : (Long[]) value) {
-				js.add(new JsonPrimitive((Long) l));
+			for (boolean b : (boolean[]) value) {
+				js.add(new JsonPrimitive(b));
+			}
+			return js;
+		} else if (value instanceof short[]) {
+			/*
+			 * short-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (short s : (short[]) value) {
+				js.add(new JsonPrimitive(s));
+			}
+			return js;
+		} else if (value instanceof int[]) {
+			/*
+			 * int-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (int i : (int[]) value) {
+				js.add(new JsonPrimitive(i));
+			}
+			return js;
+		} else if (value instanceof long[]) {
+			/*
+			 * long-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (long l : (long[]) value) {
+				js.add(new JsonPrimitive(l));
+			}
+			return js;
+		} else if (value instanceof float[]) {
+			/*
+			 * float-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (float f : (float[]) value) {
+				js.add(new JsonPrimitive(f));
+			}
+			return js;
+		} else if (value instanceof double[]) {
+			/*
+			 * double-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (double d : (double[]) value) {
+				js.add(new JsonPrimitive(d));
 			}
 			return js;
 		} else if (value instanceof String[]) {
@@ -218,6 +293,14 @@ public class JsonUtils {
 			return Long.parseLong(string);
 		}
 		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive.toString().replaceAll("%", "%%"));
+	}
+
+	public static Optional<Integer> getAsOptionalInt(JsonElement jElement) {
+		try {
+			return Optional.of(getAsInt(jElement));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
 	}
 
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {
@@ -605,6 +688,71 @@ public class JsonUtils {
 	 */
 	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
 		return new JsonObjectBuilder(j);
+	}
+
+	/**
+	 * A temporary builder class for JsonArrays.
+	 */
+	public static class JsonArrayBuilder {
+
+		private final JsonArray j;
+
+		protected JsonArrayBuilder() {
+			this(new JsonArray());
+		}
+
+		protected JsonArrayBuilder(JsonArray j) {
+			this.j = j;
+		}
+
+		public JsonArrayBuilder add(String value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(int value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(long value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(boolean value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(JsonElement value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArray build() {
+			return this.j;
+		}
+
+	}
+
+	/**
+	 * Creates a JsonArray using a Builder.
+	 * 
+	 * @return the Builder
+	 */
+	public static JsonArrayBuilder buildJsonArray() {
+		return new JsonArrayBuilder();
+	}
+
+	/**
+	 * Creates a JsonArray using a Builder. Initialized from an existing JsonArray.
+	 * 
+	 * @param j the initial JsonArray
+	 * @return the Builder
+	 */
+	public static JsonArrayBuilder buildJsonArray(JsonArray j) {
+		return new JsonArrayBuilder(j);
 	}
 
 	/**

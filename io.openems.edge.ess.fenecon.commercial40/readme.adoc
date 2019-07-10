@@ -1,0 +1,8 @@
+= FENECON Commercial 40 AC/DC/Hybrid
+
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+- EssDcCharger
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.fenecon.commercial40[Source Code icon:github[]]

@@ -1,3 +1,5 @@
+import { Service } from '../service/service';
+
 export const TRANSLATION = {
     General: {
         Cumulative: "Kumulierte Werte",
@@ -11,6 +13,7 @@ export const TRANSLATION = {
         Power: "Leistung",
         StorageSystem: "Speichersystem",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Kein Wert",
         Soc: "Ladezustand",
         Percentage: "Prozent",
@@ -35,7 +38,10 @@ export const TRANSLATION = {
     Menu: {
         Index: "Übersicht",
         AboutUI: "Über OpenEMS UI",
-        Settings: 'Allgemeine Einstellungen',
+        GeneralSettings: 'Allgemeine Einstellungen',
+        EdgeSettings: 'FEMS Einstellungen',
+        Menu: 'Menü',
+        Overview: 'FEMS Übersicht',
         Logout: 'Abmelden'
     },
     Index: {
@@ -64,6 +70,10 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Unterer Schwellenwert",
+                    HighThreshold: "Oberer Schwellenwert"
+                },
                 EVCS: {
                     ChargingStation: "Ladestation",
                     Status: "Status",
@@ -88,6 +98,7 @@ export const TRANSLATION = {
                     CarFull: "Auto ist voll",
                     EnergieSinceBeginning: "Energie seit Beginn der Ladung",
                     ChargeMode: "Belademodus",
+                    ActivateCharging: "Aktivieren der Ladesäule",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
@@ -97,8 +108,13 @@ export const TRANSLATION = {
                         Name: "Optimierte Beladung",
                         ShortName: "Optimiert",
                         Info: "In diesem Modus wird die Beladung des Autos an die aktuelle Produktion und den aktuellen Verbrauch angepasst.",
-                        MinInfo: "Falls verhindert werden soll, dass das Auto bei leerem Speicher, in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
-                        MinCharging: "Minimale Aufladung garantieren?"
+                        MinInfo: "Falls verhindert werden soll, dass das Auto in der Nacht gar nicht lädt, kann eine minimale Aufladung festgelegt werden.",
+                        MinCharging: "Minimale Aufladung garantieren?",
+                        ChargingPriority: {
+                            Info: "Je nach Priorisierung wird die ausgewählte Komponente zuerst beladen",
+                            Car: "Auto",
+                            Storage: "Speicher"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Erzwungene Beladung",
@@ -114,12 +130,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Gewählter Zeitraum: ",
             OtherPeriod: "Anderer Zeitraum",
             Period: "Zeitraum",
+            SelectedDay: "{{value}}",
             Today: "Heute",
             Yesterday: "Gestern",
             LastWeek: "Letzte Woche",
             LastMonth: "Letzter Monat",
             LastYear: "Letztes Jahr",
-            Go: "Los!"
+            Go: "Los!",
+            Export: "Download als EXCEL-Datei"
         },
         Config: {
             Index: {
@@ -130,6 +148,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Simulationen ausführen",
                 Log: "Log",
                 LiveLog: "Live Systemprotokoll",
+                AddComponents: "Komponenten installieren",
+                AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuelle Steuerung",
                 DataStorage: "Datenspeicher"
             },

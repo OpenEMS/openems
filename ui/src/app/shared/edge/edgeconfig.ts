@@ -1,8 +1,11 @@
 import { GetEdgeConfigResponse } from "../jsonrpc/response/getEdgeConfigResponse";
+import { ChannelAddress } from '../type/channeladdress';
+import { Widgets } from '../type/widget';
+import { Edge } from './edge';
 
 export class EdgeConfig {
 
-    constructor(source?: EdgeConfig) {
+    constructor(edge: Edge, source?: EdgeConfig) {
         if (source) {
             this.components = source.components;
             this.factories = source.factories;
@@ -52,6 +55,9 @@ export class EdgeConfig {
                 factory.componentIds.push(componentId);
             }
         }
+
+        // Initialize Widgets
+        this.widgets = Widgets.parseWidgets(edge, this);
     }
 
     /**
@@ -68,6 +74,11 @@ export class EdgeConfig {
      * Nature-PID -> Component-IDs.
      */
     public readonly natures: { [id: string]: EdgeConfig.Nature } = {}
+
+    /**
+     * UI-Widgets.
+     */
+    public readonly widgets: Widgets;
 
     public isValid(): boolean {
         return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
@@ -174,6 +185,20 @@ export class EdgeConfig {
             return {};
         }
     }
+
+    /**
+     * Get Channel.
+     * 
+     * @param address the ChannelAddress
+     */
+    public getChannel(address: ChannelAddress): EdgeConfig.ComponentChannel {
+        let component = this.components[address.componentId];
+        if (component) {
+            return component.channels[address.channelId];
+        } else {
+            return null;
+        }
+    }
 }
 
 export module EdgeConfig {
@@ -186,6 +211,8 @@ export module EdgeConfig {
 
     export class Component {
         public id: string = "";
+        public alias: string = "";
+        public isEnabled: boolean = false;
 
         constructor(
             public readonly factoryId: string = "",

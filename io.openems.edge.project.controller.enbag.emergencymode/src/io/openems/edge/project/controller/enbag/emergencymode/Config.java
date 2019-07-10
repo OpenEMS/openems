@@ -7,8 +7,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Emergency Cluster Mode", //
 		description = "Switches the emergency power to next storage system when battery is empty.")
 @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlEmergencyClusterMode0";
 
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	/*

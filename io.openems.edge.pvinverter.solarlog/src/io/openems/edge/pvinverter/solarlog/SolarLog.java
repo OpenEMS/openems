@@ -39,12 +39,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "PV-Inverter.Solarlog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class SolarLog extends AbstractOpenemsModbusComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent {
 
 	// Solar-Log requires the watchdog to be triggered every 300 seconds
 	private static final int WATCHDOG_SECONDS = 150;
@@ -62,11 +62,11 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				SymmetricPvInverter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 
-		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
+		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit); // TODO this should happen in ON_WRITE event
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -76,7 +76,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
 		this.maxActivePower = config.maxActivePower();
@@ -188,7 +188,7 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		}
 	};
 
-	@Override
+	// FIXME merge with 'setPvLimit'
 	public void setActivePowerLimit(int activePowerWatt) throws OpenemsNamedException {
 
 		int pLimitPerc = (int) ((double) activePowerWatt / (double) this.maxActivePower * 100.0);

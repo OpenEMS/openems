@@ -2,12 +2,14 @@ package io.openems.edge.timedata.influxdb;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
@@ -27,12 +29,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -84,9 +86,15 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database(), config.isReadOnly());
+				config.database(), config.retentionPolicy(), config.isReadOnly(), //
+				(failedPoints, throwable) -> {
+					String pointsString = StreamSupport.stream(failedPoints.spliterator(), false)
+							.map(Point::lineProtocol).collect(Collectors.joining(","));
+					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
+							+ StringUtils.toShortString(pointsString, 100));
+				});
 	}
 
 	@Deactivate
@@ -165,7 +173,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	@Override
-	public TreeBasedTable<ZonedDateTime, ChannelAddress, JsonElement> queryHistoricData(String edgeId,
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
@@ -174,7 +182,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();

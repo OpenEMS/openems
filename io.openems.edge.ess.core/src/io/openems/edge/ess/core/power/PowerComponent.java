@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
@@ -89,7 +90,16 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		NOT_SOLVED(Doc.of(Level.WARNING));
+		NOT_SOLVED(Doc.of(Level.WARNING)),
+		/**
+		 * Gets set, when setting static Constraints failed.
+		 * 
+		 * <ul>
+		 * <li>Interface: PowerComponent
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		STATIC_CONSTRAINTS_FAILED(Doc.of(Level.FAULT));
 
 		private final Doc doc;
 
@@ -135,7 +145,7 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 
 	@Activate
 	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
-		super.activate(context, "_power", true);
+		super.activate(context, "_power", "Ess.Power", true);
 		this.data.setSymmetricMode(config.symmetricMode());
 		this.debugMode = config.debugMode();
 		this.solver.setDebugMode(config.debugMode());
@@ -175,19 +185,21 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	@Override
-	public synchronized Constraint addConstraintAndValidate(Constraint constraint) throws PowerException {
+	public synchronized Constraint addConstraintAndValidate(Constraint constraint) throws OpenemsException {
 		this.data.addConstraint(constraint);
 		try {
 			this.solver.isSolvableOrError();
-		} catch (PowerException e) {
+		} catch (OpenemsException e) {
 			this.data.removeConstraint(constraint);
 			if (this.debugMode) {
 				List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
 				PowerComponent.debugLogConstraints(this.log, "Unable to validate with following constraints:",
 						allConstraints);
-				this.log.info("Failed to add Constraint: " + constraint);
+				this.logWarn(this.log, "Failed to add Constraint: " + constraint);
 			}
-			e.setReason(constraint);
+			if (e instanceof PowerException) {
+				((PowerException) e).setReason(constraint);
+			}
 			throw e;
 		}
 		return constraint;
@@ -197,13 +209,13 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	 * Helpers to create Constraints
 	 */
 	@Override
-	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException {
 		return this.data.getCoefficient(ess.id(), phase, pwr);
 	}
 
 	@Override
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			Relationship relationship, double value) {
+			Relationship relationship, double value) throws OpenemsException {
 		return this.data.createSimpleConstraint(description, ess.id(), phase, pwr, relationship, value);
 	}
 
@@ -231,8 +243,8 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 				return (int) Math.ceil(power);
 			}
 		} else {
-			log.error(goal.name() + " Power for [" + ess.toString() + "," + phase.toString() + "," + pwr.toString()
-					+ "=" + power + "] is out of bounds. Returning '0'");
+			this.logError(this.log, goal.name() + " Power for [" + ess.toString() + "," + phase.toString() + ","
+					+ pwr.toString() + "=" + power + "] is out of bounds. Returning '0'");
 			return 0;
 		}
 	}
@@ -298,5 +310,10 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 	protected EssType getEssType(String essId) {
 		ManagedSymmetricEss ess = this.getEss(essId);
 		return EssType.getEssType(ess);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
 	}
 }

@@ -26,7 +26,7 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.EmergencyClusterMode", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -68,7 +68,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this.q1Ess1SupplyUps = ChannelAddress.fromString(config.q1ChannelAddress());
 		this.q2Ess2SupplyUps = ChannelAddress.fromString(config.q2ChannelAddress());
@@ -273,7 +273,6 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			break;
 		}
 	}
-	
 
 	/**
 	 * Don't Limit PV production in On-Grid.
@@ -282,16 +281,15 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @throws OpenemsNamedException    on error
 	 */
 	private void NolimitPvInOngrid() throws IllegalArgumentException, OpenemsNamedException {
-		SymmetricPvInverter pvInverter;
+		ManagedSymmetricPvInverter pvInverter;
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
-			//TODO 137500 needs to be read from registers
-			pvInverter.setActivePowerLimit(137500);
+			// TODO 137500 needs to be read from registers
+			pvInverter.getActivePowerLimit().setNextWriteValue(137500);
 		} catch (OpenemsNamedException e) {
 			// ignore
 		}
 	}
-	
 
 	/**
 	 * Limit PV production in Off-Grid to 35.000 W.
@@ -300,11 +298,11 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @throws OpenemsNamedException    on error
 	 */
 	private void limitPvInOffgrid() throws IllegalArgumentException, OpenemsNamedException {
-		SymmetricPvInverter pvInverter;
+		ManagedSymmetricPvInverter pvInverter;
 		int power = Integer.MAX_VALUE;
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
-			pvInverter.setActivePowerLimit(this.config.OFFGRID_PV_LIMIT());
+			pvInverter.getActivePowerLimit().setNextWriteValue(this.config.OFFGRID_PV_LIMIT());
 			power = pvInverter.getActivePower().value().orElse(Integer.MAX_VALUE);
 		} catch (OpenemsNamedException e) {
 			// ignore
@@ -633,7 +631,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @return the PvState
 	 */
 	private PvState getPvState() {
-		SymmetricPvInverter pvInverter;
+		ManagedSymmetricPvInverter pvInverter;
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
 		} catch (OpenemsNamedException e) {

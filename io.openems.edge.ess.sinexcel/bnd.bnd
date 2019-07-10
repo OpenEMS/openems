@@ -13,7 +13,7 @@ Export-Package: \
  Private-Package: \
  	io.openems.edge.ess.sinexcel
  
--includeresource: {readme.md}
+-includeresource: {readme.adoc}
  
 -buildpath: \
 	${buildpath},\

@@ -35,6 +35,7 @@ import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.VirtualMeter;
 
 @Component(//
 		name = "Core.Sum", //
@@ -68,7 +69,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Activate
 	void activate(ComponentContext context) {
-		super.activate(context, OpenemsConstants.SUM_ID, true);
+		super.activate(context, OpenemsConstants.SUM_ID, "Sum", true);
 	}
 
 	@Deactivate
@@ -138,6 +139,13 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
 
 			} else if (component instanceof SymmetricMeter) {
+				if (component instanceof VirtualMeter) {
+					if (!((VirtualMeter) component).addToSum()) {
+						// Ignore VirtualMeter if "addToSum" is not activated (default)
+						continue;
+					}
+				}
+
 				/*
 				 * Meter
 				 */

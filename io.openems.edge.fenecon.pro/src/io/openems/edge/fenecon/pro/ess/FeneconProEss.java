@@ -78,6 +78,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 				ProChannelId.values() //
 		);
 		this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(FeneconProEss.MAX_APPARENT_POWER);
+		this.getCapacity().setNextValue(12_000);
 		AsymmetricEss.initializePowerSumChannels(this);
 	}
 
@@ -99,7 +100,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 		this.modbusBridgeId = config.modbus_id();
 	}
 

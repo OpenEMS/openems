@@ -1,0 +1,5 @@
+= Asymmetric Fix Reactive Power
+
+Sets a fixed reactive power for an asymmetric energy storage system.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.asymmetric.fixreactivepower[Source Code icon:github[]]

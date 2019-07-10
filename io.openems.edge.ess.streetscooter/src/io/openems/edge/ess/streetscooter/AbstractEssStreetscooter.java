@@ -64,8 +64,8 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.powerHandler = new PowerHandler(this);
 	}
 
-	protected void activate(ComponentContext context, String id, boolean enabled, boolean readonly, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, boolean readonly,
+			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		this.readonly = readonly;
 
 		if (readonly) {
@@ -73,7 +73,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 			this.getMaxApparentPower().setNextValue(0);
 		}
 
-		super.activate(context, id, enabled, unitId, cm, modbusReference, modbusId);
+		super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	private int invalidIcuStatusCounter = 0;
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		/*
 		 * Increase the invalidIcuStatusCounter if the ICU_STATUS is not ok.
 		 */

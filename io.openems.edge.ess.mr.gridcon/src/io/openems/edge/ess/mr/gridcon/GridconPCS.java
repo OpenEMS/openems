@@ -1,6 +1,5 @@
 package io.openems.edge.ess.mr.gridcon;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -45,8 +45,6 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -58,15 +56,12 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.mr.gridcon.enums.CCUState;
-import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId;
+import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId0;
 import io.openems.edge.ess.mr.gridcon.enums.ErrorCodeChannelId1;
-import io.openems.edge.ess.mr.gridcon.enums.ErrorDoc;
-import io.openems.edge.ess.mr.gridcon.enums.ErrorStateMachine;
 import io.openems.edge.ess.mr.gridcon.enums.GridConChannelId;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
-import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
-import io.openems.edge.ess.mr.gridcon.enums.StateMachine;
+import io.openems.edge.ess.mr.gridcon.writeutils.DcdcControl;
+import io.openems.edge.ess.mr.gridcon.writeutils.IpuInverterControl;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -83,30 +78,23 @@ import io.openems.edge.ess.power.api.Relationship;
 public class GridconPCS extends AbstractOpenemsModbusComponent
 		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
 
-//	public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
-	public static final int MAX_POWER_PER_INVERTER = 40000; // experimentally measured
+	public static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
+	public static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
 
-	private static final float DC_LINK_VOLTAGE_SETPOINT = 800f;
-	private static final long SWITCH_OFF_TIME = 10;
-	private static final long RELOAD_TIME = 45;
-	private static final int DELAY_TO_WAIT_FOR_NEW_ERROR = 30;
-//	private static final float DC_LINK_VOLTAGE_TOLERANCE_VOLT = 20;
-//	private static final float MAX_CHARGE_W = 86 * 1000;
-//	private static final float MAX_DISCHARGE_W = 86 * 1000;
+	public static final int MAX_POWER_PER_INVERTER = 41_900; // experimentally measured
 	
+	public static final float ON_GRID_FREQUENCY_FACTOR = 1.035f;
+	public static final float ON_GRID_VOLTAGE_FACTOR = 0.97f;
 
-	private ErrorStateMachine errorStateMachine = ErrorStateMachine.READ_ERRORS;
-	Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> readErrorMap;
-	private LocalDateTime lastHardReset = null;
-	int tryToAcknowledgeErrorsCounter = 0;
-	int MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS = 5;
-	int isHardResetCounter = 0;
-	int MAX_TIMES_FOR_TRYING_TO_HARD_RESET = 5;
-	
+	protected static final float OFF_GRID_FREQUENCY_FACTOR = 1.012f;
+	protected static final float OFF_GRID_VOLTAGE_FACTOR = 1.0f;
+		
 	private final Logger log = LoggerFactory.getLogger(GridconPCS.class);
 
-	private Config config;
-	private Map<Integer, io.openems.edge.common.channel.ChannelId> errorChannelIds = null;
+	// State-Machines
+	private final StateMachine stateMachine;
+
+	protected Config config;
 
 	@Reference
 	private Power power;
@@ -117,21 +105,16 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ComponentManager componentManager;
 
-	private StateMachine state = StateMachine.UNDEFINED;
-
-//	private int DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS = 5;
-//	private LocalDateTime offGridDetected = null;
-
 	public GridconPCS() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				ErrorCodeChannelId.values(), //
+				ErrorCodeChannelId0.values(), //
 				ErrorCodeChannelId1.values(), //
 				GridConChannelId.values() //
 		);
-		fillErrorChannelMap();
+		this.stateMachine = new StateMachine(this);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -147,149 +130,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		this.getMaxApparentPower().setNextValue(config.inverterCount().getMaxApparentPower());
 
 		// Call parent activate()
-		super.activate(context, config.id(), config.enabled(), config.unit_id(), this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id());
+		
 	}
+	
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
 
-	private void handleErrorStateMachine() throws IllegalArgumentException, OpenemsNamedException {
-		switch (errorStateMachine) {
-		case ACKNOWLEDGE_ERRRORS:
-			doAcknowledgeErrors();
-			break;
-		case HANDLE_ERRORS:
-			doHandleErrors();
-			break;
-		case HARD_RESET:
-			doHardReset();
-			break;
-			case READ_ERRORS:
-			doReadErrors();
-			break;
-		case ERROR_HANDLING_NOT_POSSIBLE:
-			this.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(true);
-			break;
-		}
-	}
-
-	private void doReadErrors() {
-		if (readErrorMap == null) {
-			readErrorMap = new HashMap<>();
-		}
-
-		io.openems.edge.common.channel.ChannelId errorId = readCurrentError();
-		if (errorId != null) {
-			if (!readErrorMap.containsKey(errorId)) {
-				readErrorMap.put(errorId, LocalDateTime.now());
-			}
-		}
-		if (noNewErrorPresent(readErrorMap, DELAY_TO_WAIT_FOR_NEW_ERROR)) {
-			errorStateMachine = ErrorStateMachine.HANDLE_ERRORS;
-		}
-	}
-
-	private boolean noNewErrorPresent(Map<io.openems.edge.common.channel.ChannelId, LocalDateTime> map, int delay) {
-		for (LocalDateTime time : map.values()) {
-			if (time.plusSeconds(delay).isAfter(LocalDateTime.now())) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private io.openems.edge.common.channel.ChannelId readCurrentError() {
-		StateChannel errorChannel = getErrorChannel();
-		if (errorChannel != null) {
-			return errorChannel.channelId();
-		}
-		return null;
-	}
-	
-	private void doHardReset() throws IllegalArgumentException, OpenemsNamedException {
-		if (lastHardReset == null) {
-			lastHardReset = LocalDateTime.now();
-			
-			BooleanWriteChannel channelHardReset = this.componentManager.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-			channelHardReset.setNextWriteValue(true);
-			
-		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME).isBefore(LocalDateTime.now())) {
-			// just wait
-		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME + RELOAD_TIME).isBefore(LocalDateTime.now())) {
-			BooleanWriteChannel channelHardReset = this.componentManager.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-			channelHardReset.setNextWriteValue(false);
-		} else if (lastHardReset != null && lastHardReset.plusSeconds(SWITCH_OFF_TIME + RELOAD_TIME).isAfter(LocalDateTime.now())) {
-			lastHardReset = null;
-			errorStateMachine = ErrorStateMachine.READ_ERRORS;
-		}		
-		this.state = StateMachine.UNDEFINED;
-	}
-
-	LocalDateTime delay = null;
-	private void doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
-		readErrorMap = null;
-		tryToAcknowledgeErrorsCounter = tryToAcknowledgeErrorsCounter + 1;
-		errorStateMachine = ErrorStateMachine.READ_ERRORS;
-
-		new CommandControlRegisters() //
-		// Start system
-		.acknowledge(true) //
-		.syncApproval(true) //
-		.shortCircuitHandling(true) //
-		.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-		.parameterSet1(true) //
-		.parameterU0(0.97f) //
-		.parameterF0(1.035f) //
-		.enableIpus(this.config.inverterCount()) //
-		.writeToChannels(this);
-		
-		delay = LocalDateTime.now();
-		this.state = StateMachine.UNDEFINED;
-	}
-	
-	private void doHandleErrors() {
-		if (isAcknowledgeAble() && tryToAcknowledgeErrorsCounter < MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS) {
-			errorStateMachine = ErrorStateMachine.ACKNOWLEDGE_ERRRORS;
-		} else if (isHardResetCounter < MAX_TIMES_FOR_TRYING_TO_HARD_RESET) {
-			errorStateMachine = ErrorStateMachine.HARD_RESET;
-		} else {
-			errorStateMachine = ErrorStateMachine.ERROR_HANDLING_NOT_POSSIBLE; 
-		}
-		tryToAcknowledgeErrorsCounter = 0;
-	}
-
-	private boolean isAcknowledgeAble() {
-		for (io.openems.edge.common.channel.ChannelId id : readErrorMap.keySet()) {
-			for (io.openems.edge.common.channel.ChannelId id2 : errorChannelIds.values()) {
-				if (id.equals(id2)) {
-					if ( id instanceof ErrorCodeChannelId ) {
-						if ( ((ErrorDoc) ((ErrorCodeChannelId) id).doc()).isNeedsHardReset()  ) {
-							return false;
-						}
-					} else if (id instanceof ErrorCodeChannelId1) {
-						if ( ((ErrorDoc) ((ErrorCodeChannelId1) id).doc()).isNeedsHardReset()  ) {
-							return false;
-						}
-					}
-				}
-			}
-		}
-		return true;
-	}
-
-	private void fillErrorChannelMap() {
-		// TODO move to static map in Enum
-		errorChannelIds = new HashMap<>();
-		for (io.openems.edge.common.channel.ChannelId id : ErrorCodeChannelId.values()) {
-			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
-		}
-		for (io.openems.edge.common.channel.ChannelId id : ErrorCodeChannelId1.values()) {
-			errorChannelIds.put(((ErrorDoc) id.doc()).getCode(), id);
-		}
-	}
-
+	/**
+	 * The main entry point for the Gridcon PCS implementation. Everything starts at
+	 * the TOPIC_CYCLE_AFTER_PROCESS_IMAGE event.
+	 * 
+	 * <p>
+	 * Prepares some default channels, than handles the central State-Machine.
+	 */
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -304,7 +162,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 				this.calculateSoc();
 
 				// start state-machine handling
-				this.handleStateMachine();
+				this.stateMachine.run();
 
 				this.channel(GridConChannelId.STATE_CYCLE_ERROR).setNextValue(false);
 			} catch (IllegalArgumentException | OpenemsNamedException e) {
@@ -313,6 +171,20 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			}
 			break;
 		}
+	}
+
+	/**
+	 * if parameter is true, the contactor will be closed if it's false, the
+	 * contactor will be opened and Mr Gridcon is going to start
+	 * 
+	 * @param closed
+	 * @throws OpenemsNamedException
+	 * @throws IllegalArgumentException
+	 */
+	public void setHardResetContactor(boolean closed) throws IllegalArgumentException, OpenemsNamedException {
+		BooleanWriteChannel channelHardReset = this.componentManager
+				.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
+		channelHardReset.setNextWriteValue(closed);
 	}
 
 	/**
@@ -355,14 +227,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	private void calculateBatteryData() {
 		int allowedCharge = 0;
 		int allowedDischarge = 0;
+		int capacity = 0;
 		for (Battery battery : this.getBatteries()) {
 			allowedCharge += battery.getVoltage().value().orElse(0) * battery.getChargeMaxCurrent().value().orElse(0)
 					* -1;
 			allowedDischarge += battery.getVoltage().value().orElse(0)
 					* battery.getDischargeMaxCurrent().value().orElse(0);
+			capacity += battery.getCapacity().value().orElse(0);
 		}
 		this.getAllowedCharge().setNextValue(allowedCharge);
 		this.getAllowedDischarge().setNextValue(allowedDischarge);
+		this.getCapacity().setNextValue(capacity);
 	}
 
 	/**
@@ -390,228 +265,12 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Handles the main State-Machine.
-	 * 
-	 * @throws IllegalArgumentException
-	 * @throws OpenemsNamedException
-	 */
-	private void handleStateMachine() throws IllegalArgumentException, OpenemsNamedException {
-		// Grid-Mode handling
-		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
-		switch (gridMode) {
-		case ON_GRID:
-			this.handleOnGrid();
-			break;
-		case OFF_GRID:
-		case UNDEFINED:
-			break;
-		}
-
-		// Handle State-Machine
-		switch (this.state) {
-		case ONGRID_IDLE:
-			this.handleOnGridIdle();
-			break;
-
-		case ONGRID_NORMAL_OPERATION:
-			this.handleOnGridNormalOperation();
-			break;
-
-		case UNDEFINED:
-			this.handleUndefined();
-			break;
-
-		case ONGRID_ERROR:
-			this.handleOnGridError();
-			break;
-		}
-	}
-
-	/**
-	 * Handles generic On-Grid.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	private void handleOnGrid() throws IllegalArgumentException, OpenemsNamedException {
-		// Always set OutputSyncDeviceBridge OFF in On-Grid state
-		this.setOutputSyncDeviceBridge(false);
-	}
-
-	/**
-	 * Handles idle operation in On-Grid -> tries to start the inverter.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	private void handleOnGridIdle() throws IllegalArgumentException, OpenemsNamedException {
-		// Verify State-Machine
-		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
-		CCUState ccuState = this.getCurrentState();
-		if (gridMode != GridMode.ON_GRID || ccuState != CCUState.IDLE) {
-			this.state = StateMachine.UNDEFINED;
-			return;
-		}
-
-		InverterCount inverterCount = this.config.inverterCount();
-		new CommandControlRegisters() //
-				// Start system
-				.play(true) //
-
-				.syncApproval(true) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(0.97f) //
-				.parameterF0(1.035f) //
-				.enableIpus(inverterCount) //
-				.writeToChannels(this);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-				.qLimit(1f) //
-				.writeToChannels(this);
-		this.setIpuControl();
-
-	}
-
-	/**
-	 * Handles normal operation in On-Grid.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	private void handleOnGridNormalOperation() throws IllegalArgumentException, OpenemsNamedException {
-		// Verify State-Machine
-		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
-		CCUState ccuState = this.getCurrentState();
-		if (gridMode != GridMode.ON_GRID || ccuState != CCUState.RUN) {
-			this.state = StateMachine.UNDEFINED;
-			return;
-		}
-
-		InverterCount inverterCount = this.config.inverterCount();
-		new CommandControlRegisters() //
-				.syncApproval(true) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(0.97f) //
-				.parameterF0(1.035f) //
-				.enableIpus(inverterCount) //
-				.writeToChannels(this);
-		new CcuControlParameters() //
-				.pControlMode(PControlMode.ACTIVE_POWER_CONTROL) //
-				.qLimit(1f) //
-				.writeToChannels(this);
-		this.setIpuControl();
-	}
-
-	/**
-	 * Handles normal operation in On-Grid.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	private void handleUndefined() throws IllegalArgumentException, OpenemsNamedException {
-		
-		if (delay != null && delay.plusSeconds(15).isAfter(LocalDateTime.now())) {
-			return;
-		} else {
-			delay = null;
-		}
-		
-		GridMode gridMode = this.getGridMode().getNextValue().asEnum();
-		CCUState ccuState = this.getCurrentState();
-		StateChannel errorChannel = this.getErrorChannel();
-
-		if (gridMode == GridMode.ON_GRID) {
-			if (ccuState == CCUState.ERROR && errorChannel != null) { //TODO Check && condition, without it (|| instead), gridcon remains always in error 
-				this.state = StateMachine.ONGRID_ERROR;
-
-			} else if (ccuState == CCUState.RUN) {
-				this.state = StateMachine.ONGRID_NORMAL_OPERATION;
-
-			} else if (ccuState == CCUState.IDLE) {
-				this.state = StateMachine.ONGRID_IDLE;
-
-			} else {
-				this.state = StateMachine.UNDEFINED;
-			}
-
-		} else {
-			this.log.warn("State-Machine UNDEFINED. Grid-Mode [" + gridMode + "] CCU-State [" + ccuState.toString()
-					+ "] Error [" + errorChannel + "]");
-
-			this.state = StateMachine.UNDEFINED;
-		}
-
-		// TODO weitere States, z. B. Going_ON_GRID, OFF_GRID,...
-
-//		return StateMachine.ONGRID_NORMAL_OPERATION;
-
-//		FloatReadChannel fcr = this.channel(GridConChannelId.DCDC_STATUS_DC_LINK_POSITIVE_VOLTAGE);
-//		Optional<Float> linkVoltageOpt = fcr.value().asOptional();
-//		if (!linkVoltageOpt.isPresent()) {
-//			return;
-//		}
-//
-//		float linkVoltage = linkVoltageOpt.get();
-//		float difference = Math.abs(GridconPCS.DC_LINK_VOLTAGE_SETPOINT - linkVoltage);
-//
-//		if (difference > GridconPCS.DC_LINK_VOLTAGE_TOLERANCE_VOLT) {
-//			doHardRestart();
-//			return;
-//		}
-//		resetErrorChannels(); // if any error channels has been set, unset them because in here there are no
-//		// errors present ==> TODO EBEN NICHT!!! fall aufgetreten dass state RUN war
-//		// aber ein fehler in der queue und das system nicht angelaufen ist....
-//
-	}
-
-
-
-	/**
-	 * Handles On-Grid Error.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
-	 */
-	private void handleOnGridError() throws IllegalArgumentException, OpenemsNamedException {
-		this.handleErrorStateMachine();
-//		CCUState ccuState = this.getCurrentState();
-//		StateChannel errorChannel = this.getErrorChannel();
-//		if(errorChannel == null && (ccuState != CCUState.UNDEFINED && ccuState != CCUState.ERROR)) {
-//			// No error -> there is really no error or MR is turned off
-//			// If CCUState != UNDEFINED -> MR is not turned off
-//			// If CCUState == ERROR -> MR is not turned off, but still reports error
-//			this.state = StateMachine.UNDEFINED;
-//			return;
-//		}
-
-		//
-//			StateChannel c = getErrorChannel();
-//			if (c == null) {
-//				System.out.println("Channel is null......");
-//				return;
-//			}
-//			c.setNextValue(true);
-//			if (((ErrorDoc) c.channelId().doc()).isNeedsHardReset()) {
-//				doHardRestart();
-//			} else {
-//				log.info("try to acknowledge errors");
-//				acknowledgeErrors();
-//			}
-
-		
-	}
-
-	/**
 	 * Sets the IPU-settings for Inverter-Control and DCDC-Control.
 	 * 
 	 * @throws IllegalArgumentException
 	 * @throws OpenemsNamedException
 	 */
-	private void setIpuControl() throws IllegalArgumentException, OpenemsNamedException {
+	public void setIpuControlSettings() throws IllegalArgumentException, OpenemsNamedException {
 		InverterCount inverterCount = this.config.inverterCount();
 		switch (inverterCount) {
 		case ONE:
@@ -638,241 +297,17 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 					.writeToChannels(this, IpuInverterControl.Inverter.THREE);
 			break;
 		}
-		new DcdcControl() //
-				.dcVoltageSetpoint(GridconPCS.DC_LINK_VOLTAGE_SETPOINT) //
-				.stringControlMode(this.componentManager, this.config) //
-				.writeToChannels(this);
+		
 	}
-
-//	private void handleOnGridState() throws IllegalArgumentException, OpenemsNamedException {
-//		offGridDetected = null;
-//		System.out.println(" ------ Currently set error channels ------- ");
-//		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
-//			@SuppressWarnings("unchecked")
-//			Optional<Boolean> val = (Optional<Boolean>) this.channel(id).value().asOptional();
-//			if (val.isPresent() && val.get()) {
-//				System.out.println(this.channel(id).address().getChannelId() + " is present");
-//			}
-//		}
-//		// TODO check
-//		// Just temporarily, because sometime gridcon reduces the link voltage, i.e.
-//		// there is no function any longer but also no errors
-//
-//		// a hardware restart has been executed,
-//		if (timestampMrGridconWasSwitchedOff != null) {
-//			log.info("timestampMrGridconWasSwitchedOff is set: " + timestampMrGridconWasSwitchedOff.toString());
-//			if ( //
-//			LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS))
-//					&& //
-//					LocalDateTime.now().isBefore(timestampMrGridconWasSwitchedOff
-//							.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS)) //
-//			) {
-//				try {
-//					log.info("try to write to channel hardware reset, set it to 'false'");
-//					// after 15 seconds switch Mr. Gridcon on again!
-//					BooleanWriteChannel channelHardReset = this.componentManager
-//							.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-//					channelHardReset.setNextWriteValue(false);
-//					resetErrorChannels();
-//				} catch (IllegalArgumentException | OpenemsNamedException e) {
-//					log.error("Problem occurred while deactivating hardware switch!");
-//					e.printStackTrace();
-//				}
-//
-//			} else if (LocalDateTime.now().isAfter(timestampMrGridconWasSwitchedOff
-//					.plusSeconds(GRIDCON_SWITCH_OFF_TIME_SECONDS + GRIDCON_BOOT_TIME_SECONDS))) {
-//				timestampMrGridconWasSwitchedOff = null;
-//			}
-//			return;
-//		}
-//
-//		switch (getCurrentState()) {
-//		case DERATING_HARMONICS:
-//			break;
-//		case DERATING_POWER:
-//			break;
-//		case ERROR:
-//			doErrorHandling();
-//			break;
-//		case IDLE:
-//			startSystem();
-//			break;
-//		case OVERLOAD:
-//			break;
-//		case PAUSE:
-//			break;
-//		case PRECHARGE:
-//			break;
-//		case READY:
-//			break;
-//		case RUN:
-//			doRunHandling();
-//			break;
-//		case SHORT_CIRCUIT_DETECTED:
-//			break;
-//		case SIA_ACTIVE:
-//			break;
-//		case STOP_PRECHARGE:
-//			break;
-//		case UNDEFINED:
-//			break;
-//		case VOLTAGE_RAMPING_UP:
-//			break;
-//		}
-//
-//		resetErrorCodes();
-//	}
-//
-//	private void resetErrorChannels() {
-//		for (io.openems.edge.common.channel.ChannelId id : errorChannelIds.values()) {
-//			this.channel(id).setNextValue(false);
-//		}
-//	}
-//
-//	private void resetErrorCodes() {
-//		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
-//		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-//		log.debug("in resetErrorCodes: => Errorcode: " + errorCodeOpt);
-//		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
-//			writeValueToChannel(GridConChannelId.COMMAND_ERROR_CODE_FEEDBACK, errorCodeOpt.get());
-//		}
-//	}
-//
-//	// TODO Shutdown system
-//	private void stopSystem() {
-//		log.info("Try to stop system");
-//
-//		// disable "Sync Approval" and "Ena IPU 4, 3, 2, 1" and add STOP command ->
-//		// system should change state to "IDLE"
-//		commandControlWord.set(PCSControlWordBitPosition.STOP.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.SYNC_APPROVAL.getBitPosition(), false);
-//		commandControlWord.set(PCSControlWordBitPosition.BLACKSTART_APPROVAL.getBitPosition(), false);
-//		commandControlWord.set(PCSControlWordBitPosition.MODE_SELECTION.getBitPosition(), true);
-//
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_1.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_2.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_3.getBitPosition(), true);
-//		commandControlWord.set(PCSControlWordBitPosition.DISABLE_IPU_4.getBitPosition(), true);
-//	}
-
-	/**
-	 * Gets the (first) active Error-Channel; or null if no Error is present.
-	 * 
-	 * @return the Error-Channel or null
-	 */
-	private StateChannel getErrorChannel() {
-		IntegerReadChannel errorCodeChannel = this.channel(GridConChannelId.CCU_ERROR_CODE);
-		Optional<Integer> errorCodeOpt = errorCodeChannel.value().asOptional();
-		if (errorCodeOpt.isPresent() && errorCodeOpt.get() != 0) {
-			int code = errorCodeOpt.get();
-			System.out.println("Code read: " + code + " ==> hex: " + Integer.toHexString(code));
-			code = code >> 8;
-			System.out.println("Code >> 8 read: " + code + " ==> hex: " + Integer.toHexString(code));
-			log.info("Error code is present --> " + code);
-			io.openems.edge.common.channel.ChannelId id = errorChannelIds.get(code);
-			return this.channel(id);
-		}
-		return null;
-	}
-
-//
-//	private void doHardRestart() {
-//	private LocalDateTime lastHardReset = null;
-//		try {
-//			log.info("in doHardRestart");
-//			if (timestampMrGridconWasSwitchedOff == null) {
-//				log.info("timestampMrGridconWasSwitchedOff was not set yet! try to write 'true' to channelHardReset!");
-//				BooleanWriteChannel channelHardReset = this.componentManager
-//						.getChannel(ChannelAddress.fromString(this.config.outputMRHardReset()));
-//				channelHardReset.setNextWriteValue(true);
-//				timestampMrGridconWasSwitchedOff = LocalDateTime.now();
-//			}
-//		} catch (IllegalArgumentException | OpenemsNamedException e) {
-//			log.error("Problem occurred while activating hardware switch to restart Mr. Gridcon!");
-//			e.printStackTrace();
-//		}
-//
-//	}
-//
-//	/**
-//	 * This sends an ACKNOWLEDGE message. This does not fix the error. If the error
-//	 * was fixed previously the system should continue operating normally. If not a
-//	 * manual restart may be necessary.
-//	 * 
-//	 * @throws OpenemsException
-//	 */
-//	private void acknowledgeErrors() throws OpenemsNamedException {
-//		if ( //
-//		lastTimeAcknowledgeCommandoWasSent == null || //
-//				LocalDateTime.now().isAfter(lastTimeAcknowledgeCommandoWasSent.plusSeconds(ACKNOWLEDGE_TIME_SECONDS)) //
-//		) {
-//			this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_ACKNOWLEDGE, true);
-//			lastTimeAcknowledgeCommandoWasSent = LocalDateTime.now();
-//		}
-//	}
-
+	
 	@Override
 	public String debugLog() {
-		return "State:" + this.getCurrentState().toString() + "," + "L:"
-				+ this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString() //
-				+ "," + this.getGridMode().value().asEnum().getName();
-	}
-
-	/**
-	 * Gets the CCUState of the MR internal State-Machine.
-	 * 
-	 * @return the CCUState
-	 */
-	private CCUState getCurrentState() {
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_ERROR)).value().asOptional().orElse(false)) {
-			return CCUState.ERROR;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_IDLE)).value().asOptional().orElse(false)) {
-			return CCUState.IDLE;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_PRECHARGE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.PRECHARGE;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_STOP_PRECHARGE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.STOP_PRECHARGE;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_READY)).value().asOptional().orElse(false)) {
-			return CCUState.READY;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_PAUSE)).value().asOptional().orElse(false)) {
-			return CCUState.PAUSE;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_RUN)).value().asOptional().orElse(false)) {
-			return CCUState.RUN;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_VOLTAGE_RAMPING_UP)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.VOLTAGE_RAMPING_UP;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_OVERLOAD)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.OVERLOAD;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_SHORT_CIRCUIT_DETECTED)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.SHORT_CIRCUIT_DETECTED;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_DERATING_POWER)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.DERATING_POWER;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_DERATING_HARMONICS)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.DERATING_HARMONICS;
-		}
-		if (((BooleanReadChannel) this.channel(GridConChannelId.CCU_STATE_SIA_ACTIVE)).value().asOptional()
-				.orElse(false)) {
-			return CCUState.SIA_ACTIVE;
-		}
-
-		return CCUState.UNDEFINED;
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|Allowed:"
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
+				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
 	@Override
@@ -881,26 +316,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
-		GridMode gridMode = this.getGridMode().value().asEnum();
-		if (this.getCurrentState() == CCUState.RUN && gridMode == GridMode.ON_GRID) {
-			return Power.NO_CONSTRAINTS;
-		} else {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
+		if (this.stateMachine.getState() != StateMachine.State.ONGRID) {
 			return new Constraint[] {
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
 					this.createPowerConstraint("Inverter not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
 		}
+		return Power.NO_CONSTRAINTS;
 	}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		if (this.state != StateMachine.ONGRID_NORMAL_OPERATION) {
-			// stop if not ONGRID_NORMAL -> Pref and Qref = 0 by CommandControlRegisters
+		if (this.stateMachine.getOngridHandler().getState() != OngridHandler.State.RUN) {
+			// stop if not in On-Grid and Running -> Pref and Qref = 0 by
+			// CommandControlRegisters
 			return;
 		}
-
-		// calculate and set the weights for battery strings A, B and C.
-		this.weightBatteryStrings(activePower);
 
 		float maxApparentPower = this.config.inverterCount().getMaxApparentPower();
 		/*
@@ -916,6 +347,21 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		FloatWriteChannel qRefChannel = this.channel(GridConChannelId.COMMAND_CONTROL_PARAMETER_Q_REF);
 		pRefChannel.setNextWriteValue(activePowerFactor);
 		qRefChannel.setNextWriteValue(reactivePowerFactor);
+		
+		// calculate and set the weights for battery strings A, B and C.
+		Map<GridConChannelId, Float> map = this.weightBatteryStrings(activePower);
+		
+		new DcdcControl()
+		.dcVoltageSetpoint(GridconPCS.DC_LINK_VOLTAGE_SETPOINT)
+		.weightStringA(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A))
+		.weightStringB(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B))
+		.weightStringC(map.get(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C))
+		.iRefStringA(0)
+		.iRefStringB(0)
+		.iRefStringC(0)
+		.stringControlMode(componentManager, config)
+		.writeToChannels(this);
+		
 	}
 
 	/**
@@ -923,9 +369,10 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 	 * current.
 	 * 
 	 * @param activePower
+	 * @return 
 	 * @throws OpenemsNamedException
 	 */
-	private void weightBatteryStrings(int activePower) throws OpenemsNamedException {
+	private Map<GridConChannelId, Float> weightBatteryStrings(int activePower) throws OpenemsNamedException {
 		int weightA = 0;
 		int weightB = 0;
 		int weightC = 0;
@@ -933,6 +380,8 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		Battery batteryStringA = null;
 		Battery batteryStringB = null;
 		Battery batteryStringC = null;
+
+		// TODO if battery is not ready for work, set weight to '0'
 		
 		try {
 			batteryStringA = this.componentManager.getComponent(this.config.batteryStringA_id());
@@ -955,24 +404,24 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			 */
 			if (batteryStringA != null) {
 				weightA = batteryStringA.getDischargeMaxCurrent().value().asOptional().orElse(0);
-				// if minSoc is reached, do not allow further discharging
-				if (batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryA()) {
+				// if battery is not ready or if minSoc is reached, do not allow further discharging
+				if (!this.isBatteryReady(batteryStringA) || batteryStringA.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryA()) {
 					weightA = 0;
 				}
 			}
 
 			if (batteryStringB != null) {
 				weightB = batteryStringB.getDischargeMaxCurrent().value().asOptional().orElse(0);
-				// if minSoc is reached, do not allow further discharging
-				if (batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryB()) {
+				// if battery is not ready or if minSoc is reached, do not allow further discharging
+				if (!this.isBatteryReady(batteryStringB) || batteryStringB.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryB()) {
 					weightB = 0;
 				}
 			}
 
 			if (batteryStringC != null) {
 				weightC = batteryStringC.getDischargeMaxCurrent().value().asOptional().orElse(0);
-				// if minSoc is reached, do not allow further discharging
-				if (batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryC()) {
+				// if battery is not ready or if minSoc is reached, do not allow further discharging
+				if (!this.isBatteryReady(batteryStringC) || batteryStringC.getSoc().value().asOptional().orElse(0) <= this.config.minSocBatteryC()) {
 					weightC = 0;
 				}
 			}
@@ -981,13 +430,13 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			/*
 			 * Charge
 			 */
-			if (batteryStringA != null) {
+			if (batteryStringA != null && this.isBatteryReady(batteryStringA)) {
 				weightA = batteryStringA.getChargeMaxCurrent().value().asOptional().orElse(0);
 			}
-			if (batteryStringB != null) {
+			if (batteryStringB != null && this.isBatteryReady(batteryStringB)) {
 				weightB = batteryStringB.getChargeMaxCurrent().value().asOptional().orElse(0);
 			}
-			if (batteryStringC != null) {
+			if (batteryStringC != null && this.isBatteryReady(batteryStringC)) {
 				weightC = batteryStringC.getChargeMaxCurrent().value().asOptional().orElse(0);
 			}
 
@@ -995,148 +444,108 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 			/*
 			 * active power is zero
 			 */
+			
+			int factor = 100;
 			if (batteryStringA != null && batteryStringB != null && batteryStringC != null) { // ABC
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
+				
+				
+				// Racks die abgeschalten sind dürfen nicht berücksichtigt werden
+				//--> Gewichtung auf 0
+				
+				
 				if (vAopt.isPresent() && vBopt.isPresent() && vCopt.isPresent()) {
-					int min = Math.min(vAopt.get(), Math.min(vBopt.get(), vCopt.get()));
-					weightA = vAopt.get() - min;
-					weightB = vBopt.get() - min;
-					weightC = vCopt.get() - min;
+					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
+					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
+					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
+					
+					double min = Math.min(averageVoltageA, Math.min(averageVoltageB, averageVoltageC));
+					if (this.isBatteryReady(batteryStringA)) {
+						weightA = (int) ((averageVoltageA - min) * factor);
+					}
+					if (this.isBatteryReady(batteryStringB)) {
+						weightB = (int) ((averageVoltageB - min) * factor);
+					}
+					if (this.isBatteryReady(batteryStringC)) {
+						weightC = (int) ((averageVoltageC - min) * factor);
+					}
 				}
 			} else if (batteryStringA != null && batteryStringB != null && batteryStringC == null) { // AB
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vBopt.isPresent()) {
-					int min = Math.min(vAopt.get(), vBopt.get());
-					weightA = vAopt.get() - min;
-					weightB = vBopt.get() - min;
+					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
+					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
+					double min = Math.min(averageVoltageA, averageVoltageB);
+					if (this.isBatteryReady(batteryStringA)) {
+						weightA = (int) ((averageVoltageA - min) * factor);
+					}
+					if (this.isBatteryReady(batteryStringB)) {
+						weightB = (int) ((averageVoltageB - min) * factor);
+					}
 				}
 			} else if (batteryStringA != null && batteryStringB == null && batteryStringC != null) { // AC
 				Optional<Integer> vAopt = batteryStringA.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vAopt.isPresent() && vCopt.isPresent()) {
-					int min = Math.min(vAopt.get(), vCopt.get());
-					weightA = vAopt.get() - min;
-					weightC = vCopt.get() - min;
+					double averageVoltageA = vAopt.get() / this.config.weightFactorBatteryA();
+					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
+					double min = Math.min(averageVoltageA, averageVoltageC);
+					if (this.isBatteryReady(batteryStringA)) {
+						weightA = (int) ((averageVoltageA - min) * factor);
+					}
+					if (this.isBatteryReady(batteryStringC)) {
+						weightC = (int) ((averageVoltageC - min) * factor);
+					}
 				}
 			} else if (batteryStringA == null && batteryStringB != null && batteryStringC != null) { // BC
 				Optional<Integer> vBopt = batteryStringB.getVoltage().value().asOptional();
 				Optional<Integer> vCopt = batteryStringC.getVoltage().value().asOptional();
 				if (vBopt.isPresent() && vCopt.isPresent()) {
-					int min = Math.min(vBopt.get(), vCopt.get());
-					weightB = vBopt.get() - min;
-					weightC = vCopt.get() - min;
+					double averageVoltageB = vBopt.get() / this.config.weightFactorBatteryB();
+					double averageVoltageC = vCopt.get() / this.config.weightFactorBatteryC();
+					double min = Math.min(averageVoltageB, averageVoltageC);
+					if (this.isBatteryReady(batteryStringB)) {
+						weightB = (int) ((averageVoltageB - min) * factor);
+					}
+					if (this.isBatteryReady(batteryStringC)) {
+						weightC = (int) ((averageVoltageC - min) * factor);
+					}
 				}
 			}
 		}
-
-		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
-		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
-		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
-		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
-		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
-		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
+		
+//		FloatWriteChannel weightAchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A);
+//		weightAchannel.setNextWriteValue(Float.valueOf(weightA));
+//		FloatWriteChannel weightBchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B);
+//		weightBchannel.setNextWriteValue(Float.valueOf(weightB));
+//		FloatWriteChannel weightCchannel = this.channel(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C);
+//		weightCchannel.setNextWriteValue(Float.valueOf(weightC));
+		
+		Map<GridConChannelId, Float> map = new HashMap<>();
+		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_A, (float) weightA);
+		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_B, (float) weightB);
+		map.put(GridConChannelId.DCDC_CONTROL_WEIGHT_STRING_C, (float) weightC);
+		
+		return map;
 	}
 
-//	/** Writes the given value into the channel */
-//	// TODO should throws OpenemsException
-//	void writeValueToChannel(GridConChannelId channelId, Object value) {
-//		try {
-//			((WriteChannel<?>) this.channel(channelId)).setNextWriteValueFromObject(value);
-//		} catch (OpenemsNamedException e) {
-//			e.printStackTrace();
-//			log.error("Problem occurred during writing '" + value + "' to channel " + channelId.name());
-//		}
-//	}
+	private boolean isBatteryReady(Battery battery) {
+		if (battery == null) {
+			return false;
+		}
+		
+		Optional<Boolean> readyOpt = battery.getReadyForWorking().getNextValue().asOptional();
+		
+		return (readyOpt.isPresent() && readyOpt.get());
+	}
 
 	@Override
 	public int getPowerPrecision() {
 		return 100; // TODO estimated value
 	}
-
-//	private void handleOffGridState() throws OpenemsNamedException {
-//
-//		boolean disableIpu1 = false;
-//		boolean disableIpu2 = true;
-//		boolean disableIpu3 = true;
-//		boolean disableIpu4 = true;
-//
-//		switch (this.config.inverterCount()) {
-//		case ONE:
-//			disableIpu2 = false;
-//			break;
-//		case TWO:
-//			disableIpu2 = false;
-//			disableIpu3 = false;
-//			break;
-//		case THREE:
-//			disableIpu2 = false;
-//			disableIpu3 = false;
-//			disableIpu4 = false;
-//			break;
-//		}
-//
-//		// send play command
-////		commandControlWord.set(PCSControlWordBitPosition.PLAY.getBitPosition(), true);
-//
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_1, disableIpu1);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_2, disableIpu2);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_3, disableIpu3);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_DISABLE_IPU_4, disableIpu4);
-//		// Always set Voltage Control Mode + Blackstart Approval
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_BLACKSTART_APPROVAL, true);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_SYNC_APPROVAL, false);
-//		this.setNextWriteValueToBooleanWriteChannel(GridConChannelId.COMMAND_CONTROL_WORD_MODE_SELECTION, false);
-//		this.setNextWriteValueToBooleanWriteChannel(
-//				GridConChannelId.COMMAND_CONTROL_WORD_ACTIVATE_SHORT_CIRCUIT_HANDLING, false);
-//
-//		// Always set OutputSyncDeviceBridge ON in Off-Grid state
-//		log.info("Set K1 ON");
-//		this.setOutputSyncDeviceBridge(true);
-//		// TODO check if OutputSyncDeviceBridge was actually set to ON via
-//		// inputSyncDeviceBridgeComponent. On Error switch off the MR.
-//
-//		if (offGridDetected == null) {
-//			offGridDetected = LocalDateTime.now();
-//			return;
-//		}
-//		if (offGridDetected.plusSeconds(DO_NOTHING_IN_OFFGRID_FOR_THE_FIRST_SECONDS).isAfter(LocalDateTime.now())) {
-//			return;
-//		}
-//
-//		// Measured by Grid-Meter, grid Values
-//		SymmetricMeter gridMeter = this.componentManager.getComponent(this.config.meter());
-//
-//		int gridFreq = gridMeter.getFrequency().value().orElse(-1);
-//		int gridVolt = gridMeter.getVoltage().value().orElse(-1);
-//
-//		log.info("GridFreq: " + gridFreq + ", GridVolt: " + gridVolt);
-//
-//		if (gridFreq == 0 || gridFreq < 49_700 || gridFreq > 50_300 || //
-//				gridVolt == 0 || gridVolt < 215_000 || gridVolt > 245_000) {
-//			log.info("Off-Grid -> F/U 1");
-//			/*
-//			 * Off-Grid
-//			 */
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, 1.0f);
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, 1.0f);
-//
-//		} else {
-//			/*
-//			 * Going On-Grid
-//			 */
-//			int invSetFreq = gridFreq + 20; // add 20 mHz
-//			int invSetVolt = gridVolt + 5_000; // add 5 V
-//			float invSetFreqNormalized = invSetFreq / 50_000f;
-//			float invSetVoltNormalized = invSetVolt / 230_000f;
-//			log.info("Going On-Grid -> F/U " + invSetFreq + ", " + invSetVolt + ", " + invSetFreqNormalized + ", "
-//					+ invSetVoltNormalized);
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_U0, invSetVoltNormalized);
-//			writeValueToChannel(GridConChannelId.COMMAND_CONTROL_PARAMETER_F0, invSetFreqNormalized);
-//		}
-//	}
 
 	/**
 	 * Gets all Batteries.
@@ -1179,9 +588,22 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return batteries;
 	}
 
+
+	public boolean isAtLeastOneBatteryReady() {
+		for (Battery battery : getBatteries()) {
+			Optional<Boolean> val = battery.getReadyForWorking().value().asOptional();
+			
+			if (val.isPresent() && val.get()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		int inverterCount = this.config.inverterCount().getCount();
+	
 		ModbusProtocol result = new ModbusProtocol(this, //
 				/*
 				 * CCU State
@@ -1791,7 +1213,7 @@ public class GridconPCS extends AbstractOpenemsModbusComponent
 		return result;
 	}
 
-	private void setOutputSyncDeviceBridge(boolean value) throws IllegalArgumentException, OpenemsNamedException {
+	public void setOutputSyncDeviceBridge(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel outputSyncDeviceBridge = this.componentManager
 				.getChannel(ChannelAddress.fromString(this.config.outputSyncDeviceBridge()));
 		this.setOutput(outputSyncDeviceBridge, value);

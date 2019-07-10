@@ -19,7 +19,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -27,7 +26,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
@@ -35,7 +34,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class PvInverter extends AbstractOpenemsComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -60,7 +59,7 @@ public class PvInverter extends AbstractOpenemsComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "datasource", config.datasource_id())) {
@@ -77,7 +76,7 @@ public class PvInverter extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				SymmetricPvInverter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
@@ -121,11 +120,5 @@ public class PvInverter extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
-	}
-
-	@Override
-	public void setActivePowerLimit(int activePowerWatt)  throws OpenemsNamedException {
-		
-		
 	}
 }

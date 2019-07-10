@@ -16,7 +16,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.io.test.DummyInputOutput;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.test.DummySymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.test.DummySymmetricPvInverter;
 
 public class EmergencyModeTest {
@@ -133,7 +133,7 @@ public class EmergencyModeTest {
 		SymmetricMeter meter1 = new DummySymmetricMeter("meter1");
 //		ChannelAddress meter1ActivePower = new ChannelAddress("meter1", "ActivePower");
 
-		SymmetricPvInverter pvInverter0 = new DummySymmetricPvInverter("pvInverter0");
+		ManagedSymmetricPvInverter pvInverter0 = new DummySymmetricPvInverter("pvInverter0");
 		ChannelAddress pvInverterActivePower = new ChannelAddress("pvInverter0", "ActivePower");
 
 		DummyInputOutput io0 = new DummyInputOutput("io0");

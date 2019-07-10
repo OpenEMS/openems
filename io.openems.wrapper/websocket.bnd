@@ -5,9 +5,9 @@ Bundle-Description: This repository contains a barebones WebSocket server and cl
  Implemented WebSocket protocol versions are: Hixie 75, Hixie 76, Hybi 10, and Hybi 17
 Bundle-DocURL: https://github.com/TooTallNate/Java-WebSocket
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 1.3.9
+Bundle-Version: 1.4.0
 
-Include-Resource: @Java-WebSocket-1.3.9.jar
+Include-Resource: @Java-WebSocket-1.4.0.jar
 
 -dsannotations: *
 -metatypeannotations: *
@@ -16,6 +16,7 @@ Include-Resource: @Java-WebSocket-1.3.9.jar
 	org.java_websocket,\
 	org.java_websocket.client,\
 	org.java_websocket.drafts,\
+	org.java_websocket.enums,\
 	org.java_websocket.exceptions,\
 	org.java_websocket.handshake,\
 	org.java_websocket.server,\

@@ -11,6 +11,7 @@ export const TRANSLATION = {
         Power: "Výkon",
         StorageSystem: "Systém bateriového úložiště",
         History: "Historie",
+        Live: 'Live',
         NoValue: "Žádná hodnota",
         Soc: "Stav nabití",
         Percentage: "Procentuální vyjádření",
@@ -34,7 +35,10 @@ export const TRANSLATION = {
     Menu: {
         Index: "Přehled",
         AboutUI: "About OpenEMS UI",
-        Settings: 'Obecné Nastavení',
+        GeneralSettings: 'Obecné Nastavení',
+        EdgeSettings: 'FEMS Předvolby',
+        Menu: 'Menu',
+        Overview: 'FEMS Přehled',
         Logout: 'Odhlásit'
     },
     Index: {
@@ -53,7 +57,9 @@ export const TRANSLATION = {
                 ReactivePower: "Jalový výkon",
                 ActivePower: "Činný výkon",
                 GridMeter: "Elektroměr - Odběr",
-                ProductionMeter: "Elektroměr - Výroba"
+                ProductionMeter: "Elektroměr - Výroba",
+                StorageDischarge: "baterie výtok",
+                StorageCharge: "baterie nakládání"
             },
             Energytable: {
                 Title: "Tabulka hodnot",
@@ -61,6 +67,10 @@ export const TRANSLATION = {
                 ProductionDC: "Generování DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Nízký práh",
+                    HighThreshold: "vysoký práh"
+                },
                 EVCS: {
                     ChargingStation: "Nabíjecí stanice",
                     Status: "Postavení",
@@ -85,6 +95,7 @@ export const TRANSLATION = {
                     CarFull: "Auto je plné",
                     EnergieSinceBeginning: "Energie od začátku nabíjení",
                     ChargeMode: "režim načítání",
+                    ActivateCharging: "Aktivujte nabíjecí stanici",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
@@ -94,8 +105,13 @@ export const TRANSLATION = {
                         Name: "Optimalizované zatížení",
                         ShortName: "optimalizované",
                         Info: "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
-                        MinInfo: "Chcete-li zabránit nabíjení vozu při nízké paměti v noci, můžete nastavit minimální nabíjení.",
-                        MinCharging: "Garance minimálního poplatku?"
+                        MinInfo: "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
+                        MinCharging: "Garance minimálního poplatku?",
+                        ChargingPriority: {
+                            Info: "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
+                            Car: "Car",
+                            Storage: "Storage"
+                        }
                     },
                     ForceChargeMode: {
                         Name: "Nucené nakládání",
@@ -111,12 +127,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Zvolené období: ",
             OtherPeriod: "Další období",
             Period: "Období",
+            SelectedDay: "{{value}}",
             Today: "Dnes",
             Yesterday: "Včera",
             LastWeek: "Poslední týden",
             LastMonth: "Poslední měsíc",
             LastYear: "Poslední rok",
-            Go: "Jdi!"
+            Go: "Jdi!",
+            Export: "stáhnout jako soubor programu Excel"
         },
         Config: {
             Index: {
@@ -127,6 +145,8 @@ export const TRANSLATION = {
                 ExecuteSimulator: "Zahájit simulaci",
                 Log: "Log",
                 LiveLog: "Live log systému",
+                AddComponents: "Komponenten installieren",
+                AdjustComponents: "Komponenten konfigurieren",
                 ManualControl: "Manuální ovládání",
                 DataStorage: "Ukládání dat"
             },

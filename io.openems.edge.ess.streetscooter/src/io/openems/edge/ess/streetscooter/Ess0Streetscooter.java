@@ -48,8 +48,8 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter
 
 	@Activate
 	protected void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.id(), config0.enabled(), config0.readonly(), UNIT_ID,
-				this.cm, "Modbus", config0.modbus_id());
+		super.activate(context, config0.id(), config0.alias(), config0.enabled(), config0.readonly(), UNIT_ID, this.cm,
+				"Modbus", config0.modbus_id());
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

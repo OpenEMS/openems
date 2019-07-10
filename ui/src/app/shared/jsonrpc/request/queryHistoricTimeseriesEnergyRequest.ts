@@ -26,9 +26,9 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
     static METHOD: string = "queryHistoricTimeseriesEnergy";
 
     public constructor(
-        public readonly fromDate: Date,
-        public readonly toDate: Date,
-        public readonly channels: ChannelAddress[]
+        private fromDate: Date,
+        private toDate: Date,
+        private channels: ChannelAddress[]
     ) {
         super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,
@@ -36,6 +36,10 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
             toDate: format(toDate, 'yyyy-MM-dd'),
             channels: JsonRpcUtils.channelsToStringArray(channels)
         });
+        // delete local fields, otherwise they are sent with the JSON-RPC Request
+        delete this.fromDate;
+        delete this.toDate;
+        delete this.channels;
     }
 
 }

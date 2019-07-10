@@ -1,0 +1,3 @@
+= Timedata
+
+A provider for time-series data, like historic recordings of Channels.

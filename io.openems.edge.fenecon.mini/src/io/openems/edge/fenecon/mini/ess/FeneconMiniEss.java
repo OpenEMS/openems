@@ -63,12 +63,13 @@ public class FeneconMiniEss extends AbstractOpenemsModbusComponent
 				SinglePhaseEss.ChannelId.values(), //
 				EssChannelId.values() //
 		);
+		this.getCapacity().setNextValue(3_000);
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID, this.cm,
+				"Modbus", config.modbus_id());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 	}

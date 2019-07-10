@@ -75,7 +75,7 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 
 	@SuppressWarnings("deprecation")
 	private void trueValuesInARowToSetTrue(Boolean value) {
-		if (value) {
+		if (value != null && value) {
 			if (this.debounceCounter <= this.debounce) {
 				this.debounceCounter++;
 			}
@@ -92,7 +92,7 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 
 	@SuppressWarnings("deprecation")
 	private void falseValuesInARowToSetFalse(Boolean value) {
-		if (!value) {
+		if (value != null && !value) {
 			if (this.debounceCounter <= this.debounce) {
 				this.debounceCounter++;
 			}

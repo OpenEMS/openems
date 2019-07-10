@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -89,12 +90,13 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus", config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 
 		this.inverterState = config.InverterState();
 
 		// initialize the connection to the battery
-		this.initializeBattery(config.service_pid(), config.battery_id());
+		this.initializeBattery(config.battery_id());
 
 		this.softStart();
 		this.resetDcAcEnergy();
@@ -123,8 +125,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	 * @param servicePid this components' Service-PID
 	 * @param batteryId  the Component-ID of the Battery component
 	 */
-	private void initializeBattery(String servicePid, String batteryId) {
-		if (OpenemsComponent.updateReferenceFilter(this.cm, servicePid, "Battery", batteryId)) {
+	private void initializeBattery(String batteryId) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Battery", batteryId)) {
 			return;
 		}
 
@@ -161,6 +163,8 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 			setDisMinV.setNextWriteValue(disMinV * 10);
 			setChaMaxV.setNextWriteValue(chaMaxV * 10);
 
+			this.getCapacity().setNextValue(battery.getCapacity().value().get());
+			
 			this.channel(SinexcelChannelId.STATE_UNABLE_TO_SET_BATTERY_RANGES).setNextValue(false);
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Unable to set battery ranges: " + e.getMessage());
@@ -521,7 +525,7 @@ public class EssSinexcel extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() {
+	public Constraint[] getStaticConstraints() throws OpenemsException {
 		if (!battery.getReadyForWorking().value().orElse(false)) {
 			return new Constraint[] { //
 					this.createPowerConstraint("Battery is not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //

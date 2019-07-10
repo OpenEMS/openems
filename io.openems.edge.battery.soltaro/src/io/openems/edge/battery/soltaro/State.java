@@ -9,8 +9,11 @@ public enum State implements OptionsEnum {
 	INIT("Initializing", 2), //
 	RUNNING("Running", 3), //
 	STOPPING("Stopping", 4), //
-	ERROR("Error", 5), //
-	ERRORDELAY("Errordelay", 6);
+	ERROR("Error", 5), //	
+	ERRORDELAY("Errordelay", 6), //
+	ERROR_CELL_VOLTAGES_DRIFT("Error cell voltages drift", 7), //
+    ONE_CELL_DRIFTING("One cell is drifting", 8)
+	;
 
 	private State(String name, int value) {
 		this.name = name;

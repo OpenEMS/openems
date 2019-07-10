@@ -1,0 +1,15 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title text-start translate>Edge.History.Period</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<div class="no-scroll">
+    <my-date-range-picker [options]="dateRangePickerOptions" (dateRangeChanged)="onDateRangeChanged($event)">
+    </my-date-range-picker>
+</div>

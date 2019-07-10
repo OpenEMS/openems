@@ -89,6 +89,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param context         ComponentContext of this component. Receive it from
 	 *                        parameter for @Activate
 	 * @param id              ID of this component. Typically 'config.id()'
+	 * @param alias           Human-readable name of this Component. Typically
+	 *                        'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled         Whether the component should be enabled. Typically
 	 *                        'config.enabled()'
 	 * @param unitId          Unit-ID of the Modbus target
@@ -102,9 +104,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
-	protected boolean activate(ComponentContext context, String id, boolean enabled, int unitId, ConfigurationAdmin cm,
-			String modbusReference, String modbusId) {
-		super.activate(context, id, enabled);
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+		super.activate(context, id, alias, enabled);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
 			return true;
@@ -117,8 +119,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return false;
 	}
 
+	protected BridgeModbus getModbusBridge() {
+		return this.modbus.get();
+	}
+
 	@Override
-	protected void activate(ComponentContext context, String id, boolean enabled) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		throw new IllegalArgumentException("Use the other activate() for Modbus compoenents!");
 	}
 
