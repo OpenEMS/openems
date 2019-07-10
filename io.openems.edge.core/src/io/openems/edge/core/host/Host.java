@@ -7,13 +7,12 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
@@ -25,7 +24,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 /**
  * The Host-Component handles access to the host computer and operating system.
  */
-@Component( //
+@Component(//
 		name = "Core.Host", //
 		immediate = true, //
 		property = { //
@@ -34,7 +33,8 @@ import io.openems.edge.common.jsonapi.JsonApi;
 		})
 public class Host extends AbstractOpenemsComponent implements OpenemsComponent, JsonApi {
 
-	private final Logger log = LoggerFactory.getLogger(Host.class);
+	// only systemd-network is implemented currently
+	private final OperatingSystem operatingSystem = new OperatingSystemDebianSystemd();
 
 	public Host() {
 		super(//
@@ -62,6 +62,9 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 		case GetNetworkConfigRequest.METHOD:
 			return this.handleGetNetworkConfigRequest(user, GetNetworkConfigRequest.from(request));
 
+		case SetNetworkConfigRequest.METHOD:
+			return this.handleSetNetworkConfigRequest(user, SetNetworkConfigRequest.from(request));
+
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
@@ -77,8 +80,23 @@ public class Host extends AbstractOpenemsComponent implements OpenemsComponent, 
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetNetworkConfigRequest(User user,
 			GetNetworkConfigRequest request) throws OpenemsNamedException {
-		NetworkConfiguration config = NetworkConfiguration.getNetworkConfiguration();
+		NetworkConfiguration config = this.operatingSystem.getNetworkConfiguration();
 		GetNetworkConfigResponse response = new GetNetworkConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
+	}
+
+	/**
+	 * Handles a SetNetworkConfigRequest.
+	 * 
+	 * @param user    the User
+	 * @param request the SetNetworkConfigRequest
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSetNetworkConfigRequest(User user,
+			SetNetworkConfigRequest request) throws OpenemsNamedException {
+		NetworkConfiguration oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
+		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 }

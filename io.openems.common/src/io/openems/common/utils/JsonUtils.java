@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -347,6 +348,14 @@ public class JsonUtils {
 		try {
 			return Optional.of(getAsString(jElement, memberName));
 		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
+		try {
+			return Optional.ofNullable((Inet4Address) Inet4Address.getByName(getAsString(jElement, memberName)));
+		} catch (OpenemsNamedException | UnknownHostException e) {
 			return Optional.empty();
 		}
 	}
