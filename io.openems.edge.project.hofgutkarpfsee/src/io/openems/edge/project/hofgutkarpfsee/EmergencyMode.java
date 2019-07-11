@@ -361,6 +361,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 			}
 			return GridMode.OFF_GRID;
 		} else {
+			this.executed = false;
 			return GridMode.UNDEFINED;
 		}
 	}
