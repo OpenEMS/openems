@@ -94,13 +94,13 @@ public class EmergencyModeTest {
 		}
 
 		@Override
-		public int OFFGRID_PV_LIMIT() {
+		public int offGridPvLimit() {
 			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		@Override
-		public int OFFGRID_PV_LIMIT_FAULT() {
+		public int offGridPvLimitFault() {
 			// TODO Auto-generated method stub
 			return 0;
 		}

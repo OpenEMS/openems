@@ -48,12 +48,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	/*
 	 * PV Limitation values
 	 */
-//	String pvMeter_id();
-	@AttributeDefinition(name = "OFFGRID_PV_LIMIT", description = " Limit for PV in Off-Grid.")
-	int OFFGRID_PV_LIMIT() default 35000;
+	@AttributeDefinition(name = "Off Grid Pv Limit", description = " Limit for PV in Off-Grid.")
+	int offGridPvLimit() default 35000;
 
-	@AttributeDefinition(name = "OFFGRID_PV_LIMIT_FAULT", description = "If PV power is above OFFGRID_PV_LIMIT_FAULT in Off-Grid -> disconnect PV.")
-	int OFFGRID_PV_LIMIT_FAULT() default 37000;
+	@AttributeDefinition(name = "Off Grid Pv Limit Fault", description = "If PV power is above OFFGRID_PV_LIMIT_FAULT in Off-Grid -> disconnect PV.")
+	int offGridPvLimitFault() default 37000;
 
 	/*
 	 * Ess

@@ -175,6 +175,10 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
 		EnumWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
 
+		this.channel(ChannelId.LIMIT_POWER_USER_ENTERED).setNextValue(power);
+		this.channel(ChannelId.MAX_ACTIVE_POWER_FROM_SOLAR_LOG).setNextValue(this.maxActivePower);
+		this.channel(ChannelId.PERCENT).setNextValue(pLimitPerc);
+		
 		try {
 			pLimitPercCh.setNextWriteValue(pLimitPerc);
 		} catch (OpenemsException e) {
@@ -188,29 +192,6 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		}
 	};
 
-	// FIXME merge with 'setPvLimit'
-	public void setActivePowerLimit(int activePowerWatt) throws OpenemsNamedException {
-
-		int pLimitPerc = (int) ((double) activePowerWatt / (double) this.maxActivePower * 100.0);
-		
-		this.channel(ChannelId.LIMIT_POWER_USER_ENTERED).setNextValue(activePowerWatt);
-		this.channel(ChannelId.MAX_ACTIVE_POWER_FROM_SOLAR_LOG).setNextValue(this.maxActivePower);
-		this.channel(ChannelId.PERCENT).setNextValue(pLimitPerc);
-
-		// keep percentage in range [0, 100]
-		if (pLimitPerc > 100) {
-			pLimitPerc = 100;
-		}
-		if (pLimitPerc < 0) {
-			pLimitPerc = 0;
-		}
-
-		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
-		EnumWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
-
-		pLimitPercCh.setNextWriteValue(pLimitPerc);
-		pLimitTypeCh.setNextWriteValue(PLimitType.FIXED_LIMIT);
-	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //

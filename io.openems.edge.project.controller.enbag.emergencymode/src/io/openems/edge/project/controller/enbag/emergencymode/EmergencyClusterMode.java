@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -83,6 +85,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		BatteryAndPvState batteryAndPvState = BatteryAndPvState.UNDEFINED;
+
 		switch (this.getGridMode()) {
 		case UNDEFINED:
 			/*
@@ -94,7 +98,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			/*
 			 * Both ESS are Off-Grid
 			 */
-			this.handleOffGridState();
+			batteryAndPvState = this.handleOffGridState();
 			break;
 
 		case ON_GRID:
@@ -104,6 +108,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 			this.handleOnGridState();
 			break;
 		}
+
+		this.channel(ChannelId.OFF_GRID_BATTERY_AND_PV_STATE).setNextValue(batteryAndPvState);
 	}
 
 	/**
@@ -112,7 +118,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
 	 */
-	private void handleOffGridState() throws IllegalArgumentException, OpenemsNamedException {
+	private BatteryAndPvState handleOffGridState() throws IllegalArgumentException, OpenemsNamedException {
+		BatteryAndPvState batteryAndPvState = this.getBatteryAndPvState();
 		switch (this.getBatteryAndPvState()) {
 		case ESS1_FULL__ESS2_NORMAL__PV_SUFFICIENT:
 		case ESS1_FULL__ESS2_NORMAL__PV_NOT_SUFFICIENT:
@@ -182,6 +189,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 		// Limit PV production
 		this.limitPvInOffgrid();
+
+		return batteryAndPvState;
 	}
 
 	/**
@@ -202,7 +211,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		this.setOutput(this.q2Ess2SupplyUps, Operation.CLOSE);
 		this.setOutput(this.q3PvOffGrid, Operation.OPEN);
 		this.setOutput(this.q4PvOnGrid, Operation.CLOSE);
-		this.NolimitPvInOngrid();
+		this.nolimitPvInOngrid();
 	}
 
 	private enum PvConnected {
@@ -280,7 +289,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
 	 */
-	private void NolimitPvInOngrid() throws IllegalArgumentException, OpenemsNamedException {
+	private void nolimitPvInOngrid() throws IllegalArgumentException, OpenemsNamedException {
 		ManagedSymmetricPvInverter pvInverter;
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
@@ -302,12 +311,12 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		int power = Integer.MAX_VALUE;
 		try {
 			pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
-			pvInverter.getActivePowerLimit().setNextWriteValue(this.config.OFFGRID_PV_LIMIT());
+			pvInverter.getActivePowerLimit().setNextWriteValue(this.config.offGridPvLimit());
 			power = pvInverter.getActivePower().value().orElse(Integer.MAX_VALUE);
 		} catch (OpenemsNamedException e) {
 			// ignore
 		}
-		if (power > this.config.OFFGRID_PV_LIMIT_FAULT()) {
+		if (power > this.config.offGridPvLimitFault()) {
 			// Limit did not work: disconnect PV
 			this.setOutput(q3PvOffGrid, Operation.OPEN);
 		}
@@ -366,6 +375,25 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 	private boolean isQ4PvOnGridClosed() throws IllegalArgumentException, OpenemsNamedException {
 		BooleanWriteChannel q4PvOnGrid = this.componentManager.getChannel(this.q4PvOnGrid);
 		return q4PvOnGrid.value().orElse(false);
+	}
+
+	public void setDebugValues() {
+
+	}
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		OFF_GRID_BATTERY_AND_PV_STATE(Doc.of(OpenemsType.STRING))//
+		;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		public Doc doc() {
+			return this.doc;
+		}
 	}
 
 	/**
