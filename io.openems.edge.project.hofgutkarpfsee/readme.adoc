@@ -49,8 +49,9 @@
 
 
 	..`BELOW_THRESHOLD_AND_HYSTERESIS`: Value is lower than the threshold - hysteresis
-		To Do: Run BHKW.
 		
+		To Do: Run BHKW.
+
 	..  `ABOVE_THRESHOLD`:  Value is bigger than the threshold.
 
 		To Do:  Stop BHKW. 
