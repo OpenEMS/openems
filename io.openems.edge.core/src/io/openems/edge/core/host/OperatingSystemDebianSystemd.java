@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +31,7 @@ import java.util.regex.Pattern;
 import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ConfigurationProperty;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
@@ -40,7 +40,8 @@ import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
  */
 public class OperatingSystemDebianSystemd implements OperatingSystem {
 
-	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
+//	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
+	private static final String NETWORK_BASE_PATH = "C:\\users\\stefan.feilmeier\\tmp";
 
 	private static enum Block {
 		UNDEFINED, MATCH, NETWORK
@@ -84,11 +85,16 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				 */
 				Block currentBlock = Block.UNDEFINED;
 				final AtomicReference<String> name = new AtomicReference<>();
-				final AtomicReference<Boolean> dhcp = new AtomicReference<>();
-				final AtomicReference<Boolean> linkLocalAddressing = new AtomicReference<>();
-				final AtomicReference<Inet4Address> gateway = new AtomicReference<>();
-				final AtomicReference<Inet4Address> dns = new AtomicReference<>();
-				final AtomicReference<Set<Inet4AddressWithNetmask>> addresses = new AtomicReference<>();
+				final AtomicReference<ConfigurationProperty<Boolean>> dhcp = new AtomicReference<>(
+						ConfigurationProperty.asNotSet());
+				final AtomicReference<ConfigurationProperty<Boolean>> linkLocalAddressing = new AtomicReference<>(
+						ConfigurationProperty.asNotSet());
+				final AtomicReference<ConfigurationProperty<Inet4Address>> gateway = new AtomicReference<>(
+						ConfigurationProperty.asNotSet());
+				final AtomicReference<ConfigurationProperty<Inet4Address>> dns = new AtomicReference<>(
+						ConfigurationProperty.asNotSet());
+				final AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>> addresses = new AtomicReference<>(
+						ConfigurationProperty.asNotSet());
 
 				List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
 				for (String line : lines) {
@@ -121,24 +127,24 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 						break;
 					case NETWORK:
 						onMatchString(NETWORK_ADDRESS, line, property -> {
-							Set<Inet4AddressWithNetmask> content = addresses.get();
+							Set<Inet4AddressWithNetmask> content = addresses.get().getValue();
 							if (content == null) {
 								content = new HashSet<>();
 							}
 							content.add(Inet4AddressWithNetmask.fromString(property));
-							addresses.set(content);
+							addresses.set(ConfigurationProperty.of(content));
 						});
 						onMatchString(NETWORK_DHCP, line, property -> {
-							dhcp.set(property.toLowerCase().equals("yes"));
+							dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
 						});
 						onMatchString(NETWORK_LINK_LOCAL_ADDRESSING, line, property -> {
-							linkLocalAddressing.set(property.toLowerCase().equals("yes"));
+							linkLocalAddressing.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
 						});
 						onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
-							gateway.set(property);
+							gateway.set(ConfigurationProperty.of(property));
 						});
 						onMatchInet4Address(NETWORK_DNS, line, property -> {
-							dns.set(property);
+							dns.set(ConfigurationProperty.of(property));
 						});
 						break;
 					case UNDEFINED:
@@ -151,9 +157,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 				// add to result
 				interfaces.put(name.get(), new NetworkInterface<File>(name.get(), //
-						Optional.ofNullable(dhcp.get()), Optional.ofNullable(linkLocalAddressing.get()),
-						Optional.ofNullable(gateway.get()), Optional.ofNullable(dns.get()),
-						Optional.ofNullable(addresses.get()), file));
+						dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), file));
 
 			} catch (IOException e) {
 				throw new OpenemsException("Unable to read file [" + file + "]");
@@ -261,20 +265,20 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		result.add("");
 
 		result.add("[Network]");
-		if (iface.getDhcp().isPresent()) {
-			result.add("DHCP=" + (iface.getDhcp().get() ? "yes" : "no"));
+		if (iface.getDhcp().isSetAndNotNull()) {
+			result.add("DHCP=" + (iface.getDhcp().getValue() ? "yes" : "no"));
 		}
-		if (iface.getLinkLocalAddressing().isPresent()) {
-			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().get() ? "yes" : "no"));
+		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
+			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
 		}
-		if (iface.getGateway().isPresent()) {
-			result.add("Gateway=" + iface.getGateway().get().getHostAddress());
+		if (iface.getGateway().isSetAndNotNull()) {
+			result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
 		}
-		if (iface.getDns().isPresent()) {
-			result.add("DNS=" + iface.getDns().get().getHostAddress());
+		if (iface.getDns().isSetAndNotNull()) {
+			result.add("DNS=" + iface.getDns().getValue().getHostAddress());
 		}
-		if (iface.getAddresses().isPresent()) {
-			for (Inet4AddressWithNetmask address : iface.getAddresses().get()) {
+		if (iface.getAddresses().isSetAndNotNull()) {
+			for (Inet4AddressWithNetmask address : iface.getAddresses().getValue()) {
 				result.add("Address=" + address.toString());
 			}
 		}

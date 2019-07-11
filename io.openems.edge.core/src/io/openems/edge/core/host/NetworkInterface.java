@@ -4,7 +4,6 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import com.google.gson.JsonArray;
@@ -13,6 +12,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.JsonUtils;
 
 public class NetworkInterface<A> {
@@ -77,35 +77,42 @@ public class NetworkInterface<A> {
 	}
 
 	public static NetworkInterface<?> from(String name, JsonObject j) throws OpenemsNamedException {
-		Optional<Boolean> dhcp = JsonUtils.getAsOptionalBoolean(j, "dhcp");
-		Optional<Boolean> linkLocalAddressing = JsonUtils.getAsOptionalBoolean(j, "linkLocalAddressing");
-		Optional<Inet4Address> gateway = JsonUtils.getAsOptionalInet4Address(j, "gateway");
-		Optional<Inet4Address> dns = JsonUtils.getAsOptionalInet4Address(j, "dns");
-		Optional<JsonArray> addressesArray = JsonUtils.getAsOptionalJsonArray(j, "addresses");
-		Optional<Set<Inet4AddressWithNetmask>> addressesOpt;
-		if (addressesArray.isPresent()) {
-			Set<Inet4AddressWithNetmask> addresses = new HashSet<>();
-			for (JsonElement address : addressesArray.get()) {
-				addresses.add(Inet4AddressWithNetmask.fromString(JsonUtils.getAsString(address)));
+		ConfigurationProperty<Boolean> dhcp = ConfigurationProperty
+				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dhcp"), JsonUtils::getAsBoolean);
+		ConfigurationProperty<Boolean> linkLocalAddressing = ConfigurationProperty
+				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "linkLocalAddressing"), JsonUtils::getAsBoolean);
+		ConfigurationProperty<Inet4Address> gateway = ConfigurationProperty
+				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "gateway"), JsonUtils::getAsInet4Address);
+		ConfigurationProperty<Inet4Address> dns = ConfigurationProperty
+				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dns"), JsonUtils::getAsInet4Address);
+
+		ConfigurationProperty<JsonArray> addressesArray = ConfigurationProperty
+				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "addresses"), JsonUtils::getAsJsonArray);
+		ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
+		if (addressesArray.isSet()) {
+			Set<Inet4AddressWithNetmask> value = new HashSet<>();
+			for (JsonElement address : addressesArray.getValue()) {
+				value.add(Inet4AddressWithNetmask.fromString(JsonUtils.getAsString(address)));
 			}
-			addressesOpt = Optional.of(addresses);
+			addresses = ConfigurationProperty.of(value);
 		} else {
-			addressesOpt = Optional.empty();
+			addresses = ConfigurationProperty.asNotSet();
 		}
-		return new NetworkInterface<Void>(name, dhcp, linkLocalAddressing, gateway, dns, addressesOpt, null);
+		return new NetworkInterface<Void>(name, dhcp, linkLocalAddressing, gateway, dns, addresses, null);
 	}
 
 	private final String name;
-	private Optional<Boolean> dhcp;
-	private Optional<Boolean> linkLocalAddressing;
-	private Optional<Inet4Address> gateway;
-	private Optional<Inet4Address> dns;
-	private Optional<Set<Inet4AddressWithNetmask>> addresses;
+	private ConfigurationProperty<Boolean> dhcp;
+	private ConfigurationProperty<Boolean> linkLocalAddressing;
+	private ConfigurationProperty<Inet4Address> gateway;
+	private ConfigurationProperty<Inet4Address> dns;
+	private ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
 	private final A attachment;
 
-	public NetworkInterface(String name, Optional<Boolean> dhcp, Optional<Boolean> linkLocalAddressing,
-			Optional<Inet4Address> gateway, Optional<Inet4Address> dns,
-			Optional<Set<Inet4AddressWithNetmask>> addresses, A attachment) throws OpenemsException {
+	public NetworkInterface(String name, ConfigurationProperty<Boolean> dhcp,
+			ConfigurationProperty<Boolean> linkLocalAddressing, ConfigurationProperty<Inet4Address> gateway,
+			ConfigurationProperty<Inet4Address> dns, ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses,
+			A attachment) throws OpenemsException {
 		this.name = name;
 		this.dhcp = dhcp;
 		this.linkLocalAddressing = linkLocalAddressing;
@@ -119,33 +126,32 @@ public class NetworkInterface<A> {
 		return this.name;
 	}
 
-	public Optional<Boolean> getDhcp() {
+	public ConfigurationProperty<Boolean> getDhcp() {
 		return this.dhcp;
 	}
 
-	public Optional<Boolean> getLinkLocalAddressing() {
+	public ConfigurationProperty<Boolean> getLinkLocalAddressing() {
 		return this.linkLocalAddressing;
 	}
 
-	public Optional<Inet4Address> getGateway() {
+	public ConfigurationProperty<Inet4Address> getGateway() {
 		return this.gateway;
 	}
 
-	public Optional<Inet4Address> getDns() {
+	public ConfigurationProperty<Inet4Address> getDns() {
 		return this.dns;
 	}
 
-	public Optional<Set<Inet4AddressWithNetmask>> getAddresses() {
-		if (this.name.equals("eth0")) {
-			Set<Inet4AddressWithNetmask> result;
-			if (this.addresses.isPresent()) {
-				result = new HashSet<>(this.addresses.get());
-			} else {
-				result = new HashSet<>();
-			}
+	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddresses() {
+		return this.addresses;
+	}
+
+	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddressesIncludingDefaults() {
+		if (this.name.equals("eth0") || !this.addresses.isSet()) {
+			Set<Inet4AddressWithNetmask> value = new HashSet<>(this.addresses.getValue());
 			// add default eth0 network address
-			result.add(DEFAULT_ETH0_ADDRESS);
-			return Optional.of(result);
+			value.add(DEFAULT_ETH0_ADDRESS);
+			return ConfigurationProperty.of(value);
 		} else {
 			return this.addresses;
 		}
@@ -168,21 +174,21 @@ public class NetworkInterface<A> {
 	 */
 	public JsonObject toJson() {
 		JsonObject result = new JsonObject();
-		if (this.dhcp.isPresent()) {
-			result.addProperty("dhcp", this.dhcp.get());
+		if (this.dhcp.isSet()) {
+			result.addProperty("dhcp", this.dhcp.getValue());
 		}
-		if (this.linkLocalAddressing.isPresent()) {
-			result.addProperty("linkLocalAddressing", this.linkLocalAddressing.get());
+		if (this.linkLocalAddressing.isSet()) {
+			result.addProperty("linkLocalAddressing", this.linkLocalAddressing.getValue());
 		}
-		if (this.gateway.isPresent()) {
-			result.addProperty("gateway", this.gateway.get().getHostAddress());
+		if (this.gateway.isSet()) {
+			result.addProperty("gateway", this.gateway.getValue().getHostAddress());
 		}
-		if (this.dns.isPresent()) {
-			result.addProperty("dns", this.dns.get().getHostAddress());
+		if (this.dns.isSet()) {
+			result.addProperty("dns", this.dns.getValue().getHostAddress());
 		}
-		if (this.getAddresses().isPresent()) {
+		if (this.getAddresses().isSet()) {
 			JsonArray jAddresses = new JsonArray();
-			for (Inet4AddressWithNetmask address : this.getAddresses().get()) {
+			for (Inet4AddressWithNetmask address : this.getAddresses().getValue()) {
 				jAddresses.add(address.toString());
 			}
 			result.add("addresses", jAddresses);
@@ -199,24 +205,44 @@ public class NetworkInterface<A> {
 	 */
 	public boolean updateFrom(NetworkInterface<?> change) {
 		boolean isChanged = false;
-		if (change.getDhcp().isPresent()) {
-			this.dhcp = change.getDhcp();
+		if (change.getDhcp().isSet()) {
+			if (change.getDhcp() == null) {
+				this.dhcp = ConfigurationProperty.asNotSet();
+			} else {
+				this.dhcp = change.getDhcp();
+			}
 			isChanged = true;
 		}
-		if (change.getLinkLocalAddressing().isPresent()) {
-			this.linkLocalAddressing = change.getLinkLocalAddressing();
+		if (change.getLinkLocalAddressing().isSet()) {
+			if (change.getLinkLocalAddressing() == null) {
+				this.linkLocalAddressing = ConfigurationProperty.asNotSet();
+			} else {
+				this.linkLocalAddressing = change.getLinkLocalAddressing();
+			}
 			isChanged = true;
 		}
-		if (change.getGateway().isPresent()) {
-			this.gateway = change.getGateway();
+		if (change.getGateway().isSet()) {
+			if (change.getGateway() == null) {
+				this.gateway = ConfigurationProperty.asNotSet();
+			} else {
+				this.gateway = change.getGateway();
+			}
 			isChanged = true;
 		}
-		if (change.getDns().isPresent()) {
-			this.dns = change.getDns();
+		if (change.getDns().isSet()) {
+			if (change.getDns() == null) {
+				this.dns = ConfigurationProperty.asNotSet();
+			} else {
+				this.dns = change.getDns();
+			}
 			isChanged = true;
 		}
-		if (change.addresses.isPresent()) { // uses original addresses without additional default network addresses
-			this.addresses = change.getAddresses();
+		if (change.getAddresses().isSet()) { // uses original addresses without additional default network addresses
+			if (change.getAddresses() == null) {
+				this.addresses = ConfigurationProperty.asNotSet();
+			} else {
+				this.addresses = change.getAddressesIncludingDefaults();
+			}
 			isChanged = true;
 		}
 		return isChanged;

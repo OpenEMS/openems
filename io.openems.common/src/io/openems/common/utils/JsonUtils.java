@@ -113,6 +113,14 @@ public class JsonUtils {
 		throw OpenemsError.JSON_NO_FLOAT_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
+	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
+		try {
+			return (Inet4Address) Inet4Address.getByName(getAsString(jElement));
+		} catch (UnknownHostException e) {
+			throw OpenemsError.JSON_NO_INET4ADDRESS.exception(jElement.toString().replaceAll("%", "%%"));
+		}
+	}
+
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonArray()) {
 			throw OpenemsError.JSON_NO_ARRAY.exception(jElement.toString().replaceAll("%", "%%"));
