@@ -40,8 +40,7 @@ import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
  */
 public class OperatingSystemDebianSystemd implements OperatingSystem {
 
-//	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
-	private static final String NETWORK_BASE_PATH = "C:\\users\\stefan.feilmeier\\tmp";
+	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
 
 	private static enum Block {
 		UNDEFINED, MATCH, NETWORK

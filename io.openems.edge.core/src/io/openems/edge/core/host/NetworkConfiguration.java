@@ -26,11 +26,11 @@ public class NetworkConfiguration {
 	 * {
 	 *   "interfaces": {
 	 *     [name: string]: {
-	 *       "dhcp": boolean,
-	 *       "linkLocalAddressing": boolean,
-	 *       "gateway": string,
-	 *       "dns": string,
-	 *       "addresses": string[]
+	 *       "dhcp"?: boolean,
+	 *       "linkLocalAddressing"?: boolean,
+	 *       "gateway"?: string,
+	 *       "dns"?: string,
+	 *       "addresses"?: string[]
 	 *     }
 	 *   }
 	 * }

@@ -4,11 +4,13 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -30,6 +32,9 @@ public class NetworkInterface<A> {
 		}
 	}
 
+	/**
+	 * Helper class for wrapping an IPv4 address together with its netmask.
+	 */
 	public static class Inet4AddressWithNetmask {
 		private final Inet4Address inet4Address;
 		private final int netmask;
@@ -45,6 +50,13 @@ public class NetworkInterface<A> {
 			return this.inet4Address.getHostAddress() + "/" + netmask;
 		}
 
+		/**
+		 * Parse a string in the form "192.168.100.100/24" to an IPv4 address.
+		 * 
+		 * @param value the string
+		 * @return the new {@link Inet4AddressWithNetmask}
+		 * @throws OpenemsException on error
+		 */
 		public static Inet4AddressWithNetmask fromString(String value) throws OpenemsException {
 			String[] arr = value.split("/");
 			try {
@@ -76,28 +88,70 @@ public class NetworkInterface<A> {
 		}
 	}
 
+	/**
+	 * Parses a JsonObject to a {@link java.net.NetworkInterface} object.
+	 * 
+	 * @param name the name of the network interface, e.g. "eth0"
+	 * @param j    the JsonObject
+	 * @return the new {@link java.net.NetworkInterface}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static NetworkInterface<?> from(String name, JsonObject j) throws OpenemsNamedException {
+		// Gateway
+		ConfigurationProperty<Inet4Address> gateway;
+		{
+			ConfigurationProperty<String> gatewayString = ConfigurationProperty
+					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "gateway"), JsonUtils::getAsString);
+			if (gatewayString.isSet()) {
+				if (gatewayString.getValue() == null || gatewayString.getValue().trim().isEmpty()) {
+					gateway = ConfigurationProperty.asNull();
+				} else {
+					gateway = ConfigurationProperty.fromJsonElement(
+							Optional.of(new JsonPrimitive(gatewayString.getValue())), JsonUtils::getAsInet4Address);
+				}
+			} else {
+				gateway = ConfigurationProperty.asNotSet();
+			}
+		}
+
+		// DNS
+		ConfigurationProperty<Inet4Address> dns;
+		{
+			ConfigurationProperty<String> dnsString = ConfigurationProperty
+					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dns"), JsonUtils::getAsString);
+			if (dnsString.isSet()) {
+				if (dnsString.getValue() == null || dnsString.getValue().trim().isEmpty()) {
+					dns = ConfigurationProperty.asNull();
+				} else {
+					dns = ConfigurationProperty.fromJsonElement(Optional.of(new JsonPrimitive(dnsString.getValue())),
+							JsonUtils::getAsInet4Address);
+				}
+			} else {
+				dns = ConfigurationProperty.asNotSet();
+			}
+		}
+
+		// Addresses
+		ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
+		{
+			ConfigurationProperty<JsonArray> addressesArray = ConfigurationProperty
+					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "addresses"), JsonUtils::getAsJsonArray);
+			if (addressesArray.isSet()) {
+				Set<Inet4AddressWithNetmask> value = new HashSet<>();
+				for (JsonElement address : addressesArray.getValue()) {
+					value.add(Inet4AddressWithNetmask.fromString(JsonUtils.getAsString(address)));
+				}
+				addresses = ConfigurationProperty.of(value);
+			} else {
+				addresses = ConfigurationProperty.asNotSet();
+			}
+		}
+
 		ConfigurationProperty<Boolean> dhcp = ConfigurationProperty
 				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dhcp"), JsonUtils::getAsBoolean);
 		ConfigurationProperty<Boolean> linkLocalAddressing = ConfigurationProperty
 				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "linkLocalAddressing"), JsonUtils::getAsBoolean);
-		ConfigurationProperty<Inet4Address> gateway = ConfigurationProperty
-				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "gateway"), JsonUtils::getAsInet4Address);
-		ConfigurationProperty<Inet4Address> dns = ConfigurationProperty
-				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dns"), JsonUtils::getAsInet4Address);
 
-		ConfigurationProperty<JsonArray> addressesArray = ConfigurationProperty
-				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "addresses"), JsonUtils::getAsJsonArray);
-		ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
-		if (addressesArray.isSet()) {
-			Set<Inet4AddressWithNetmask> value = new HashSet<>();
-			for (JsonElement address : addressesArray.getValue()) {
-				value.add(Inet4AddressWithNetmask.fromString(JsonUtils.getAsString(address)));
-			}
-			addresses = ConfigurationProperty.of(value);
-		} else {
-			addresses = ConfigurationProperty.asNotSet();
-		}
 		return new NetworkInterface<Void>(name, dhcp, linkLocalAddressing, gateway, dns, addresses, null);
 	}
 
@@ -107,6 +161,11 @@ public class NetworkInterface<A> {
 	private ConfigurationProperty<Inet4Address> gateway;
 	private ConfigurationProperty<Inet4Address> dns;
 	private ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
+
+	/**
+	 * An arbitrary attachment to this NetworkInterface. Can be used to store e.g. a
+	 * configuration file path.
+	 */
 	private final A attachment;
 
 	public NetworkInterface(String name, ConfigurationProperty<Boolean> dhcp,
@@ -146,6 +205,11 @@ public class NetworkInterface<A> {
 		return this.addresses;
 	}
 
+	/**
+	 * Gets the configured addresses including the default addresses if any.
+	 * 
+	 * @return all addresses
+	 */
 	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddressesIncludingDefaults() {
 		if (this.name.equals("eth0") || !this.addresses.isSet()) {
 			Set<Inet4AddressWithNetmask> value = new HashSet<>(this.addresses.getValue());
