@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 
 	<dependencies>
+		<!-- com -->
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
@@ -87,6 +88,7 @@
 			<artifactId>jna</artifactId>
 			<version>5.3.1</version>
 		</dependency>
+		<!-- org -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
