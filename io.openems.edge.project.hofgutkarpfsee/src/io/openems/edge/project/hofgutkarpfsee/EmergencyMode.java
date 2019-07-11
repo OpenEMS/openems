@@ -44,7 +44,7 @@ public class EmergencyMode extends AbstractOpenemsComponent implements Controlle
 	private int threshold = 0;
 	private int hysteresis = 0;
 	private Clock clock;
-	private static final int WAIT_FOR_SYSTEM_RESTART = 120;
+	private static final int WAIT_FOR_SYSTEM_RESTART = 30;
 	private LocalDateTime lastSwitchStartMode = LocalDateTime.MIN;
 	private boolean executed = false;
 

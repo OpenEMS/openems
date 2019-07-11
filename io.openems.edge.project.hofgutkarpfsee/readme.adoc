@@ -13,7 +13,7 @@
 
 	.. `Off-Grid`: Grid-Mode is Off-Grid ->
 
-	... As soon as it is detected as Off-grid mode, BHKW must be stopped and waited until the system restarts. 
+	... As soon as it is detected as Off-grid mode, BHKW must be stopped and wait until the system restarts. 
 	... Once the system has entered the START mode: It should assess the Soc level and decide which state it is in, and also whether or not hysteresis is to be administered.
 	... A detailed states documentation will follow in **States according to Soc level** section.
 
@@ -42,20 +42,15 @@
 
 	... If condition iv. doesn't supplied and if charge state is on discharge and also if it should apply hysteresis state needs to be on PASS_THRESHOLD_COMING_FROM_ABOVE and break here. Proccess will be handle on that state. 
 
-	... Till here if haven't supplied any conditions, but still needs to apply hysteresis, it could check whether its coming from below or not with looking at equality between soc and summation of threshold and hysteresis.If soc has bigger value state needs to be in  PASS_THRESHOLD_COMING_FROM_BELOW. Or it doesn't needs to apply hysteresis but soc could be equal or higher than threshold, it could also enter in the same state as PASS_THRESHOLD_COMING_FROM_BELOW.
+	... Till here if haven't supplied any conditions, but still needs to apply hysteresis that means system is in standby or charge mode so that it needs RUN BHKW.
+	Then it could check whether its coming from below or not with looking at equality between soc and summation of threshold and hysteresis.If soc has bigger value state needs to be in  PASS_THRESHOLD_COMING_FROM_BELOW. Or it doesn't needs to apply hysteresis but soc could be equal or higher than threshold, it could also enter in the same state as PASS_THRESHOLD_COMING_FROM_BELOW.
 
-	... And at the end of this state, if none of the condition supplied and BHKW was stopped, BHKW will get a RUN signal.
+	... And at the end of this state, if none of the condition supplied which means state will be on BELOW_THRESHOLD_AND_HYSTERESIS.
 
-    .. `PASS_LOWER_LEVEL_OF_BOUNDARY_COMING_FROM_BELOW`: Value just passed the  threshold. Last value was lower. Soc inside of the Boundary. And, this could only happen while system is "charging".
 
-		To Do:	 Allow BHKW to run until Soc reach the threshold level. 
-				 Stop BHKW when Soc get to Threshold.
-
-	.. `_COMING_FROM_ABOVE`: Value is bigger than the threshold. Inside of the boundary. And, this could only happen while system is "discharging".
-
-		To Do:  Stop BHKW till Soc reach lowest boundary level.
-				Let it Run BHKW when Soc get out of boundary.
-
+	..`BELOW_THRESHOLD_AND_HYSTERESIS`: Value is lower than the threshold - hysteresis
+		To Do: Run BHKW.
+		
 	..  `ABOVE_THRESHOLD`:  Value is bigger than the threshold.
 
 		To Do:  Stop BHKW. 
