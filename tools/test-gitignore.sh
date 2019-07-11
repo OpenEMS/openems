@@ -9,21 +9,31 @@
 #
 for D in *; do
 	if [ -d "${D}" ]; then
-		if [ -d "${D}/test" ]; then
-			if [ ! -f "./${D}/test/.gitignore" ]; then
-				echo "${D}/test/.gitignore -> missing"
-				touch ${D}/test/.gitignore
-			fi
-		else
-			case "${D}" in
-				build|cnf|doc|edge|ui|tools)
-					;;
-				*)
-					echo "${D} -> 'test' folder -> missing"
-					mkdir ${D}/test
+		case "${D}" in
+			build|cnf|doc|edge|ui|tools)
+				;;
+			*)
+				# verify the project .gitignore file
+				if grep -q '/bin_test/' ${D}/.gitignore \
+					&& grep -q '/generated/' ${D}/.gitignore; then
+					continue
+				else
+					echo "${D}/.gitignore -> not complete"
+					echo '/bin_test/' > ${D}/.gitignore
+					echo '/generated/' >> ${D}/.gitignore
+				fi 
+		
+				# verify there is a test folder
+				if [ ! -d "${D}/test" ]; then
+					mkdir -p ${D}/test
+				fi
+				
+				# verify that the test folder has a .gitignore file
+				if [ ! -f "./${D}/test/.gitignore" ]; then
+					echo "${D}/test/.gitignore -> missing"
 					touch ${D}/test/.gitignore
-					;;
-			esac
-		fi
+				fi
+				;;
+		esac
 	fi
 done
