@@ -1,19 +1,14 @@
-#
-# io.openems.edge.controller.emergencyclustermode PROVIDER BUNDLE
-#
-
-Bundle-Name: OpenEMS Edge Controller Emergency Cluster Mode
+Bundle-Name: OpenEMS Edge Project EnBAG
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
-	io.openems.edge.controller.api,\
-	io.openems.edge.ess.api
-
+	io.openems.edge.controller.api
 
 Private-Package:  \
 	io.openems.edge.project.controller.enbag.emergencymode
--includeresource: {readme.md}
+	
+-includeresource: {readme.adoc}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
@@ -29,4 +24,3 @@ Private-Package:  \
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
-
