@@ -8,10 +8,22 @@
 # See https://stackoverflow.com/questions/115983
 #
 for D in *; do
-    if [ -d "${D}/test" ]; then
-		if [ ! -f "./${D}/test/.gitignore" ]; then
-			echo "${D}/test/.gitignore -> missing"
-			touch ${D}/test/.gitignore
+	if [ -d "${D}" ]; then
+		if [ -d "${D}/test" ]; then
+			if [ ! -f "./${D}/test/.gitignore" ]; then
+				echo "${D}/test/.gitignore -> missing"
+				touch ${D}/test/.gitignore
+			fi
+		else
+			case "${D}" in
+				build|cnf|doc|edge|ui|tools)
+					;;
+				*)
+					echo "${D} -> 'test' folder -> missing"
+					mkdir ${D}/test
+					touch ${D}/test/.gitignore
+					;;
+			esac
 		fi
 	fi
 done
