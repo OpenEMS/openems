@@ -44,7 +44,7 @@
 
 	... Then it could check whether its coming from  or not with looking at equality between soc and summation of threshold and hysteresis.If soc has bigger value state needs to be in  PASS_THRESHOLD_COMING_FROM_BELOW. Or it doesn't needs to apply hysteresis but soc could be equal or higher than threshold, it could also enter in the same state as PASS_THRESHOLD_COMING_FROM_BELOW.
 	
-	...Till here if haven't supplied any conditions, but still needs to apply hysteresis that means system is in standby or charge mode so that it needs RUN BHKW.
+	... Till here if haven't supplied any conditions, but still needs to apply hysteresis that means system is in standby or charge mode so that it needs RUN BHKW.
 
 	... And at the end of this state, if none of the condition supplied which means state will be on BELOW_THRESHOLD_AND_HYSTERESIS.
 
