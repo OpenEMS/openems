@@ -30,6 +30,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.soltaro.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.ModuleParameters;
+import io.openems.edge.battery.soltaro.ResetState;
 import io.openems.edge.battery.soltaro.State;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.AutoSetFunction;
 import io.openems.edge.battery.soltaro.single.versionb.Enums.ContactorControl;
@@ -46,6 +47,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
@@ -66,8 +68,10 @@ import io.openems.edge.common.taskmanager.Priority;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
-public class SingleRack extends AbstractOpenemsModbusComponent implements Battery, OpenemsComponent, EventHandler, ModbusSlave
-{ // , // JsonApi // TODO
+public class SingleRack extends AbstractOpenemsModbusComponent
+		implements Battery, OpenemsComponent, EventHandler, ModbusSlave { 
+		
+		// , // JsonApi // TODO
 
 	protected static final int SYSTEM_ON = 1;
 	protected final static int SYSTEM_OFF = 0;
@@ -78,7 +82,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private static final String NUMBER_FORMAT = "%03d"; // creates string number with leading zeros
 	private static final double MAX_TOLERANCE_CELL_VOLTAGE_CHANGES_MILLIVOLT = 50;
 	private static final double MAX_TOLERANCE_CELL_VOLTAGES_MILLIVOLT = 400;
-	
+	private static final int SECONDS_TOLERANCE_CELL_DRIFT = 15 * 60;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -100,9 +105,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 	private int DELAY_AUTO_ID_SECONDS = 5;
 	private int DELAY_AFTER_CONFIGURING_FINISHED = 5;
 
+	// Remind last min and max cell voltages to register a cell drift
 	private double lastMinCellVoltage = Double.MIN_VALUE;
 	private double lastMaxCellVoltage = Double.MIN_VALUE;
+	private ResetState resetState = ResetState.NONE;
 	
+	private LocalDateTime handleOneCellDriftHandlingStarted = null;
+	private int handleOneCellDriftHandlingCounter = 0;
+
 	private LocalDateTime pendingTimestamp;
 
 	public SingleRack() {
@@ -146,9 +156,14 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 		boolean readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
-			stopSystem();
-			errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
-			setStateMachineState(State.ERRORDELAY);
+			if (handleOneCellDriftHandlingCounter > 5) {
+				// this cell drift error seems to be not removable
+				// systems remains in error state, can only be  removed by restarting component
+			}	else {	
+				stopSystem();
+				errorDelayIsOver = LocalDateTime.now().plusSeconds(config.errorLevel2Delay());
+				setStateMachineState(State.ERRORDELAY);
+			}
 			break;
 
 		case ERRORDELAY:
@@ -188,14 +203,24 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			startAttemptTime = LocalDateTime.now();
 			break;
 		case RUNNING:
+
+			if ( // if it has run 15 minutes in normal mode, reset timer and counter
+				this.handleOneCellDriftHandlingStarted != null && // 
+				this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isBefore(LocalDateTime.now()) //
+			) { //
+				this.handleOneCellDriftHandlingStarted = null;
+				this.handleOneCellDriftHandlingCounter = 0;
+			}
+
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (!this.isSystemRunning()) {
-				this.setStateMachineState(State.UNDEFINED);				
-			} else if (this.isCellVoltagesDrift()) {				
-				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);				
-			}
-			else {
+				this.setStateMachineState(State.UNDEFINED);
+			} else if (this.isCellVoltagesDrift()) {
+				this.setStateMachineState(State.ERROR_CELL_VOLTAGES_DRIFT);
+			} else if (this.isOneCellDrifting()) {
+				this.setStateMachineState(State.ONE_CELL_DRIFTING);
+			} else {
 //				// if minimal cell voltage is lower than configured minimal cell voltage, then force system to charge
 //				IntegerReadChannel minCellVoltageChannel = this.channel(SingleRackChannelId.CLUSTER_1_MIN_CELL_VOLTAGE);
 //				Optional<Integer> minCellVoltageOpt = minCellVoltageChannel.value().asOptional();
@@ -236,7 +261,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				this.pendingTimestamp = LocalDateTime.now();
 			}
 			if (this.pendingTimestamp.plusSeconds(this.config.pendingTolerance()).isBefore(LocalDateTime.now())) {
-				// System state could not be determined, stop and start it 
+				// System state could not be determined, stop and start it
 				this.pendingTimestamp = null;
 				this.stopSystem();
 				this.setStateMachineState(State.OFF);
@@ -254,18 +279,91 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 			}
 			break;
 		case ERROR_CELL_VOLTAGES_DRIFT:
-			// Reset the system
-			IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
-			try {
-				resetChannel.setNextWriteValue(SYSTEM_RESET);				
-			} catch (OpenemsNamedException e) {
-				System.out.println("Error while trying to reset the system!");
-			}
-			this.setStateMachineState(State.UNDEFINED);				
+			this.handleCellDrift();
+			break;
+		case ONE_CELL_DRIFTING:
+			this.handleOneCellDrifting();
 			break;
 		}
 
 		this.getReadyForWorking().setNextValue(readyForWorking);
+	}
+
+	private void handleOneCellDrifting() {
+		if (this.handleOneCellDriftHandlingStarted == null) {	
+			this.handleOneCellDriftHandlingStarted = LocalDateTime.now();			
+		}
+		
+		if (this.resetState == ResetState.NONE) {
+			handleOneCellDriftHandlingCounter++; // only increase one time per reset cycle
+		}
+		
+		this.handleCellDrift();
+		
+		
+		if (this.handleOneCellDriftHandlingCounter > 5 && this.handleOneCellDriftHandlingStarted.plusSeconds(SECONDS_TOLERANCE_CELL_DRIFT).isAfter(LocalDateTime.now())) {
+			this.setStateMachineState(State.ERROR);
+		}
+	}
+
+	private boolean isOneCellDrifting() {
+		/*
+		 * If voltage of one cell is going down immediately(Cell Voltage Low) and the
+		 * other cells do not (Cell diff high) that's an indicator for this error
+		 */
+		BooleanReadChannel cellVoltLowChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW);
+		BooleanReadChannel cellDiffHighChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH);
+
+		Optional<Boolean> cellVoltLowOpt = cellVoltLowChannel.getNextValue().asOptional();
+		Optional<Boolean> cellDiffHighOpt = cellDiffHighChannel.getNextValue().asOptional();
+
+		if (!cellVoltLowOpt.isPresent() || !cellDiffHighOpt.isPresent()) {
+			return false;
+		}
+
+		return cellVoltLowOpt.get() && cellDiffHighOpt.get();
+	}
+
+	private void handleCellDrift() {
+		// To reset the cell drift phenomenon, first sleep and then reset the system
+		switch (this.resetState) {
+		case NONE:
+			this.resetState = ResetState.SLEEP;
+			break;
+		case SLEEP:
+			this.sleepSystem();
+			this.resetState = ResetState.RESET;
+			break;
+		case RESET:
+			this.resetSystem();
+			this.resetState = ResetState.FINISHED;
+			break;
+		case FINISHED:
+			this.resetState = ResetState.NONE;
+			this.setStateMachineState(State.UNDEFINED);
+			break;
+		}
+	}
+
+	private void resetSystem() {
+
+		IntegerWriteChannel resetChannel = this.channel(SingleRackChannelId.SYSTEM_RESET);
+		try {
+			resetChannel.setNextWriteValue(SYSTEM_RESET);
+		} catch (OpenemsNamedException e) {
+			System.out.println("Error while trying to reset the system!");
+		}
+	}
+
+	private void sleepSystem() {
+
+		IntegerWriteChannel sleepChannel = this.channel(SingleRackChannelId.SLEEP);
+		try {
+			sleepChannel.setNextWriteValue(0x1);
+		} catch (OpenemsNamedException e) {
+			System.out.println("Error while trying to sleep the system!");
+		}
+
 	}
 
 	/*
@@ -1459,5 +1557,5 @@ public class SingleRack extends AbstractOpenemsModbusComponent implements Batter
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode) //
 		);
-	}	
+	}
 }

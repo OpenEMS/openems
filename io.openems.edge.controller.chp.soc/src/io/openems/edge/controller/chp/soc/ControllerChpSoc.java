@@ -85,7 +85,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	private State state = State.UNDEFINED;
 
 	@Override
-	public void run() throws IllegalArgumentException, OpenemsNamedException {
+	public void run() throws OpenemsNamedException {
 
 		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
 		int value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
