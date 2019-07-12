@@ -241,19 +241,31 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       if (edge.isVersionAtLeast('2018.8')) {
-        resolve([
-          // Ess
-          new ChannelAddress('_sum', 'EssActivePower'),
-          // Grid
-          new ChannelAddress('_sum', 'GridActivePower'),
-          // Production
-          new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'),
-          // Consumption
-          new ChannelAddress('_sum', 'ConsumptionActivePower')
-        ]);
+        let result: ChannelAddress[] = [];
+        config.widgets.classes.forEach(clazz => {
+          switch (clazz.toString()) {
+            case 'Grid':
+              result.push(new ChannelAddress('_sum', 'GridActivePower'));
+              break;
+            case 'Consumption':
+              result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+              break;
+            case 'Storage':
+              result.push(new ChannelAddress('_sum', 'EssActivePower'));
+              break;
+            case 'Production':
+              result.push(
+                new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'));
+              break;
+          };
+          return false;
+        });
+        resolve(result);
+
       } else {
         this.service.getConfig().then(config => {
           let ignoreIds = config.getComponentIdsImplementingNature("FeneconMiniConsumptionMeter");

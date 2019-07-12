@@ -2,6 +2,8 @@ package io.openems.edge.pvinverter.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -12,9 +14,22 @@ import io.openems.edge.meter.api.SymmetricMeter;
 /**
  * Represents a 3-Phase, symmetric PV-Inverter.
  */
-public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
+public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/**
+		 * Holds the maximum possible apparent power. This value is defined by the
+		 * inverter limitations.
+		 * 
+		 * <ul>
+		 * <li>Interface: SymmetricPvInverter
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: zero or positive value
+		 * </ul>
+		 */
+		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE)), //
 		/**
 		 * Read/Set Active Power Limit.
 		 * 
@@ -52,6 +67,15 @@ public interface SymmetricPvInverter extends SymmetricMeter, OpenemsComponent {
 	 */
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
+	}
+
+	/**
+	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0".
+	 * 
+	 * @return the Channel
+	 */
+	default Channel<Integer> getMaxApparentPower() {
+		return this.channel(ChannelId.MAX_APPARENT_POWER);
 	}
 
 	/**

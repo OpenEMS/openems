@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service } from '../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../environments/environment';
+import { Edge, Service, Widgets } from '../../shared/shared';
 
 @Component({
   selector: 'history',
@@ -9,12 +10,15 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class HistoryComponent implements OnInit {
 
+  // is a Timedata service available, i.e. can historic data be queried.
+  public isTimedataAvailable: boolean = true;
+
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
   public energyChartHeight: string = "250px";
 
-  // holds the Edge dependend Widget names
-  public widgetNames: string[] = [];
+  // holds the Widgets
+  public widgets: Widgets = null;
 
   // holds the current Edge
   public edge: Edge = null;
@@ -29,14 +33,13 @@ export class HistoryComponent implements OnInit {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
-    this.service.getWidgets().then(widgets => {
-      let result: string[] = [];
-      for (let widget of widgets) {
-        if (!result.includes(widget.name.toString())) {
-          result.push(widget.name.toString());
-        }
+    this.service.getConfig().then(config => {
+      this.widgets = config.widgets;
+      // Are we connected to OpenEMS Edge and is a timedata service available?
+      if (environment.backend == 'OpenEMS Edge'
+        && config.getComponentsImplementingNature('io.openems.edge.timedata.api.Timedata').filter(c => c.isEnabled).length == 0) {
+        this.isTimedataAvailable = false;
       }
-      this.widgetNames = result;
     });
   }
 

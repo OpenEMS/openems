@@ -6,7 +6,7 @@ import { DefaultTypes } from './defaulttypes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
-import { Widget, WidgetNature, WidgetFactory } from '../type/widget';
+import { Widget, WidgetNature, WidgetFactory, Widgets } from '../type/widget';
 import { ToastController } from '@ionic/angular';
 import { Edge, EdgeConfig } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
@@ -162,7 +162,7 @@ export class Service implements ErrorHandler {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
         edge.getConfig(this.websocket).pipe(
-          filter(config => config.isValid()),
+          filter(config => config != null && config.isValid()),
           first()
         ).toPromise()
           .then(config => resolve(config))
