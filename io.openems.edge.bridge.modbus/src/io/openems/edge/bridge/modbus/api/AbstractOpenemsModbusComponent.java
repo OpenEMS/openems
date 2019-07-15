@@ -101,23 +101,22 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        setModbus()-method
 	 * @param modbusId        The ID of the Modbus brige. Typically
 	 *                        'config.modbus_id()'
+	 * @return true if the target filter was updated. You may use it to abort the
+	 *         activate() method.
 	 */
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		super.activate(context, id, alias, enabled);
 		// update filter for 'Modbus'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
-			return;
+			return true;
 		}
 		this.unitId = unitId;
 		BridgeModbus modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
 		}
-	}
-	
-	protected BridgeModbus getModbusBridge() {
-		return this.modbus.get();
+		return false;
 	}
 
 	@Override
