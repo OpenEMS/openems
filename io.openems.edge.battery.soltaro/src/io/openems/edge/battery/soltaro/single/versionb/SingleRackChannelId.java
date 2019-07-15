@@ -313,7 +313,7 @@ public enum SingleRackChannelId implements io.openems.edge.common.channel.Channe
 	INSULATION_SENSOR_FUNCTION(Doc.of(OpenemsType.INTEGER)), //
 	TRANSPARENT_MASTER(Doc.of(OpenemsType.INTEGER)), //
 	SET_EMS_ADDRESS(Doc.of(OpenemsType.INTEGER)), //
-	SLEEP(Doc.of(OpenemsType.INTEGER)), //
+	SLEEP(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //), //
 	VOLTAGE_LOW_PROTECTION(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIVOLT)), //
 	WORK_PARAMETER_CURRENT_FIX_COEFFICIENT(Doc.of(OpenemsType.INTEGER)), //
