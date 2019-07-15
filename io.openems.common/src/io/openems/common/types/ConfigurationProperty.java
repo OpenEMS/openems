@@ -15,7 +15,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
  * value is 'null' - i.e. configuration property should be set to 'null' - or
  * 'not set' - i.e. configuration property should not be changed.
  *
- * @param <T>
+ * @param <T> type of the configuration property
  */
 public class ConfigurationProperty<T> {
 
