@@ -3,6 +3,7 @@ package io.openems.edge.controller.api.backend;
 import java.net.Proxy;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
@@ -19,7 +20,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Apikey", description = "Apikey for authentication at OpenEMS Backend.")
+	@AttributeDefinition(name = "Apikey", description = "Apikey for authentication at OpenEMS Backend.", type = AttributeType.PASSWORD)
 	String apikey();
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
