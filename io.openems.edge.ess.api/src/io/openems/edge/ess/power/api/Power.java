@@ -75,18 +75,20 @@ public interface Power {
 	/**
 	 * Adjusts the given value so that it fits into Min/MaxPower.
 	 * 
-	 * @param value the target value
+	 * @param componentId Component-ID of the calling component for the log message
+	 * @param value       the target value
 	 * @return a value that fits into Min/MaxPower
 	 */
-	public default int fitValueIntoMinMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr, int value) {
+	public default int fitValueIntoMinMaxPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+			int value) {
 		/*
 		 * Discharge
 		 */
 		// fit into max possible discharge power
 		int maxDischargePower = this.getMaxPower(ess, phase, pwr);
 		if (value > maxDischargePower) {
-			Power.log.info("Reducing power from [" + value + "] to [" + maxDischargePower + "] for [" + ess.id()
-					+ pwr.getSymbol() + phase.getSymbol() + "]");
+			Power.log.info("[" + componentId + "] Reducing power from [" + value + "] to [" + maxDischargePower
+					+ "] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
 			value = maxDischargePower;
 		}
 
@@ -96,8 +98,8 @@ public interface Power {
 		// fit into max possible discharge power
 		int maxChargePower = this.getMinPower(ess, phase, pwr);
 		if (value < maxChargePower) {
-			Power.log.info("Reducing power from [" + value + "] to [" + (maxChargePower * -1) + "] for [" + ess.id()
-					+ pwr.getSymbol() + phase.getSymbol() + "]");
+			Power.log.info("[" + componentId + "] Reducing power from [" + value + "] to [" + (maxChargePower * -1)
+					+ "] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
 			value = maxChargePower;
 		}
 		return value;
