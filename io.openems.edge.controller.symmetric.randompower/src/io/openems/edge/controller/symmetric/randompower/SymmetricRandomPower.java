@@ -73,7 +73,7 @@ public class SymmetricRandomPower extends AbstractOpenemsComponent implements Co
 		int randomPower = ThreadLocalRandom.current().nextInt(this.config.minPower(), this.config.maxPower() + 1);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		randomPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, randomPower);
+		randomPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, randomPower);
 
 		/*
 		 * set result
