@@ -47,7 +47,6 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
@@ -311,8 +310,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		 * If voltage of one cell is going down immediately(Cell Voltage Low) and the
 		 * other cells do not (Cell diff high) that's an indicator for this error
 		 */
-		BooleanReadChannel cellVoltLowChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW);
-		BooleanReadChannel cellDiffHighChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH);
+		StateChannel cellVoltLowChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_LOW);
+		StateChannel cellDiffHighChannel = this.channel(SingleRackChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_DIFF_HIGH);
 
 		Optional<Boolean> cellVoltLowOpt = cellVoltLowChannel.getNextValue().asOptional();
 		Optional<Boolean> cellDiffHighOpt = cellDiffHighChannel.getNextValue().asOptional();
