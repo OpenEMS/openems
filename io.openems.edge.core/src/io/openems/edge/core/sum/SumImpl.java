@@ -101,6 +101,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final CalculateGridMode essGridMode = new CalculateGridMode();
 		final CalculateLongSum essActiveChargeEnergy = new CalculateLongSum();
 		final CalculateLongSum essActiveDischargeEnergy = new CalculateLongSum();
+		final CalculateIntegerSum essCapacity = new CalculateIntegerSum();
 
 		// Grid
 		final CalculateIntegerSum gridActivePower = new CalculateIntegerSum();
@@ -137,6 +138,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essGridMode.addValue(ess.getGridMode());
 				essActiveChargeEnergy.addValue(ess.getActiveChargeEnergy());
 				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergy());
+				essCapacity.addValue(ess.getCapacity());
 
 			} else if (component instanceof SymmetricMeter) {
 				if (component instanceof VirtualMeter) {
@@ -212,6 +214,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getEssActiveChargeEnergy().setNextValue(essActiveChargeEnergySum);
 		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
 		this.getEssActiveDischargeEnergy().setNextValue(essActiveDischargeEnergySum);
+		
+		Integer essCapacitySum = essCapacity.calculate();
+		this.getEssCapacity().setNextValue(essCapacitySum);
 
 		// Grid
 		Integer gridActivePowerSum = gridActivePower.calculate();
