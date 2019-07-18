@@ -118,7 +118,7 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
 
-    protected isEnabled: boolean = false;
+    public isEnabled: boolean = false;
     protected valueText: string = "";
     protected valueText2: string = "";
     protected innerRadius: number = 0;
