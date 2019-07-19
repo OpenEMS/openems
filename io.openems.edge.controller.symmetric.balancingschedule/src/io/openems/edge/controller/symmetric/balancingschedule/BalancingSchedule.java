@@ -153,7 +153,7 @@ public class BalancingSchedule extends AbstractOpenemsComponent implements Contr
 		int calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result

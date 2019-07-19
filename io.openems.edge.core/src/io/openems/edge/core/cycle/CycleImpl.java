@@ -1,8 +1,6 @@
 package io.openems.edge.core.cycle;
 
-import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,6 +15,7 @@ import org.slf4j.Logger;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -41,12 +40,8 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	protected final TreeMap<Scheduler, Integer> schedulers = new TreeMap<Scheduler, Integer>(
 			(a, b) -> a.getCycleTime() - b.getCycleTime());
 
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(service.factoryPid=Core.Cycle)))")
-	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	@Reference
+	protected ComponentManager componentManager;
 
 	protected int commonCycleTime = Scheduler.DEFAULT_CYCLE_TIME;
 	protected int maxCycles = 1;

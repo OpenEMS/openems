@@ -94,7 +94,8 @@ public class OdooUtils {
 		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 		config.setEnabledForExtensions(true);
 		config.setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
-		config.setReplyTimeout(5000);
+		config.setConnectionTimeout(10_000 /* 10 seconds */);
+		config.setReplyTimeout(60_000 /* 60 seconds */);
 		client.setConfig(config);
 		return client.execute("execute_kw", params);
 	}

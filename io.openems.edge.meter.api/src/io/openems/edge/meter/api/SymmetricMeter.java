@@ -1,6 +1,7 @@
 package io.openems.edge.meter.api;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.IntUtils;
@@ -9,6 +10,8 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 /**
  * Represents a Symmetric Meter.
@@ -187,6 +190,20 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 */
 	MeterType getMeterType();
 
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(SymmetricMeter.class, accessMode, 100) //
+				.channel(0, ChannelId.FREQUENCY, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.MIN_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.REACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.ACTIVE_PRODUCTION_ENERGY, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.ACTIVE_CONSUMPTION_ENERGY, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //				
+				.build();
+	}
+	
 	/**
 	 * Gets the Active Power in [W]. Negative values for Consumption; positive for
 	 * Production

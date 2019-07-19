@@ -7,8 +7,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -25,8 +23,6 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 public class SellToGridLimit extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
-
-	private final Logger log = LoggerFactory.getLogger(SellToGridLimit.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -93,15 +89,9 @@ public class SellToGridLimit extends AbstractOpenemsComponent implements Control
 		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math.abs(
 				this.lastSetLimit - calculatedPower) > (Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE)) {
 			if (this.lastSetLimit > calculatedPower) {
-				int newLimit = this.lastSetLimit - (int) Math.abs(this.lastSetLimit * DEFAULT_MAX_ADJUSTMENT_RATE);
-				this.logInfo(log, "Adjust [-] Last [" + this.lastSetLimit + "] Calculated [" + calculatedPower
-						+ "] Corrected to [" + newLimit + "]");
-				calculatedPower = newLimit;
+				calculatedPower = this.lastSetLimit - (int) Math.abs(this.lastSetLimit * DEFAULT_MAX_ADJUSTMENT_RATE);
 			} else {
-				int newLimit = this.lastSetLimit + (int) Math.abs(this.lastSetLimit * DEFAULT_MAX_ADJUSTMENT_RATE);
-				this.logInfo(log, "Adjust [+] Last [" + this.lastSetLimit + "] Calculated [" + calculatedPower
-						+ "] Corrected to [" + newLimit + "]");
-				calculatedPower = newLimit;
+				calculatedPower = this.lastSetLimit + (int) Math.abs(this.lastSetLimit * DEFAULT_MAX_ADJUSTMENT_RATE);
 			}
 		}
 		// store lastSetLimit

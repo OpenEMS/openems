@@ -145,7 +145,7 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 		}
 
 		this.power = (int) (apparentPower.orElse(0) * valueOfLine);
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.REACTIVE, this.power);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE, this.power);
 		this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
 				Relationship.EQUALS, calculatedPower);
 	}

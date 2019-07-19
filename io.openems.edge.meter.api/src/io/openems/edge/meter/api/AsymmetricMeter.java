@@ -2,11 +2,14 @@ package io.openems.edge.meter.api;
 
 import java.util.function.Consumer;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -192,6 +195,23 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		}
 	}
 
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(AsymmetricMeter.class, accessMode, 100) //
+				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.REACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.REACTIVE_POWER_L2, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.REACTIVE_POWER_L3, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.VOLTAGE_L1, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.VOLTAGE_L2, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.VOLTAGE_L3, ModbusType.FLOAT32) //
+				.channel(18, ChannelId.CURRENT_L1, ModbusType.FLOAT32) //
+				.channel(20, ChannelId.CURRENT_L2, ModbusType.FLOAT32) //
+				.channel(22, ChannelId.CURRENT_L3, ModbusType.FLOAT32) //
+				.build();
+	}
+	
 	/**
 	 * Gets the Active Power for L1 in [W]. Negative values for Consumption;
 	 * positive for Production

@@ -70,6 +70,7 @@ public enum OpenemsError {
 	JSON_PARSE_FAILED(5016, "JSON failed to parse [%s]: %s"), //
 	JSON_NO_FLOAT_MEMBER(5017, "JSON [%s:%s] is not a Float"), //
 	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum"), //
+	JSON_NO_INET4ADDRESS(5020, "JSON [%s] is not an IPv4 address"), //
 	;
 
 	/**
@@ -77,12 +78,13 @@ public enum OpenemsError {
 	 * 
 	 * @param code the error code
 	 * @return the OpenEMS-Error
+	 * @throws OpenemsException if no standard exception with this error code
+	 *                          exists.
 	 */
-	public static OpenemsError fromCode(int code) {
+	public static OpenemsError fromCode(int code) throws OpenemsException {
 		OpenemsError error = ALL_ERRORS.get(code);
 		if (error == null) {
-			log.warn("OpenEMS-Error with code [" + code + "] does not exist");
-			error = OpenemsError.GENERIC;
+			throw new OpenemsException("OpenEMS-Error with code [" + code + "] does not exist");
 		}
 		return error;
 	}
@@ -165,17 +167,4 @@ public enum OpenemsError {
 			return params;
 		}
 	}
-
-//	public JsonrpcResponseError asJsonrpc(UUID id, Object... params) {
-//		return new JsonrpcResponseError(id, this.getCode(), String.format(this.getMessage(), params));
-//	}
-//
-//	public CompletableFuture<JsonrpcResponseError> asJsonrpc(UUID id, Object... params) {
-//		CompletableFuture<JsonrpcResponseError> result = new CompletableFuture<>();
-//		result
-//		
-//		return new JsonrpcResponseError(id, this.getCode(), String.format(this.getMessage(), params));
-//		error.completeExceptionally(new OpenemsException("Unhandled JSON-RPC method [" + request.getMethod() + "]"));
-//		return error;
-//	}
 }

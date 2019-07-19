@@ -121,7 +121,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'ess' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_ids())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_ids())) {
 			return;
 		}
 	}

@@ -91,7 +91,7 @@ public enum SiChannelId implements ChannelId {
 	MEMORY_CARD_STATUS(Doc.of(MemoryCardStatus.values())), //
 	AUTOMATIC_FREQUENCY_SYNCHRONIZATION(Doc.of(AutomaticFrequencySynchronization.values())), //
 	POWER_FEEDBACK_TO_PUBLIC_GRID_ALLOWED(Doc.of(PowerFeedbackToPublicGridAllowed.values())), //
-	SET_CONTROL_MODE(Doc.of(SetControlMode.values())), //
+	SET_CONTROL_MODE(Doc.of(SetControlMode.values()).accessMode(AccessMode.READ_WRITE)), //
 	METER_SETTING(Doc.of(MeterSetting.values())), //
 
 	// LongReadChannels
@@ -383,12 +383,6 @@ public enum SiChannelId implements ChannelId {
 	RELEASED_ENERGY(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.WATT_HOURS)), //
 	NUMBER_OF_GRID_CONNECTIONS(Doc.of(OpenemsType.INTEGER)), //
-	ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT)), //
-	ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT)), //
-	ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT)), //
 	GRID_VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT)), //
 	GRID_VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
@@ -397,16 +391,9 @@ public enum SiChannelId implements ChannelId {
 			.unit(Unit.VOLT)), //
 	FREQUENCY(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.HERTZ)), //
-	REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT_AMPERE)), //
-	REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT_AMPERE)), //
-	REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.VOLT_AMPERE)), //
 	COSPHI_SET_POINT_READ(Doc.of(OpenemsType.INTEGER)), //
 	CURRENT_BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.PERCENT)), //
-
 	NUMBER_OF_BATTERY_CHARGE_THROUGHPUTS(Doc.of(OpenemsType.INTEGER)), //
 	BATTERY_MAINT_SOC(Doc.of(OpenemsType.INTEGER)), //
 	LOAD_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -518,8 +505,8 @@ public enum SiChannelId implements ChannelId {
 			.unit(Unit.VOLT)), //
 	BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.DEGREE_CELSIUS)), //
-	DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT)), //
+//	DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+//			.unit(Unit.WATT)), //
 	OPERATING_MODE_FOR_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER));
 
 	private final Doc doc;
