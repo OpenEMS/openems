@@ -21,7 +21,7 @@ export class HistoryComponent implements OnInit {
   public widgets: Widgets = null;
 
   // holds the current Edge
-  protected edge: Edge = null;
+  public edge: Edge = null;
 
   constructor(
     public service: Service,

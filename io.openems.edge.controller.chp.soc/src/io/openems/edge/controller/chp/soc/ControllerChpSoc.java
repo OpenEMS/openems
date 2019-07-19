@@ -66,15 +66,12 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		/*
-		 * parse config
-		 */
 		this.lowThreshold = config.lowThreshold();
 		this.highThreshold = config.highThreshold();
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 
-		super.activate(context, config.alias(), config.id(), config.enabled());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Deactivate
@@ -88,16 +85,10 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	private State state = State.UNDEFINED;
 
 	@Override
-	public void run() throws IllegalArgumentException, OpenemsNamedException {
+	public void run() throws OpenemsNamedException {
 
-		int value;
-		try {
-			Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
-			value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
-		} catch (Exception e) {
-			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
-			return;
-		}
+		Channel<?> inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
+		int value = TypeUtils.getAsType(OpenemsType.INTEGER, inputChannel.value().getOrError());
 
 		boolean stateChanged;
 

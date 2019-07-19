@@ -73,5 +73,19 @@
       </ion-card>
     </ion-col>
 
+    <ion-col size="12" size-sm="4" *ngIf="edge.roleIsAtLeast('admin')">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="primary" name="globe"></ion-icon>
+          <ion-label>Network Configuration</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ion-button float-right routerLink="/device/{{ edge.id }}/settings/network">
+            <ion-icon slot="icon-only" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
   </ion-row>
 </ion-grid>

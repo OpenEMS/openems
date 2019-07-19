@@ -279,6 +279,10 @@ public class Cluster extends AbstractOpenemsModbusComponent implements Battery, 
 			this.stopSystem();
 			this.setStateMachineState(State.UNDEFINED);
 			break;
+		case ONE_CELL_DRIFTING:
+			this.stopSystem();
+			this.setStateMachineState(State.UNDEFINED);
+			break;
 		}
 		this.getReadyForWorking().setNextValue(readyForWorking);
 	}

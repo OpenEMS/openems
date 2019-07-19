@@ -30,8 +30,8 @@ public class OpenemsConstants {
 	/**
 	 * The additional version string
 	 */
-	// public final static String VERSION_STRING = "";
-	public final static String VERSION_STRING = "SNAPSHOT";
+	public final static String VERSION_STRING = "";
+	// public final static String VERSION_STRING = "SNAPSHOT";
 
 	/**
 	 * The complete version as a SemanticVersion.
@@ -90,6 +90,7 @@ public class OpenemsConstants {
 	public final static String COMPONENT_MANAGER_ID = "_componentManager";
 	public final static String META_ID = "_meta";
 	public final static String SUM_ID = "_sum";
+	public final static String HOST_ID = "_host";
 
 	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 

@@ -94,7 +94,7 @@ public class SymmetricLinearPowerBand extends AbstractOpenemsComponent implement
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, this.currentPower);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, this.currentPower);
 
 		/*
 		 * set result

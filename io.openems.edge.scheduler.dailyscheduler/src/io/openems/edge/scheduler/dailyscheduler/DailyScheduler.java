@@ -95,8 +95,14 @@ public class DailyScheduler extends AbstractScheduler implements Scheduler, Open
 	 * controllerTimes Config property
 	 */
 	private synchronized void updateControllers() throws OpenemsNamedException {
+		// addController() might be called before activate() 
+		if(this.config == null) {
+			return;
+		}
+
 		// Controllers that are activated always.
 		this.alwaysRunControllers.clear();
+		
 		for (String id : this.config.alwaysRunControllers_ids()) {
 			Controller alwaysRunontroller = this._controllers.get(id);
 			if (alwaysRunontroller == null) {
