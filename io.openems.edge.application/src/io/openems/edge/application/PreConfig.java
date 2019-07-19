@@ -1,12 +1,10 @@
 package io.openems.edge.application;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -17,9 +15,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
 
 public class PreConfig {
 
@@ -37,7 +32,7 @@ public class PreConfig {
 			SecretKey key = skf.generateSecret(spec);
 			byte[] res = key.getEncoded();
 
-			System.out.println("PASSWORT: " + Base64.getEncoder().encodeToString(res));
+			//System.out.println("PASSWORT: " + Base64.getEncoder().encodeToString(res));
 
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new RuntimeException(e);
@@ -89,7 +84,7 @@ public class PreConfig {
 
 
 
-
+		String userpass = null;
 
 		try {
 			configs = cm.listConfigurations("(&(id=kacoCore0)(service.factoryPid=Kaco.BlueplanetHybrid10.Core))");
@@ -103,6 +98,7 @@ public class PreConfig {
 				if (oldconfigs != null) {
 
 					Configuration edcom = oldconfigs[0];
+					userpass = (String) edcom.getProperties().get("userkey");
 					edcom.delete();
 					
 				}
@@ -153,6 +149,7 @@ public class PreConfig {
 				if (oldconfigs != null) {
 
 					Configuration bpCom = oldconfigs[0];
+					userpass = (String) bpCom.getProperties().get("userkey");
 					bpCom.delete();
 					
 				}
@@ -200,7 +197,10 @@ public class PreConfig {
 				core.put("serialnumber", "");
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
-				core.put("userkey", "user");
+				if(userpass.isEmpty()) {
+					userpass = "user";
+				}
+				core.put("userkey", userpass);
 				core.put("master", true);
 				factory.update(core);
 
