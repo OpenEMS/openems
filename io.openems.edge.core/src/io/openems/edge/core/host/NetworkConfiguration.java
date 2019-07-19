@@ -1,7 +1,7 @@
 package io.openems.edge.core.host;
 
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import com.google.gson.JsonObject;
 
@@ -11,9 +11,9 @@ public class NetworkConfiguration {
 
 	public static final String PATTERN_INET4ADDRESS = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 
-	private final Map<String, NetworkInterface<?>> interfaces;
+	private final TreeMap<String, NetworkInterface<?>> interfaces;
 
-	public NetworkConfiguration(Map<String, NetworkInterface<?>> interfaces) {
+	public NetworkConfiguration(TreeMap<String, NetworkInterface<?>> interfaces) {
 		this.interfaces = interfaces;
 	}
 
@@ -48,7 +48,7 @@ public class NetworkConfiguration {
 				.build();
 	}
 
-	public Map<String, NetworkInterface<?>> getInterfaces() {
+	public TreeMap<String, NetworkInterface<?>> getInterfaces() {
 		return this.interfaces;
 	}
 

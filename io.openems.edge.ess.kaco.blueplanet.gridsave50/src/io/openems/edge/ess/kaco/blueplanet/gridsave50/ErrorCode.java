@@ -70,6 +70,7 @@ public enum ErrorCode implements OptionsEnum {
 	STANDALONE_GRID_ERR_STANDALONE(73, "Standalone grid err. Standalone mode was detected."), //
 	EXTERNAL_IDLE_POWER_REQUIREMENT(74,
 			"External idle power requirement The grid operator limits the feed-in power of the device via the transmitted reactive power factor."), //
+	SELFTEST(75, "Selftest in progress"), //
 	INSULATION_MEASUREMENT(79, "Insulation measurement PV generator's insulation is being measured"), //
 	INSULATION_MEAS_NOT_POSSIBLE(80,
 			"Insulation meas. not possible The insulation measurement cannot be performed because the generator voltage is too volatile. - "), //
