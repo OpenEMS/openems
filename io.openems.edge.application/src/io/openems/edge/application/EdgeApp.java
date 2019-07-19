@@ -92,7 +92,7 @@ public class EdgeApp {
 		// }
 		// }).start();
 		
-		PreConfig.initConfig(cm);
+		//PreConfig.initConfig(cm);
 	}
 
 	@Deactivate
