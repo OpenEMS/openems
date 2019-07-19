@@ -1,6 +1,9 @@
 package io.openems.edge.pvinverter.kaco.blueplanet;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -72,19 +75,19 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 		this.getMaxApparentPower().setNextValue(15_000); // TODO read from SunSpec
 
 		this.modbusProtocol = new ModbusProtocol(this);
-		this.modbusProtocol.addTasks(//
-				new FC3ReadRegistersTask(40144, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(40144))), //
-
-				new FC3ReadRegistersTask(40295, Priority.LOW, //
-						m(ChannelId.W_MAX_LIM_PCT, new UnsignedWordElement(40295)), //
-						new DummyRegisterElement(40296, 40298),
-						m(ChannelId.W_MAX_LIM_ENA, new UnsignedWordElement(40299))), //
-				new FC6WriteRegisterTask(40295, //
-						m(ChannelId.W_MAX_LIM_PCT, new UnsignedWordElement(40295))), //
-				new FC6WriteRegisterTask(40299, //
-						m(ChannelId.W_MAX_LIM_ENA, new UnsignedWordElement(40299))) //
-		);
+//		this.modbusProtocol.addTasks(//
+//				new FC3ReadRegistersTask(40144, Priority.HIGH, //
+//						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(40144))), //
+//
+//				new FC3ReadRegistersTask(40295, Priority.LOW, //
+//						m(ChannelId.W_MAX_LIM_PCT, new UnsignedWordElement(40295)), //
+//						new DummyRegisterElement(40296, 40298),
+//						m(ChannelId.W_MAX_LIM_ENA, new UnsignedWordElement(40299))), //
+//				new FC6WriteRegisterTask(40295, //
+//						m(ChannelId.W_MAX_LIM_PCT, new UnsignedWordElement(40295))), //
+//				new FC6WriteRegisterTask(40299, //
+//						m(ChannelId.W_MAX_LIM_ENA, new UnsignedWordElement(40299))) //
+//		);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -99,6 +102,7 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			System.out.println("Is SunSpec? " + isSunSpec);
+			this.readNextSunspecBlock(40002);
 		});
 	}
 
@@ -112,8 +116,43 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 	 */
 	private CompletableFuture<Boolean> isSunSpec() {
 		final CompletableFuture<Boolean> result = new CompletableFuture<Boolean>();
-		final AbstractModbusElement<?> element = new UnsignedDoublewordElement(40000);
-		final Task task = new FC3ReadRegistersTask(40000, Priority.HIGH, element);
+		this.readELementOnce(new UnsignedDoublewordElement(40000)).thenAccept(value -> {
+			if (value == 0x53756e53) {
+				result.complete(true);
+			} else {
+				result.complete(false);
+			}
+		});
+		return result;
+	}
+
+	private void readNextSunspecBlock(int startAddress) {
+		System.out.println("Read block from " + startAddress);
+
+//		this.readELementOnce(new UnsignedWordElement(startAddress)).thenAccept(blockId -> {
+//			System.out.println("Block-ID: " + blockId);
+//			this.readELementOnce(new UnsignedWordElement(startAddress + 1)).thenAccept(length -> {
+//				System.out.println("Length: " + length);
+//			});
+//		});
+
+//		this.readElementsOnce(values -> {
+//			System.out.println(values);
+////		System.out.println(values[0]);
+////		System.out.println(values[1]);
+//		}, 40002, new UnsignedWordElement(40002), new UnsignedWordElement(40003)); //
+
+	}
+
+	private <T> CompletableFuture<T> readELementOnce(AbstractModbusElement<T> element) {
+		// Prepare result
+		final CompletableFuture<T> result = new CompletableFuture<T>();
+
+		// Activate task
+		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
+		this.modbusProtocol.addTask(task);
+
+		// Register listener for element
 		element.onUpdateCallback(value -> {
 			if (value == null) {
 				// try again
@@ -121,14 +160,63 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 			}
 			// do not try again
 			this.modbusProtocol.removeTask(task);
-			if ((Long) value == 0x53756e53) {
-				result.complete(true);
-			} else {
-				result.complete(false);
-			}
+			result.complete(value);
 		});
-		this.modbusProtocol.addTask(task);
+
 		return result;
+	}
+
+	private <T> void readElementsOnce(Consumer<T[]> callback, int startAddress, AbstractModbusElement<T>... elements) {
+		// Register listeners for elements
+		@SuppressWarnings("unchecked")
+		final CompletableFuture<T>[] subResults = (CompletableFuture<T>[]) new CompletableFuture<?>[elements.length];
+		for (int i = 0; i < elements.length; i++) {
+			CompletableFuture<T> subResult = new CompletableFuture<T>();
+			subResults[i] = subResult;
+
+			AbstractModbusElement<T> element = elements[i];
+			element.onUpdateCallback(value -> {
+				if (value == null) {
+					// try again
+					return;
+				}
+				subResult.complete(value);
+			});
+		}
+
+		// Activate task
+		final Task task = new FC3ReadRegistersTask(startAddress, Priority.HIGH, elements);
+		this.modbusProtocol.addTask(task);
+
+		// Prepare result
+//		final CompletableFuture<T[]> result = new CompletableFuture<T[]>();
+
+		// Join results of elements
+
+		CompletableFuture.allOf(subResults).join();
+		// do not try again
+		this.modbusProtocol.removeTask(task);
+
+		@SuppressWarnings("unchecked")
+		T[] results = (T[]) Stream.of(subResults) //
+				.map(future -> future.join()) //
+				.toArray(Object[]::new);
+
+		// complete result
+		callback.accept(results);
+
+//		CompletableFuture.allOf(subResults).thenRun(() -> {
+//			// do not try again
+//			this.modbusProtocol.removeTask(task);
+//
+//			@SuppressWarnings("unchecked")
+//			T[] results = (T[]) Stream.of(subResults) //
+//					.map(future -> future.join()) //
+//					.toArray(Object[]::new);
+//
+//			// complete result
+//			result.complete(results);
+//		});
 	}
 
 	@Deactivate
@@ -145,13 +233,13 @@ public class KacoBlueplanet extends AbstractOpenemsModbusComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			try {
-				this.setPvLimitHandler.run();
-
-				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(false);
-			} catch (OpenemsNamedException e) {
-				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(true);
-			}
+//			try {
+//				this.setPvLimitHandler.run();
+//
+//				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(false);
+//			} catch (OpenemsNamedException e) {
+//				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(true);
+//			}
 			break;
 		}
 	}
