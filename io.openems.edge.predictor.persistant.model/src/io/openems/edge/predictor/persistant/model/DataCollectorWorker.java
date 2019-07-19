@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.worker.AbstractCycleWorker;
-import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.sum.Sum;
+
 
 public class DataCollectorWorker extends AbstractCycleWorker {
 
@@ -27,7 +26,7 @@ public class DataCollectorWorker extends AbstractCycleWorker {
 	private boolean executed = false;
 	public TreeMap<LocalDateTime, Long> hourlyEnergyData = new TreeMap<LocalDateTime, Long>();
 
-	public void calculateConsumption(LocalDateTime start, LocalDateTime end) throws OpenemsNamedException {
+	public void calculateConsumption() throws OpenemsNamedException {
 
 		LocalDateTime now = LocalDateTime.now();
 		ChannelAddress channelAddress = ChannelAddress.fromString(parent.channelAddress);
@@ -63,7 +62,7 @@ public class DataCollectorWorker extends AbstractCycleWorker {
 
 	@Override
 	protected void forever() throws Throwable {
-		calculateConsumption(parent.start, parent.end);
+		calculateConsumption();
 	}
 
 	@Override

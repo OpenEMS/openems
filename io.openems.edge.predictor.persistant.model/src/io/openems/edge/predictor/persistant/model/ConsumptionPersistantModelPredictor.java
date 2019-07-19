@@ -22,25 +22,23 @@ import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Predictor.Production.PersistantModel", //
+@Component(name = "Predictor.Consumption.PersitantModel", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE//
 		
 )
-public class ProductionPersistantModelPredictor extends AbstractPersistentModelPredictor
+public class ConsumptionPersistantModelPredictor extends AbstractPersistentModelPredictor
 		implements ProductionHourlyPredictor, OpenemsComponent {
 
-
+	protected ConsumptionPersistantModelPredictor(String channelAddress) {
+		super("_sum/ConsumptionActivePower");
+	}
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	public TreeMap<LocalDateTime, Long> hourlyEnergyData = new TreeMap<LocalDateTime, Long>();
-
-	public ProductionPersistantModelPredictor() {
-		super("_sum/ProductionActivePower");
-	}
 
 	@Override
 	public HourlyPrediction get24hPrediction() {
@@ -73,7 +71,7 @@ public class ProductionPersistantModelPredictor extends AbstractPersistentModelP
 
 	@Override
 	public String debugLog() {
-		return "ProductionPredicted : " + super.hourlyEnergyData.toString();
+		return "ConsumptionPredicted : " + super.hourlyEnergyData.toString();
 	}
 
 	@Override
