@@ -1,0 +1,5 @@
+= PV-Inverter Cluster
+
+Combines multiple PV-Inverters to one common PV-Inverter. This way every Controller can easily work with multiple PV-Inverters in parallel.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.cluster[Source Code icon:github[]]

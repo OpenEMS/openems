@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { interval } from 'rxjs';
-import { AbstractSection, EnergyFlow, SvgEnergyFlow, SvgSquare, SvgSquarePosition, Ratio } from './abstractsection.component';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Utils } from '../../../../../shared/shared';
+import { Service, Utils } from '../../../../../shared/shared';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { WidgetClass } from 'src/app/shared/type/widget';
 
 @Component({
     selector: '[storagesection]',
@@ -13,8 +14,11 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     private socValue: number
 
-    constructor(translate: TranslateService) {
-        super('Edge.Index.Energymonitor.Storage', "down", "#009846", translate);
+    constructor(
+        translate: TranslateService,
+        service: Service
+    ) {
+        super('Edge.Index.Energymonitor.Storage', "down", "#009846", translate, service, "Storage");
     }
 
     protected getStartAngle(): number {

@@ -73,7 +73,7 @@ public class AsymmetricFixReactivePower extends AbstractOpenemsComponent impleme
 
 	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, int power) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(ess, phase, Pwr.REACTIVE, power);
+		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, phase, Pwr.REACTIVE, power);
 
 		/*
 		 * set result

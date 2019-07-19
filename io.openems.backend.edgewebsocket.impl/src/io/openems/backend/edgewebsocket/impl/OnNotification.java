@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -41,9 +42,10 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		// Validate authentication
 		WsData wsData = ws.getAttachment();
 		try {
-			wsData.assertAuthentication(notification);
+			wsData.assertAuthenticatedWithTimeout(notification, 5, TimeUnit.SECONDS);
 		} catch (OpenemsNamedException e) {
 			this.parent.logWarn(this.log, e.getMessage());
+			return;
 		}
 
 		// announce incoming message for this Edge

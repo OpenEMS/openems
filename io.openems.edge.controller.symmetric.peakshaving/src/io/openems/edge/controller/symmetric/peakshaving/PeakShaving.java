@@ -32,12 +32,16 @@ import io.openems.edge.meter.api.SymmetricMeter;
 )
 public class PeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
+	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
+
 	private final Logger log = LoggerFactory.getLogger(PeakShaving.class);
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	private Config config;
+
+	private int lastSetActivePower = 0;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -112,8 +116,23 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 			calculatedPower = 0;
 		}
 
+		/*
+		 * Calculates required charge/discharge power
+		 */
+		if (Math.abs(this.lastSetActivePower) > 100 && Math.abs(calculatedPower) > 100
+				&& Math.abs(this.lastSetActivePower - calculatedPower) > (Math.abs(this.lastSetActivePower)
+						* this.config.maxPowerAdjustmentRate())) {
+			if (this.lastSetActivePower > calculatedPower) {
+				calculatedPower = this.lastSetActivePower
+						- (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
+			} else {
+				calculatedPower = this.lastSetActivePower
+						+ (int) Math.abs(this.lastSetActivePower * this.config.maxPowerAdjustmentRate());
+			}
+		}
+
 		Power power = ess.getPower();
-		calculatedPower = power.fitValueIntoMinMaxPower(ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
+		calculatedPower = power.fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, calculatedPower);
 
 		/*
 		 * set result

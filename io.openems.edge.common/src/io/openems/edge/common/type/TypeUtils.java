@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
@@ -340,5 +341,18 @@ public class TypeUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Throws an descriptive exception if the object is null.
+	 * 
+	 * @param description text that is added to the exception
+	 * @param object      the object
+	 * @throws OpenemsException if object is null
+	 */
+	public static void assertNull(String description, Object object) throws OpenemsException {
+		if (object == null) {
+			throw new OpenemsException(description + " value is null!");
+		}
 	}
 }
