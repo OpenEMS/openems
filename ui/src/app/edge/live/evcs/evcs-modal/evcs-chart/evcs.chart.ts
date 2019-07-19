@@ -2,12 +2,12 @@ import { Component, Input, OnInit, OnChanges, DoCheck } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
-import { Data } from 'src/app/edge/history/chart/shared';
 import { EdgeConfig, Edge, Service, Websocket } from 'src/app/shared/shared';
 import { Label } from 'ng2-charts';
 import { ChartDataSets, ChartPluginsOptions } from 'chart.js';
 import { CurrentData } from 'src/app/shared/edge/currentdata';
 import * as Chart from 'chart.js';
+import { Data } from 'src/app/edge/history/shared';
 
 @Component({
   selector: EvcsChart.SELECTOR,

@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
-import { componentFactoryName } from '@angular/compiler';
-import { ModalComponent } from './evcs-modal/evcs-modal.page';
+import { ModalComponentEvcs } from './evcs-modal/evcs-modal.page';
+import { filter, first } from 'rxjs/operators';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 type Priority = 'CAR' | 'STORAGE';
@@ -17,14 +17,17 @@ export class EvcsComponent {
 
   private static readonly SELECTOR = "evcs";
 
-
   @Input() private componentId: string;
 
   public edge: Edge = null;
   public controller: EdgeConfig.Component = null;
-  public chargeState: ChargeState;
-  private chargePlug: ChargePlug;
-  public screenWidth: number = 0;
+
+  public channelAdresses = [];
+  public isEvcsCluster: boolean = false;
+  public controllers: EdgeConfig.Component[] = [];
+  public evcsCollection: EdgeConfig.Component[] = null;
+  public chargingStations: String[] = [];
+  public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
   constructor(
     private service: Service,
@@ -52,22 +55,91 @@ export class EvcsComponent {
         new ChannelAddress(this.componentId, 'MaximumPower')
       ]);
 
-    });
-
-    // Gets the Controller for the given EVCS-Component.
-    this.service.getConfig().then(config => {
-      let controllers = config.getComponentsByFactory("Controller.Evcs");
-      for (let controller of controllers) {
-        let properties = controller.properties;
-        if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
-          // this 'controller' is the Controller responsible for this EVCS
-          this.controller = controller;
-          return;
+      // Gets the Controller for the given EVCS-Component.
+      this.service.getConfig().then(config => {
+        let controllers = config.getComponentsByFactory("Controller.Evcs");
+        this.controllers = controllers;
+        for (let controller of controllers) {
+          let properties = controller.properties;
+          if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
+            this.controller = controller;
+          }
         }
-      }
-    });
 
+        // Proof if the Evcs Component is a Cluster
+        let components = config.getComponentsByFactory("Evcs.Cluster");
+        for (let component of components) {
+
+          if (component.id === this.componentId) {
+
+            this.isEvcsCluster = true;
+            this.controller = component;
+
+            this.chargingStations = this.controller.properties["evcs.ids"];
+
+            this.getConfig().then(config => {
+
+              let nature = 'io.openems.edge.evcs.api.Evcs';
+              for (let component of config.getComponentsImplementingNature(nature)) {
+                alert(component.id);
+                if (this.chargingStations.includes(component.id)) {
+                  this.evcsCollection.push(component);
+                  this.fillChannelAdresses(component.id);
+                }
+              }
+
+              this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
+
+              this.controllers = config.getComponentsByFactory("Controller.Evcs");
+
+              //Initialise the Map with all evcss
+              this.evcsCollection.forEach(evcs => {
+                this.evcsMap[evcs.id] = null;
+              });
+
+              //Adds the controllers to the each charging stations 
+              this.controllers.forEach(controller => {
+                if (this.chargingStations.includes(controller.properties['evcs.id'])) {
+                  this.evcsMap[controller.properties['evcs.id']] = controller;
+                }
+              });
+              return;
+            });
+          }
+        }
+      });
+    });
   }
+
+  /**
+  * Gets the EdgeConfig of the current Edge - or waits for Edge and Config if they are not available yet.
+  */
+  public getConfig(): Promise<EdgeConfig> {
+    return new Promise<EdgeConfig>((resolve, reject) => {
+      this.edge.getConfig(this.websocket).pipe(
+        filter(config => config.isValid()),
+        first()
+      ).toPromise()
+        .then(config => resolve(config))
+        .catch(reason => reject(reason));
+    });
+  }
+
+  private fillChannelAdresses(componentId: string) {
+    this.channelAdresses.push(
+      new ChannelAddress(componentId, 'ChargePower'),
+      new ChannelAddress(componentId, 'MaximumHardwarePower'),
+      new ChannelAddress(componentId, 'MinimumHardwarePower'),
+      new ChannelAddress(componentId, 'MaximumPower'),
+      new ChannelAddress(componentId, 'Phases'),
+      new ChannelAddress(componentId, 'Plug'),
+      new ChannelAddress(componentId, 'Status'),
+      new ChannelAddress(componentId, 'State'),
+      new ChannelAddress(componentId, 'EnergySession'),
+      new ChannelAddress(componentId, 'Alias')
+    )
+  }
+
 
   ngOnDestroy() {
     if (this.edge != null) {
@@ -75,9 +147,33 @@ export class EvcsComponent {
     }
   }
 
-  async presentModal() {
+  presentModal() {
+
+    if (this.isEvcsCluster) {
+      alert("open cluster");
+      this.presentCluserModal();
+    } else {
+
+      alert("open Evcs");
+      this.presentEvcsModal();
+    }
+  }
+
+  async presentCluserModal() {
     const modal = await this.modalController.create({
-      component: ModalComponent,
+      component: ModalComponentEvcs,
+      componentProps: {
+        controller: this.controller,
+        edge: this.edge,
+        componentId: this.componentId
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentEvcsModal() {
+    const modal = await this.modalController.create({
+      component: ModalComponentEvcs,
       componentProps: {
         controller: this.controller,
         edge: this.edge,
@@ -119,13 +215,13 @@ export class EvcsComponent {
 
     if (power == null || power == 0) {
 
-      this.chargeState = state;
-      this.chargePlug = plug;
+      let chargeState: ChargeState = state;
+      let chargePlug: ChargePlug = plug;
 
-      if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)
+      if (chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)
         return this.translate.instant('Edge.Index.Widgets.EVCS.CableNotConnected');
 
-      switch (this.chargeState) {
+      switch (chargeState) {
         case ChargeState.STARTING:
           return this.translate.instant('Edge.Index.Widgets.EVCS.Starting');
         case ChargeState.UNDEFINED:
@@ -166,12 +262,8 @@ export class EvcsComponent {
       return i;
     }
   }
-
-  @HostListener('window:resize', ['$event'])
-  getScreenSize(event?) {
-    this.screenWidth = window.innerWidth;
-  }
 }
+
 enum ChargeState {
   UNDEFINED = -1,           //Undefined
   STARTING,                 //Starting

@@ -14,7 +14,9 @@ import { ModalComponent as FixDigitalOutputModalComponent } from './fixdigitalou
 import { FixDigitalOutputComponent } from './fixdigitaloutput/fixdigitaloutput.component';
 import { StorageModalComponent } from './storage/modal/modal.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
-import { ModalComponent } from './evcs/evcs-modal/evcs-modal.page';
+import { ModalComponentEvcs } from './evcs/evcs-modal/evcs-modal.page';
+import { EvcsChart } from './evcs/evcs-modal/evcs-chart/evcs.chart';
+import { ModalComponentEvcsCluster } from './evcs/evcs-modal/evcsCluster-modal.page';
 
 @NgModule({
   imports: [
@@ -37,8 +39,9 @@ import { ModalComponent } from './evcs/evcs-modal/evcs-modal.page';
     FixDigitalOutputModalComponent,
     StorageModalComponent,
     ChpSocComponent,
-    ModalComponent,
-    EvcsComponent
+    ModalComponentEvcs,
+    ModalComponentEvcsCluster,
+    EvcsChart
   ]
 })
 export class LiveModule { }

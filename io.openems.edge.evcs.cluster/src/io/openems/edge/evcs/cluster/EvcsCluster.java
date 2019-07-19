@@ -141,7 +141,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			// If the maximum Power that can be reached by all Cars can't reach the limit
-			if (this.maximalUsedHardwarePower == null || this.maximalUsedHardwarePower < totalcurrentPowerLimit) {
+			if (this.maximalUsedHardwarePower < totalcurrentPowerLimit) {
 				break;
 			}
 			this.limitEvcss();
@@ -167,6 +167,9 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		this.getChargePower().setNextValue(chargePower.calculate());
 		this.getMinimumHardwarePower().setNextValue(minHardwarePower.calculate());
 		this.maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
+		if(this.maximalUsedHardwarePower == null) {
+			this.maximalUsedHardwarePower = (double) this.totalcurrentPowerLimit;
+		}
 
 	}
 
@@ -185,29 +188,36 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 			}
 		}
 
+
+		System.out.println("Maximum Total Power of the whole system: "+totalPowerLeft);
 		for (Evcs evcs : evcss) {
 			
 			if (evcs instanceof ManagedEvcs) {
 				int chargePowerValue;
-				Optional<Integer> requestedPower = ((ManagedEvcs) evcs).setChargePowerRequest().getNextWriteValueAndReset();
-
+				Optional<Integer> requestedPower = ((ManagedEvcs) evcs).setChargePowerRequest().getNextWriteValue();
+				
 				if (requestedPower.isPresent()) {
+					System.out.println("Requested Power ( for "+evcs.alias()+"): "+requestedPower.get());
 					chargePowerValue = requestedPower.get();
 				} else {
 					chargePowerValue = evcs.getChargePower().value().orElse(0);
 					evcs.getMaximumPower().setNextValue(evcs.getMaximumHardwarePower().value().orElse(22080));
+					System.out.println("Set a fix maximum Power of " + evcs.getMaximumPower().value().get() + ", if the charging station never requested a Power bevore");
 				}
 				
 				if (chargePowerValue < totalPowerLeft) {
 					((ManagedEvcs) evcs).setChargePower().setNextValue(chargePowerValue);
+					System.out.println("Power Left: " + totalPowerLeft + " ; Charge power: " + chargePowerValue);
 					totalPowerLeft = totalPowerLeft - chargePowerValue;
-					System.out.println("Power : " + totalPowerLeft + " ; ChargePower: " + chargePowerValue);
 				} else {
 					((ManagedEvcs) evcs).setChargePower().setNextValue(totalPowerLeft);
 					evcs.getMaximumPower().setNextValue(totalPowerLeft);
+
+					System.out.println("Power Left: " + totalPowerLeft + " ; Charge power: " + totalPowerLeft);
 					totalPowerLeft = 0;
 				}
 			} else {
+				// Not Managed EVCS 
 				int evcsHardwarePower = evcs.getMaximumHardwarePower().value().orElse(0);
 				if (evcsHardwarePower < totalPowerLeft) {
 					evcs.getMaximumPower().setNextValue(evcsHardwarePower);

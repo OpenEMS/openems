@@ -12,28 +12,16 @@ type Priority = 'CAR' | 'STORAGE';
   selector: 'evcs-modal',
   templateUrl: './evcs-modal.page.html'
 })
-export class ModalComponent implements OnInit {
+export class ModalComponentEvcs implements OnInit {
 
   @Input() edge: Edge;
-  @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
-  @Input() evcsCollection: EdgeConfig.Component[];
+  @Input() controller: EdgeConfig.Component = null;
+  @Input() private componentId: string;
 
   public currChargingPower: number
   public chargeState: ChargeState;
   private chargePlug: ChargePlug;
   public env = environment;
-  public channelAdresses = [];
-  public swiperIndex: number = 0;
-  public slideOpts = {
-    noSwiping: true,
-    noSwipingSelector: 'ion-range, ion-toggle',
-    initialSlide: 0,
-    speed: 1000,
-  };
-  public firstEvcs: string;
-  public lastEvcs: string;
-  public currentEvcs: string;
-  public evcsLength: number;
 
   constructor(
     protected service: Service,
@@ -44,15 +32,6 @@ export class ModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Todo: do something like this in html
-    this.evcsLength = 0;
-    for (let evcs in this.evcsMap) {
-      if (this.evcsLength == 0) {
-        this.firstEvcs = evcs;
-      }
-      this.lastEvcs = evcs;
-      this.evcsLength++;
-    }
   }
 
   cancel() {

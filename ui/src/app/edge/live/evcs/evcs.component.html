@@ -1,4 +1,4 @@
-<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
+<!--<ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-item lines="full" color="light">
@@ -14,8 +14,8 @@
       <ion-card-content *ngIf="chargingStations">
         <table class="full_width">
           <ng-container *ngIf="chargingStations.length > 1 ">
+            
             <tr>
-              <!--Todo: Translation-->
               <td style="width:50%" translate>Edge.Index.Widgets.EVCS.AmountOfChargingStations</td>
               <td style="width:15%"></td>
               <td style="width:45%" class="align_right">
@@ -54,8 +54,20 @@
               {{ evcsCollection[0].properties.manualCurrentLimit | number:'1.0-0' }} A
             </td>
           </tr>
+         
         </table>
       </ion-card-content>
     </ion-label>
+    <ion-label *ngIf="currentData[componentId + '/State'] == 3">
+      <ion-item class="normalFontSize">
+        <table>
+          <tr>
+            <td translate>
+              Edge.Index.Widgets.EVCS.NoConnection.Description
+            </td>
+          </tr>
+        </table>
+      </ion-item>
+    </ion-label>
   </ng-container>
-</ion-card>
+</ion-card> -->
