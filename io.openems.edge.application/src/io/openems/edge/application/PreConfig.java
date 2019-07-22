@@ -51,7 +51,7 @@ public class PreConfig {
 
 				Hashtable<String, Object> influx = new Hashtable<>();
 				influx.put("enabled", true);
-				influx.put("dataset", "db");
+				influx.put("database", "db");
 				influx.put("id", "influx0");
 				influx.put("alias", "");
 				influx.put("ip", "localhost");
@@ -82,9 +82,67 @@ public class PreConfig {
 			e1.printStackTrace();
 		}
 
+		
+		try {
+			configs = cm.listConfigurations("(id=scheduler0)");
 
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Scheduler.AllAlphabetically", null);
 
-		String userpass = null;
+				Hashtable<String, Object> scheduler = new Hashtable<>();
+				scheduler.put("enabled", true);
+				scheduler.put("cycleTime", 1000);
+				scheduler.put("id", "scheduler0");
+				scheduler.put("alias", "");
+				String[] ids = { "" };
+				scheduler.put("controllers.ids", ids);
+				factory.update(scheduler);
+			} else {
+				System.out.println("Scheduler already active");
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			configs = cm.listConfigurations("(id=ctrlApiWebsocket0)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Controller.Api.Websocket", null);
+
+				Hashtable<String, Object> websocket = new Hashtable<>();
+				websocket.put("enabled", true);
+				websocket.put("apiTimeout", 60);
+				websocket.put("id", "ctrlApiWebsocket0");
+				websocket.put("alias", "");
+				websocket.put("port", 8085);
+				factory.update(websocket);
+			} else {
+				System.out.println("Websocket already active");
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			configs = cm.listConfigurations("(id=ctrlDebugLog0)");
+
+			if (configs == null || configs.length == 0) {
+				factory = cm.createFactoryConfiguration("Controller.Debug.Log", null);
+				Hashtable<String, Object> debug = new Hashtable<>();
+				debug.put("enabled", true);
+				debug.put("alias", "");
+				debug.put("id", "ctrlDebugLog0");
+				factory.update(debug);
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		String userkey = "";
 
 		try {
 			configs = cm.listConfigurations("(&(id=kacoCore0)(service.factoryPid=Kaco.BlueplanetHybrid10.Core))");
@@ -98,7 +156,7 @@ public class PreConfig {
 				if (oldconfigs != null) {
 
 					Configuration edcom = oldconfigs[0];
-					userpass = (String) edcom.getProperties().get("userkey");
+					userkey = (String) edcom.getProperties().get("userkey");
 					edcom.delete();
 					
 				}
@@ -149,7 +207,7 @@ public class PreConfig {
 				if (oldconfigs != null) {
 
 					Configuration bpCom = oldconfigs[0];
-					userpass = (String) bpCom.getProperties().get("userkey");
+					userkey = (String) bpCom.getProperties().get("userkey");
 					bpCom.delete();
 					
 				}
@@ -197,10 +255,10 @@ public class PreConfig {
 				core.put("serialnumber", "");
 				core.put("id", "kacoCore0");
 				core.put("alias", "");
-				if(userpass.isEmpty()) {
-					userpass = "user";
+				if(userkey.isEmpty()) {
+					userkey = "user";
 				}
-				core.put("userkey", userpass);
+				core.put("userkey", userkey);
 				core.put("master", true);
 				factory.update(core);
 
@@ -258,49 +316,6 @@ public class PreConfig {
 				debug.put("alias", "");
 				debug.put("id", "ctrlDebugLog0");
 				factory.update(debug);
-			}
-		} catch (IOException | InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		try {
-			configs = cm.listConfigurations("(id=scheduler0)");
-
-			if (configs == null || configs.length == 0) {
-				factory = cm.createFactoryConfiguration("Scheduler.AllAlphabetically", null);
-
-				Hashtable<String, Object> scheduler = new Hashtable<>();
-				scheduler.put("enabled", true);
-				scheduler.put("cycleTime", 1000);
-				scheduler.put("id", "scheduler0");
-				scheduler.put("alias", "");
-				String[] ids = { "" };
-				scheduler.put("controllers.ids", ids);
-				factory.update(scheduler);
-			} else {
-				System.out.println("Scheduler already active");
-			}
-		} catch (IOException | InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		try {
-			configs = cm.listConfigurations("(id=ctrlApiWebsocket0)");
-
-			if (configs == null || configs.length == 0) {
-				factory = cm.createFactoryConfiguration("Controller.Api.Websocket", null);
-
-				Hashtable<String, Object> websocket = new Hashtable<>();
-				websocket.put("enabled", true);
-				websocket.put("apiTimeout", 60);
-				websocket.put("id", "ctrlApiWebsocket0");
-				websocket.put("alias", "");
-				websocket.put("port", 8085);
-				factory.update(websocket);
-			} else {
-				System.out.println("Websocket already active");
 			}
 		} catch (IOException | InvalidSyntaxException e) {
 			// TODO Auto-generated catch block
