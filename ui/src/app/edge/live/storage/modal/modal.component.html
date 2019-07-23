@@ -52,7 +52,7 @@
                             <tr>
                                 <td style="width:20%" translate>General.Capacity</td>
                                 <td style="width: 30%"></td>
-                                <ng-container *ngIf="currentData[component.id + '/Capacity'] > 0; else empty">
+                                <ng-container *ngIf="currentData[component.id + '/Capacity'] != null; else empty">
                                     <td style="width:50%" class="align_right">
                                         {{ currentData[component.id + '/Capacity'] | number:'1.0-0' }}&nbsp;Wh
                                     </td>
@@ -196,6 +196,18 @@
                             <td style="width:50%" class="align_right">-&nbsp;</td>
                         </ng-template>
                     </tr>
+                    <tr>
+                        <td style="width:20%" translate>General.Capacity</td>
+                        <td style="width: 30%"></td>
+                        <ng-container *ngIf="sum.capacity != null; else empty">
+                            <td style="width:50%" class="align_right">
+                                {{ sum.capacity | number:'1.0-0' }}&nbsp;Wh
+                            </td>
+                        </ng-container>
+                        <ng-template #empty>
+                            <td style="width:50%" class="align_right">-&nbsp;</td>
+                        </ng-template>
+                    </tr>
                 </table>
             </ng-container>
         </ion-card-content>
@@ -261,6 +273,18 @@
 
                                     <td style="width:50%" class="align_right">
                                         {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </ng-container>
+                                <ng-template #empty>
+                                    <td style="width:50%" class="align_right">-&nbsp;</td>
+                                </ng-template>
+                            </tr>
+                            <tr>
+                                <td style="width:20%" translate>General.Capacity</td>
+                                <td style="width: 30%"></td>
+                                <ng-container *ngIf="currentData[component.id + '/Capacity'] != null; else empty">
+                                    <td style="width:50%" class="align_right">
+                                        {{ currentData[component.id + '/Capacity'] | number:'1.0-0' }}&nbsp;Wh
                                     </td>
                                 </ng-container>
                                 <ng-template #empty>
