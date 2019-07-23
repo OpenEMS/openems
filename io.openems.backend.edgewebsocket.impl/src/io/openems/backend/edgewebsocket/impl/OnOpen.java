@@ -2,6 +2,8 @@ package io.openems.backend.edgewebsocket.impl;
 
 import java.util.Optional;
 
+import io.openems.common.access_control.ApplicationType;
+import io.openems.common.access_control.RoleId;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
@@ -58,7 +60,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			// announce Edge as online
 			edge.setOnline(true);
 			edge.setLastMessageTimestamp();
-			wsData.setAuthenticated(true);
+
+			RoleId roleId = this.parent.accessControl.login(apikey, ApplicationType.EDGE);
+			wsData.setRoleId(roleId);
 
 			// TODO send notification to UI
 		} catch (OpenemsException e) {

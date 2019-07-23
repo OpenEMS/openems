@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.common.access_control.AccessControl;
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,6 +48,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Reference
 	protected volatile Timedata timedata;
+
+	@Reference
+	protected volatile AccessControl accessControl;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;

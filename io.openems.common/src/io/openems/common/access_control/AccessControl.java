@@ -28,6 +28,8 @@ public interface AccessControl {
      */
     RoleId login(UUID sessionId) throws AuthenticationException;
 
+    RoleId login(String apiKey, ApplicationType type) throws AuthenticationException;
+
     /**
      * Logs out the user and removes the corresponding session tokens
      * @param token the role id for the role to log out

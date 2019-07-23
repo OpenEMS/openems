@@ -21,6 +21,8 @@ public class AccessControlDataManagerImpl implements AccessControlDataManager {
 
     private final Map<RoleId, Role> roles = new HashMap<>();
 
+    private final Set<Machine> machines = new HashSet<>();
+
     @Override
     public void addRoles(Set<Role> roles, boolean merge) {
         if (!merge) {
@@ -69,9 +71,17 @@ public class AccessControlDataManagerImpl implements AccessControlDataManager {
         return users.values();
     }
 
-
     @Override
     public Collection<Role> getRoles() {
         return roles.values();
+    }
+
+    @Override
+    public void addMachine(Machine machine) {
+        this.machines.add(machine);
+    }
+
+    public Set<Machine> getMachines() {
+        return machines;
     }
 }

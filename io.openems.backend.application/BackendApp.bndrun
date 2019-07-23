@@ -25,7 +25,7 @@
 	bnd.identity;id='io.openems.backend.metadata.dummy',\
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
-	bnd.identity;id='io.openems.backend.metadata.user_based',\
+	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.core',\
 	bnd.identity;id='io.openems.backend.uiwebsocket.impl'
@@ -40,7 +40,7 @@
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
-	io.openems.backend.metadata.user_based;version=snapshot,\
+	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.timedata.core;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\

@@ -7,7 +7,6 @@ public enum JsonKeys {
     USER_NAME("username"),
     ROLE("role"),
     ROLES("roles"),
-    USER_ID("userId"),
     NAME("name"),
     PASSWORD("password"),
     SALT("salt"),
@@ -23,7 +22,13 @@ public enum JsonKeys {
     API_KEY("apiKey"),
     COMMENT("comment"),
     COMPONENT_ID("componentId"),
-    CHANNEL_ID("channelId");
+    CHANNEL_ID("channelId"),
+    MACHINES("machines"),
+    VERSION("version"),
+    PRODUCT_TYPE("productType"),
+    IPV4("ipv4"),
+    SOC("soc"),
+    MACHINE_TYPES("machineType");
 
     private String value;
 

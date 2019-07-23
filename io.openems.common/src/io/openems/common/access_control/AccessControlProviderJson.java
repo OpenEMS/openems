@@ -47,14 +47,42 @@ public class AccessControlProviderJson implements AccessControlProvider {
             return;
         }
 
+        JsonElement config;
         try {
-            JsonElement config = JsonUtils.parse(sb.toString());
-            handleUsers(JsonUtils.getAsJsonObject(config, USERS.value()), accessControlDataManager);
-            handleRoles(JsonUtils.getAsJsonObject(config, ROLES.value()), accessControlDataManager);
-
+            config = JsonUtils.parse(sb.toString());
         } catch (OpenemsError.OpenemsNamedException e) {
             this.log.warn("Unable to parse JSON-file [" + path + "]: " + e.getMessage());
+            return;
         }
+        try {
+                handleUsers(JsonUtils.getAsJsonObject(config, USERS.value()), accessControlDataManager);
+            } catch (OpenemsError.OpenemsNamedException e) {
+                this.log.debug("Unable to parse in JSON-file [" + path + "] the object (" + USERS.value() + "): " + e.getMessage());
+            }
+            try {
+                handleRoles(JsonUtils.getAsJsonObject(config, ROLES.value()), accessControlDataManager);
+            } catch (OpenemsError.OpenemsNamedException e) {
+                this.log.debug("Unable to parse in JSON-file [" + path + "] the object (" + ROLES.value() + "): " + e.getMessage());
+            }
+            try {
+                handleApplications(JsonUtils.getAsJsonObject(config, MACHINES.value()), accessControlDataManager);
+            } catch (OpenemsError.OpenemsNamedException e) {
+                this.log.debug("Unable to parse in JSON-file [" + path + "] the object (" + MACHINES.value() + "): " + e.getMessage());
+            }
+    }
+
+    private void handleApplications(JsonObject jApplications, AccessControlDataManager accessControlDataManager) throws OpenemsError.OpenemsNamedException {
+        for (Map.Entry<String, JsonElement> jApplication : jApplications.entrySet()) {
+            Machine machine = new Machine();
+            machine.setId(jApplication.getKey());
+            machine.setName(JsonUtils.getAsString(jApplication.getValue(), JsonKeys.NAME.value()));
+            machine.setDescription(JsonUtils.getAsString(jApplication.getValue(), DESCRIPTION.value()));
+            machine.setApiKey(JsonUtils.getAsString(jApplication.getValue(), API_KEY.value()));
+            machine.setRole(new RoleId(JsonUtils.getAsString(jApplication.getValue(), ROLE.value())));
+            machine.setType(ApplicationType.valueOf(JsonUtils.getAsString(jApplication.getValue(), MACHINE_TYPES.value()).toUpperCase()));
+            accessControlDataManager.addMachine(machine);
+        }
+
     }
 
     @Override

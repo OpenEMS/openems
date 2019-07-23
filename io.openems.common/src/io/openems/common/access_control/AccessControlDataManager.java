@@ -2,6 +2,7 @@ package io.openems.common.access_control;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This interface is used for adding and getting the data which is needed for the RBAC (Role based access control)
@@ -36,4 +37,9 @@ interface AccessControlDataManager {
      * @return all created roles via the providers
      */
     Collection<Role> getRoles();
+
+
+    void addMachine(Machine machine);
+
+    Collection<Machine> getMachines();
 }

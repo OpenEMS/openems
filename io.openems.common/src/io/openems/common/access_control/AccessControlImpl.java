@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Component
 public class AccessControlImpl implements AccessControl {
 
-
     @Reference
     private
     AccessControlDataManager accessControlDataManager;
@@ -28,7 +27,7 @@ public class AccessControlImpl implements AccessControl {
 
     private final Logger log = LoggerFactory.getLogger(AccessControlImpl.class);
 
-    private final List<AccessControlProvider> initializedProviders = new LinkedList<>();
+    private final Set<AccessControlProvider> initializedProviders = new HashSet<>();
 
     private final Map<UUID, RoleId> sessionTokens = new ConcurrentHashMap<>();
 
@@ -74,6 +73,15 @@ public class AccessControlImpl implements AccessControl {
                 .filter(e -> e.getKey().equals(sessionId))
                 .map(Map.Entry::getValue)
                 .findFirst().orElseThrow(AuthenticationException::new);
+    }
+
+    @Override
+    public RoleId login(String apiKey, ApplicationType type) throws AuthenticationException {
+        initializeProviders();
+        return this.accessControlDataManager.getMachines()
+            .stream().filter(e -> Objects.equals(type, e.getType()) && Objects.equals(apiKey, e.getApiKey()))
+            .map(Machine::getRole)
+            .findFirst().orElseThrow(AuthenticationException::new);
     }
 
     @Override

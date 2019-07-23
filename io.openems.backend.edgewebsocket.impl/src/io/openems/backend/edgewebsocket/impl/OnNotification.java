@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import io.openems.common.access_control.AuthorizationException;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,152 +41,167 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		// Validate authentication
 		WsData wsData = ws.getAttachment();
-		try {
-			wsData.assertAuthentication(notification);
-		} catch (OpenemsNamedException e) {
-			this.parent.logWarn(this.log, e.getMessage());
-		}
 
 		// announce incoming message for this Edge
-		Optional<Edge> edge = wsData.getEdge(this.parent.metadata);
-		if (edge.isPresent()) {
-			edge.get().setLastMessageTimestamp();
-		}
+		wsData.getEdgeId().ifPresent(edgeId -> this.parent.metadata.getEdge(edgeId).ifPresent(Edge::setLastMessageTimestamp));
 
 		// Handle notification
 		switch (notification.getMethod()) {
-		case EdgeConfigNotification.METHOD:
-			this.handleEdgeConfigNotification(EdgeConfigNotification.from(notification), wsData);
-			return;
+			case EdgeConfigNotification.METHOD:
+				this.handleEdgeConfigNotification(EdgeConfigNotification.from(notification), wsData);
+				break;
 
-		case TimestampedDataNotification.METHOD:
-			this.handleTimestampedDataNotification(TimestampedDataNotification.from(notification), wsData);
-			return;
+			case TimestampedDataNotification.METHOD:
+				this.handleTimestampedDataNotification(TimestampedDataNotification.from(notification), wsData);
+				break;
 
-		case SystemLogNotification.METHOD:
-			this.handleSystemLogNotification(SystemLogNotification.from(notification), wsData);
-			return;
+			case SystemLogNotification.METHOD:
+				this.handleSystemLogNotification(SystemLogNotification.from(notification), wsData);
+				break;
+			default:
+				this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
+				break;
 		}
-
-		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
 	}
 
 	/**
 	 * Handles EdgeConfigNotification.
-	 * 
+	 *
 	 * @param message the EdgeConfigNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
 	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData)
-			throws OpenemsNamedException {
-		String edgeId = wsData.assertEdgeId(message);
+		throws OpenemsNamedException {
 
-		// save config in metadata
-		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
-		edge.setConfig(message.getConfig());
+		// TODO replace with ifPresentOrElse java 9
+		Optional<String> edgeIdOpt = wsData.getEdgeId();
+		if (edgeIdOpt.isPresent()) {
+			String edgeId = edgeIdOpt.get();
+			this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeIdOpt.get(), EdgeConfigNotification.METHOD);
 
-		// forward
-		this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+			// save config in metadata
+			Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
+			edge.setConfig(message.getConfig());
+
+			// forward
+			this.parent.uiWebsocket.send(edgeId, new EdgeRpcNotification(edgeId, message));
+		} else {
+			throw new AuthorizationException();
+		}
 	}
 
 	/**
 	 * Handles TimestampedDataNotification.
-	 * 
+	 *
 	 * @param message the TimestampedDataNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
 	private void handleTimestampedDataNotification(TimestampedDataNotification message, WsData wsData)
-			throws OpenemsNamedException {
-		String edgeId = wsData.assertEdgeId(message);
+		throws OpenemsNamedException {
+		// TODO replace with ifPresentOrElse java 9
+		Optional<String> edgeIdOpt = wsData.getEdgeId();
+		if (edgeIdOpt.isPresent()) {
+			String edgeId = edgeIdOpt.get();
+			this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeIdOpt.get(), EdgeConfigNotification.METHOD);
 
-		try {
-			this.parent.timedata.write(edgeId, message.getData());
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
+			try {
+				this.parent.timedata.write(edgeId, message.getData());
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
 
-		// Read some specific channels
-		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
-		for (Entry<String, JsonElement> entry : message.getParams().entrySet()) {
-			JsonObject data = JsonUtils.getAsJsonObject(entry.getValue());
-			// set Edge last update timestamp only for those channels
-			for (String channel : data.keySet()) {
-				if (channel.endsWith("ActivePower")
+			// Read some specific channels
+			Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
+			for (Entry<String, JsonElement> entry : message.getParams().entrySet()) {
+				JsonObject data = JsonUtils.getAsJsonObject(entry.getValue());
+				// set Edge last update timestamp only for those channels
+				for (String channel : data.keySet()) {
+					if (channel.endsWith("ActivePower")
 						|| channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
-								| channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
-					edge.setLastUpdateTimestamp();
+						| channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
+						edge.setLastUpdateTimestamp();
+					}
 				}
-			}
 
-			// set specific Edge values
-			if (data.has("ess0/Soc") && data.get("ess0/Soc").isJsonPrimitive()) {
-				int soc = JsonUtils.getAsPrimitive(data, "ess0/Soc").getAsInt();
-				edge.setSoc(soc);
-			}
-			if (data.has("system0/PrimaryIpAddress") && data.get("system0/PrimaryIpAddress").isJsonPrimitive()) {
-				String ipv4 = JsonUtils.getAsPrimitive(data, "system0/PrimaryIpAddress").getAsString();
-				edge.setIpv4(ipv4);
-			}
-			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
-				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
-				edge.setVersion(SemanticVersion.fromString(version));
-			}
-			if (data.has("_sum/State")) {
-				// Read global State
-				Optional<Level> levelOpt = Level.fromJson(data, "_sum/State");
-				Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
-				if (levelOpt.isPresent() && levelOpt.get() != Level.OK) {
-					// Global State is not "OK" -> Some State-Channel has to be active:
-					for (Entry<String, Component> componentEntry : edge.getConfig().getComponents().entrySet()) {
-						String componentId = componentEntry.getKey();
-						// Get State-Level of this Component
-						Optional<JsonElement> componentStateOpt = this.parent.timedata.getChannelValue(edgeId,
+				// set specific Edge values
+				if (data.has("ess0/Soc") && data.get("ess0/Soc").isJsonPrimitive()) {
+					int soc = JsonUtils.getAsPrimitive(data, "ess0/Soc").getAsInt();
+					edge.setSoc(soc);
+				}
+				if (data.has("system0/PrimaryIpAddress") && data.get("system0/PrimaryIpAddress").isJsonPrimitive()) {
+					String ipv4 = JsonUtils.getAsPrimitive(data, "system0/PrimaryIpAddress").getAsString();
+					edge.setIpv4(ipv4);
+				}
+				if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
+					String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
+					edge.setVersion(SemanticVersion.fromString(version));
+				}
+				if (data.has("_sum/State")) {
+					// Read global State
+					Optional<Level> levelOpt = Level.fromJson(data, "_sum/State");
+					Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels = new HashMap<>();
+					if (levelOpt.isPresent() && levelOpt.get() != Level.OK) {
+						// Global State is not "OK" -> Some State-Channel has to be active:
+						for (Entry<String, Component> componentEntry : edge.getConfig().getComponents().entrySet()) {
+							String componentId = componentEntry.getKey();
+							// Get State-Level of this Component
+							Optional<JsonElement> componentStateOpt = this.parent.timedata.getChannelValue(edgeId,
 								new ChannelAddress(componentId, "State"));
-						if (!componentStateOpt.isPresent()) {
-							continue;
-						}
-						Optional<Level> componentLevelOpt = Level.fromJson(componentStateOpt.get());
-						if (!componentLevelOpt.isPresent() || componentLevelOpt.get() == Level.OK) {
-							continue;
-						}
-						// This Components state is not OK -> search for active State-Channels
-						for (Entry<String, Channel> channelEntry : componentEntry.getValue().getStateChannels()
+							if (!componentStateOpt.isPresent()) {
+								continue;
+							}
+							Optional<Level> componentLevelOpt = Level.fromJson(componentStateOpt.get());
+							if (!componentLevelOpt.isPresent() || componentLevelOpt.get() == Level.OK) {
+								continue;
+							}
+							// This Components state is not OK -> search for active State-Channels
+							for (Entry<String, Channel> channelEntry : componentEntry.getValue().getStateChannels()
 								.entrySet()) {
-							String channelId = channelEntry.getKey();
-							Optional<JsonElement> valueOptJ = this.parent.timedata.getChannelValue(edgeId,
+								String channelId = channelEntry.getKey();
+								Optional<JsonElement> valueOptJ = this.parent.timedata.getChannelValue(edgeId,
 									new ChannelAddress(componentId, channelId));
-							if (!valueOptJ.isPresent()) {
-								continue;
-							}
-							Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(valueOptJ.get());
-							if (!valueOpt.isPresent()) {
-								continue;
-							}
-							if (valueOpt.get() == 1 /* Booleans are transferred as '0' or '1' */) {
-								activeStateChannels.put(//
+								if (!valueOptJ.isPresent()) {
+									continue;
+								}
+								Optional<Integer> valueOpt = JsonUtils.getAsOptionalInt(valueOptJ.get());
+								if (!valueOpt.isPresent()) {
+									continue;
+								}
+								if (valueOpt.get() == 1 /* Booleans are transferred as '0' or '1' */) {
+									activeStateChannels.put(//
 										new ChannelAddress(componentId, channelId), //
 										channelEntry.getValue());
+								}
 							}
 						}
 					}
+					edge.setSumState(levelOpt.orElse(null), activeStateChannels);
 				}
-				edge.setSumState(levelOpt.orElse(null), activeStateChannels);
 			}
+		} else {
+			throw new AuthorizationException();
 		}
 	}
 
 	/**
 	 * Handles SystemLogNotification.
-	 * 
+	 *
 	 * @param message the SystemLogNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
 	private void handleSystemLogNotification(SystemLogNotification message, WsData wsData)
-			throws OpenemsNamedException {
-		String edgeId = wsData.assertEdgeId(message);
-		this.parent.handleSystemLogNotification(edgeId, message);
+		throws OpenemsNamedException {
+		// TODO replace with ifPresentOrElse java 9
+		Optional<String> edgeIdOpt = wsData.getEdgeId();
+		if (edgeIdOpt.isPresent()) {
+			String edgeId = edgeIdOpt.get();
+			this.parent.accessControl.assertExecutePermission(wsData.getRoleId(), edgeIdOpt.get(), SystemLogNotification.METHOD);
+			this.parent.handleSystemLogNotification(edgeId, message);
+		} else {
+			throw new AuthorizationException();
+		}
 	}
 }
