@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -67,11 +68,11 @@ public class Solver {
 	}
 
 	/**
-	 * Tests wheter the Problem is solvable under the current Constraints.
+	 * Tests whether the Problem is solvable under the current Constraints.
 	 * 
-	 * @throws PowerException if not solvable
+	 * @throws OpenemsException on error
 	 */
-	public void isSolvableOrError() throws PowerException {
+	public void isSolvableOrError() throws OpenemsException {
 		try {
 			this.solveWithAllConstraints();
 		} catch (NoFeasibleSolutionException e) {
@@ -90,7 +91,7 @@ public class Solver {
 		try {
 			this.solveWithAllConstraints();
 			return true;
-		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+		} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
 			return false;
 		}
 	}
@@ -100,7 +101,7 @@ public class Solver {
 		int index;
 		try {
 			index = this.data.getCoefficient(essId, phase, pwr).getIndex();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | OpenemsException e) {
 			this.log.error(e.getMessage());
 			return 0d;
 		}
@@ -109,7 +110,14 @@ public class Solver {
 		LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
 
 		// get Constraints
-		List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
+		List<Constraint> allConstraints;
+		try {
+			allConstraints = this.data.getConstraintsForAllInverters();
+		} catch (OpenemsException e) {
+			this.log.warn("Unable to get Constraints for all Inverters: " + e.getMessage());
+			return 0;
+		}
+
 		LinearConstraintSet constraints = new LinearConstraintSet(
 				Solver.convertToLinearConstraints(this.data, allConstraints));
 
@@ -157,25 +165,27 @@ public class Solver {
 		}
 		List<Inverter> allInverters = data.getInverters();
 
-		// Check if the Problem is solvable at all.
-		List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
-
-		// Add Strict constraints if required
-		this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
-
-		// Print log with currently active EQUALS != 0 Constraints
-		if (this.debugMode) {
-			this.log.info("Currently active EQUALS contraints");
-			for (Constraint c : allConstraints) {
-				if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
-					this.log.info("- " + c.toString());
-				}
-			}
-		}
-
 		SolveSolution solution = new SolveSolution(SolverStrategy.NONE, null);
+
+		List<Constraint> allConstraints = new ArrayList<>();
 		TargetDirection targetDirection = null;
 		try {
+			// Check if the Problem is solvable at all.
+			allConstraints = this.data.getConstraintsForAllInverters();
+
+			// Add Strict constraints if required
+			this.addConstraintsForNotStrictlyDefinedCoefficients(allInverters, allConstraints);
+
+			// Print log with currently active EQUALS != 0 Constraints
+			if (this.debugMode) {
+				this.log.info("Currently active EQUALS contraints");
+				for (Constraint c : allConstraints) {
+					if (c.getRelationship() == Relationship.EQUALS && c.getValue().orElse(0d) != 0d) {
+						this.log.info("- " + c.toString());
+					}
+				}
+			}
+
 			// Evaluates whether it is a CHARGE or DISCHARGE problem.
 			targetDirection = this.getTargetDirection();
 
@@ -210,6 +220,8 @@ public class Solver {
 			} else {
 				this.log.warn("Power-Solver: Unable to solve under constraints!");
 			}
+		} catch (OpenemsException e) {
+			this.log.warn("Power-Solver: Solve failed: " + e.getMessage());
 		}
 
 		// finish time measure (in milliseconds)
@@ -221,7 +233,12 @@ public class Solver {
 
 		// Apply final Solution to Inverters
 		if (isSolved) {
-			this.applySolution(this.applyInverterPrecisions(allInverters, solution.getPoints(), targetDirection));
+			try {
+				this.applySolution(this.applyInverterPrecisions(allInverters, solution.getPoints(), targetDirection));
+			} catch (OpenemsException e) {
+				this.log.warn("Power-Solver: Applying Inverter Precisions failed: " + e.getMessage());
+				this.applySolution(this.getZeroSolution(allInverters));
+			}
 		} else {
 			this.applySolution(this.getZeroSolution(allInverters));
 		}
@@ -237,9 +254,11 @@ public class Solver {
 	 * @param allConstraints  a list of all Constraints
 	 * @param strategies      an array of SolverStrategies
 	 * @return a Solution
+	 * @throws OpenemsException
 	 */
 	private SolveSolution tryStrategies(TargetDirection targetDirection, List<Inverter> allInverters,
-			List<Inverter> targetInverters, List<Constraint> allConstraints, SolverStrategy... strategies) {
+			List<Inverter> targetInverters, List<Constraint> allConstraints, SolverStrategy... strategies)
+			throws OpenemsException {
 		PointValuePair solution = null;
 		for (SolverStrategy strategy : strategies) {
 			switch (strategy) {
@@ -278,9 +297,10 @@ public class Solver {
 	 * 
 	 * @param allInverters   a list of all inverters
 	 * @param allConstraints a list of all Constraints
+	 * @throws OpenemsException
 	 */
 	private void addConstraintsForNotStrictlyDefinedCoefficients(List<Inverter> allInverters,
-			List<Constraint> allConstraints) {
+			List<Constraint> allConstraints) throws OpenemsException {
 		LinearConstraintSet constraints = new LinearConstraintSet(
 				Solver.convertToLinearConstraints(this.data, allConstraints));
 
@@ -407,9 +427,11 @@ public class Solver {
 	 * @param allConstraints  a list of all Cosntraints
 	 * @param targetDirection the target direction
 	 * @return a solution or null
+	 * @throws OpenemsException
 	 */
 	private PointValuePair optimizeByKeepingTargetDirectionAndMaximizingInOrder(List<Inverter> allInverters,
-			List<Inverter> targetInverters, List<Constraint> allConstraints, TargetDirection targetDirection) {
+			List<Inverter> targetInverters, List<Constraint> allConstraints, TargetDirection targetDirection)
+			throws OpenemsException {
 		List<Constraint> constraints = new ArrayList<>(allConstraints);
 
 		// Add Zero-Constraint for all Inverters that are not Target
@@ -493,9 +515,10 @@ public class Solver {
 	 * @param targetInverters a list of target inverters
 	 * @param allConstraints  a list of all Constraints
 	 * @return a solution or null
+	 * @throws OpenemsException
 	 */
 	private PointValuePair optimizeByMovingTowardsTarget(TargetDirection targetDirection, List<Inverter> allInverters,
-			List<Inverter> targetInverters, List<Constraint> allConstraints) {
+			List<Inverter> targetInverters, List<Constraint> allConstraints) throws OpenemsException {
 		// find maxLastActive + maxWeight
 		int maxLastActivePower = 0;
 		int sumWeights = 0;
@@ -632,11 +655,12 @@ public class Solver {
 	 * @param solution        a solution
 	 * @param targetDirection the target direction
 	 * @return a map of inverters to PowerTuples
+	 * @throws OpenemsException
 	 */
 	// TODO: round value of one inverter, apply constraint, repeat... to further
 	// optimize this
 	private Map<Inverter, PowerTuple> applyInverterPrecisions(List<Inverter> allInverters, PointValuePair solution,
-			TargetDirection targetDirection) {
+			TargetDirection targetDirection) throws OpenemsException {
 		Map<Inverter, PowerTuple> result = new HashMap<>();
 		double[] point = solution.getPoint();
 		for (Inverter inv : allInverters) {
@@ -721,7 +745,7 @@ public class Solver {
 			disabledInverters.add(inverter);
 			try {
 				this.solveWithDisabledInverters(disabledInverters);
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+			} catch (NoFeasibleSolutionException | UnboundedSolutionException | OpenemsException e) {
 				disabledInverters.remove(inverter);
 				break;
 			}
@@ -745,9 +769,10 @@ public class Solver {
 	 * @return a solution
 	 * @throws NoFeasibleSolutionException if not solvable
 	 * @throws UnboundedSolutionException  if not solvable
+	 * @throws OpenemsException
 	 */
 	private PointValuePair solveWithDisabledInverters(List<Inverter> disabledInverters)
-			throws NoFeasibleSolutionException, UnboundedSolutionException {
+			throws NoFeasibleSolutionException, UnboundedSolutionException, OpenemsException {
 		List<Constraint> constraints = this.data.getConstraintsWithoutDisabledInverters(disabledInverters);
 		return this.solveWithConstraints(constraints);
 	}
@@ -792,8 +817,10 @@ public class Solver {
 	 * @return a solution
 	 * @throws NoFeasibleSolutionException if not solvable
 	 * @throws UnboundedSolutionException  if not solvable
+	 * @throws OpenemsException
 	 */
-	private PointValuePair solveWithAllConstraints() throws NoFeasibleSolutionException, UnboundedSolutionException {
+	private PointValuePair solveWithAllConstraints()
+			throws NoFeasibleSolutionException, UnboundedSolutionException, OpenemsException {
 		List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
 		return this.solveWithConstraints(allConstraints);
 	}
@@ -807,8 +834,9 @@ public class Solver {
 	 * CHARGE problem.
 	 * 
 	 * @return the target direction
+	 * @throws OpenemsException
 	 */
-	public TargetDirection getTargetDirection() {
+	public TargetDirection getTargetDirection() throws OpenemsException {
 		List<Constraint> constraints = this.data.getConstraintsForAllInverters();
 		Constraint equals0 = this.data.createPConstraint(Relationship.EQUALS, 0);
 		constraints.add(equals0);
@@ -920,7 +948,7 @@ public class Solver {
 							invL1.getActivePower(), invL1.getReactivePower(), //
 							invL2.getActivePower(), invL2.getReactivePower(), //
 							invL3.getActivePower(), invL3.getReactivePower());
-					
+
 					// announce applying power was ok
 					ess.getApplyPowerFailed().setNextValue(false);
 

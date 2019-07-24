@@ -179,9 +179,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             /*
              * Storage Charge
              */
-            let effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
-              return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
-            });
+            let effectivePower;
+            if ('_sum/ProductionDcActualPower' in result.data && result.data['_sum/ProductionDcActualPower'].length > 0) {
+              effectivePower = result.data['_sum/ProductionDcActualPower'].map((value, index) => {
+                return Utils.subtractSafely(result.data['_sum/EssActivePower'][index], value);
+              });
+            } else {
+              effectivePower = result.data['_sum/EssActivePower'];
+            }
             let chargeData = effectivePower.map(value => {
               if (value == null) {
                 return null
@@ -236,22 +241,36 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     });
   }
 
-  protected getChannelAddresses(edge: Edge): Promise<ChannelAddress[]> {
+  protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve, reject) => {
       if (edge.isVersionAtLeast('2018.8')) {
-        resolve([
-          // Ess
-          new ChannelAddress('_sum', 'EssActivePower'),
-          // Grid
-          new ChannelAddress('_sum', 'GridActivePower'),
-          // Production
-          new ChannelAddress('_sum', 'ProductionActivePower'), new ChannelAddress('_sum', 'ProductionDcActualPower'),
-          // Consumption
-          new ChannelAddress('_sum', 'ConsumptionActivePower')
-        ]);
+        let result: ChannelAddress[] = [];
+        config.widgets.classes.forEach(clazz => {
+          switch (clazz.toString()) {
+            case 'Grid':
+              result.push(new ChannelAddress('_sum', 'GridActivePower'));
+              break;
+            case 'Consumption':
+              result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
+              break;
+            case 'Storage':
+              result.push(new ChannelAddress('_sum', 'EssActivePower'));
+              break;
+            case 'Production':
+              result.push(
+                new ChannelAddress('_sum', 'ProductionActivePower'),
+                new ChannelAddress('_sum', 'ProductionDcActualPower'));
+              break;
+          };
+          return false;
+        });
+        resolve(result);
+
       } else {
         this.service.getConfig().then(config => {
           let ignoreIds = config.getComponentIdsImplementingNature("FeneconMiniConsumptionMeter");
+          ignoreIds.push.apply(ignoreIds, config.getComponentIdsByFactory("io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature"));
+
           // TODO: remove after full migration
           let result: ChannelAddress[] = [];
 
@@ -273,6 +292,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           result.push.apply(result, this.getAsymmetric(asymmetricMeterIds, ignoreIds));
           let symmetricMeterIds = config.getComponentIdsImplementingNature("SymmetricMeterNature").filter(id => !asymmetricMeterIds.includes(id));
           result.push.apply(result, this.getSymmetric(symmetricMeterIds, ignoreIds));
+
           resolve(result);
         })
       }
@@ -326,28 +346,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * @param data 
    */
   private convertDeprecatedData(config: EdgeConfig, data: { [channelAddress: string]: any[] }) {
-    let sumEssSoc = [];
     let sumEssActivePower = [];
     let sumGridActivePower = [];
     let sumProductionActivePower = [];
     let sumProductionAcActivePower = [];
-    let sumProductionDcActivePower = [];
+    let sumProductionDcActualPower = [];
 
     for (let channel of Object.keys(data)) {
       let channelAddress = ChannelAddress.fromString(channel)
       let componentId = channelAddress.componentId;
       let channelId = channelAddress.channelId;
       let natureIds = config.getNatureIdsByComponentId(componentId);
-
-      if (natureIds.includes('EssNature') && channelId === 'Soc') {
-        if (sumEssSoc.length == 0) {
-          sumEssSoc = data[channel];
-        } else {
-          sumEssSoc = data[channel].map((value, index) => {
-            return Utils.divideSafely(Utils.addSafely(sumEssSoc[index], value), 2);
-          });
-        }
-      }
 
       if (natureIds.includes('EssNature') && channelId.startsWith('ActivePower')) {
         if (sumEssActivePower.length == 0) {
@@ -394,19 +403,19 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             return Utils.addSafely(sumProductionActivePower[index], value);
           });
         }
-        if (sumProductionDcActivePower.length == 0) {
-          sumProductionDcActivePower = data[channel];
+        if (sumProductionDcActualPower.length == 0) {
+          sumProductionDcActualPower = data[channel];
         } else {
-          sumProductionDcActivePower = data[channel].map((value, index) => {
-            return Utils.addSafely(sumProductionDcActivePower[index], value);
+          sumProductionDcActualPower = data[channel].map((value, index) => {
+            return Utils.addSafely(sumProductionDcActualPower[index], value);
           });
         }
       }
 
-      data['_sum/EssSoc'] = sumEssSoc;
       data['_sum/EssActivePower'] = sumEssActivePower;
       data['_sum/GridActivePower'] = sumGridActivePower;
       data['_sum/ProductionActivePower'] = sumProductionActivePower;
+      data['_sum/ProductionDcActualPower'] = sumProductionDcActualPower;
       data['_sum/ConsumptionActivePower'] = sumEssActivePower.map((ess, index) => {
         return Utils.addSafely(ess, Utils.addSafely(sumProductionAcActivePower[index], sumGridActivePower[index]));
       });

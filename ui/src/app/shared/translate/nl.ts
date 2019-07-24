@@ -65,6 +65,10 @@ export const TRANSLATION = {
                 ProductionDC: "Generatie DC"
             },
             Widgets: {
+                CHP: {
+                    LowThreshold: "Lage drempelwaarde",
+                    HighThreshold: "hoge drempel"
+                },
                 EVCS: {
                     ChargingStation: "Laadstation",
                     Status: "Staat",
@@ -117,12 +121,14 @@ export const TRANSLATION = {
             SelectedPeriod: "Geselecteerde periode: ",
             OtherPeriod: "Andere periode",
             Period: "Periode",
+            SelectedDay: "{{value}}",
             Today: "Vandaag",
             Yesterday: "Gisteren",
             LastWeek: "Vorige week",
             LastMonth: "Vorige maand",
             LastYear: "Vorig jaar",
-            Go: "Ga!"
+            Go: "Ga!",
+            Export: "download als Excel-bestand"
         },
         Config: {
             Index: {

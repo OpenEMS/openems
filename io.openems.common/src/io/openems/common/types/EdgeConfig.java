@@ -24,8 +24,8 @@ import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
@@ -309,6 +309,7 @@ public class EdgeConfig {
 		 * }
 		 * </pre>
 		 * 
+		 * @param jsonFormat the {@link JsonFormat}
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson(JsonFormat jsonFormat) {
@@ -343,7 +344,8 @@ public class EdgeConfig {
 		/**
 		 * Creates a Component from JSON.
 		 * 
-		 * @param json the JSON
+		 * @param componentId the Component-ID
+		 * @param json        the JSON
 		 * @return the Component
 		 * @throws OpenemsNamedException on error
 		 */
@@ -407,8 +409,13 @@ public class EdgeConfig {
 					case "webconsole.configurationFactory.nameHint":
 						// ignore ID
 						break;
+					case "alias":
+						// Set alias as not-required. If no alias is given it falls back to id.
+						properties.add(Property.from(ad, false));
+						break;
 					default:
 						properties.add(Property.from(ad, isRequired));
+						break;
 					}
 				}
 			}
@@ -424,23 +431,22 @@ public class EdgeConfig {
 			private final String name;
 			private final String description;
 			private final boolean isRequired;
+			private final boolean isPassword;
 			private final JsonElement defaultValue;
 			private final JsonObject schema;
 
-			public Property(String id, String name, String description, boolean isRequired, JsonElement defaultValue,
-					JsonObject schema) {
+			public Property(String id, String name, String description, boolean isRequired, boolean isPassword,
+					JsonElement defaultValue, JsonObject schema) {
 				this.id = id;
 				this.name = name;
 				this.description = description;
 				this.isRequired = isRequired;
+				this.isPassword = isPassword;
 				this.defaultValue = defaultValue;
 				this.schema = schema;
 			}
 
 			public static Property from(AttributeDefinition ad, boolean isRequired) {
-				String id = ad.getID();
-				String name = ad.getName();
-
 				String description = ad.getDescription();
 				if (description == null) {
 					description = "";
@@ -478,7 +484,18 @@ public class EdgeConfig {
 				} else {
 					schema = getSchema(ad);
 				}
-				return new Property(id, name, description, isRequired, defaultValue, schema);
+
+				boolean isPassword;
+				if (ad.getType() == AttributeDefinition.PASSWORD) {
+					isPassword = true;
+				} else {
+					isPassword = false;
+				}
+
+				String id = ad.getID();
+				String name = ad.getName();
+
+				return new Property(id, name, description, isRequired, isPassword, defaultValue, schema);
 			}
 
 			private static JsonObject getSchema(AttributeDefinition ad) {
@@ -556,10 +573,11 @@ public class EdgeConfig {
 				String name = JsonUtils.getAsString(json, "name");
 				String description = JsonUtils.getAsString(json, "description");
 				boolean isRequired = JsonUtils.getAsBoolean(json, "isRequired");
+				boolean isPassword = JsonUtils.getAsOptionalBoolean(json, "isPassword").orElse(false);
 				JsonElement defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue")
 						.orElse(JsonNull.INSTANCE);
 				JsonObject schema = JsonUtils.getAsJsonObject(json, "schema");
-				return new Property(id, name, description, isRequired, defaultValue, schema);
+				return new Property(id, name, description, isRequired, isPassword, defaultValue, schema);
 			}
 
 			/**
@@ -571,6 +589,7 @@ public class EdgeConfig {
 			 *   name: string,
 			 *   description: string,
 			 *   isOptional: boolean,
+			 *   isPassword: boolean,
 			 *   defaultValue: any,
 			 *   schema: {
 			 *     type: string
@@ -586,11 +605,35 @@ public class EdgeConfig {
 						.addProperty("name", this.name) //
 						.addProperty("description", this.description) //
 						.addProperty("isRequired", this.isRequired) //
+						.addProperty("isPassword", this.isPassword) //
 						.add("defaultValue", this.defaultValue) //
 						.add("schema", this.schema) //
 						.build();
 			}
 
+			public String getId() {
+				return id;
+			}
+
+			public String getName() {
+				return name;
+			}
+
+			public String getDescription() {
+				return description;
+			}
+
+			public boolean isPassword() {
+				return isPassword;
+			}
+
+			public boolean isRequired() {
+				return isRequired;
+			}
+
+			public JsonElement getDefaultValue() {
+				return defaultValue;
+			}
 		}
 
 		private final String id;
@@ -608,19 +651,34 @@ public class EdgeConfig {
 		}
 
 		public String getId() {
-			return id;
+			return this.id;
 		}
 
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		public String getDescription() {
-			return description;
+			return this.description;
 		}
 
 		public Property[] getProperties() {
-			return properties;
+			return this.properties;
+		}
+
+		/**
+		 * Gets the Property with the given key.
+		 * 
+		 * @param key the property key
+		 * @return the Property
+		 */
+		public Optional<Property> getProperty(String key) {
+			for (EdgeConfig.Factory.Property property : this.properties) {
+				if (property.getId().equals(key)) {
+					return Optional.of(property);
+				}
+			}
+			return Optional.empty();
 		}
 
 		public String[] getNatureIds() {
@@ -658,7 +716,8 @@ public class EdgeConfig {
 		/**
 		 * Creates a Factory from JSON.
 		 * 
-		 * @param json the JSON
+		 * @param factoryId the Factory-ID
+		 * @param json      the JSON
 		 * @return the Factory
 		 * @throws OpenemsNamedException on error
 		 */
@@ -797,6 +856,7 @@ public class EdgeConfig {
 	 * }
 	 * </pre>
 	 * 
+	 * @param jsonFormat the {@link JsonFormat}
 	 * @return Components as a JSON Object
 	 */
 	public JsonObject componentsToJson(JsonFormat jsonFormat) {

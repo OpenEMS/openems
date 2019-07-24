@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -112,6 +113,14 @@ public class JsonUtils {
 		throw OpenemsError.JSON_NO_FLOAT_MEMBER.exception(memberName, jPrimitive.toString().replaceAll("%", "%%"));
 	}
 
+	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
+		try {
+			return (Inet4Address) Inet4Address.getByName(getAsString(jElement));
+		} catch (UnknownHostException e) {
+			throw OpenemsError.JSON_NO_INET4ADDRESS.exception(jElement.toString().replaceAll("%", "%%"));
+		}
+	}
+
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsNamedException {
 		if (!jElement.isJsonArray()) {
 			throw OpenemsError.JSON_NO_ARRAY.exception(jElement.toString().replaceAll("%", "%%"));
@@ -151,7 +160,7 @@ public class JsonUtils {
 		// optional
 		if (value instanceof Optional<?>) {
 			if (!((Optional<?>) value).isPresent()) {
-				return null;
+				return JsonNull.INSTANCE;
 			} else {
 				value = ((Optional<?>) value).get();
 			}
@@ -181,13 +190,58 @@ public class JsonUtils {
 			 * JsonElement
 			 */
 			return (JsonElement) value;
-		} else if (value instanceof Long[]) {
+		} else if (value instanceof boolean[]) {
 			/*
-			 * Long-Array
+			 * boolean-Array
 			 */
 			JsonArray js = new JsonArray();
-			for (Long l : (Long[]) value) {
-				js.add(new JsonPrimitive((Long) l));
+			for (boolean b : (boolean[]) value) {
+				js.add(new JsonPrimitive(b));
+			}
+			return js;
+		} else if (value instanceof short[]) {
+			/*
+			 * short-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (short s : (short[]) value) {
+				js.add(new JsonPrimitive(s));
+			}
+			return js;
+		} else if (value instanceof int[]) {
+			/*
+			 * int-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (int i : (int[]) value) {
+				js.add(new JsonPrimitive(i));
+			}
+			return js;
+		} else if (value instanceof long[]) {
+			/*
+			 * long-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (long l : (long[]) value) {
+				js.add(new JsonPrimitive(l));
+			}
+			return js;
+		} else if (value instanceof float[]) {
+			/*
+			 * float-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (float f : (float[]) value) {
+				js.add(new JsonPrimitive(f));
+			}
+			return js;
+		} else if (value instanceof double[]) {
+			/*
+			 * double-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (double d : (double[]) value) {
+				js.add(new JsonPrimitive(d));
 			}
 			return js;
 		} else if (value instanceof String[]) {
@@ -302,6 +356,14 @@ public class JsonUtils {
 		try {
 			return Optional.of(getAsString(jElement, memberName));
 		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
+		try {
+			return Optional.ofNullable((Inet4Address) Inet4Address.getByName(getAsString(jElement, memberName)));
+		} catch (OpenemsNamedException | UnknownHostException e) {
 			return Optional.empty();
 		}
 	}
@@ -643,6 +705,71 @@ public class JsonUtils {
 	 */
 	public static JsonObjectBuilder buildJsonObject(JsonObject j) {
 		return new JsonObjectBuilder(j);
+	}
+
+	/**
+	 * A temporary builder class for JsonArrays.
+	 */
+	public static class JsonArrayBuilder {
+
+		private final JsonArray j;
+
+		protected JsonArrayBuilder() {
+			this(new JsonArray());
+		}
+
+		protected JsonArrayBuilder(JsonArray j) {
+			this.j = j;
+		}
+
+		public JsonArrayBuilder add(String value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(int value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(long value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(boolean value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArrayBuilder add(JsonElement value) {
+			j.add(value);
+			return this;
+		}
+
+		public JsonArray build() {
+			return this.j;
+		}
+
+	}
+
+	/**
+	 * Creates a JsonArray using a Builder.
+	 * 
+	 * @return the Builder
+	 */
+	public static JsonArrayBuilder buildJsonArray() {
+		return new JsonArrayBuilder();
+	}
+
+	/**
+	 * Creates a JsonArray using a Builder. Initialized from an existing JsonArray.
+	 * 
+	 * @param j the initial JsonArray
+	 * @return the Builder
+	 */
+	public static JsonArrayBuilder buildJsonArray(JsonArray j) {
+		return new JsonArrayBuilder(j);
 	}
 
 	/**

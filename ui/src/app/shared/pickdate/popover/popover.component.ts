@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { addDays, getDate, getMonth, getYear, format } from 'date-fns/esm';
+import { addDays, getDate, getMonth, getYear } from 'date-fns/esm';
 import { IMyDrpOptions, IMyDate, IMyDateRangeModel } from 'mydaterangepicker';
 import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,7 @@ export class PickDatePopoverComponent {
 
     public readonly TOMORROW = addDays(new Date(), 1);
 
-    private selectedPeriod: DefaultTypes.HistoryPeriod = this.service.DEFAULT_HISTORY_PERIOD;
+    private selectedPeriod: DefaultTypes.HistoryPeriod;
 
     //DateRangePicker Options
     public dateRangePickerOptions: IMyDrpOptions = {
@@ -36,7 +36,9 @@ export class PickDatePopoverComponent {
         private translate: TranslateService
     ) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.selectedPeriod = this.service.historyPeriod;
+    }
 
     ngOnDestroy() { }
 
@@ -55,14 +57,7 @@ export class PickDatePopoverComponent {
     }
 
     public onDateRangeChanged(event: IMyDateRangeModel) {
-        this.selectedPeriod = {
-            from: event.beginJsDate,
-            to: event.endJsDate,
-            text: (this.translate.instant('General.PeriodFromTo', {
-                value1: format(event.beginJsDate, this.translate.instant('General.DateFormat')),
-                value2: format(event.endJsDate, this.translate.instant('General.DateFormat'))
-            }))
-        };
+        this.selectedPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
         this.dismiss()
     }
 }

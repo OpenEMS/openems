@@ -5,6 +5,8 @@ import { IndexComponent as ComponentInstallIndexComponent } from './component/in
 import { ComponentInstallComponent } from './component/install/install.component';
 import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
+import { NetworkComponent } from './network/network.component';
+import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
 
 @NgModule({
@@ -17,7 +19,9 @@ import { SettingsComponent } from './settings.component';
     ComponentInstallIndexComponent,
     ComponentInstallComponent,
     ComponentUpdateIndexComponent,
-    ComponentUpdateComponent
+    ComponentUpdateComponent,
+    NetworkComponent,
+    ProfileComponent
   ]
 })
 export class SettingsModule { }

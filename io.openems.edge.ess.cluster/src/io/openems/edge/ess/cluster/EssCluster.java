@@ -120,8 +120,8 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		// update filter for 'esss' component
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "esss", config.ess_ids())) {
+		// update filter for 'ess' component
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_ids())) {
 			return;
 		}
 	}
@@ -150,6 +150,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 	 */
 	private void calculateChannelValues() {
 		final CalculateAverage soc = new CalculateAverage();
+		final CalculateIntegerSum capacity = new CalculateIntegerSum();
 		final CalculateGridMode gridMode = new CalculateGridMode();
 		final CalculateIntegerSum activePower = new CalculateIntegerSum();
 		final CalculateIntegerSum reactivePower = new CalculateIntegerSum();
@@ -166,6 +167,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 		for (SymmetricEss ess : this.esss) {
 			soc.addValue(ess.getSoc());
+			capacity.addValue(ess.getCapacity());
 			gridMode.addValue(ess.getGridMode());
 			activePower.addValue(ess.getActivePower());
 			reactivePower.addValue(ess.getReactivePower());
@@ -186,6 +188,7 @@ public class EssCluster extends AbstractOpenemsComponent implements ManagedAsymm
 
 		// Set values
 		this.getSoc().setNextValue(soc.calculate());
+		this.getCapacity().setNextValue(capacity.calculate());
 		this.getGridMode().setNextValue(gridMode.calculate());
 		this.getActivePower().setNextValue(activePower.calculate());
 		this.getReactivePower().setNextValue(reactivePower.calculate());

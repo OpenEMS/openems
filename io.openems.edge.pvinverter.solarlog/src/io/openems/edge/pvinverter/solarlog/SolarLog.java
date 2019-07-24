@@ -10,17 +10,17 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.CheckedConsumer;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -33,39 +33,39 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.pvinverter.api.SymmetricPvInverter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "PV-Inverter.Solarlog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "PV-Inverter.Solarlog", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		})
 public class SolarLog extends AbstractOpenemsModbusComponent
-		implements SymmetricPvInverter, SymmetricMeter, OpenemsComponent {
+		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
-	// Solar-Log requires the watchdog to be triggered every 300 seconds
-	private static final int WATCHDOG_SECONDS = 150;
-
-	private final Logger log = LoggerFactory.getLogger(SolarLog.class);
-
-	private AbstractWorker watchdogWorker = null;
+	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
+			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private int maxActivePower = 0;
+	protected Config config;
 
 	public SolarLog() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				SymmetricPvInverter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ChannelId.values() //
 		);
-
-		this.getActivePowerLimit().onSetNextWrite(this.setPvLimit);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -77,26 +77,18 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-
-		this.maxActivePower = config.maxActivePower();
+		this.config = config;
+		this.getMaxApparentPower().setNextValue(config.maxActivePower());
 
 		// Stop if component is disabled
 		if (!config.enabled()) {
 			return;
 		}
-
-		// Initialize Watchdog-Worker
-		this.watchdogWorker = new WatchdogWorker(this, WATCHDOG_SECONDS);
-		this.watchdogWorker.activate(this.id());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-
-		if (this.watchdogWorker != null) {
-			this.watchdogWorker.deactivate();
-		}
 	}
 
 	@Override
@@ -151,6 +143,21 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			try {
+				this.setPvLimitHandler.run();
+
+				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(false);
+			} catch (OpenemsNamedException e) {
+				this.channel(ChannelId.PV_LIMIT_FAILED).setNextValue(true);
+			}
+			break;
+		}
+	}
+
+	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
 	}
@@ -159,33 +166,6 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "L:" + this.getActivePower().value().asString();
 	}
-
-	public final CheckedConsumer<Integer> setPvLimit = (power) -> {
-		int pLimitPerc = (int) ((double) power / (double) this.maxActivePower * 100.0);
-
-		// keep percentage in range [0, 100]
-		if (pLimitPerc > 100) {
-			pLimitPerc = 100;
-		}
-		if (pLimitPerc < 0) {
-			pLimitPerc = 0;
-		}
-
-		IntegerWriteChannel pLimitPercCh = this.channel(ChannelId.P_LIMIT_PERC);
-		IntegerWriteChannel pLimitTypeCh = this.channel(ChannelId.P_LIMIT_TYPE);
-
-		try {
-			pLimitPercCh.setNextWriteValue(pLimitPerc);
-		} catch (OpenemsException e) {
-			log.error("Unable to set pLimitPerc: " + e.getMessage());
-		}
-
-		try {
-			pLimitTypeCh.setNextWriteValue(2);
-		} catch (OpenemsNamedException e) {
-			log.error("Unable to set pLimitTypeCh: " + e.getMessage());
-		}
-	};
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
@@ -225,7 +205,10 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 				.unit(Unit.KILOWATT)),
 		WATCH_DOG_TAG(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		STATUS(Doc.of(Status.values()));
+		STATUS(Doc.of(Status.values())),
+
+		PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
+				.text("PV-Limit failed"));
 
 		private final Doc doc;
 
@@ -236,10 +219,10 @@ public class SolarLog extends AbstractOpenemsModbusComponent
 		public Doc doc() {
 			return this.doc;
 		}
-
 	}
 
-	protected IntegerWriteChannel getWatchdogTagChannel() {
-		return this.channel(ChannelId.WATCH_DOG_TAG);
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
 	}
 }

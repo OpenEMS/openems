@@ -1,4 +1,4 @@
-<ion-grid>
+<ion-grid *ngIf="isTimedataAvailable">
   <ion-row>
 
     <ion-col size="12" size-md="5" size-lg="4" size-xl="3">
@@ -9,24 +9,28 @@
       <ion-card>
         <ion-item color="light" lines="full">
           <ion-icon slot="start" name="stats" color="primary"></ion-icon>
-          <ion-label text-wrap><span translate>Edge.History.SelectedPeriod</span>
-            {{ service.historyPeriod.text }}</ion-label>
+          <ion-label text-wrap *ngIf="translate"><span translate>Edge.History.SelectedPeriod</span>
+            {{ service.historyPeriod.getText(translate) }}</ion-label>
         </ion-item>
-
-        <ion-card-content>
+        <ion-card-content *ngIf="widgets">
           <ion-grid no-padding>
-            <ion-row [style.height]="socChartHeight">
-              <ion-col size="12">
-                <soc [period]="service.historyPeriod"></soc>
-              </ion-col>
-            </ion-row>
+            <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+
+              <ion-row *ngSwitchCase="'Storage'" [style.height]="socChartHeight">
+                <ion-col size="12">
+                  <soc [period]="service.historyPeriod"></soc>
+                </ion-col>
+              </ion-row>
+
+            </ng-container>
+
             <ion-row [style.height]="energyChartHeight">
               <ion-col size="12">
                 <energy [period]="service.historyPeriod"></energy>
               </ion-col>
             </ion-row>
 
-            <ng-container *ngFor="let name of widgetNames" [ngSwitch]="name">
+            <ng-container *ngFor="let name of widgets.names" [ngSwitch]="name">
 
               <ion-row *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" style.height="150px">
                 <ion-col size="12">
@@ -55,10 +59,27 @@
     </ion-col>
   </ion-row>
 
-  <ion-row>
+  <ion-row *ngIf="edge && edge.isVersionAtLeast('2018.8')">
     <ion-row size="3">
       <export></export>
     </ion-row>
   </ion-row>
 
+</ion-grid>
+
+<ion-grid *ngIf="!isTimedataAvailable">
+  <ion-row justify-content-center>
+    <ion-col size="12" size-md="8">
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
+          <ion-label text-wrap>Historic data is not available</ion-label>
+        </ion-item>
+
+        <ion-card-content>
+          <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
 </ion-grid>
