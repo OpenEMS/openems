@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.ess.mr.gridcon.enums.InverterCount;
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
@@ -65,7 +66,20 @@ public class GoingOngridHandler {
 	private void doBlackStartGoingOnGrid() throws IllegalArgumentException, OpenemsNamedException {
 		
 		// Always set OutputSyncDeviceBridge ON in Off-Grid state
-				this.parent.parent.setOutputSyncDeviceBridge(true);
+		/*
+		 * Wenn das erste mal eingeschaltet wird und der wechselrichter NICHT da ist, dann K1 = SyncBridge ausschalten
+		 */
+		
+		@SuppressWarnings("unchecked")
+		Optional<Boolean> inverterPresent = (Optional<Boolean>) this.parent.parent.getModbus().channel(BridgeModbus.ChannelId.SLAVE_COMMUNICATION_FAILED).getNextValue().asOptional();
+		
+		if (inverterPresent.isPresent() && inverterPresent.get()) {
+			System.out.println(" --> Inverter is not present, set SyncBridge false! <--");
+			this.parent.parent.setOutputSyncDeviceBridge(false);
+			return;
+		}
+		
+		this.parent.parent.setOutputSyncDeviceBridge(true);
 		
 		SymmetricMeter gridMeter = this.parent.parent.componentManager.getComponent(this.parent.parent.config.meter());
 
