@@ -18,12 +18,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Use simple Mode", description = "Use simple mode.")
+	boolean simple() default false;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
-
-	@AttributeDefinition(name = "PV-Meter-ID", description = "ID of the PV-Meter.")
-	String meter_id();
+	
+	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
+	String grid_meter_id();
 
 	@AttributeDefinition(name = "Maximum SOC Load", description = "The maxmim SOC value (%) to hold before compensating the peaks. ")
 	int maxSOC() default 80;
