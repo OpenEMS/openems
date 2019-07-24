@@ -1,0 +1,27 @@
+Bundle-Name: OpenEMS Edge PV Inverter SunSpec
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+Export-Package: \
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.meter.api
+
+Private-Package:  \
+	io.openems.edge.pvinverter.sunspec
+
+-includeresource: {readme.adoc}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.meter.api;version=latest,\
+	slf4j.api,\
+	com.google.guava
+
+-testpath: ${testpath}
+
+javac.source: 1.8
+javac.target: 1.8
