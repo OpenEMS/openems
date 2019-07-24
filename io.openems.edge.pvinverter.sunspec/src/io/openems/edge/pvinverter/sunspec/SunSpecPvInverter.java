@@ -22,6 +22,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -57,13 +58,14 @@ public class SunSpecPvInverter extends AbstractOpenemsSunSpecComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	private final Logger log = LoggerFactory.getLogger(SunSpecPvInverter.class);
 	private final ModbusProtocol modbusProtocol;
 
 	public SunSpecPvInverter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values() //
-//				ManagedSymmetricPvInverter.ChannelId.values() //
+				SymmetricMeter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values() //
 		);
 		this.getMaxApparentPower().setNextValue(15_000); // TODO read from SunSpec
 
@@ -353,7 +355,12 @@ public class SunSpecPvInverter extends AbstractOpenemsSunSpecComponent
 	}
 
 	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
+	protected void addUnknownBlock(int startAddress, int sunSpecBlockId) {
+		this.logInfo(this.log, "SunSpec-Model [" + sunSpecBlockId + "] is not handled.");
+	}
+
+	@Override
+	protected void onSunSpecInitializationCompleted() {
+		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 	}
 }
