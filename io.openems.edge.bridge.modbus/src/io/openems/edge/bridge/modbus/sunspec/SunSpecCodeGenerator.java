@@ -668,7 +668,10 @@ public class SunSpecCodeGenerator {
 		if (string == null) {
 			return "";
 		}
-		return string.replace("\"", "\\\"");
+		return string //
+				.replaceAll("[^\\x00-\\x7F]", "") // non-ascii chars
+				.replace("\"", "\\\"") // escape backslash
+				.trim();
 	}
 
 	/**

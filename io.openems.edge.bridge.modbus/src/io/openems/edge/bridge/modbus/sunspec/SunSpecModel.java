@@ -81,63 +81,63 @@ public enum SunSpecModel {
 	), //
 	S_120(//
 			"Nameplate", //
-			"Inverter Controls Nameplate Ratings ", //
+			"Inverter Controls Nameplate Ratings", //
 			"Ref 3: 8.14.3.2, Ref 4: 17", //
 			26, //
 			SunSpecModel.S120.values() //
 	), //
 	S_121(//
 			"Basic Settings", //
-			"Inverter Controls Basic Settings ", //
+			"Inverter Controls Basic Settings", //
 			"Ref 3: 8.4.2.1, Ref 4: 17", //
 			30, //
 			SunSpecModel.S121.values() //
 	), //
 	S_122(//
 			"Measurements_Status", //
-			"Inverter Controls Extended Measurements and Status ", //
+			"Inverter Controls Extended Measurements and Status", //
 			"Ref 3: 8.14.3.2, Ref 4: 17", //
 			44, //
 			SunSpecModel.S122.values() //
 	), //
 	S_123(//
 			"Immediate Controls", //
-			"Immediate Inverter Controls ", //
+			"Immediate Inverter Controls", //
 			"Ref 3: 8.7.1.2, 8.7.2.2, 8.7.3.2", //
 			24, //
 			SunSpecModel.S123.values() //
 	), //
 	S_124(//
 			"Storage", //
-			"Basic Storage Controls ", //
+			"Basic Storage Controls", //
 			"Ref 3: 8.7.4.2", //
 			24, //
 			SunSpecModel.S124.values() //
 	), //
 	S_125(//
 			"Pricing", //
-			"Pricing Signal  ", //
+			"Pricing Signal", //
 			"Ref 3: 8.7.5.1; Ref 4: 6", //
 			8, //
 			SunSpecModel.S125.values() //
 	), //
 	S_127(//
 			"Freq-Watt Param", //
-			"Parameterized Frequency-Watt ", //
+			"Parameterized Frequency-Watt", //
 			"Ref 3: 8.9.1.2, 8.9.4.2", //
 			10, //
 			SunSpecModel.S127.values() //
 	), //
 	S_128(//
 			"Dynamic Reactive Current", //
-			"Dynamic Reactive Current ", //
+			"Dynamic Reactive Current", //
 			"Ref 3: 8.10.1.2; Ref 4: 12", //
 			14, //
 			SunSpecModel.S128.values() //
 	), //
 	S_145(//
 			"Extended Settings", //
-			"Inverter controls extended settings ", //
+			"Inverter controls extended settings", //
 			"", //
 			8, //
 			SunSpecModel.S145.values() //
@@ -2470,7 +2470,7 @@ public enum SunSpecModel {
 				"S120_D_E_R_TYP", //
 				"DERTyp", //
 				"Type of DER device. Default value is 4 to indicate PV device.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2478,7 +2478,7 @@ public enum SunSpecModel {
 				"S120_W_RTG", //
 				"WRtg", //
 				"Continuous power output capability of the inverter.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2486,7 +2486,7 @@ public enum SunSpecModel {
 				"S120_W_RTG__S_F", //
 				"WRtg_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2494,7 +2494,7 @@ public enum SunSpecModel {
 				"S120_V_A_RTG", //
 				"VARtg", //
 				"Continuous Volt-Ampere capability of the inverter.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2502,7 +2502,7 @@ public enum SunSpecModel {
 				"S120_V_A_RTG__S_F", //
 				"VARtg_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2510,7 +2510,7 @@ public enum SunSpecModel {
 				"S120_V_AR_RTG_Q1", //
 				"VArRtgQ1", //
 				"Continuous VAR capability of the inverter in quadrant 1.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2518,7 +2518,7 @@ public enum SunSpecModel {
 				"S120_V_AR_RTG_Q2", //
 				"VArRtgQ2", //
 				"Continuous VAR capability of the inverter in quadrant 2.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2526,7 +2526,7 @@ public enum SunSpecModel {
 				"S120_V_AR_RTG_Q3", //
 				"VArRtgQ3", //
 				"Continuous VAR capability of the inverter in quadrant 3.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2534,7 +2534,7 @@ public enum SunSpecModel {
 				"S120_V_AR_RTG_Q4", //
 				"VArRtgQ4", //
 				"Continuous VAR capability of the inverter in quadrant 4.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2542,7 +2542,7 @@ public enum SunSpecModel {
 				"S120_V_AR_RTG__S_F", //
 				"VArRtg_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2558,7 +2558,7 @@ public enum SunSpecModel {
 				"S120_A_RTG__S_F", //
 				"ARtg_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2598,7 +2598,7 @@ public enum SunSpecModel {
 				"S120_P_F_RTG__S_F", //
 				"PFRtg_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2606,7 +2606,7 @@ public enum SunSpecModel {
 				"S120_W_H_RTG", //
 				"WHRtg", //
 				"Nominal energy rating of storage device.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2614,7 +2614,7 @@ public enum SunSpecModel {
 				"S120_W_H_RTG__S_F", //
 				"WHRtg_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2622,7 +2622,7 @@ public enum SunSpecModel {
 				"S120_AHR_RTG", //
 				"AhrRtg", //
 				"The useable capacity of the battery.  Maximum charge minus minimum charge from a technology capability perspective (Amp-hour capacity rating).", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2630,7 +2630,7 @@ public enum SunSpecModel {
 				"S120_AHR_RTG__S_F", //
 				"AhrRtg_SF", //
 				"Scale factor for amp-hour rating.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2638,7 +2638,7 @@ public enum SunSpecModel {
 				"S120_MAX_CHA_RTE", //
 				"MaxChaRte", //
 				"Maximum rate of energy transfer into the storage device.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2646,7 +2646,7 @@ public enum SunSpecModel {
 				"S120_MAX_CHA_RTE__S_F", //
 				"MaxChaRte_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2654,7 +2654,7 @@ public enum SunSpecModel {
 				"S120_MAX_DIS_CHA_RTE", //
 				"MaxDisChaRte", //
 				"Maximum rate of energy transfer out of the storage device.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2662,7 +2662,7 @@ public enum SunSpecModel {
 				"S120_MAX_DIS_CHA_RTE__S_F", //
 				"MaxDisChaRte_SF", //
 				"Scale factor", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2692,7 +2692,7 @@ public enum SunSpecModel {
 				"S121_W_MAX", //
 				"WMax", //
 				"Setting for maximum power output. Default to WRtg.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -2700,7 +2700,7 @@ public enum SunSpecModel {
 				"S121_V_REF", //
 				"VRef", //
 				"Voltage at the PCC.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -2708,7 +2708,7 @@ public enum SunSpecModel {
 				"S121_V_REF_OFS", //
 				"VRefOfs", //
 				"Offset  from PCC to inverter.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -2716,7 +2716,7 @@ public enum SunSpecModel {
 				"S121_V_MAX", //
 				"VMax", //
 				"Setpoint for maximum voltage.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2724,7 +2724,7 @@ public enum SunSpecModel {
 				"S121_V_MIN", //
 				"VMin", //
 				"Setpoint for minimum voltage.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2732,7 +2732,7 @@ public enum SunSpecModel {
 				"S121_V_A_MAX", //
 				"VAMax", //
 				"Setpoint for maximum apparent power. Default to VARtg.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2740,7 +2740,7 @@ public enum SunSpecModel {
 				"S121_V_AR_MAX_Q1", //
 				"VArMaxQ1", //
 				"Setting for maximum reactive power in quadrant 1. Default to VArRtgQ1.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2748,7 +2748,7 @@ public enum SunSpecModel {
 				"S121_V_AR_MAX_Q2", //
 				"VArMaxQ2", //
 				"Setting for maximum reactive power in quadrant 2. Default to VArRtgQ2.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2756,7 +2756,7 @@ public enum SunSpecModel {
 				"S121_V_AR_MAX_Q3", //
 				"VArMaxQ3", //
 				"Setting for maximum reactive power in quadrant 3. Default to VArRtgQ3.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2764,7 +2764,7 @@ public enum SunSpecModel {
 				"S121_V_AR_MAX_Q4", //
 				"VArMaxQ4", //
 				"Setting for maximum reactive power in quadrant 4. Default to VArRtgQ4.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2772,7 +2772,7 @@ public enum SunSpecModel {
 				"S121_W_GRA", //
 				"WGra", //
 				"Default ramp rate of change of active power due to command or internal action.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2788,7 +2788,7 @@ public enum SunSpecModel {
 				"S121_P_F_MIN_Q2", //
 				"PFMinQ2", //
 				"Setpoint for minimum power factor value in quadrant 2. Default to PFRtgQ2.", //
-				"EEI sign convention. ", //
+				"EEI sign convention.", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2796,7 +2796,7 @@ public enum SunSpecModel {
 				"S121_P_F_MIN_Q3", //
 				"PFMinQ3", //
 				"Setpoint for minimum power factor value in quadrant 3. Default to PFRtgQ3.", //
-				"EEI sign convention. ", //
+				"EEI sign convention.", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2804,7 +2804,7 @@ public enum SunSpecModel {
 				"S121_P_F_MIN_Q4", //
 				"PFMinQ4", //
 				"Setpoint for minimum power factor value in quadrant 4. Default to PFRtgQ4.", //
-				"EEI sign convention. ", //
+				"EEI sign convention.", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2812,7 +2812,7 @@ public enum SunSpecModel {
 				"S121_V_AR_ACT", //
 				"VArAct", //
 				"VAR action on change between charging and discharging: 1=switch 2=maintain VAR characterization.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2820,7 +2820,7 @@ public enum SunSpecModel {
 				"S121_CLC_TOT_V_A", //
 				"ClcTotVA", //
 				"Calculation method for total apparent power. 1=vector 2=arithmetic.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2828,7 +2828,7 @@ public enum SunSpecModel {
 				"S121_MAX_RMP_RTE", //
 				"MaxRmpRte", //
 				"Setpoint for maximum ramp rate as percentage of nominal maximum ramp rate. This setting will limit the rate that watts delivery to the grid can increase or decrease in response to intermittent PV generation.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2836,7 +2836,7 @@ public enum SunSpecModel {
 				"S121_E_C_P_NOM_HZ", //
 				"ECPNomHz", //
 				"Setpoint for nominal frequency at the ECP.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2844,7 +2844,7 @@ public enum SunSpecModel {
 				"S121_CONN_PH", //
 				"ConnPh", //
 				"Identity of connected phase for single phase inverters. A=1 B=2 C=3.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -2852,7 +2852,7 @@ public enum SunSpecModel {
 				"S121_W_MAX__S_F", //
 				"WMax_SF", //
 				"Scale factor for real power.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2860,7 +2860,7 @@ public enum SunSpecModel {
 				"S121_V_REF__S_F", //
 				"VRef_SF", //
 				"Scale factor for voltage at the PCC.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2868,7 +2868,7 @@ public enum SunSpecModel {
 				"S121_V_REF_OFS__S_F", //
 				"VRefOfs_SF", //
 				"Scale factor for offset voltage.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2876,7 +2876,7 @@ public enum SunSpecModel {
 				"S121_V_MIN_MAX__S_F", //
 				"VMinMax_SF", //
 				"Scale factor for min/max voltages.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2884,7 +2884,7 @@ public enum SunSpecModel {
 				"S121_V_A_MAX__S_F", //
 				"VAMax_SF", //
 				"Scale factor for apparent power.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2892,7 +2892,7 @@ public enum SunSpecModel {
 				"S121_V_AR_MAX__S_F", //
 				"VArMax_SF", //
 				"Scale factor for reactive power.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2900,7 +2900,7 @@ public enum SunSpecModel {
 				"S121_W_GRA__S_F", //
 				"WGra_SF", //
 				"Scale factor for default ramp rate.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2908,7 +2908,7 @@ public enum SunSpecModel {
 				"S121_P_F_MIN__S_F", //
 				"PFMin_SF", //
 				"Scale factor for minimum power factor.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2916,7 +2916,7 @@ public enum SunSpecModel {
 				"S121_MAX_RMP_RTE__S_F", //
 				"MaxRmpRte_SF", //
 				"Scale factor for maximum ramp percentage.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2924,7 +2924,7 @@ public enum SunSpecModel {
 				"S121_E_C_P_NOM_HZ__S_F", //
 				"ECPNomHz_SF", //
 				"Scale factor for nominal frequency.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)); //
@@ -2946,7 +2946,7 @@ public enum SunSpecModel {
 				"S122_P_V_CONN", //
 				"PVConn", //
 				"PV inverter present/available status. Enumerated value.", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2954,7 +2954,7 @@ public enum SunSpecModel {
 				"S122_STOR_CONN", //
 				"StorConn", //
 				"Storage inverter present/available status. Enumerated value.", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2962,7 +2962,7 @@ public enum SunSpecModel {
 				"S122_E_C_P_CONN", //
 				"ECPConn", //
 				"ECP connection status: disconnected=0  connected=1.", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -2970,7 +2970,7 @@ public enum SunSpecModel {
 				"S122_ACT_WH", //
 				"ActWh", //
 				"AC lifetime active (real) energy output.", //
-				" ", //
+				"", //
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2978,7 +2978,7 @@ public enum SunSpecModel {
 				"S122_ACT_V_AH", //
 				"ActVAh", //
 				"AC lifetime apparent energy output.", //
-				" ", //
+				"", //
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2986,7 +2986,7 @@ public enum SunSpecModel {
 				"S122_ACT_V_ARH_Q1", //
 				"ActVArhQ1", //
 				"AC lifetime reactive energy output in quadrant 1.", //
-				" ", //
+				"", //
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -2994,7 +2994,7 @@ public enum SunSpecModel {
 				"S122_ACT_V_ARH_Q2", //
 				"ActVArhQ2", //
 				"AC lifetime reactive energy output in quadrant 2.", //
-				" ", //
+				"", //
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3002,7 +3002,7 @@ public enum SunSpecModel {
 				"S122_ACT_V_ARH_Q3", //
 				"ActVArhQ3", //
 				"AC lifetime negative energy output  in quadrant 3.", //
-				" ", //
+				"", //
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3010,7 +3010,7 @@ public enum SunSpecModel {
 				"S122_ACT_V_ARH_Q4", //
 				"ActVArhQ4", //
 				"AC lifetime reactive energy output  in quadrant 4.", //
-				" ", //
+				"", //
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3018,7 +3018,7 @@ public enum SunSpecModel {
 				"S122_V_AR_AVAL", //
 				"VArAval", //
 				"Amount of VARs available without impacting watts output.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3026,7 +3026,7 @@ public enum SunSpecModel {
 				"S122_V_AR_AVAL__S_F", //
 				"VArAval_SF", //
 				"Scale factor for available VARs.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3034,7 +3034,7 @@ public enum SunSpecModel {
 				"S122_W_AVAL", //
 				"WAval", //
 				"Amount of Watts available.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3042,7 +3042,7 @@ public enum SunSpecModel {
 				"S122_W_AVAL__S_F", //
 				"WAval_SF", //
 				"Scale factor for available Watts.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3058,7 +3058,7 @@ public enum SunSpecModel {
 				"S122_ST_ACT_CTL", //
 				"StActCtl", //
 				"Bit Mask indicating which inverter controls are currently active.", //
-				" ", //
+				"", //
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3066,7 +3066,7 @@ public enum SunSpecModel {
 				"S122_TM_SRC", //
 				"TmSrc", //
 				"Source of time synchronization.", //
-				" ", //
+				"", //
 				PointType.STRING4, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3074,7 +3074,7 @@ public enum SunSpecModel {
 				"S122_TMS", //
 				"Tms", //
 				"Seconds since 01-01-2000 00:00 UTC", //
-				" ", //
+				"", //
 				PointType.UINT32, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3082,7 +3082,7 @@ public enum SunSpecModel {
 				"S122_RT_ST", //
 				"RtSt", //
 				"Bit Mask indicating active ride-through status.", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3090,7 +3090,7 @@ public enum SunSpecModel {
 				"S122_RIS", //
 				"Ris", //
 				"Isolation resistance.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3098,7 +3098,7 @@ public enum SunSpecModel {
 				"S122_RIS__S_F", //
 				"Ris_SF", //
 				"Scale factor for isolation resistance.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)); //
@@ -3120,7 +3120,7 @@ public enum SunSpecModel {
 				"S123_CONN__WIN_TMS", //
 				"Conn_WinTms", //
 				"Time window for connect/disconnect.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3128,7 +3128,7 @@ public enum SunSpecModel {
 				"S123_CONN__RVRT_TMS", //
 				"Conn_RvrtTms", //
 				"Timeout period for connect/disconnect.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3136,7 +3136,7 @@ public enum SunSpecModel {
 				"S123_CONN", //
 				"Conn", //
 				"Enumerated valued.  Connection control.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3144,7 +3144,7 @@ public enum SunSpecModel {
 				"S123_W_MAX_LIM_PCT", //
 				"WMaxLimPct", //
 				"Set power output to specified level.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3152,7 +3152,7 @@ public enum SunSpecModel {
 				"S123_W_MAX_LIM_PCT__WIN_TMS", //
 				"WMaxLimPct_WinTms", //
 				"Time window for power limit change.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3160,7 +3160,7 @@ public enum SunSpecModel {
 				"S123_W_MAX_LIM_PCT__RVRT_TMS", //
 				"WMaxLimPct_RvrtTms", //
 				"Timeout period for power limit.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3168,7 +3168,7 @@ public enum SunSpecModel {
 				"S123_W_MAX_LIM_PCT__RMP_TMS", //
 				"WMaxLimPct_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3176,7 +3176,7 @@ public enum SunSpecModel {
 				"S123_W_MAX_LIM__ENA", //
 				"WMaxLim_Ena", //
 				"Enumerated valued.  Throttle enable/disable control.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3184,7 +3184,7 @@ public enum SunSpecModel {
 				"S123_OUT_P_F_SET", //
 				"OutPFSet", //
 				"Set power factor to specific value - cosine of angle.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3192,7 +3192,7 @@ public enum SunSpecModel {
 				"S123_OUT_P_F_SET__WIN_TMS", //
 				"OutPFSet_WinTms", //
 				"Time window for power factor change.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3200,7 +3200,7 @@ public enum SunSpecModel {
 				"S123_OUT_P_F_SET__RVRT_TMS", //
 				"OutPFSet_RvrtTms", //
 				"Timeout period for power factor.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3208,7 +3208,7 @@ public enum SunSpecModel {
 				"S123_OUT_P_F_SET__RMP_TMS", //
 				"OutPFSet_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3216,7 +3216,7 @@ public enum SunSpecModel {
 				"S123_OUT_P_F_SET__ENA", //
 				"OutPFSet_Ena", //
 				"Enumerated valued.  Fixed power factor enable/disable control.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3224,7 +3224,7 @@ public enum SunSpecModel {
 				"S123_V_AR_W_MAX_PCT", //
 				"VArWMaxPct", //
 				"Reactive power in percent of WMax.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3232,7 +3232,7 @@ public enum SunSpecModel {
 				"S123_V_AR_MAX_PCT", //
 				"VArMaxPct", //
 				"Reactive power in percent of VArMax.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3240,7 +3240,7 @@ public enum SunSpecModel {
 				"S123_V_AR_AVAL_PCT", //
 				"VArAvalPct", //
 				"Reactive power in percent of VArAval.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3248,7 +3248,7 @@ public enum SunSpecModel {
 				"S123_V_AR_PCT__WIN_TMS", //
 				"VArPct_WinTms", //
 				"Time window for VAR limit change.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3256,7 +3256,7 @@ public enum SunSpecModel {
 				"S123_V_AR_PCT__RVRT_TMS", //
 				"VArPct_RvrtTms", //
 				"Timeout period for VAR limit.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3264,7 +3264,7 @@ public enum SunSpecModel {
 				"S123_V_AR_PCT__RMP_TMS", //
 				"VArPct_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3272,7 +3272,7 @@ public enum SunSpecModel {
 				"S123_V_AR_PCT__MOD", //
 				"VArPct_Mod", //
 				"Enumerated value. VAR percent limit mode.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3280,7 +3280,7 @@ public enum SunSpecModel {
 				"S123_V_AR_PCT__ENA", //
 				"VArPct_Ena", //
 				"Enumerated valued.  Percent limit VAr enable/disable control.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3288,7 +3288,7 @@ public enum SunSpecModel {
 				"S123_W_MAX_LIM_PCT__S_F", //
 				"WMaxLimPct_SF", //
 				"Scale factor for power output percent.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -3296,7 +3296,7 @@ public enum SunSpecModel {
 				"S123_OUT_P_F_SET__S_F", //
 				"OutPFSet_SF", //
 				"Scale factor for power factor.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -3304,7 +3304,7 @@ public enum SunSpecModel {
 				"S123_V_AR_PCT__S_F", //
 				"VArPct_SF", //
 				"Scale factor for reactive power percent.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)); //
@@ -3326,7 +3326,7 @@ public enum SunSpecModel {
 				"S124_W_CHA_MAX", //
 				"WChaMax", //
 				"Setpoint for maximum charge.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3334,7 +3334,7 @@ public enum SunSpecModel {
 				"S124_W_CHA_GRA", //
 				"WChaGra", //
 				"Setpoint for maximum charging rate. Default is MaxChaRte.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3342,7 +3342,7 @@ public enum SunSpecModel {
 				"S124_W_DIS_CHA_GRA", //
 				"WDisChaGra", //
 				"Setpoint for maximum discharge rate. Default is MaxDisChaRte.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3350,7 +3350,7 @@ public enum SunSpecModel {
 				"S124_STOR_CTL__MOD", //
 				"StorCtl_Mod", //
 				"Activate hold/discharge/charge storage control mode. Bitfield value.", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3358,7 +3358,7 @@ public enum SunSpecModel {
 				"S124_V_A_CHA_MAX", //
 				"VAChaMax", //
 				"Setpoint for maximum charging VA.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3366,7 +3366,7 @@ public enum SunSpecModel {
 				"S124_MIN_RSV_PCT", //
 				"MinRsvPct", //
 				"Setpoint for minimum reserve for storage as a percentage of the nominal maximum storage.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3374,7 +3374,7 @@ public enum SunSpecModel {
 				"S124_CHA_STATE", //
 				"ChaState", //
 				"Currently available energy as a percent of the capacity rating.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3382,7 +3382,7 @@ public enum SunSpecModel {
 				"S124_STOR_AVAL", //
 				"StorAval", //
 				"State of charge (ChaState) minus storage reserve (MinRsvPct) times capacity rating (AhrRtg).", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3390,7 +3390,7 @@ public enum SunSpecModel {
 				"S124_IN_BAT_V", //
 				"InBatV", //
 				"Internal battery voltage.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3398,7 +3398,7 @@ public enum SunSpecModel {
 				"S124_CHA_ST", //
 				"ChaSt", //
 				"Charge status of storage device. Enumerated value.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3406,7 +3406,7 @@ public enum SunSpecModel {
 				"S124_OUT_W_RTE", //
 				"OutWRte", //
 				"Percent of max discharge rate.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3414,7 +3414,7 @@ public enum SunSpecModel {
 				"S124_IN_W_RTE", //
 				"InWRte", //
 				"Percent of max charging rate.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3422,7 +3422,7 @@ public enum SunSpecModel {
 				"S124_IN_OUT_W_RTE__WIN_TMS", //
 				"InOutWRte_WinTms", //
 				"Time window for charge/discharge rate change.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3430,7 +3430,7 @@ public enum SunSpecModel {
 				"S124_IN_OUT_W_RTE__RVRT_TMS", //
 				"InOutWRte_RvrtTms", //
 				"Timeout period for charge/discharge rate.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3438,7 +3438,7 @@ public enum SunSpecModel {
 				"S124_IN_OUT_W_RTE__RMP_TMS", //
 				"InOutWRte_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3454,7 +3454,7 @@ public enum SunSpecModel {
 				"S124_W_CHA_MAX__S_F", //
 				"WChaMax_SF", //
 				"Scale factor for maximum charge.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -3462,7 +3462,7 @@ public enum SunSpecModel {
 				"S124_W_CHA_DIS_CHA_GRA__S_F", //
 				"WChaDisChaGra_SF", //
 				"Scale factor for maximum charge and discharge rate.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -3470,7 +3470,7 @@ public enum SunSpecModel {
 				"S124_V_A_CHA_MAX__S_F", //
 				"VAChaMax_SF", //
 				"Scale factor for maximum charging VA.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3478,7 +3478,7 @@ public enum SunSpecModel {
 				"S124_MIN_RSV_PCT__S_F", //
 				"MinRsvPct_SF", //
 				"Scale factor for minimum reserve percentage.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3486,7 +3486,7 @@ public enum SunSpecModel {
 				"S124_CHA_STATE__S_F", //
 				"ChaState_SF", //
 				"Scale factor for available energy percent.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3494,7 +3494,7 @@ public enum SunSpecModel {
 				"S124_STOR_AVAL__S_F", //
 				"StorAval_SF", //
 				"Scale factor for state of charge.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3502,7 +3502,7 @@ public enum SunSpecModel {
 				"S124_IN_BAT_V__S_F", //
 				"InBatV_SF", //
 				"Scale factor for battery voltage.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3510,7 +3510,7 @@ public enum SunSpecModel {
 				"S124_IN_OUT_W_RTE__S_F", //
 				"InOutWRte_SF", //
 				"Scale factor for percent charge/discharge rate.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)); //
@@ -3532,7 +3532,7 @@ public enum SunSpecModel {
 				"S125_MOD_ENA", //
 				"ModEna", //
 				"Is price-based charge/dischage mode active?", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3540,7 +3540,7 @@ public enum SunSpecModel {
 				"S125_SIG_TYPE", //
 				"SigType", //
 				"Meaning of the pricing signal. When a Price schedule is used, type must match the schedule range variable description.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3548,7 +3548,7 @@ public enum SunSpecModel {
 				"S125_SIG", //
 				"Sig", //
 				"Utility/ESP specific pricing signal. Content depends on pricing signal type. When H/M/L type is specified. Low=0; Med=1; High=2.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3556,7 +3556,7 @@ public enum SunSpecModel {
 				"S125_WIN_TMS", //
 				"WinTms", //
 				"Time window for charge/discharge pricing change.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3564,7 +3564,7 @@ public enum SunSpecModel {
 				"S125_RVT_TMS", //
 				"RvtTms", //
 				"Timeout period for charge/discharge pricing change.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3572,7 +3572,7 @@ public enum SunSpecModel {
 				"S125_RMP_TMS", //
 				"RmpTms", //
 				"Ramp time for moving from current charge or discharge level to new level.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3580,7 +3580,7 @@ public enum SunSpecModel {
 				"S125_SIG__S_F", //
 				"Sig_SF", //
 				"Pricing signal scale factor.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -3610,7 +3610,7 @@ public enum SunSpecModel {
 				"S127_W_GRA", //
 				"WGra", //
 				"The slope of the reduction in the maximum allowed watts output as a function of frequency.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3618,7 +3618,7 @@ public enum SunSpecModel {
 				"S127_HZ_STR", //
 				"HzStr", //
 				"The frequency deviation from nominal frequency (ECPNomHz) at which a snapshot of the instantaneous power output is taken to act as the CAPPED power level (PM) and above which reduction in power output occurs.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3626,7 +3626,7 @@ public enum SunSpecModel {
 				"S127_HZ_STOP", //
 				"HzStop", //
 				"The frequency deviation from nominal frequency (ECPNomHz) at which curtailed power output may return to normal and the cap on the power level value is removed.", //
-				" ", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3634,7 +3634,7 @@ public enum SunSpecModel {
 				"S127_HYS_ENA", //
 				"HysEna", //
 				"Enable hysterisis", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3642,7 +3642,7 @@ public enum SunSpecModel {
 				"S127_MOD_ENA", //
 				"ModEna", //
 				"Is Parameterized Frequency-Watt control active.", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3650,7 +3650,7 @@ public enum SunSpecModel {
 				"S127_HZ_STOP_W_GRA", //
 				"HzStopWGra", //
 				"The maximum time-based rate of change at which power output returns to normal after having been capped by an over frequency event.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3658,7 +3658,7 @@ public enum SunSpecModel {
 				"S127_W_GRA__S_F", //
 				"WGra_SF", //
 				"Scale factor for output gradient.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3666,7 +3666,7 @@ public enum SunSpecModel {
 				"S127_HZ_STR_STOP__S_F", //
 				"HzStrStop_SF", //
 				"Scale factor for frequency deviations.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3674,7 +3674,7 @@ public enum SunSpecModel {
 				"S127_RMP_INC_DEC__S_F", //
 				"RmpIncDec_SF", //
 				"Scale factor for increment and decrement ramps.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -3704,7 +3704,7 @@ public enum SunSpecModel {
 				"S128_AR_GRA_MOD", //
 				"ArGraMod", //
 				"Indicates if gradients trend toward zero at the edges of the deadband or trend toward zero at the center of the deadband.", //
-				" ", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3712,7 +3712,7 @@ public enum SunSpecModel {
 				"S128_AR_GRA_SAG", //
 				"ArGraSag", //
 				"The gradient used to increase capacitive dynamic current. A value of 0 indicates no additional reactive current support.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3720,7 +3720,7 @@ public enum SunSpecModel {
 				"S128_AR_GRA_SWELL", //
 				"ArGraSwell", //
 				"The gradient used to increase inductive dynamic current.  A value of 0 indicates no additional reactive current support.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3728,7 +3728,7 @@ public enum SunSpecModel {
 				"S128_MOD_ENA", //
 				"ModEna", //
 				"Activate dynamic reactive current model", //
-				" ", //
+				"", //
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE)), //
@@ -3736,7 +3736,7 @@ public enum SunSpecModel {
 				"S128_FIL_TMS", //
 				"FilTms", //
 				"The time window used to calculate the moving average voltage.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3744,7 +3744,7 @@ public enum SunSpecModel {
 				"S128_DB_V_MIN", //
 				"DbVMin", //
 				"The lower delta voltage limit for which negative voltage deviations less than this value no dynamic vars are produced.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3752,7 +3752,7 @@ public enum SunSpecModel {
 				"S128_DB_V_MAX", //
 				"DbVMax", //
 				"The upper delta voltage limit for which positive voltage deviations less than this value no dynamic current produced.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3760,7 +3760,7 @@ public enum SunSpecModel {
 				"S128_BLK_ZN_V", //
 				"BlkZnV", //
 				"Block zone voltage which defines a lower voltage boundary below which no dynamic current is produced.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3768,7 +3768,7 @@ public enum SunSpecModel {
 				"S128_HYS_BLK_ZN_V", //
 				"HysBlkZnV", //
 				"Hysteresis voltage used with BlkZnV.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3776,7 +3776,7 @@ public enum SunSpecModel {
 				"S128_BLK_ZN_TMMS", //
 				"BlkZnTmms", //
 				"Block zone time the time before which reactive current support remains active regardless of how low the voltage drops.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3784,7 +3784,7 @@ public enum SunSpecModel {
 				"S128_HOLD_TMMS", //
 				"HoldTmms", //
 				"Hold time during which reactive current support continues after the average voltage has entered the dead zone.", //
-				" ", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE)), //
@@ -3792,7 +3792,7 @@ public enum SunSpecModel {
 				"S128_AR_GRA__S_F", //
 				"ArGra_SF", //
 				"Scale factor for the gradients.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY)), //
@@ -3800,7 +3800,7 @@ public enum SunSpecModel {
 				"S128_V_REF_PCT__S_F", //
 				"VRefPct_SF", //
 				"Scale factor for the voltage zone and limit settings.", //
-				" ", //
+				"", //
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY)), //
@@ -6545,7 +6545,7 @@ public enum SunSpecModel {
 		P_P_T(new PointImpl(//
 				"S307_P_P_T", //
 				"Precipitation Type", //
-				" Precipitation Type (WMO 4680 SYNOP code reference)", //
+				"Precipitation Type (WMO 4680 SYNOP code reference)", //
 				"", //
 				PointType.INT16, //
 				false, //
