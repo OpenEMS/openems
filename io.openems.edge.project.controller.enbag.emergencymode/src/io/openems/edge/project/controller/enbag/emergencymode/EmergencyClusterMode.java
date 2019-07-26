@@ -63,7 +63,8 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				ThisChannelId.values() //
+				ThisChannelId.values(), //
+				ChannelId.values()
 		);
 		this.clock = clock;
 	}
@@ -383,7 +384,7 @@ public class EmergencyClusterMode extends AbstractOpenemsComponent implements Co
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		OFF_GRID_BATTERY_AND_PV_STATE(Doc.of(OpenemsType.STRING))//
+		OFF_GRID_BATTERY_AND_PV_STATE(Doc.of(OpenemsType.INTEGER))//
 		;
 		private final Doc doc;
 
