@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import java.util.Optional;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -19,6 +21,42 @@ import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 public class SunSpecModelUtils {
 
 	/**
+	 * This is taken from the first sheet inside the SunSpec excel file.
+	 */
+	public static enum ModelType {
+		COMMON(1, 1), //
+		AGGREGATOR(2, 2), //
+		NETWORK_CONFIGURATION(10, 19), //
+		INVERTER(100, 199), //
+		METER(200, 299), //
+		ENVIRONMENTAL(300, 399), //
+		STRING_COMBINER(400, 499), //
+		PANEL(500, 599), //
+		TRACKER(600, 699), //
+		RESERVED_1(700, 799), //
+		STORAGE(800, 899), //
+		RESERVED_2(900, 63000), //
+		VENDOR_SPECIFIC(64000, 65535);
+
+		protected final int startId;
+		protected final int endId;
+
+		private ModelType(int startId, int endId) {
+			this.startId = startId;
+			this.endId = endId;
+		}
+
+		protected static ModelType getModelType(int id) {
+			for (ModelType type : ModelType.values()) {
+				if (type.startId <= id && type.endId >= id) {
+					return type;
+				}
+			}
+			throw new IllegalArgumentException("There is no SunSpec Model-Type for ID " + id);
+		}
+	}
+
+	/**
 	 * Holds one "Point" or "Register" within a SunSpec "Model" or "Block".
 	 */
 	public static interface Point {
@@ -27,7 +65,7 @@ public class SunSpecModelUtils {
 		 * Gets the Point-ID.
 		 * 
 		 * <p>
-		 * This method referrs to {@link Enum#name()}.
+		 * This method refers to {@link Enum#name()}.
 		 * 
 		 * @return the ID.
 		 */
@@ -72,9 +110,10 @@ public class SunSpecModelUtils {
 		public final boolean mandatory;
 		public final AccessMode accessMode;
 		public final SunSChannelId<?> channelId;
+		public final Optional<String> scaleFactor;
 
 		public PointImpl(String channelId, String label, String description, String notes, PointType type,
-				boolean mandatory, AccessMode accessMode) {
+				boolean mandatory, AccessMode accessMode, String scaleFactor) {
 			this.label = label;
 			this.description = description;
 			this.notes = notes;
@@ -84,6 +123,7 @@ public class SunSpecModelUtils {
 			this.channelId = new SunSChannelId<>(channelId, //
 					Doc.of(this.getMatchingOpenemsType()) //
 							.accessMode(accessMode));
+			this.scaleFactor = Optional.ofNullable(scaleFactor);
 		}
 
 		/**
@@ -294,6 +334,11 @@ public class SunSpecModelUtils {
 		@Override
 		public Doc doc() {
 			return this.doc;
+		}
+
+		@Override
+		public String toString() {
+			return this.name;
 		}
 	}
 }

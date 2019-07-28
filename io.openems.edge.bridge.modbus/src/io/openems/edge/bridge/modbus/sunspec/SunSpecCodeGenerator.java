@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -27,6 +28,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.XmlUtils;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.ModelType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointCategory;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecCodeGenerator.Point.Symbol;
@@ -294,7 +296,7 @@ public class SunSpecCodeGenerator {
 			len = type.length;
 		}
 
-		String sf = XmlUtils.getAsStringOrElse(attrs, "sf", "");
+		String scaleFactor = XmlUtils.getAsStringOrElse(attrs, "sf", null);
 		String units = XmlUtils.getAsStringOrElse(attrs, "units", "");
 
 		String accessModeString = XmlUtils.getAsStringOrElse(attrs, "access", "r");
@@ -330,7 +332,7 @@ public class SunSpecCodeGenerator {
 			symbols = new Symbol[0];
 		}
 
-		Point point = new Point(id, len, offset, type, sf, units, accessMode, mandatory, category, symbols);
+		Point point = new Point(id, len, offset, type, scaleFactor, units, accessMode, mandatory, category, symbols);
 		return point;
 	}
 
@@ -530,6 +532,8 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write("import io.openems.common.channel.AccessMode;");
 			w.newLine();
+			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.ModelType;");
+			w.newLine();
 			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.Point;");
 			w.newLine();
 			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointImpl;");
@@ -561,7 +565,9 @@ public class SunSpecCodeGenerator {
 				w.newLine();
 				w.write("			" + model.len + ", //");
 				w.newLine();
-				w.write("			SunSpecModel.S" + model.id + ".values() //");
+				w.write("			SunSpecModel.S" + model.id + ".values(), //");
+				w.newLine();
+				w.write("			ModelType." + model.modelType + " //");
 				w.newLine();
 				w.write("	)");
 				if (i == models.size() - 1) {
@@ -596,7 +602,10 @@ public class SunSpecCodeGenerator {
 					w.newLine();
 					w.write("				" + point.mandatory + ", //");
 					w.newLine();
-					w.write("				AccessMode." + point.accessMode.name() + "))");
+					w.write("				AccessMode." + point.accessMode.name() + ", //");
+					w.newLine();
+					w.write("				"
+							+ (point.scaleFactor.isPresent() ? ("\"" + point.scaleFactor.get() + "\"") : null) + "))");
 					if (i == model.points.size() - 1) {
 						w.write("; //");
 					} else {
@@ -638,8 +647,10 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write("	public final Point[] points;");
 			w.newLine();
+			w.write("	public final ModelType modelType;");
 			w.newLine();
-			w.write("	private SunSpecModel(String label, String description, String notes, int length, Point[] points) {");
+			w.newLine();
+			w.write("	private SunSpecModel(String label, String description, String notes, int length, Point[] points, ModelType modelType) {");
 			w.newLine();
 			w.write("		this.label = label;");
 			w.newLine();
@@ -650,6 +661,8 @@ public class SunSpecCodeGenerator {
 			w.write("		this.length = length;");
 			w.newLine();
 			w.write("		this.points = points;");
+			w.newLine();
+			w.write("		this.modelType = modelType;");
 			w.newLine();
 			w.write("	}");
 			w.newLine();
@@ -730,6 +743,7 @@ public class SunSpecCodeGenerator {
 		protected final int len;
 		protected final String name;
 		protected final List<Point> points;
+		protected final ModelType modelType;
 
 		protected String label = "";
 		protected String description = "";
@@ -740,6 +754,7 @@ public class SunSpecCodeGenerator {
 			this.len = len;
 			this.name = name;
 			this.points = points;
+			this.modelType = ModelType.getModelType(id);
 		}
 
 		/**
@@ -775,7 +790,7 @@ public class SunSpecCodeGenerator {
 		protected final int len;
 		protected final int offset;
 		protected final PointType type;
-		protected final String sf;
+		protected final Optional<String> scaleFactor;
 		protected final String units;
 		protected final AccessMode accessMode;
 		protected final boolean mandatory;
@@ -786,14 +801,14 @@ public class SunSpecCodeGenerator {
 		protected String description;
 		protected String notes;
 
-		public Point(String id, int len, int offset, PointType type, String sf, String units, AccessMode accessMode,
-				boolean mandatory, PointCategory category, Symbol[] symbols) {
+		public Point(String id, int len, int offset, PointType type, String scaleFactor, String units,
+				AccessMode accessMode, boolean mandatory, PointCategory category, Symbol[] symbols) {
 			super();
 			this.id = id;
 			this.len = len;
 			this.offset = offset;
 			this.type = type;
-			this.sf = sf;
+			this.scaleFactor = Optional.ofNullable(scaleFactor);
 			this.units = units;
 			this.accessMode = accessMode;
 			this.mandatory = mandatory;
@@ -819,10 +834,10 @@ public class SunSpecCodeGenerator {
 
 		@Override
 		public String toString() {
-			return "Point [id=" + id + ", len=" + len + ", offset=" + offset + ", type=" + type + ", sf=" + sf
-					+ ", units=" + units + ", access=" + accessMode + ", mandatory=" + mandatory + ", category="
-					+ category + ", symbols=" + Arrays.toString(symbols) + ", label=" + label + ", description="
-					+ description + ", notes=" + notes + "]";
+			return "Point [id=" + id + ", len=" + len + ", offset=" + offset + ", type=" + type + ", scaleFactor="
+					+ scaleFactor.orElse("") + ", units=" + units + ", access=" + accessMode + ", mandatory="
+					+ mandatory + ", category=" + category + ", symbols=" + Arrays.toString(symbols) + ", label="
+					+ label + ", description=" + description + ", notes=" + notes + "]";
 		}
 
 		/**
