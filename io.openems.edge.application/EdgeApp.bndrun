@@ -184,9 +184,6 @@
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
 	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
 	io.openems.edge.meter.pqplus.umd97;version=snapshot,\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.10.2,1.10.3)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.10.2,1.10.3)',\
-	com.sun.jna;version='[5.3.1,5.3.2)',\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	com.google.guava;version='[28.0.0,28.0.1)',\
@@ -197,6 +194,9 @@
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.9.0,2.9.1)',\
 	com.fasterxml.jackson.core.jackson-core;version='[2.9.9,2.9.10)',\
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
-	com.github.scribejava.core;version='[6.6.3,6.6.4)',\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
-	io.openems.edge.controller.selltogridlimit;version=snapshot
+	io.openems.edge.controller.selltogridlimit;version=snapshot,\
+	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
+	com.sun.jna;version='[5.4.0,5.4.1)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[1.10.3,1.10.4)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.10.3,1.10.4)'

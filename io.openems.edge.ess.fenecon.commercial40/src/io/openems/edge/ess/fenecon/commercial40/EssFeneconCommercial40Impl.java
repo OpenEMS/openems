@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -157,9 +158,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_PV_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		// IntegerReadChannels
 		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
@@ -189,6 +187,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
 					channel.onChange(originalValueChannel -> {
+
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
 						Optional<Integer> originalValue = originalValueChannel.asOptional();
@@ -955,6 +954,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		STATE_104(Doc.of(Level.WARNING) //
 				.text("BatteryCurrentOverLimit")), //
 		STATE_105(Doc.of(Level.WARNING) //
+				.debounce(5 * 60 /* 5 minutes with a cycle time of 1 sec */,
+						Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)
 				.text("PowerDecreaseCausedByOvertemperature")), //
 		STATE_106(Doc.of(Level.WARNING) //
 				.text("InverterGeneralOvertemperature")), //
@@ -1055,6 +1056,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		public Doc doc() {
 			return this.doc;
 		}
+
 	}
 
 	@Override
@@ -1298,8 +1300,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40Impl.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40Impl.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40Impl.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA000, Priority.LOW, //
 						m(EssFeneconCommercial40Impl.ChannelId.BMS_DCDC_WORK_STATE, new UnsignedWordElement(0xA000)), //

@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.github.scribejava</groupId>
 			<artifactId>scribejava-core</artifactId>
-			<version>6.6.3</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -84,9 +84,10 @@
 		</dependency>
 		<!-- net -->
 		<dependency>
+			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.3.1</version>
+			<version>5.4.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -107,7 +108,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.10.8</version>
+			<version>0.10.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.influxdb</groupId>
@@ -122,17 +123,17 @@
 		<dependency>
 			<groupId>org.msgpack</groupId>
 			<artifactId>msgpack-core</artifactId>
-			<version>0.8.16</version>
+			<version>0.8.17</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>1.10.2</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-service</artifactId>
-			<version>1.10.2</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
