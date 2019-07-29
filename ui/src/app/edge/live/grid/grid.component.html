@@ -1,6 +1,6 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card>
+        <ion-card button (click)="presentModal()">
             <ion-item color="light" lines="full">
                 <ion-avatar slot="start">
                     <img src="assets/img/grid.png">
