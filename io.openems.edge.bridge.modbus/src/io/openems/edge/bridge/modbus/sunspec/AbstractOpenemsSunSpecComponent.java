@@ -15,9 +15,8 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.CaseFormat;
-
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -26,9 +25,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.ModelType;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.Point;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.SunSChannelId;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -39,24 +35,24 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsSunSpecComponent.class);
 
-	private final Set<ModelType> modelTypes;
+	private final Set<SunSpecModelType> modelTypes;
 	private final ModbusProtocol modbusProtocol;
 
 	/**
 	 * Constructs a AbstractOpenemsSunSpecComponent.
 	 * 
-	 * @param modelTypes               the SunSpec {@link ModelType}s that should be
-	 *                                 considered
+	 * @param modelTypes               the SunSpec {@link SunSpecModelType}s that
+	 *                                 should be considered
 	 * @param firstInitialChannelIds   forwarded to
 	 *                                 {@link AbstractOpenemsModbusComponent}
 	 * @param furtherInitialChannelIds forwarded to
 	 *                                 {@link AbstractOpenemsModbusComponent}
 	 */
-	public AbstractOpenemsSunSpecComponent(ModelType[] modelTypes,
+	public AbstractOpenemsSunSpecComponent(SunSpecModelType[] modelTypes,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
-		this.modelTypes = new HashSet<ModelType>(Arrays.asList(modelTypes));
+		this.modelTypes = new HashSet<SunSpecModelType>(Arrays.asList(modelTypes));
 		this.modbusProtocol = new ModbusProtocol(this);
 	}
 
@@ -124,7 +120,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 					final CompletableFuture<Void> readBlockFuture;
 					// Should the ModelType of this Block be considered?
-					if (this.modelTypes.contains(ModelType.getModelType(blockId))) {
+					if (this.modelTypes.contains(SunSpecModelType.getModelType(blockId))) {
 
 						// Is this SunSpecModel block supported?
 						SunSpecModel sunSpecModel = null;
@@ -187,11 +183,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param model        the SunSpecModel
 	 */
 	private CompletableFuture<Void> addBlock(int startAddress, SunSpecModel model) {
+		this.logInfo(this.log, "Adding SunSpec-Model [" + model.name().substring(2) + ":" + model.label
+				+ "] starting at [" + startAddress + "]");
+
 		final CompletableFuture<Void> finished = new CompletableFuture<Void>();
 		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points.length];
 		startAddress += 2;
 		for (int i = 0; i < model.points.length; i++) {
-			Point point = model.points[i];
+			SunSpecPoint point = model.points[i];
 			AbstractModbusElement<?> element = point.get().generateModbusElement(startAddress);
 			startAddress += element.getLength();
 			elements[i] = element;
@@ -206,7 +205,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			 * -> ignore non-defined SunSpec points with DummyElement
 			 */
 			for (int i = 0; i < values.size(); i++) {
-				Point point = model.points[i];
+				SunSpecPoint point = model.points[i];
 				Object value = values.get(i);
 				AbstractModbusElement<?> element = elements[i];
 				if (point.isDefined(value)) {
@@ -217,12 +216,12 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					if (point.get().scaleFactor.isPresent()) {
 						// This Point needs a ScaleFactor
 						// - find the ScaleFactor-Point
-						String scaleFactorName = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE,
-								point.get().scaleFactor.get());
-						Point scaleFactorPoint = null;
-						for (Point sfPoint : model.points) {
+						String scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
+						SunSpecPoint scaleFactorPoint = null;
+						for (SunSpecPoint sfPoint : model.points) {
 							if (sfPoint.name().equals(scaleFactorName)) {
 								scaleFactorPoint = sfPoint;
+								continue;
 							}
 						}
 						if (scaleFactorPoint == null) {
@@ -382,7 +381,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param point the SunSpec Point
 	 * @return the optional Channel
 	 */
-	protected Optional<Channel<?>> getSunSpecChannel(Point point) {
+	protected <T> Optional<T> getSunSpecChannel(SunSpecPoint point) {
 		try {
 			return Optional.ofNullable(this.channel(point.getChannelId()));
 		} catch (IllegalArgumentException e) {
@@ -391,22 +390,28 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	}
 
 	/**
-	 * Maps the first available SunSpec {@link Point} to the targetChannel.
+	 * Maps the first available SunSpec {@link SunSpecPoint} to the targetChannel.
+	 *
+	 * <p>
+	 * The logic checks in order if a point is defined and uses that point.
 	 * 
 	 * <p>
 	 * Call this method only after all SunSpec models were completely read - i.e.
 	 * onSunSpecInitializationCompleted()
 	 * 
 	 * @param targetChannel the targetChannel
-	 * 
+	 * @param converter     convert from Point value to the Unit of the Channel
+	 * @param points        the points.
 	 */
-	protected void mapFirstPointToChannel(io.openems.edge.common.channel.ChannelId targetChannel, Point... points) {
-		for (Point point : points) {
+	protected void mapFirstPointToChannel(io.openems.edge.common.channel.ChannelId targetChannel,
+			ElementToChannelConverter converter, SunSpecPoint... points) {
+		for (SunSpecPoint point : points) {
 			Optional<Channel<?>> c = this.getSunSpecChannel(point);
 			if (c.isPresent()) {
 				c.get().onUpdate(value -> {
-					this.channel(targetChannel).setNextValue(value.get());
+					this.channel(targetChannel).setNextValue(converter.elementToChannel(value.get()));
 				});
+				return;
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -16,87 +17,48 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
+import io.openems.edge.common.channel.EnumDoc;
 
-public class SunSpecModelUtils {
+/**
+ * Holds one "Point" or "Register" within a SunSpec "Model" or "Block".
+ */
+public interface SunSpecPoint {
 
 	/**
-	 * This is taken from the first sheet inside the SunSpec excel file.
+	 * Gets the Point-ID.
+	 * 
+	 * <p>
+	 * This method refers to {@link Enum#name()}.
+	 * 
+	 * @return the ID.
 	 */
-	public static enum ModelType {
-		COMMON(1, 1), //
-		AGGREGATOR(2, 2), //
-		NETWORK_CONFIGURATION(10, 19), //
-		INVERTER(100, 199), //
-		METER(200, 299), //
-		ENVIRONMENTAL(300, 399), //
-		STRING_COMBINER(400, 499), //
-		PANEL(500, 599), //
-		TRACKER(600, 699), //
-		RESERVED_1(700, 799), //
-		STORAGE(800, 899), //
-		RESERVED_2(900, 63000), //
-		VENDOR_SPECIFIC(64000, 65535);
+	public String name();
 
-		protected final int startId;
-		protected final int endId;
+	/**
+	 * The internal PointImpl object for easier handling in Enums.
+	 * 
+	 * @return the internal PointImpl
+	 */
+	public PointImpl get();
 
-		private ModelType(int startId, int endId) {
-			this.startId = startId;
-			this.endId = endId;
-		}
-
-		protected static ModelType getModelType(int id) {
-			for (ModelType type : ModelType.values()) {
-				if (type.startId <= id && type.endId >= id) {
-					return type;
-				}
-			}
-			throw new IllegalArgumentException("There is no SunSpec Model-Type for ID " + id);
-		}
+	/**
+	 * Returns true if the value represents a 'defined' value in SunSpec.
+	 * 
+	 * @param type  the PointType
+	 * @param value the value
+	 * @return true for defined values
+	 */
+	public default boolean isDefined(Object value) {
+		return PointType.isDefined(this.get().type, value);
 	}
 
 	/**
-	 * Holds one "Point" or "Register" within a SunSpec "Model" or "Block".
+	 * Gets the {@link ChannelId} for this Point.
+	 * 
+	 * @return the ChannelId.
 	 */
-	public static interface Point {
-
-		/**
-		 * Gets the Point-ID.
-		 * 
-		 * <p>
-		 * This method refers to {@link Enum#name()}.
-		 * 
-		 * @return the ID.
-		 */
-		public String name();
-
-		/**
-		 * The internal PointImpl object for easier handling in Enums.
-		 * 
-		 * @return the internal PointImpl
-		 */
-		public PointImpl get();
-
-		/**
-		 * Returns true if the value represents a 'defined' value in SunSpec.
-		 * 
-		 * @param type  the PointType
-		 * @param value the value
-		 * @return true for defined values
-		 */
-		public default boolean isDefined(Object value) {
-			return PointType.isDefined(this.get().type, value);
-		}
-
-		/**
-		 * Gets the {@link ChannelId} for this Point.
-		 * 
-		 * @return the ChannelId.
-		 */
-		public default SunSChannelId<?> getChannelId() {
-			return this.get().channelId;
-		}
+	public default SunSChannelId<?> getChannelId() {
+		return this.get().channelId;
 	}
 
 	/**
@@ -111,19 +73,27 @@ public class SunSpecModelUtils {
 		public final AccessMode accessMode;
 		public final SunSChannelId<?> channelId;
 		public final Optional<String> scaleFactor;
+		public final OptionsEnum[] options;
 
 		public PointImpl(String channelId, String label, String description, String notes, PointType type,
-				boolean mandatory, AccessMode accessMode, String scaleFactor) {
+				boolean mandatory, AccessMode accessMode, String scaleFactor, OptionsEnum[] options) {
 			this.label = label;
 			this.description = description;
 			this.notes = notes;
 			this.type = type;
 			this.mandatory = mandatory;
 			this.accessMode = accessMode;
-			this.channelId = new SunSChannelId<>(channelId, //
-					Doc.of(this.getMatchingOpenemsType()) //
-							.accessMode(accessMode));
+			if (options.length == 0) {
+				this.channelId = new SunSChannelId<>(channelId, //
+						Doc.of(this.getMatchingOpenemsType()) //
+								.accessMode(accessMode));
+			} else {
+				this.channelId = new SunSChannelId<Integer>(channelId, //
+						new EnumDoc(options) //
+								.accessMode(accessMode));
+			}
 			this.scaleFactor = Optional.ofNullable(scaleFactor);
+			this.options = options;
 		}
 
 		/**
@@ -312,33 +282,7 @@ public class SunSpecModelUtils {
 		}
 	}
 
-	protected static enum PointCategory {
+	public static enum PointCategory {
 		NONE, MEASUREMENT, METERED, STATUS, EVENT, SETTING, CONTROL;
-	}
-
-	public static class SunSChannelId<T> implements io.openems.edge.common.channel.ChannelId {
-
-		private final String name;
-		private final OpenemsTypeDoc<T> doc;
-
-		public SunSChannelId(String name, OpenemsTypeDoc<T> doc) {
-			this.name = name;
-			this.doc = doc;
-		}
-
-		@Override
-		public String name() {
-			return this.name;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-
-		@Override
-		public String toString() {
-			return this.name;
-		}
 	}
 }

@@ -28,10 +28,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.XmlUtils;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.ModelType;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointCategory;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecCodeGenerator.Point.Symbol;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointCategory;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointType;
 
 /**
  * This tool converts SunSpec XML definitions to Java code suitable for the
@@ -532,13 +531,7 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write("import io.openems.common.channel.AccessMode;");
 			w.newLine();
-			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.ModelType;");
-			w.newLine();
-			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.Point;");
-			w.newLine();
-			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointImpl;");
-			w.newLine();
-			w.write("import io.openems.edge.bridge.modbus.sunspec.SunSpecModelUtils.PointType;");
+			w.write("import io.openems.common.types.OptionsEnum;");
 			w.newLine();
 			w.newLine();
 			w.write("/**");
@@ -567,7 +560,7 @@ public class SunSpecCodeGenerator {
 				w.newLine();
 				w.write("			SunSpecModel.S" + model.id + ".values(), //");
 				w.newLine();
-				w.write("			ModelType." + model.modelType + " //");
+				w.write("			SunSpecModelType." + model.modelType + " //");
 				w.newLine();
 				w.write("	)");
 				if (i == models.size() - 1) {
@@ -580,14 +573,14 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 
 			/*
-			 * Write enums for each Model with Points
+			 * For each Model write enum with SunSpecPoints
 			 */
 			for (Model model : models) {
-				w.write("	public static enum S" + model.id + " implements Point {");
+				w.write("	public static enum S" + model.id + " implements SunSpecPoint {");
 				w.newLine();
 				for (int i = 0; i < model.points.size(); i++) {
 					Point point = model.points.get(i);
-					String pointUpperId = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, point.id);
+					String pointUpperId = toUpperUnderscore(point.id);
 					w.write("		" + pointUpperId + "(new PointImpl(//");
 					w.newLine();
 					w.write("				\"S" + model.id + "_" + pointUpperId + "\", //");
@@ -605,7 +598,15 @@ public class SunSpecCodeGenerator {
 					w.write("				AccessMode." + point.accessMode.name() + ", //");
 					w.newLine();
 					w.write("				"
-							+ (point.scaleFactor.isPresent() ? ("\"" + point.scaleFactor.get() + "\"") : null) + "))");
+							+ (point.scaleFactor.isPresent() ? ("\"" + point.scaleFactor.get() + "\"") : null)
+							+ ", //");
+					w.newLine();
+					if (point.symbols.length == 0) {
+						w.write("				new OptionsEnum[0]))");
+					} else {
+						w.write("				S" + model.id + "_" + point.id + ".values()))");
+					}
+
 					if (i == model.points.size() - 1) {
 						w.write("; //");
 					} else {
@@ -635,6 +636,83 @@ public class SunSpecCodeGenerator {
 				w.write("	}");
 				w.newLine();
 				w.newLine();
+
+				/*
+				 * For SunSpecPoints with Symbols write OpenEMS OptionsEnum
+				 */
+				for (Point point : model.points) {
+					if (point.symbols.length == 0) {
+						continue;
+					}
+
+					w.write("	public static enum S" + model.id + "_" + point.id + " implements OptionsEnum {");
+					w.newLine();
+					w.write("		UNDEFINED(-1, \"Undefined\"), //");
+					w.newLine();
+					for (int i = 0; i < point.symbols.length; i++) {
+						Symbol symbol = point.symbols[i];
+						String symbolId = symbol.id;
+						symbolId = toUpperUnderscore(symbolId);
+
+						switch (symbolId) {
+						case "RESERVED":
+							symbolId = symbolId + "_" + symbol.value; // avoid duplicated "RESERVED" ids.
+							break;
+						}
+
+						w.write("		" + symbolId + "(" + symbol.value + ", \"" + symbolId + "\")");
+						if (i == point.symbols.length - 1) {
+							w.write("; //");
+						} else {
+							w.write(", //");
+						}
+						w.newLine();
+					}
+					w.newLine();
+					w.write("		private final int value;");
+					w.newLine();
+					w.write("		private final String name;");
+					w.newLine();
+					w.newLine();
+					w.write("		private S" + model.id + "_" + point.id + "(int value, String name) {");
+					w.newLine();
+					w.write("			this.value = value;");
+					w.newLine();
+					w.write("			this.name = name;");
+					w.newLine();
+					w.write("		}");
+					w.newLine();
+					w.newLine();
+					w.write("		@Override");
+					w.newLine();
+					w.write("		public int getValue() {");
+					w.newLine();
+					w.write("			return value;");
+					w.newLine();
+					w.write("		}");
+					w.newLine();
+					w.newLine();
+					w.write("		@Override");
+					w.newLine();
+					w.write("		public String getName() {");
+					w.newLine();
+					w.write("			return name;");
+					w.newLine();
+					w.write("		}");
+					w.newLine();
+					w.newLine();
+					w.write("		@Override");
+					w.newLine();
+					w.write("		public OptionsEnum getUndefined() {");
+					w.newLine();
+					w.write("			return UNDEFINED;");
+					w.newLine();
+					w.write("		}");
+					w.newLine();
+					w.write("	}");
+					w.newLine();
+					w.newLine();
+				}
 			}
 
 			w.write("	public final String label;");
@@ -645,12 +723,14 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write("	public final int length;");
 			w.newLine();
-			w.write("	public final Point[] points;");
+			w.write("	public final SunSpecPoint[] points;");
 			w.newLine();
-			w.write("	public final ModelType modelType;");
+			w.write("	public final SunSpecModelType modelType;");
 			w.newLine();
 			w.newLine();
-			w.write("	private SunSpecModel(String label, String description, String notes, int length, Point[] points, ModelType modelType) {");
+			w.write("	private SunSpecModel(String label, String description, String notes, int length, SunSpecPoint[] points,");
+			w.newLine();
+			w.write("			SunSpecModelType modelType) {");
 			w.newLine();
 			w.write("		this.label = label;");
 			w.newLine();
@@ -743,7 +823,7 @@ public class SunSpecCodeGenerator {
 		protected final int len;
 		protected final String name;
 		protected final List<Point> points;
-		protected final ModelType modelType;
+		protected final SunSpecModelType modelType;
 
 		protected String label = "";
 		protected String description = "";
@@ -754,7 +834,7 @@ public class SunSpecCodeGenerator {
 			this.len = len;
 			this.name = name;
 			this.points = points;
-			this.modelType = ModelType.getModelType(id);
+			this.modelType = SunSpecModelType.getModelType(id);
 		}
 
 		/**
@@ -842,8 +922,6 @@ public class SunSpecCodeGenerator {
 
 		/**
 		 * POJO container for a SunSpec Point Symbol.
-		 * 
-		 * TODO write Symbols as Enum to output file.
 		 */
 		public static class Symbol {
 			protected final String id;
@@ -906,7 +984,16 @@ public class SunSpecCodeGenerator {
 				this.value = value;
 			}
 		}
+	}
 
+	protected static String toUpperUnderscore(String string) {
+		string = string //
+				.replace("-", "_") //
+				.replace(" ", "_");
+		if (!string.toUpperCase().equals(string)) {
+			string = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, string);
+		}
+		return string.replaceAll("__", "_");
 	}
 
 }

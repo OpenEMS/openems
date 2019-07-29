@@ -1,8 +1,5 @@
 package io.openems.edge.bridge.modbus.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
@@ -21,8 +18,6 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class ElementToChannelScaleFactorConverter extends ElementToChannelConverter {
 
-	private final static Logger log = LoggerFactory.getLogger(ElementToChannelScaleFactorConverter.class);
-
 	public ElementToChannelScaleFactorConverter(OpenemsComponent component, ChannelId scaleFactorChannel) {
 		super(//
 				// element -> channel
@@ -31,7 +26,6 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 						return apply(value,
 								((IntegerReadChannel) component.channel(scaleFactorChannel)).value().getOrError() * -1);
 					} catch (InvalidValueException | IllegalArgumentException e) {
-						log.warn("Unable to apply ScaleFactor: " + e.getMessage());
 						return null;
 					}
 				}, //
@@ -42,7 +36,6 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 						return apply(value,
 								((IntegerReadChannel) component.channel(scaleFactorChannel)).value().getOrError());
 					} catch (InvalidValueException | IllegalArgumentException e) {
-						log.warn("Unable to apply ScaleFactor: " + e.getMessage());
 						return null;
 					}
 				});
