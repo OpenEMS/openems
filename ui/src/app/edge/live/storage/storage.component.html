@@ -49,18 +49,6 @@
                                 <td style="width:10%"></td>
                             </ng-template>
                         </tr>
-                        <tr>
-                            <td style="width:65%" translate>General.Capacity</td>
-                            <ng-container *ngIf="sum.capacity != null; else empty">
-                                <td style="width:25%" class="align_right">
-                                    {{ sum.capacity | number:'1.0-0' }}</td>
-                                <td style="width:10%">&nbsp;Wh</td>
-                            </ng-container>
-                            <ng-template #empty>
-                                <td style="width:25%" class="align_right">-</td>
-                                <td style="width:10%"></td>
-                            </ng-template>
-                        </tr>
                     </table>
                 </ion-grid>
             </ion-card-content>
