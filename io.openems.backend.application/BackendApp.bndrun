@@ -5,7 +5,7 @@
 -resolve.effective: active
 
 -runproperties: \
-	org.osgi.service.http.port=9079,\
+	org.osgi.service.http.port=8079,\
 	felix.cm.dir=c:/openems-backend-config
 
 -runee: JavaSE-1.8
@@ -62,6 +62,7 @@
 	org.ops4j.pax.logging.pax-logging-service;version='[1.10.2,1.10.3)',\
 	io.openems.backend.metadata.wordpress;version=snapshot,\
 	io.openems.backend.uiwebsocket.energydepot;version=snapshot,\
-	org.mariadb.jdbc;version='[1.1.7,1.1.8)'
+	org.mariadb.jdbc;version='[1.1.7,1.1.8)',\
+	com.google.guava;version='[28.0.0,28.0.1)'
 	com.google.guava;version='[28.0.0,28.0.1)'
 
