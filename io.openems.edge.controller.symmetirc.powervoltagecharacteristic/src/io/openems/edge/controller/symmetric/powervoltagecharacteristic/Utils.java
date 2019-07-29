@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.reactivepowervoltagecharacteristic;
+package io.openems.edge.controller.symmetric.powervoltagecharacteristic;
 
 import java.util.ArrayList;
 import java.util.Collections;
