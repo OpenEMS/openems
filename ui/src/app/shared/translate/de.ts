@@ -33,7 +33,8 @@ export const TRANSLATION = {
             Saturday: "Samstag",
             Sunday: "Sonntag"
         },
-        ReportValue: "Fehlerhafte Daten melden"
+        ReportValue: "Fehlerhafte Daten melden",
+        Capacity: "Kapazität"
     },
     Menu: {
         Index: "Übersicht",
