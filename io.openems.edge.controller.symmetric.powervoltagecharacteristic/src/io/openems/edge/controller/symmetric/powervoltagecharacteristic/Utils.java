@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public class Utils {
+
 	public static float getValueOfLine(Map<Float, Float> points, float voltageRatio) {
 		float x = voltageRatio;
 		List<Float> percentList = new ArrayList<Float>(points.values());

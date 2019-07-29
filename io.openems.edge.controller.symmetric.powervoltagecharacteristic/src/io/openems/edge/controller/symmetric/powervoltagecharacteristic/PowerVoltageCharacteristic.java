@@ -40,9 +40,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 )
 public class PowerVoltageCharacteristic extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private final Map<Float, Float> qCharacteristic = new HashMap<>();
-	private final Map<Float, Float> pCharacteristic = new HashMap<>();
-
+	private final Map<Float, Float> powerCharacteristic = new HashMap<>();
+	private final Map<Integer, Map<Float, Float>> pMapCharacteristic = new HashMap<>();
 	/**
 	 * nominal voltage in [mV].
 	 */
@@ -129,18 +128,17 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 	 * 
 	 * 
 	 *                 Initialize the P by U characteristics.
-	 * 
+	 *
 	 *                 <p>
 	 *                 Parsing JSON then putting the point variables into
 	 *                 pByUCharacteristicEquation
-	 * 
+	 *
 	 *                 <pre>
 	 * [
-	 *   { "voltageRatio": 0.9,  "power" : -4000 },
-	 *   { "voltageRatio": 0.93, "percent": -1000 },
-	 *   { "voltageRatio": 0.0, "percent": 0},
-	 *   { "voltageRatio": 1.07, "percent": 1000 },
-	 *   { "voltageRatio": 1.1,  "percent": 4000 }
+	 *  { "voltageRatio": 0.9,  "percent" : 60 , "power" : -4000 }},
+	 *  { "voltageRatio": 0.93, "percent": 0 ,"power": -1000 }},
+	 *  { "voltageRatio": 1.07, "percent": 0 , "power": 0}},
+	 *  { "voltageRatio": 1.1,  "percent": -60,"power": 1000 } }
 	 * ]
 	 *                 </pre>
 	 * 
@@ -154,18 +152,23 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 			case ACTIVE:
 				JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
 				for (JsonElement element : jpowerV) {
-					float power = JsonUtils.getAsInt(element, "power");
+					int power = JsonUtils.getAsInt(element, "power");
 					float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
-					this.pCharacteristic.put(voltageRatio, power);
+					float percent = JsonUtils.getAsFloat(element, "percent");
+					this.powerCharacteristic.put(voltageRatio, percent);
+					this.pMapCharacteristic.put(power, new HashMap<Float, Float>() {
+						{
+							put(voltageRatio, percent);
+						}
+					});
 				}
-
 				break;
 			case REACTIVE:
 				JsonArray jPercentQ = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
 				for (JsonElement element : jPercentQ) {
 					float percent = JsonUtils.getAsFloat(element, "percent");
 					float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
-					this.qCharacteristic.put(voltageRatio, percent);
+					this.powerCharacteristic.put(voltageRatio, percent);
 				}
 				break;
 			case UNDEFINED:
@@ -200,20 +203,18 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
 		switch (this.getCharacteristicOption()) {
 		case ACTIVE:
-			float lineValue = Utils.getValueOfLine(this.pCharacteristic, voltageRatio);
-			float powerValue = this.pCharacteristic.get(voltageRatio);
-			this.power = (int) powerValue;
-			if (lineValue == 0) {
-				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, 0);
-			} else {
-				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-						this.power);
-			}
+			float lineValue = Utils.getValueOfLine(this.powerCharacteristic, voltageRatio);
+			System.out.println(lineValue);
+//			if (lineValue == 0) {
+//				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, 0);
+//			} else {
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, this.power);
+//			}
 			this.ess.addPowerConstraintAndValidate("ActivePowerVoltageCharacteristic", Phase.ALL, Pwr.ACTIVE,
 					Relationship.EQUALS, calculatedPower);
 			break;
 		case REACTIVE:
-			float valueOfLine = Utils.getValueOfLine(this.qCharacteristic, voltageRatio);
+			float valueOfLine = Utils.getValueOfLine(this.powerCharacteristic, voltageRatio);
 			if (valueOfLine == 0) {
 				return;
 			}
@@ -230,6 +231,5 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 		case UNDEFINED:
 			break;
 		}
-
 	}
 }
