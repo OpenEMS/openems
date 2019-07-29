@@ -1,11 +1,11 @@
-package io.openems.edge.predictor.persistant.model;
+package io.openems.edge.predictor.persistant.consumption;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 
 @ObjectClassDefinition( //
-		name = "Predictor PersistantModel", //
+		name = "Predictor PersistantModel Consumption", //
 		description = "This Predictor predicts the values configured")
 
 @interface Config {
@@ -19,5 +19,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	String webconsole_configurationFactory_nameHint() default "Persistant Model [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Persistant Model Consumption [{id}]";
 }

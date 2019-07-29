@@ -6,10 +6,14 @@ Bundle-Description: \
 	This Bundle describes the persistant model for predicting values.
 	
 Export-Package:  \
-	io.openems.edge.predictor.api
+	io.openems.edge.predictor.api,\
+	io.openems.edge.predictor.persistant.model,\
+	io.openems.edge.predictor.persistant.consumption,\
+	io.openems.edge.predictor.persistant.production
+	
 
 Private-Package:  \
-	io.openems.edge.predictor.persistant.model
+	
 
 -includeresource: {readme.adoc}
 
