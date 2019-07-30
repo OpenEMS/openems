@@ -87,7 +87,7 @@
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
-	bnd.identity;id='io.openems.edge.scheduler.dailyscheduler',\
+	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb'
@@ -158,7 +158,6 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
-	io.openems.edge.scheduler.dailyscheduler;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
@@ -199,4 +198,5 @@
 	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)'
+	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
+	io.openems.edge.scheduler.daily;version=snapshot
