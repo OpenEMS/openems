@@ -23,7 +23,7 @@
     "@angular/forms": "^8.1.2",
     "@angular/platform-browser": "^8.1.2",
     "@angular/platform-browser-dynamic": "^8.1.2",
-    "@angular/pwa": "^0.801.2",
+    "@angular/pwa": "^0.801.3",
     "@angular/router": "^8.1.2",
     "@angular/service-worker": "^8.1.2",
     "@ionic-native/core": "^5.10.0",
