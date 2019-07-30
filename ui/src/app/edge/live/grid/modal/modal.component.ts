@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'grid-modal',
@@ -18,6 +19,7 @@ export class GridModalComponent {
         private websocket: Websocket,
         private route: ActivatedRoute,
         public modalCtrl: ModalController,
+        public translate: TranslateService,
     ) { }
 
     ngOnInit() {
@@ -26,7 +28,6 @@ export class GridModalComponent {
             edge.subscribeChannels(this.websocket, GridModalComponent.SELECTOR, [
                 // Grid
                 new ChannelAddress('_sum', 'GridActivePower'),
-                // new ChannelAddress('_sum', 'GridMode')
             ]);
         });
     }

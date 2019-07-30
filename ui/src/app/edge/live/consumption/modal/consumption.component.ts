@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, Service, Websocket } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { ConsumptionModalComponent } from './modal/consumption.component';
 
 @Component({
-    selector: 'consumption',
-    templateUrl: './consumption.component.html'
+    selector: 'consumption-modal',
+    templateUrl: './modal.component.html'
 })
-export class ConsumptionComponent {
+export class ConsumptionModalComponent {
 
-    private static readonly SELECTOR = "consumption";
+    private static readonly SELECTOR = "consumption-modal";
 
     public edge: Edge = null;
 
@@ -24,7 +23,7 @@ export class ConsumptionComponent {
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            edge.subscribeChannels(this.websocket, ConsumptionComponent.SELECTOR, [
+            edge.subscribeChannels(this.websocket, ConsumptionModalComponent.SELECTOR, [
                 // Consumption
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
                 new ChannelAddress('_sum', 'ConsumptionMaxActivePower')
@@ -34,17 +33,7 @@ export class ConsumptionComponent {
 
     ngOnDestroy() {
         if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, ConsumptionComponent.SELECTOR);
+            this.edge.unsubscribeChannels(this.websocket, ConsumptionModalComponent.SELECTOR);
         }
-    }
-
-    async presentModal() {
-        const modal = await this.modalCtrl.create({
-            component: ConsumptionModalComponent,
-            componentProps: {
-                edge: this.edge
-            }
-        });
-        return await modal.present();
     }
 }

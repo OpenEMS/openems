@@ -1,6 +1,17 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title text-start padding-left translate>General.Consumption</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
 <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card button (click)="presentModal()">
+        <ion-card>
             <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
                     <img src="assets/img/consumption.png">

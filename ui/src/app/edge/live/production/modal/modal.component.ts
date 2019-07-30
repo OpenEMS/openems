@@ -1,28 +1,28 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
-import { Service, EdgeConfig, Edge, Websocket, ChannelAddress } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ChannelAddress, Edge, Service, Websocket, EdgeConfig } from '../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 
 @Component({
-    selector: 'storage-modal',
-    templateUrl: './modal.component.html',
+    selector: 'production-modal',
+    templateUrl: './modal.component.html'
 })
-export class StorageModalComponent implements OnInit {
+export class ProductionModalComponent {
 
-    private static readonly SELECTOR = "storage-modal";
+    private static readonly SELECTOR = "production-modal";
 
     @Input() edge: Edge;
 
     public config: EdgeConfig = null;
-    public essComponents: EdgeConfig.Component[] = null;
+    public productionMeterComponents: EdgeConfig.Component[] = null;
     public chargerComponents: EdgeConfig.Component[] = null;
-    public outputChannel: ChannelAddress[] = null;
+
 
     constructor(
         public service: Service,
-        public translate: TranslateService,
+        private websocket: Websocket,
+        private route: ActivatedRoute,
         public modalCtrl: ModalController,
-        public websocket: Websocket,
     ) { }
 
     ngOnInit() {
@@ -35,18 +35,14 @@ export class StorageModalComponent implements OnInit {
                     new ChannelAddress(component.id, 'ActualPower'),
                 )
             }
-            this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster"));
-            console.log(this.essComponents);
-            for (let component of this.essComponents) {
+            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == "PRODUCTION");
+            for (let component of this.productionMeterComponents) {
                 let factoryID = component.factoryId;
                 let factory = config.factories[factoryID];
-                console.log("factory", factory)
-                console.log("factoryid", factoryID)
                 channels.push(
-                    new ChannelAddress(component.id, 'Soc'),
                     new ChannelAddress(component.id, 'ActivePower')
                 );
-                if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+                if ((factory.natureIds.includes("io.openems.edge.meter.api.AsymmetricMeter"))) {
                     channels.push(
                         new ChannelAddress(component.id, 'ActivePowerL1'),
                         new ChannelAddress(component.id, 'ActivePowerL2'),
@@ -54,13 +50,13 @@ export class StorageModalComponent implements OnInit {
                     );
                 }
             }
-            this.edge.subscribeChannels(this.websocket, StorageModalComponent.SELECTOR, channels);
+            this.edge.subscribeChannels(this.websocket, ProductionModalComponent.SELECTOR, channels);
         })
     }
 
     ngOnDestroy() {
         if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, StorageModalComponent.SELECTOR);
+            this.edge.unsubscribeChannels(this.websocket, ProductionModalComponent.SELECTOR);
         }
     }
 }
