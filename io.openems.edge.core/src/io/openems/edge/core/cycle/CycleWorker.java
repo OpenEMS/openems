@@ -118,7 +118,7 @@ public class CycleWorker extends AbstractWorker {
 						}
 
 						// announce running was ok or not ok.
-						scheduler.getRunFailed().setNextValue(!schedulerHasError);
+						scheduler.getRunFailed().setNextValue(schedulerHasError);
 
 					} catch (Exception e) {
 						this.parent.logWarn(this.log, "Error in Scheduler [" + scheduler.id() + "]: " + e.getMessage());
