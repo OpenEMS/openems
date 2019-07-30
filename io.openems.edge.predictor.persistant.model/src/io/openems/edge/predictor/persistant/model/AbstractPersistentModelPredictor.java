@@ -12,8 +12,6 @@ import io.openems.edge.predictor.api.HourlyPredictor;
 
 public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsComponent implements HourlyPredictor {
 
-	public TreeMap<LocalDateTime, Integer> hourlyConsumption = new TreeMap<>();
-
 	String channelAddress;
 	public TreeMap<LocalDateTime, Long> hourlyEnergyData = new TreeMap<LocalDateTime, Long>();
 	private long currentEnergy;
@@ -29,6 +27,12 @@ public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsCo
 	}
 
 	protected abstract ComponentManager getComponentManager();
+
+	/*
+	 * This method get the value from the ChannelAddress every one hour, and updates
+	 * the the TreeMap
+	 * 
+	 */
 
 	public void calculateEnegryValue() throws OpenemsNamedException {
 
@@ -54,8 +58,8 @@ public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsCo
 			this.currentHour = now;
 		}
 
-		if (this.hourlyConsumption.size() > 24) {
-			this.hourlyConsumption.remove(this.hourlyConsumption.firstKey());
+		if (this.hourlyEnergyData.size() > 24) {
+			this.hourlyEnergyData.remove(this.hourlyEnergyData.firstKey());
 		}
 	}
 
@@ -86,34 +90,6 @@ public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsCo
 		}
 
 	}
-
-//	public void calculateConsumption() throws OpenemsNamedException {
-//
-//		LocalDateTime now = LocalDateTime.now();
-//		ChannelAddress channelAddress = ChannelAddress.fromString(this.channelAddress);
-//
-//		Long productionEnergy = parseLong(getComponentManager().getChannel(channelAddress).value().asStringWithoutUnit());
-//
-//		if (!executed) {
-//			this.currentProduction = productionEnergy;
-//			this.currentHour = now.withNano(0).withSecond(0);
-//			this.executed = true;
-//		}
-//		// Detects the switching of hour
-//		if (now.getMinute() == currentHour.plusMinutes(1).getMinute()) {
-//			long totalConsumption;
-//			totalConsumption = productionEnergy - currentProduction;
-//
-//			this.hourlyEnergyData.put(currentHour.withNano(0).withSecond(0), totalConsumption);
-//			this.currentProduction = productionEnergy;
-//			this.currentHour = now;
-//		}
-//
-//		if (this.hourlyEnergyData.size() > 24) {
-//			this.hourlyEnergyData.remove(this.hourlyEnergyData.firstKey());
-//		}
-//
-//	}
 
 	private Long parseLong(String asStringWithoutUnit) {
 		return Long.parseLong(asStringWithoutUnit);
