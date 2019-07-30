@@ -33,10 +33,11 @@ public class DummyComponentManager implements ComponentManager {
 	 * 
 	 * @param component
 	 */
-	public void addComponent(OpenemsComponent component) {
+	public DummyComponentManager addComponent(OpenemsComponent component) {
 		if (component != this) {
 			this.components.add(component);
 		}
+		return this;
 	}
 
 	@Override

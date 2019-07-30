@@ -198,5 +198,5 @@
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
 	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
 	com.sun.jna;version='[5.4.0,5.4.1)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.10.3,1.10.4)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.10.3,1.10.4)'
+	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)'

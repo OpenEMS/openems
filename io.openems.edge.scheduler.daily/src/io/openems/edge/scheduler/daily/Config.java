@@ -1,11 +1,11 @@
-package io.openems.edge.scheduler.dailyscheduler;
+package io.openems.edge.scheduler.daily;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.scheduler.api.Scheduler;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Scheduler Daily", //
 		description = "This Scheduler executes the Controller in desired Time in a DAY")
 
@@ -22,10 +22,13 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 	int cycleTime() default Scheduler.DEFAULT_CYCLE_TIME;
 
-	@AttributeDefinition(name = "Controller-IDs", description = "IDs of Controllers. Controller execution is based on the timings described in the json")
-	String controllerTimes() default "" + "[" //
+	@AttributeDefinition(name = "Always Run Before", description = "IDs of Controllers that should be executed _before_ other Controllers in the order of the IDs.")
+	String[] alwaysRunBeforeController_ids() default {};
+
+	@AttributeDefinition(name = "Daily Schedule", description = "Execution order of Controllers per time of day.")
+	String controllerScheduleJson() default "[" //
 			+ "  {" //
-			+ "    \"time\": \"13:42:00\"," //
+			+ "    \"time\": \"08:00:00\"," //
 			+ "    \"controllers\": [" //
 			+ "      \"ctrlFixActivePower0\"" //
 			+ "    ]" //
@@ -35,9 +38,9 @@ import io.openems.edge.scheduler.api.Scheduler;
 			+ "  }" //
 			+ "]";
 
-	@AttributeDefinition(name = "Controller-IDs", description = "IDs of Controllers. Controller execution is going to be sorted in the order of the IDs.")
-	String[] alwaysRunControllers_ids() default { "ctrlDebugLog0" };
+	@AttributeDefinition(name = "Always Run After", description = "IDs of Controllers that should be executed _after_ other Controllers in the order of the IDs.")
+	String[] alwaysRunAfterController_ids() default { "ctrlDebugLog0" };
 
-	String webconsole_configurationFactory_nameHint() default "Daily Scheduler [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Scheduler Daily [{id}]";
 
 }
