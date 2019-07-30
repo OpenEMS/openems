@@ -15,6 +15,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
@@ -23,6 +24,7 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
@@ -37,6 +39,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	private final Set<SunSpecModelType> modelTypes;
 	private final ModbusProtocol modbusProtocol;
+
+	private boolean isSunSpecInitializationCompleted = false;
 
 	/**
 	 * Constructs a AbstractOpenemsSunSpecComponent.
@@ -66,6 +70,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			}
 
 			this.readNextBlock(40_002).thenRun(() -> {
+				this.isSunSpecInitializationCompleted = true;
 				this.onSunSpecInitializationCompleted();
 			});
 		});
@@ -168,6 +173,18 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected abstract void addUnknownBlock(int startAddress, int sunSpecBlockId);
 
 	/**
+	 * Is the SunSpec initialization completed?.
+	 * 
+	 * <p>
+	 * If this returns true, all Channels are available.
+	 * 
+	 * @return true if initialization is completed
+	 */
+	public boolean isSunSpecInitializationCompleted() {
+		return this.isSunSpecInitializationCompleted;
+	}
+
+	/**
 	 * This method is called after the SunSpec initialization was completed.
 	 * 
 	 * <p>
@@ -181,6 +198,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * 
 	 * @param startAddress the address to start reading from
 	 * @param model        the SunSpecModel
+	 * @return future that gets completed when the Block elements are read
 	 */
 	private CompletableFuture<Void> addBlock(int startAddress, SunSpecModel model) {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.name().substring(2) + ":" + model.label
@@ -233,6 +251,11 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						// Add a scale-factor mapping between Element and Channel
 						element = m(channelId, element,
 								new ElementToChannelScaleFactorConverter(this, scaleFactorPoint.getChannelId()));
+
+						// Add a Write-Task
+						final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
+						this.modbusProtocol.addTask(writeTask);
+
 					} else {
 						// Add a direct mapping between Element and Channel
 						element = m(channelId, element);
@@ -244,9 +267,9 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 							element.getStartAddress() + point.get().type.length - 1);
 				}
 			}
-			final Task task = new FC3ReadRegistersTask(elements[0].getStartAddress(), Priority.HIGH, elements);
-			// TODO add WriteRegisterTask
-			this.modbusProtocol.addTask(task);
+			final Task readTask = new FC3ReadRegistersTask(elements[0].getStartAddress(), Priority.HIGH, elements);
+			this.modbusProtocol.addTask(readTask);
+
 			finished.complete(null);
 		});
 		return finished;
@@ -255,8 +278,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Reads given Element once from Modbus.
 	 * 
-	 * @param <T>      the Type of the element
-	 * @param elements the elements
+	 * @param <T>     the Type of the element
+	 * @param element the element
 	 * @return a future value, e.g. a integer
 	 */
 	private <T> CompletableFuture<T> readELementOnce(AbstractModbusElement<T> element) {
@@ -378,15 +401,34 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Get the Channel for the given Point.
 	 * 
+	 * @param <T>   the Channel type
 	 * @param point the SunSpec Point
 	 * @return the optional Channel
 	 */
-	protected <T> Optional<T> getSunSpecChannel(SunSpecPoint point) {
+	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint point) {
 		try {
 			return Optional.ofNullable(this.channel(point.getChannelId()));
 		} catch (IllegalArgumentException e) {
 			return Optional.empty();
 		}
+	}
+
+	/**
+	 * Get the Channel for the given Point or throw an error if it is not available.
+	 * 
+	 * @param <T>   the Channel type
+	 * @param point the SunSpec Point
+	 * @return the optional Channel
+	 * @throws OpenemsException if Channel is not available
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint point) throws OpenemsException {
+		Optional<Channel<?>> channelOpt = this.getSunSpecChannel(point);
+		if (!channelOpt.isPresent()) {
+			throw new OpenemsException("SunSpec Channel for Point [" + point.getClass().getSimpleName() + "."
+					+ point.name() + "] is not available");
+		}
+		return (T) channelOpt.get();
 	}
 
 	/**

@@ -36,6 +36,7 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointType;
  * This tool converts SunSpec XML definitions to Java code suitable for the
  * OpenEMS SunSpec implementation.
  * 
+ * <p>
  * Download XML files from https://github.com/sunspec/models.
  */
 public class SunSpecCodeGenerator {
@@ -44,17 +45,17 @@ public class SunSpecCodeGenerator {
 	 * Path to the SunSpec model XML files; download them from
 	 * https://github.com/sunspec/models.
 	 */
-	private final static String SUNSPEC_XML_PATH = System.getProperty("user.home") + "/git/sunspec/smdx/";
+	private static final String SUNSPEC_XML_PATH = System.getProperty("user.home") + "/git/sunspec/smdx/";
 	/**
 	 * Path to the generated output file.
 	 */
-	private final static String OUT_FILE_PATH = System.getProperty("user.home") + "/git/sunspec/smdx/SunSpecModel.java";
+	private static final String OUT_FILE_PATH = System.getProperty("user.home") + "/git/sunspec/smdx/SunSpecModel.java";
 
 	/**
 	 * XML files that should be ignored; mainly because certain features are not
 	 * implemented yet.
 	 */
-	private final static Set<String> IGNORE_FILES = new HashSet<>(Arrays.asList( //
+	private static final Set<String> IGNORE_FILES = new HashSet<>(Arrays.asList(//
 			"smdx_00003.xml", //
 			"smdx_00004.xml", //
 			"smdx_00005.xml", //
@@ -179,7 +180,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param sunSpecModelsElement the 'sunSpecModels' node
 	 * @return the Model
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private Model parseSunSpecModels(Element sunSpecModelsElement) throws OpenemsNamedException {
 		// parse all "model" XML elements
@@ -209,7 +210,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node the 'model' node
 	 * @return the Model
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private Model parseModel(Node node) throws OpenemsNamedException {
 		// read attributes
@@ -241,7 +242,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node the 'block' node
 	 * @return a list Points
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private List<Point> parseModelBlock(Node node) throws OpenemsNamedException {
 		// TODO implement "repeating" blocks
@@ -277,12 +278,10 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node the 'point' node.
 	 * @return the Point
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private Point parseModelBlockPoint(Node node) throws OpenemsNamedException {
 		NamedNodeMap attrs = node.getAttributes();
-		String id = XmlUtils.getAsString(attrs, "id");
-		int offset = XmlUtils.getAsInt(attrs, "offset");
 
 		int len;
 		PointType type;
@@ -331,6 +330,9 @@ public class SunSpecCodeGenerator {
 			symbols = new Symbol[0];
 		}
 
+		String id = XmlUtils.getAsString(attrs, "id");
+		int offset = XmlUtils.getAsInt(attrs, "offset");
+
 		Point point = new Point(id, len, offset, type, scaleFactor, units, accessMode, mandatory, category, symbols);
 		return point;
 	}
@@ -349,7 +351,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node the 'symbol' node
 	 * @return the Symbol
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private Symbol parseModelBlockPointSymbol(Node node) throws OpenemsNamedException {
 		NamedNodeMap attrs = node.getAttributes();
@@ -372,7 +374,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node  the 'strings' node
 	 * @param model the Model, that needs to be completed.
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	@SuppressWarnings("unused")
 	private void parseStrings(Node node, Model model) throws OpenemsNamedException {
@@ -409,7 +411,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node  the 'model' node.
 	 * @param model the Model, that needs to be completed.
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private void parseStringsModel(Node node, Model model) throws OpenemsNamedException {
 		model.label = this.getTextContent(node, "label");
@@ -426,7 +428,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node  the 'point' node
 	 * @param model the Model, that needs to be completed.
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private void parseStringsPoint(Node node, Model model) throws OpenemsNamedException {
 		NamedNodeMap attrs = node.getAttributes();
@@ -481,7 +483,7 @@ public class SunSpecCodeGenerator {
 	 * 
 	 * @param node  the 'symbol' node
 	 * @param point the Model, that needs to be completed.
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
 	private void parseStringsPointSymbol(Node node, Point point) throws OpenemsNamedException {
 		NamedNodeMap attrs = node.getAttributes();
@@ -757,7 +759,7 @@ public class SunSpecCodeGenerator {
 	 * @param string original string
 	 * @return escaped string
 	 */
-	private final static String esc(String string) {
+	private static final String esc(String string) {
 		if (string == null) {
 			return "";
 		}

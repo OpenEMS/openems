@@ -44,7 +44,6 @@ public interface SunSpecPoint {
 	/**
 	 * Returns true if the value represents a 'defined' value in SunSpec.
 	 * 
-	 * @param type  the PointType
 	 * @param value the value
 	 * @return true for defined values
 	 */
@@ -160,7 +159,7 @@ public interface SunSpecPoint {
 			}
 			throw new IllegalArgumentException(
 					"Point [" + this.label + "]: Type [" + this.type + "] is not supported!");
-		};
+		}
 
 		/**
 		 * Gets the {@link OpenemsType} that matches this SunSpec-Type.
@@ -252,11 +251,11 @@ public interface SunSpecPoint {
 			case UINT32:
 			case ENUM32:
 			case BITFIELD32:
-				return !value.equals(4294967295l);
+				return !value.equals(4294967295L);
 			case INT64:
-				return !value.equals(0x8000000000000000l); // TODO correct?
+				return !value.equals(0x8000000000000000L); // TODO correct?
 			case UINT64:
-				return !value.equals(0xFFFFFFFFFFFFFFFFl); // TODO correct?
+				return !value.equals(0xFFFFFFFFFFFFFFFFL); // TODO correct?
 			case FLOAT32:
 				return !value.equals(Float.NaN);
 			case FLOAT64:
