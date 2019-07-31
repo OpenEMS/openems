@@ -10,8 +10,60 @@
 </ion-header>
 <ion-content>
     <ion-card-content>
+        <!-- One Production Meter -->
         <ng-container
             *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && (edge.currentData | async)['channel'] as currentData">
+            <ng-container *ngFor="let component of productionMeterComponents">
+                <ng-container *ngIf="config.factories[component.factoryId] as factory">
+                    <!-- SYMMETRIC -->
+                    <table class="full_width">
+                        <ng-container
+                            *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter') && currentData[component.id + '/ActivePower'] != null">
+                            <tr
+                                [class.underline]="factory.natureIds.includes('io.openems.edge.meter.api.AsymmetricMeter')">
+                                <td style="width:65%">
+                                    <span translate>General.Production</span> AC</td>
+                                <td style="width:35%" class="align_right">
+                                    {{ currentData[component.id + '/ActivePower'] | number:'1.0-0' }}&nbsp;W</td>
+                            </tr>
+                        </ng-container>
+                        <!-- ASYMMETRIC -->
+                        <ng-container
+                            *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.AsymmetricMeter') && currentData[component.id + '/ActivePowerL1'] != null">
+                            <table class="full_width">
+                                <tr>
+                                    <td style="width:5%"></td>
+                                    <td style="width:20%" translate>General.Production</td>
+                                    <td style="width:30%">L1</td>
+                                    <td style="width:45%" class="align_right">
+                                        {{ currentData[component.id + '/ActivePowerL1'] | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%"></td>
+                                    <td style="width:20%" translate>General.Production</td>
+                                    <td style="width:30%">L2</td>
+                                    <td style="width:45%" class="align_right">
+                                        {{ currentData[component.id + '/ActivePowerL2'] | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%"></td>
+                                    <td style="width:20%" translate>General.Production</td>
+                                    <td style="width:30%">L3</td>
+                                    <td style="width:45%" class="align_right">
+                                        {{ currentData[component.id + '/ActivePowerL3'] | number:'1.0-0' }}&nbsp;W
+                                    </td>
+                                </tr>
+                            </table>
+                        </ng-container>
+                    </table>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+        <!-- more than one Production Meter -->
+        <ng-container
+            *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1 && (edge.currentData | async)['channel'] as currentData">
             <ng-container *ngFor="let component of productionMeterComponents">
                 <ng-container *ngIf="config.factories[component.factoryId] as factory">
                     <!-- SYMMETRIC -->
@@ -60,15 +112,14 @@
                 </ng-container>
             </ng-container>
         </ng-container>
-
         <!-- one DC Charger -->
         <ng-container
             *ngIf="chargerComponents != null && chargerComponents.length == 1 && (edge.currentData | async)['channel'] as currentData">
             <ng-container *ngFor="let component of chargerComponents">
                 <table class="full_width">
                     <tr>
-                        <td style="width:20%"><span translate>General.Production</span> DC</td>
-                        <td style="width:30%"></td>
+                        <td style="width:35%"><span translate>General.Production</span> DC</td>
+                        <td style="width:15%"></td>
                         <ng-container *ngIf="currentData[component.id + '/ActualPower'] > 0; else empty">
                             <td style="width:50%" class="align_right">
                                 {{ currentData[component.id + '/ActualPower'] | number:'1.0-0' }}&nbsp;W
@@ -81,7 +132,6 @@
                 </table>
             </ng-container>
         </ng-container>
-
         <!-- more than one DC Charger -->
         <ng-container
             *ngIf="chargerComponents != null && chargerComponents.length > 1 && (edge.currentData | async)['channel'] as currentData">
@@ -119,15 +169,14 @@
                 </ion-card-content>
             </ng-container>
         </ng-container>
-        <ion-grid>
+        <!-- Info Text -->
+        <ion-grid *ngIf="isAsymmetric" padding-top>
             <ion-row justify-content-center align-items-center>
-                <ion-col size="1">
-                    <ion-icon color="primary" size="large" name="alert"></ion-icon>
+                <ion-col size="2" text-center>
+                    <ion-icon padding-right color="primary" size="large" name="alert"></ion-icon>
                 </ion-col>
-                <ion-col size="11">
-                    <ion-note text-wrap>
-                        Die Summe der einzelnen Phasen können um ein paar Watt abweichen, bedingt durch die
-                        Aktualisierungsrate der einzelnen Werte.
+                <ion-col size="10">
+                    <ion-note text-wrap><small translate>Edge.Index.Widgets.Info</small>
                     </ion-note>
                 </ion-col>
             </ion-row>

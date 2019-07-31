@@ -69,6 +69,7 @@ export const TRANSLATION = {
                 ProductionDC: "Production DC"
             },
             Widgets: {
+                Info: "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
                 CHP: {
                     LowThreshold: "Low Threshold",
                     HighThreshold: "High Threshold"

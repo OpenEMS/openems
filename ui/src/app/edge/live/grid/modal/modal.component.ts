@@ -17,19 +17,11 @@ export class GridModalComponent {
     constructor(
         public service: Service,
         private websocket: Websocket,
-        private route: ActivatedRoute,
         public modalCtrl: ModalController,
         public translate: TranslateService,
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.edge = edge;
-            edge.subscribeChannels(this.websocket, GridModalComponent.SELECTOR, [
-                // Grid
-                new ChannelAddress('_sum', 'GridActivePower'),
-            ]);
-        });
     }
 
     ngOnDestroy() {
