@@ -197,11 +197,14 @@
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.9.0,2.9.1)',\
 	com.fasterxml.jackson.core.jackson-core;version='[2.9.9,2.9.10)',\
 	com.fasterxml.jackson.core.jackson-databind;version='[2.9.9,2.9.10)',\
-	com.github.scribejava.core;version='[6.6.3,6.6.4)',\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.persistant.model;version=snapshot,\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
-	io.openems.edge.controller.selltogridlimit;version=snapshot
+	io.openems.edge.controller.selltogridlimit;version=snapshot,\
+	com.github.scribejava.core;version='[6.7.0,6.7.1)',\
+	com.sun.jna;version='[5.4.0,5.4.1)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)'
 
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.controller.selltogridlimit;version=snapshot,\
