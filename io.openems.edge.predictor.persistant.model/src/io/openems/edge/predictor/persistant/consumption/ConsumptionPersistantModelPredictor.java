@@ -20,6 +20,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.predictor.api.ConsumptionHourlyPredictor;
 import io.openems.edge.predictor.api.HourlyPrediction;
 import io.openems.edge.predictor.api.ProductionHourlyPredictor;
 import io.openems.edge.predictor.persistant.model.AbstractPersistentModelPredictor;
@@ -31,7 +32,7 @@ import io.openems.edge.predictor.persistant.model.AbstractPersistentModelPredict
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 
 public class ConsumptionPersistantModelPredictor extends AbstractPersistentModelPredictor
-		implements ProductionHourlyPredictor, OpenemsComponent, EventHandler {
+		implements ConsumptionHourlyPredictor, OpenemsComponent, EventHandler {
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -90,7 +91,7 @@ public class ConsumptionPersistantModelPredictor extends AbstractPersistentModel
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
 				// calculateConsumption();
-				calculateEnegryValue();
+				calculateEnergyValue();
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}

@@ -34,7 +34,7 @@ public abstract class AbstractPersistentModelPredictor extends AbstractOpenemsCo
 	 * 
 	 */
 
-	public void calculateEnegryValue() throws OpenemsNamedException {
+	public void calculateEnergyValue() throws OpenemsNamedException {
 
 		LocalDateTime now = LocalDateTime.now();
 		ChannelAddress channelAddress = ChannelAddress.fromString(this.channelAddress);

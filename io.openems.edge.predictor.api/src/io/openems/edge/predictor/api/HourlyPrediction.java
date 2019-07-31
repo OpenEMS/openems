@@ -8,6 +8,7 @@ public class HourlyPrediction {
 	//ArrayList<Integer> values = new ArrayList<Integer>(24);
 	public Integer[] values = new Integer[24];
 	public LocalDateTime start;
+	// String period doesn't makes sense
 	public String period = new String("1 hr");
 	
 	public HourlyPrediction(Integer[] values, LocalDateTime start, String period) {

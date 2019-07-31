@@ -92,7 +92,7 @@ public class ProductionPersistantModelPredictor extends AbstractPersistentModelP
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			try {
 				// calculateConsumption();
-				calculateEnegryValue();
+				calculateEnergyValue();
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}
