@@ -30,15 +30,30 @@ public class SetPvLimitHandler implements CheckedRunnable {
 				.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 		Optional<Integer> activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
 
-		// Get Power Limitation WriteChannel
-		IntegerWriteChannel wMaxLimPctChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_PCT);
+		IntegerWriteChannel wMaxLimPctChannel;
+		IntegerReadChannel wRtgChannel;
+		EnumWriteChannel wMaxLimEnaChannel;
 
-		// Get Continuous power output capability of the inverter (WRtg)
-		IntegerReadChannel wRtgChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S120.W_RTG);
-		int wRtg = wRtgChannel.value().getOrError();
+		try {
+			// Get Power Limitation WriteChannel
+			wMaxLimPctChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_PCT);
 
-		// Get Power Limitation Enabled WriteChannel
-		EnumWriteChannel wMaxLimEnaChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_ENA);
+			// Get Continuous power output capability of the inverter (WRtg)
+			wRtgChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S120.W_RTG);
+
+			// Get Power Limitation Enabled WriteChannel
+			wMaxLimEnaChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_ENA);
+
+		} catch (OpenemsNamedException e) {
+			// Unable to get required Channels,...
+			if (activePowerLimitOpt.isPresent()) {
+				// and power should be limited -> forward error
+				throw e;
+			} else {
+				// and no power limitation is required -> ignore error and exit
+				return;
+			}
+		}
 
 		if (activePowerLimitOpt.isPresent()) {
 			/*
@@ -47,6 +62,7 @@ public class SetPvLimitHandler implements CheckedRunnable {
 			int activePowerLimit = activePowerLimitOpt.get();
 
 			// calculate limitation in percent
+			int wRtg = wRtgChannel.value().getOrError();
 			Integer wMaxLimPct = (int) (activePowerLimit * 100 / (float) wRtg);
 
 			// Just to be sure: keep percentage in range [1, 100]. Do never set "0" as it

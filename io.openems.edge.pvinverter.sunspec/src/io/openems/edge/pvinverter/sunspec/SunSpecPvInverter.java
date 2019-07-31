@@ -74,7 +74,7 @@ public class SunSpecPvInverter extends AbstractOpenemsSunSpecComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+				config.modbus_id(), config.readFromCommonBlockNo());
 	}
 
 	@Deactivate

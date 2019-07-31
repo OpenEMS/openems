@@ -40,6 +40,9 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	private final Set<SunSpecModelType> modelTypes;
 	private final ModbusProtocol modbusProtocol;
 
+	private int readFromCommonBlockNo = 1;
+	private int commonBlockCounter = 0;
+
 	private boolean isSunSpecInitializationCompleted = false;
 
 	/**
@@ -63,6 +66,13 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	@Override
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+		throw new IllegalArgumentException("Use the other activate() method.");
+	}
+
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo) {
+		this.readFromCommonBlockNo = readFromCommonBlockNo;
+
 		// Start the SunSpec read procedure...
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			if (!isSunSpec) {
@@ -124,28 +134,40 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					int length = values.get(1);
 
 					final CompletableFuture<Void> readBlockFuture;
-					// Should the ModelType of this Block be considered?
-					if (this.modelTypes.contains(SunSpecModelType.getModelType(blockId))) {
 
-						// Is this SunSpecModel block supported?
-						SunSpecModel sunSpecModel = null;
-						try {
-							sunSpecModel = SunSpecModel.valueOf("S_" + blockId);
-						} catch (IllegalArgumentException e) {
-							// checked later
-						}
+					if (blockId == 1 /* SunSpecModel.S_1 */) {
+						this.commonBlockCounter++;
+					}
 
-						// Read block
-						if (sunSpecModel != null) {
-							readBlockFuture = this.addBlock(startAddress, sunSpecModel);
-						} else {
-							this.addUnknownBlock(startAddress, blockId);
-							readBlockFuture = CompletableFuture.completedFuture(null);
-						}
+					if (this.commonBlockCounter != this.readFromCommonBlockNo) {
+						// ignore all SunSpec blocks before 'startFromCommonBlockNo' was passed
+						readBlockFuture = CompletableFuture.completedFuture(null);
 
 					} else {
-						// This block is not considered, because the ModelType is ignored
-						readBlockFuture = CompletableFuture.completedFuture(null);
+
+						// Should the ModelType of this Block be considered?
+						if (this.modelTypes.contains(SunSpecModelType.getModelType(blockId))) {
+
+							// Is this SunSpecModel block supported?
+							SunSpecModel sunSpecModel = null;
+							try {
+								sunSpecModel = SunSpecModel.valueOf("S_" + blockId);
+							} catch (IllegalArgumentException e) {
+								// checked later
+							}
+
+							// Read block
+							if (sunSpecModel != null) {
+								readBlockFuture = this.addBlock(startAddress, sunSpecModel);
+							} else {
+								this.addUnknownBlock(startAddress, blockId);
+								readBlockFuture = CompletableFuture.completedFuture(null);
+							}
+
+						} else {
+							// This block is not considered, because the ModelType is ignored
+							readBlockFuture = CompletableFuture.completedFuture(null);
+						}
 					}
 
 					// Read next block recursively
@@ -158,6 +180,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					});
 				});
 		return finished;
+
 	}
 
 	/**
