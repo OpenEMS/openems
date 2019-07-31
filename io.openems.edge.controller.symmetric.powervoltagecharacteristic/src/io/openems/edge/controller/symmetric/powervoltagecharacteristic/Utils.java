@@ -12,17 +12,24 @@ import java.util.stream.Collectors;
 public class Utils {
 
 	public static float getValueOfLine(Map<Float, Float> points, float voltageRatio) {
-		float x = voltageRatio;
-		List<Float> percentList = new ArrayList<Float>(points.values());
+		float m = 0, t = 0;
+		List<Float> percentOrPowerList = new ArrayList<Float>(points.values());
 		List<Float> voltageList = new ArrayList<Float>(points.keySet());
 		Collections.sort(voltageList, Collections.reverseOrder());
-		Collections.sort(percentList, Collections.reverseOrder());
+		Collections.sort(percentOrPowerList, Collections.reverseOrder());
 		// find to place of voltage ratio
+
+		for (int i = 0; i < voltageList.size(); i++) {
+			if (voltageList.get(i) == voltageRatio) {
+				int power = (int) percentOrPowerList.get(i).intValue();
+				return power;
+			}
+		}
 		Point smaller = getSmallerPoint(points, voltageRatio);
 		Point greater = getGreaterPoint(points, voltageRatio);
-		float m = (float) ((greater.y - smaller.y) / (greater.x - smaller.x));
-		float t = (float) (smaller.y - m * smaller.x);
-		return m * x + t;
+		m = (float) ((greater.y - smaller.y) / (greater.x - smaller.x));
+		t = (float) (smaller.y - m * smaller.x);
+		return m * voltageRatio + t;
 	}
 
 	public static Point getSmallerPoint(Map<Float, Float> qCharacteristic, float voltageRatio) {
@@ -35,15 +42,11 @@ public class Utils {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 		List<Float> voltageList = new ArrayList<Float>(map.keySet());
 		List<Float> percentList = new ArrayList<Float>(map.values());
-		if (voltageList.get(i) != voltageRatio) {
+		while (voltageList.get(i) != voltageRatio) {
 			i++;
 		}
-		if (i == 0) {
-			p = new Point(voltageList.get(0), percentList.get(0));
-			return p;
-		}
-		p = new Point(voltageList.get(i - 1), percentList.get(i - 1));
 
+		p = new Point(voltageList.get(i - 1), percentList.get(i - 1));
 		qCharacteristic.remove(voltageRatio, (float) 0);
 		return p;
 	}
@@ -59,7 +62,7 @@ public class Utils {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 		List<Float> voltageList = new ArrayList<Float>(map.keySet());
 		List<Float> percentList = new ArrayList<Float>(map.values());
-		if (voltageList.get(i) != voltageRatio) {
+		while (voltageList.get(i) != voltageRatio) {
 			i++;
 		}
 		if (i > voltageList.size()) {
@@ -67,7 +70,6 @@ public class Utils {
 			return p;
 		}
 		p = new Point(voltageList.get(i + 1), percentList.get(i + 1));
-
 		qCharacteristic.remove(voltageRatio, (float) 0);
 		return p;
 	}

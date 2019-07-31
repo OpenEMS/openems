@@ -27,7 +27,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean activeCharacteristic_enabled() default false;
 
 	@AttributeDefinition(name = "Active Power by  Voltage characteristic ", description = "The graph values for power and percentage")
-	String powerV() default "[{ \"voltageRatio\" : 0.9,\"percent\" : 60,\"power\" : -4000 }, { \"voltageRatio\":0.93, ,\"percent\": 0,\"power\": -1000},{\"voltageRatio\" :1.07 , \"percent\" : 0, \"power\": 1000 },{\"voltageRatio\": 1.1 , \"percent\":-60 ,\"power\": 4000 }]";
+	String powerV() default "[{ \"voltageRatio\" : 0.9, \"power\" : -4000}, { \"voltageRatio\":0.93, \"power\": -1000},{\"voltageRatio\" :1.07 , \"power\": 1000 },{\"voltageRatio\": 1.1 , \"power\": 4000 }]";
 
 	@AttributeDefinition(name = "Reactive-Power-Characteristic", description = "Reactive Power Characteristic Option.")
 	boolean reactiveCharacteristic_enabled() default false;

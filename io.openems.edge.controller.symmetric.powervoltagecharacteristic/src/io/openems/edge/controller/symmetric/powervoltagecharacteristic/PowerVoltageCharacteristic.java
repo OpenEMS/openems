@@ -14,12 +14,16 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -40,8 +44,11 @@ import io.openems.edge.meter.api.SymmetricMeter;
 )
 public class PowerVoltageCharacteristic extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
+	private final Logger log = LoggerFactory.getLogger(PowerVoltageCharacteristic.class);
+
 	private final Map<Float, Float> powerCharacteristic = new HashMap<>();
-	private final Map<Integer, Map<Float, Float>> pMapCharacteristic = new HashMap<>();
+	private final Map<Float, Float> voltagePowerMap = new HashMap<>();
+
 	/**
 	 * nominal voltage in [mV].
 	 */
@@ -59,6 +66,11 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 	private ManagedSymmetricEss ess;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		PERCENT(Doc.of(OpenemsType.FLOAT).unit(Unit.PERCENT)), //
+		VOLTAGE_RATIO(Doc.of(OpenemsType.FLOAT))//
+
 		;
 		private final Doc doc;
 
@@ -92,16 +104,6 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 		this.config = config;
 		this.nominalVoltage = config.nominalVoltage() * 1000;
 
-		switch (this.getCharacteristicOption()) {
-		case ACTIVE:
-			this.initialize(config.powerV());
-			break;
-		case REACTIVE:
-			this.initialize(config.percentQ());
-			break;
-		case UNDEFINED:
-			break;
-		}
 	}
 
 	@Deactivate
@@ -146,21 +148,16 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 	 * 
 	 * @throws OpenemsNamedException on error
 	 */
+
 	private void initialize(String powerConf) throws OpenemsNamedException {
 		try {
 			switch (this.getCharacteristicOption()) {
 			case ACTIVE:
 				JsonArray jpowerV = JsonUtils.getAsJsonArray(JsonUtils.parse(powerConf));
 				for (JsonElement element : jpowerV) {
-					int power = JsonUtils.getAsInt(element, "power");
+					Float power = (float) JsonUtils.getAsInt(element, "power");
 					float voltageRatio = JsonUtils.getAsFloat(element, "voltageRatio");
-					float percent = JsonUtils.getAsFloat(element, "percent");
-					this.powerCharacteristic.put(voltageRatio, percent);
-					this.pMapCharacteristic.put(power, new HashMap<Float, Float>() {
-						{
-							put(voltageRatio, percent);
-						}
-					});
+					this.voltagePowerMap.put(voltageRatio, power);
 				}
 				break;
 			case REACTIVE:
@@ -195,36 +192,44 @@ public class PowerVoltageCharacteristic extends AbstractOpenemsComponent impleme
 		return characteristicOption.UNDEFINED;
 	}
 
-	// TODO Test when line value == 0, probabaly it will set the previous value what
-	// it has
 	@Override
-	public void run() throws OpenemsException {
+	public void run() throws OpenemsNamedException {
 		int calculatedPower = 0;
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
 		switch (this.getCharacteristicOption()) {
 		case ACTIVE:
-			float lineValue = Utils.getValueOfLine(this.powerCharacteristic, voltageRatio);
-			System.out.println(lineValue);
-//			if (lineValue == 0) {
-//				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, 0);
-//			} else {
+			this.initialize(config.powerV());
+			float linePowerValue = Utils.getValueOfLine(this.voltagePowerMap, voltageRatio);
+			if (linePowerValue == 0) {
+				log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
+				this.channel(ChannelId.CALCULATED_POWER).setNextValue(-1);
+				return;
+			}
+			this.power = (int) linePowerValue;
 			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, this.power);
-//			}
+			this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 			this.ess.addPowerConstraintAndValidate("ActivePowerVoltageCharacteristic", Phase.ALL, Pwr.ACTIVE,
 					Relationship.EQUALS, calculatedPower);
+
 			break;
 		case REACTIVE:
+			this.initialize(config.percentQ());
 			float valueOfLine = Utils.getValueOfLine(this.powerCharacteristic, voltageRatio);
+			this.channel(ChannelId.PERCENT).setNextValue(valueOfLine);
 			if (valueOfLine == 0) {
+				log.info("Voltage in the Safe Zone; Power will not set in power voltage characteristic controller");
+				this.channel(ChannelId.CALCULATED_POWER).setNextValue(-1);
 				return;
 			}
 			Value<Integer> apparentPower = this.ess.getMaxApparentPower().value();
 			if (!apparentPower.isDefined() || apparentPower.get() == 0) {
 				return;
 			}
-			this.power = (int) (apparentPower.orElse(0) * valueOfLine);
+			this.power = (int) (apparentPower.orElse(0) * valueOfLine * 0.01);
 			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE,
 					this.power);
+			this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
 			this.ess.addPowerConstraintAndValidate("ReactivePowerVoltageCharacteristic", Phase.ALL, Pwr.REACTIVE,
 					Relationship.EQUALS, calculatedPower);
 			break;
