@@ -112,7 +112,8 @@ public class OngridHandler {
 		new CommandControlRegisters() //
 				.play(true) // Start system
 				.syncApproval(true) //
-				.blackstartApproval(false).shortCircuitHandling(true) //
+				.blackstartApproval(false) //
+				.shortCircuitHandling(true) //
 				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
 				.parameterSet1(true) //
 				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //

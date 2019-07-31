@@ -23,14 +23,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Charger-ID", description = "ID of Charger device.")
 	String charger_id();
 
-	@AttributeDefinition(name = "State-of-Charge limit", description = "Start Surplus-Feed-In if SoC is higher-or-equal this value")
-	int stateOfChargeLimit() default 98;
+	@AttributeDefinition(name = "State-of-Charge limit", description = "Start Surplus-feed-in if State-of-Charge is bigger than this limit")
+	int socLimit() default 90;
 
-	@AttributeDefinition(name = "Allowed-Charge-Power limit", description = "Allowed to start surplus after Charge-Power limit. (Needs to set negative)")
-	int allowedChargePowerLimit() default -8000;
+	@AttributeDefinition(name = "Allowed-Charge-Power limit", description = "Start Surplus-feed-in if Charge-Power is smaller than this limit. (Needs to set negative)")
+	int allowedChargePowerLimit() default -8_000;
 
-	@AttributeDefinition(name = "Always increase Surplus-Feed-In Power by", description = "")
-	int increasePower() default 2000;
+	@AttributeDefinition(name = "Increase Surplus-Feed-In Power by percentage", description = "1.1 for 10 %")
+	double increasePowerFactor() default 1.1;
+
+	@AttributeDefinition(name = "Max increase Surplus-Feed-In Power", description = "")
+	int maxIncreasePowerFactor() default 2_000;
 
 	@AttributeDefinition(name = "Off Time", description = "The time to stop grid feed in.")
 	String offTime() default "17:00:00";

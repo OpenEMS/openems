@@ -52,7 +52,7 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			this.parent.components.stream().filter(c -> c.isEnabled()).forEach(component -> {
+			this.parent.componentManager.getComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
 				component.channels().forEach(channel -> {
 					channel.nextProcessImage();
 				});

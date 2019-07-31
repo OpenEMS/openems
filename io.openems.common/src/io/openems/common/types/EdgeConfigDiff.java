@@ -173,6 +173,7 @@ public class EdgeConfigDiff {
 	 * 
 	 * @param componentId  the Component-ID of the Property
 	 * @param component    the Component instance of the Property
+	 * @param change       the type of {@link Change}
 	 * @param propertyName the name of the Property
 	 * @param oldValue     the old value
 	 * @param newValue     the new value
