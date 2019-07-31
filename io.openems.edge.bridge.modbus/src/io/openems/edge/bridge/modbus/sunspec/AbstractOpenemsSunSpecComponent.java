@@ -226,6 +226,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				SunSpecPoint point = model.points[i];
 				Object value = values.get(i);
 				AbstractModbusElement<?> element = elements[i];
+
 				if (point.isDefined(value)) {
 					// Point is available -> create Channel
 					SunSChannelId<?> channelId = point.getChannelId();
@@ -252,13 +253,24 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						element = m(channelId, element,
 								new ElementToChannelScaleFactorConverter(this, scaleFactorPoint.getChannelId()));
 
-						// Add a Write-Task
-						final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
-						this.modbusProtocol.addTask(writeTask);
-
 					} else {
 						// Add a direct mapping between Element and Channel
 						element = m(channelId, element);
+					}
+
+					// Evaluate Access-Mode of the Channel
+					switch (point.get().accessMode) {
+					case READ_ONLY:
+						// Read-Only -> replace element with dummy
+						element = new DummyRegisterElement(element.getStartAddress(),
+								element.getStartAddress() + point.get().type.length - 1);
+						break;
+					case READ_WRITE:
+					case WRITE_ONLY:
+						// Add a Write-Task
+						final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
+						this.modbusProtocol.addTask(writeTask);
+						break;
 					}
 
 				} else {
@@ -273,6 +285,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			finished.complete(null);
 		});
 		return finished;
+
 	}
 
 	/**

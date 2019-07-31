@@ -30,17 +30,21 @@ public class SetPvLimitHandler implements CheckedRunnable {
 				.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 		Optional<Integer> activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
 
-		SunSpecModel.S123_WMaxLim_Ena wMaxLimEna;
+		// Get Power Limitation WriteChannel
+		IntegerWriteChannel wMaxLimPctChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_PCT);
+
+		// Get Continuous power output capability of the inverter (WRtg)
+		IntegerReadChannel wRtgChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S120.W_RTG);
+		int wRtg = wRtgChannel.value().getOrError();
+
+		// Get Power Limitation Enabled WriteChannel
+		EnumWriteChannel wMaxLimEnaChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_ENA);
 
 		if (activePowerLimitOpt.isPresent()) {
 			/*
 			 * A ActivePowerLimit is set
 			 */
 			int activePowerLimit = activePowerLimitOpt.get();
-
-			// Get Continuous power output capability of the inverter (WRtg)
-			IntegerReadChannel wRtgChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S120.W_RTG);
-			int wRtg = wRtgChannel.value().getOrError();
 
 			// calculate limitation in percent
 			Integer wMaxLimPct = (int) (activePowerLimit * 100 / (float) wRtg);
@@ -53,10 +57,6 @@ public class SetPvLimitHandler implements CheckedRunnable {
 			} else if (wMaxLimPct < 1) {
 				wMaxLimPct = 1;
 			}
-
-			// Get Power Limitation WriteChannel
-			IntegerWriteChannel wMaxLimPctChannel = this.parent
-					.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_PCT);
 
 			// Get Power Limitation Timeout Channel
 			IntegerReadChannel wMaxLimPctRvrtTmsChannel = this.parent
@@ -72,26 +72,30 @@ public class SetPvLimitHandler implements CheckedRunnable {
 				// Set Power Limitation
 				wMaxLimPctChannel.setNextWriteValue(wMaxLimPct);
 
+				// Apply Power Limitation Enabled
+				if (wMaxLimEnaChannel.value().asEnum() != S123_WMaxLim_Ena.ENABLED) {
+					wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
+				}
+
 				// Remember last Set-Time
 				this.lastWMaxLimPctTime = LocalDateTime.now();
 			}
-
-			// Enable Power Limitation
-			wMaxLimEna = S123_WMaxLim_Ena.ENABLED;
 
 		} else {
 			/*
 			 * No ActivePowerLimit is set
 			 */
-			// Disable Power Limitation
-			wMaxLimEna = S123_WMaxLim_Ena.DISABLED;
+			// Reset Power Limitation to 100 %
+			if (wMaxLimPctChannel.value().orElse(0) != 100) {
+				wMaxLimPctChannel.setNextWriteValue(100);
+			}
+
+			// Apply Power Limitation Enabled
+			if (wMaxLimEnaChannel.value().asEnum() != S123_WMaxLim_Ena.ENABLED) {
+				wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
+			}
 		}
 
-		// Apply Power Limitation Enabled/Disabled
-		EnumWriteChannel wMaxLimEnaChannel = this.parent.getSunSpecChannelOrError(SunSpecModel.S123.W_MAX_LIM_ENA);
-		if (!Objects.equals(wMaxLimEnaChannel.value().asEnum(), wMaxLimEna)) {
-			wMaxLimEnaChannel.setNextWriteValue(wMaxLimEna);
-		}
 	}
 
 }
