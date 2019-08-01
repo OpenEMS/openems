@@ -66,6 +66,6 @@
 	io.openems.backend.b2brest;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.10.2,1.10.3)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.10.2,1.10.3)',\
-	com.google.guava;version='[28.0.0,28.0.1)'
+	com.google.guava;version='[28.0.0,28.0.1)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)'
