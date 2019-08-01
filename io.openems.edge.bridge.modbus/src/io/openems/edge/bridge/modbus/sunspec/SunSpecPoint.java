@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.sunspec;
 import java.util.Optional;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -70,21 +71,24 @@ public interface SunSpecPoint {
 		public final PointType type;
 		public final boolean mandatory;
 		public final AccessMode accessMode;
+		public final Unit unit;
 		public final SunSChannelId<?> channelId;
 		public final Optional<String> scaleFactor;
 		public final OptionsEnum[] options;
 
 		public PointImpl(String channelId, String label, String description, String notes, PointType type,
-				boolean mandatory, AccessMode accessMode, String scaleFactor, OptionsEnum[] options) {
+				boolean mandatory, AccessMode accessMode, Unit unit, String scaleFactor, OptionsEnum[] options) {
 			this.label = label;
 			this.description = description;
 			this.notes = notes;
 			this.type = type;
 			this.mandatory = mandatory;
 			this.accessMode = accessMode;
+			this.unit = unit;
 			if (options.length == 0) {
 				this.channelId = new SunSChannelId<>(channelId, //
 						Doc.of(this.getMatchingOpenemsType()) //
+								.unit(unit) //
 								.accessMode(accessMode));
 			} else {
 				this.channelId = new SunSChannelId<Integer>(channelId, //
@@ -183,15 +187,14 @@ public interface SunSpecPoint {
 			case INT32:
 			case PAD: // ignore
 			case EUI48:
+			case FLOAT32: // avoid floating point numbers
 				return OpenemsType.INTEGER;
 			case UINT64:
 			case ACC64:
 			case INT64:
 			case IPV6ADDR:
+			case FLOAT64: // avoid floating point numbers
 				return OpenemsType.LONG;
-			case FLOAT32:
-			case FLOAT64:
-				return OpenemsType.DOUBLE;
 			case STRING2:
 			case STRING4:
 			case STRING5:

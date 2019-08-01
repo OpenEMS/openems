@@ -15,9 +15,9 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public class SetPvLimitHandler implements CheckedRunnable {
 
-	private final SunSpecPvInverter parent;
+	private final AbstractSunSpecPvInverter parent;
 
-	public SetPvLimitHandler(SunSpecPvInverter parent) {
+	public SetPvLimitHandler(AbstractSunSpecPvInverter parent) {
 		this.parent = parent;
 	}
 

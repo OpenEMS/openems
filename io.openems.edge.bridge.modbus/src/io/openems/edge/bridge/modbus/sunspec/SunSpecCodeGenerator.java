@@ -25,6 +25,8 @@ import org.w3c.dom.NodeList;
 import com.google.common.base.CaseFormat;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.CheckedFunction;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.XmlUtils;
@@ -295,7 +297,79 @@ public class SunSpecCodeGenerator {
 		}
 
 		String scaleFactor = XmlUtils.getAsStringOrElse(attrs, "sf", null);
-		String units = XmlUtils.getAsStringOrElse(attrs, "units", "");
+		String unitString = XmlUtils.getAsStringOrElse(attrs, "units", "");
+		final CheckedFunction<String, Unit> toUnit = (s) -> {
+			s = s.trim();
+			if (s.contains(" ")) {
+				s = s.substring(0, s.indexOf(" "));
+			}
+			switch (s) {
+			case "":
+			case "%ARtg/%dV":
+			case "bps": // not available in OpenEMS
+			case "cos()": // not available in OpenEMS
+			case "deg": // not available in OpenEMS
+			case "Degrees": // not available in OpenEMS
+			case "hhmmss": // not available in OpenEMS
+			case "hhmmss.sssZ": // not available in OpenEMS
+			case "HPa": // not available in OpenEMS
+			case "kO": // not available in OpenEMS
+			case "Mbps": // not available in OpenEMS
+			case "meters": // not available in OpenEMS
+			case "mm": // not available in OpenEMS
+			case "mps": // not available in OpenEMS
+			case "m/s": // not available in OpenEMS
+			case "ohms": // not available in OpenEMS
+			case "Pct": // not available in OpenEMS
+			case "PF": // not available in OpenEMS
+			case "SF": // not available in OpenEMS
+			case "text": // not available in OpenEMS
+			case "Tmd": // not available in OpenEMS
+			case "Tmh": // not available in OpenEMS
+			case "Tms": // not available in OpenEMS
+			case "Various": // not available in OpenEMS
+			case "Vm": // not available in OpenEMS
+			case "W/m2": // not available in OpenEMS
+			case "YYYYMMDD": // not available in OpenEMS
+				return Unit.NONE;
+			case "%":
+			case "%WHRtg":
+				return Unit.PERCENT;
+			case "A":
+				return Unit.AMPERE;
+			case "Ah":
+			case "AH":
+				return Unit.AMPERE_HOURS;
+			case "C":
+				return Unit.DEGREE_CELSIUS;
+			case "Hz":
+				return Unit.HERTZ;
+			case "kAH":
+				return Unit.KILOAMPERE_HOURS;
+			case "kWh":
+				return Unit.KILOWATT_HOURS;
+			case "mSecs":
+				return Unit.MILLISECONDS;
+			case "Secs":
+				return Unit.SECONDS;
+			case "V":
+				return Unit.VOLT;
+			case "VA":
+				return Unit.VOLT_AMPERE;
+			case "VAh":
+				return Unit.VOLT_AMPERE_HOURS;
+			case "var":
+				return Unit.VOLT_AMPERE_REACTIVE;
+			case "varh":
+				return Unit.VOLT_AMPERE_REACTIVE_HOURS;
+			case "W":
+				return Unit.WATT;
+			case "Wh":
+				return Unit.WATT_HOURS;
+			}
+			throw new OpenemsException("Unhandled unit [" + s + "]");
+		};
+		Unit unit = toUnit.apply(unitString);
 
 		String accessModeString = XmlUtils.getAsStringOrElse(attrs, "access", "r");
 		AccessMode accessMode;
@@ -333,7 +407,7 @@ public class SunSpecCodeGenerator {
 		String id = XmlUtils.getAsString(attrs, "id");
 		int offset = XmlUtils.getAsInt(attrs, "offset");
 
-		Point point = new Point(id, len, offset, type, scaleFactor, units, accessMode, mandatory, category, symbols);
+		Point point = new Point(id, len, offset, type, scaleFactor, unit, accessMode, mandatory, category, symbols);
 		return point;
 	}
 
@@ -533,6 +607,8 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write("import io.openems.common.channel.AccessMode;");
 			w.newLine();
+			w.write("import io.openems.common.channel.Unit;");
+			w.newLine();
 			w.write("import io.openems.common.types.OptionsEnum;");
 			w.newLine();
 			w.newLine();
@@ -598,6 +674,8 @@ public class SunSpecCodeGenerator {
 					w.write("				" + point.mandatory + ", //");
 					w.newLine();
 					w.write("				AccessMode." + point.accessMode.name() + ", //");
+					w.newLine();
+					w.write("				Unit." + point.unit.name() + ", //");
 					w.newLine();
 					w.write("				"
 							+ (point.scaleFactor.isPresent() ? ("\"" + point.scaleFactor.get() + "\"") : null)
@@ -873,7 +951,7 @@ public class SunSpecCodeGenerator {
 		protected final int offset;
 		protected final PointType type;
 		protected final Optional<String> scaleFactor;
-		protected final String units;
+		protected final Unit unit;
 		protected final AccessMode accessMode;
 		protected final boolean mandatory;
 		protected final PointCategory category;
@@ -883,7 +961,7 @@ public class SunSpecCodeGenerator {
 		protected String description;
 		protected String notes;
 
-		public Point(String id, int len, int offset, PointType type, String scaleFactor, String units,
+		public Point(String id, int len, int offset, PointType type, String scaleFactor, Unit unit,
 				AccessMode accessMode, boolean mandatory, PointCategory category, Symbol[] symbols) {
 			super();
 			this.id = id;
@@ -891,7 +969,7 @@ public class SunSpecCodeGenerator {
 			this.offset = offset;
 			this.type = type;
 			this.scaleFactor = Optional.ofNullable(scaleFactor);
-			this.units = units;
+			this.unit = unit;
 			this.accessMode = accessMode;
 			this.mandatory = mandatory;
 			this.category = category;
@@ -917,9 +995,9 @@ public class SunSpecCodeGenerator {
 		@Override
 		public String toString() {
 			return "Point [id=" + id + ", len=" + len + ", offset=" + offset + ", type=" + type + ", scaleFactor="
-					+ scaleFactor.orElse("") + ", units=" + units + ", access=" + accessMode + ", mandatory="
-					+ mandatory + ", category=" + category + ", symbols=" + Arrays.toString(symbols) + ", label="
-					+ label + ", description=" + description + ", notes=" + notes + "]";
+					+ scaleFactor.orElse("") + ", unit=" + unit + ", access=" + accessMode + ", mandatory=" + mandatory
+					+ ", category=" + category + ", symbols=" + Arrays.toString(symbols) + ", label=" + label
+					+ ", description=" + description + ", notes=" + notes + "]";
 		}
 
 		/**

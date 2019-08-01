@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OptionsEnum;
 
 /**
@@ -313,6 +314,7 @@ public enum SunSpecModel {
 				PointType.STRING16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MD(new PointImpl(//
@@ -323,6 +325,7 @@ public enum SunSpecModel {
 				PointType.STRING16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OPT(new PointImpl(//
@@ -333,6 +336,7 @@ public enum SunSpecModel {
 				PointType.STRING8, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VR(new PointImpl(//
@@ -343,6 +347,7 @@ public enum SunSpecModel {
 				PointType.STRING8, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SN(new PointImpl(//
@@ -353,6 +358,7 @@ public enum SunSpecModel {
 				PointType.STRING16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DA(new PointImpl(//
@@ -363,6 +369,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
@@ -373,6 +380,7 @@ public enum SunSpecModel {
 				PointType.PAD, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -397,6 +405,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		N(new PointImpl(//
@@ -407,6 +416,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		UN(new PointImpl(//
@@ -417,6 +427,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -427,6 +438,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S2_St.values())), //
 		ST_VND(new PointImpl(//
@@ -437,6 +449,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT(new PointImpl(//
@@ -447,6 +460,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S2_Evt.values())), //
 		EVT_VND(new PointImpl(//
@@ -457,6 +471,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CTL(new PointImpl(//
@@ -467,6 +482,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S2_Ctl.values())), //
 		CTL_VND(new PointImpl(//
@@ -477,6 +493,7 @@ public enum SunSpecModel {
 				PointType.ENUM32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CTL_VL(new PointImpl(//
@@ -487,6 +504,7 @@ public enum SunSpecModel {
 				PointType.ENUM32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -622,6 +640,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_CNT(new PointImpl(//
@@ -632,6 +651,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_UC_CNT(new PointImpl(//
@@ -642,6 +662,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_N_UC_CNT(new PointImpl(//
@@ -652,6 +673,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_DSC_CNT(new PointImpl(//
@@ -662,6 +684,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_ERR_CNT(new PointImpl(//
@@ -672,6 +695,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_UNK_CNT(new PointImpl(//
@@ -682,6 +706,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_CNT(new PointImpl(//
@@ -692,6 +717,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_UC_CNT(new PointImpl(//
@@ -702,6 +728,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_N_UC_CNT(new PointImpl(//
@@ -712,6 +739,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_DSC_CNT(new PointImpl(//
@@ -722,6 +750,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_ERR_CNT(new PointImpl(//
@@ -732,6 +761,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
@@ -742,6 +772,7 @@ public enum SunSpecModel {
 				PointType.PAD, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -766,6 +797,7 @@ public enum SunSpecModel {
 				PointType.STRING4, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IMEI(new PointImpl(//
@@ -776,6 +808,7 @@ public enum SunSpecModel {
 				PointType.UINT32, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		APN(new PointImpl(//
@@ -786,6 +819,7 @@ public enum SunSpecModel {
 				PointType.STRING4, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		NUM(new PointImpl(//
@@ -796,6 +830,7 @@ public enum SunSpecModel {
 				PointType.STRING6, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PIN(new PointImpl(//
@@ -806,6 +841,7 @@ public enum SunSpecModel {
 				PointType.STRING6, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -830,6 +866,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -840,6 +877,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -850,6 +888,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -860,6 +899,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -870,6 +910,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -880,6 +921,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -890,6 +932,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -900,6 +943,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -910,6 +954,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -920,6 +965,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -930,6 +976,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -940,6 +987,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -950,6 +998,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -960,6 +1009,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -970,6 +1020,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -980,6 +1031,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -990,6 +1042,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -1000,6 +1053,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR(new PointImpl(//
@@ -1010,6 +1064,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAr_SF", //
 				new OptionsEnum[0])), //
 		V_AR_S_F(new PointImpl(//
@@ -1020,6 +1075,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -1030,6 +1086,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -1040,6 +1097,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WH(new PointImpl(//
@@ -1050,6 +1108,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"WH_SF", //
 				new OptionsEnum[0])), //
 		WH_SF(new PointImpl(//
@@ -1060,6 +1119,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -1070,6 +1130,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"DCA_SF", //
 				new OptionsEnum[0])), //
 		DCA_SF(new PointImpl(//
@@ -1080,6 +1141,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCV(new PointImpl(//
@@ -1090,6 +1152,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"DCV_SF", //
 				new OptionsEnum[0])), //
 		DCV_SF(new PointImpl(//
@@ -1100,6 +1163,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCW(new PointImpl(//
@@ -1110,6 +1174,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"DCW_SF", //
 				new OptionsEnum[0])), //
 		DCW_SF(new PointImpl(//
@@ -1120,6 +1185,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_CAB(new PointImpl(//
@@ -1130,6 +1196,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_SNK(new PointImpl(//
@@ -1140,6 +1207,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_TRNS(new PointImpl(//
@@ -1150,6 +1218,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_OT(new PointImpl(//
@@ -1160,6 +1229,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_S_F(new PointImpl(//
@@ -1170,6 +1240,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -1180,6 +1251,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S101_St.values())), //
 		ST_VND(new PointImpl(//
@@ -1190,6 +1262,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -1200,6 +1273,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S101_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -1210,6 +1284,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -1220,6 +1295,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -1230,6 +1306,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND3(new PointImpl(//
@@ -1240,6 +1317,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND4(new PointImpl(//
@@ -1250,6 +1328,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -1352,6 +1431,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -1362,6 +1442,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -1372,6 +1453,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -1382,6 +1464,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -1392,6 +1475,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -1402,6 +1486,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -1412,6 +1497,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -1422,6 +1508,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -1432,6 +1519,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -1442,6 +1530,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -1452,6 +1541,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -1462,6 +1552,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -1472,6 +1563,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -1482,6 +1574,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -1492,6 +1585,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -1502,6 +1596,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -1512,6 +1607,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -1522,6 +1618,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR(new PointImpl(//
@@ -1532,6 +1629,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAr_SF", //
 				new OptionsEnum[0])), //
 		V_AR_S_F(new PointImpl(//
@@ -1542,6 +1640,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -1552,6 +1651,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -1562,6 +1662,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WH(new PointImpl(//
@@ -1572,6 +1673,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"WH_SF", //
 				new OptionsEnum[0])), //
 		WH_SF(new PointImpl(//
@@ -1582,6 +1684,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -1592,6 +1695,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"DCA_SF", //
 				new OptionsEnum[0])), //
 		DCA_SF(new PointImpl(//
@@ -1602,6 +1706,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCV(new PointImpl(//
@@ -1612,6 +1717,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"DCV_SF", //
 				new OptionsEnum[0])), //
 		DCV_SF(new PointImpl(//
@@ -1622,6 +1728,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCW(new PointImpl(//
@@ -1632,6 +1739,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"DCW_SF", //
 				new OptionsEnum[0])), //
 		DCW_SF(new PointImpl(//
@@ -1642,6 +1750,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_CAB(new PointImpl(//
@@ -1652,6 +1761,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_SNK(new PointImpl(//
@@ -1662,6 +1772,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_TRNS(new PointImpl(//
@@ -1672,6 +1783,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_OT(new PointImpl(//
@@ -1682,6 +1794,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_S_F(new PointImpl(//
@@ -1692,6 +1805,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -1702,6 +1816,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S102_St.values())), //
 		ST_VND(new PointImpl(//
@@ -1712,6 +1827,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -1722,6 +1838,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S102_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -1732,6 +1849,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -1742,6 +1860,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -1752,6 +1871,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND3(new PointImpl(//
@@ -1762,6 +1882,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND4(new PointImpl(//
@@ -1772,6 +1893,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -1874,6 +1996,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -1884,6 +2007,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -1894,6 +2018,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -1904,6 +2029,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -1914,6 +2040,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -1924,6 +2051,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -1934,6 +2062,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -1944,6 +2073,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -1954,6 +2084,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -1964,6 +2095,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -1974,6 +2106,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -1984,6 +2117,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -1994,6 +2128,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -2004,6 +2139,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -2014,6 +2150,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -2024,6 +2161,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -2034,6 +2172,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -2044,6 +2183,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR(new PointImpl(//
@@ -2054,6 +2194,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAr_SF", //
 				new OptionsEnum[0])), //
 		V_AR_S_F(new PointImpl(//
@@ -2064,6 +2205,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -2074,6 +2216,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -2084,6 +2227,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WH(new PointImpl(//
@@ -2094,6 +2238,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"WH_SF", //
 				new OptionsEnum[0])), //
 		WH_SF(new PointImpl(//
@@ -2104,6 +2249,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -2114,6 +2260,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"DCA_SF", //
 				new OptionsEnum[0])), //
 		DCA_SF(new PointImpl(//
@@ -2124,6 +2271,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCV(new PointImpl(//
@@ -2134,6 +2282,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"DCV_SF", //
 				new OptionsEnum[0])), //
 		DCV_SF(new PointImpl(//
@@ -2144,6 +2293,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCW(new PointImpl(//
@@ -2154,6 +2304,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"DCW_SF", //
 				new OptionsEnum[0])), //
 		DCW_SF(new PointImpl(//
@@ -2164,6 +2315,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_CAB(new PointImpl(//
@@ -2174,6 +2326,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_SNK(new PointImpl(//
@@ -2184,6 +2337,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_TRNS(new PointImpl(//
@@ -2194,6 +2348,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_OT(new PointImpl(//
@@ -2204,6 +2359,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Tmp_SF", //
 				new OptionsEnum[0])), //
 		TMP_S_F(new PointImpl(//
@@ -2214,6 +2370,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -2224,6 +2381,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S103_St.values())), //
 		ST_VND(new PointImpl(//
@@ -2234,6 +2392,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -2244,6 +2403,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S103_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -2254,6 +2414,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -2264,6 +2425,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -2274,6 +2436,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND3(new PointImpl(//
@@ -2284,6 +2447,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND4(new PointImpl(//
@@ -2294,6 +2458,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -2396,6 +2561,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -2406,6 +2572,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -2416,6 +2583,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -2426,6 +2594,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -2436,6 +2605,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -2446,6 +2616,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -2456,6 +2627,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -2466,6 +2638,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -2476,6 +2649,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -2486,6 +2660,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -2496,6 +2671,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -2506,6 +2682,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -2516,6 +2693,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR(new PointImpl(//
@@ -2526,6 +2704,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -2536,6 +2715,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WH(new PointImpl(//
@@ -2546,6 +2726,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -2556,6 +2737,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCV(new PointImpl(//
@@ -2566,6 +2748,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		DCW(new PointImpl(//
@@ -2576,6 +2759,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_CAB(new PointImpl(//
@@ -2586,6 +2770,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_SNK(new PointImpl(//
@@ -2596,6 +2781,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_TRNS(new PointImpl(//
@@ -2606,6 +2792,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_OT(new PointImpl(//
@@ -2616,6 +2803,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -2626,6 +2814,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S111_St.values())), //
 		ST_VND(new PointImpl(//
@@ -2636,6 +2825,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -2646,6 +2836,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S111_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -2656,6 +2847,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -2666,6 +2858,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -2676,6 +2869,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND3(new PointImpl(//
@@ -2686,6 +2880,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND4(new PointImpl(//
@@ -2696,6 +2891,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -2798,6 +2994,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -2808,6 +3005,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -2818,6 +3016,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -2828,6 +3027,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -2838,6 +3038,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -2848,6 +3049,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -2858,6 +3060,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -2868,6 +3071,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -2878,6 +3082,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -2888,6 +3093,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -2898,6 +3104,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -2908,6 +3115,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -2918,6 +3126,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR(new PointImpl(//
@@ -2928,6 +3137,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -2938,6 +3148,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WH(new PointImpl(//
@@ -2948,6 +3159,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -2958,6 +3170,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCV(new PointImpl(//
@@ -2968,6 +3181,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		DCW(new PointImpl(//
@@ -2978,6 +3192,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_CAB(new PointImpl(//
@@ -2988,6 +3203,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_SNK(new PointImpl(//
@@ -2998,6 +3214,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_TRNS(new PointImpl(//
@@ -3008,6 +3225,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_OT(new PointImpl(//
@@ -3018,6 +3236,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -3028,6 +3247,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S112_St.values())), //
 		ST_VND(new PointImpl(//
@@ -3038,6 +3258,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -3048,6 +3269,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S112_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -3058,6 +3280,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -3068,6 +3291,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -3078,6 +3302,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND3(new PointImpl(//
@@ -3088,6 +3313,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND4(new PointImpl(//
@@ -3098,6 +3324,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -3200,6 +3427,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -3210,6 +3438,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -3220,6 +3449,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -3230,6 +3460,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -3240,6 +3471,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -3250,6 +3482,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -3260,6 +3493,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -3270,6 +3504,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -3280,6 +3515,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -3290,6 +3526,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -3300,6 +3537,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -3310,6 +3548,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -3320,6 +3559,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR(new PointImpl(//
@@ -3330,6 +3570,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -3340,6 +3581,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WH(new PointImpl(//
@@ -3350,6 +3592,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -3360,6 +3603,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				null, //
 				new OptionsEnum[0])), //
 		DCV(new PointImpl(//
@@ -3370,6 +3614,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				null, //
 				new OptionsEnum[0])), //
 		DCW(new PointImpl(//
@@ -3380,6 +3625,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_CAB(new PointImpl(//
@@ -3390,6 +3636,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_SNK(new PointImpl(//
@@ -3400,6 +3647,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_TRNS(new PointImpl(//
@@ -3410,6 +3658,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_OT(new PointImpl(//
@@ -3420,6 +3669,7 @@ public enum SunSpecModel {
 				PointType.FLOAT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				null, //
 				new OptionsEnum[0])), //
 		ST(new PointImpl(//
@@ -3430,6 +3680,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S113_St.values())), //
 		ST_VND(new PointImpl(//
@@ -3440,6 +3691,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -3450,6 +3702,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S113_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -3460,6 +3713,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -3470,6 +3724,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -3480,6 +3735,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND3(new PointImpl(//
@@ -3490,6 +3746,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND4(new PointImpl(//
@@ -3500,6 +3757,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -3602,6 +3860,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S120_DERTyp.values())), //
 		W_RTG(new PointImpl(//
@@ -3612,6 +3871,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"WRtg_SF", //
 				new OptionsEnum[0])), //
 		W_RTG_S_F(new PointImpl(//
@@ -3622,6 +3882,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_A_RTG(new PointImpl(//
@@ -3632,6 +3893,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VARtg_SF", //
 				new OptionsEnum[0])), //
 		V_A_RTG_S_F(new PointImpl(//
@@ -3642,6 +3904,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_RTG_Q1(new PointImpl(//
@@ -3652,6 +3915,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArRtg_SF", //
 				new OptionsEnum[0])), //
 		V_AR_RTG_Q2(new PointImpl(//
@@ -3662,6 +3926,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArRtg_SF", //
 				new OptionsEnum[0])), //
 		V_AR_RTG_Q3(new PointImpl(//
@@ -3672,6 +3937,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArRtg_SF", //
 				new OptionsEnum[0])), //
 		V_AR_RTG_Q4(new PointImpl(//
@@ -3682,6 +3948,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArRtg_SF", //
 				new OptionsEnum[0])), //
 		V_AR_RTG_S_F(new PointImpl(//
@@ -3692,6 +3959,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_RTG(new PointImpl(//
@@ -3702,6 +3970,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"ARtg_SF", //
 				new OptionsEnum[0])), //
 		A_RTG_S_F(new PointImpl(//
@@ -3712,6 +3981,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_F_RTG_Q1(new PointImpl(//
@@ -3722,6 +3992,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PFRtg_SF", //
 				new OptionsEnum[0])), //
 		P_F_RTG_Q2(new PointImpl(//
@@ -3732,6 +4003,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PFRtg_SF", //
 				new OptionsEnum[0])), //
 		P_F_RTG_Q3(new PointImpl(//
@@ -3742,6 +4014,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PFRtg_SF", //
 				new OptionsEnum[0])), //
 		P_F_RTG_Q4(new PointImpl(//
@@ -3752,6 +4025,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PFRtg_SF", //
 				new OptionsEnum[0])), //
 		P_F_RTG_S_F(new PointImpl(//
@@ -3762,6 +4036,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_H_RTG(new PointImpl(//
@@ -3772,6 +4047,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"WHRtg_SF", //
 				new OptionsEnum[0])), //
 		W_H_RTG_S_F(new PointImpl(//
@@ -3782,6 +4058,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		AHR_RTG(new PointImpl(//
@@ -3792,6 +4069,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE_HOURS, //
 				"AhrRtg_SF", //
 				new OptionsEnum[0])), //
 		AHR_RTG_S_F(new PointImpl(//
@@ -3802,6 +4080,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MAX_CHA_RTE(new PointImpl(//
@@ -3812,6 +4091,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"MaxChaRte_SF", //
 				new OptionsEnum[0])), //
 		MAX_CHA_RTE_S_F(new PointImpl(//
@@ -3822,6 +4102,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MAX_DIS_CHA_RTE(new PointImpl(//
@@ -3832,6 +4113,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"MaxDisChaRte_SF", //
 				new OptionsEnum[0])), //
 		MAX_DIS_CHA_RTE_S_F(new PointImpl(//
@@ -3842,6 +4124,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
@@ -3852,6 +4135,7 @@ public enum SunSpecModel {
 				PointType.PAD, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -3905,6 +4189,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.WATT, //
 				"WMax_SF", //
 				new OptionsEnum[0])), //
 		V_REF(new PointImpl(//
@@ -3915,6 +4200,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
 				"VRef_SF", //
 				new OptionsEnum[0])), //
 		V_REF_OFS(new PointImpl(//
@@ -3925,6 +4211,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
 				"VRefOfs_SF", //
 				new OptionsEnum[0])), //
 		V_MAX(new PointImpl(//
@@ -3935,6 +4222,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
 				"VMinMax_SF", //
 				new OptionsEnum[0])), //
 		V_MIN(new PointImpl(//
@@ -3945,6 +4233,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
 				"VMinMax_SF", //
 				new OptionsEnum[0])), //
 		V_A_MAX(new PointImpl(//
@@ -3955,6 +4244,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE, //
 				"VAMax_SF", //
 				new OptionsEnum[0])), //
 		V_AR_MAX_Q1(new PointImpl(//
@@ -3965,6 +4255,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArMax_SF", //
 				new OptionsEnum[0])), //
 		V_AR_MAX_Q2(new PointImpl(//
@@ -3975,6 +4266,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArMax_SF", //
 				new OptionsEnum[0])), //
 		V_AR_MAX_Q3(new PointImpl(//
@@ -3985,6 +4277,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArMax_SF", //
 				new OptionsEnum[0])), //
 		V_AR_MAX_Q4(new PointImpl(//
@@ -3995,6 +4288,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArMax_SF", //
 				new OptionsEnum[0])), //
 		W_GRA(new PointImpl(//
@@ -4005,6 +4299,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"WGra_SF", //
 				new OptionsEnum[0])), //
 		P_F_MIN_Q1(new PointImpl(//
@@ -4015,6 +4310,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"PFMin_SF", //
 				new OptionsEnum[0])), //
 		P_F_MIN_Q2(new PointImpl(//
@@ -4025,6 +4321,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"PFMin_SF", //
 				new OptionsEnum[0])), //
 		P_F_MIN_Q3(new PointImpl(//
@@ -4035,6 +4332,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"PFMin_SF", //
 				new OptionsEnum[0])), //
 		P_F_MIN_Q4(new PointImpl(//
@@ -4045,6 +4343,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"PFMin_SF", //
 				new OptionsEnum[0])), //
 		V_AR_ACT(new PointImpl(//
@@ -4055,6 +4354,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S121_VArAct.values())), //
 		CLC_TOT_V_A(new PointImpl(//
@@ -4065,6 +4365,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S121_ClcTotVA.values())), //
 		MAX_RMP_RTE(new PointImpl(//
@@ -4075,6 +4376,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"MaxRmpRte_SF", //
 				new OptionsEnum[0])), //
 		E_C_P_NOM_HZ(new PointImpl(//
@@ -4085,6 +4387,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
 				"ECPNomHz_SF", //
 				new OptionsEnum[0])), //
 		CONN_PH(new PointImpl(//
@@ -4095,6 +4398,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S121_ConnPh.values())), //
 		W_MAX_S_F(new PointImpl(//
@@ -4105,6 +4409,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_REF_S_F(new PointImpl(//
@@ -4115,6 +4420,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_REF_OFS_S_F(new PointImpl(//
@@ -4125,6 +4431,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_MIN_MAX_S_F(new PointImpl(//
@@ -4135,6 +4442,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_A_MAX_S_F(new PointImpl(//
@@ -4145,6 +4453,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_MAX_S_F(new PointImpl(//
@@ -4155,6 +4464,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_GRA_S_F(new PointImpl(//
@@ -4165,6 +4475,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_F_MIN_S_F(new PointImpl(//
@@ -4175,6 +4486,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MAX_RMP_RTE_S_F(new PointImpl(//
@@ -4185,6 +4497,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		E_C_P_NOM_HZ_S_F(new PointImpl(//
@@ -4195,6 +4508,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -4307,6 +4621,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S122_PVConn.values())), //
 		STOR_CONN(new PointImpl(//
@@ -4317,6 +4632,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S122_StorConn.values())), //
 		E_C_P_CONN(new PointImpl(//
@@ -4327,6 +4643,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S122_ECPConn.values())), //
 		ACT_WH(new PointImpl(//
@@ -4337,6 +4654,7 @@ public enum SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		ACT_V_AH(new PointImpl(//
@@ -4347,6 +4665,7 @@ public enum SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		ACT_V_ARH_Q1(new PointImpl(//
@@ -4357,6 +4676,7 @@ public enum SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		ACT_V_ARH_Q2(new PointImpl(//
@@ -4367,6 +4687,7 @@ public enum SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		ACT_V_ARH_Q3(new PointImpl(//
@@ -4377,6 +4698,7 @@ public enum SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		ACT_V_ARH_Q4(new PointImpl(//
@@ -4387,6 +4709,7 @@ public enum SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_AVAL(new PointImpl(//
@@ -4397,6 +4720,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VArAval_SF", //
 				new OptionsEnum[0])), //
 		V_AR_AVAL_S_F(new PointImpl(//
@@ -4407,6 +4731,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_AVAL(new PointImpl(//
@@ -4417,6 +4742,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"WAval_SF", //
 				new OptionsEnum[0])), //
 		W_AVAL_S_F(new PointImpl(//
@@ -4427,6 +4753,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ST_SET_LIM_MSK(new PointImpl(//
@@ -4437,6 +4764,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S122_StSetLimMsk.values())), //
 		ST_ACT_CTL(new PointImpl(//
@@ -4447,6 +4775,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S122_StActCtl.values())), //
 		TM_SRC(new PointImpl(//
@@ -4457,6 +4786,7 @@ public enum SunSpecModel {
 				PointType.STRING4, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TMS(new PointImpl(//
@@ -4467,6 +4797,7 @@ public enum SunSpecModel {
 				PointType.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		RT_ST(new PointImpl(//
@@ -4477,6 +4808,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S122_RtSt.values())), //
 		RIS(new PointImpl(//
@@ -4487,6 +4819,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"Ris_SF", //
 				new OptionsEnum[0])), //
 		RIS_S_F(new PointImpl(//
@@ -4497,6 +4830,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -4721,6 +5055,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		CONN_RVRT_TMS(new PointImpl(//
@@ -4731,6 +5066,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		CONN(new PointImpl(//
@@ -4741,6 +5077,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S123_Conn.values())), //
 		W_MAX_LIM_PCT(new PointImpl(//
@@ -4751,6 +5088,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"WMaxLimPct_SF", //
 				new OptionsEnum[0])), //
 		W_MAX_LIM_PCT_WIN_TMS(new PointImpl(//
@@ -4761,6 +5099,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		W_MAX_LIM_PCT_RVRT_TMS(new PointImpl(//
@@ -4771,6 +5110,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		W_MAX_LIM_PCT_RMP_TMS(new PointImpl(//
@@ -4781,6 +5121,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		W_MAX_LIM_ENA(new PointImpl(//
@@ -4791,6 +5132,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S123_WMaxLim_Ena.values())), //
 		OUT_P_F_SET(new PointImpl(//
@@ -4801,6 +5143,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"OutPFSet_SF", //
 				new OptionsEnum[0])), //
 		OUT_P_F_SET_WIN_TMS(new PointImpl(//
@@ -4811,6 +5154,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_P_F_SET_RVRT_TMS(new PointImpl(//
@@ -4821,6 +5165,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_P_F_SET_RMP_TMS(new PointImpl(//
@@ -4831,6 +5176,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_P_F_SET_ENA(new PointImpl(//
@@ -4841,6 +5187,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S123_OutPFSet_Ena.values())), //
 		V_AR_W_MAX_PCT(new PointImpl(//
@@ -4851,6 +5198,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VArPct_SF", //
 				new OptionsEnum[0])), //
 		V_AR_MAX_PCT(new PointImpl(//
@@ -4861,6 +5209,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VArPct_SF", //
 				new OptionsEnum[0])), //
 		V_AR_AVAL_PCT(new PointImpl(//
@@ -4871,6 +5220,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VArPct_SF", //
 				new OptionsEnum[0])), //
 		V_AR_PCT_WIN_TMS(new PointImpl(//
@@ -4881,6 +5231,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_PCT_RVRT_TMS(new PointImpl(//
@@ -4891,6 +5242,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_PCT_RMP_TMS(new PointImpl(//
@@ -4901,6 +5253,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_PCT_MOD(new PointImpl(//
@@ -4911,6 +5264,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S123_VArPct_Mod.values())), //
 		V_AR_PCT_ENA(new PointImpl(//
@@ -4921,6 +5275,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S123_VArPct_Ena.values())), //
 		W_MAX_LIM_PCT_S_F(new PointImpl(//
@@ -4931,6 +5286,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OUT_P_F_SET_S_F(new PointImpl(//
@@ -4941,6 +5297,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_AR_PCT_S_F(new PointImpl(//
@@ -4951,6 +5308,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -5122,6 +5480,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.WATT, //
 				"WChaMax_SF", //
 				new OptionsEnum[0])), //
 		W_CHA_GRA(new PointImpl(//
@@ -5132,6 +5491,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"WChaDisChaGra_SF", //
 				new OptionsEnum[0])), //
 		W_DIS_CHA_GRA(new PointImpl(//
@@ -5142,6 +5502,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"WChaDisChaGra_SF", //
 				new OptionsEnum[0])), //
 		STOR_CTL_MOD(new PointImpl(//
@@ -5152,6 +5513,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S124_StorCtl_Mod.values())), //
 		V_A_CHA_MAX(new PointImpl(//
@@ -5162,6 +5524,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE, //
 				"VAChaMax_SF", //
 				new OptionsEnum[0])), //
 		MIN_RSV_PCT(new PointImpl(//
@@ -5172,6 +5535,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"MinRsvPct_SF", //
 				new OptionsEnum[0])), //
 		CHA_STATE(new PointImpl(//
@@ -5182,6 +5546,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"ChaState_SF", //
 				new OptionsEnum[0])), //
 		STOR_AVAL(new PointImpl(//
@@ -5192,6 +5557,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE_HOURS, //
 				"StorAval_SF", //
 				new OptionsEnum[0])), //
 		IN_BAT_V(new PointImpl(//
@@ -5202,6 +5568,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"InBatV_SF", //
 				new OptionsEnum[0])), //
 		CHA_ST(new PointImpl(//
@@ -5212,6 +5579,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S124_ChaSt.values())), //
 		OUT_W_RTE(new PointImpl(//
@@ -5222,6 +5590,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"InOutWRte_SF", //
 				new OptionsEnum[0])), //
 		IN_W_RTE(new PointImpl(//
@@ -5232,6 +5601,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"InOutWRte_SF", //
 				new OptionsEnum[0])), //
 		IN_OUT_W_RTE_WIN_TMS(new PointImpl(//
@@ -5242,6 +5612,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_OUT_W_RTE_RVRT_TMS(new PointImpl(//
@@ -5252,6 +5623,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_OUT_W_RTE_RMP_TMS(new PointImpl(//
@@ -5262,6 +5634,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		CHA_GRI_SET(new PointImpl(//
@@ -5272,6 +5645,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S124_ChaGriSet.values())), //
 		W_CHA_MAX_S_F(new PointImpl(//
@@ -5282,6 +5656,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_CHA_DIS_CHA_GRA_S_F(new PointImpl(//
@@ -5292,6 +5667,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_A_CHA_MAX_S_F(new PointImpl(//
@@ -5302,6 +5678,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MIN_RSV_PCT_S_F(new PointImpl(//
@@ -5312,6 +5689,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CHA_STATE_S_F(new PointImpl(//
@@ -5322,6 +5700,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STOR_AVAL_S_F(new PointImpl(//
@@ -5332,6 +5711,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_BAT_V_S_F(new PointImpl(//
@@ -5342,6 +5722,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		IN_OUT_W_RTE_S_F(new PointImpl(//
@@ -5352,6 +5733,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -5468,6 +5850,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S125_ModEna.values())), //
 		SIG_TYPE(new PointImpl(//
@@ -5478,6 +5861,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S125_SigType.values())), //
 		SIG(new PointImpl(//
@@ -5488,6 +5872,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Sig_SF", //
 				new OptionsEnum[0])), //
 		WIN_TMS(new PointImpl(//
@@ -5498,6 +5883,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		RVT_TMS(new PointImpl(//
@@ -5508,6 +5894,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		RMP_TMS(new PointImpl(//
@@ -5518,6 +5905,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		SIG_S_F(new PointImpl(//
@@ -5528,6 +5916,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
@@ -5538,6 +5927,7 @@ public enum SunSpecModel {
 				PointType.PAD, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -5622,6 +6012,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"WGra_SF", //
 				new OptionsEnum[0])), //
 		HZ_STR(new PointImpl(//
@@ -5632,6 +6023,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
 				"HzStrStop_SF", //
 				new OptionsEnum[0])), //
 		HZ_STOP(new PointImpl(//
@@ -5642,6 +6034,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
 				"HzStrStop_SF", //
 				new OptionsEnum[0])), //
 		HYS_ENA(new PointImpl(//
@@ -5652,6 +6045,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S127_HysEna.values())), //
 		MOD_ENA(new PointImpl(//
@@ -5662,6 +6056,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S127_ModEna.values())), //
 		HZ_STOP_W_GRA(new PointImpl(//
@@ -5672,6 +6067,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"RmpIncDec_SF", //
 				new OptionsEnum[0])), //
 		W_GRA_S_F(new PointImpl(//
@@ -5682,6 +6078,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ_STR_STOP_S_F(new PointImpl(//
@@ -5692,6 +6089,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		RMP_INC_DEC_S_F(new PointImpl(//
@@ -5702,6 +6100,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
@@ -5712,6 +6111,7 @@ public enum SunSpecModel {
 				PointType.PAD, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -5792,6 +6192,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S128_ArGraMod.values())), //
 		AR_GRA_SAG(new PointImpl(//
@@ -5802,6 +6203,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"ArGra_SF", //
 				new OptionsEnum[0])), //
 		AR_GRA_SWELL(new PointImpl(//
@@ -5812,6 +6214,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"ArGra_SF", //
 				new OptionsEnum[0])), //
 		MOD_ENA(new PointImpl(//
@@ -5822,6 +6225,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S128_ModEna.values())), //
 		FIL_TMS(new PointImpl(//
@@ -5832,6 +6236,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		DB_V_MIN(new PointImpl(//
@@ -5842,6 +6247,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VRefPct_SF", //
 				new OptionsEnum[0])), //
 		DB_V_MAX(new PointImpl(//
@@ -5852,6 +6258,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VRefPct_SF", //
 				new OptionsEnum[0])), //
 		BLK_ZN_V(new PointImpl(//
@@ -5862,6 +6269,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VRefPct_SF", //
 				new OptionsEnum[0])), //
 		HYS_BLK_ZN_V(new PointImpl(//
@@ -5872,6 +6280,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"VRefPct_SF", //
 				new OptionsEnum[0])), //
 		BLK_ZN_TMMS(new PointImpl(//
@@ -5882,6 +6291,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.MILLISECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		HOLD_TMMS(new PointImpl(//
@@ -5892,6 +6302,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.MILLISECONDS, //
 				null, //
 				new OptionsEnum[0])), //
 		AR_GRA_S_F(new PointImpl(//
@@ -5902,6 +6313,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_REF_PCT_S_F(new PointImpl(//
@@ -5912,6 +6324,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
@@ -5922,6 +6335,7 @@ public enum SunSpecModel {
 				PointType.PAD, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -6003,6 +6417,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		NOM_RMP_DN_RTE(new PointImpl(//
@@ -6013,6 +6428,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		EMG_RMP_UP_RTE(new PointImpl(//
@@ -6023,6 +6439,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		EMG_RMP_DN_RTE(new PointImpl(//
@@ -6033,6 +6450,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		CONN_RMP_UP_RTE(new PointImpl(//
@@ -6043,6 +6461,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		CONN_RMP_DN_RTE(new PointImpl(//
@@ -6053,6 +6472,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		A_GRA(new PointImpl(//
@@ -6063,6 +6483,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				"Rmp_SF", //
 				new OptionsEnum[0])), //
 		RMP_S_F(new PointImpl(//
@@ -6073,6 +6494,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -6097,6 +6519,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -6107,6 +6530,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -6117,6 +6541,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -6127,6 +6552,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -6137,6 +6563,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_V(new PointImpl(//
@@ -6147,6 +6574,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -6157,6 +6585,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -6167,6 +6596,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -6177,6 +6607,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PPV(new PointImpl(//
@@ -6187,6 +6618,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
@@ -6197,6 +6629,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
@@ -6207,6 +6640,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
@@ -6217,6 +6651,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -6227,6 +6662,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -6237,6 +6673,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -6247,6 +6684,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -6257,6 +6695,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_A(new PointImpl(//
@@ -6267,6 +6706,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_B(new PointImpl(//
@@ -6277,6 +6717,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_C(new PointImpl(//
@@ -6287,6 +6728,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -6297,6 +6739,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -6307,6 +6750,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_A(new PointImpl(//
@@ -6317,6 +6761,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_B(new PointImpl(//
@@ -6327,6 +6772,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_C(new PointImpl(//
@@ -6337,6 +6783,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -6347,6 +6794,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VAR(new PointImpl(//
@@ -6357,6 +6805,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_A(new PointImpl(//
@@ -6367,6 +6816,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_B(new PointImpl(//
@@ -6377,6 +6827,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_C(new PointImpl(//
@@ -6387,6 +6838,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		VAR_SF(new PointImpl(//
@@ -6397,6 +6849,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -6407,6 +6860,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_A(new PointImpl(//
@@ -6417,6 +6871,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_B(new PointImpl(//
@@ -6427,6 +6882,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_C(new PointImpl(//
@@ -6437,6 +6893,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -6447,6 +6904,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP(new PointImpl(//
@@ -6457,6 +6915,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -6467,6 +6926,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -6477,6 +6937,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -6487,6 +6948,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -6497,6 +6959,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -6507,6 +6970,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -6517,6 +6981,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -6527,6 +6992,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -6537,6 +7003,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP(new PointImpl(//
@@ -6547,6 +7014,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_A(new PointImpl(//
@@ -6557,6 +7025,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_B(new PointImpl(//
@@ -6567,6 +7036,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_C(new PointImpl(//
@@ -6577,6 +7047,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP(new PointImpl(//
@@ -6587,6 +7058,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_A(new PointImpl(//
@@ -6597,6 +7069,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_B(new PointImpl(//
@@ -6607,6 +7080,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_C(new PointImpl(//
@@ -6617,6 +7091,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_S_F(new PointImpl(//
@@ -6627,6 +7102,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1(new PointImpl(//
@@ -6637,6 +7113,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_A(new PointImpl(//
@@ -6647,6 +7124,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_B(new PointImpl(//
@@ -6657,6 +7135,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
@@ -6667,6 +7146,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2(new PointImpl(//
@@ -6677,6 +7157,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_A(new PointImpl(//
@@ -6687,6 +7168,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_B(new PointImpl(//
@@ -6697,6 +7179,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_C(new PointImpl(//
@@ -6707,6 +7190,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3(new PointImpl(//
@@ -6717,6 +7201,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_A(new PointImpl(//
@@ -6727,6 +7212,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_B(new PointImpl(//
@@ -6737,6 +7223,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_C(new PointImpl(//
@@ -6747,6 +7234,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4(new PointImpl(//
@@ -6757,6 +7245,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_A(new PointImpl(//
@@ -6767,6 +7256,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
@@ -6777,6 +7267,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_C(new PointImpl(//
@@ -6787,6 +7278,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_S_F(new PointImpl(//
@@ -6797,6 +7289,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT(new PointImpl(//
@@ -6807,6 +7300,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S201_Evt.values())); //
 
@@ -6879,6 +7373,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -6889,6 +7384,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -6899,6 +7395,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -6909,6 +7406,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -6919,6 +7417,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_V(new PointImpl(//
@@ -6929,6 +7428,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -6939,6 +7439,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -6949,6 +7450,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -6959,6 +7461,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PPV(new PointImpl(//
@@ -6969,6 +7472,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A_B(new PointImpl(//
@@ -6979,6 +7483,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B_C(new PointImpl(//
@@ -6989,6 +7494,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C_A(new PointImpl(//
@@ -6999,6 +7505,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -7009,6 +7516,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -7019,6 +7527,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -7029,6 +7538,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -7039,6 +7549,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_A(new PointImpl(//
@@ -7049,6 +7560,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_B(new PointImpl(//
@@ -7059,6 +7571,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_C(new PointImpl(//
@@ -7069,6 +7582,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -7079,6 +7593,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -7089,6 +7604,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_A(new PointImpl(//
@@ -7099,6 +7615,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_B(new PointImpl(//
@@ -7109,6 +7626,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_C(new PointImpl(//
@@ -7119,6 +7637,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -7129,6 +7648,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VAR(new PointImpl(//
@@ -7139,6 +7659,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_A(new PointImpl(//
@@ -7149,6 +7670,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_B(new PointImpl(//
@@ -7159,6 +7681,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_C(new PointImpl(//
@@ -7169,6 +7692,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		VAR_SF(new PointImpl(//
@@ -7179,6 +7703,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -7189,6 +7714,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_A(new PointImpl(//
@@ -7199,6 +7725,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_B(new PointImpl(//
@@ -7209,6 +7736,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_C(new PointImpl(//
@@ -7219,6 +7747,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -7229,6 +7758,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP(new PointImpl(//
@@ -7239,6 +7769,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -7249,6 +7780,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -7259,6 +7791,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -7269,6 +7802,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -7279,6 +7813,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -7289,6 +7824,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -7299,6 +7835,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -7309,6 +7846,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -7319,6 +7857,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP(new PointImpl(//
@@ -7329,6 +7868,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_A(new PointImpl(//
@@ -7339,6 +7879,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_B(new PointImpl(//
@@ -7349,6 +7890,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_C(new PointImpl(//
@@ -7359,6 +7901,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP(new PointImpl(//
@@ -7369,6 +7912,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_A(new PointImpl(//
@@ -7379,6 +7923,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_B(new PointImpl(//
@@ -7389,6 +7934,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_C(new PointImpl(//
@@ -7399,6 +7945,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_S_F(new PointImpl(//
@@ -7409,6 +7956,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1(new PointImpl(//
@@ -7419,6 +7967,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_A(new PointImpl(//
@@ -7429,6 +7978,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_B(new PointImpl(//
@@ -7439,6 +7989,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
@@ -7449,6 +8000,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2(new PointImpl(//
@@ -7459,6 +8011,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_A(new PointImpl(//
@@ -7469,6 +8022,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_B(new PointImpl(//
@@ -7479,6 +8033,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_C(new PointImpl(//
@@ -7489,6 +8044,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3(new PointImpl(//
@@ -7499,6 +8055,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_A(new PointImpl(//
@@ -7509,6 +8066,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_B(new PointImpl(//
@@ -7519,6 +8077,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_C(new PointImpl(//
@@ -7529,6 +8088,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4(new PointImpl(//
@@ -7539,6 +8099,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_A(new PointImpl(//
@@ -7549,6 +8110,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
@@ -7559,6 +8121,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_C(new PointImpl(//
@@ -7569,6 +8132,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_S_F(new PointImpl(//
@@ -7579,6 +8143,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT(new PointImpl(//
@@ -7589,6 +8154,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S202_Evt.values())); //
 
@@ -7669,6 +8235,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -7679,6 +8246,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -7689,6 +8257,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -7699,6 +8268,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -7709,6 +8279,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_V(new PointImpl(//
@@ -7719,6 +8290,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -7729,6 +8301,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -7739,6 +8312,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -7749,6 +8323,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PPV(new PointImpl(//
@@ -7759,6 +8334,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A_B(new PointImpl(//
@@ -7769,6 +8345,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B_C(new PointImpl(//
@@ -7779,6 +8356,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C_A(new PointImpl(//
@@ -7789,6 +8367,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -7799,6 +8378,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -7809,6 +8389,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -7819,6 +8400,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -7829,6 +8411,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_A(new PointImpl(//
@@ -7839,6 +8422,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_B(new PointImpl(//
@@ -7849,6 +8433,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_C(new PointImpl(//
@@ -7859,6 +8444,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -7869,6 +8455,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -7879,6 +8466,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_A(new PointImpl(//
@@ -7889,6 +8477,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_B(new PointImpl(//
@@ -7899,6 +8488,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_C(new PointImpl(//
@@ -7909,6 +8499,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -7919,6 +8510,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VAR(new PointImpl(//
@@ -7929,6 +8521,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_A(new PointImpl(//
@@ -7939,6 +8532,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_B(new PointImpl(//
@@ -7949,6 +8543,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_C(new PointImpl(//
@@ -7959,6 +8554,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		VAR_SF(new PointImpl(//
@@ -7969,6 +8565,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -7979,6 +8576,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_A(new PointImpl(//
@@ -7989,6 +8587,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_B(new PointImpl(//
@@ -7999,6 +8598,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_C(new PointImpl(//
@@ -8009,6 +8609,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -8019,6 +8620,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP(new PointImpl(//
@@ -8029,6 +8631,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -8039,6 +8642,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -8049,6 +8653,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -8059,6 +8664,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -8069,6 +8675,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -8079,6 +8686,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -8089,6 +8697,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -8099,6 +8708,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -8109,6 +8719,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP(new PointImpl(//
@@ -8119,6 +8730,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_A(new PointImpl(//
@@ -8129,6 +8741,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_B(new PointImpl(//
@@ -8139,6 +8752,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_C(new PointImpl(//
@@ -8149,6 +8763,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP(new PointImpl(//
@@ -8159,6 +8774,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_A(new PointImpl(//
@@ -8169,6 +8785,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_B(new PointImpl(//
@@ -8179,6 +8796,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_C(new PointImpl(//
@@ -8189,6 +8807,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_S_F(new PointImpl(//
@@ -8199,6 +8818,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1(new PointImpl(//
@@ -8209,6 +8829,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_A(new PointImpl(//
@@ -8219,6 +8840,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_B(new PointImpl(//
@@ -8229,6 +8851,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
@@ -8239,6 +8862,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2(new PointImpl(//
@@ -8249,6 +8873,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_A(new PointImpl(//
@@ -8259,6 +8884,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_B(new PointImpl(//
@@ -8269,6 +8895,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_C(new PointImpl(//
@@ -8279,6 +8906,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3(new PointImpl(//
@@ -8289,6 +8917,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_A(new PointImpl(//
@@ -8299,6 +8928,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_B(new PointImpl(//
@@ -8309,6 +8939,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_C(new PointImpl(//
@@ -8319,6 +8950,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4(new PointImpl(//
@@ -8329,6 +8961,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_A(new PointImpl(//
@@ -8339,6 +8972,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
@@ -8349,6 +8983,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_C(new PointImpl(//
@@ -8359,6 +8994,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_S_F(new PointImpl(//
@@ -8369,6 +9005,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT(new PointImpl(//
@@ -8379,6 +9016,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S203_Evt.values())); //
 
@@ -8459,6 +9097,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_A(new PointImpl(//
@@ -8469,6 +9108,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_B(new PointImpl(//
@@ -8479,6 +9119,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		APH_C(new PointImpl(//
@@ -8489,6 +9130,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -8499,6 +9141,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PH_V(new PointImpl(//
@@ -8509,6 +9152,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A(new PointImpl(//
@@ -8519,6 +9163,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B(new PointImpl(//
@@ -8529,6 +9174,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C(new PointImpl(//
@@ -8539,6 +9185,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PPV(new PointImpl(//
@@ -8549,6 +9196,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_A_B(new PointImpl(//
@@ -8559,6 +9207,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_B_C(new PointImpl(//
@@ -8569,6 +9218,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		PH_VPH_C_A(new PointImpl(//
@@ -8579,6 +9229,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -8589,6 +9240,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		HZ(new PointImpl(//
@@ -8599,6 +9251,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
 				"Hz_SF", //
 				new OptionsEnum[0])), //
 		HZ_S_F(new PointImpl(//
@@ -8609,6 +9262,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -8619,6 +9273,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_A(new PointImpl(//
@@ -8629,6 +9284,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_B(new PointImpl(//
@@ -8639,6 +9295,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		WPH_C(new PointImpl(//
@@ -8649,6 +9306,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -8659,6 +9317,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VA(new PointImpl(//
@@ -8669,6 +9328,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_A(new PointImpl(//
@@ -8679,6 +9339,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_B(new PointImpl(//
@@ -8689,6 +9350,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		V_APH_C(new PointImpl(//
@@ -8699,6 +9361,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
 				"VA_SF", //
 				new OptionsEnum[0])), //
 		VA_SF(new PointImpl(//
@@ -8709,6 +9372,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		VAR(new PointImpl(//
@@ -8719,6 +9383,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_A(new PointImpl(//
@@ -8729,6 +9394,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_B(new PointImpl(//
@@ -8739,6 +9405,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		V_A_RPH_C(new PointImpl(//
@@ -8749,6 +9416,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
 				"VAR_SF", //
 				new OptionsEnum[0])), //
 		VAR_SF(new PointImpl(//
@@ -8759,6 +9427,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PF(new PointImpl(//
@@ -8769,6 +9438,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_A(new PointImpl(//
@@ -8779,6 +9449,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_B(new PointImpl(//
@@ -8789,6 +9460,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		P_FPH_C(new PointImpl(//
@@ -8799,6 +9471,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"PF_SF", //
 				new OptionsEnum[0])), //
 		PF_SF(new PointImpl(//
@@ -8809,6 +9482,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP(new PointImpl(//
@@ -8819,6 +9493,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -8829,6 +9504,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -8839,6 +9515,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -8849,6 +9526,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -8859,6 +9537,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -8869,6 +9548,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -8879,6 +9559,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -8889,6 +9570,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -8899,6 +9581,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP(new PointImpl(//
@@ -8909,6 +9592,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_A(new PointImpl(//
@@ -8919,6 +9603,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_B(new PointImpl(//
@@ -8929,6 +9614,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_EXP_PH_C(new PointImpl(//
@@ -8939,6 +9625,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP(new PointImpl(//
@@ -8949,6 +9636,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_A(new PointImpl(//
@@ -8959,6 +9647,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_B(new PointImpl(//
@@ -8969,6 +9658,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_IMP_PH_C(new PointImpl(//
@@ -8979,6 +9669,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_HOURS, //
 				"TotVAh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_AH_S_F(new PointImpl(//
@@ -8989,6 +9680,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1(new PointImpl(//
@@ -8999,6 +9691,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_A(new PointImpl(//
@@ -9009,6 +9702,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_B(new PointImpl(//
@@ -9019,6 +9713,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
@@ -9029,6 +9724,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2(new PointImpl(//
@@ -9039,6 +9735,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_A(new PointImpl(//
@@ -9049,6 +9746,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_B(new PointImpl(//
@@ -9059,6 +9757,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q2_PH_C(new PointImpl(//
@@ -9069,6 +9768,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3(new PointImpl(//
@@ -9079,6 +9779,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_A(new PointImpl(//
@@ -9089,6 +9790,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_B(new PointImpl(//
@@ -9099,6 +9801,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q3_PH_C(new PointImpl(//
@@ -9109,6 +9812,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4(new PointImpl(//
@@ -9119,6 +9823,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_A(new PointImpl(//
@@ -9129,6 +9834,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
@@ -9139,6 +9845,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_C(new PointImpl(//
@@ -9149,6 +9856,7 @@ public enum SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
 				"TotVArh_SF", //
 				new OptionsEnum[0])), //
 		TOT_V_ARH_S_F(new PointImpl(//
@@ -9159,6 +9867,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT(new PointImpl(//
@@ -9169,6 +9878,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S204_Evt.values())); //
 
@@ -9249,6 +9959,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		POAI(new PointImpl(//
@@ -9259,6 +9970,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DFI(new PointImpl(//
@@ -9269,6 +9981,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DNI(new PointImpl(//
@@ -9279,6 +9992,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		OTI(new PointImpl(//
@@ -9289,6 +10003,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -9313,6 +10028,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"-1", //
 				new OptionsEnum[0])); //
 
@@ -9337,6 +10053,7 @@ public enum SunSpecModel {
 				PointType.INT32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"-2", //
 				new OptionsEnum[0])), //
 		INCLY(new PointImpl(//
@@ -9347,6 +10064,7 @@ public enum SunSpecModel {
 				PointType.INT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"-2", //
 				new OptionsEnum[0])), //
 		INCLZ(new PointImpl(//
@@ -9357,6 +10075,7 @@ public enum SunSpecModel {
 				PointType.INT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"-2", //
 				new OptionsEnum[0])); //
 
@@ -9381,6 +10100,7 @@ public enum SunSpecModel {
 				PointType.STRING6, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DATE(new PointImpl(//
@@ -9391,6 +10111,7 @@ public enum SunSpecModel {
 				PointType.STRING4, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		LOC(new PointImpl(//
@@ -9401,6 +10122,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		LAT(new PointImpl(//
@@ -9411,6 +10133,7 @@ public enum SunSpecModel {
 				PointType.INT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"-7", //
 				new OptionsEnum[0])), //
 		LONG(new PointImpl(//
@@ -9421,6 +10144,7 @@ public enum SunSpecModel {
 				PointType.INT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"-7", //
 				new OptionsEnum[0])), //
 		ALT(new PointImpl(//
@@ -9431,6 +10155,7 @@ public enum SunSpecModel {
 				PointType.INT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -9455,6 +10180,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A(new PointImpl(//
@@ -9465,6 +10191,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V(new PointImpl(//
@@ -9475,6 +10202,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP(new PointImpl(//
@@ -9485,6 +10213,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -9509,6 +10238,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"-1", //
 				new OptionsEnum[0])), //
 		RH(new PointImpl(//
@@ -9519,6 +10249,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PRES(new PointImpl(//
@@ -9529,6 +10260,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WND_SPD(new PointImpl(//
@@ -9539,6 +10271,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WND_DIR(new PointImpl(//
@@ -9549,6 +10282,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		RAIN(new PointImpl(//
@@ -9559,6 +10293,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SNW(new PointImpl(//
@@ -9569,6 +10304,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PPT(new PointImpl(//
@@ -9579,6 +10315,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELEC_FLD(new PointImpl(//
@@ -9589,6 +10326,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SUR_WET(new PointImpl(//
@@ -9599,6 +10337,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SOIL_WET(new PointImpl(//
@@ -9609,6 +10348,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -9633,6 +10373,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TMP_B_O_M(new PointImpl(//
@@ -9643,6 +10384,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"-1", //
 				new OptionsEnum[0])), //
 		TMP_AMB(new PointImpl(//
@@ -9653,6 +10395,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"-1", //
 				new OptionsEnum[0])), //
 		WND_SPD(new PointImpl(//
@@ -9663,6 +10406,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -9687,6 +10431,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -9711,6 +10456,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE_HOURS, //
 				"AHRtg_SF", //
 				new OptionsEnum[0])), //
 		W_H_RTG(new PointImpl(//
@@ -9721,6 +10467,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT_HOURS, //
 				"WHRtg_SF", //
 				new OptionsEnum[0])), //
 		W_CHA_RTE_MAX(new PointImpl(//
@@ -9731,6 +10478,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"WChaDisChaMax_SF", //
 				new OptionsEnum[0])), //
 		W_DIS_CHA_RTE_MAX(new PointImpl(//
@@ -9741,6 +10489,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"WChaDisChaMax_SF", //
 				new OptionsEnum[0])), //
 		DIS_CHA_RTE(new PointImpl(//
@@ -9751,6 +10500,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"DisChaRte_SF", //
 				new OptionsEnum[0])), //
 		SO_C_MAX(new PointImpl(//
@@ -9761,6 +10511,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"SoC_SF", //
 				new OptionsEnum[0])), //
 		SO_C_MIN(new PointImpl(//
@@ -9771,6 +10522,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"SoC_SF", //
 				new OptionsEnum[0])), //
 		SOC_RSV_MAX(new PointImpl(//
@@ -9781,6 +10533,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"SoC_SF", //
 				new OptionsEnum[0])), //
 		SO_C_RSV_MIN(new PointImpl(//
@@ -9791,6 +10544,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.PERCENT, //
 				"SoC_SF", //
 				new OptionsEnum[0])), //
 		SO_C(new PointImpl(//
@@ -9801,6 +10555,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"SoC_SF", //
 				new OptionsEnum[0])), //
 		DO_D(new PointImpl(//
@@ -9811,6 +10566,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"DoD_SF", //
 				new OptionsEnum[0])), //
 		SO_H(new PointImpl(//
@@ -9821,6 +10577,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.PERCENT, //
 				"SoH_SF", //
 				new OptionsEnum[0])), //
 		N_CYC(new PointImpl(//
@@ -9831,6 +10588,7 @@ public enum SunSpecModel {
 				PointType.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CHA_ST(new PointImpl(//
@@ -9841,6 +10599,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S802_ChaSt.values())), //
 		LOC_REM_CTL(new PointImpl(//
@@ -9851,6 +10610,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S802_LocRemCtl.values())), //
 		HB(new PointImpl(//
@@ -9861,6 +10621,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CTRL_HB(new PointImpl(//
@@ -9871,6 +10632,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ALM_RST(new PointImpl(//
@@ -9881,6 +10643,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TYP(new PointImpl(//
@@ -9891,6 +10654,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S802_Typ.values())), //
 		STATE(new PointImpl(//
@@ -9901,6 +10665,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S802_State.values())), //
 		STATE_VND(new PointImpl(//
@@ -9911,6 +10676,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WARR_DT(new PointImpl(//
@@ -9921,6 +10687,7 @@ public enum SunSpecModel {
 				PointType.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT1(new PointImpl(//
@@ -9931,6 +10698,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S802_Evt1.values())), //
 		EVT2(new PointImpl(//
@@ -9941,6 +10709,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND1(new PointImpl(//
@@ -9951,6 +10720,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		EVT_VND2(new PointImpl(//
@@ -9961,6 +10731,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V(new PointImpl(//
@@ -9971,6 +10742,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_MAX(new PointImpl(//
@@ -9981,6 +10753,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		V_MIN(new PointImpl(//
@@ -9991,6 +10764,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		CELL_V_MAX(new PointImpl(//
@@ -10001,6 +10775,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"CellV_SF", //
 				new OptionsEnum[0])), //
 		CELL_V_MAX_STR(new PointImpl(//
@@ -10011,6 +10786,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CELL_V_MAX_MOD(new PointImpl(//
@@ -10021,6 +10797,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CELL_V_MIN(new PointImpl(//
@@ -10031,6 +10808,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"CellV_SF", //
 				new OptionsEnum[0])), //
 		CELL_V_MIN_STR(new PointImpl(//
@@ -10041,6 +10819,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CELL_V_MIN_MOD(new PointImpl(//
@@ -10051,6 +10830,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CELL_V_AVG(new PointImpl(//
@@ -10061,6 +10841,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"CellV_SF", //
 				new OptionsEnum[0])), //
 		A(new PointImpl(//
@@ -10071,6 +10852,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		A_CHA_MAX(new PointImpl(//
@@ -10081,6 +10863,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"AMax_SF", //
 				new OptionsEnum[0])), //
 		A_DIS_CHA_MAX(new PointImpl(//
@@ -10091,6 +10874,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"AMax_SF", //
 				new OptionsEnum[0])), //
 		W(new PointImpl(//
@@ -10101,6 +10885,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		REQ_INV_STATE(new PointImpl(//
@@ -10111,6 +10896,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S802_ReqInvState.values())), //
 		REQ_W(new PointImpl(//
@@ -10121,6 +10907,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"W_SF", //
 				new OptionsEnum[0])), //
 		SET_OP(new PointImpl(//
@@ -10131,6 +10918,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S802_SetOp.values())), //
 		SET_INV_STATE(new PointImpl(//
@@ -10141,6 +10929,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				S802_SetInvState.values())), //
 		A_H_RTG_S_F(new PointImpl(//
@@ -10151,6 +10940,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_H_RTG_S_F(new PointImpl(//
@@ -10161,6 +10951,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_CHA_DIS_CHA_MAX_S_F(new PointImpl(//
@@ -10171,6 +10962,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DIS_CHA_RTE_S_F(new PointImpl(//
@@ -10181,6 +10973,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SO_C_S_F(new PointImpl(//
@@ -10191,6 +10984,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DO_D_S_F(new PointImpl(//
@@ -10201,6 +10995,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SO_H_S_F(new PointImpl(//
@@ -10211,6 +11006,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -10221,6 +11017,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CELL_V_S_F(new PointImpl(//
@@ -10231,6 +11028,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -10241,6 +11039,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_MAX_S_F(new PointImpl(//
@@ -10251,6 +11050,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		W_SF(new PointImpl(//
@@ -10261,6 +11061,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -10567,6 +11368,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_WRITE, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		H_W_REV(new PointImpl(//
@@ -10577,6 +11379,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		R_S_F_W_REV(new PointImpl(//
@@ -10587,6 +11390,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		O_S_F_W_REV(new PointImpl(//
@@ -10597,6 +11401,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		PROD_REV(new PointImpl(//
@@ -10607,6 +11412,7 @@ public enum SunSpecModel {
 				PointType.STRING2, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		BOOTS(new PointImpl(//
@@ -10617,6 +11423,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SWITCH(new PointImpl(//
@@ -10627,6 +11434,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		SENSORS(new PointImpl(//
@@ -10637,6 +11445,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TALKING(new PointImpl(//
@@ -10647,6 +11456,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STATUS(new PointImpl(//
@@ -10657,6 +11467,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		CONFIG(new PointImpl(//
@@ -10667,6 +11478,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		L_E_DBLINK(new PointImpl(//
@@ -10677,6 +11489,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		L_E_DON(new PointImpl(//
@@ -10687,6 +11500,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		RESERVED(new PointImpl(//
@@ -10697,6 +11511,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		LOC(new PointImpl(//
@@ -10707,6 +11522,7 @@ public enum SunSpecModel {
 				PointType.STRING16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S1ID(new PointImpl(//
@@ -10717,6 +11533,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S1_ADDR(new PointImpl(//
@@ -10727,6 +11544,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S1_O_S_VER(new PointImpl(//
@@ -10737,6 +11555,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S1_VER(new PointImpl(//
@@ -10747,6 +11566,7 @@ public enum SunSpecModel {
 				PointType.STRING2, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S1_SERIAL(new PointImpl(//
@@ -10757,6 +11577,7 @@ public enum SunSpecModel {
 				PointType.STRING5, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S2ID(new PointImpl(//
@@ -10767,6 +11588,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S2_ADDR(new PointImpl(//
@@ -10777,6 +11599,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S2_O_S_VER(new PointImpl(//
@@ -10787,6 +11610,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S2_VER(new PointImpl(//
@@ -10797,6 +11621,7 @@ public enum SunSpecModel {
 				PointType.STRING2, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S2_SERIAL(new PointImpl(//
@@ -10807,6 +11632,7 @@ public enum SunSpecModel {
 				PointType.STRING5, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S3ID(new PointImpl(//
@@ -10817,6 +11643,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S3_ADDR(new PointImpl(//
@@ -10827,6 +11654,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S3_O_S_VER(new PointImpl(//
@@ -10837,6 +11665,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S3_VER(new PointImpl(//
@@ -10847,6 +11676,7 @@ public enum SunSpecModel {
 				PointType.STRING2, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S3_SERIAL(new PointImpl(//
@@ -10857,6 +11687,7 @@ public enum SunSpecModel {
 				PointType.STRING5, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S4ID(new PointImpl(//
@@ -10867,6 +11698,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S4_ADDR(new PointImpl(//
@@ -10877,6 +11709,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S4_O_S_VER(new PointImpl(//
@@ -10887,6 +11720,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S4_VER(new PointImpl(//
@@ -10897,6 +11731,7 @@ public enum SunSpecModel {
 				PointType.STRING2, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S4_SERIAL(new PointImpl(//
@@ -10907,6 +11742,7 @@ public enum SunSpecModel {
 				PointType.STRING5, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -10931,6 +11767,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELTEK_FEEDING_PHASE(new PointImpl(//
@@ -10941,6 +11778,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELTEK_A_P_D_METHOD(new PointImpl(//
@@ -10951,6 +11789,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELTEK_A_P_D_POWER_REF(new PointImpl(//
@@ -10961,6 +11800,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELTEK_R_P_S_METHOD(new PointImpl(//
@@ -10971,6 +11811,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELTEK_R_P_S_Q_REF(new PointImpl(//
@@ -10981,6 +11822,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ELTEK_R_P_S_COS_PHI_REF(new PointImpl(//
@@ -10991,6 +11833,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -11015,6 +11858,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MID_F_W_REV(new PointImpl(//
@@ -11025,6 +11869,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MINOR_F_W_REV(new PointImpl(//
@@ -11035,6 +11880,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ENCRYP_KEY(new PointImpl(//
@@ -11045,6 +11891,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		M_A_C_ADDRESS(new PointImpl(//
@@ -11055,6 +11902,7 @@ public enum SunSpecModel {
 				PointType.STRING7, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		WRITE_PASSWORD(new PointImpl(//
@@ -11065,6 +11913,7 @@ public enum SunSpecModel {
 				PointType.STRING8, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ENABLE_D_H_C_P(new PointImpl(//
@@ -11075,6 +11924,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		T_C_P_I_P_ADDRESS(new PointImpl(//
@@ -11085,6 +11935,7 @@ public enum SunSpecModel {
 				PointType.IPADDR, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		GATEWAY_ADDRESS(new PointImpl(//
@@ -11095,6 +11946,7 @@ public enum SunSpecModel {
 				PointType.IPADDR, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		T_C_P_I_P_NETMASK(new PointImpl(//
@@ -11105,6 +11957,7 @@ public enum SunSpecModel {
 				PointType.IPADDR, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		D_N_S1_ADDRESS(new PointImpl(//
@@ -11115,6 +11968,7 @@ public enum SunSpecModel {
 				PointType.IPADDR, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		D_N_S2_ADDRESS(new PointImpl(//
@@ -11125,6 +11979,7 @@ public enum SunSpecModel {
 				PointType.IPADDR, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		MODBUS_PORT(new PointImpl(//
@@ -11135,6 +11990,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S_M_T_P_SERVER_NM(new PointImpl(//
@@ -11145,6 +12001,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S_M_T_P_ACCOUNT_NM(new PointImpl(//
@@ -11155,6 +12012,7 @@ public enum SunSpecModel {
 				PointType.STRING16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S_M_T_P_ENABLE_S_S_L(new PointImpl(//
@@ -11165,6 +12023,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64110_SMTP_enable_SSL.values())), //
 		S_M_T_P_PASSWORD(new PointImpl(//
@@ -11175,6 +12034,7 @@ public enum SunSpecModel {
 				PointType.STRING8, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		S_M_T_P_USER_NM(new PointImpl(//
@@ -11185,6 +12045,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STAT_EMAIL_INT(new PointImpl(//
@@ -11195,6 +12056,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STAT_START_H_R(new PointImpl(//
@@ -11205,6 +12067,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STAT_EMAIL_SUB(new PointImpl(//
@@ -11215,6 +12078,7 @@ public enum SunSpecModel {
 				PointType.STRING25, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STAT_EMAIL_ADDR1(new PointImpl(//
@@ -11225,6 +12089,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		STAT_EMAIL_ADDR2(new PointImpl(//
@@ -11235,6 +12100,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ALARM_EMAIL_EN(new PointImpl(//
@@ -11245,6 +12111,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64110_Alarm_email_en.values())), //
 		ALARM_EMAIL_SUB(new PointImpl(//
@@ -11255,6 +12122,7 @@ public enum SunSpecModel {
 				PointType.STRING25, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ALARM_EMAIL_ADDR1(new PointImpl(//
@@ -11265,6 +12133,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		ALARM_EMAIL_ADDR2(new PointImpl(//
@@ -11275,6 +12144,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		F_T_P_PASSWORD(new PointImpl(//
@@ -11285,6 +12155,7 @@ public enum SunSpecModel {
 				PointType.STRING8, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		T_E_L_N_E_T_PASSWORD(new PointImpl(//
@@ -11295,6 +12166,7 @@ public enum SunSpecModel {
 				PointType.STRING8, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		LOG_WRITE_INT(new PointImpl(//
@@ -11305,6 +12177,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		LOG_RETAIN(new PointImpl(//
@@ -11315,6 +12188,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		LOG_MODE(new PointImpl(//
@@ -11325,6 +12199,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64110_Log_mode.values())), //
 		N_T_P_SERVER_NM(new PointImpl(//
@@ -11335,6 +12210,7 @@ public enum SunSpecModel {
 				PointType.STRING20, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		N_T_P_ENABLE(new PointImpl(//
@@ -11345,6 +12221,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64110_NTP_enable.values())), //
 		TIME_ZONE(new PointImpl(//
@@ -11355,6 +12232,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DATE_YEAR(new PointImpl(//
@@ -11365,6 +12243,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DATE_MONTH(new PointImpl(//
@@ -11375,6 +12254,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		DATE_DAY(new PointImpl(//
@@ -11385,6 +12265,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TIME_HOUR(new PointImpl(//
@@ -11395,6 +12276,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TIME_MINUTE(new PointImpl(//
@@ -11405,6 +12287,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		TIME_SECOND(new PointImpl(//
@@ -11415,6 +12298,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		BATTERY_TEMP(new PointImpl(//
@@ -11425,6 +12309,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Temp_SF", //
 				new OptionsEnum[0])), //
 		AMBIENT_TEMP(new PointImpl(//
@@ -11435,6 +12320,7 @@ public enum SunSpecModel {
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
 				"Temp_SF", //
 				new OptionsEnum[0])), //
 		TEMP_S_F(new PointImpl(//
@@ -11445,6 +12331,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_X_S_ERROR(new PointImpl(//
@@ -11455,6 +12342,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_X_S_STATUS(new PointImpl(//
@@ -11465,6 +12353,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_X_S_SPARE(new PointImpl(//
@@ -11475,6 +12364,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
@@ -11616,6 +12506,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -11626,6 +12517,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		A_SF(new PointImpl(//
@@ -11636,6 +12528,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_SF(new PointImpl(//
@@ -11646,6 +12539,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		AH_SF(new PointImpl(//
@@ -11656,6 +12550,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		KWH_SF(new PointImpl(//
@@ -11666,6 +12561,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		BATT_V(new PointImpl(//
@@ -11676,6 +12572,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		ARRAY_V(new PointImpl(//
@@ -11686,6 +12583,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		OUTPUT_A(new PointImpl(//
@@ -11696,6 +12594,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"A_SF", //
 				new OptionsEnum[0])), //
 		INPUT_A(new PointImpl(//
@@ -11706,6 +12605,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"P_SF", //
 				new OptionsEnum[0])), //
 		CHARGER_ST(new PointImpl(//
@@ -11716,6 +12616,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64111_ChargerSt.values())), //
 		OUTPUT_W(new PointImpl(//
@@ -11726,6 +12627,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"P_SF", //
 				new OptionsEnum[0])), //
 		TODAY_MIN_BAT_V(new PointImpl(//
@@ -11736,6 +12638,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		TODAY_MAX_BAT_V(new PointImpl(//
@@ -11746,6 +12649,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		VOCV(new PointImpl(//
@@ -11756,6 +12660,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		TODAY_MAX_V_O_C(new PointImpl(//
@@ -11766,6 +12671,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		TODAYK_WH_OUTPUT(new PointImpl(//
@@ -11776,6 +12682,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.KILOWATT_HOURS, //
 				"KWH_SF", //
 				new OptionsEnum[0])), //
 		TODAY_A_H_OUTPUT(new PointImpl(//
@@ -11786,6 +12693,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE_HOURS, //
 				"AH_SF", //
 				new OptionsEnum[0])), //
 		LIFE_TIME_K_W_H_OUT(new PointImpl(//
@@ -11796,6 +12704,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.KILOWATT_HOURS, //
 				"P_SF", //
 				new OptionsEnum[0])), //
 		LIFE_TIME_A_H_OUT(new PointImpl(//
@@ -11806,6 +12715,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.KILOAMPERE_HOURS, //
 				"KWH_SF", //
 				new OptionsEnum[0])), //
 		LIFE_TIME_MAX_OUT(new PointImpl(//
@@ -11816,6 +12726,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"P_SF", //
 				new OptionsEnum[0])), //
 		LIFE_TIME_MAX_BATT(new PointImpl(//
@@ -11826,6 +12737,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		LIFE_TIME_MAX_V_O_C(new PointImpl(//
@@ -11836,6 +12748,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])); //
 
@@ -11892,6 +12805,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		V_SF(new PointImpl(//
@@ -11902,6 +12816,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_SF(new PointImpl(//
@@ -11912,6 +12827,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		H_SF(new PointImpl(//
@@ -11922,6 +12838,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		P_SF(new PointImpl(//
@@ -11932,6 +12849,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		AH_SF(new PointImpl(//
@@ -11942,6 +12860,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		KWH_SF(new PointImpl(//
@@ -11952,6 +12871,7 @@ public enum SunSpecModel {
 				PointType.SUNSSF, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_FAULT(new PointImpl(//
@@ -11962,6 +12882,7 @@ public enum SunSpecModel {
 				PointType.BITFIELD16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_ABSORB_V(new PointImpl(//
@@ -11972,6 +12893,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_ABSORB_HR(new PointImpl(//
@@ -11982,6 +12904,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"H_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_ABSORB_END_A(new PointImpl(//
@@ -11992,6 +12915,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_REBULK_V(new PointImpl(//
@@ -12002,6 +12926,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_FLOAT_V(new PointImpl(//
@@ -12012,6 +12937,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_MAX_CHG_A(new PointImpl(//
@@ -12022,6 +12948,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_EQUALIZE_V(new PointImpl(//
@@ -12032,6 +12959,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_EQUALIZE_HR(new PointImpl(//
@@ -12042,6 +12970,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_AUTO_EQUALIZE(new PointImpl(//
@@ -12052,6 +12981,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_M_P_P_T_MODE(new PointImpl(//
@@ -12062,6 +12992,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_MPPT_mode.values())), //
 		C_C_CONFIG_SWEEP_WIDTH(new PointImpl(//
@@ -12072,6 +13003,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_sweep_width.values())), //
 		C_C_CONFIG_SWEEP_MAX(new PointImpl(//
@@ -12082,6 +13014,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_sweep_max.values())), //
 		C_C_CONFIG_U_PICK_DUTY_CYC(new PointImpl(//
@@ -12092,6 +13025,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_GRID_TIE(new PointImpl(//
@@ -12102,6 +13036,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_grid_tie.values())), //
 		C_C_CONFIG_TEMP_COMP(new PointImpl(//
@@ -12112,6 +13047,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_temp_comp.values())), //
 		C_C_CONFIG_TEMP_COMP_LLIMT(new PointImpl(//
@@ -12122,6 +13058,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_TEMP_COMP_HLIMT(new PointImpl(//
@@ -12132,6 +13069,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_AUTO_RESTART(new PointImpl(//
@@ -12142,6 +13080,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_auto_restart.values())), //
 		C_C_CONFIG_WAKEUP_V_O_C(new PointImpl(//
@@ -12152,6 +13091,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_SNOOZE_MODE_A(new PointImpl(//
@@ -12162,6 +13102,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_WAKEUP_INTERVAL(new PointImpl(//
@@ -12172,6 +13113,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_MODE(new PointImpl(//
@@ -12182,6 +13124,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_AUX_mode.values())), //
 		C_C_CONFIG_A_U_X_CONTROL(new PointImpl(//
@@ -12192,6 +13135,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_AUX_control.values())), //
 		C_C_CONFIG_A_U_X_STATE(new PointImpl(//
@@ -12202,6 +13146,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_AUX_state.values())), //
 		C_C_CONFIG_A_U_X_POLARITY(new PointImpl(//
@@ -12212,6 +13157,7 @@ public enum SunSpecModel {
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				S64112_CC_Config_AUX_polarity.values())), //
 		C_C_CONFIG_A_U_X_L_BATT_DISC(new PointImpl(//
@@ -12222,6 +13168,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_L_BATT_RCON(new PointImpl(//
@@ -12232,6 +13179,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_L_BATT_DLY(new PointImpl(//
@@ -12242,6 +13190,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_VENT_FAN_V(new PointImpl(//
@@ -12252,6 +13201,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_P_V_TRIGGER_V(new PointImpl(//
@@ -12262,6 +13212,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_P_V_TRG_H_TM(new PointImpl(//
@@ -12272,6 +13223,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_NLITE_THRS_V(new PointImpl(//
@@ -12282,6 +13234,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_NLITE_ON_TM(new PointImpl(//
@@ -12292,6 +13245,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"H_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_NLITE_ON_HIST(new PointImpl(//
@@ -12302,6 +13256,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_NLITE_OFF_HIST(new PointImpl(//
@@ -12312,6 +13267,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_ERROR_BATT_V(new PointImpl(//
@@ -12322,6 +13278,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_DIVERT_H_TIME(new PointImpl(//
@@ -12332,6 +13289,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_DIVERT_DLY_TIME(new PointImpl(//
@@ -12342,6 +13300,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_DIVERT_REL_V(new PointImpl(//
@@ -12352,6 +13311,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_DIVERT_HYST_V(new PointImpl(//
@@ -12362,6 +13322,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_MAJOR_F_W_REV(new PointImpl(//
@@ -12372,6 +13333,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_MID_F_W_REV(new PointImpl(//
@@ -12382,6 +13344,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_MINOR_F_W_REV(new PointImpl(//
@@ -12392,6 +13355,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_DAY_OFFSET(new PointImpl(//
@@ -12402,6 +13366,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_CUR_DAY_OFF(new PointImpl(//
@@ -12412,6 +13377,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_DAILY_A_H(new PointImpl(//
@@ -12422,6 +13388,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_DAILY_K_W_H(new PointImpl(//
@@ -12432,6 +13399,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.KILOWATT_HOURS, //
 				"KWH_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MAX_OUT_A(new PointImpl(//
@@ -12442,6 +13410,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MAX_OUT_W(new PointImpl(//
@@ -12452,6 +13421,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.WATT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_ABSORB_T(new PointImpl(//
@@ -12462,6 +13432,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_FLOAT_T(new PointImpl(//
@@ -12472,6 +13443,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MIN_BATT_V(new PointImpl(//
@@ -12482,6 +13454,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MAX_BATT_V(new PointImpl(//
@@ -12492,6 +13465,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MAX_INPUT_V(new PointImpl(//
@@ -12502,6 +13476,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
 				"V_SF", //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_CLEAR(new PointImpl(//
@@ -12512,6 +13487,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_CLR_COMP(new PointImpl(//
@@ -12522,6 +13498,7 @@ public enum SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
+				Unit.NONE, //
 				null, //
 				new OptionsEnum[0])); //
 
