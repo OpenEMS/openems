@@ -48,7 +48,9 @@ public class Value<T> {
 				return UNDEFINED_VALUE_STRING;
 			}
 		} else {
-			return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType());
+			String optionString = this.asOptionString();
+			return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType())
+					+ (optionString.isEmpty() ? "" : ":" + optionString);
 		}
 	}
 

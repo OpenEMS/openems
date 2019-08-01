@@ -16,7 +16,7 @@ for D in *; do
 				# verify the project .gitignore file
 				if grep -q '/bin_test/' ${D}/.gitignore \
 					&& grep -q '/generated/' ${D}/.gitignore; then
-					continue
+					:
 				else
 					echo "${D}/.gitignore -> not complete"
 					echo '/bin_test/' > ${D}/.gitignore

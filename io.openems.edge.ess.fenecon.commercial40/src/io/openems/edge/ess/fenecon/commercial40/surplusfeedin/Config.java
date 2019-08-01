@@ -35,6 +35,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Max increase Surplus-Feed-In Power", description = "")
 	int maxIncreasePowerFactor() default 2_000;
 
+	@AttributeDefinition(name = "PV-Limit on PowerDecreaseCausedByOvertemperature", description = "")
+	int pvLimitOnPowerDecreaseCausedByOvertemperature() default 5_000;
+
 	@AttributeDefinition(name = "Off Time", description = "The time to stop grid feed in.")
 	String offTime() default "17:00:00";
 
