@@ -99,5 +99,4 @@ import { Language } from './translate/language';
   ]
 })
 export class SharedModule {
-  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 }

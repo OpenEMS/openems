@@ -18,7 +18,9 @@ public interface ComponentManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
-				.text("A configured OpenEMS Component was not activated"));
+				.text("A configured OpenEMS Component was not activated")), //
+		WAS_OUT_OF_MEMORY(Doc.of(Level.FAULT) //
+				.text("OutOfMemory had happened. Found heap dump files."));
 
 		private final Doc doc;
 

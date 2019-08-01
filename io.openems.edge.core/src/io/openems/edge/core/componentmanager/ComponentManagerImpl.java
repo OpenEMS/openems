@@ -99,6 +99,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ComponentManagerImpl.class);
 
 	private final OsgiValidateWorker osgiValidateWorker;
+	private final OutOfMemoryHeapDumpWorker outOfMemoryHeapDumpWorker;
 
 	private BundleContext bundleContext;
 
@@ -120,6 +121,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				ComponentManager.ChannelId.values() //
 		);
 		this.osgiValidateWorker = new OsgiValidateWorker(this);
+		this.outOfMemoryHeapDumpWorker = new OutOfMemoryHeapDumpWorker(this);
 	}
 
 	@Activate
@@ -130,6 +132,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Start OSGi Validate Worker
 		this.osgiValidateWorker.activate(this.id());
+
+		// Start the Out-Of-Memory Worker
+		this.outOfMemoryHeapDumpWorker.activate(this.id());
 	}
 
 	@Deactivate
@@ -138,6 +143,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		// Stop OSGi Validate Worker
 		this.osgiValidateWorker.deactivate();
+
+		// Stop the Out-Of-Memory Worker
+		this.outOfMemoryHeapDumpWorker.deactivate();
 	}
 
 	@Override
