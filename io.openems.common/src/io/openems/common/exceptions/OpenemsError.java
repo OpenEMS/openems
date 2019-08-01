@@ -71,6 +71,11 @@ public enum OpenemsError {
 	JSON_NO_FLOAT_MEMBER(5017, "JSON [%s:%s] is not a Float"), //
 	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum"), //
 	JSON_NO_INET4ADDRESS(5020, "JSON [%s] is not an IPv4 address"), //
+	/*
+	 * XML Errors. 6000-6999
+	 */
+	XML_HAS_NO_MEMBER(6000, "XML [%s] has no member [%s]"), //
+	XML_NO_STRING_MEMBER(6010, "XML [%s:%s] is not a String"), //
 	;
 
 	/**

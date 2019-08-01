@@ -42,7 +42,13 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 		// convert registers
 		ByteBuffer buff = ByteBuffer.allocate(this.length * 2).order(getByteOrder());
 		for (InputRegister r : registers) {
-			buff.put(r.toBytes());
+			byte[] bs = r.toBytes();
+			for (int i = 0; i < bs.length; i++) {
+				if (bs[i] == 0) {
+					bs[i] = 32; // replace '0' with ASCII space
+				}
+			}
+			buff.put(bs);
 		}
 
 		String value = this.fromByteBuffer(buff);
@@ -73,7 +79,7 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 	}
 
 	protected String fromByteBuffer(ByteBuffer buff) {
-		return new String(buff.array());
+		return new String(buff.array()).trim();
 	}
 
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, String value) {

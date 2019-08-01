@@ -31,7 +31,8 @@ export const TRANSLATION = {
             Saturday: "Samstag",
             Sunday: "Sonntag"
         },
-        ReportValue: "Fehlerhafte Daten melden"
+        ReportValue: "Fehlerhafte Daten melden",
+        Capacity: "Kapazität"
     },
     Menu: {
         Index: "Übersicht",
@@ -68,6 +69,7 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                Info: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
