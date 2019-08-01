@@ -987,9 +987,9 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				// m(SunnyIsland6Ess.ChannelId.BMS_OPERATING_MODE, new
 				// UnsignedDoublewordElement(40236))), //
 				new FC16WriteRegistersTask(40149, //
-						m(SiChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)).debug(), //
-						m(SiChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)).debug(), //
-						m(SiChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153)).debug()), //
+						m(SiChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)), //
+						m(SiChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
+						m(SiChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))), //
 				new FC16WriteRegistersTask(43090, //
 						m(SiChannelId.GRID_GUARD_CODE, new UnsignedDoublewordElement(43090))), //
 				new FC16WriteRegistersTask(40705, m(SiChannelId.MIN_SOC_POWER_ON, new UnsignedDoublewordElement(40705)), //
