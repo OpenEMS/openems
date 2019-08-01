@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.kaco.blueplanet;
+package io.openems.edge.pvinverter.sunspec;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -22,23 +22,19 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PV-Inverter.KACO.blueplanet", //
+		name = "PV-Inverter.SunSpec", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		})
-public class KacoBlueplanet extends AbstractSunSpecPvInverter
+public class SunSpecPvInverter extends AbstractSunSpecPvInverter
 		implements ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
 
-	private final static int UNIT_ID = 1;
-	private final static int READ_FROM_MODBUS_BLOCK = 1;
-
-	private final Logger log = LoggerFactory.getLogger(KacoBlueplanet.class);
+	private final Logger log = LoggerFactory.getLogger(SunSpecPvInverter.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -50,8 +46,8 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id(), READ_FROM_MODBUS_BLOCK);
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id(), config.readFromCommonBlockNo());
 	}
 
 	@Deactivate

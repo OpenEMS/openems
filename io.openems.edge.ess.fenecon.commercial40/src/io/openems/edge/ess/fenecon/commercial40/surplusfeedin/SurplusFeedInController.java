@@ -41,8 +41,9 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 	private static final int GOING_DEACTIVATED_MINUTES = 15;
 	private static final float PV_LIMIT_FACTOR = 0.9f;
 	private static final int MIN_PV_LIMIT = 5_000;
-	private static final int PV_LIMIT_ON_POWER_DECREASE_CAUSED_BY_OVERTEMPERATURE = 5_000;
 	private static final int NO_PV_LIMIT = 60_000;
+	// If AllowedDischarge is < 1000, surplus is not activated
+	private static final int SURPLUS_ALLOWED_DISCHARGE_LIMIT = 35_000;
 
 	private final Logger log = LoggerFactory.getLogger(SurplusFeedInController.class);
 
@@ -167,9 +168,12 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 
 		IntegerReadChannel allowedChargeChannel = ess
 				.channel(EssFeneconCommercial40Impl.ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER);
+		IntegerReadChannel allowedDischargeChannel = ess
+				.channel(EssFeneconCommercial40Impl.ChannelId.ORIGINAL_ALLOWED_DISCHARGE_POWER);
 		if (
-		// Is battery Allowed Charge bigger than the limit?
-		allowedChargeChannel.value().orElse(0) < this.config.allowedChargePowerLimit()
+		// Is battery Allowed Charge bigger than the limit? (and Discharge is allowed)
+		(allowedChargeChannel.value().orElse(0) < this.config.allowedChargePowerLimit()
+				|| allowedDischargeChannel.value().orElse(Integer.MAX_VALUE) < SURPLUS_ALLOWED_DISCHARGE_LIMIT)
 				// Is State-of-charge lower than limit?
 				&& ess.getSoc().value().orElse(100) < this.config.socLimit()) {
 			return false;
@@ -204,7 +208,7 @@ public class SurplusFeedInController extends AbstractOpenemsComponent implements
 			if (powerDecreaseCausedByOvertemperatureChannel.value().orElse(false)) {
 				// Always decrease if POWER_DECREASE_CAUSED_BY_OVERTEMPERATURE StateChannel is
 				// set
-				pvPowerLimit = PV_LIMIT_ON_POWER_DECREASE_CAUSED_BY_OVERTEMPERATURE;
+				pvPowerLimit = config.pvLimitOnPowerDecreaseCausedByOvertemperature();
 			} else {
 				// Otherwise reduce to MAX_APPARENT_POWER multiplied with PV_LIMIT_FACTOR;
 				// minimally MIN_PV_LIMIT

@@ -86,6 +86,7 @@
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
+	bnd.identity;id='io.openems.edge.pvinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
@@ -199,4 +200,5 @@
 	com.sun.jna;version='[5.4.0,5.4.1)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[1.11.0,1.11.1)',\
 	org.ops4j.pax.logging.pax-logging-service;version='[1.11.0,1.11.1)',\
+	io.openems.edge.pvinverter.sunspec;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot

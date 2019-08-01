@@ -108,7 +108,12 @@ public enum Unit {
 	/**
 	 * Unit of Electric Charge
 	 */
-	MILLIAMPERE_HOURS("mAh"),
+	MILLIAMPERE_HOURS("mAh", AMPERE_HOURS, -3),
+
+	/**
+	 * Unit of Electric Charge
+	 */
+	KILOAMPERE_HOURS("kAh", AMPERE_HOURS, 3),
 
 	// ##########
 	// Energy
@@ -270,6 +275,7 @@ public enum Unit {
 		case SECONDS:
 		case AMPERE_HOURS:
 		case HOUR:
+		case KILOAMPERE_HOURS:
 		case KILOVOLT_AMPERE:
 		case KILOVOLT_AMPERE_REACTIVE:
 		case KILOVOLT_AMPERE_REACTIVE_HOURS:
