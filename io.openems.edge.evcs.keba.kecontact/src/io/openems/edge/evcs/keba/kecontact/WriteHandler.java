@@ -50,8 +50,6 @@ public class WriteHandler implements Runnable {
 	 * </ul>
 	 */
 	private void setDisplay() {
-		// FIXME this (and all other functions) should use
-		// "channel.getNextWriteValueAndReset()"
 		WriteChannel<String> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_DISPLAY_TEXT);
 		Optional<String> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
@@ -93,7 +91,6 @@ public class WriteHandler implements Runnable {
 		if (communicationFailed) {
 			return;
 		}
-
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER);
 		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
@@ -101,15 +98,16 @@ public class WriteHandler implements Runnable {
 			Integer power = valueOpt.get();
 			Channel<Integer> phases = this.parent.channel(KebaChannelId.PHASES);
 			Integer current = power * 1000 / phases.value().orElse(3) /* e.g. 3 phases */ / 230 /* voltage */ ;
-
-			// limits the charging value because KEBA knows only values between 6000 and
-			// 63000
+			// limits the charging value because KEBA knows only values between 6000 and 63000
 			if (current > 63000) {
 				current = 63000;
 			}
-
+			if (current < 6000) {
+				current = 0;
+			}
+			
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
-				this.parent.logInfo(this.log, "Setting KEBA KeContact current to [" + current
+				this.parent.logInfo(this.log, "Setting KEBA "+ this.parent.alias() +" current to [" + current
 						+ " A] - calculated from [" + power + " W] by " + phases.value().orElse(3) + " Phase");
 
 				try {
