@@ -72,12 +72,12 @@ public class AllAlphabetically extends AbstractScheduler implements Scheduler, O
 			if (id.equals("")) {
 				continue;
 			}
-			Controller controller = this.componentManager.getComponent(id);
+			Controller controller = this.componentManager.getPossiblyDisabledComponent(id);
 			result.add(controller);
 		}
 
 		// add remaining controllers
-		this.componentManager.getComponents().stream() //
+		this.componentManager.getEnabledComponents().stream() //
 				.filter(c -> c instanceof Controller) //
 				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) //
 				.forEach(c -> result.add((Controller) c));
