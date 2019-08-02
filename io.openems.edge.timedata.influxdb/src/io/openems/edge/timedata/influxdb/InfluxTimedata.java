@@ -115,7 +115,7 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 		final Builder point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.SECONDS);
 		final AtomicBoolean addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
-		this.componentManager.getComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
+		this.componentManager.getEnabledComponents().stream().filter(c -> c.isEnabled()).forEach(component -> {
 			component.channels().forEach(channel -> {
 				Optional<?> valueOpt = channel.value().asOptional();
 				if (!valueOpt.isPresent()) {

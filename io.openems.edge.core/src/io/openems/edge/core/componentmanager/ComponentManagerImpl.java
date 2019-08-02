@@ -113,7 +113,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
-	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	private volatile List<OpenemsComponent> enabledComponents = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(!(service.factoryPid=Core.ComponentManager))")
+	private volatile List<OpenemsComponent> allComponents = new CopyOnWriteArrayList<>();
 
 	public ComponentManagerImpl() {
 		super(//
@@ -149,8 +155,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
-		return Collections.unmodifiableList(this.components);
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.enabledComponents);
+	}
+
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
+		return Collections.unmodifiableList(this.allComponents);
 	}
 
 	protected StateChannel configNotActivatedChannel() {
@@ -405,7 +416,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 		// Add all remaining components, like singletons without ConfigurationAdmin
 		// configuration (=null)
-		for (OpenemsComponent component : this.components) {
+		for (OpenemsComponent component : this.allComponents) {
 			String componentId = component.id();
 			if (!componentsMap.containsKey(componentId)) {
 				componentsMap.put(component.id(), null);

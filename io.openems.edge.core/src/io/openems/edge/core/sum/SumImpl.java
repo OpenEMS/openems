@@ -114,7 +114,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		// cabling errors, etc.
 		final CalculateLongSum productionAcActiveEnergyNegative = new CalculateLongSum();
 
-		for (OpenemsComponent component : this.componentManager.getComponents()) {
+		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
 			if (component instanceof SymmetricEss) {
 				/*
 				 * Ess
@@ -264,7 +264,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	 */
 	private void calculateState() {
 		Level highestLevel = Level.OK;
-		for (OpenemsComponent component : this.componentManager.getComponents()) {
+		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
 			Level level = component.getState().getNextValue().asEnum();
 			if (level.getValue() > highestLevel.getValue()) {
 				highestLevel = level;

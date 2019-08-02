@@ -49,7 +49,7 @@ public class OsgiValidateWorker extends AbstractWorker {
 				for (Configuration config : configs) {
 					Dictionary<String, Object> properties = config.getProperties();
 					String componentId = (String) properties.get("id");
-					if (!this.isComponentActivated(componentId, config.getPid())) {
+					if (!this.isComponentActivated(componentId)) {
 						this.parent.logWarn(this.log, "Component [" + componentId + "] is configured but not active!");
 						allConfigActivated = false;
 					}
@@ -62,9 +62,9 @@ public class OsgiValidateWorker extends AbstractWorker {
 		this.parent.configNotActivatedChannel().setNextValue(!allConfigActivated);
 	}
 
-	private boolean isComponentActivated(String componentId, String pid) {
-		for (OpenemsComponent component : this.parent.components) {
-			if (componentId.equals(component.id()) && pid.equals(component.servicePid())) {
+	private boolean isComponentActivated(String componentId) {
+		for (OpenemsComponent component : this.parent.getEnabledComponents()) {
+			if (componentId.equals(component.id())) {
 				// Everything Ok
 				return true;
 			}
