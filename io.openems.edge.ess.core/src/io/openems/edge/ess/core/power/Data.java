@@ -61,7 +61,7 @@ public class Data {
 		this.apparentPowerConstraintFactory = new ApparentPowerConstraintFactory(this);
 	}
 
-	public synchronized void addEss(ManagedSymmetricEss ess) {
+	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		// add to Ess map
 		this.essIds.add(ess.id());
 		// create inverters and add them to list
@@ -75,7 +75,7 @@ public class Data {
 		this.coefficients.initialize(this.essIds);
 	}
 
-	public synchronized void removeEss(String essId) {
+	protected synchronized void removeEss(String essId) {
 		// remove from Ess set
 		this.essIds.remove(essId);
 		// remove from Inverters list

@@ -207,7 +207,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getEssActiveChargeEnergy().setNextValue(essActiveChargeEnergySum);
 		Long essActiveDischargeEnergySum = essActiveDischargeEnergy.calculate();
 		this.getEssActiveDischargeEnergy().setNextValue(essActiveDischargeEnergySum);
-		
+
 		Integer essCapacitySum = essCapacity.calculate();
 		this.getEssCapacity().setNextValue(essCapacitySum);
 
@@ -265,6 +265,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	private void calculateState() {
 		Level highestLevel = Level.OK;
 		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
+			if (component == this) {
+				// ignore myself
+				continue;
+			}
 			Level level = component.getState().getNextValue().asEnum();
 			if (level.getValue() > highestLevel.getValue()) {
 				highestLevel = level;
