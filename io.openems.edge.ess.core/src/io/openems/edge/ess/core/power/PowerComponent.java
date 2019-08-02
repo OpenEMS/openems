@@ -163,11 +163,13 @@ public class PowerComponent extends AbstractOpenemsComponent implements OpenemsC
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
+		System.out.println("ADD ESS: " + ess + ", " + ess.id());
 		this.esss.put(ess.id(), ess);
 		this.data.addEss(ess);
 	}
 
 	protected synchronized void removeEss(ManagedSymmetricEss ess) {
+		System.out.println("REMOVE ESS: " + ess + ", " + ess.id());
 		Iterator<Entry<String, ManagedSymmetricEss>> i = this.esss.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry<String, ManagedSymmetricEss> entry = i.next();

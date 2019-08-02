@@ -309,7 +309,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		if (productionAc.isDefined() || productionDc.isDefined()) {
 			result.append("Production ");
 			if (productionAc.isDefined() && productionDc.isDefined()) {
-				result.append(" Total:" + production.asString() //
+				result.append("Total:" + production.asString() //
 						+ ",AC:" + productionAc.asString() //
 						+ ",DC:" + productionDc.asString()); //
 			} else if (productionAc.isDefined()) {
