@@ -1,5 +1,3 @@
-import { Service } from '../service/service';
-
 export const TRANSLATION = {
     General: {
         Cumulative: "Kumulierte Werte",
@@ -71,6 +69,7 @@ export const TRANSLATION = {
                 ProductionDC: "Erzeugung DC"
             },
             Widgets: {
+                Info: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
                 CHP: {
                     LowThreshold: "Unterer Schwellenwert",
                     HighThreshold: "Oberer Schwellenwert"
