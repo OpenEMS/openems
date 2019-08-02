@@ -200,7 +200,7 @@ class ModbusWorker extends AbstractImmediateWorker {
 
 			// invalidate elements of this task
 			for (ModbusElement<?> element : task.getElements()) {
-				element.invalidate();
+				element.invalidate(this.parent);
 			}
 		}
 	}
