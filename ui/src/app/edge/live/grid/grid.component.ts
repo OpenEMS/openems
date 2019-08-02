@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { GridModalComponent } from './modal/modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'grid',
@@ -16,6 +18,7 @@ export class GridComponent {
         public service: Service,
         private websocket: Websocket,
         private route: ActivatedRoute,
+        public modalCtrl: ModalController,
     ) { }
 
     ngOnInit() {
@@ -32,5 +35,15 @@ export class GridComponent {
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, GridComponent.SELECTOR);
         }
+    }
+
+    async presentModal() {
+        const modal = await this.modalCtrl.create({
+            component: GridModalComponent,
+            componentProps: {
+                edge: this.edge
+            }
+        });
+        return await modal.present();
     }
 }

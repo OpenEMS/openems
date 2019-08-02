@@ -117,8 +117,8 @@ export abstract class AbstractSection {
     public squarePosition: SvgSquarePosition;
     public name: string = "";
     public sectionId: string = "";
-
     public isEnabled: boolean = false;
+
     protected valueText: string = "";
     protected valueText2: string = "";
     protected innerRadius: number = 0;
