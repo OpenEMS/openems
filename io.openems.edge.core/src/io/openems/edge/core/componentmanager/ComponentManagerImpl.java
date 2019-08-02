@@ -169,6 +169,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
+
+	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
@@ -336,7 +341,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Configuration
 	 * @throws OpenemsNamedException on error
 	 */
-	private Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
+	protected Configuration getExistingConfigForId(String componentId) throws OpenemsNamedException {
 		Configuration[] configs;
 		try {
 			configs = this.cm.listConfigurations("(id=" + componentId + ")");
