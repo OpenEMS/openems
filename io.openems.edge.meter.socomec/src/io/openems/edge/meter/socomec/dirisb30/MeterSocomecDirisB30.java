@@ -94,7 +94,7 @@ public class MeterSocomecDirisB30 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(0x480C, Priority.LOW, //
+				new FC3ReadRegistersTask(0x480C, Priority.HIGH, //
 						m(new UnsignedDoublewordElement(0x480C)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //

@@ -150,6 +150,10 @@ public class ReactivePowerVoltageCharacteristic extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		int calculatedPower = 0;
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		if (voltageRatio == 0) {
+			log.info("Voltage Ratio is 0 ");
+			return;
+		}
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
 		this.initialize(config.percentQ(), voltageRatio);
 		float valueOfLine = Utils.getValueOfLine(this.powerCharacteristic, voltageRatio);

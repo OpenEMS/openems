@@ -147,6 +147,10 @@ public class ActivePowerVoltageCharacteristic extends AbstractOpenemsComponent i
 	public void run() throws OpenemsNamedException {
 		int calculatedPower = 0;
 		float voltageRatio = this.meter.getVoltage().value().orElse(0) / this.nominalVoltage;
+		if (voltageRatio == 0) {
+			log.info("Voltage Ratio is 0 ");
+			return;
+		}
 		this.channel(ChannelId.VOLTAGE_RATIO).setNextValue(voltageRatio);
 		this.initialize(config.powerV(), voltageRatio);
 		float linePowerValue = Utils.getValueOfLine(this.voltagePowerMap, voltageRatio);
