@@ -1170,7 +1170,7 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 								.bit(14, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
 								.bit(15, SingleRack.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
 						), //
-						m(new BitsWordElement(0x214, this) //
+						m(new BitsWordElement(0x2141, this) //
 								.bit(0, SingleRack.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRack.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, SingleRack.ChannelId.ALARM_LEVEL_1_CHA_CURRENT_HIGH) //
