@@ -77,8 +77,8 @@ public class DcdcControl {
 		if (useBatteryStringB) {
 			weightingMode += 8; // battB = 8 (2^3)
 		}
-		boolean useBatteryStringC = this.useBatteryString(config.batteryStringB_id(), componentManager);
-		if (useBatteryStringB) {
+		boolean useBatteryStringC = this.useBatteryString(config.batteryStringC_id(), componentManager);
+		if (useBatteryStringC) {
 			weightingMode += 64; // battC = 64 (2^6)
 		}
 
