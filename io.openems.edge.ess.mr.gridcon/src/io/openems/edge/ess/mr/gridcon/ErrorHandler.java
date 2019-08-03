@@ -3,7 +3,9 @@ package io.openems.edge.ess.mr.gridcon;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +29,29 @@ public class ErrorHandler {
 	private final Map<Integer, io.openems.edge.common.channel.ChannelId> errorChannelIds;
 
 	private State state = State.UNDEFINED;
+	private LocalDateTime lastStateChange = LocalDateTime.now();
 
 	// READ_ERRORS
 	private static final int DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS = 30;
-	private Map<ChannelId, LocalDateTime> readErrorMap = new HashMap<>();
+
+	private static class ErrorData {
+		protected static enum AcknowledgeState {
+			RISING_1, FALLING_1, RISING_2, FALLING_2, ACKNOWLEDGED;
+		}
+
+		protected final LocalDateTime detectedAt;
+		private AcknowledgeState nextAcknowledgeState = AcknowledgeState.RISING_1;
+
+		protected ErrorData(LocalDateTime detectedAt) {
+			this.detectedAt = detectedAt;
+		}
+	}
+
+	private TreeMap<ChannelId, ErrorData> readErrorMap = new TreeMap<>();
 
 	// HANDLE_ERRORS
 	private static final int MAX_TIMES_FOR_TRYING_TO_ACKNOWLEDGE_ERRORS = 5;
 	private int tryToAcknowledgeErrorsCounter = 0;
-
-	protected LocalDateTime timeWhenErrorsHasBeenAcknowledged = null;
 
 	// HARD_RESET
 	private LocalDateTime lastHardReset = null;
@@ -45,7 +60,6 @@ public class ErrorHandler {
 	private static final int MAX_TIMES_FOR_TRYING_TO_HARD_RESET = 5;
 	private static final long DELAY_AFTER_FINISHING_SECONDS = 5;
 	private int hardResetCounter = 0;
-	private boolean sendSecondAcknowledge = false;
 	private LocalDateTime delayAfterFinishing;
 
 	public ErrorHandler(StateMachine parent) {
@@ -54,7 +68,7 @@ public class ErrorHandler {
 	}
 
 	public void initialize() {
-		this.state = State.UNDEFINED;
+		this.setNextState(State.UNDEFINED);
 		this.tryToAcknowledgeErrorsCounter = 0;
 		this.readErrorMap = null;
 		this.delayAfterFinishing = null;
@@ -64,36 +78,36 @@ public class ErrorHandler {
 		switch (this.state) {
 		case UNDEFINED:
 			if (parent.getCcuState() == CCUState.ERROR) {
-				this.state = State.READ_ERRORS;
+				this.setNextState(State.READ_ERRORS);
 			} else if (this.parent.isLinkVoltageTooLow()) {
-				this.state = State.LINK_VOLTAGE_TOO_LOW;
+				this.setNextState(State.LINK_VOLTAGE_TOO_LOW);
 			} else {
-				this.state = State.READ_ERRORS;
+				this.setNextState(State.READ_ERRORS);
 			}
 			break;
 
 		case LINK_VOLTAGE_TOO_LOW:
-			this.state = this.doLinkVoltageTooLow();
+			this.setNextState(this.doLinkVoltageTooLow());
 			break;
 
 		case READ_ERRORS:
-			this.state = this.doReadErrors();
+			this.setNextState(this.doReadErrors());
 			break;
 
 		case HANDLE_ERRORS:
-			this.state = this.doHandleErrors();
+			this.setNextState(this.doHandleErrors());
 			break;
 
 		case ACKNOWLEDGE_ERRORS:
-			this.state = this.doAcknowledgeErrors();
+			this.setNextState(this.doAcknowledgeErrors());
 			break;
 
 		case HARD_RESET:
-			this.state = this.doHardReset();
+			this.setNextState(this.doHardReset());
 			break;
 
 		case ERROR_HANDLING_NOT_POSSIBLE:
-			this.state = this.doErrorHandlingNotPossible();
+			this.setNextState(this.doErrorHandlingNotPossible());
 			break;
 
 		case FINISH_ERROR_HANDLING:
@@ -104,7 +118,7 @@ public class ErrorHandler {
 
 			if (this.delayAfterFinishing.plusSeconds(DELAY_AFTER_FINISHING_SECONDS).isAfter(LocalDateTime.now())) {
 				// do nothing
-				// this.state = State.FINISH_ERROR_HANDLING;
+				// this.setNextState(State.FINISH_ERROR_HANDLING);
 			} else {
 				this.initialize();
 				return StateMachine.State.UNDEFINED;
@@ -112,6 +126,19 @@ public class ErrorHandler {
 		}
 
 		return StateMachine.State.ERROR;
+	}
+
+	/**
+	 * Updates the State-Machine.
+	 * 
+	 * @param nextState the next State
+	 */
+	private void setNextState(State nextState) {
+		if (this.state != nextState) {
+			this.log.info("ErrorHandler: Changing State from [" + this.state + "] to [" + nextState + "]");
+			this.state = nextState;
+			this.lastStateChange = LocalDateTime.now();
+		}
 	}
 
 	private State doLinkVoltageTooLow() throws IllegalArgumentException, OpenemsNamedException {
@@ -139,22 +166,25 @@ public class ErrorHandler {
 	 */
 	private State doReadErrors() {
 		if (this.readErrorMap == null) {
-			this.readErrorMap = new HashMap<>();
+			this.readErrorMap = new TreeMap<>();
 		}
 
 		ChannelId errorId = this.readCurrentError();
 		if (errorId != null) {
 			if (!this.readErrorMap.containsKey(errorId)) {
-				this.readErrorMap.put(errorId, LocalDateTime.now());
+				this.log.info("doReadErrors add new error " + errorId);
+				this.readErrorMap.put(errorId, new ErrorData(LocalDateTime.now()));
 			}
 		}
 
 		// Did errors appear within the last DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS?
 		if (this.isNewErrorPresent()) {
 			// yes -> keep reading errors
+			this.log.info("isNewErrorPresent? yes: keep reading errors");
 			return State.READ_ERRORS;
 		} else {
 			// no -> start handling errors
+			this.log.info("isNewErrorPresent? no: start handling errors");
 			return State.HANDLE_ERRORS;
 		}
 	}
@@ -202,74 +232,66 @@ public class ErrorHandler {
 	private State doAcknowledgeErrors() throws IllegalArgumentException, OpenemsNamedException {
 		this.tryToAcknowledgeErrorsCounter = this.tryToAcknowledgeErrorsCounter + 1;
 
-		int currentErrorCodeFeedBack = 0;
+		if (!this.readErrorMap.isEmpty()) {
+			/*
+			 * There are Errors: acknowledge each of them
+			 */
+			Entry<ChannelId, ErrorData> entry = this.readErrorMap.entrySet().iterator().next();
+			int currentErrorCodeFeedBack = ((ErrorDoc) entry.getKey().doc()).getCode();
+			ErrorData ed = entry.getValue();
 
-		if (!readErrorMap.isEmpty()) {
-			io.openems.edge.common.channel.ChannelId currentId = null;
-			for (io.openems.edge.common.channel.ChannelId id : this.readErrorMap.keySet()) {
-				currentId = id;
+			boolean acknowledge = false;
+			switch (ed.nextAcknowledgeState) {
+			case RISING_1:
+				acknowledge = true;
+				ed.nextAcknowledgeState = ErrorData.AcknowledgeState.FALLING_1;
+				break;
+			case FALLING_1:
+				acknowledge = false;
+				ed.nextAcknowledgeState = ErrorData.AcknowledgeState.RISING_2;
+				break;
+			case RISING_2:
+				acknowledge = true;
+				ed.nextAcknowledgeState = ErrorData.AcknowledgeState.FALLING_2;
+				break;
+			case FALLING_2:
+				acknowledge = false;
+				ed.nextAcknowledgeState = ErrorData.AcknowledgeState.ACKNOWLEDGED;
+				break;
+			case ACKNOWLEDGED:
+				this.readErrorMap.remove(entry.getKey());
 				break;
 			}
-			currentErrorCodeFeedBack = ((ErrorDoc) currentId.doc()).getCode();
-			this.readErrorMap.remove(currentId);
-		}
 
-		new CommandControlRegisters() //
-				// Acknowledge error
-				.acknowledge(true) //
-				.syncApproval(true) //
-				.blackstartApproval(false) //
-				.errorCodeFeedback(currentErrorCodeFeedBack) //
-				.shortCircuitHandling(true) //
-				.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-				.parameterSet1(true) //
-				.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-				.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-				.enableIpus(this.parent.parent.config.inverterCount()) //
-				.writeToChannels(this.parent.parent);
+			this.log.info("Acknowledging Error " + entry.getKey() + " [" + ed.nextAcknowledgeState + "]");
 
-		if (this.readErrorMap.isEmpty()) {
+			new CommandControlRegisters() //
+					// Acknowledge error
+					.acknowledge(acknowledge) //
+					.syncApproval(true) //
+					.blackstartApproval(false) //
+					.errorCodeFeedback(currentErrorCodeFeedBack) //
+					.shortCircuitHandling(true) //
+					.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
+					.parameterSet1(true) //
+					.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
+					.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
+					.enableIpus(this.parent.parent.config.inverterCount()) //
+					.writeToChannels(this.parent.parent);
 
-			if (!this.sendSecondAcknowledge) {
-				new CommandControlRegisters() //
-						// Set acknowledge error bit to false and then to true again, because gridcon
-						// acts on rising edge of signal
-						.acknowledge(false) //
-						.syncApproval(true) //
-						.blackstartApproval(false) //
-						.errorCodeFeedback(currentErrorCodeFeedBack) //
-						.shortCircuitHandling(true) //
-						.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-						.parameterSet1(true) //
-						.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-						.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-						.enableIpus(this.parent.parent.config.inverterCount()) //
-						.writeToChannels(this.parent.parent);
+			return State.ACKNOWLEDGE_ERRORS;
 
-				this.sendSecondAcknowledge = true;
-
+		} else {
+			/*
+			 * There are no errors left: wait a few seconds then continue
+			 */
+			if (this.lastStateChange.isAfter(LocalDateTime.now().minusSeconds(DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS))) {
+				this.log.info("Waiting " + DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS + " seconds after Error Acknowledge...");
+				return State.ACKNOWLEDGE_ERRORS;
 			} else {
-
-				new CommandControlRegisters() //
-						// Acknowledge error for a 2nd time (in tests gridcon needs sometime two times)
-						.acknowledge(true) //
-						.syncApproval(true) //
-						.blackstartApproval(false) //
-						.errorCodeFeedback(currentErrorCodeFeedBack) //
-						.shortCircuitHandling(true) //
-						.modeSelection(CommandControlRegisters.Mode.CURRENT_CONTROL) //
-						.parameterSet1(true) //
-						.parameterU0(GridconPCS.ON_GRID_VOLTAGE_FACTOR) //
-						.parameterF0(GridconPCS.ON_GRID_FREQUENCY_FACTOR) //
-						.enableIpus(this.parent.parent.config.inverterCount()) //
-						.writeToChannels(this.parent.parent);
-
-				this.sendSecondAcknowledge = false;
-				this.timeWhenErrorsHasBeenAcknowledged = LocalDateTime.now();
 				return State.FINISH_ERROR_HANDLING;
 			}
 		}
-		return State.ACKNOWLEDGE_ERRORS;
 	}
 
 	/**
@@ -351,8 +373,8 @@ public class ErrorHandler {
 	 * @return true if a a new error was found recently; otherwise false
 	 */
 	private boolean isNewErrorPresent() {
-		for (LocalDateTime time : this.readErrorMap.values()) {
-			if (time.plusSeconds(DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS).isAfter(LocalDateTime.now())) {
+		for (ErrorData ed : this.readErrorMap.values()) {
+			if (ed.detectedAt.plusSeconds(DELAY_TO_WAIT_FOR_NEW_ERROR_SECONDS).isAfter(LocalDateTime.now())) {
 				return true;
 			}
 		}
