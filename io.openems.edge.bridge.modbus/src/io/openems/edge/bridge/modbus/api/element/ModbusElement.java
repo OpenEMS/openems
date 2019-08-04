@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
 /**
@@ -69,9 +70,13 @@ public interface ModbusElement<T> {
 
 	/**
 	 * Invalidates the Channel in case it could not be read from the Modbus device,
-	 * i.e. sets the value to 'UNDEFINED'/null.
+	 * i.e. sets the value to 'UNDEFINED'/null. Applies the
+	 * 'invalidateElementsAfterReadErrors' config setting of the bridge.
+	 * 
+	 * @param the {@link AbstractModbusBridge}
+	 * @return true if Channel was invalidated
 	 */
-	public void invalidate();
+	public boolean invalidate(AbstractModbusBridge bridge);
 
 	/**
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear

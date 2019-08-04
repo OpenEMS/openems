@@ -38,5 +38,8 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
+	@AttributeDefinition(name = "Invalidate elements after how many read Errors?", description = "Increase this value if modbus read errors happen frequently.")
+	int invalidateElementsAfterReadErrors() default 1;
+
 	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/RTU Serial [{id}]";
 }

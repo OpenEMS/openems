@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Service, EdgeConfig, Edge, Websocket, ChannelAddress } from 'src/app/shared/shared';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController } from '@ionic/angular';
@@ -17,6 +17,8 @@ export class StorageModalComponent implements OnInit {
     public essComponents: EdgeConfig.Component[] = null;
     public chargerComponents: EdgeConfig.Component[] = null;
     public outputChannel: ChannelAddress[] = null;
+    //Boolean Value to show Info Text in HTML Component
+    public isAsymmetric: Boolean = false;
 
     constructor(
         public service: Service,
@@ -41,9 +43,11 @@ export class StorageModalComponent implements OnInit {
                 let factory = config.factories[factoryID];
                 channels.push(
                     new ChannelAddress(component.id, 'Soc'),
-                    new ChannelAddress(component.id, 'ActivePower')
+                    new ChannelAddress(component.id, 'ActivePower'),
+                    new ChannelAddress(component.id, 'Capacity'),
                 );
                 if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+                    this.isAsymmetric = true;
                     channels.push(
                         new ChannelAddress(component.id, 'ActivePowerL1'),
                         new ChannelAddress(component.id, 'ActivePowerL2'),

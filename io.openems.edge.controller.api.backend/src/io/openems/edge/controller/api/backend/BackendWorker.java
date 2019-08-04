@@ -159,7 +159,7 @@ class BackendWorker extends AbstractCycleWorker {
 	 * Cycles through all Channels and updates the value.
 	 */
 	private void updateData() {
-		this.parent.componentManager.getComponents().parallelStream() //
+		this.parent.componentManager.getEnabledComponents().parallelStream() //
 				.filter(c -> c.isEnabled()) //
 				.flatMap(component -> component.channels().parallelStream()) //
 				.filter(channel -> // Ignore WRITE_ONLY Channels

@@ -1,6 +1,6 @@
 <ng-container *ngIf="service.currentEdge | async as edge">
     <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="currentData.summary.storage as sum">
+        <ion-card button (click)="presentModal()" *ngIf="currentData.summary.storage as sum">
             <ion-item lines="full" color="light">
                 <ion-avatar slot="start">
                     <img *ngIf="sum.soc < 20; else twoBars" src="assets/img/storage_20.png" />
