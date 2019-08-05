@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 

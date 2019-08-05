@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.common.access_control.AccessControl;
-import io.openems.common.access_control.AuthenticationException;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.AccessControl;
+import io.openems.common.accesscontrol.AuthenticationException;
+import io.openems.common.accesscontrol.RoleId;
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocket;
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.backend.metadata.api.Metadata;
 import io.openems.backend.timedata.api.Timedata;
 import io.openems.backend.uiwebsocket.api.UiWebsocket;
@@ -31,7 +30,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.session.Role;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(name = "Ui.Websocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)

@@ -83,6 +83,7 @@ public class BackendUser {
         }
         return thisRole.isAtLeast(role);
     }
+
     /**
      * Throws an exception if the current Role is equal or more privileged than the
      * given Role.

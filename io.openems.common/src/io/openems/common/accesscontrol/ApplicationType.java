@@ -1,4 +1,4 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 public enum ApplicationType {
 	EDGE,

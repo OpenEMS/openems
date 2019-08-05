@@ -5,10 +5,9 @@ import java.util.*;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.common.access_control.AuthenticationException;
-import io.openems.common.access_control.Pair;
-import io.openems.common.access_control.RoleId;
-import io.openems.common.access_control.ServiceNotAvailableException;
+import io.openems.common.accesscontrol.AuthenticationException;
+import io.openems.common.accesscontrol.Pair;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.request.*;
 import io.openems.common.jsonrpc.response.*;

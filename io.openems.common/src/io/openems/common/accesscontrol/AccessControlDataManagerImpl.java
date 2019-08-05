@@ -1,10 +1,15 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.ChannelAddress;
 import org.osgi.service.component.annotations.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +58,7 @@ public class AccessControlDataManagerImpl implements AccessControlDataManager {
                             existingRole.addJsonRpcPermission(edgeId, permissions);
                         }
                     });
+                    existingRole.setParents(roleToAdd.getParents());
                 } else {
                     // role did not exist before -> nothing to do
                 }

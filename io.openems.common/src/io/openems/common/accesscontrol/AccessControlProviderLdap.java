@@ -1,4 +1,4 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
@@ -14,10 +14,9 @@ import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
 
 @Designate(ocd = ConfigLdap.class, factory = true)
-@Component( //
-        name = "common.AccessControlProvider.AccessControlProviderLdap", //
-        immediate = true, //
-        configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "common.AccessControlProvider.AccessControlProviderLdap",
+    immediate = true,
+    configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class AccessControlProviderLdap implements AccessControlProvider {
 
     private String path;

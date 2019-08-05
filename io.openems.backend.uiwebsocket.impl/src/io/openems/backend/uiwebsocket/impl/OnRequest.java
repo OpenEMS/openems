@@ -6,7 +6,7 @@ import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.backend.metadata.api.Edge;
-import io.openems.common.access_control.*;
+import io.openems.common.accesscontrol.*;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.*;

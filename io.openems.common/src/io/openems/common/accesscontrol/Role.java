@@ -1,4 +1,4 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.ChannelAddress;
@@ -35,6 +35,14 @@ public class Role {
 
     public void setParents(Set<Role> parents) {
         this.parents = parents;
+    }
+
+     public void addParent(Role parent) {
+        this.parents.add(parent);
+     }
+
+    public Set<Role> getParents() {
+        return parents;
     }
 
     public RoleId getRoleId() {
@@ -82,7 +90,7 @@ public class Role {
             // add the parents of the parents
             parent.parents.forEach(parentsToGo::push);
             retVal.addAll(parent.jsonRpcPermissions.keySet());
-            retVal.addAll(parent.jsonRpcPermissions.keySet());
+            retVal.addAll(parent.channelPermissions.keySet());
         }
 
         return retVal;

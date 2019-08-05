@@ -1,7 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
-import io.openems.common.access_control.AccessControl;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.AccessControl;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -13,7 +12,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.EdgeUser;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.core.ApiWorker;
@@ -30,9 +28,7 @@ import org.slf4j.Logger;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

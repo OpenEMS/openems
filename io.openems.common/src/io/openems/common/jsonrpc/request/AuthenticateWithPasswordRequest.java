@@ -11,7 +11,6 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Password.
- * 
  * This is used by UI to login with password-only at the Edge.
  * 
  * <pre>
@@ -27,7 +26,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 
-	public final static String METHOD = "authenticateWithPassword";
+	public static final String METHOD = "authenticateWithPassword";
 
 	public static AuthenticateWithPasswordRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		JsonObject p = r.getParams();

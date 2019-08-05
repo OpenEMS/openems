@@ -3,9 +3,7 @@ package io.openems.backend.uiwebsocket.impl;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.openems.backend.metadata.api.Metadata;
-import io.openems.backend.metadata.api.BackendUser;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.websocket.SubscribedChannelsWorker;

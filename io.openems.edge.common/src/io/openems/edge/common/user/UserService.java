@@ -1,8 +1,6 @@
 package io.openems.edge.common.user;
 
 
-import io.openems.common.access_control.RoleId;
-
 import java.util.Optional;
 
 // TODO evaluate org.osgi.service.useradmin.User;

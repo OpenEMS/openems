@@ -9,7 +9,6 @@ import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.access_control.Role;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;

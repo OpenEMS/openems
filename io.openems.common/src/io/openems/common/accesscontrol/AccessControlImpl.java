@@ -1,11 +1,17 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +23,7 @@ import java.util.stream.Collectors;
 public class AccessControlImpl implements AccessControl {
 
     @Reference
-    private
-    AccessControlDataManager accessControlDataManager;
+    private AccessControlDataManager accessControlDataManager;
 
     @Reference(policy = ReferencePolicy.DYNAMIC, //
             policyOption = ReferencePolicyOption.GREEDY, //

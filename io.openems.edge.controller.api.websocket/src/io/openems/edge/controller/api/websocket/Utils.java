@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
 
 public class Utils {

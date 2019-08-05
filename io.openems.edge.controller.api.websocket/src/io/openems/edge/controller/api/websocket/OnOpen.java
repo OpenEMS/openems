@@ -2,10 +2,9 @@ package io.openems.edge.controller.api.websocket;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
-import io.openems.common.access_control.AuthenticationException;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.AuthenticationException;
+import io.openems.common.accesscontrol.RoleId;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

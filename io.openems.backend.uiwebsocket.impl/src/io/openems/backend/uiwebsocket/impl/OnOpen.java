@@ -1,10 +1,9 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.util.*;
-import java.util.Map.Entry;
 
-import io.openems.common.access_control.AuthenticationException;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.AuthenticationException;
+import io.openems.common.accesscontrol.RoleId;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +12,10 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.BackendUser;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdFailedNotification;
 import io.openems.common.jsonrpc.notification.AuthenticateWithSessionIdNotification;
 import io.openems.common.jsonrpc.shared.EdgeMetadata;
-import io.openems.common.session.Role;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 

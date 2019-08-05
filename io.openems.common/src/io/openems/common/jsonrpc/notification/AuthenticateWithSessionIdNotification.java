@@ -25,7 +25,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticateWithSessionIdNotification extends JsonrpcNotification {
 
-	public final static String METHOD = "authenticatedWithSessionId";
+	public static final String METHOD = "authenticatedWithSessionId";
 
 	private final UUID token;
 	private final List<EdgeMetadata> metadatas;

@@ -1,4 +1,4 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,7 +11,9 @@ import io.openems.common.utils.JsonKeys;
 import io.openems.common.utils.JsonUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +24,8 @@ import java.util.stream.Collectors;
 import static io.openems.common.utils.JsonKeys.*;
 
 @Designate(ocd = ConfigJson.class, factory = true)
-@Component( //
-        name = "common.AccessControlProvider.AccessControlProviderJson", //
-        immediate = true, //
+@Component(name = "common.AccessControlProvider.AccessControlProviderJson",
+        immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class AccessControlProviderJson implements AccessControlProvider {
 
@@ -105,8 +106,8 @@ public class AccessControlProviderJson implements AccessControlProvider {
             if (createdRoles.put(newRole, parentRoleIds) != null) {
                 // this means there was already a role assigned with the same id
                 // -> this must not happen and means a invalid configuration
-                throw new ConfigurationException("AccessControlProviderJson has a inconsistent role configuration. " +
-                        "Role with id (" + newRole.getRoleId() + ") is configured at least twice.");
+                throw new ConfigurationException("AccessControlProviderJson has a inconsistent role configuration. "
+                    + "Role with id (" + newRole.getRoleId() + ") is configured at least twice.");
             }
 
             JsonObject jsonObject = JsonUtils.getAsJsonObject(jsonRole.getValue(), EDGES.value());
@@ -136,7 +137,7 @@ public class AccessControlProviderJson implements AccessControlProvider {
     }
 
     /**
-     * This method sets all the inheritances and also checks for loops and throws a exception in case
+     * This method sets all the inheritances and also checks for loops and throws a exception in case.
      *
      * @param createdRoles
      * @param accessControlDataManager
@@ -146,9 +147,9 @@ public class AccessControlProviderJson implements AccessControlProvider {
 
         // since no exception has been thrown we can simply set the roles of the parents via the already given roleIds
         createdRoles.forEach((key, value) ->
-                value.forEach(roleId ->
-                        key.setParents(accessControlDataManager.getRoles().stream().filter(r ->
-                                r.getRoleId().equals(roleId)).collect(Collectors.toSet()))));
+            value.forEach(roleId ->
+                accessControlDataManager.getRoles().stream().filter(r ->
+                    r.getRoleId().equals(roleId)).findFirst().ifPresent(key::addParent)));
         accessControlDataManager.addRoles(createdRoles.keySet(), true);
     }
 
@@ -187,8 +188,8 @@ public class AccessControlProviderJson implements AccessControlProvider {
                     createdRoles.get(other).forEach(rolesToLookAt::push);
                 } else {
                     // loop detected!
-                    throw new ConfigurationException("AccessControlProviderJson: Loop detected. Check your configuration!" +
-                            "rolesToCompare(" + seenRoleIds + ", currentRole (" + other + ")");
+                    throw new ConfigurationException("AccessControlProviderJson: Loop detected. Check your configuration!"
+                        + "rolesToCompare(" + seenRoleIds + ", currentRole (" + other + ")");
                 }
             }
         }

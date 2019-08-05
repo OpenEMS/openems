@@ -7,14 +7,11 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.openems.common.access_control.RoleId;
 import org.osgi.annotation.versioning.ProviderType;
 
 import com.google.common.collect.HashMultimap;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;

@@ -1,4 +1,4 @@
-package io.openems.common.access_control;
+package io.openems.common.accesscontrol;
 
 /**
  * This interface can be used for initializing the {@link AccessControlDataManager}. The implementations of this class

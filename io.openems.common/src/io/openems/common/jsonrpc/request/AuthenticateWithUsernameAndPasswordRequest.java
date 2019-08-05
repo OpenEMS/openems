@@ -11,7 +11,6 @@ import java.util.UUID;
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Password.
- * <p>
  * This is used by UI to login with password-only at the Edge.
  *
  * <pre>
@@ -28,7 +27,7 @@ import java.util.UUID;
  */
 public class AuthenticateWithUsernameAndPasswordRequest extends JsonrpcRequest {
 
-    public final static String METHOD = "authenticateWithUserNameAndPassword";
+    public static final String METHOD = "authenticateWithUserNameAndPassword";
 
     public static AuthenticateWithUsernameAndPasswordRequest from(JsonrpcRequest r) throws OpenemsNamedException {
         JsonObject p = r.getParams();

@@ -3,7 +3,7 @@ package io.openems.edge.controller.api.websocket;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.RoleId;
 import io.openems.edge.common.user.EdgeUser;
 
 public class WsData extends io.openems.common.websocket.WsData {

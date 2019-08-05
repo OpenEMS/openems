@@ -2,8 +2,8 @@ package io.openems.backend.edgewebsocket.impl;
 
 import java.util.Optional;
 
-import io.openems.common.access_control.ApplicationType;
-import io.openems.common.access_control.RoleId;
+import io.openems.common.accesscontrol.ApplicationType;
+import io.openems.common.accesscontrol.RoleId;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;

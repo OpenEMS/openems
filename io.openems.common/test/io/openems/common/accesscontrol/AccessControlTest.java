@@ -1,13 +1,4 @@
-package io.openems.common.access_control;
-
-import io.openems.common.types.ChannelAddress;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
+package io.openems.common.accesscontrol;
 
 public class AccessControlTest {
 
