@@ -18,6 +18,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -46,6 +48,8 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 public class EssSinglePhase extends AbstractOpenemsComponent
 		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
 		SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave {
+
+	private final Logger log = LoggerFactory.getLogger(EssSinglePhase.class);
 
 	// Current state of charge.
 	private float soc = 0;
@@ -248,8 +252,8 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 					.toMillis();
 			this.lastPowerValuesTimestamp = LocalDateTime.now();
 
-			log.debug("time elpsed in ms: " + passedTimeInMilliSeconds);
-			log.debug("last power value :" + this.lastPowerValue);
+			this.logDebug(this.log, "time elpsed in ms: " + passedTimeInMilliSeconds);
+			this.logDebug(this.log, "last power value :" + this.lastPowerValue);
 			double energy = this.lastPowerValue * (passedTimeInMilliSeconds / 1000) / 3600;
 			// calculate energy in watt hours
 
@@ -263,8 +267,8 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 				this.getActiveDischargeEnergy().setNextValue(accumulatedDischargeEnergy);
 			}
 
-			log.debug("accumulated charge energy :" + accumulatedChargeEnergy);
-			log.debug("accumulated discharge energy :" + accumulatedDischargeEnergy);
+			this.logDebug(this.log, "accumulated charge energy :" + accumulatedChargeEnergy);
+			this.logDebug(this.log, "accumulated discharge energy :" + accumulatedDischargeEnergy);
 
 		} else {
 			this.lastPowerValuesTimestamp = LocalDateTime.now();

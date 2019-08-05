@@ -24,7 +24,12 @@ public class DummyComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public List<OpenemsComponent> getComponents() {
+	public List<OpenemsComponent> getEnabledComponents() {
+		return Collections.unmodifiableList(this.components);
+	}
+
+	@Override
+	public List<OpenemsComponent> getAllComponents() {
 		return Collections.unmodifiableList(this.components);
 	}
 

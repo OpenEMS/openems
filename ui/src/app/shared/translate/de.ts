@@ -1,5 +1,3 @@
-import { Service } from '../service/service';
-
 export const TRANSLATION = {
     General: {
         Cumulative: "Kumulierte Werte",
