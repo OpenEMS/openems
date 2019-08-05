@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -150,12 +152,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	protected void logWarn(Logger log, String message) {
+	public void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
 	}
 
 	@Override
-	protected void logError(Logger log, String message) {
+	public void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
 
@@ -624,5 +626,30 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 		// falback to JsonUtils
 		return JsonUtils.getAsJsonElement(valueObj);
+	}
+
+	@Override
+	public List<String> checkForNotActivatedComponents() {
+		List<String> retVal = new ArrayList<>();
+		try {
+			Configuration[] configs = cm.listConfigurations("(enabled=true)");
+			if (configs != null) {
+				Arrays.stream(configs).forEach(config -> {
+					String componentId = (String) config.getProperties().get("id");
+					if (!this.isComponentActivated(componentId, config.getPid())) {
+						retVal.add(componentId);
+					}
+				});
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			this.logError(this.log, e.getMessage());
+		}
+		return retVal;
+	}
+
+	@Override
+	public boolean isComponentActivated(String componentId, String pid) {
+		return components.stream().anyMatch(
+			com -> (componentId.equals(com.id()) && pid.equals(com.servicePid())));
 	}
 }
