@@ -24,9 +24,7 @@ export class EvcsComponent {
 
   public channelAdresses = [];
   public isEvcsCluster: boolean = false;
-  public controllers: EdgeConfig.Component[] = [];
-  public evcsCollection: EdgeConfig.Component[] = null;
-  public chargingStations: String[] = [];
+  public evcssInCluster: EdgeConfig.Component[] = [];
   public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
 
   constructor(
@@ -58,7 +56,7 @@ export class EvcsComponent {
       // Gets the Controller for the given EVCS-Component.
       this.service.getConfig().then(config => {
         let controllers = config.getComponentsByFactory("Controller.Evcs");
-        this.controllers = controllers;
+
         for (let controller of controllers) {
           let properties = controller.properties;
           if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
@@ -75,31 +73,29 @@ export class EvcsComponent {
             this.isEvcsCluster = true;
             this.controller = component;
 
-            this.chargingStations = this.controller.properties["evcs.ids"];
+            let evcsIdsInCluster: String[] = [];
+            evcsIdsInCluster = this.controller.properties["evcs.ids"];
+
 
             this.getConfig().then(config => {
-
               let nature = 'io.openems.edge.evcs.api.Evcs';
               for (let component of config.getComponentsImplementingNature(nature)) {
-                alert(component.id);
-                if (this.chargingStations.includes(component.id)) {
-                  this.evcsCollection.push(component);
+                if (evcsIdsInCluster.includes(component.id)) {
+                  this.evcssInCluster.push(component);
                   this.fillChannelAdresses(component.id);
                 }
               }
 
               this.edge.subscribeChannels(this.websocket, "evcs", this.channelAdresses);
 
-              this.controllers = config.getComponentsByFactory("Controller.Evcs");
-
               //Initialise the Map with all evcss
-              this.evcsCollection.forEach(evcs => {
+              this.evcssInCluster.forEach(evcs => {
                 this.evcsMap[evcs.id] = null;
               });
 
               //Adds the controllers to the each charging stations 
-              this.controllers.forEach(controller => {
-                if (this.chargingStations.includes(controller.properties['evcs.id'])) {
+              controllers.forEach(controller => {
+                if (evcsIdsInCluster.includes(controller.properties['evcs.id'])) {
                   this.evcsMap[controller.properties['evcs.id']] = controller;
                 }
               });
@@ -148,13 +144,9 @@ export class EvcsComponent {
   }
 
   presentModal() {
-
     if (this.isEvcsCluster) {
-      alert("open cluster");
       this.presentCluserModal();
     } else {
-
-      alert("open Evcs");
       this.presentEvcsModal();
     }
   }

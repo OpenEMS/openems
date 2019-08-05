@@ -1,4 +1,3 @@
-<!--
 <ion-card button (click)="presentModal()" style="cursor: pointer;" *ngIf="edge">
   <ngx-loading [show]="!(edge.currentData | async)"></ngx-loading>
   <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
@@ -10,44 +9,40 @@
         {{ alias }}
       </ion-label>
       <ion-label *ngIf="!currentData[componentId + '/Alias']" style="padding-left: 20px;" translate>
-        Edge.Index.Widgets.EVCS.ChargingStation
-        <ion-text>
-          {{ componentId }}
-        </ion-text>
+        Edge.Index.Widgets.EVCS.ChargingStationCluster
       </ion-label>
     </ion-item>
+    <!--
 
     <ion-label *ngIf="currentData[componentId + '/State'] != 3">
       <ion-card-content>
 
         <table class="full_width">
-          <ng-container *ngIf="isEvcsCluster">
-            <tr>
-              <td style="width:50%" translate>Edge.Index.Widgets.EVCS.AmountOfChargingStations</td>
-              <td style="width:15%"></td>
-              <td style="width:45%" class="align_right">
-                {{ evcssInCluster.length }}
-              </td>
-            </tr>
-            <tr>
-              <td style="width:50%">
-                Maximaler Stromfluss (Netz):
-              </td>
-              <td style="width:15%"></td>
-              <td style="width:45%" class="align_right">
-                {{ controller.properties.hardwareCurrentLimit | number:'1.0-0' }} A
-              </td>
-            </tr>
-            <tr>
-              <td style="width:50%">
-                Maximaler Stromfluss (Manuell):
-              </td>
-              <td style="width:15%"></td>
-              <td style="width:45%" class="align_right">
-                {{ controller.properties.manualCurrentLimit | number:'1.0-0' }} A
-              </td>
-            </tr>
-          </ng-container>
+          <tr>
+            <td style="width:50%" translate>Edge.Index.Widgets.EVCS.AmountOfChargingStations</td>
+            <td style="width:15%"></td>
+            <td style="width:45%" class="align_right">
+              {{ evcssInCluster.length }}
+            </td>
+          </tr>
+          <tr>
+            <td style="width:50%">
+              Maximaler Stromfluss (Netz):
+            </td>
+            <td style="width:15%"></td>
+            <td style="width:45%" class="align_right">
+              {{ controller.properties.hardwareCurrentLimit | number:'1.0-0' }} A
+            </td>
+          </tr>
+          <tr>
+            <td style="width:50%">
+              Maximaler Stromfluss (Manuell):
+            </td>
+            <td style="width:15%"></td>
+            <td style="width:45%" class="align_right">
+              {{ controller.properties.manualCurrentLimit | number:'1.0-0' }} A
+            </td>
+          </tr>
           <tr>
             <td style="width:50%">
               <ion-label *ngIf="evcssInCluster.length > 1" translate>
@@ -64,16 +59,17 @@
         </table>
       </ion-card-content>
     </ion-label>
+    -->
     <ion-label *ngIf="currentData[componentId + '/State'] == 3">
       <ion-item class="normalFontSize">
         <table>
           <tr>
             <td translate>
-              Edge.Index.Widgets.EVCS.NoConnection.Description
+              Edge.Index.Widgets.EVCS.ClusterConfigError
             </td>
           </tr>
         </table>
       </ion-item>
     </ion-label>
   </ng-container>
-</ion-card>-->
+</ion-card>

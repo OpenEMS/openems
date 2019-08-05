@@ -16,7 +16,8 @@ import { StorageModalComponent } from './storage/modal/modal.component';
 import { ChpSocComponent } from './chpsoc/chpsoc.component';
 import { ModalComponentEvcs } from './evcs/evcs-modal/evcs-modal.page';
 import { EvcsChart } from './evcs/evcs-modal/evcs-chart/evcs.chart';
-import { ModalComponentEvcsCluster } from './evcs/evcs-modal/evcsCluster-modal.page';
+import { ModalComponentEvcsCluster } from './evcsCluster/modal/evcsCluster-modal.page';
+import { EvcsClusterComponent } from './evcsCluster/evcsCluster.component';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { ModalComponentEvcsCluster } from './evcs/evcs-modal/evcsCluster-modal.p
     ChpSocComponent,
     ModalComponentEvcs,
     ModalComponentEvcsCluster,
-    EvcsChart
+    EvcsChart,
+    EvcsClusterComponent
   ]
 })
 export class LiveModule { }

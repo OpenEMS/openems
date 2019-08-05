@@ -33,7 +33,8 @@ import { FormlyModule } from '@ngx-formly/core';
 import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { ModalComponentEvcs } from './edge/live/evcs/evcs-modal/evcs-modal.page';
-import { ModalComponentEvcsCluster } from './edge/live/evcs/evcs-modal/evcsCluster-modal.page';
+import { ModalComponentEvcsCluster } from './edge/live/evcsCluster/modal/evcsCluster-modal.page';
+
 
 @NgModule({
   declarations: [

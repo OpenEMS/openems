@@ -187,10 +187,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			nextChargePower = nextMinPower;
 		}
 
-		System.out.println("EVCS Controller calculated this next chargePower Value: " + nextChargePower);
 		// Charge not more then the maximum if there is one present
 		if (maxChargePower.isPresent()) {
-			System.out.println("Now it checks if that value can be charged");
 			evcs.setChargePowerRequest().setNextWriteValue(nextChargePower);
 		} else {
 			// set charge power
@@ -199,17 +197,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		lastRun = LocalDateTime.now();
 
 	}
-
-	/**
-	 * Olde Version wich is depending on the max HW
-	 * 
-	 * // Charge not more then the maximum if there is one present if
-	 * (maxChargePower.isPresent()) { if (maxChargePower.get() < nextChargePower) {
-	 * nextChargePower = maxChargePower.get(); } }
-	 * 
-	 * // set charge power evcs.setChargePower().setNextWriteValue(nextChargePower);
-	 * lastRun = LocalDateTime.now();
-	 */
 
 	/**
 	 * Calculates the next charging power, depending on the current PV production

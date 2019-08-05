@@ -71,6 +71,7 @@ export const TRANSLATION = {
                 },
                 EVCS: {
                     ChargingStation: "Laadstation",
+                    ChargingStationCluster: "Laadstation cluster",
                     Status: "Staat",
                     Starting: "Beginnend",
                     NotReadyForCharging: "Niet klaar voor opladen",
@@ -93,9 +94,10 @@ export const TRANSLATION = {
                     Cable: "Kabel",
                     CableNotConnected: "Kabel is niet aangesloten",
                     CarFull: "Auto is vol",
-                    EnergieSinceBeginning: "Energie sinds het begin van de lading",
+                    EnergieSinceBeginning: "Energie sinds de laatste lading start",
                     ChargeMode: "laadmodus",
                     ActivateCharging: "Activeer het laadstation",
+                    ClusterConfigError: "Er is een fout opgetreden in de configuratie van het Evcs-cluster",
                     NoConnection: {
                         Description: "Hij kon niet op het laadstation worden aangesloten.",
                         Help1: "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",

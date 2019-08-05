@@ -76,6 +76,7 @@ export const TRANSLATION = {
                 },
                 EVCS: {
                     ChargingStation: "Ladestation",
+                    ChargingStationCluster: "Ladestation Cluster",
                     Status: "Status",
                     Starting: "Startet",
                     NotReadyForCharging: "Nicht bereit zur Beladung",
@@ -98,9 +99,10 @@ export const TRANSLATION = {
                     Cable: "Kabel",
                     CableNotConnected: "Kabel ist nicht angeschlossen",
                     CarFull: "Auto ist voll",
-                    EnergieSinceBeginning: "Energie seit Beginn der Ladung",
+                    EnergieSinceBeginning: "Energie seit letztem Ladebeginn",
                     ChargeMode: "Belademodus",
                     ActivateCharging: "Aktivieren der Ladesäule",
+                    ClusterConfigError: "Bei der Konfiguration des Evcs-Clusters ist ein Fehler aufgetreten",
                     NoConnection: {
                         Description: "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         Help1: "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",

@@ -73,6 +73,7 @@ export const TRANSLATION = {
                 },
                 EVCS: {
                     ChargingStation: "Nabíjecí stanice",
+                    ChargingStationCluster: "Klastr nabíjecí stanice",
                     Status: "Postavení",
                     Starting: "Začínající",
                     NotReadyForCharging: "Není připraven k nabíjení",
@@ -95,9 +96,10 @@ export const TRANSLATION = {
                     Cable: "Kabel",
                     CableNotConnected: "Kabel není připojen",
                     CarFull: "Auto je plné",
-                    EnergieSinceBeginning: "Energie od začátku nabíjení",
+                    EnergieSinceBeginning: "Energie od posledního začátku nabíjení",
                     ChargeMode: "režim načítání",
                     ActivateCharging: "Aktivujte nabíjecí stanici",
+                    ClusterConfigError: "V konfiguraci clusteru Evcs došlo k chybě",
                     NoConnection: {
                         Description: "Nelze jej připojit k nabíjecí stanici.",
                         Help1: "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",

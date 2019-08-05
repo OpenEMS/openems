@@ -74,6 +74,7 @@ export const TRANSLATION = {
                 },
                 EVCS: {
                     ChargingStation: "Charging Station",
+                    ChargingStationCluster: "Charging station cluster",
                     Status: "Status",
                     Starting: "Starting",
                     NotReadyForCharging: "Not ready for charging",
@@ -96,9 +97,10 @@ export const TRANSLATION = {
                     Cable: "Cable",
                     CableNotConnected: "Cable is not connected",
                     CarFull: "Car is full",
-                    EnergieSinceBeginning: "Energy since the begin of charge",
+                    EnergieSinceBeginning: "Energy since the last charge start",
                     ChargeMode: "Charge Mode",
                     ActivateCharging: "Activate the charging station",
+                    ClusterConfigError: "An error has occurred in the configuration of the Evcs cluster",
                     NoConnection: {
                         Description: "No connection to the charging station.",
                         Help1: "Check if the charging station is switched on and can be reached via the network.",

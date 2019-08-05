@@ -1,8 +1,10 @@
 package io.openems.edge.evcs.cluster;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -49,28 +51,32 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 	private final Logger log = LoggerFactory.getLogger(EvcsCluster.class);
 	private int totalcurrentPowerLimit;
 	private Integer maximalUsedHardwarePower;
-	private final List<Evcs> evcss = new CopyOnWriteArrayList<>();
+	private String[] evcsIds = new String[0];
+	private final List<Evcs> sortedEvcss = new ArrayList<>();
+	
+	private Map<String, Evcs> _evcss = new ConcurrentHashMap<>();
 
+	@Reference
+	protected ConfigurationAdmin cm;
+	
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
 		// Do not add myself
 		if (evcs == this) {
 			return;
 		}
-
-		this.evcss.add(evcs);
+		this._evcss.put(evcs.id(), evcs);
+		this.updateSortedEvcss();
 	}
 
+	
 	protected void removeEvcs(Evcs evcs) {
 		if (evcs == this) {
 			return;
 		}
-
-		this.evcss.remove(evcs);
+		this._evcss.remove(evcs.id());
+		this.updateSortedEvcss();
 	}
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -109,6 +115,8 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.evcsIds = config.evcs_ids();
+		updateSortedEvcss();
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Depending on the user inputs, the minimum of the limits will be used;
@@ -122,11 +130,26 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		this.getMaximumHardwarePower().setNextValue(config.hardwareCurrentLimit());
 		this.channel(ChannelId.MANUAL_CURRENT_LIMIT).setNextValue(config.manualCurrentLimit());
 
+		
 		// update filter for 'evcss' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcss", config.evcs_ids())) {
 			return;
 		}
-
+	}
+	
+	/**
+	 * Fills sortedEvcss using the order of evcs_ids property in the config
+	 */
+	private synchronized void updateSortedEvcss() {
+		this.sortedEvcss.clear();
+		for (String id : this.evcsIds) {
+			Evcs evcs = this._evcss.get(id);
+			if (evcs == null) {
+				this.logWarn(this.log, "Required Evcs [" + id + "] is not available.");
+			} else {
+				this.sortedEvcss.add(evcs);
+			}
+		}
 	}
 
 	@Deactivate
@@ -163,7 +186,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		final CalculateIntegerSum minHardwarePower = new CalculateIntegerSum();
 		final CalculateIntegerSum maxHardwarePowerOfAll = new CalculateIntegerSum();
 
-		for (Evcs evcs : evcss) {
+		for (Evcs evcs : this.sortedEvcss) {
 			chargePower.addValue(evcs.getChargePower());
 			minHardwarePower.addValue(evcs.getMinimumHardwarePower());
 			maxHardwarePowerOfAll.addValue(evcs.getMaximumHardwarePower());
@@ -192,7 +215,7 @@ public class EvcsCluster extends AbstractOpenemsComponent implements OpenemsComp
 		}
 
 		this.logDebug(this.log, "Maximum Total Power of the whole system: " + totalPowerLeft);
-		for (Evcs evcs : evcss) {
+		for (Evcs evcs : this.sortedEvcss) {
 
 			if (evcs instanceof ManagedEvcs) {
 				int chargePowerValue;

@@ -74,6 +74,7 @@ export const TRANSLATION = {
                 },
                 EVCS: {
                     ChargingStation: "Carga",
+                    ChargingStationCluster: "Grupo de estaciones de carga",
                     Status: "Status",
                     Starting: "Comenzó",
                     NotReadyForCharging: "No está liesto para la carga",
@@ -96,9 +97,10 @@ export const TRANSLATION = {
                     Cable: "Cable",
                     CableNotConnected: "El cable no esta conectado",
                     CarFull: "El carro esta lleno",
-                    EnergieSinceBeginning: "Energía desde el inicio de la carga.",
+                    EnergieSinceBeginning: "Energía desde el último inicio de carga",
                     ChargeMode: "Modo de carga",
                     ActivateCharging: "Activar la estación de carga.",
+                    ClusterConfigError: "Se ha producido un error en la configuración del clúster Evcs.",
                     NoConnection: {
                         Description: "No se pudo conectar a la estación de carga.",
                         Help1: "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
